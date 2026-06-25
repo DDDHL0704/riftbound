@@ -22,6 +22,7 @@ public sealed class FullGameEndToEndTests
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
     private const long LowCurveReplaySeed = 424242;
+    private static readonly int[] ShadowResponseDriverSeeds = [7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242];
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -167,6 +168,58 @@ public sealed class FullGameEndToEndTests
             "b0-full-standby-heavy-replay-score",
             p1Deck,
             p2Deck);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildDamageAssignmentOfficialDeck(catalog);
+        var initialState = BuildSeatedInitialState("b0-full-game-damage-assignment-replay-room", LowCurveReplaySeed);
+        var journal = new RecordingMatchJournal();
+
+        var (_, assignmentOpened, battleResult) = await DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+            initialState,
+            journal,
+            deck,
+            deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, battleResult);
+        Assert.Contains(assignmentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(assignmentOpened);
+        AssertNoHiddenZoneLeak(battleResult);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildShadowResponseOfficialDeck(catalog);
+
+        var (initialState, journal, _, openedResponse, activated, stackResolved, battleResult, targetObjectId) =
+            await DriveOfficialDecksToShadowResponseBattleCloseForReplayAsync(
+                "b0-full-game-shadow-response-replay-room",
+                deck,
+                deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, battleResult);
+        Assert.Contains(openedResponse.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(stackResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Contains("STUNNED", stackResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
+        AssertNoHiddenZoneLeak(openedResponse);
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(stackResolved);
+        AssertNoHiddenZoneLeak(battleResult);
     }
 
     [Fact]
@@ -332,6 +385,28 @@ public sealed class FullGameEndToEndTests
         AssertScoreVictory(result);
     }
 
+    private static async ValueTask AssertActionLogReplaysToFinalStateHashAsync(
+        MatchState initialState,
+        RecordingMatchJournal journal,
+        ResolutionResult result)
+    {
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            result.State,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Ready, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
+    }
+
     private static void AssertScoreVictory(ResolutionResult result)
     {
         Assert.Equal(MatchStatuses.Finished, result.State.Status);
@@ -434,11 +509,21 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
     {
-        var initialState = MatchState.Create(roomId) with { Seed = 424242 };
-        var session = new MatchSession(initialState, new CoreRuleEngine(), NoopMatchJournal.Instance);
-        session.EnsurePlayer("P1");
-        session.EnsurePlayer("P2");
+        var initialState = BuildSeatedInitialState(roomId, LowCurveReplaySeed);
+        return await DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+            initialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+    }
 
+    private static async ValueTask<(MatchSession Session, ResolutionResult AssignmentOpened, ResolutionResult BattleResult)> DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-damage-submit-p1");
         var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-damage-submit-p2");
         AssertAccepted(p1Submit);
@@ -508,7 +593,7 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p2Deck)
     {
         var failures = new List<string>();
-        foreach (var seed in new[] { 7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242 })
+        foreach (var seed in ShadowResponseDriverSeeds)
         {
             try
             {
@@ -545,11 +630,27 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p2Deck,
         int seed)
     {
-        var initialState = MatchState.Create(roomId) with { Seed = seed };
-        var session = new MatchSession(initialState, new CoreRuleEngine(), NoopMatchJournal.Instance);
-        session.EnsurePlayer("P1");
-        session.EnsurePlayer("P2");
+        var initialState = BuildSeatedInitialState(roomId, seed);
+        return await DriveOfficialDecksToShadowResponseBattleCloseAsync(
+            initialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+    }
 
+    private static async ValueTask<(
+        MatchSession Session,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult StackResolved,
+        ResolutionResult BattleResult,
+        string TargetObjectId)> DriveOfficialDecksToShadowResponseBattleCloseAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-shadow-submit-p1");
         var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-shadow-submit-p2");
         AssertAccepted(p1Submit);
@@ -608,6 +709,48 @@ public sealed class FullGameEndToEndTests
         var stackResolved = await ResolveCurrentStackOnlyAsync(session, activated, "b0-shadow-resolve-stack");
         var battleResult = await PassOpenBattleResponseAsync(session, stackResolved, "b0-shadow-pass-returned-response");
         return (session, openedResponse, activated, stackResolved, battleResult, targetObjectId);
+    }
+
+    private static async ValueTask<(
+        MatchState InitialState,
+        RecordingMatchJournal Journal,
+        MatchSession Session,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult StackResolved,
+        ResolutionResult BattleResult,
+        string TargetObjectId)> DriveOfficialDecksToShadowResponseBattleCloseForReplayAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in ShadowResponseDriverSeeds)
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            var journal = new RecordingMatchJournal();
+            try
+            {
+                var result = await DriveOfficialDecksToShadowResponseBattleCloseAsync(
+                    initialState,
+                    journal,
+                    p1Deck,
+                    p2Deck);
+                return (initialState, journal, result.Session, result.OpenedResponse, result.Activated, result.StackResolved, result.BattleResult, result.TargetObjectId);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 shadow-response driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: match ended before Shadow response path");
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 shadow-response replay driver could not find a deterministic official-deck Shadow response path. "
+            + string.Join(" | ", failures));
     }
 
     private static async ValueTask<ResolutionResult> DriveShadowOntoBattlefieldAsync(
@@ -1213,22 +1356,12 @@ public sealed class FullGameEndToEndTests
         }
 
         Assert.NotEmpty(assignments);
+        var command = new AssignCombatDamageCommand(battleId, battlefieldId, assignments);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
-            new AssignCombatDamageCommand(battleId, battlefieldId, assignments),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.AssignCombatDamage,
-                battleId,
-                battlefieldId,
-                assignments = assignments.Select(assignment => new
-                {
-                    assignment.SourceObjectId,
-                    assignment.TargetObjectId,
-                    assignment.Damage
-                }).ToArray()
-            }),
+            command,
+            RawCommand(command),
             CancellationToken.None);
         AssertAccepted(result);
         return result;
@@ -1836,9 +1969,9 @@ public sealed class FullGameEndToEndTests
                 battlefieldId = assignCombatDamage.BattlefieldId,
                 assignments = (assignCombatDamage.Assignments ?? []).Select(assignment => new
                 {
-                    assignment.SourceObjectId,
-                    assignment.TargetObjectId,
-                    assignment.Damage
+                    sourceObjectId = assignment.SourceObjectId,
+                    targetObjectId = assignment.TargetObjectId,
+                    damage = assignment.Damage
                 }).ToArray()
             }),
             _ => RawCommand(command.CmdType)
