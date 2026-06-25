@@ -19605,7 +19605,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
-        staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
+        staticPowerBonus += ResolveSourceLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveBattlefieldFilteredUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
@@ -19616,7 +19616,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
 
-    private static int ResolveWaterbenderLoneBattlePowerBonus(
+    private static int ResolveSourceLoneBattlePowerBonus(
         CardObjectState cardObject,
         bool isAttacking,
         int attackingUnitCount,

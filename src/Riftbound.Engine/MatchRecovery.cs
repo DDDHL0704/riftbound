@@ -6924,7 +6924,10 @@ public static class MatchRecoveryValidator
             || string.Equals(value, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
-            || string.Equals(value, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal);
+            || string.Equals(value, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_SOURCE_ATTACKING_OR_DEFENDING_ALONE", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_SOURCE_ATTACKING_READY_ENEMY_UNIT_BATTLEFIELD", StringComparison.Ordinal);
     }
 
     private static bool IsKnownContinuousEffectLayerEngineStatus(string value)
@@ -16449,6 +16452,72 @@ public static class MatchRecoveryValidator
                     errors);
             }
 
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT", StringComparison.Ordinal))
+            {
+                if (!string.Equals(effectKind, StaticAuraKinds.SourceAttackingWithAnotherUnitPower, StringComparison.Ordinal))
+                {
+                    if (effectKind is not null)
+                    {
+                        errors.Add(
+                            $"{effectLabel} object static aura effect kind {effectKind} is invalid for {duration}");
+                    }
+
+                    return;
+                }
+
+                ValidateContinuousEffectStaticAuraExpectedEffectId(
+                    effectLabel,
+                    effectId,
+                    $"STATIC_AURA:SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER:{sourceObjectId}",
+                    "object static aura effect id",
+                    errors);
+                return;
+            }
+
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_OR_DEFENDING_ALONE", StringComparison.Ordinal))
+            {
+                if (!string.Equals(effectKind, StaticAuraKinds.SourceLoneBattlePower, StringComparison.Ordinal))
+                {
+                    if (effectKind is not null)
+                    {
+                        errors.Add(
+                            $"{effectLabel} object static aura effect kind {effectKind} is invalid for {duration}");
+                    }
+
+                    return;
+                }
+
+                ValidateContinuousEffectStaticAuraExpectedEffectId(
+                    effectLabel,
+                    effectId,
+                    $"STATIC_AURA:SOURCE_LONE_BATTLE_POWER:{sourceObjectId}",
+                    "object static aura effect id",
+                    errors);
+                return;
+            }
+
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_READY_ENEMY_UNIT_BATTLEFIELD", StringComparison.Ordinal))
+            {
+                if (!string.Equals(effectKind, StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, StringComparison.Ordinal))
+                {
+                    if (effectKind is not null)
+                    {
+                        errors.Add(
+                            $"{effectLabel} object static aura effect kind {effectKind} is invalid for {duration}");
+                    }
+
+                    return;
+                }
+
+                ValidateContinuousEffectStaticAuraExpectedEffectId(
+                    effectLabel,
+                    effectId,
+                    $"STATIC_AURA:SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER:{sourceObjectId}",
+                    "object static aura effect id",
+                    errors);
+                return;
+            }
+
             return;
         }
 
@@ -16844,6 +16913,105 @@ public static class MatchRecoveryValidator
                     "object static aura lifecycle",
                     errors);
             }
+
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT", StringComparison.Ordinal))
+            {
+                ValidateContinuousEffectStaticAuraSourceAttackingWithAnotherUnitSourceCardSpecConsistency(
+                    effectLabel,
+                    sourceCardNo,
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    effectKind,
+                    "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER",
+                    "object static aura effect kind",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    sourcePath,
+                    "CoreRuleEngine.ResolveSourceAttackingWithAnotherUnitPowerBonus",
+                    "object static aura source path",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    condition,
+                    "SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT",
+                    "object static aura condition",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    lifecycle,
+                    "RECOMPUTED_FROM_CURRENT_BATTLE_ATTACKER_LOCATIONS",
+                    "object static aura lifecycle",
+                    errors);
+                return;
+            }
+
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_OR_DEFENDING_ALONE", StringComparison.Ordinal))
+            {
+                ValidateContinuousEffectStaticAuraSourceLoneBattleSourceCardSpecConsistency(
+                    effectLabel,
+                    sourceCardNo,
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    effectKind,
+                    "SOURCE_LONE_BATTLE_POWER",
+                    "object static aura effect kind",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    sourcePath,
+                    "CoreRuleEngine.ResolveSourceLoneBattlePowerBonus",
+                    "object static aura source path",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    condition,
+                    "SOURCE_ATTACKING_OR_DEFENDING_ALONE",
+                    "object static aura condition",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    lifecycle,
+                    "RECOMPUTED_FROM_CURRENT_BATTLE_PARTICIPANT_LOCATIONS",
+                    "object static aura lifecycle",
+                    errors);
+                return;
+            }
+
+            if (string.Equals(duration, "WHILE_SOURCE_ATTACKING_READY_ENEMY_UNIT_BATTLEFIELD", StringComparison.Ordinal))
+            {
+                ValidateContinuousEffectStaticAuraSourceAttackingReadyEnemyUnitSourceCardSpecConsistency(
+                    effectLabel,
+                    sourceCardNo,
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    effectKind,
+                    "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER",
+                    "object static aura effect kind",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    sourcePath,
+                    "CoreRuleEngine.ResolveSourceAttackingReadyEnemyUnitPowerBonus",
+                    "object static aura source path",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    condition,
+                    "SOURCE_ATTACKING_AND_READY_ENEMY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                    "object static aura condition",
+                    errors);
+                ValidateContinuousEffectStaticAuraMetadataValue(
+                    effectLabel,
+                    lifecycle,
+                    "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_READY_ENEMY_UNIT_LOCATIONS",
+                    "object static aura lifecycle",
+                    errors);
+                return;
+            }
         }
 
         if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal))
@@ -17117,6 +17285,51 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} object static aura source card no must reference a BehaviorSpec friendly filtered power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSourceAttackingWithAnotherUnitSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec source attacking-with-another-unit power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSourceLoneBattleSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec source lone-battle power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSourceAttackingReadyEnemyUnitSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec source attacking ready-enemy-unit power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraMetadataValue(
@@ -17653,7 +17866,7 @@ public static class MatchRecoveryValidator
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
-            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+            if (!IsObjectStaticAuraPowerDeltaValidatedDuration(duration))
             {
                 return;
             }
@@ -17710,7 +17923,36 @@ public static class MatchRecoveryValidator
                 : 0;
         }
 
+        if (sourceCardNo is not null
+            && string.Equals(effectKind, StaticAuraKinds.SourceAttackingWithAnotherUnitPower, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(sourceCardNo, out var attackingWithAnotherUnitAura))
+        {
+            return attackingWithAnotherUnitAura.PowerDeltaPerParticipant;
+        }
+
+        if (sourceCardNo is not null
+            && string.Equals(effectKind, StaticAuraKinds.SourceLoneBattlePower, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(sourceCardNo, out var loneBattleAura))
+        {
+            return loneBattleAura.PowerDeltaPerParticipant;
+        }
+
+        if (sourceCardNo is not null
+            && string.Equals(effectKind, StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(sourceCardNo, out var readyEnemyUnitAura))
+        {
+            return readyEnemyUnitAura.PowerDeltaPerParticipant;
+        }
+
         return participantCount * ResolveObjectStaticAuraPowerDeltaPerParticipant(effectKind, sourceCardNo);
+    }
+
+    private static bool IsObjectStaticAuraPowerDeltaValidatedDuration(string duration)
+    {
+        return string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            || string.Equals(duration, "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT", StringComparison.Ordinal)
+            || string.Equals(duration, "WHILE_SOURCE_ATTACKING_OR_DEFENDING_ALONE", StringComparison.Ordinal)
+            || string.Equals(duration, "WHILE_SOURCE_ATTACKING_READY_ENEMY_UNIT_BATTLEFIELD", StringComparison.Ordinal);
     }
 
     private static int ResolveObjectStaticAuraPowerDeltaPerParticipant(string? effectKind, string? sourceCardNo)

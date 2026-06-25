@@ -1811,6 +1811,33 @@ public sealed record MatchState
                 effects.Add(sourceSameLocationOtherFriendlyUnitPowerEffect);
             }
 
+            if (TryBuildSourceAttackingWithAnotherUnitPowerStaticAuraEffect(
+                    state,
+                    objectId,
+                    cardObject,
+                    out var sourceAttackingWithAnotherUnitPowerEffect))
+            {
+                effects.Add(sourceAttackingWithAnotherUnitPowerEffect);
+            }
+
+            if (TryBuildSourceLoneBattlePowerStaticAuraEffect(
+                    state,
+                    objectId,
+                    cardObject,
+                    out var sourceLoneBattlePowerEffect))
+            {
+                effects.Add(sourceLoneBattlePowerEffect);
+            }
+
+            if (TryBuildSourceAttackingReadyEnemyUnitPowerStaticAuraEffect(
+                    state,
+                    objectId,
+                    cardObject,
+                    out var sourceAttackingReadyEnemyUnitPowerEffect))
+            {
+                effects.Add(sourceAttackingReadyEnemyUnitPowerEffect);
+            }
+
             if (cardObject.UntilEndOfTurnPowerModifier != 0)
             {
                 if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
@@ -2156,6 +2183,164 @@ public sealed record MatchState
             ParticipantObjectIds: participantObjectIds,
             SourceDependencyObjectIds: sourceDependencyObjectIds,
             TargetDependencyObjectIds: targetDependencyObjectIds,
+            ParticipantDependencyObjectIds: participantDependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceAttackingWithAnotherUnitPowerStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !cardObject.IsAttacking
+            || !StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(cardObject.CardNo, out var aura)
+            || !TryFindBattlefieldUnitLocation(state, objectId, cardObject, out _))
+        {
+            return false;
+        }
+
+        var participantObjectIds = BattleAttackerObjectIds(state);
+        if (participantObjectIds.Count < aura.RequiredAttackingUnitCount.GetValueOrDefault(2)
+            || !participantObjectIds.Contains(objectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            aura.Duration,
+            objectId,
+            objectId,
+            aura.PowerDeltaPerParticipant,
+            cardObject.Power,
+            cardObject.Power + aura.PowerDeltaPerParticipant,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.ResolveSourceAttackingWithAnotherUnitPowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_BATTLE_ATTACKER_LOCATIONS",
+            ParticipantObjectIds: participantObjectIds,
+            SourceDependencyObjectIds: sourceDependencyObjectIds,
+            TargetDependencyObjectIds: sourceDependencyObjectIds,
+            ParticipantDependencyObjectIds: participantDependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceLoneBattlePowerStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || (!cardObject.IsAttacking && !cardObject.IsDefending)
+            || !StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(cardObject.CardNo, out var aura)
+            || !TryFindBattlefieldUnitLocation(state, objectId, cardObject, out _))
+        {
+            return false;
+        }
+
+        var sideParticipantObjectIds = cardObject.IsAttacking
+            ? BattleAttackerObjectIds(state)
+            : BattleDefenderObjectIds(state);
+        var requiredCount = cardObject.IsAttacking
+            ? aura.RequiredAttackingUnitCount.GetValueOrDefault(1)
+            : aura.RequiredDefendingUnitCount.GetValueOrDefault(1);
+        if (sideParticipantObjectIds.Count != requiredCount
+            || !sideParticipantObjectIds.Contains(objectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var participantObjectIds = BattleParticipantObjectIds(state);
+        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:SOURCE_LONE_BATTLE_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            aura.Duration,
+            objectId,
+            objectId,
+            aura.PowerDeltaPerParticipant,
+            cardObject.Power,
+            cardObject.Power + aura.PowerDeltaPerParticipant,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.ResolveSourceLoneBattlePowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_ATTACKING_OR_DEFENDING_ALONE",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_BATTLE_PARTICIPANT_LOCATIONS",
+            ParticipantObjectIds: participantObjectIds,
+            SourceDependencyObjectIds: sourceDependencyObjectIds,
+            TargetDependencyObjectIds: sourceDependencyObjectIds,
+            ParticipantDependencyObjectIds: participantDependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceAttackingReadyEnemyUnitPowerStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !cardObject.IsAttacking
+            || !StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(cardObject.CardNo, out var aura)
+            || !TryFindBattlefieldUnitLocation(state, objectId, cardObject, out _))
+        {
+            return false;
+        }
+
+        var participantObjectIds = BattleReadyDefenderObjectIds(state);
+        if (participantObjectIds.Count < aura.RequiredReadyEnemyUnitCount.GetValueOrDefault(1))
+        {
+            return false;
+        }
+
+        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            aura.Duration,
+            objectId,
+            objectId,
+            aura.PowerDeltaPerParticipant,
+            cardObject.Power,
+            cardObject.Power + aura.PowerDeltaPerParticipant,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.ResolveSourceAttackingReadyEnemyUnitPowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_ATTACKING_AND_READY_ENEMY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_READY_ENEMY_UNIT_LOCATIONS",
+            ParticipantObjectIds: participantObjectIds,
+            SourceDependencyObjectIds: sourceDependencyObjectIds,
+            TargetDependencyObjectIds: sourceDependencyObjectIds,
             ParticipantDependencyObjectIds: participantDependencyObjectIds);
         return true;
     }
@@ -2778,6 +2963,50 @@ public sealed record MatchState
 
         battlefieldObjectId = objectLocation.BattlefieldObjectId;
         return true;
+    }
+
+    private static IReadOnlyList<string> BattleAttackerObjectIds(MatchState state)
+    {
+        return state.BattleState.AttackerObjectIds
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+                && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> BattleDefenderObjectIds(MatchState state)
+    {
+        return state.BattleState.DefenderObjectIds
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+                && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> BattleParticipantObjectIds(MatchState state)
+    {
+        return BattleAttackerObjectIds(state)
+            .Concat(BattleDefenderObjectIds(state))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> BattleReadyDefenderObjectIds(MatchState state)
+    {
+        return BattleDefenderObjectIds(state)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsExhausted)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static IReadOnlyList<string> SameBattlefieldOtherFriendlyUnitObjectIds(

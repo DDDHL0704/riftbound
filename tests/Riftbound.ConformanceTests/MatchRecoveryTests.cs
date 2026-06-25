@@ -5798,6 +5798,40 @@ public sealed class MatchRecoveryTests
                         "full official LayerEngine coverage"
                     ]
                 }
+                """),
+            RawJson("""
+                {
+                    "effectId": "STATIC_AURA:SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER:source-combat-a",
+                    "scope": "OBJECT",
+                    "layer": "STATIC_AURA",
+                    "duration": "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT",
+                    "targetObjectId": "source-combat-a",
+                    "sourceObjectId": "source-combat-a",
+                    "powerDelta": 3,
+                    "basePower": 3,
+                    "effectivePower": 6,
+                    "sequence": 4,
+                    "effectKind": "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER",
+                    "sourceCardNo": "UNL-154/219",
+                    "sourcePath": "CoreRuleEngine.ResolveSourceAttackingWithAnotherUnitPowerBonus",
+                    "condition": "SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT",
+                    "lifecycle": "RECOMPUTED_FROM_CURRENT_BATTLE_ATTACKER_LOCATIONS",
+                    "layerEngineStatus": "FOUNDATION_ONLY",
+                    "sourceDependencyObjectIds": ["source-combat-a"],
+                    "targetDependencyObjectIds": ["source-combat-a"],
+                    "participantObjectIds": ["source-combat-a", "source-combat-b"],
+                    "participantDependencyObjectIds": ["source-combat-a", "source-combat-b"],
+                    "sourceOrder": 1,
+                    "deferredLayerEngineResiduals": [
+                        "timestamp ordering",
+                        "dependency ordering",
+                        "source ordering",
+                        "keyword gain/loss layering",
+                        "multiple equipment/static aura interactions",
+                        "minimum-power layering",
+                        "full official LayerEngine coverage"
+                    ]
+                }
                 """)
         };
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
@@ -5827,6 +5861,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "snapshot for alice timing continuous effect item battlefield static aura power delta 2 must be 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item object static aura power delta 3 must equal expected power delta 2 for participant object count 2",
                 StringComparison.Ordinal));
     }
 

@@ -23,6 +23,9 @@ Implemented in this slice:
   - `SFD·159/221` 可靠攻城犬：如果你在此处有其他单位，则自身获得 `{{S}}+1`。
   - `OGS·019/024` 无极剑圣：如果你只有一名友方单位防守一处战场，则该单位 `{{S}}+2`。
   - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师：`{{等级6>}}` 你的单位获得 `{{S}}+1`。
+  - `UNL-154/219` 猩红飞鸽：如果和另一名单位一起进攻一处战场，则自身 `{{S}}+2`。
+  - `OGN·055/298` 驭水者：如果独自进攻或防守一处战场，则自身 `{{S}}+2`。
+  - `OGN·131/298` 沙丘亚龙：进攻时如果此处有处于活跃状态的敌方单位，则自身 `{{S}}+2`。
   - `OGN·297/298` 疾风山丘：此处的单位获得 `{{游走}}`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
@@ -33,6 +36,9 @@ Implemented in this slice:
 - `StaticAuraSpec.RequiredPlayerExperience` models level/experience-gated static auras without hard-coding the source card in the engine.
 - `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now resolve Ornn-style friendly-equipment count-to-source static power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
 - `CoreRuleEngine` resolves Master Yi intro single-defender power and Master Yi level friendly-unit power through `StaticAuraSpec.Kind=FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` and `StaticAuraSpec.Kind=FRIENDLY_UNITS_POWER`; the old `HasMasterYiSingleDefenderBonus` / `ResolveMasterYiLevelLegendPowerBonus` combat-power special paths have been deleted.
+- `MatchSession` now projects source-object combat static auras for `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` from `BehaviorSpec.StaticAuras` while the current battle state satisfies their parsed participant-count conditions.
+- The old generic `ResolveWaterbenderLoneBattlePowerBonus` method name has been replaced by `ResolveSourceLoneBattlePowerBonus` so the source path no longer names a single representative card.
+- `MatchRecovery` now validates source-object combat static-aura `powerDelta` as the fixed BehaviorSpec power delta rather than multiplying by the participant object count.
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
 - `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `ActionPromptBuilder.HasMoveUnitPromptRoamPermission` now grant `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走` instead of the old `BattlefieldStaticRoamCardNo` branch.
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
@@ -66,6 +72,9 @@ This slice does not claim full B1 completion:
 - `SFD·159/221`: `如果你在此处有其他单位，则我获得{{S}}+1。`
 - `OGS·019/024`: `如果你只有一名友方单位防守一处战场，则该单位{{S}}+2。`
 - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219`: `{{等级6>}} 你的单位获得{{S}}+1。`
+- `UNL-154/219`: `如果我和另一名单位一起进攻一处战场，则我获得{{S}}+2。`
+- `OGN·055/298`: `如果我独自进攻或防守一处战场，则我获得 {{S}}+2。`
+- `OGN·131/298`: `当我进攻时，如果此处有处于活跃状态的敌方单位，则让我{{S}}+2。`
 - `OGN·297/298`: `此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
@@ -210,6 +219,31 @@ Latest Master Yi legend static-aura adjacent check:
 ```
 
 Result: 2033/2033 passed.
+
+Latest source combat static-aura projection and recovery scalar focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceCombatStaticAuraProjection"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceCombatStaticAuraProjection|FullyQualifiedName~RecoveryValidatorRejectsSnapshotTimingContinuousEffectStaticAuraPowerDeltaConsistencyDrift"
+```
+
+Result: 3/3 and 4/4 passed.
+
+Latest source combat static-aura projection adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceCombatStaticAuraProjection|FullyQualifiedName~P79ScarletPigeon|FullyQualifiedName~P79Waterbender|FullyQualifiedName~P79DuneDrake|FullyQualifiedName~StaticAura|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~MatchRecovery"
+```
+
+Result: 2041/2041 passed.
+
+Latest backend full check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8601/8601 passed.
 
 Latest same-location source threshold adjacent check:
 
