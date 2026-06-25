@@ -1,0 +1,77 @@
+# Plan B Core Legend Identity Catalog Source Audit
+
+日期：2026-06-25
+结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
+
+本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中 Rengar / Leona / Sivir / Jhin 传奇来源身份识别从独立 `Is*LegendCardNo` helper 改为统一 `LegendCardHasIdentity(cardNo, identityId)` 查询。该切片只迁移来源身份表，不改变触发窗口、目标选择、费用、横置/重置状态、战斗结算、事件 payload 或快照语义。
+
+## 1. Scope
+
+Changed:
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `tests/Riftbound.ConformanceTests/LegendActionSourceIdentityGuardTests.cs`
+- `docs/CURRENT_PLAN_B_CORE_LEGEND_IDENTITY_CATALOG_SOURCE_AUDIT.md`
+- `docs/CURRENT_PLAN_B_CORE_LEGEND_IDENTITY_CATALOG_SOURCE_EVIDENCE.md`
+- `docs/rules-evidence-index.md`
+
+Not changed:
+
+- official card catalog JSON
+- Rengar / Leona / Sivir / Jhin runtime effect semantics
+- control / legacy-owner source checks
+- prompt or snapshot contracts
+- frontend runtime
+
+## 2. Acceptance Review
+
+| Requirement | Evidence | Verdict |
+|---|---|---|
+| Rengar legend source identity no longer has a duplicated card-number helper | `IsRengarLegendCardNo` was removed; `ControllerHasRengarLegend` and `TryGetRengarLegend` now check `LegendCardHasIdentity(..., RengarLegendIdentityId)` | Accepted |
+| Leona legend source identity no longer has a duplicated card-number helper | `IsLeonaLegendCardNo` was removed; `ControllerHasLeonaLegend` and `TryGetLeonaLegend` now check `LegendCardHasIdentity(..., LeonaLegendIdentityId)` | Accepted |
+| Sivir legend source identity no longer has a duplicated card-number helper | `IsSivirLegendCardNo` was removed; `TryGetSivirLegend` now checks `LegendCardHasIdentity(..., SivirLegendIdentityId)` | Accepted |
+| Jhin legend source identity no longer has a duplicated card-number helper | `IsJhinLegendCardNo` was removed; `ControllerHasJhinLegend` now checks `LegendCardHasIdentity(..., JhinLegendIdentityId)` | Accepted |
+| Source identity consumes a shared data definition | `TryGetLegendIdentity` returns `LegendIdentityDefinition` rows with source card numbers, and `LegendCardHasIdentity` is the only consumer for this slice | Accepted |
+| Hidden-info / recovery boundary | `MatchRecovery` remains green | Accepted |
+| Full remaining legend helper migration | Ahri / Lucian / Master Yi / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune helpers remain residual | Residual, no full-official claim |
+
+## 3. Verification
+
+Focused:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CoreLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers"
+```
+
+Result: failed before implementation on `IsRengarLegendCardNo`, then 1/1 passed after implementation.
+
+Adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Rengar|FullyQualifiedName~Leona|FullyQualifiedName~Sivir|FullyQualifiedName~Jhin|FullyQualifiedName~LegendAction|FullyQualifiedName~FullGameEndToEnd"
+```
+
+Result: 143/143 passed.
+
+Hidden-info / recovery boundary:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery"
+```
+
+Result: 1989/1989 passed.
+
+Full backend conformance:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
+```
+
+Result: 8581/8581 passed.
+
+## 4. Residual Risks
+
+- `TryGetLegendIdentity` still lives inside `CoreRuleEngine`; the complete long-term catalog extraction remains open.
+- This does not broaden official Rengar / Leona / Sivir / Jhin behavior beyond already implemented representative paths.
+- This does not remove the remaining 14 Core `private static bool Is*CardNo(...)` helpers.
+- Project remains **NOT READY**.

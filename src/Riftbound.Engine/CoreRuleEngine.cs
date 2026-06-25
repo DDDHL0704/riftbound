@@ -575,6 +575,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LeonaOriginLegendCardNo = "OGN·261/298";
     private const string SivirSpiritforgedLegendCardNo = "SFD·203/221";
     private const string JhinLegendCardNo = "UNL-181/219";
+    private const string RengarLegendIdentityId = "LEGEND_IDENTITY_RENGAR";
+    private const string LeonaLegendIdentityId = "LEGEND_IDENTITY_LEONA";
+    private const string SivirLegendIdentityId = "LEGEND_IDENTITY_SIVIR";
+    private const string JhinLegendIdentityId = "LEGEND_IDENTITY_JHIN";
     private const string JhinBanishedHighCostSpellMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
     private const int JhinHighCostSpellManaThreshold = 4;
     private const string ViLegendCardNo = "UNL-187/219";
@@ -12169,6 +12173,37 @@ public sealed class CoreRuleEngine : IRuleEngine
             && ability.SourceCardNos.Contains(cardNo, StringComparer.Ordinal);
     }
 
+    private static bool TryGetLegendIdentity(
+        string identityId,
+        out LegendIdentityDefinition identity)
+    {
+        identity = identityId switch
+        {
+            RengarLegendIdentityId => new LegendIdentityDefinition(
+                RengarLegendIdentityId,
+                [RengarLegendCardNo, "UNL-227/219", "UNL-227*/219"]),
+            LeonaLegendIdentityId => new LegendIdentityDefinition(
+                LeonaLegendIdentityId,
+                [LeonaOriginLegendCardNo, "OGN·306/298", "OGN·306*/298"]),
+            SivirLegendIdentityId => new LegendIdentityDefinition(
+                SivirLegendIdentityId,
+                [SivirSpiritforgedLegendCardNo, "SFD·250/221"]),
+            JhinLegendIdentityId => new LegendIdentityDefinition(
+                JhinLegendIdentityId,
+                [JhinLegendCardNo, "UNL-226/219", "UNL-226*/219"]),
+            _ => default!
+        };
+
+        return identity is not null;
+    }
+
+    private static bool LegendCardHasIdentity(string? cardNo, string identityId)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && TryGetLegendIdentity(identityId, out var identity)
+            && identity.SourceCardNos.Contains(cardNo, StringComparer.Ordinal);
+    }
+
     private static int ResolveLegendAbilityManaCost(
         MatchState state,
         string playerId,
@@ -12293,26 +12328,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && CardBehaviorRegistry.IsImplementedUnitNamed(targetState.CardNo, "提莫");
     }
 
-    private static bool IsRengarLegendCardNo(string? cardNo)
-    {
-        return cardNo is RengarLegendCardNo or "UNL-227/219" or "UNL-227*/219";
-    }
-
-    private static bool IsLeonaLegendCardNo(string? cardNo)
-    {
-        return cardNo is LeonaOriginLegendCardNo or "OGN·306/298" or "OGN·306*/298";
-    }
-
-    private static bool IsSivirLegendCardNo(string? cardNo)
-    {
-        return cardNo is SivirSpiritforgedLegendCardNo or "SFD·250/221";
-    }
-
-    private static bool IsJhinLegendCardNo(string? cardNo)
-    {
-        return cardNo is JhinLegendCardNo or "UNL-226/219" or "UNL-226*/219";
-    }
-
     private static bool ControllerHasAzirLegend(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -12331,7 +12346,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.LegendZone.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && IsRengarLegendCardNo(legendState.CardNo));
+                && LegendCardHasIdentity(legendState.CardNo, RengarLegendIdentityId));
     }
 
     private static bool ControllerHasLeonaLegend(MatchState state, string playerId)
@@ -12340,7 +12355,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.LegendZone.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && IsLeonaLegendCardNo(legendState.CardNo));
+                && LegendCardHasIdentity(legendState.CardNo, LeonaLegendIdentityId));
     }
 
     private static bool ControllerHasJhinLegend(
@@ -12352,7 +12367,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.LegendZone.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && IsJhinLegendCardNo(legendState.CardNo));
+                && LegendCardHasIdentity(legendState.CardNo, JhinLegendIdentityId));
     }
 
     private static bool TryGetRengarLegend(
@@ -12373,7 +12388,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var legendState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                || !IsRengarLegendCardNo(legendState.CardNo))
+                || !LegendCardHasIdentity(legendState.CardNo, RengarLegendIdentityId))
             {
                 continue;
             }
@@ -12404,7 +12419,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var legendState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                || !IsLeonaLegendCardNo(legendState.CardNo))
+                || !LegendCardHasIdentity(legendState.CardNo, LeonaLegendIdentityId))
             {
                 continue;
             }
@@ -12435,7 +12450,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !IsSivirLegendCardNo(candidate.CardNo))
+                || !LegendCardHasIdentity(candidate.CardNo, SivirLegendIdentityId))
             {
                 continue;
             }
@@ -44280,6 +44295,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record BattleDamageAssignmentTarget(
         string ObjectId,
         string Role);
+
+    private sealed record LegendIdentityDefinition(
+        string IdentityId,
+        IReadOnlyList<string> SourceCardNos);
 
     private sealed record LegendAbilityDefinition(
         string AbilityId,
