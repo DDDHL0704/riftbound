@@ -1,6 +1,6 @@
 # Plan B / B3 Unit Conquest Trigger Spec Evidence
 
-Date: 2026-06-25
+Date: 2026-06-26
 
 Project status: **NOT READY**.
 
@@ -45,6 +45,7 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
+- `NaturalUnitConquestTriggerTests.KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·039/298` 卡莎 emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_DRAW_ONE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` verifies the 清算人竞技场 representative still activates 卡莎's conquest draw effect, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - The same `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` representative verifies the 坏坏魄罗 dormant-Gold effect still emits `UNIT_CONQUEST_EFFECT_ACTIVATED` with `UNIT_CONQUEST_CREATE_DORMANT_GOLD`, creates an exhausted equipment token, and moves that token to the controller's base.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable` verifies the 清算人竞技场 representative activates 奇亚娜's draw-or-rune effect as `UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE` and draws one card when the controller's main deck is non-empty.
@@ -59,15 +60,14 @@ Project status: **NOT READY**.
 
 ## Validation
 
-- Focused 自适应机器人 destroy-equipment self-boon behavior-spec/source-guard/runtime tests: `4/4` passing.
-- Adjacent unit-conquest / `P79BattlefieldHeldActivateConquest...` representatives: `35/35` passing.
-- `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8498/8498` passing.
+- Focused natural unit conquest + 清算人竞技场 shared helper representatives: `2/2` passing.
+- Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` representatives: `2265/2265` passing.
+- Backend full conformance: `8603/8603` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
 
 - The old `Is*UnitConquest*CardNo(...)` helper set in `CoreRuleEngine` is now empty for this 清算人竞技场 representative family.
 - 绯红印记树怪's conquest-effect doubling text is not implemented in this slice.
-- The current runtime validation uses 清算人竞技场 to activate unit conquest effects; complete natural conquest trigger queuing remains open.
+- Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete ordering / optional target / doubling breadth remains open.
 - Complete optional yes/no target selection and hidden-information edge cases for targeted conquest effects remain open.

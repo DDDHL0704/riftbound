@@ -17406,6 +17406,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                     huntSource.CardObject.CardNo);
             }
 
+            var naturalUnitConquestEvents = new List<GameEvent>();
+            if (conqueredRealBattlefield
+                && TryResolveNaturalUnitConquestTriggerSpecs(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    untilEndOfTurnEffects,
+                    intent.PlayerId,
+                    battlefieldId,
+                    survivingConquerAttackerObjectIds,
+                    rngCursor,
+                    naturalUnitConquestEvents,
+                    out var naturalUnitConquestDrawApplication,
+                    out var naturalUnitConquestUntilEndOfTurnEffects))
+            {
+                combatEvents.AddRange(naturalUnitConquestEvents);
+                playerScores = naturalUnitConquestDrawApplication.PlayerScores;
+                winnerPlayerId = naturalUnitConquestDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = naturalUnitConquestDrawApplication.RngCursor;
+                untilEndOfTurnEffects = naturalUnitConquestUntilEndOfTurnEffects;
+            }
+
             TryResolveBattlefieldConquerMillTwoTrigger(
                 playerZones,
                 cardObjects,
@@ -22790,7 +22813,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !unitState.IsFaceDown
                 && SourceObjectControlledByPlayerOrLegacyOwned(unitState, playerId)
-                && HasBattlefieldHeldArenaUnitConquestEffect(unitState.CardNo))
+                && HasSupportedUnitConquestTriggerSpec(unitState.CardNo))
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
             .ToArray();
@@ -22812,6 +22835,92 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["activatedUnitObjectIds"] = unitObjectIds
             }));
+
+        return TryResolveUnitConquestTriggerSpecs(
+            state,
+            playerZones,
+            cardObjects,
+            playerScores,
+            untilEndOfTurnEffects,
+            playerId,
+            battlefieldObjectId,
+            triggerSpec.Kind,
+            unitObjectIds,
+            rngCursor,
+            events,
+            out drawApplication,
+            out nextUntilEndOfTurnEffects);
+    }
+
+    private static bool TryResolveNaturalUnitConquestTriggerSpecs(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldId,
+        IReadOnlyList<string> conqueringUnitObjectIds,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _))
+        {
+            return false;
+        }
+
+        var unitObjectIds = conqueringUnitObjectIds
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var unitState)
+                && unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !unitState.IsFaceDown
+                && IsObjectOnField(playerZones, objectId)
+                && SourceObjectControlledByPlayerOrLegacyOwned(unitState, playerId)
+                && HasSupportedUnitConquestTriggerSpec(unitState.CardNo))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        return TryResolveUnitConquestTriggerSpecs(
+            state,
+            playerZones,
+            cardObjects,
+            playerScores,
+            untilEndOfTurnEffects,
+            playerId,
+            battlefieldObjectId,
+            "BATTLEFIELD_CONQUERED",
+            unitObjectIds,
+            rngCursor,
+            events,
+            out drawApplication,
+            out nextUntilEndOfTurnEffects);
+    }
+
+    private static bool TryResolveUnitConquestTriggerSpecs(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldObjectId,
+        string activationReason,
+        IReadOnlyList<string> unitObjectIds,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (unitObjectIds.Count == 0)
+        {
+            return false;
+        }
 
         var nextPlayerScores = playerScores;
         string? winnerPlayerId = null;
@@ -22839,7 +22948,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestGoldTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind);
+                    activationReason);
                 for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
                 {
                     CreateLegendEquipmentToken(
@@ -22867,7 +22976,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestDrawTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind);
+                    activationReason);
                 var drawResult = ApplyDrawToPlayer(
                     state,
                     playerZones,
@@ -22893,7 +23002,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestDrawOrRuneTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind);
+                    activationReason);
                 if (playerZones.TryGetValue(playerId, out var currentZones)
                     && currentZones.MainDeck.Count > 0)
                 {
@@ -22937,7 +23046,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestSelfBoonTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind);
+                    activationReason);
                 GrantLegendBoon(
                     cardObjects,
                     unitObjectId,
@@ -22965,7 +23074,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestReadySelfTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind);
+                    activationReason);
                 if (isOncePerTurn)
                 {
                     nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
@@ -23007,7 +23116,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestFriendlyBoonTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind,
+                    activationReason,
                     boonTargetObjectId);
                 GrantLegendBoon(
                     cardObjects,
@@ -23036,7 +23145,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestFriendlyPowerTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind,
+                    activationReason,
                     powerTargetObjectId);
                 cardObjects[powerTargetObjectId] = ApplyDirectUntilEndPowerModifier(
                     powerTargetState,
@@ -23073,7 +23182,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     unitConquestDestroyEquipmentTrigger.Kind,
                     battlefieldObjectId,
-                    triggerSpec.Kind,
+                    activationReason,
                     equipmentObjectId);
                 var stackItem = new StackItemState(
                     $"unit-conquest-{unitObjectId}",
@@ -23151,7 +23260,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
-    private static bool HasBattlefieldHeldArenaUnitConquestEffect(string? cardNo)
+    private static bool HasSupportedUnitConquestTriggerSpec(string? cardNo)
     {
         return UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)

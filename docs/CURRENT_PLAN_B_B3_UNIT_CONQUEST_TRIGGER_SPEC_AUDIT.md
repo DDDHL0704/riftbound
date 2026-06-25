@@ -1,8 +1,8 @@
 # Plan B / B3 Unit Conquest Trigger Spec Audit
 
-Date: 2026-06-25
+Date: 2026-06-26
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, friendly-power, and destroy-equipment self-boon TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, friendly-power, destroy-equipment self-boon, and natural battle-conquest TriggerSpec activation slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -15,6 +15,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `TargetScope = SOURCE_UNIT`
   - `DrawCount = 1`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 卡莎's representative draw effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(...)`, and reads the emitted effect id plus draw count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine` now also routes natural `DECLARE_BATTLE` battlefield conquest by surviving conquering units through the same shared `TryResolveUnitConquestTriggerSpecs(...)` helper. `OGN·039/298` 卡莎 is the runtime representative: `BATTLEFIELD_CONQUERED` now activates `UNIT_CONQUEST_DRAW_ONE`, emits `UNIT_CONQUEST_EFFECT_ACTIVATED`, and draws one card without adding a card-number allow-list.
 - The old `KaisaUnitConquestDrawCardNo` / `IsKaisaUnitConquestDrawCardNo` branch is removed.
 - `OGN·155/298` 奇亚娜 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，抽一张牌或召出一枚休眠的符文。`
 - `RuleTextParser` now parses that text as `TriggerSpec` with:
@@ -80,13 +81,13 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `Optional = true`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 自适应机器人的 representative destroy-equipment self-boon effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(...)`, and reads the emitted effect id from `BehaviorSpec.Triggers`.
 - The old `DestroyEquipmentBoonUnitConquestCardNo` / `IsDestroyEquipmentBoonUnitConquestCardNo` branch is removed.
-- Current source-helper count for `private static bool Is*CardNo(...)` is `39` total / `36` in `CoreRuleEngine`; remaining `Is*UnitConquest*CardNo(...)` helpers in `CoreRuleEngine`: `0`.
+- Current source-helper count for `private|public|internal static bool Is*CardNo(...)` is `0`; remaining `Is*UnitConquest*CardNo(...)` helpers in `CoreRuleEngine`: `0`.
 
 ## Non-Goals
 
-- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, but does not close the full unit-conquest family.
+- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives and adds the first natural battle-conquest representative route, but does not close the full unit-conquest family.
 - This does not implement 绯红印记树怪's separate `你征服此处时的征服效果额外触发一次。` doubling effect.
-- This does not add natural battle-conquest trigger queuing for every unit. The validated runtime route is the existing 清算人竞技场 representative that activates unit conquest effects from a battlefield held trigger.
+- Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete ordering / optional target / doubling breadth remains open.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.
 
 ## Follow-Up
