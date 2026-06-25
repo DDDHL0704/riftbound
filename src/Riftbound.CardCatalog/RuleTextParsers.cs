@@ -1301,6 +1301,16 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Battlefield winning-score increase static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
                     ParseChineseNumber(battlefieldWinningScoreIncreaseMatch.Groups[1].Value)));
+                continue;
+            }
+
+            if (segment.Contains("你可以选择在此处额外布置一张{{待命}}卡牌", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldExtraStandbyDestination,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield extra-standby destination static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities."));
             }
         }
 

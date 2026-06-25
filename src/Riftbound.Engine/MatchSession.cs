@@ -5994,8 +5994,6 @@ internal static class ActionPromptBuilder
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
-    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
-    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
@@ -15920,7 +15918,7 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Battlefields.Where(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
+                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             : [];
     }
@@ -16023,7 +16021,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
-            || IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardObject.CardNo, out _)
@@ -16067,12 +16065,6 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardObject.CardNo, out _);
-    }
-
-    private static bool IsBattlefieldExtraStandbyCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
     }
 
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)
@@ -16548,8 +16540,6 @@ public sealed class MatchSession : IMatchSession
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
-    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
-    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
@@ -22957,7 +22947,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
                     "P1-BATTLEFIELD-BANDLE-TREE",
-                    cardNo: BattlefieldExtraStandbyCardNo,
+                    cardNo: "OGN·278/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

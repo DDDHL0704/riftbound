@@ -666,8 +666,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int SettLegendManaCost = 1;
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
-    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
-    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
@@ -15535,7 +15533,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
-            || !IsBattlefieldExtraStandbyCardNo(candidate.CardNo)
+            || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(candidate.CardNo, out _)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
         {
             return false;
@@ -25151,7 +25149,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardNo, out _)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
-            || IsBattlefieldExtraStandbyCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
             || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
@@ -25205,12 +25203,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldExtraStandbyCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldActivateConquestEffectsCardNo(string? cardNo)

@@ -199,6 +199,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_SCORE_DELAY_UNTIL_TURN";
     public const string BattlefieldWinningScoreIncrease =
         "BATTLEFIELD_WINNING_SCORE_INCREASE";
+    public const string BattlefieldExtraStandbyDestination =
+        "BATTLEFIELD_EXTRA_STANDBY_DESTINATION";
 }
 
 public static class StaticAuraKinds

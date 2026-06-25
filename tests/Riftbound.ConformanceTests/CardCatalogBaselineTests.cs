@@ -2277,6 +2277,24 @@ public sealed class CardCatalogBaselineTests
         }
     }
 
+    [Theory]
+    [InlineData("OGN·278/298")]
+    [InlineData("OGN·278a/298")]
+    public async Task BehaviorSpecCatalogParsesBattlefieldExtraStandbyStaticAbility(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var bandleTree = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var ability = Assert.Single(
+            bandleTree.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.BattlefieldExtraStandbyDestination, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldExtraStandbyDestination, ability.Kind);
+        Assert.Contains("额外布置一张{{待命}}卡牌", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldPayPowerScoreTrigger()
     {
@@ -3168,6 +3186,32 @@ public sealed class CardCatalogBaselineTests
         var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("BattlefieldIncreaseWinningScoreCardNo", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldExtraStandbyStaticAbilityDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldExtraStandbyCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldExtraStandbyAltCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldExtraStandbyCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldExtraStandbyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldExtraStandbyAltCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldExtraStandbyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
