@@ -43668,7 +43668,7 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-ROSE-SACRIFICE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
         Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
-        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Graveyard);
         Assert.Equal(["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].Hand);
         Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
@@ -43707,7 +43707,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
-        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
         Assert.Equal(["P2-ROSE-DRAW-001"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(["P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
@@ -67608,11 +67608,17 @@ public sealed class ConformanceFixtureRunnerTests
                 {
                     MainDeck = ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
                     RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
-                    Battlefields = ["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"]
+                    Battlefields = ["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"]
                 }
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(
+                    "P2-BATTLEFIELD-AAA-OFFSITE",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-BATTLEFIELD-ROSE-LAB"] = new(
                     "P2-BATTLEFIELD-ROSE-LAB",
                     cardNo: "UNL-209/219",
@@ -67633,6 +67639,17 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-NORMAL-DRAW-001",
                     ownerId: "P2",
                     controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-AAA-OFFSITE"] = new("P2", "BATTLEFIELD", "P2-OTHER"),
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new("P2", "BATTLEFIELD", "P2-ROSE"),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new("P2", "BATTLEFIELD", "P2-ROSE"),
+                ["P2-ROSE-DRAW-001"] = new("P2", "MAIN_DECK"),
+                ["P2-NORMAL-DRAW-001"] = new("P2", "MAIN_DECK"),
+                ["P2-RUNE-001"] = new("P2", "RUNE_DECK"),
+                ["P2-RUNE-002"] = new("P2", "RUNE_DECK"),
+                ["P2-RUNE-003"] = new("P2", "RUNE_DECK")
             }
         };
     }

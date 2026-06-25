@@ -100,6 +100,8 @@ public static class TriggerKinds
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
     public const string BattlefieldTurnStartDamageAllUnits =
         "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
+    public const string BattlefieldTurnStartDestroyUnitDraw =
+        "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW";
 }
 
 public static class TriggerTimings
@@ -342,7 +344,9 @@ public sealed record TriggerSpec(
     int? RequiredUnitCount = null,
     int? RequiredPowerThreshold = null,
     bool? WinsGame = null,
-    int? DamageAmount = null);
+    int? DamageAmount = null,
+    int? DestroyCount = null,
+    bool? Optional = null);
 
 public sealed record ReplacementSpec(
     string Kind,

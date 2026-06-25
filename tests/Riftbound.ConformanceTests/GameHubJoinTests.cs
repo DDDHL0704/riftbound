@@ -11760,7 +11760,7 @@ public sealed class GameHubJoinTests
         var p2Snapshot = SnapshotFor(endTurnClients, "P2");
         var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
-        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
         Assert.Equal(["P2-BATTLEFIELD-ROSE-SACRIFICE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
         Assert.Equal(["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["hand"]));
         Assert.Equal(MatchStatuses.InProgress, p2Snapshot.Timing["roomStatus"]);

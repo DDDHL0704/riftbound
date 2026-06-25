@@ -349,6 +349,9 @@ public static class TriggerParser
                 || (segment.Contains("开始阶段开始时", StringComparison.Ordinal)
                     && segment.Contains("造成", StringComparison.Ordinal)
                     && segment.Contains("伤害", StringComparison.Ordinal))
+                || (segment.Contains("开始阶段开始时", StringComparison.Ordinal)
+                    && segment.Contains("摧毁", StringComparison.Ordinal)
+                    && segment.Contains("抽", StringComparison.Ordinal))
                 || segment.Contains("被摧毁", StringComparison.Ordinal)
                 || segment.Contains("征服", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldConquerRevealRecycleTrigger
@@ -659,6 +662,23 @@ public static class TriggerParser
                 "Battlefield turn-start damage-units trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
                 TargetScope: TriggerTargetScopes.UnitAtThisBattlefield,
                 DamageAmount: ParseChineseNumber(battlefieldTurnStartDamageUnitsMatch.Groups[1].Value));
+        }
+
+        var battlefieldTurnStartDestroyDrawMatch = Regex.Match(
+            segment,
+            @"在你的开始阶段开始时，你可以选择摧毁([0-9一两二三四五六七八九十]+)名此处由你控制的单位，以此抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldTurnStartDestroyDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
+                TriggerTimings.TurnStart,
+                segment,
+                "Battlefield turn-start destroy-draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledUnitAtThisBattlefield,
+                DrawCount: ParseChineseNumber(battlefieldTurnStartDestroyDrawMatch.Groups[2].Value),
+                DestroyCount: ParseChineseNumber(battlefieldTurnStartDestroyDrawMatch.Groups[1].Value),
+                Optional: true);
         }
 
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)

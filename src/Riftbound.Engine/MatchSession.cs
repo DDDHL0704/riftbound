@@ -5999,7 +5999,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
-    private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -16042,7 +16041,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardObject.CardNo, out _)
@@ -16552,7 +16551,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
-    private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -22210,7 +22208,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldTurnStartDestroyDrawScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303060,
@@ -22228,15 +22226,21 @@ public sealed class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
                     runeDeck: ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
-                    battlefields: ["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"],
+                    battlefields: ["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(
+                    "P2-BATTLEFIELD-AAA-OFFSITE",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
                 ["P2-BATTLEFIELD-ROSE-LAB"] = new(
                     "P2-BATTLEFIELD-ROSE-LAB",
-                    cardNo: BattlefieldTurnStartDestroyUnitDrawCardNo,
+                    cardNo: "UNL-209/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),
@@ -22255,6 +22259,21 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(seed.P2, "BATTLEFIELD", "P2-OTHER"),
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new(seed.P2, "BATTLEFIELD", "P2-ROSE"),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(seed.P2, "BATTLEFIELD", "P2-ROSE"),
+                ["P2-ROSE-DRAW-001"] = new(seed.P2, "MAIN_DECK"),
+                ["P2-NORMAL-DRAW-001"] = new(seed.P2, "MAIN_DECK"),
+                ["P2-RUNE-001"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-RUNE-002"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-RUNE-003"] = new(seed.P2, "RUNE_DECK")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldHeldScoreScenario(MatchState current, DevScenarioSeed seed)

@@ -732,12 +732,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 531,
-            specImplementedEntries: 531,
+            entries: 532,
+            specImplementedEntries: 532,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 424,
-            specImplementedFunctionalUnits: 424,
+            functionalUnits: 425,
+            specImplementedFunctionalUnits: 425,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,
@@ -997,7 +997,7 @@ public sealed class CardCatalogBaselineTests
                 StringComparison.Ordinal))));
         Assert.Equal(57, battlefieldSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 41, functionalUnits: 40);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 42, functionalUnits: 41);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 16, functionalUnits: 15);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
@@ -2076,6 +2076,29 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldTurnStartDestroyDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var duskpetalLab = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-209/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(duskpetalLab.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, trigger.Kind);
+        Assert.Equal(TriggerTimings.TurnStart, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.True(trigger.Optional);
+        Assert.Equal(1, trigger.DestroyCount);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Contains("开始阶段开始时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("摧毁一名此处由你控制的单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield turn-start destroy-draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2831,6 +2854,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldTurnStartDamageAllUnitsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldTurnStartDamageAllUnitsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldTurnStartDestroyDrawTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldTurnStartDestroyUnitDrawCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldTurnStartDestroyUnitDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldTurnStartDestroyUnitDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

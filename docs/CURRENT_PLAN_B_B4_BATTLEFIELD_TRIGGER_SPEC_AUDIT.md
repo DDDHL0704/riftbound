@@ -2,9 +2,24 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, and turn-start damage-units; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, and turn-start destroy-draw; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 turn-start destroy-draw follow-up moves another implemented battlefield trigger away from engine card-number branching and corrects the official `此处` target boundary:
+
+- `UNL-209/219` / 暮色玫瑰实验室 official text: `在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`
+  - `Timing = TURN_START`
+  - `TargetScope = CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`
+  - `DestroyCount = 1`
+  - `DrawCount = 1`
+  - `Optional = true`
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDestroyUnitDraw` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(...)` and reads the destroy/draw counts from `BehaviorSpec.Triggers`.
+- The runtime now resolves the auto-representative destroy target from the source battlefield object's `ObjectLocations[source].BattlefieldObjectId`, so a controlled unit at another battlefield object is not destroyed by this source.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldTurnStartDestroyUnitDrawCardNo` constant, and the dev seed includes explicit battlefield `ObjectLocations` plus an off-scope controlled unit.
+- The old `BattlefieldTurnStartDestroyUnitDrawCardNo` / `IsBattlefieldTurnStartDestroyUnitDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `59` total / `55` in `CoreRuleEngine`; Core battlefield helper count is `11`.
 
 The 2026-06-25 turn-start damage-units follow-up moves another implemented battlefield trigger away from engine card-number branching and corrects the official `此处` scope:
 
@@ -703,3 +718,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGame representatives: passed `7/7`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8438/8438`.
+
+2026-06-25 turn-start destroy-draw follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- CardCatalog baseline: passed `149/149`;
+- adjacent BattlefieldTurnStart / BattlefieldTriggerSpec / GameHub representatives: passed `230/230`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8440/8440`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
