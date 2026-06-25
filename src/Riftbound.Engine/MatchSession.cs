@@ -1802,6 +1802,15 @@ public sealed record MatchState
                 effects.Add(sameBattlefieldFriendlyFilteredCountEffect);
             }
 
+            if (TryBuildSourceSameLocationOtherFriendlyUnitPowerStaticAuraEffect(
+                    state,
+                    objectId,
+                    cardObject,
+                    out var sourceSameLocationOtherFriendlyUnitPowerEffect))
+            {
+                effects.Add(sourceSameLocationOtherFriendlyUnitPowerEffect);
+            }
+
             if (cardObject.UntilEndOfTurnPowerModifier != 0)
             {
                 if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
@@ -2082,6 +2091,67 @@ public sealed record MatchState
             LayerEngineFoundationResiduals(),
             Condition: "SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
             Lifecycle: "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS",
+            ParticipantObjectIds: participantObjectIds,
+            SourceDependencyObjectIds: sourceDependencyObjectIds,
+            TargetDependencyObjectIds: targetDependencyObjectIds,
+            ParticipantDependencyObjectIds: participantDependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceSameLocationOtherFriendlyUnitPowerStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(cardObject.CardNo, out var aura)
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var sourceFieldLocation)
+            || !IsPublicFieldObjectLocationCompatible(state, objectId, sourceFieldLocation.Zone))
+        {
+            return false;
+        }
+
+        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return false;
+        }
+
+        var participantObjectIds = SameLocationOtherFriendlyUnitObjectIds(
+            state,
+            objectId,
+            sourceFieldLocation,
+            controllerId);
+        if (participantObjectIds.Count < aura.RequiredParticipantCount.GetValueOrDefault(1))
+        {
+            return false;
+        }
+
+        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            aura.Duration,
+            objectId,
+            objectId,
+            aura.PowerDeltaPerParticipant,
+            cardObject.Power,
+            cardObject.Power + aura.PowerDeltaPerParticipant,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_LOCATION",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_SAME_LOCATION_FRIENDLY_UNIT_LOCATIONS",
             ParticipantObjectIds: participantObjectIds,
             SourceDependencyObjectIds: sourceDependencyObjectIds,
             TargetDependencyObjectIds: targetDependencyObjectIds,
@@ -2666,6 +2736,64 @@ public sealed record MatchState
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static IReadOnlyList<string> SameLocationOtherFriendlyUnitObjectIds(
+        MatchState state,
+        string sourceObjectId,
+        (string PlayerId, string Zone) sourceFieldLocation,
+        string controllerId)
+    {
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var participantFieldLocation)
+                && IsSamePublicFieldLocation(state, sourceObjectId, objectId, sourceFieldLocation, participantFieldLocation)
+                && IsPublicFieldObjectLocationCompatible(state, objectId, participantFieldLocation.Zone)
+                && string.Equals(
+                    EffectiveFieldControllerId(state, objectId, participant),
+                    controllerId,
+                    StringComparison.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsSamePublicFieldLocation(
+        MatchState state,
+        string sourceObjectId,
+        string participantObjectId,
+        (string PlayerId, string Zone) sourceFieldLocation,
+        (string PlayerId, string Zone) participantFieldLocation)
+    {
+        if (!string.Equals(sourceFieldLocation.Zone, participantFieldLocation.Zone, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(sourceFieldLocation.Zone, "BASE", StringComparison.Ordinal))
+        {
+            return string.Equals(sourceFieldLocation.PlayerId, participantFieldLocation.PlayerId, StringComparison.Ordinal);
+        }
+
+        if (!string.Equals(sourceFieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            || !state.ObjectLocations.TryGetValue(participantObjectId, out var participantLocation)
+            || !string.Equals(sourceLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !string.Equals(participantLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            sourceLocation.BattlefieldObjectId,
+            participantLocation.BattlefieldObjectId,
+            StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> SameBattlefieldFriendlyFilteredUnitObjectIds(

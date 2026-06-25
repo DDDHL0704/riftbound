@@ -278,6 +278,8 @@ public static class StaticAuraKinds
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER";
     public const string SameBattlefieldFriendlyFilteredUnitCountToSourcePower =
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
+    public const string SourceSameLocationOtherFriendlyUnitPower =
+        "SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER";
     public const string OtherFriendlyUnitsPower = "OTHER_FRIENDLY_UNITS_POWER";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
@@ -308,6 +310,7 @@ public static class StaticAuraParticipantScopes
     public const string SameBattlefieldIsolatedDefender = "SAME_BATTLEFIELD_ISOLATED_DEFENDER";
     public const string SameBattlefieldFriendlyFilteredPublicUnits =
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_PUBLIC_UNITS";
+    public const string SameLocationOtherFriendlyPublicUnits = "SAME_LOCATION_OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyPublicUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyFilteredPublicUnits =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS";
@@ -471,7 +474,8 @@ public sealed record StaticAuraSpec(
     string? GrantedKeyword = null,
     int? RequiredAttackingUnitCount = null,
     int? RequiredDefendingUnitCount = null,
-    int? RequiredReadyEnemyUnitCount = null);
+    int? RequiredReadyEnemyUnitCount = null,
+    int? RequiredParticipantCount = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

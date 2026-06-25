@@ -20,12 +20,14 @@ Implemented in this slice:
   - `UNL·T03` 草丛：此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得 `{{S}}+1`。
   - `UNL-076/219` 花瓣仙子：我所处的战场你每有一名拥有 `{{瞬息}}` 的单位，我便获得 `{{S}}+1`。
   - `OGN·240/298` / `OGN·240a/298` 瑟提：我所处的战场每有一名拥有增益的友方单位，我便获得 `{{S}}+1`。
+  - `SFD·159/221` 可靠攻城犬：如果你在此处有其他单位，则自身获得 `{{S}}+1`。
   - `OGN·297/298` 疾风山丘：此处的单位获得 `{{游走}}`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
   - `UNL-195/219` 翠神：parenthetical reminder text describes the Brush battlefield token and must not be treated as a legend-source `STATIC_AURA`.
 - `MatchSession` continuous-effect projection now resolves these `STATIC_AURA` kinds via `StaticAuraSpecRules` instead of `ContinuousEffectStaticAuraCards`.
-- `CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldAllUnitsKeywordBonus`, `CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus`, and `CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus` now apply these static power / keyword auras from `BehaviorSpec.StaticAuras`.
+- `CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldAllUnitsKeywordBonus`, `CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus`, `CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus`, and `CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus` now apply these static power / keyword auras from `BehaviorSpec.StaticAuras`.
+- `StaticAuraSpec.RequiredParticipantCount` models threshold-style source auras where one or more same-location participants enable a fixed power delta rather than multiplying by every participant.
 - `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now resolve Ornn-style friendly-equipment count-to-source static power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
 - `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `ActionPromptBuilder.HasMoveUnitPromptRoamPermission` now grant `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走` instead of the old `BattlefieldStaticRoamCardNo` branch.
@@ -37,7 +39,7 @@ This slice does not claim full B1 completion:
 
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
-- Multiple aura stacking beyond additive representative coverage, full LayerEngine timestamp ordering, additional conditional subscopes, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
+- Multiple aura stacking beyond additive representative coverage, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
 - Project remains NOT READY.
 
@@ -55,6 +57,7 @@ This slice does not claim full B1 completion:
 - `UNL·T03`: `此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得{{S}}+1。`
 - `UNL-076/219`: `我所处的战场你每有一名拥有{{瞬息}}的单位，我便获得{{S}}+1。`
 - `OGN·240/298` / `OGN·240a/298`: `我所处的战场每有一名拥有增益的友方单位，我便获得{{S}}+1。`
+- `SFD·159/221`: `如果你在此处有其他单位，则我获得{{S}}+1。`
 - `OGN·297/298`: `此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
@@ -174,6 +177,22 @@ Latest Ornn friendly-equipment runtime bridge removal focused check:
 
 Result: 42/42 passed.
 
+Latest same-location source threshold focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ReliableSiegeDogSameLocationStaticPowerTests|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives"
+```
+
+Result: 5/5 passed.
+
+Latest same-location source threshold adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~ReliableSiegeDog"
+```
+
+Result: 406/406 passed.
+
 Latest Ornn friendly-equipment runtime bridge removal adjacent check:
 
 ```bash
@@ -196,4 +215,4 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8592/8592 passed.
+Latest result: 8596/8596 passed.

@@ -9,16 +9,17 @@ This evidence records the current B1 static-aura data-driven slices.
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` defines `StaticAuraSpec`, `StaticAuraKinds`, `StaticAuraTargetScopes`, and `StaticAuraParticipantScopes`.
-- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses the current representative static-aura text patterns, including battlefield all-units power, battlefield all-units keyword, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield boon count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit power / keyword auras.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses the current representative static-aura text patterns, including battlefield all-units power, battlefield all-units keyword, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield boon count-to-source, same-location other-friendly source threshold, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit power / keyword auras.
 - `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` exposes parsed static auras through `BehaviorSpec.StaticAuras`.
-- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies Ornn, Tifarian Training Grounds, Brush, Petal Pixie, Sett, Soul Shepherd, Rumble, Lee Sin, Blackflame Altar, Forbidden Wasteland, and Wind Hill representative static-aura specs, plus false-positive guards for Boon-granting text and Brush reminder text on Ivern's legend.
+- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies Ornn, Tifarian Training Grounds, Brush, Petal Pixie, Sett, Reliable Siege Dog, Soul Shepherd, Rumble, Lee Sin, Blackflame Altar, Forbidden Wasteland, and Wind Hill representative static-aura specs, plus false-positive guards for Boon-granting text and Brush reminder text on Ivern's legend.
+- `StaticAuraSpec.RequiredParticipantCount` records threshold-style conditions where at least N participants enable a fixed `PowerDeltaPerParticipant` rather than multiplying the power delta by all participants.
 
 Engine projection:
 
 - `src/Riftbound.Engine/StaticAuraSpecRules.cs` builds a cached map from official card catalog `BehaviorSpec.StaticAuras`.
 - `src/Riftbound.Engine/StaticAuraSpecRules.cs` evaluates `TargetFilter` values including single tags, card names, unit-token predicates, and `ANY:` filter groups.
 - `src/Riftbound.Engine/MatchSession.cs` no longer declares `ContinuousEffectStaticAuraCards`; object and battlefield `STATIC_AURA` projections resolve via `StaticAuraSpecRules`.
-- `src/Riftbound.Engine/CoreRuleEngine.cs` resolves implemented static-aura power and keyword bonuses from `BehaviorSpec.StaticAuras`, including battlefield all-units keyword, battlefield-filtered, same-battlefield friendly-filtered count-to-source, friendly-filtered, and same-battlefield friendly-filtered target filters.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` resolves implemented static-aura power and keyword bonuses from `BehaviorSpec.StaticAuras`, including battlefield all-units keyword, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-location other-friendly source threshold, friendly-filtered, and same-battlefield friendly-filtered target filters.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` grant battlefield static `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走`; the old `BattlefieldStaticRoamCardNo` / `IsBattlefieldStaticRoamCardNo` branches are removed.
@@ -28,21 +29,24 @@ Engine projection:
 Recovery:
 
 - `src/Riftbound.Engine/MatchRecovery.cs` validates object and battlefield static-aura source cards against the `BehaviorSpec` aura surface.
+- `src/Riftbound.Engine/MatchRecovery.cs` validates same-location source threshold object static auras with fixed power delta even when multiple participant object ids satisfy the threshold.
 - `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs` updates the source-card drift expectation to the spec-driven diagnostic.
 
 ## Validation Evidence
 
 - Latest Ornn friendly-equipment runtime bridge removal focused static-aura / Ornn / catalog / equipment keyword representative: 42/42 passed.
+- Latest same-location source threshold focused static-aura / catalog representative: 5/5 passed.
+- Latest same-location source threshold adjacent StaticAura / StaticPower / ContinuousEffect / ReliableSiegeDog representative: 406/406 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
-- Latest backend full: 8592/8592 passed.
+- Latest backend full: 8596/8596 passed.
 
 ## Remaining Evidence Needed
 
 Before B1 can be called complete, later slices still need evidence for:
 
 - Brush replacement / score-time swap-back lifecycle beyond the token's static aura.
-- Other source-unit count-to-source static auras beyond Petal Pixie / Sett.
+- Other source-unit count-to-source and threshold static auras beyond Petal Pixie / Sett / Reliable Siege Dog.
 - Multiple static auras and aura stacking beyond the current additive representatives.
 - Interaction with until-end-of-turn power modifiers beyond existing representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant scopes.

@@ -1363,6 +1363,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("如果我拥有增益", wiseElderAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, wiseElderAura.Status);
 
+        var reliableSiegeDog = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·159/221", StringComparison.Ordinal));
+        var reliableSiegeDogAura = Assert.Single(reliableSiegeDog.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, reliableSiegeDogAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, reliableSiegeDogAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", reliableSiegeDogAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, reliableSiegeDogAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits, reliableSiegeDogAura.ParticipantScope);
+        Assert.Equal(1, reliableSiegeDogAura.PowerDeltaPerParticipant);
+        Assert.Equal(1, reliableSiegeDogAura.RequiredParticipantCount);
+        Assert.Contains("如果你在此处有其他单位", reliableSiegeDogAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, reliableSiegeDogAura.Status);
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

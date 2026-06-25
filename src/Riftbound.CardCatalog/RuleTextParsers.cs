@@ -1873,6 +1873,27 @@ public static class StaticAuraParser
                 }
             }
 
+            var sourceSameLocationOtherFriendlyUnitPowerMatch = Regex.Match(
+                segment,
+                @"如果你在此处有其他单位，则我获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sourceSameLocationOtherFriendlyUnitPowerMatch.Success
+                && int.TryParse(sourceSameLocationOtherFriendlyUnitPowerMatch.Groups[1].Value, out var sameLocationPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+                    sameLocationPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    RequiredParticipantCount: 1));
+                continue;
+            }
+
             var sourceAttackingWithAnotherUnitPowerMatch = Regex.Match(
                 segment,
                 @"如果我和另一名单位一起进攻一处战场，则我获得\{\{S\}\}\+(\d+)",

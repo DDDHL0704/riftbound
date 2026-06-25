@@ -5821,7 +5821,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item object static aura power delta 2 must equal participant object count 1",
+                "snapshot for alice timing continuous effect item object static aura power delta 2 must equal expected power delta 1 for participant object count 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -95996,7 +95996,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item object static aura power delta 2 must equal participant object count 1",
+                "spectator replay frame timing continuous effect item object static aura power delta 2 must equal expected power delta 1 for participant object count 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

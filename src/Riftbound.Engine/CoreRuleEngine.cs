@@ -19597,6 +19597,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             objectId,
             cardObject);
+        staticPowerBonus += ResolveSourceSameLocationOtherFriendlyUnitPowerBonus(
+            state,
+            playerZones,
+            objectId,
+            cardObject);
         staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
@@ -20129,6 +20134,37 @@ public sealed class CoreRuleEngine : IRuleEngine
                 EffectiveFieldControllerId(playerZones, entry.Key, candidate),
                 controllerId,
                 StringComparison.Ordinal)) * aura.PowerDeltaPerParticipant;
+    }
+
+    private static int ResolveSourceSameLocationOtherFriendlyUnitPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId)
+            || !StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(cardObject.CardNo, out var aura))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        return HasOtherFriendlyUnitAtSamePosition(
+            playerZones,
+            state.CardObjects,
+            state.ObjectLocations,
+            objectId,
+            controllerId)
+            ? aura.PowerDeltaPerParticipant
+            : 0;
     }
 
     private static int ResolveSourceAttackingWithAnotherUnitPowerBonus(
