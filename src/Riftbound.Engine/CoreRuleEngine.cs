@@ -25265,10 +25265,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
-            || IsImplementedBattlefieldCardNo(cardObject.CardNo);
+            || HasImplementedBattlefieldRuleSpec(cardObject.CardNo);
     }
 
-    private static bool IsImplementedBattlefieldCardNo(string? cardNo)
+    private static bool HasImplementedBattlefieldRuleSpec(string? cardNo)
     {
         return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardNo, out _)
@@ -43378,7 +43378,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldCardObject(cardObject)
-                && !IsDedicatedBattlefieldScoreRuleCardNo(cardObject.CardNo)
+                && !HasDedicatedBattlefieldScoreRuleSpec(cardObject.CardNo)
                 && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
                 && !BattlefieldScoredThisTurn(untilEndOfTurnEffects, objectId))
             .Distinct(StringComparer.Ordinal)
@@ -43452,7 +43452,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects);
     }
 
-    private static bool IsDedicatedBattlefieldScoreRuleCardNo(string? cardNo)
+    private static bool HasDedicatedBattlefieldScoreRuleSpec(string? cardNo)
     {
         return BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out var trigger)
             && IsBattlefieldFirstTurnScoreTriggerSpec(trigger)

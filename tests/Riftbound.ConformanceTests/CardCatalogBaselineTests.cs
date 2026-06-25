@@ -4414,6 +4414,25 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsImplementedBattlefieldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsDedicatedBattlefieldScoreRuleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("HasImplementedBattlefieldRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("HasDedicatedBattlefieldScoreRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BattlefieldTriggerSpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BattlefieldStaticAbilitySpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task BehaviorTemplateExecutorRoutesRegisteredTemplatesWithoutReplacingP2Rules()
     {
         var requiredTemplates = new[]
