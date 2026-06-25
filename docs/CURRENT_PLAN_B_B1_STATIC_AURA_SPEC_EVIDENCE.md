@@ -31,6 +31,7 @@ Engine projection:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` no longer declares `IsPetalPixieCardNo`; the Petal Pixie battle power representative is now spec-driven.
 - `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` includes a source-level guard that rejects reintroducing `ContinuousEffectStaticAuraCards` in `MatchSession`, rejects Ornn friendly-equipment static power reintroducing the old registry runtime bridge in `CoreRuleEngine`, `CardEquipmentKeywordRules`, or `CardBehaviorRegistry`, and rejects reintroducing Master Yi-specific combat-power helpers.
 - `tests/Riftbound.ConformanceTests/MasterYiLegendStaticAuraSpecTests.cs` verifies that the level-6 Master Yi aura projects from a legend-zone source into both player snapshots and stays absent below six experience.
+- `tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs` verifies that Scarlet Pigeon's source-combat static aura, Baron Nashor's other-friendly static aura, and an until-end-of-turn power modifier stack additively in continuous-effect projection and real `DECLARE_BATTLE` combat damage.
 - `src/Riftbound.DevUi/src/types/catalog.ts` mirrors the optional `requiredParticipantCount` and `requiredPlayerExperience` protocol fields for static-aura catalog payloads.
 
 Recovery:
@@ -49,9 +50,11 @@ Recovery:
 - Latest Master Yi legend static-aura adjacent StaticAura / MasterYi / MatchRecovery representative: 2033/2033 passed.
 - Latest source combat static-aura projection and recovery scalar focused representatives: SourceCombatStaticAuraProjection + MatchRecovery source-combat powerDelta scalar guard 4/4 passed.
 - Latest source combat static-aura projection adjacent SourceCombatStaticAuraProjection / P79ScarletPigeon / P79Waterbender / P79DuneDrake / StaticAura / ContinuousEffect / MatchRecovery representative: 2041/2041 passed.
+- Latest static-aura stacking / until-end modifier focused representative: StaticAuraStackingAndModifier 1/1 passed.
+- Latest static-aura stacking / source-combat / recovery adjacent representative: 2043/2043 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
-- Latest backend full: 8601/8601 passed.
+- Latest backend full: 8602/8602 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
@@ -60,7 +63,7 @@ Before B1 can be called complete, later slices still need evidence for:
 
 - Brush replacement / score-time swap-back lifecycle beyond the token's static aura.
 - Other source-unit count-to-source and threshold static auras beyond Petal Pixie / Sett / Reliable Siege Dog, plus source combat static-aura breadth beyond the current Scarlet Pigeon / Waterbender / Dune Drake representatives.
-- Multiple static auras and aura stacking beyond the current additive representatives.
-- Interaction with until-end-of-turn power modifiers beyond existing representative coverage.
+- Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
+- Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant scopes.
 - Full official static-aura breadth and `git diff --check` after each final slice.

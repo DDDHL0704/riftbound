@@ -2781,6 +2781,13 @@
 - 验证：`node --check scripts/chrome-formal-18-e2e.mjs` passed；`npm run build` passed；`npm run e2e:formal-18 -- --start-api` passed；`npm run smoke:chrome -- --start-api` passed。
 - 该证据满足 A 主控 formal 18-step 主流程；不关闭 full official battle/control lifecycle、PaymentEngine、LayerEngine、1009/811 full-official 或最终 READY audit。
 
+## Plan B B1 Static Aura Stacking Evidence
+
+- 证据入口：`docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`。
+- 本批新增 `tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs` 代表路径，验证 `UNL-154/219` 猩红飞鸽的来源战斗静态光环、`UNL-147/219` 纳什男爵的其他友方单位静态光环，以及 until-end-of-turn `POWER_MODIFIER` 在连续效果投影和真实 `DECLARE_BATTLE` 伤害中按加法叠加。
+- 验证：focused `StaticAuraStackingAndModifier` 1/1 passed；adjacent static-aura/source-combat/recovery 2043/2043 passed；backend full 8602/8602 passed。
+- 该证据只关闭 B1 当前代表性叠加覆盖；不关闭完整官方静态光环广度、完整 LayerEngine timestamp ordering、全部 RULE_TEXT 关键词授予 / 移除范围或最终 READY audit。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

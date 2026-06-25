@@ -37,6 +37,7 @@ Implemented in this slice:
 - `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now resolve Ornn-style friendly-equipment count-to-source static power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
 - `CoreRuleEngine` resolves Master Yi intro single-defender power and Master Yi level friendly-unit power through `StaticAuraSpec.Kind=FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` and `StaticAuraSpec.Kind=FRIENDLY_UNITS_POWER`; the old `HasMasterYiSingleDefenderBonus` / `ResolveMasterYiLevelLegendPowerBonus` combat-power special paths have been deleted.
 - `MatchSession` now projects source-object combat static auras for `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` from `BehaviorSpec.StaticAuras` while the current battle state satisfies their parsed participant-count conditions.
+- `tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs` now covers additive stacking between a source-combat `STATIC_AURA`, a non-local other-friendly `STATIC_AURA`, and an until-end-of-turn `POWER_MODIFIER` in both continuous-effect projection and real combat damage.
 - The old generic `ResolveWaterbenderLoneBattlePowerBonus` method name has been replaced by `ResolveSourceLoneBattlePowerBonus` so the source path no longer names a single representative card.
 - `MatchRecovery` now validates source-object combat static-aura `powerDelta` as the fixed BehaviorSpec power delta rather than multiplying by the participant object count.
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
@@ -50,7 +51,7 @@ This slice does not claim full B1 completion:
 
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
-- Multiple aura stacking beyond additive representative coverage, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
+- Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
 - Project remains NOT READY.
@@ -237,13 +238,29 @@ Latest source combat static-aura projection adjacent check:
 
 Result: 2041/2041 passed.
 
+Latest static-aura stacking / until-end power modifier focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAuraStackingAndModifier" --nologo
+```
+
+Result: 1/1 passed.
+
+Latest static-aura stacking / source-combat / recovery adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAuraStackingAndModifier|FullyQualifiedName~SourceCombatStaticAuraProjection|FullyQualifiedName~P79ScarletPigeon|FullyQualifiedName~P79Waterbender|FullyQualifiedName~P79DuneDrake|FullyQualifiedName~P79OtherFriendlyStaticPower|FullyQualifiedName~StaticAura|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2043/2043 passed.
+
 Latest backend full check:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8601/8601 passed.
+Result: 8602/8602 passed.
 
 Latest same-location source threshold adjacent check:
 
@@ -275,4 +292,4 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8598/8598 passed.
+Latest result: 8602/8602 passed.
