@@ -29,6 +29,7 @@ Runtime evidence now covers:
 - Target-moves lifecycle guard: when the friendly target moves to another battlefield while Taric remains at the original battlefield, the RULE_TEXT continuous effect is absent and the target recomputes without the granted `坚守`.
 - Controller-scope guard: `other friendly` is based on the source object's current controller; a controlled Farron Captain grants `强攻` to the controller's same-battlefield attacker, not to the owner's unit.
 - Face-down source guard: a face-down source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses, preserving hidden-information boundaries.
+- Face-down target guard: a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target, preventing hidden target dependency leakage.
 
 ## Not Closed
 
@@ -163,6 +164,30 @@ Result: 2163/2163 passed.
 ```
 
 Result: 8614/8614 passed.
+
+2026-06-26 face-down target focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 face-down target adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Taric|FullyQualifiedName~Hidden|FullyQualifiedName~FaceDown|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2164/2164 passed.
+
+2026-06-26 backend full after face-down target guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8615/8615 passed.
 
 Hidden-information / recovery:
 

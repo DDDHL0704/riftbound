@@ -36,6 +36,7 @@ Controller scope:
 Hidden source boundary:
 
 - `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource` verifies a face-down same-battlefield keyword source produces no RULE_TEXT continuous effect even when authoritative test state still carries the card number, and combat resolution does not grant `坚守` to the same-battlefield friendly defender.
+- `P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget` verifies a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target.
 
 Existing fixture alignment:
 
@@ -60,6 +61,9 @@ Existing fixture alignment:
 - Focused face-down source guard `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource`: 1/1 passed.
 - Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / Hidden / FaceDown / MatchRecovery representatives: 2163/2163 passed.
 - Backend full after face-down source guard: 8614/8614 passed.
+- Focused face-down target guard `P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget`: 1/1 passed.
+- Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / Hidden / FaceDown / MatchRecovery representatives after face-down target guard: 2164/2164 passed.
+- Backend full after face-down target guard: 8615/8615 passed.
 
 ## Remaining Evidence Needed
 

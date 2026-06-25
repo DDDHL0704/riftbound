@@ -39262,6 +39262,20 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamage.Payload["combatPower"]);
     }
 
+    [Fact]
+    public void P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget()
+    {
+        var hiddenTargetState = TaricSameBattlefieldKeywordGrantLifecycleState(
+            sourceOnBattlefield: true,
+            targetAtSameBattlefield: true,
+            targetFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-TARIC-LIFECYCLE-SOURCE", StringComparison.Ordinal));
+    }
+
     private static async ValueTask<ResolutionResult> ResolveTaricLifecycleBattleAsync(
         MatchState state,
         string intentId,
@@ -39284,7 +39298,8 @@ public sealed class ConformanceFixtureRunnerTests
     private static MatchState TaricSameBattlefieldKeywordGrantLifecycleState(
         bool sourceOnBattlefield,
         bool targetAtSameBattlefield = true,
-        bool sourceFaceDown = false)
+        bool sourceFaceDown = false,
+        bool targetFaceDown = false)
     {
         var targetBattlefieldObjectId = targetAtSameBattlefield
             ? "P1-TARIC-LIFECYCLE-BATTLEFIELD"
@@ -39344,6 +39359,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-TARIC-LIFECYCLE-ALLY"] = new(
                     "P1-TARIC-LIFECYCLE-ALLY",
                     cardNo: "SFD·125/221",
+                    isFaceDown: targetFaceDown,
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
