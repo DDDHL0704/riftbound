@@ -21,6 +21,7 @@ public sealed class FullGameEndToEndTests
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
+    private const long LowCurveReplaySeed = 424242;
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -120,6 +121,43 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
         Assert.Empty(replay.Errors);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildLowCurveOfficialDeck(catalog);
+        var initialState = BuildSeatedInitialState("b0-full-game-official-low-curve-replay-room", LowCurveReplaySeed);
+        var journal = new RecordingMatchJournal();
+        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            initialState,
+            journal,
+            deck,
+            deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-full-replay-score");
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            result.State,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Ready, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
 
@@ -275,6 +313,27 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p2Deck)
     {
         var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId, p1Deck, p2Deck);
+        return await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            initialState,
+            journal,
+            p1Deck,
+            p2Deck);
+        return await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(
+        MatchSession session,
+        ResolutionResult skipped)
+    {
         var current = skipped;
         ResolutionResult? battleReady = null;
         var skippedBattleCount = 0;
@@ -349,7 +408,7 @@ public sealed class FullGameEndToEndTests
             activePlayerId,
             "b0-damage-mulligan-active",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(activeMulligan);
         AssertNoHiddenZoneLeak(activeMulligan);
@@ -358,7 +417,7 @@ public sealed class FullGameEndToEndTests
             secondPlayerId,
             "b0-damage-mulligan-second",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(current);
         AssertNoHiddenZoneLeak(current);
@@ -460,7 +519,7 @@ public sealed class FullGameEndToEndTests
             activePlayerId,
             "b0-shadow-mulligan-active",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(activeMulligan);
         AssertNoHiddenZoneLeak(activeMulligan);
@@ -469,7 +528,7 @@ public sealed class FullGameEndToEndTests
             secondPlayerId,
             "b0-shadow-mulligan-second",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(current);
         AssertNoHiddenZoneLeak(current);
@@ -609,7 +668,24 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(roomId, new CoreRuleEngine());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
+        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(session, p1Deck, p2Deck);
+    }
 
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(session, p1Deck, p2Deck);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        MatchSession session,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
         var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-submit-p1");
         var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-submit-p2");
         AssertAccepted(p1Submit);
@@ -626,7 +702,7 @@ public sealed class FullGameEndToEndTests
             activePlayerId,
             "b0-mulligan-active",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(activeMulligan);
         AssertNoHiddenZoneLeak(activeMulligan);
@@ -635,7 +711,7 @@ public sealed class FullGameEndToEndTests
             secondPlayerId,
             "b0-mulligan-second",
             new MulliganCommand([]),
-            RawCommand(CommandTypes.Mulligan),
+            RawCommand(new MulliganCommand([])),
             CancellationToken.None);
         AssertAccepted(secondMulligan);
         AssertNoHiddenZoneLeak(secondMulligan);
@@ -780,7 +856,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             $"{intentPrefix}-play",
             new PlayCardCommand(sourceObjectId, cardNo, [], Destination: "BASE"),
-            RawCommand(CommandTypes.PlayCard),
+            RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [], Destination: "BASE")),
             CancellationToken.None);
         AssertAccepted(play);
         AssertNoHiddenZoneLeak(play);
@@ -796,7 +872,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             $"{intentPrefix}-move",
             new MoveUnitCommand(baseObjectId, "BASE", battlefieldDestination, []),
-            RawCommand(CommandTypes.MoveUnit),
+            RawCommand(new MoveUnitCommand(baseObjectId, "BASE", battlefieldDestination, [])),
             CancellationToken.None);
         AssertAccepted(move);
         AssertNoHiddenZoneLeak(move);
@@ -817,7 +893,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             $"{intentPrefix}-play",
             new PlayCardCommand(sourceObjectId, cardNo, [], Destination: battlefieldDestination),
-            RawCommand(CommandTypes.PlayCard),
+            RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [], Destination: battlefieldDestination)),
             CancellationToken.None);
         AssertAccepted(play);
         AssertNoHiddenZoneLeak(play);
@@ -1013,7 +1089,7 @@ public sealed class FullGameEndToEndTests
                 priorityPlayerId,
                 $"{intentPrefix}-{index}",
                 new PassPriorityCommand(),
-                RawCommand(CommandTypes.PassPriority),
+                RawCommand(new PassPriorityCommand()),
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
@@ -1168,7 +1244,7 @@ public sealed class FullGameEndToEndTests
                 playerId,
                 $"{intentPrefix}-{index}",
                 new TapRuneCommand(sourceObjectId),
-                RawCommand(CommandTypes.TapRune),
+                RawCommand(new TapRuneCommand(sourceObjectId)),
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
@@ -1207,7 +1283,7 @@ public sealed class FullGameEndToEndTests
                 playerId,
                 $"{intentPrefix}-attempt-{index}",
                 new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: destination),
-                RawCommand(CommandTypes.PlayCard),
+                RawCommand(new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: destination)),
                 CancellationToken.None);
             if (!attempted.Accepted)
             {
@@ -1244,7 +1320,7 @@ public sealed class FullGameEndToEndTests
                 priorityPlayerId,
                 $"{intentPrefix}-pass-priority-{index}",
                 new PassPriorityCommand(),
-                RawCommand(CommandTypes.PassPriority),
+                RawCommand(new PassPriorityCommand()),
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
@@ -1276,7 +1352,7 @@ public sealed class FullGameEndToEndTests
                 priorityPlayerId,
                 $"{intentPrefix}-pass-priority-{index}",
                 new PassPriorityCommand(),
-                RawCommand(CommandTypes.PassPriority),
+                RawCommand(new PassPriorityCommand()),
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
@@ -1313,7 +1389,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             intentId,
             new EndTurnCommand(),
-            RawCommand(CommandTypes.EndTurn),
+            RawCommand(new EndTurnCommand()),
             CancellationToken.None);
         AssertAccepted(result);
         return result;
@@ -1350,7 +1426,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             "b0-move-unit-to-opponent-battlefield",
             new MoveUnitCommand(sourceObjectId, "BASE", $"BATTLEFIELD:{opponentBattlefieldObjectId}", []),
-            RawCommand(CommandTypes.MoveUnit),
+            RawCommand(new MoveUnitCommand(sourceObjectId, "BASE", $"BATTLEFIELD:{opponentBattlefieldObjectId}", [])),
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
@@ -1381,7 +1457,7 @@ public sealed class FullGameEndToEndTests
                 focusPlayerId,
                 $"{intentPrefix}-{index}",
                 new PassFocusCommand(),
-                RawCommand(CommandTypes.PassFocus),
+                RawCommand(new PassFocusCommand()),
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
@@ -1652,6 +1728,76 @@ public sealed class FullGameEndToEndTests
         return JsonSerializer.SerializeToElement(new { cmdType });
     }
 
+    private static JsonElement RawCommand(GameCommand command)
+    {
+        return command switch
+        {
+            ReadyCommand => RawCommand(command.CmdType),
+            PassPriorityCommand => RawCommand(command.CmdType),
+            PassFocusCommand => RawCommand(command.CmdType),
+            EndTurnCommand => RawCommand(command.CmdType),
+            SurrenderCommand => RawCommand(command.CmdType),
+            MulliganCommand mulligan => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = mulligan.CmdType,
+                handObjectIds = mulligan.HandObjectIds
+            }),
+            TapRuneCommand tapRune => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = tapRune.CmdType,
+                sourceObjectId = tapRune.SourceObjectId
+            }),
+            PlayCardCommand playCard => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = playCard.CmdType,
+                sourceObjectId = playCard.SourceObjectId,
+                cardNo = playCard.CardNo,
+                targetObjectIds = playCard.TargetObjectIds,
+                mode = playCard.Mode,
+                optionalCosts = playCard.OptionalCosts ?? [],
+                destination = playCard.Destination
+            }),
+            MoveUnitCommand moveUnit => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = moveUnit.CmdType,
+                sourceObjectId = moveUnit.SourceObjectId,
+                origin = moveUnit.Origin,
+                destination = moveUnit.Destination,
+                optionalCosts = moveUnit.OptionalCosts ?? []
+            }),
+            DeclareBattleCommand declareBattle => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = declareBattle.CmdType,
+                battlefieldId = declareBattle.BattlefieldId,
+                attackerObjectIds = declareBattle.AttackerObjectIds ?? [],
+                defenderObjectIds = declareBattle.DefenderObjectIds ?? [],
+                optionalCosts = declareBattle.OptionalCosts ?? [],
+                battlefieldTargetObjectIds = declareBattle.BattlefieldTargetObjectIds ?? []
+            }),
+            ActivateAbilityCommand activateAbility => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = activateAbility.CmdType,
+                sourceObjectId = activateAbility.SourceObjectId,
+                abilityId = activateAbility.AbilityId,
+                targetObjectIds = activateAbility.TargetObjectIds,
+                optionalCosts = activateAbility.OptionalCosts ?? []
+            }),
+            AssignCombatDamageCommand assignCombatDamage => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = assignCombatDamage.CmdType,
+                battleId = assignCombatDamage.BattleId,
+                battlefieldId = assignCombatDamage.BattlefieldId,
+                assignments = (assignCombatDamage.Assignments ?? []).Select(assignment => new
+                {
+                    assignment.SourceObjectId,
+                    assignment.TargetObjectId,
+                    assignment.Damage
+                }).ToArray()
+            }),
+            _ => RawCommand(command.CmdType)
+        };
+    }
+
     private static void AssertAccepted(ResolutionResult result)
     {
         Assert.True(result.Accepted, result.ErrorMessage);
@@ -1709,6 +1855,20 @@ public sealed class FullGameEndToEndTests
         }
 
         return recoveredEvents;
+    }
+
+    private static MatchState BuildSeatedInitialState(string roomId, long seed)
+    {
+        return MatchReplayInitialStateBuilder.FromSeats(
+            roomId,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            }) with
+        {
+            Seed = seed
+        };
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

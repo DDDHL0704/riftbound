@@ -37,7 +37,7 @@ The turn-start battle reopen regression proves still-contested battlefields do n
 
 The score-victory regression proves the same legal official-deck path can continue after real `BATTLE_CLOSED` through server-authored `END_TURN` prompts until battlefield scoring emits `SCORE_GAINED` and a single score-based `MATCH_WON`. The runtime fix restores ordinary open-main action to `TurnPlayerId` after a non-turn-player battle task closes with no further battlefield task, and prevents duplicate `MATCH_WON` during turn start when pre-rune-call scoring already won before the synthetic draw result is built.
 
-The post-battle action-log replay regression proves the score-victory command stream after real `BATTLE_CLOSED` can be journaled and replayed to the same final state hash. `OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash` starts from the existing mirrored Jhin official low-curve battle-closed state, records the post-battle `END_TURN` commands through `MatchJournal`, converts entries to recovered commands / events, and verifies `MatchActionLogReplayer.VerifyFinalStateAsync` reaches the expected final state hash with no replay errors. This slice intentionally does not claim full `SUBMIT_DECK` -> mulligan -> battle setup action-log replay; the B0 setup auto-driver still needs seed-stability work under alternate room ids before that broader replay can be made deterministic.
+The action-log replay regressions prove the score-victory command stream can be journaled and replayed to the same final state hash. `OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash` starts from the existing mirrored Jhin official low-curve battle-closed state and covers post-battle `END_TURN` scoring. `OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash` starts from a seated official low-curve initial state, records `SUBMIT_DECK`, `READY`, `MULLIGAN`, tap/play/move/focus, reopened battle declaration, and score-victory `END_TURN` commands through `MatchJournal`, converts entries to recovered commands / events, and verifies `MatchActionLogReplayer.VerifyFinalStateAsync` reaches the expected final state hash with no replay errors. The B0 test driver now writes replayable raw command payloads for prompt-derived object ids and destinations instead of only storing `cmdType`.
 
 The distinct-deck regression proves the full-game score-victory path is not limited to two copies of the same deck. `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits legal official Jhin and Rumble low-curve decks with different legend and champion cards, then drives the same server prompt path to real battle close and score-based `MATCH_WON`. This slice changes only the test driver / evidence: it parameterizes the deck pair and skips `待命` units when selecting the representative unit to play or move, so the B0 probe remains focused on battle / score instead of standby cleanup.
 
@@ -62,7 +62,7 @@ Focused validation:
 Result:
 
 ```text
-Passed: 8, Failed: 0, Skipped: 0, Total: 8
+Passed: 9, Failed: 0, Skipped: 0, Total: 9
 ```
 
 Adjacent validation:
@@ -74,7 +74,7 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 529, Failed: 0, Skipped: 0, Total: 529
+Passed: 530, Failed: 0, Skipped: 0, Total: 530
 ```
 
 Recovery / hidden-info validation:
@@ -98,9 +98,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8462, Failed: 0, Skipped: 0, Total: 8462
+Passed: 8463, Failed: 0, Skipped: 0, Total: 8463
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, an official Vex / Shadow battle response path can open and resolve `ACTIVATE_ABILITY` through server prompts, and the post-battle score-victory command stream can be recovered to the same final state hash. It does not close full `SUBMIT_DECK` -> mulligan -> battle setup replay, all official deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, an official Vex / Shadow battle response path can open and resolve `ACTIVATE_ABILITY` through server prompts, and the mirrored Jhin score-victory command stream can be recovered from seated-room `SUBMIT_DECK` through final score win to the same final state hash. It does not close all official deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
