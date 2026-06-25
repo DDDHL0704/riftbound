@@ -3102,6 +3102,23 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("OGN·055/298", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("DuneDrakeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OGN·131/298", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AddsFriendlyFieldEquipmentCountToSourceUnitPower", coreRuleEngineSource, StringComparison.Ordinal);
+
+        var equipmentKeywordRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CardEquipmentKeywordRules.cs");
+        var equipmentKeywordRulesSource = File.ReadAllText(equipmentKeywordRulesPath);
+        Assert.DoesNotContain("AddsFriendlyFieldEquipmentCountToSourceUnitPower", equipmentKeywordRulesSource, StringComparison.Ordinal);
+
+        var cardBehaviorRegistryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CardBehaviorRegistry.cs");
+        var cardBehaviorRegistrySource = File.ReadAllText(cardBehaviorRegistryPath);
+        Assert.DoesNotContain("AddsFriendlyFieldEquipmentCountToSourceUnitPower", cardBehaviorRegistrySource, StringComparison.Ordinal);
     }
 
     [Fact]

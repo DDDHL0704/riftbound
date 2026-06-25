@@ -1,6 +1,6 @@
 # Plan B B1 Static Aura Spec Evidence
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## Evidence Summary
 
@@ -19,9 +19,11 @@ Engine projection:
 - `src/Riftbound.Engine/StaticAuraSpecRules.cs` evaluates `TargetFilter` values including single tags, card names, unit-token predicates, and `ANY:` filter groups.
 - `src/Riftbound.Engine/MatchSession.cs` no longer declares `ContinuousEffectStaticAuraCards`; object and battlefield `STATIC_AURA` projections resolve via `StaticAuraSpecRules`.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` resolves implemented static-aura power and keyword bonuses from `BehaviorSpec.StaticAuras`, including battlefield all-units keyword, battlefield-filtered, same-battlefield friendly-filtered count-to-source, friendly-filtered, and same-battlefield friendly-filtered target filters.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
+- `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` grant battlefield static `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走`; the old `BattlefieldStaticRoamCardNo` / `IsBattlefieldStaticRoamCardNo` branches are removed.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` no longer declares `IsPetalPixieCardNo`; the Petal Pixie battle power representative is now spec-driven.
-- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` includes a source-level guard that rejects reintroducing `ContinuousEffectStaticAuraCards` in `MatchSession`.
+- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` includes a source-level guard that rejects reintroducing `ContinuousEffectStaticAuraCards` in `MatchSession` and rejects Ornn friendly-equipment static power reintroducing the old registry runtime bridge in `CoreRuleEngine`, `CardEquipmentKeywordRules`, or `CardBehaviorRegistry`.
 
 Recovery:
 
@@ -30,16 +32,15 @@ Recovery:
 
 ## Validation Evidence
 
-- Latest focused static-aura catalog / source guard / static roam runtime / GameHub representative: 6/6 passed.
-- Latest adjacent StaticAura / ContinuousEffect / BattlefieldStaticRoam / MoveUnit / GameHub / BoardTaskQueue / FullGame: 711/711 passed.
+- Latest Ornn friendly-equipment runtime bridge removal focused static-aura / Ornn / catalog / equipment keyword representative: 42/42 passed.
+- Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
-- Latest backend full: 8371/8371 passed.
+- Latest backend full: 8592/8592 passed.
 
 ## Remaining Evidence Needed
 
 Before B1 can be called complete, later slices still need evidence for:
 
-- Core runtime recompute removing the Ornn registry bridge.
 - Brush replacement / score-time swap-back lifecycle beyond the token's static aura.
 - Other source-unit count-to-source static auras beyond Petal Pixie / Sett.
 - Multiple static auras and aura stacking beyond the current additive representatives.

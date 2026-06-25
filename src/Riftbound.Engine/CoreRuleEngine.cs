@@ -851,16 +851,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             var cardObject = entry.Value;
             if (string.IsNullOrWhiteSpace(cardObject.CardNo)
                 || cardObject.IsFaceDown
-                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-                || !behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+                || !StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(cardObject.CardNo, out var aura)
                 || !TryGetPublicFieldControllerId(state.PlayerZones, cardObjects, objectId, cardObject, out var controllerId))
             {
                 continue;
             }
 
-            var basePower = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+            var registeredPower = CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+                ? behavior.SourceUnitPower
+                : 0;
+            var basePower = registeredPower > 0
+                ? registeredPower
+                : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
             var equipmentCount = CountControlledPublicFieldEquipmentObjects(state.PlayerZones, cardObjects, controllerId);
-            var recomputedPower = basePower + equipmentCount + cardObject.UntilEndOfTurnPowerModifier;
+            var recomputedPower = basePower + (equipmentCount * aura.PowerDeltaPerParticipant) + cardObject.UntilEndOfTurnPowerModifier;
             if (cardObject.Power == recomputedPower)
             {
                 continue;
@@ -39371,6 +39375,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : 0;
     }
 
+    private static int ResolveFriendlyEquipmentStaticPowerBonus(
+        CardBehaviorDefinition behavior,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId)
+    {
+        return StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(behavior.CardNo, out var aura)
+            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, controllerId) * aura.PowerDeltaPerParticipant
+            : 0;
+    }
+
     private static bool IsCrescentGuardReadyOptionalCostPaid(
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts)
@@ -39405,9 +39420,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
-        var friendlyEquipmentPowerBonus = behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
-            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, stackItem.ControllerId)
-            : 0;
+        var friendlyEquipmentPowerBonus = ResolveFriendlyEquipmentStaticPowerBonus(
+            behavior,
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId);
         var levelApplies = ControllerMeetsLevelExperienceThreshold(
             behavior,
             stackItem.ControllerId,
@@ -39512,9 +39529,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
-        var friendlyEquipmentPowerBonus = behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
-            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, stackItem.ControllerId)
-            : 0;
+        var friendlyEquipmentPowerBonus = ResolveFriendlyEquipmentStaticPowerBonus(
+            behavior,
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId);
         var levelApplies = ControllerMeetsLevelExperienceThreshold(
             behavior,
             stackItem.ControllerId,

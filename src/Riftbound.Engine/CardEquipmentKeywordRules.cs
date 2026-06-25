@@ -180,7 +180,10 @@ public static class CardEquipmentKeywordRules
             && HasTemperedOptionalAttachRepresentativeBoundary(spec.CardNo);
         var hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary =
             HasFriendlyEquipmentStaticPowerRepresentativeBoundary(spec.CardNo)
-            && behavior?.AddsFriendlyFieldEquipmentCountToSourceUnitPower == true;
+            && spec.StaticAuras.Any(aura => string.Equals(
+                aura.Kind,
+                StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower,
+                StringComparison.Ordinal));
         TryGetEquipmentStateRepresentative(spec.CardNo, out var equipmentStateRepresentative);
         var hasImplementedRepresentativeEquipmentStateBoundary = equipmentStateRepresentative is not null;
         var hasDeferredOfficialBreadth = hasAgile

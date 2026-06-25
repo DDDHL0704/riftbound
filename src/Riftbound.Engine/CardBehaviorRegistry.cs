@@ -182,8 +182,7 @@ public sealed record CardBehaviorDefinition(
     int TargetEffectAdditionalManaCost = 0,
     int TargetEffectAdditionalPowerCost = 0,
     string TargetEffectAdditionalPowerTrait = "",
-    bool ExhaustsTarget = false,
-    bool AddsFriendlyFieldEquipmentCountToSourceUnitPower = false);
+    bool ExhaustsTarget = false);
 
 public static class CardDamageConditionKinds
 {
@@ -3885,8 +3884,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "法盾2|百炼",
-            AddsFriendlyFieldEquipmentCountToSourceUnitPower: true),
+            SourceUnitTags: "法盾2|百炼"),
         new(
             "SFD·085a/221",
             "奥恩",
@@ -3896,8 +3894,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "法盾2|百炼",
-            AddsFriendlyFieldEquipmentCountToSourceUnitPower: true),
+            SourceUnitTags: "法盾2|百炼"),
         new(
             "SFD·109/221",
             "阿克尚",
