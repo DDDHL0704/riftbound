@@ -798,6 +798,23 @@ public static class TriggerParser
                 CreatedTokenKeywords: ["反应"]);
         }
 
+        var handCardsDiscardedReadySourcePowerMatch = Regex.Match(
+            segment,
+            @"每当你弃置任意数量的手牌时，让我变为活跃状态，且本回合内\{\{S\}\}\+([0-9一两二三四五六七八九十]+)。?$",
+            RegexOptions.CultureInvariant);
+        if (handCardsDiscardedReadySourcePowerMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.HandCardsDiscardedReadySourcePower,
+                TriggerTimings.HandCardsDiscarded,
+                segment,
+                "Hand-discard ready-source power trigger parsed for discard-trigger routing; execution is available through shared hand-discard TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                PowerDelta: ParseChineseNumber(handCardsDiscardedReadySourcePowerMatch.Groups[1].Value),
+                Duration: TriggerDurations.UntilEndOfTurn,
+                ReadiesSource: true);
+        }
+
         var unitConquestDrawOrCallRuneMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌或召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",

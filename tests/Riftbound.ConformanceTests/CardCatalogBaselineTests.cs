@@ -2274,6 +2274,32 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Theory]
+    [InlineData("OGN·202/298")]
+    [InlineData("OGN·202a/298")]
+    [InlineData("ARC-005/006")]
+    public async Task BehaviorSpecCatalogParsesHandDiscardReadyPowerTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var jinx = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(jinx.Triggers);
+        Assert.Equal(TriggerKinds.HandCardsDiscardedReadySourcePower, trigger.Kind);
+        Assert.Equal(TriggerTimings.HandCardsDiscarded, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.True(trigger.ReadiesSource);
+        Assert.Equal(1, trigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Contains("每当你弃置任意数量的手牌时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("让我变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合内{{S}}+1", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Hand-discard ready-source power trigger parsed for discard-trigger routing; execution is available through shared hand-discard TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Theory]
     [InlineData("SFD·232/221")]
     [InlineData("SFD·232*/221")]
     [InlineData("OGN·164/298")]
@@ -2895,6 +2921,28 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("TreasureHunterMoveCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SFD·130/221", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("TREASURE_HUNTER_MOVE_CREATE_GOLD", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HandDiscardReadyPowerTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("OgnJinxDiscardTriggerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OgnJinxDiscardTriggerAltCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ArcJinxDiscardTriggerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsJinxDiscardTriggerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JinxDiscardedHandCardsEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JinxDiscardedHandCardsBehavior", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OGN·202/298", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OGN·202a/298", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ARC-005/006", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JINX_DISCARDED_HAND_CARDS_READY_POWER_1", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

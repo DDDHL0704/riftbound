@@ -122,6 +122,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
+    public const string HandCardsDiscardedReadySourcePower =
+        "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
     public const string UnitConquestGrantSelfBoon =
         "UNIT_CONQUEST_GRANT_SELF_BOON";
     public const string UnitConquestReadySelfOncePerTurn =
@@ -168,6 +170,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string UnitMoved = "UNIT_MOVED";
+    public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
 }
@@ -393,6 +396,7 @@ public sealed record TriggerSpec(
     int? ConsumedBoonCount = null,
     int? RuneCallCount = null,
     int? RuneReadyCount = null,
+    bool? ReadiesSource = null,
     string? ReadyTiming = null,
     int? EquipmentReadyCount = null,
     int? LegendReadyCount = null,

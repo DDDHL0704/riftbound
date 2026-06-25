@@ -511,10 +511,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
-    private const string OgnJinxDiscardTriggerCardNo = "OGN·202/298";
-    private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
-    private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
-    private const string JinxDiscardedHandCardsEffectKind = "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
@@ -535,14 +531,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
-    private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
-        OgnJinxDiscardTriggerCardNo,
-        "金克丝",
-        0,
-        JinxDiscardedHandCardsEffectKind,
-        0,
-        0,
-        PowerModifierAmount: 1);
     private static readonly CardBehaviorDefinition RavenbloomStudentSpellPowerBehavior = new(
         RavenbloomStudentCardNo,
         "拉文布鲁姆学生",
@@ -4440,7 +4428,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 autoDiscard: false));
         }
 
-        ResolveJinxDiscardedHandCardsTrigger(
+        ResolveHandCardsDiscardedReadyPowerTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -5143,7 +5131,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
             discardedOptionalCostObjectIds.Add(discardedOptionalCostTargetObjectId);
         }
-        ResolveJinxDiscardedHandCardsTrigger(
+        ResolveHandCardsDiscardedReadyPowerTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -14640,7 +14628,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return events;
     }
 
-    private static void ResolveJinxDiscardedHandCardsTrigger(
+    private static void ResolveHandCardsDiscardedReadyPowerTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -14658,7 +14646,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && IsJinxDiscardTriggerCardNo(sourceState.CardNo)
+                && HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(
+                    sourceState.CardNo,
+                    out var triggerSpec)
+                && IsHandCardsDiscardedReadySourcePowerTriggerSpec(triggerSpec)
                 && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !sourceState.IsFaceDown
                 && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -14673,54 +14664,85 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in triggerSourceObjectIds)
         {
             var sourceState = cardObjects[sourceObjectId];
+            if (!HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(
+                    sourceState.CardNo,
+                    out var triggerSpec)
+                || !IsHandCardsDiscardedReadySourcePowerTriggerSpec(triggerSpec))
+            {
+                continue;
+            }
+
+            var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+            var triggerBehavior = new CardBehaviorDefinition(
+                sourceState.CardNo ?? string.Empty,
+                "弃牌触发",
+                0,
+                triggerSpec.Kind,
+                0,
+                0,
+                PowerModifierAmount: powerDelta);
             var triggerStackItem = new StackItemState(
                 $"{sourceObjectId}:discarded-hand-cards",
                 playerId,
                 sourceObjectId,
-                JinxDiscardedHandCardsEffectKind,
+                triggerSpec.Kind,
                 sourceState.CardNo);
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{playerId} 的金克丝因弃置手牌而触发",
+                $"{playerId} 的弃牌触发已结算",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["effectKind"] = JinxDiscardedHandCardsEffectKind,
+                    ["effectKind"] = triggerSpec.Kind,
                     ["triggeredByEventKind"] = triggeredByEventKind,
                     ["discardSourceObjectId"] = discardSourceObjectId,
                     ["discardedObjectIds"] = discardedObjectIds.ToArray(),
                     ["discardedCount"] = discardedObjectIds.Count
                 }));
-            var readiedSourceState = ApplyReadyState(
-                sourceState,
-                JinxDiscardedHandCardsBehavior,
-                triggerStackItem,
-                sourceObjectId,
-                out var readyEvent);
-            cardObjects[sourceObjectId] = readiedSourceState;
-            if (readyEvent is not null)
+
+            var nextSourceState = sourceState;
+            if (triggerSpec.ReadiesSource.GetValueOrDefault())
             {
-                events.Add(readyEvent);
+                nextSourceState = ApplyReadyState(
+                    nextSourceState,
+                    triggerBehavior,
+                    triggerStackItem,
+                    sourceObjectId,
+                    out var readyEvent);
+                cardObjects[sourceObjectId] = nextSourceState;
+                if (readyEvent is not null)
+                {
+                    events.Add(readyEvent);
+                }
             }
 
-            var poweredSourceState = ApplyPowerModifier(
-                readiedSourceState,
-                JinxDiscardedHandCardsBehavior,
-                triggerStackItem,
-                sourceObjectId,
-                JinxDiscardedHandCardsBehavior.PowerModifierAmount,
-                out var powerEvent);
-            cardObjects[sourceObjectId] = poweredSourceState;
-            events.Add(powerEvent);
+            if (powerDelta != 0)
+            {
+                nextSourceState = ApplyPowerModifier(
+                    nextSourceState,
+                    triggerBehavior,
+                    triggerStackItem,
+                    sourceObjectId,
+                    powerDelta,
+                    out var powerEvent);
+                cardObjects[sourceObjectId] = nextSourceState;
+                events.Add(powerEvent);
+            }
         }
     }
 
-    private static bool IsJinxDiscardTriggerCardNo(string? cardNo)
+    private static bool IsHandCardsDiscardedReadySourcePowerTriggerSpec(TriggerSpec trigger)
     {
-        return string.Equals(cardNo, OgnJinxDiscardTriggerCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, OgnJinxDiscardTriggerAltCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, ArcJinxDiscardTriggerCardNo, StringComparison.Ordinal);
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.HandCardsDiscardedReadySourcePower,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.HandCardsDiscarded, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.ReadiesSource == true
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta is not null;
     }
 
     private static ResolutionResult ResolveTapRune(
@@ -21365,7 +21387,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["destinationZone"] = "GRAVEYARD"
                 })
         };
-        ResolveJinxDiscardedHandCardsTrigger(
+        ResolveHandCardsDiscardedReadyPowerTriggers(
             playerZones,
             cardObjects,
             playerId,
@@ -23661,7 +23683,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["reason"] = TriggerKinds.BattlefieldConquerDiscardDraw,
                         ["destinationZone"] = trigger.DiscardDestinationZone
                     }));
-                ResolveJinxDiscardedHandCardsTrigger(
+                ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
                     cardObjects,
                     playerId,
@@ -33683,7 +33705,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     payload));
                 discardedTargetObjectIds.Add(targetObjectId);
             }
-            ResolveJinxDiscardedHandCardsTrigger(
+            ResolveHandCardsDiscardedReadyPowerTriggers(
                 playerZones,
                 cardObjects,
                 stackItem.ControllerId,
@@ -33729,7 +33751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             foreach (var (discardPlayerId, discardedTargetObjectIds) in discardedTargetObjectIdsByPlayer)
             {
-                ResolveJinxDiscardedHandCardsTrigger(
+                ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
                     cardObjects,
                     discardPlayerId,
@@ -34261,7 +34283,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["objectIds"] = discardedObjectIds.ToArray(),
                         ["destinationZone"] = "GRAVEYARD"
                     }));
-                ResolveJinxDiscardedHandCardsTrigger(
+                ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
                     cardObjects,
                     discardPlayerId,
@@ -36786,7 +36808,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem.ControllerId,
                     discardedObjectId,
                     autoDiscard: true));
-                ResolveJinxDiscardedHandCardsTrigger(
+                ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
                     cardObjects,
                     stackItem.ControllerId,
