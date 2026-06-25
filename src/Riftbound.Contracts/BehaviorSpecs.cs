@@ -142,6 +142,12 @@ public static class TriggerKinds
         "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     public const string UnitLastBreathCallRuneOne =
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
+    public const string UnitLastBreathCreateMinions =
+        "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
+    public const string UnitLastBreathCreateRobots =
+        "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
+    public const string UnitLastBreathCreateWarhawk =
+        "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK";
     public const string UnitLastBreathDrawIfAlone =
         "SAD_PORO_LAST_BREATH_DRAW_1";
     public const string UnitLastBreathDrawIfNotAlone =

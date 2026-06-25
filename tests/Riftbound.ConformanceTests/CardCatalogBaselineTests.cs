@@ -2569,6 +2569,49 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("OGN·239/298", "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", 3, "随从", 1, null)]
+    [InlineData("SFD·021/221", "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", 2, "机器人", 3, null)]
+    [InlineData("UNL-153/219", "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK", 1, "战鹰", 1, CardObjectTags.Spellshield)]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathCreateBaseUnitTrigger(
+        string cardNo,
+        string effectKind,
+        int tokenCount,
+        string tokenName,
+        int tokenPower,
+        string? keyword)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var unit = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            unit.Triggers,
+            candidate => string.Equals(candidate.Kind, effectKind, StringComparison.Ordinal));
+        Assert.Equal(effectKind, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(tokenCount, trigger.CreatedTokenCount);
+        Assert.Equal(tokenName, trigger.CreatedTokenName);
+        Assert.Equal(tokenPower, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.Contains("{{绝念", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains($"“{tokenName}”", trigger.Text, StringComparison.Ordinal);
+        if (keyword is null)
+        {
+            Assert.True(trigger.CreatedTokenKeywords is null || trigger.CreatedTokenKeywords.Count == 0);
+        }
+        else
+        {
+            Assert.Contains(keyword, trigger.CreatedTokenKeywords ?? []);
+        }
+
+        Assert.Equal(
+            "Unit last-breath create-base-unit trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3802,6 +3845,24 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ScoutingWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScoutingWarhawkLastBreathCallRuneEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathCreateBaseUnitTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("MechanicalTricksterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MechanicalTricksterLastBreathCreateMinionsEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IroncladVanguardCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IroncladVanguardLastBreathCreateRobotsEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MuddyDredgerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MuddyDredgerLastBreathCreateWarhawkEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

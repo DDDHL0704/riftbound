@@ -8,6 +8,9 @@ internal static class UnitDestroyedTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
+    private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> TriggersByKind =
+        new(BuildTriggerKindMap, LazyThreadSafetyMode.ExecutionAndPublication);
+
     public static bool TryGetFriendlyDestroyedGainExperienceTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(
@@ -64,6 +67,22 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLastBreathCreateBaseUnitTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+                cardNo,
+                TriggerKinds.UnitLastBreathCreateMinions,
+                out trigger)
+            || TryGetTrigger(
+                cardNo,
+                TriggerKinds.UnitLastBreathCreateRobots,
+                out trigger)
+            || TryGetTrigger(
+                cardNo,
+                TriggerKinds.UnitLastBreathCreateWarhawk,
+                out trigger);
+    }
+
     public static bool TryGetLastBreathDrawIfNotAloneTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(
@@ -95,6 +114,23 @@ internal static class UnitDestroyedTriggerSpecRules
         return true;
     }
 
+    public static bool TryGetTriggerByKind(string? kind, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        if (string.IsNullOrWhiteSpace(kind))
+        {
+            return false;
+        }
+
+        if (!TriggersByKind.Value.TryGetValue(kind.Trim(), out var match))
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
+    }
+
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
         var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
@@ -114,6 +150,18 @@ internal static class UnitDestroyedTriggerSpecRules
             .ToDictionary(
                 spec => spec.CardNo,
                 spec => (IReadOnlyList<TriggerSpec>)spec.Triggers,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, TriggerSpec> BuildTriggerKindMap()
+    {
+        return TriggersByCardNo.Value
+            .Values
+            .SelectMany(triggers => triggers)
+            .GroupBy(trigger => trigger.Kind, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.First(),
                 StringComparer.Ordinal);
     }
 }

@@ -400,34 +400,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
-    private const string MechanicalTricksterCardNo = "OGN·239/298";
-    private const string MechanicalTricksterLastBreathCreateMinionsEffectKind = "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
-    private static readonly CardBehaviorDefinition MechanicalTricksterLastBreathCreateMinionsBehavior = new(
-        MechanicalTricksterCardNo,
-        "机械戏法师",
-        0,
-        MechanicalTricksterLastBreathCreateMinionsEffectKind,
-        0,
-        0,
-        CreatedBaseUnitTokenCount: 3,
-        CreatedBaseUnitTokenPower: 1,
-        CreatedBaseUnitTokenName: "随从",
-        CreatedBaseUnitTokenTags: CardObjectTags.UnitCard);
-    private const string IroncladVanguardCardNo = "SFD·021/221";
-    private const string IroncladVanguardLastBreathCreateRobotsEffectKind = "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
-    private static readonly CardBehaviorDefinition IroncladVanguardLastBreathCreateRobotsBehavior = new(
-        IroncladVanguardCardNo,
-        "铁甲先锋",
-        0,
-        IroncladVanguardLastBreathCreateRobotsEffectKind,
-        0,
-        0,
-        CreatedBaseUnitTokenCount: 2,
-        CreatedBaseUnitTokenPower: 3,
-        CreatedBaseUnitTokenName: "机器人",
-        CreatedBaseUnitTokenTags: CardObjectTags.UnitCard + "|机械");
-    private const string MuddyDredgerCardNo = "UNL-153/219";
-    private const string MuddyDredgerLastBreathCreateWarhawkEffectKind = "MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK";
     private const string KogmawCardNo = "OGN·190/298";
     private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const int KogmawLastBreathDamage = 4;
@@ -6636,54 +6608,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             ?? removalResult.OwnerPlayerId;
     }
 
-    private static string? ResolveMechanicalTricksterLastBreathMinionPlayerId(
+    private static string? ResolveUnitLastBreathCreateBaseUnitPlayerId(
         CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
+        FieldRemovalResult removalResult,
+        out TriggerSpec triggerSpec)
     {
+        triggerSpec = default!;
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, MechanicalTricksterCardNo, StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveIroncladVanguardLastBreathRobotPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, IroncladVanguardCardNo, StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveMuddyDredgerLastBreathWarhawkPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, MuddyDredgerCardNo, StringComparison.Ordinal)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateBaseUnitTrigger(
+                destroyedState.CardNo,
+                out triggerSpec)
+            || !IsUnitLastBreathCreateBaseUnitTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -7206,6 +7143,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
             && trigger.RuneCallCount is > 0;
+    }
+
+    private static bool IsUnitLastBreathCreateBaseUnitTriggerSpec(TriggerSpec trigger)
+    {
+        return IsUnitLastBreathCreateBaseUnitEffectKind(trigger.Kind)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.CreatedTokenCount is > 0
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && trigger.CreatedTokenPower is > 0
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal);
+    }
+
+    private static bool IsUnitLastBreathCreateBaseUnitEffectKind(string? effectKind)
+    {
+        return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
+            || string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateRobots, StringComparison.Ordinal)
+            || string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateWarhawk, StringComparison.Ordinal);
     }
 
     private static bool IsUnitLastBreathDrawIfNotAloneTriggerSpec(TriggerSpec trigger)
@@ -33230,19 +33188,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal))
+        if (IsUnitLastBreathCreateBaseUnitEffectKind(stackItem.EffectKind))
         {
-            return ResolveMechanicalTricksterLastBreathStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal))
-        {
-            return ResolveIroncladVanguardLastBreathStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, MuddyDredgerLastBreathCreateWarhawkEffectKind, StringComparison.Ordinal))
-        {
-            return ResolveMuddyDredgerLastBreathStackItem(state, stackItem);
+            return ResolveUnitLastBreathCreateBaseUnitStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
@@ -35307,44 +35255,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var mechanicalTricksterMinionPlayerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
+                            var createBaseUnitPlayerId = ResolveUnitLastBreathCreateBaseUnitPlayerId(
                                 targetState,
-                                removalResult);
-                            if (mechanicalTricksterMinionPlayerId is not null)
+                                removalResult,
+                                out var createBaseUnitTriggerSpec);
+                            if (createBaseUnitPlayerId is not null)
                             {
                                 var trigger = BuildLastBreathTriggerQueueItem(
                                     stackItem,
                                     targetObjectId,
-                                    mechanicalTricksterMinionPlayerId,
-                                    MechanicalTricksterLastBreathCreateMinionsEffectKind);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
-                            var ironcladVanguardRobotPlayerId = ResolveIroncladVanguardLastBreathRobotPlayerId(
-                                targetState,
-                                removalResult);
-                            if (ironcladVanguardRobotPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    ironcladVanguardRobotPlayerId,
-                                    IroncladVanguardLastBreathCreateRobotsEffectKind);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
-                            var muddyDredgerWarhawkPlayerId = ResolveMuddyDredgerLastBreathWarhawkPlayerId(
-                                targetState,
-                                removalResult);
-                            if (muddyDredgerWarhawkPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    muddyDredgerWarhawkPlayerId,
-                                    MuddyDredgerLastBreathCreateWarhawkEffectKind);
+                                    createBaseUnitPlayerId,
+                                    createBaseUnitTriggerSpec.Kind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -36695,7 +36616,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveMechanicalTricksterLastBreathStackItem(
+    private static StackResolutionResult ResolveUnitLastBreathCreateBaseUnitStackItem(
         MatchState state,
         StackItemState stackItem)
     {
@@ -36712,95 +36633,27 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
-        CreateBaseUnitTokens(
-            playerZones,
-            cardObjects,
-            MechanicalTricksterLastBreathCreateMinionsBehavior,
-            stackItem,
-            events);
 
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
-    }
-
-    private static StackResolutionResult ResolveIroncladVanguardLastBreathStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>
+        var hasTrigger = UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateBaseUnitTrigger(
+                stackItem.CardNo,
+                out var trigger)
+            && IsUnitLastBreathCreateBaseUnitTriggerSpec(trigger)
+            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal);
+        if (!hasTrigger)
         {
-            BuildTriggerResolvedEvent(new TriggerQueueItemState(
-                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
-                    ? stackItem.StackItemId["ordered-".Length..]
-                    : stackItem.StackItemId,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.EffectKind,
-                "UNIT_DESTROYED"))
-        };
-        CreateBaseUnitTokens(
-            playerZones,
-            cardObjects,
-            IroncladVanguardLastBreathCreateRobotsBehavior,
-            stackItem,
-            events);
+            hasTrigger = UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
+                && IsUnitLastBreathCreateBaseUnitTriggerSpec(trigger);
+        }
 
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
-    }
-
-    private static StackResolutionResult ResolveMuddyDredgerLastBreathStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>
+        if (hasTrigger)
         {
-            BuildTriggerResolvedEvent(new TriggerQueueItemState(
-                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
-                    ? stackItem.StackItemId["ordered-".Length..]
-                    : stackItem.StackItemId,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.EffectKind,
-                "UNIT_DESTROYED"))
-        };
-        CreateWarhawkTokenInControllerBase(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            stackItem.SourceObjectId,
-            MuddyDredgerLastBreathCreateWarhawkEffectKind,
-            events);
+            CreateBaseUnitTokensFromTrigger(
+                playerZones,
+                cardObjects,
+                stackItem,
+                trigger,
+                events);
+        }
 
         return new StackResolutionResult(
             playerZones,
@@ -37242,15 +37095,102 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static void CreateBaseUnitTokensFromTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        TriggerSpec trigger,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            || trigger.CreatedTokenCount is not > 0
+            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            || trigger.CreatedTokenPower is not > 0
+            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.OwnerBase, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var tokenName = trigger.CreatedTokenName;
+        var tokenPower = trigger.CreatedTokenPower.Value;
+        var hasTokenDefinition = TryGetUnitTokenDefinition(tokenName, tokenPower, out var tokenDefinition)
+            && TokenDefinitionHasRequiredKeywords(tokenDefinition, trigger.CreatedTokenKeywords);
+        var tokenTags = hasTokenDefinition
+            ? tokenDefinition.Tags.ToArray()
+            : new[] { CardObjectTags.UnitCard }
+                .Concat(trigger.CreatedTokenKeywords ?? [])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+        tokenTags = ApplyAzirSandSoldierTemperedTags(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            tokenTags).ToArray();
+        tokenTags = ApplyMinionTokenFamilyTag(tokenName, tokenTags).ToArray();
+
+        var tokenObjectIds = new List<string>();
+        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount);
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                tokenIndex + 1);
+            tokenObjectIds.Add(tokenObjectId);
+            var tokenState = hasTokenDefinition
+                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId)
+                : new CardObjectState(
+                    tokenObjectId,
+                    power: tokenPower,
+                    tags: tokenTags,
+                    ownerId: stackItem.ControllerId,
+                    controllerId: stackItem.ControllerId);
+            if (hasTokenDefinition && !tokenState.Tags.SequenceEqual(tokenTags))
+            {
+                tokenState = tokenState with
+                {
+                    Tags = tokenTags
+                };
+            }
+
+            cardObjects[tokenObjectId] = tokenState;
+            var payload = new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["abilityId"] = trigger.Kind,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = tokenName,
+                ["power"] = tokenState.Power,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = tokenState.Tags.ToArray(),
+                ["reason"] = trigger.Kind
+            };
+            if (hasTokenDefinition)
+            {
+                payload["tokenCardNo"] = tokenDefinition.CardNo;
+            }
+
+            events.Add(new GameEvent(
+                "UNIT_TOKEN_CREATED",
+                $"{stackItem.SourceObjectId} 打出{tokenName}",
+                payload));
+        }
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Concat(tokenObjectIds).ToArray()
+        };
+    }
+
     private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
     {
         return !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, MuddyDredgerLastBreathCreateWarhawkEffectKind, StringComparison.Ordinal)
+            && !IsUnitLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
             && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, UndercoverAgentLastBreathEffectKind, StringComparison.Ordinal);
     }
@@ -42448,44 +42388,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var mechanicalTricksterControllerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
+            var createBaseUnitControllerId = ResolveUnitLastBreathCreateBaseUnitPlayerId(
                 destroyedState,
-                removalResult);
-            if (mechanicalTricksterControllerId is not null)
+                removalResult,
+                out var createBaseUnitTriggerSpec);
+            if (createBaseUnitControllerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
                     stackItem,
                     objectId,
-                    mechanicalTricksterControllerId,
-                    MechanicalTricksterLastBreathCreateMinionsEffectKind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            var ironcladVanguardControllerId = ResolveIroncladVanguardLastBreathRobotPlayerId(
-                destroyedState,
-                removalResult);
-            if (ironcladVanguardControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
-                    objectId,
-                    ironcladVanguardControllerId,
-                    IroncladVanguardLastBreathCreateRobotsEffectKind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            var muddyDredgerWarhawkPlayerId = ResolveMuddyDredgerLastBreathWarhawkPlayerId(
-                destroyedState,
-                removalResult);
-            if (muddyDredgerWarhawkPlayerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
-                    objectId,
-                    muddyDredgerWarhawkPlayerId,
-                    MuddyDredgerLastBreathCreateWarhawkEffectKind);
+                    createBaseUnitControllerId,
+                    createBaseUnitTriggerSpec.Kind);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

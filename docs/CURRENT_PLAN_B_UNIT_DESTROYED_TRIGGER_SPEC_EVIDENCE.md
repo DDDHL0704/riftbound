@@ -15,6 +15,9 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·096/298` 警觉的哨兵 has official text `{{绝念}}—抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·216/298` 侦察飞鹰 has official text `{{绝念}}—召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-152/219` 黑色玫瑰要员 has official text `{{强攻}}（如果我是进攻方，则{{S}}+1。）\n{{绝念>}} 召出一枚休眠的符文。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·239/298` Mechanical Trickster has official text `{{绝念}}—打出三名1{{S}}的“随从”到你的基地。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·021/221` Ironclad Vanguard has official text `{{绝念}}—打出两名3{{S}}的“机器人”到你的基地。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-153/219` Muddy Dredger has official text `{{绝念>}} 打出一名1{{S}}的“战鹰”到你的基地，它拥有{{法盾}}。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official catalog text remains the local rule authority input for this representative slice.
 
 ## BehaviorSpec Evidence
@@ -35,6 +38,8 @@ Project status: **NOT READY**.
 - `UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `WatchfulSentinelCardNo` or `WatchfulSentinelLastBreathDrawEffectKind`.
 - `BehaviorSpecCatalogParsesUnitLastBreathCallRuneTrigger` verifies that both 侦察飞鹰 and 黑色玫瑰要员 parse to `TriggerSpec.Kind = SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, and `RuneCallCount = 1`.
 - `UnitLastBreathCallRuneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ScoutingWarhawkCardNo` or `ScoutingWarhawkLastBreathCallRuneEffectKind`.
+- `BehaviorSpecCatalogParsesUnitLastBreathCreateBaseUnitTrigger` verifies that Mechanical Trickster, Ironclad Vanguard, and Muddy Dredger parse to `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount`, `CreatedTokenName`, `CreatedTokenPower`, and `CreatedTokenDestination = OWNER_BASE`, with Muddy Dredger also carrying `CreatedTokenKeywords = [法盾]`.
+- `UnitLastBreathCreateBaseUnitTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains the old Mechanical Trickster, Ironclad Vanguard, or Muddy Dredger Core card-number/effect-kind constants or card-specific resolver names.
 
 ## Runtime Evidence
 
@@ -62,7 +67,9 @@ Project status: **NOT READY**.
 - `CoreRuleEngineQueuesWatchfulSentinelLastBreathDrawWhenDestroyed` keeps the representative fixture route green.
 - `P79ScoutingWarhawkCallsSleepingRuneWhenDestroyed` now covers both 侦察飞鹰 and 黑色玫瑰要员 through the same last-breath call-rune TriggerSpec route; each visible source queues `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, resolves it, calls one dormant rune, exhausts that rune, and moves the source unit to graveyard.
 - Existing `ScoutingWarhawk` real trigger queue and state-based cleanup tests verify the migrated route still supports APNAP trigger ordering, stack resolution, hidden / standby source filtering, and unchanged recovery-visible effect-kind payloads.
-- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, and `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` still pass because the stack effect values are unchanged.
+- `P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed`, `P79IroncladVanguardCreatesTwoRobotsWhenDestroyed`, and existing Muddy Dredger trigger-queue representatives now cover the same last-breath create-base-unit TriggerSpec route; visible sources queue their existing effect kinds and stack resolution creates base units from `TriggerSpec` token count / name / power / keyword / destination data.
+- Existing `MechanicalTrickster`, `IroncladVanguard`, and `MuddyDredger` real trigger queue and state-based cleanup tests verify the migrated route still supports APNAP trigger ordering, stack resolution, hidden / standby source filtering, invalid-source filtering, and unchanged recovery-visible effect-kind payloads.
+- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`, `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, and `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK` still pass because the stack effect values are unchanged.
 
 ## Validation
 
@@ -83,14 +90,16 @@ Project status: **NOT READY**.
 - Adjacent `WatchfulSentinel` representatives: `12/12` passing.
 - Focused 侦察飞鹰 / 黑色玫瑰要员 call-rune behavior-spec/source-guard/runtime representatives: `5/5` passing.
 - Adjacent `ScoutingWarhawk` representatives: `13/13` passing.
-- Adjacent `LastBreath|StateBasedCleanup` representatives: `216/216` passing.
+- Focused Mechanical Trickster / Ironclad Vanguard / Muddy Dredger create-base-unit behavior-spec/source-guard representatives: `4/4` passing.
+- Focused Mechanical Trickster / Ironclad Vanguard / Muddy Dredger runtime representatives: `25/25` passing.
+- Adjacent `LastBreath|StateBasedCleanup` representatives: `220/220` passing.
 - `FullGameEndToEnd`: `15/15` passing.
 - `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8519/8519` passing.
-- DevUi catalog TypeScript shape did not change in the Scouting Warhawk call-rune slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
+- Backend full conformance: `8523/8523` passing.
+- DevUi catalog TypeScript shape did not change in the last-breath create-base-unit slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
 
 ## Residual Risk
 
-- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, and `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`; only source recognition, TriggerSpec parsing, condition checks, and effect amount / token-count / rune-count routing moved to data-driven engine paths.
+- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`, `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, and `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`; only source recognition, TriggerSpec parsing, condition checks, and effect amount / token-count / token-name / token-power / token-keyword / rune-count routing moved to data-driven engine paths.
 - Other destroyed-trigger families still have card-number based source recognition and remain follow-up work.
 - Complete destroyed-trigger prompt breadth and hidden-information edge matrices remain open.

@@ -355,6 +355,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathCallRuneTrigger);
         }
 
+        var hasUnitLastBreathCreateBaseUnitTrigger =
+            TryParseUnitLastBreathCreateBaseUnit(text, out var unitLastBreathCreateBaseUnitTrigger);
+        if (hasUnitLastBreathCreateBaseUnitTrigger)
+        {
+            triggers.Add(unitLastBreathCreateBaseUnitTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -422,6 +429,45 @@ public static class TriggerParser
             "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
             RuneCallCount: 1);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathCreateBaseUnit(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念>?\}\}\s*[—-]?\s*打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var tokenCount = ParseChineseNumber(match.Groups[1].Value);
+        var createdTokenPower = ParseChineseNumber(match.Groups[2].Value);
+        var tokenName = match.Groups[3].Value;
+        var tokenKeywords = match.Groups[4].Success
+            && !string.IsNullOrWhiteSpace(match.Groups[4].Value)
+                ? new[] { match.Groups[4].Value }
+                : Array.Empty<string>();
+        var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords);
+        if (string.IsNullOrWhiteSpace(kind))
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            kind,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath create-base-unit trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            CreatedTokenCount: tokenCount,
+            CreatedTokenName: tokenName,
+            CreatedTokenPower: createdTokenPower,
+            CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+            CreatedTokenKeywords: tokenKeywords);
         return true;
     }
 
@@ -674,6 +720,36 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit,
                 DrawCount: 1,
                 RequiresOtherFriendlyUnitAtSamePosition: true);
+        }
+
+        var unitLastBreathCreateBaseUnitMatch = Regex.Match(
+            segment,
+            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?。?$",
+            RegexOptions.CultureInvariant);
+        if (unitLastBreathCreateBaseUnitMatch.Success)
+        {
+            var tokenCount = ParseChineseNumber(unitLastBreathCreateBaseUnitMatch.Groups[1].Value);
+            var createdTokenPower = ParseChineseNumber(unitLastBreathCreateBaseUnitMatch.Groups[2].Value);
+            var tokenName = unitLastBreathCreateBaseUnitMatch.Groups[3].Value;
+            var tokenKeywords = unitLastBreathCreateBaseUnitMatch.Groups[4].Success
+                && !string.IsNullOrWhiteSpace(unitLastBreathCreateBaseUnitMatch.Groups[4].Value)
+                    ? new[] { unitLastBreathCreateBaseUnitMatch.Groups[4].Value }
+                    : Array.Empty<string>();
+            var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords);
+            if (!string.IsNullOrWhiteSpace(kind))
+            {
+                return new TriggerSpec(
+                    kind,
+                    TriggerTimings.UnitDestroyed,
+                    segment,
+                    "Unit last-breath create-base-unit trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                    TargetScope: TriggerTargetScopes.SourceUnit,
+                    CreatedTokenCount: tokenCount,
+                    CreatedTokenName: tokenName,
+                    CreatedTokenPower: createdTokenPower,
+                    CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+                    CreatedTokenKeywords: tokenKeywords);
+            }
         }
 
         var unitConquestCreateDormantGoldMatch = Regex.Match(
@@ -1337,6 +1413,39 @@ public static class TriggerParser
             DetermineTiming(segment),
             segment,
             "Parsed trigger candidate; queue ordering remains a later rule-domain implementation.");
+    }
+
+    private static string UnitLastBreathCreateBaseUnitKind(
+        string tokenName,
+        int tokenCount,
+        int tokenPower,
+        IReadOnlyList<string> tokenKeywords)
+    {
+        if (string.Equals(tokenName, "随从", StringComparison.Ordinal)
+            && tokenCount == 3
+            && tokenPower == 1
+            && tokenKeywords.Count == 0)
+        {
+            return TriggerKinds.UnitLastBreathCreateMinions;
+        }
+
+        if (string.Equals(tokenName, "机器人", StringComparison.Ordinal)
+            && tokenCount == 2
+            && tokenPower == 3
+            && tokenKeywords.Count == 0)
+        {
+            return TriggerKinds.UnitLastBreathCreateRobots;
+        }
+
+        if (string.Equals(tokenName, "战鹰", StringComparison.Ordinal)
+            && tokenCount == 1
+            && tokenPower == 1
+            && tokenKeywords.Contains("法盾", StringComparer.Ordinal))
+        {
+            return TriggerKinds.UnitLastBreathCreateWarhawk;
+        }
+
+        return string.Empty;
     }
 
     private static int ParseChineseNumber(string raw)
