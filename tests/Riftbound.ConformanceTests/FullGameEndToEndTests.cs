@@ -63,8 +63,10 @@ public sealed class FullGameEndToEndTests
     private const string LostLibraryBattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string IdolValleyBattlefieldPlayUnitBoonCardNo = "UNL-218/219";
     private const string MeteorSpringBattlefieldFirstUnitMoveOtherCardNo = "UNL-215/219";
+    private const string GhostBayBattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string SavageStrengthSpellCardNo = "SFD·034/221";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
+    private const string ReconsiderSpellCardNo = "OGN·104/298";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
     private const string ForbiddenWastelandBattlefieldIsolatedDefenderKeywordModifierCardNo = "UNL-210/219";
@@ -652,6 +654,44 @@ public sealed class FullGameEndToEndTests
             session,
             unitResolved,
             "b0-meteor-spring-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesGhostBayReturnedUnitCallRuneAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldUnitReturnedCallRuneOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldUnitReturnedCallRuneOpeningAsync(
+            "b0-full-game-ghost-bay-return-call-rune-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldUnitReturnedCallRuneMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var spellPlayed = await SubmitBattlefieldUnitReturnedCallRuneSpellAsync(
+            session,
+            current,
+            "P1",
+            "b0-ghost-bay-return-call-rune");
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-ghost-bay-return-call-rune-resolve");
+        AssertBattlefieldUnitReturnedCallRuneResolved(current, spellResolved);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-ghost-bay-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -2885,6 +2925,74 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldUnitReturnedCallRuneResolved(
+        ResolutionResult beforeSpell,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            GhostBayBattlefieldUnitReturnedCallRuneCardNo);
+        var returnedObjectId = FindBattlefieldUnitByCardNo(
+            beforeSpell.State,
+            "P1",
+            WatchfulSentinelCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Ghost Bay assertion could not locate Watchful Sentinel at Ghost Bay.");
+        var reconsiderObjectId = FindHandCardObjectByCardNo(
+            beforeSpell.State,
+            "P1",
+            ReconsiderSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Ghost Bay assertion could not locate Reconsider in P1 hand.");
+        var expectedSpellRuneObjectId = beforeSpell.State.PlayerZones["P1"].RuneDeck.ElementAtOrDefault(0)
+            ?? throw new InvalidOperationException("B0 Ghost Bay assertion expected at least one rune for Reconsider.");
+        var expectedGhostBayRuneObjectId = beforeSpell.State.PlayerZones["P1"].RuneDeck.ElementAtOrDefault(1)
+            ?? throw new InvalidOperationException("B0 Ghost Bay assertion expected a second rune for Ghost Bay.");
+
+        var returnedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, returnedObjectId, StringComparison.Ordinal));
+        Assert.Equal(reconsiderObjectId, returnedEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1", returnedEvent.Payload["ownerPlayerId"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitReturnedPayCallRune, StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(GhostBayBattlefieldUnitReturnedCallRuneCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(reconsiderObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(returnedObjectId, triggerEvent.Payload["returnedObjectId"]);
+
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldUnitReturnedPayCallRune, StringComparison.Ordinal));
+        Assert.Equal("P1", costPaid.Payload["playerId"]);
+        Assert.Equal(1, costPaid.Payload["mana"]);
+        Assert.Equal(beforeSpell.State.RunePools["P1"].Mana - 2, result.State.RunePools["P1"].Mana);
+
+        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)));
+        var reconsiderRuneEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, reconsiderObjectId, StringComparison.Ordinal));
+        Assert.Equal([expectedSpellRuneObjectId], Assert.IsType<string[]>(reconsiderRuneEvent.Payload["runeObjectIds"]));
+        var ghostBayRuneEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, TriggerKinds.BattlefieldUnitReturnedPayCallRune, StringComparison.Ordinal));
+        Assert.Equal(battlefieldObjectId, ghostBayRuneEvent.Payload["sourceObjectId"]);
+        Assert.Equal([expectedGhostBayRuneObjectId], Assert.IsType<string[]>(ghostBayRuneEvent.Payload["runeObjectIds"]));
+        Assert.Equal(returnedObjectId, ghostBayRuneEvent.Payload["returnedObjectId"]);
+
+        Assert.Contains(returnedObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(returnedObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(expectedSpellRuneObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(expectedGhostBayRuneObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(expectedSpellRuneObjectId, result.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(expectedGhostBayRuneObjectId, result.State.PlayerZones["P1"].RuneDeck);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldDefendRevealSpellResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -5016,6 +5124,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Meteor Spring opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldUnitReturnedCallRuneOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    GhostBayBattlefieldUnitReturnedCallRuneCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Ghost Bay opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldDefendRevealSpellOpeningAsync(
@@ -7933,6 +8080,53 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldUnitReturnedCallRuneSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Ghost Bay driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            GhostBayBattlefieldUnitReturnedCallRuneCardNo);
+        var spellObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            ReconsiderSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Ghost Bay driver could not find Reconsider in P1 hand.");
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            WatchfulSentinelCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 Ghost Bay driver could not find Watchful Sentinel at Ghost Bay.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(spellObjectId, legalSourceIds);
+        Assert.Contains(targetObjectId, legalTargetIds);
+
+        var command = new PlayCardCommand(
+            spellObjectId,
+            ReconsiderSpellCardNo,
+            [targetObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -10831,6 +11025,31 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldUnitReturnedCallRuneOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            JhinLegendCardNo,
+            JhinChampionCardNo,
+            [
+                WatchfulSentinelCardNo,
+                WatchfulSentinelCardNo,
+                ReconsiderSpellCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            GhostBayBattlefieldUnitReturnedCallRuneCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldDefendRevealSpellAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -12402,6 +12621,112 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[existingUnitObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldUnitReturnedCallRuneMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [
+                        WatchfulSentinelCardNo,
+                        WatchfulSentinelCardNo,
+                        ReconsiderSpellCardNo
+                    ],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            GhostBayBattlefieldUnitReturnedCallRuneCardNo);
+        var p1UnitObjectIds = midgameState.PlayerZones["P1"].Hand
+            .Where(objectId => midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, WatchfulSentinelCardNo, StringComparison.Ordinal))
+            .TakeLast(2)
+            .ToArray();
+        Assert.Equal(2, p1UnitObjectIds.Length);
+        var returnTargetObjectId = p1UnitObjectIds[0];
+        var stayingUnitObjectId = p1UnitObjectIds[1];
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Ghost Bay setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, returnTargetObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, stayingUnitObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([returnTargetObjectId, stayingUnitObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[returnTargetObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[stayingUnitObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[returnTargetObjectId] = cardObjects[returnTargetObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[returnTargetObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[stayingUnitObjectId] = cardObjects[stayingUnitObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[stayingUnitObjectId]),
             OwnerId = "P1",
             ControllerId = "P1"
         };
