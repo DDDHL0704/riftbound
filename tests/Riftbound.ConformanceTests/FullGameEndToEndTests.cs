@@ -25,6 +25,7 @@ public sealed class FullGameEndToEndTests
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
     private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
+    private const string WildclawBeastmasterCardNo = "UNL-057/219";
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string DemaciaEnvoyCardNo = "UNL-092/219";
     private const string ForgottenMonumentBattlefieldCardNo = "SFD·209/221";
@@ -393,6 +394,67 @@ public sealed class FullGameEndToEndTests
             gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal)
                 && gameEvent.Payload.TryGetValue("reason", out var reason)
                 && string.Equals(reason as string, "NO_LEGAL_COMBATANTS", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRowInDamageAssignmentAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSameBattlefieldSteadfastStaticKeywordOfficialDeck(catalog);
+        var p2Deck = BuildTaricBulwarkAssignmentAttackerOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-taric-bulwark-assignment-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildTaricBulwarkDamageAssignmentMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            TaricSameBattlefieldStaticKeywordCardNo,
+            "P2",
+            "b0-taric-bulwark-stage-taric");
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            LeblancCardNo,
+            "P2",
+            "b0-taric-bulwark-stage-leblanc");
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            WildclawBeastmasterCardNo,
+            "P2",
+            "b0-taric-bulwark-stage-attacker");
+
+        var (assignmentOpened, battleResult) = await DriveContestedBattlefieldToTaricBulwarkDamageAssignmentAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-taric-bulwark-battle");
+
+        AssertTaricBulwarkDamageAssignmentOrdering(assignmentOpened, battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-taric-bulwark-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -1015,6 +1077,67 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertTaricBulwarkDamageAssignmentOrdering(
+        ResolutionResult assignmentOpened,
+        ResolutionResult battleResult)
+    {
+        var taricObjectId = FindBattlefieldUnitByCardNo(
+            assignmentOpened.State,
+            "P1",
+            TaricSameBattlefieldStaticKeywordCardNo)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment assertion could not find Taric.");
+        var battlefieldId = assignmentOpened.State.ObjectLocations[taricObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment assertion could not locate Taric's battlefield.");
+        var leblancObjectId = FindBattlefieldUnitByCardNo(
+            assignmentOpened.State,
+            "P1",
+            LeblancCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment assertion could not find LeBlanc.");
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            assignmentOpened.State,
+            "P2",
+            WildclawBeastmasterCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment assertion could not find Wildclaw Beastmaster.");
+
+        Assert.Contains(CardCombatKeywordNames.Bulwark, assignmentOpened.State.CardObjects[taricObjectId].Tags);
+        Assert.Contains(CardCombatKeywordNames.BackRow, assignmentOpened.State.CardObjects[leblancObjectId].Tags);
+        var assignmentPrompt = assignmentOpened.Prompts["P2"];
+        Assert.Equal(PromptTypes.AssignCombatDamage, assignmentPrompt.View?.Type);
+        var metadata = assignmentPrompt.View?.Metadata
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment prompt missing metadata.");
+        var legalTargets = StringListMap(metadata["legalTargets"]);
+        Assert.Equal([taricObjectId, leblancObjectId], legalTargets[attackerObjectId]);
+        var lethalThreshold = IntMap(metadata["lethalDamageThreshold"]);
+        Assert.Equal(5, lethalThreshold[taricObjectId]);
+        Assert.Equal(5, lethalThreshold[leblancObjectId]);
+
+        var taricDamageIndex = EventIndex(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, attackerObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, taricObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        var taricDamageEvent = battleResult.Events[taricDamageIndex];
+        Assert.Equal("BULWARK_FIRST", taricDamageEvent.Payload["assignmentRole"]);
+        Assert.Equal(1, taricDamageEvent.Payload["assignmentIndex"]);
+        Assert.Equal(5, taricDamageEvent.Payload["damage"]);
+
+        var leblancDamageIndex = EventIndex(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, attackerObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, leblancObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        var leblancDamageEvent = battleResult.Events[leblancDamageIndex];
+        Assert.True(taricDamageIndex < leblancDamageIndex);
+        Assert.Equal("BACK_ROW_LAST", leblancDamageEvent.Payload["assignmentRole"]);
+        Assert.Equal(2, leblancDamageEvent.Payload["assignmentIndex"]);
+        Assert.Equal(2, leblancDamageEvent.Payload["damage"]);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(assignmentOpened);
+        AssertNoHiddenZoneLeak(battleResult);
     }
 
     private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
@@ -2619,6 +2742,59 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 same-battlefield steadfast driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
+    private static async ValueTask<(ResolutionResult AssignmentOpened, ResolutionResult BattleResult)> DriveContestedBattlefieldToTaricBulwarkDamageAssignmentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string defendingPlayerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitTaricBulwarkDamageAssignmentBattleAsync(
+                    session,
+                    result,
+                    attackingPlayerId,
+                    defendingPlayerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Taric bulwark assignment driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Taric bulwark assignment driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> PreparePlayerBoardAsync(
         MatchSession session,
         string playerId,
@@ -3394,6 +3570,84 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<(ResolutionResult AssignmentOpened, ResolutionResult BattleResult)> SubmitTaricBulwarkDamageAssignmentBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string defendingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Taric bulwark assignment driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
+        var taricObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            TaricSameBattlefieldStaticKeywordCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready Taric.");
+        var battlefieldId = current.State.ObjectLocations[taricObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not locate Taric's battlefield.");
+        var leblancObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            LeblancCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready LeBlanc.");
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            attackingPlayerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready Wildclaw Beastmaster attacker.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(attackerObjectId, legalSourceIds);
+        Assert.Contains(taricObjectId, legalTargetIds);
+        Assert.Contains(leblancObjectId, legalTargetIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var ruleTextAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, taricObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, leblancObjectId, StringComparison.Ordinal));
+        Assert.EndsWith($":{CardCombatKeywordNames.Steadfast}", ruleTextAura.EffectId, StringComparison.Ordinal);
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [leblancObjectId, taricObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            attackingPlayerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { leblancObjectId, taricObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var assignmentOpened = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        Assert.Equal(PromptTypes.AssignCombatDamage, assignmentOpened.Prompts[attackingPlayerId].View?.Type);
+        var battleResult = await ResolveOpenBattleDamageAssignmentsAsync(session, assignmentOpened, $"{intentId}-assign-damage");
+        battleResult = await PassOpenBattleResponseAsync(session, battleResult, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(battleResult);
+        return (assignmentOpened, battleResult);
+    }
+
     private static async ValueTask<ResolutionResult> TapAllAvailableRunesAsync(
         MatchSession session,
         string playerId,
@@ -3835,6 +4089,21 @@ public sealed class FullGameEndToEndTests
         };
     }
 
+    private static int EventIndex(
+        IReadOnlyList<GameEvent> events,
+        Predicate<GameEvent> predicate)
+    {
+        for (var index = 0; index < events.Count; index++)
+        {
+            if (predicate(events[index]))
+            {
+                return index;
+            }
+        }
+
+        throw new InvalidOperationException("Expected event was not found.");
+    }
+
     private static bool IsDriverStandbyUnit(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -4084,6 +4353,19 @@ public sealed class FullGameEndToEndTests
                 [
                     TaricSameBattlefieldStaticKeywordCardNo,
                     LeblancCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildTaricBulwarkAssignmentAttackerOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    WildclawBeastmasterCardNo
                 ]));
     }
 
@@ -4389,57 +4671,86 @@ public sealed class FullGameEndToEndTests
             new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
     }
 
+    private static MatchState BuildTaricBulwarkDamageAssignmentMidgameInitialState(MatchState state)
+    {
+        return BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [TaricSameBattlefieldStaticKeywordCardNo, LeblancCardNo],
+                    new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+    }
+
     private static MatchState BuildSpecificCardsMidgameInitialState(
         MatchState state,
         string playerId,
         IReadOnlyList<string> cardNos,
         RunePool runePool)
     {
+        return BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                [playerId] = (cardNos, runePool)
+            });
+    }
+
+    private static MatchState BuildSpecificCardsForPlayersMidgameInitialState(
+        MatchState state,
+        IReadOnlyDictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)> playerSetups)
+    {
+        var activeSetupPlayerId = playerSetups.Keys.First();
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        runePools[playerId] = runePool;
         foreach (var seatPlayerId in state.Seats.Keys)
         {
-            if (!string.Equals(seatPlayerId, playerId, StringComparison.Ordinal))
-            {
-                runePools[seatPlayerId] = RunePool.Empty;
-            }
+            runePools[seatPlayerId] = playerSetups.TryGetValue(seatPlayerId, out var setup)
+                ? setup.RunePool
+                : RunePool.Empty;
         }
 
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var zones = playerZones[playerId];
-        var selectedObjectIds = new List<string>();
-        foreach (var cardNo in cardNos)
-        {
-            var objectId = zones.Hand
-                .Concat(zones.MainDeck)
-                .Concat(zones.Base)
-                .FirstOrDefault(candidateObjectId => !selectedObjectIds.Contains(candidateObjectId, StringComparer.Ordinal)
-                    && state.CardObjects.TryGetValue(candidateObjectId, out var cardObject)
-                    && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
-                ?? throw new InvalidOperationException($"B0 midgame setup could not find {cardNo} in {playerId} official deck zones.");
-            selectedObjectIds.Add(objectId);
-        }
-
-        playerZones[playerId] = zones with
-        {
-            MainDeck = zones.MainDeck.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray(),
-            Hand = zones.Hand
-                .Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal))
-                .Concat(selectedObjectIds)
-                .ToArray(),
-            Base = zones.Base.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray()
-        };
         var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var objectId in selectedObjectIds)
+        foreach (var (setupPlayerId, setup) in playerSetups)
         {
-            objectLocations[objectId] = new ObjectLocationState(playerId, "HAND");
+            var zones = playerZones[setupPlayerId];
+            var selectedObjectIds = new List<string>();
+            foreach (var cardNo in setup.CardNos)
+            {
+                var objectId = zones.Hand
+                    .Concat(zones.MainDeck)
+                    .Concat(zones.Base)
+                    .FirstOrDefault(candidateObjectId => !selectedObjectIds.Contains(candidateObjectId, StringComparer.Ordinal)
+                        && state.CardObjects.TryGetValue(candidateObjectId, out var cardObject)
+                        && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
+                    ?? throw new InvalidOperationException($"B0 midgame setup could not find {cardNo} in {setupPlayerId} official deck zones.");
+                selectedObjectIds.Add(objectId);
+            }
+
+            playerZones[setupPlayerId] = zones with
+            {
+                MainDeck = zones.MainDeck.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray(),
+                Hand = zones.Hand
+                    .Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal))
+                    .Concat(selectedObjectIds)
+                    .ToArray(),
+                Base = zones.Base.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray()
+            };
+            foreach (var objectId in selectedObjectIds)
+            {
+                objectLocations[objectId] = new ObjectLocationState(setupPlayerId, "HAND");
+            }
         }
 
         return state with
         {
             Status = MatchStatuses.InProgress,
-            ActivePlayerId = playerId,
-            TurnPlayerId = playerId,
+            ActivePlayerId = activeSetupPlayerId,
+            TurnPlayerId = activeSetupPlayerId,
             Phase = MatchPhases.Main,
             TimingState = TimingStates.NeutralOpen,
             FocusPlayerId = null,

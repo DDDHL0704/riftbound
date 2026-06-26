@@ -3700,6 +3700,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
 
+        var assignmentLegalTargets = BuildCombatDamageLegalTargets(state, battle);
         foreach (var assignment in assignments)
         {
             var damageApplication = ApplyDamageToCardObject(
@@ -3708,15 +3709,41 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignment.Damage,
                 damageTriggeredDestroyTargetObjectIds);
             var payload = BuildDamagePayload(assignment.SourceObjectId, assignment.TargetObjectId, damageApplication);
+            var assignmentRole = state.CardObjects.TryGetValue(assignment.TargetObjectId, out var targetState)
+                ? BattleDamageAssignmentRole(state, state.PlayerZones, assignment.TargetObjectId, targetState)
+                : string.Empty;
             payload["battleId"] = battleId;
             payload["battlefieldId"] = battlefieldId;
             payload["reason"] = "ASSIGN_COMBAT_DAMAGE";
+            payload["combatRole"] = battle.AttackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
+                ? "ATTACKER"
+                : battle.DefenderObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
+                    ? "DEFENDER"
+                    : string.Empty;
             payload["sourceDamagePool"] = damagePool.TryGetValue(assignment.SourceObjectId, out var sourceDamagePool)
                 ? sourceDamagePool
                 : 0;
             payload["targetLethalDamageThreshold"] = lethalDamageThreshold.TryGetValue(assignment.TargetObjectId, out var targetThreshold)
                 ? targetThreshold
                 : 0;
+            if (assignmentLegalTargets.TryGetValue(assignment.SourceObjectId, out var orderedTargets)
+                && orderedTargets.Count > 1)
+            {
+                var assignmentIndex = orderedTargets
+                    .Select((targetObjectId, index) => new { targetObjectId, index })
+                    .FirstOrDefault(item => string.Equals(item.targetObjectId, assignment.TargetObjectId, StringComparison.Ordinal))
+                    ?.index + 1;
+                if (assignmentIndex is > 0)
+                {
+                    payload["assignmentIndex"] = assignmentIndex.Value;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(assignmentRole))
+            {
+                payload["assignmentRole"] = assignmentRole;
+            }
+
             combatEvents.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 "战斗伤害同时造成",
@@ -3959,11 +3986,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .ToDictionary(
                 objectId => objectId,
-                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? IsStunnedForBattle(cardObject)
-                        ? 0
-                        : Math.Max(0, cardObject.Power)
-                    : 0,
+                objectId => Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId)),
                 StringComparer.Ordinal);
     }
 
@@ -4013,11 +4036,44 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? IsStunnedForBattle(cardObject)
-                        ? 0
-                        : Math.Max(0, cardObject.Power - cardObject.Damage)
+                    ? Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
+    }
+
+    private static int ResolveAssignmentBattleCombatPower(
+        MatchState state,
+        BattleState battle,
+        string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
+        {
+            return 0;
+        }
+
+        var isAttacking = battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal);
+        var battlefieldId = battle.BattlefieldObjectId ?? string.Empty;
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
+        var readyEnemyUnitCount = isAttacking
+            ? battle.DefenderObjectIds.Count(defenderObjectId =>
+                state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
+                && !defenderState.IsExhausted)
+            : 0;
+        return ResolveBattleCombatPower(
+            state,
+            state.PlayerZones,
+            objectId,
+            cardObject,
+            isAttacking,
+            battle.AttackerObjectIds.Count,
+            battle.DefenderObjectIds.Count,
+            defendingPlayerId,
+            battlefieldId,
+            null,
+            0,
+            readyEnemyUnitCount,
+            out _,
+            out _);
     }
 
     private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)

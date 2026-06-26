@@ -4264,7 +4264,7 @@ public sealed record ResolutionResult(
         return BattleParticipantObjectIds(battle)
             .ToDictionary(
                 objectId => objectId,
-                objectId => Math.Max(0, BattleEffectivePowerFor(state, objectId)),
+                objectId => Math.Max(0, BattleEffectivePowerFor(state, battle, objectId)),
                 StringComparer.Ordinal);
     }
 
@@ -4296,7 +4296,7 @@ public sealed record ResolutionResult(
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, BattleEffectivePowerFor(state, objectId) - cardObject.Damage)
+                    ? Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -4318,14 +4318,59 @@ public sealed record ResolutionResult(
 
     internal static int BattleEffectivePowerFor(MatchState state, string objectId)
     {
+        return BattleEffectivePowerFor(state, state.BattleState, objectId);
+    }
+
+    private static int BattleEffectivePowerFor(MatchState state, BattleState battle, string objectId)
+    {
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
         {
             return 0;
         }
 
-        return IsStunnedForBattle(cardObject)
+        if (IsStunnedForBattle(cardObject))
+        {
+            return 0;
+        }
+
+        var keyword = battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal)
+            ? CardCombatKeywordNames.Assault
+            : battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
+                ? CardCombatKeywordNames.Steadfast
+                : string.Empty;
+        var keywordBonus = string.IsNullOrWhiteSpace(keyword)
             ? 0
-            : cardObject.Power;
+            : Math.Max(
+                CardCombatKeywordRules.KeywordAmount(cardObject.Tags, keyword),
+                BattleContinuousKeywordBonusFor(state, objectId, keyword));
+        var staticPowerBonus = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal)
+                && string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
+            .Sum(effect => effect.PowerDelta);
+        return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static int BattleContinuousKeywordBonusFor(
+        MatchState state,
+        string objectId,
+        string keyword)
+    {
+        return state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal))
+            .Select(effect => ContinuousEffectKeywordAmount(effect, keyword))
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static int ContinuousEffectKeywordAmount(
+        ContinuousEffectState effect,
+        string keyword)
+    {
+        var token = effect.EffectId
+            .Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .LastOrDefault() ?? string.Empty;
+        return CardCombatKeywordRules.KeywordAmount([token], keyword);
     }
 
     private static bool IsStunnedForBattle(CardObjectState cardObject)
