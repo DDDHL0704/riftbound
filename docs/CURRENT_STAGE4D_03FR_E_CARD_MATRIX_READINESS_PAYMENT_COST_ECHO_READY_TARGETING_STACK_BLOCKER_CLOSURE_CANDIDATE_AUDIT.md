@@ -42,6 +42,17 @@ Runtime、frontend、Chrome / browser scripts、formal 18-step scripts、officia
 
 payment-cost blocker closure remains partially open。B/D_ENGINE_SUPPORT payment-cost residual remains open。A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE payment-cost residual remains open。E_CARD_MATRIX_FAQ_REVIEW payment-cost residual remains open。E_CARD_MATRIX_READINESS remains open。card matrix remains open。P0-005 remains open。P0-004 adjacency audit-sensitive remains open。P1 remains open。full official PaymentEngine matrix closure remains open。READY remains open。
 
+## 2026-06-26 Automated Evidence Supplement
+
+4D-03FR-BD adds focused C# automated evidence for the selected row without reopening matrix writes:
+
+- audit: `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE_AUDIT.md`
+- evidence: `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE.md`
+- tests: `tests/Riftbound.ConformanceTests/TheCurtainRisesPaymentCostTests.cs`
+- validation: focused `TheCurtainRisesPaymentCostTests` 4/4, adjacent representatives 113/113, `MatchRecovery` 1989/1989 and backend full 8704/8704 passed
+
+This supplement proves prompt, base/ECHO payment, targeting-stack pass-pass ready outcome and insufficient-mana rollback for `UNL-009/219 大幕渐起`. It does not close payment-cost blocker closure, full official PaymentEngine matrix, E_CARD_MATRIX_READINESS, card matrix, P0-005, P1 or READY.
+
 ## Validation
 
 本批已刷新：

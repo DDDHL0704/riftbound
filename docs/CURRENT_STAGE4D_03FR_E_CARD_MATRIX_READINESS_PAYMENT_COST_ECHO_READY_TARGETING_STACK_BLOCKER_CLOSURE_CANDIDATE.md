@@ -41,10 +41,15 @@ Chrome smoke not run because there were no frontend or browser-script changes
 
 本批只接受一个 row-level blocker-count reduction。它不代表 payment-cost blocker closure 完成，不代表 full official PaymentEngine matrix closure，也不代表 E_CARD_MATRIX_READINESS、card matrix 或 READY 完成。
 
+2026-06-26 补充：4D-03FR-BD 已为该 selected row 增加 focused C# automated evidence，入口为 `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE_AUDIT.md` 与 `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE.md`。该补充覆盖 prompt、base/ECHO payment、stack pass-pass ready outcome 与 insufficient-mana no-mutation；仍不关闭 full official PaymentEngine matrix、card matrix、P0-005、P1 或 READY。
+
 证据锚点：
 
 - `docs/CURRENT_STAGE4D_03FR_E_CARD_MATRIX_READINESS_PAYMENT_COST_ECHO_READY_TARGETING_STACK_BLOCKER_CLOSURE_CANDIDATE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE_AUDIT.md`
+- `docs/CURRENT_STAGE4D_03FR_BD_PAYMENT_COST_ECHO_READY_AUTOMATED_EVIDENCE.md`
 - `docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`
 - `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`
+- `tests/Riftbound.ConformanceTests/TheCurtainRisesPaymentCostTests.cs`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_ACTIVE_GOAL_PROMPT_ARTIFACT_CHECKLIST.md`
