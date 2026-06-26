@@ -182,6 +182,12 @@ The 2026-06-25 friendly-spell draw follow-up moves another implemented battlefie
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFriendlySpellDrawCardNo` constant.
 - The old `BattlefieldFriendlySpellDrawCardNo` / `IsBattlefieldFriendlySpellDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `90` total / `86` in `CoreRuleEngine`; Core battlefield helper count is `42`.
 
+The 2026-06-26 locality follow-up tightens the same BehaviorSpec-backed trigger without adding a card-number branch:
+
+- `CoreRuleEngine.TryGetBattlefieldFriendlySpellDrawSource` now enforces `TargetScope = FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` per candidate source when precise `ObjectLocations` identify the target unit's `BattlefieldObjectId`.
+- The shared `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` helper is reused by `BATTLEFIELD_SPELL_POWER_PLUS_1`, so Dream Tree and Waste Hall both ignore friendly units at a different battlefield while preserving legacy fixtures that do not carry precise battlefield location data.
+- `P79BattlefieldFriendlySpellTargetSkipsDifferentBattlefieldUnit` and `P79BattlefieldSpellPowerBonusSkipsDifferentBattlefieldUnit` lock this boundary.
+
 The 2026-06-25 spell-power bonus follow-up moves another implemented battlefield trigger away from engine card-number branching:
 
 - `UNL-205/219` / 废弃大厅 official text: `当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内{{S}}+1。`
@@ -870,6 +876,15 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `48/48`;
 - adjacent Hunting / Overkill / Warhawk / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2142/2142`;
 - backend full conformance: passed `8742/8742`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-06-26 Dream Tree friendly-spell draw locality / B0 action-log replay follow-up validation:
+
+- focused Dream Tree / Waste Hall same-battlefield locality representatives: passed `8/8`;
+- focused B0 Dream Tree replay: passed `1/1`;
+- FullGameEndToEnd: passed `49/49`;
+- adjacent BattlefieldFriendlySpellDraw / BattlefieldSpellPowerBonus / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2051/2051`;
+- backend full conformance: passed `8745/8745`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer overkill create-Warhawk follow-up validation:

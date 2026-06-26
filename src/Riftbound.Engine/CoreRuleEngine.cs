@@ -5230,6 +5230,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         TryResolveBattlefieldSpellPowerBonusTrigger(
             playerZones,
+            objectLocations,
             cardObjects,
             intent.PlayerId,
             behavior,
@@ -32668,10 +32669,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawCount = 0;
         if (!IsSpellPlayBehavior(behavior)
             || targetObjectIds.Count == 0
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !targetObjectIds.Any(targetObjectId =>
-                IsPlayerControlledBattlefieldObject(state, playerId, targetObjectId)
-                && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)))
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return false;
         }
@@ -32684,7 +32682,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
                 || trigger.DrawCount.GetValueOrDefault() <= 0
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                || BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId))
+                || BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId)
+                || !targetObjectIds.Any(targetObjectId =>
+                    IsFriendlyUnitAtBattlefieldTriggerSource(
+                        state.PlayerZones,
+                        state.CardObjects,
+                        state.ObjectLocations,
+                        playerId,
+                        targetObjectId,
+                        objectId)))
             {
                 continue;
             }
@@ -32698,8 +32704,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool IsFriendlyUnitAtBattlefieldTriggerSource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string playerId,
+        string targetObjectId,
+        string battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(targetObjectId, out var cardObject)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        if (!objectLocations.TryGetValue(targetObjectId, out var location)
+            || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            return true;
+        }
+
+        return string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
+    }
+
     private static bool TryResolveBattlefieldSpellPowerBonusTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         CardBehaviorDefinition behavior,
@@ -32715,6 +32750,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var sourceObjectId = string.Empty;
         var sourceCardNo = string.Empty;
         var powerDelta = 0;
+        var targetObjectId = string.Empty;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
@@ -32724,6 +32760,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
                 || trigger.PowerDelta.GetValueOrDefault() == 0
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            {
+                continue;
+            }
+
+            targetObjectId = zones.Battlefields
+                .Where(targetCandidateObjectId => IsFriendlyUnitAtBattlefieldTriggerSource(
+                    playerZones,
+                    cardObjects,
+                    objectLocations,
+                    playerId,
+                    targetCandidateObjectId,
+                    objectId))
+                .OrderBy(targetCandidateObjectId => targetCandidateObjectId, StringComparer.Ordinal)
+                .FirstOrDefault() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(targetObjectId))
             {
                 continue;
             }
@@ -32739,13 +32790,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var targetObjectId = zones.Battlefields
-            .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
-                && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
         }
