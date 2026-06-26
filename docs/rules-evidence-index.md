@@ -439,6 +439,8 @@
 
 后续每条规则能力、fixture 和卡牌行为都必须能关联到这里的证据条目，或在本文件中补充新的条目。
 
+2026-06-27 最新补充：Plan B / Swift spell-duel stack-priority response slice 已验收。审计入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`；focused Swift stack-priority / timing separation representatives 2/2、adjacent Swift / SpellDuel / StackPriority / PassPriority / PlayCard / Prompt / CardCatalogBaseline representatives 1373/1373、FullGameEndToEnd / MatchRecovery hidden-info adjacent 2057/2057、backend full 8764/8764 通过。该补充证明官方 `UNL-007/219`《惩戒》在 pending stack item `TimingContext=SPELL_DUEL_OPEN` 的 `STACK_PRIORITY` prompt 中可作为 Swift `PLAY_CARD` 候选，由服务端提供当前玩家手牌来源和公开战场单位目标，提交后支付 2 法力并以继承 `SPELL_DUEL_OPEN` 的新 stack item 入栈；同时 `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` 保持普通 `NEUTRAL_CLOSED` priority 中 Swift 不等同 Reaction。本批不关闭 ordinary priority Swift、完整 Swift / Reaction timing、完整 spell-duel lifecycle、所有 target-bearing Swift spells、矩阵 FU 级状态或 READY。
+
 ## 2. 文档版本
 
 | 证据编号 | 文件 | 页数 | 当前用途 |
@@ -1147,6 +1149,7 @@
 | `p2-preflight-fepr-resolves-latest-keeps-remaining-stack` | `RULE_AUDITED` | `CORE-260330` p35 rule 340.4 | 已验证最新项目结算后若结算链仍不为空且无待处理项目，则新的最新项目控制者获得优先行动权。 |
 | `p2-preflight-spell-duel-pass-focus-closes-window` | `RULE_AUDITED` | `CORE-260330` p35-p36 rules 341-348；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证法术对决中当前焦点玩家让过后焦点传递，所有玩家让过焦点后关闭法术对决并回到普通主阶段。 |
 | `p2-preflight-play-punishment-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《惩戒》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 3 点伤害，并施加本回合若被摧毁则改为放逐的替代效果。 |
+| `SwiftSpellPromptAndPlayCardAreLegalInSpellDuelStackPriorityWindow` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p27-p28 rules 311-313；p33-p36 rules 333-348；p36 onward rules 349+ | 已验证官方 Swift 法术《惩戒》在 pending stack item `TimingContext=SPELL_DUEL_OPEN` 的 `STACK_PRIORITY` prompt 中暴露服务端 `PLAY_CARD` 候选，提交后支付 2 点费用、选择公开战场单位目标并作为继承 `SPELL_DUEL_OPEN` 的新 stack item 入栈；普通 `NEUTRAL_CLOSED` priority 仍由 `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` 锁定为 Swift 不等同 Reaction。 |
 | `p4-play-punishment-base-unit-target-rejected` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356 | 已验证官方法术《惩戒》选择基地单位、违反卡面“战场上的一名单位”目标要求时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不伤害目标、不创建结算链。 |
 | `p4-play-punishment-illegal-echo-rejected` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证非回响法术《惩戒》携带 `ECHO` optional cost 时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不伤害目标、不创建结算链。 |
 | `p2-preflight-punishment-lethal-damage-banishes-unit` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 323-324；p62-p63 rule 428 | 已验证官方法术《惩戒》对 3 战力战场单位造成 3 点伤害后，目标因替代效果改为放逐而非移入废牌堆。 |

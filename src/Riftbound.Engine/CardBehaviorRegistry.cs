@@ -315,7 +315,8 @@ public static class CardBehaviorRegistry
             3,
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
-            BanishesIfDestroyedThisTurn: true),
+            BanishesIfDestroyedThisTurn: true,
+            CanPlayDuringSpellDuel: true),
         new(
             "UNL-014/219",
             "渊海狩咒",

@@ -26527,6 +26527,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "PLAY_CARD source is already pending on the stack.",
+                ErrorCodes.PhaseNotAllowed);
+            return false;
+        }
+
         var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
         if (!timingDecision.IsAllowed)
         {

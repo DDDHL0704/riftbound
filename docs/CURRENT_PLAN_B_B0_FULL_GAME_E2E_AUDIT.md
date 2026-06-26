@@ -183,6 +183,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to prevent duplicate turn-start `MATCH_WON` events when battlefield scoring wins before draw.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to resolve active post-battle `START_BATTLE` tasks during shared battlefield task advancement: legal tasks activate the task player, while no-legal tasks emit `BATTLE_SKIPPED` and continue advancement.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` so `ASSIGN_COMBAT_DAMAGE` damage pools and lethal thresholds use battle effective power, including printed combat keyword bonuses, RULE_TEXT-granted keyword bonuses and static power modifiers; assignment `DAMAGE_APPLIED` payloads now expose `combatRole`, ordered `assignmentIndex` and `assignmentRole`.
+- Runtime changed in `src/Riftbound.Engine/CardPermissionKeywordRules.cs` so Swift `PLAY_CARD` timing is allowed during stack-priority response only when the pending stack context is `SPELL_DUEL_OPEN`; ordinary `NEUTRAL_CLOSED` priority remains Reaction-only. `src/Riftbound.Engine/CoreRuleEngine.cs` also keeps stale `PLAY_CARD` source-object replay rejected before hand-zone checks when the source is already pending on the stack.
 - Runtime changed in `src/Riftbound.Engine/MatchSession.cs` to project battlefield isolated-defender RULE_TEXT keyword modifiers from `BehaviorSpec.StaticAuras` when the active battle has exactly one public defender at the source battlefield.
 - Runtime changed in `src/Riftbound.Engine/MatchSession.cs` snapshot projection to redact object ids that have moved into a non-viewer hand, main deck, rune deck or hidden battlefield standby from battle / battlefield task / resolution metadata ids and object-id collections.
 - Runtime projection / queue filtering changed in `src/Riftbound.Engine/MatchSession.cs` to make the skip marker suppress repeated same-turn battlefield tasks and hide the internal marker from public continuous-effect projection.
@@ -218,6 +219,8 @@ This Hunting Grounds increment additionally proves a legal official Vex deck ope
 This Ravenbloom increment additionally proves legal official Vex and Lillia deck openings can carry a BehaviorSpec-driven defended-battlefield reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score victory, and action-log replay. It still does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Ravenbloom non-spell increment additionally proves the same legal official deck opening family can carry the miss branch through controlled main-deck top-card reveal, non-spell detection, recycling the revealed card to the bottom of the defending player's main deck, score victory, and action-log replay. It still does not close complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
@@ -803,4 +806,52 @@ Result:
 
 ```text
 Passed: 8747, Failed: 0, Skipped: 0, Total: 8747
+```
+
+Latest Swift spell-duel stack-priority focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows" --nologo
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Swift spell-duel stack-priority adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~SpellDuel|FullyQualifiedName~StackPriority|FullyQualifiedName~PassPriority|FullyQualifiedName~PlayCard|FullyQualifiedName~Prompt|FullyQualifiedName~CardCatalogBaselineTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 1373, Failed: 0, Skipped: 0, Total: 1373
+```
+
+Latest Swift spell-duel stack-priority hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2057, Failed: 0, Skipped: 0, Total: 2057
+```
+
+Latest Swift spell-duel stack-priority backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8764, Failed: 0, Skipped: 0, Total: 8764
 ```

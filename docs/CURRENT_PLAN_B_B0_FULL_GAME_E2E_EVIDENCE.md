@@ -116,11 +116,61 @@ The damage-assignment regression proves that a legal official deck pair can reac
 
 The response-activation regression proves that a legal official deck pair can reach and use a server-authored battle response activation window without a handcrafted battle fixture. `OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts` submits legal Vex green/purple decks with `UNL-232/219` Vex legend, `UNL-055/219` Vex champion, and official `UNL-194/219` Shadow. The driver plays Shadow directly to a contested battlefield, opens `BATTLE_RESPONSE_PRIORITY_OPENED`, submits prompt-authored `ACTIVATE_ABILITY` with a quoted payment resource action when needed, resolves Shadow's stack item to apply `STUNNED`, returns to battle response priority, and closes battle with `BATTLE_RESPONSE_PRIORITY_CLOSED` plus `BATTLE_CLOSED`. This slice changes only test / evidence coverage; it does not close all response windows or the broader swift / reaction family.
 
+The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prompts can expose a server-authored `PLAY_CARD` candidate for an eligible official Swift spell while preserving Swift / Reaction window separation. `SwiftSpellPromptAndPlayCardAreLegalInSpellDuelStackPriorityWindow` starts from a minimal legal state where a pending stack item carries `TimingContext=SPELL_DUEL_OPEN`, priority is on P2, P2 has official `UNL-007/219` Punishment in hand, and a public battlefield unit is a legal target. The prompt exposes `PLAY_CARD` with only the current player's source and public target choices; submitting the command spends 2 mana, removes Punishment from hand, and adds a new `PUNISHMENT_DAMAGE_3` stack item that inherits `SPELL_DUEL_OPEN`. `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` remains green, so ordinary `NEUTRAL_CLOSED` priority windows still reject Swift unless the pending stack context is spell-duel. This slice changes shared timing behavior and one official Behavior definition; it does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
+
 ## Hidden Information Evidence
 
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Swift spell-duel stack-priority focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows" --nologo
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Swift spell-duel stack-priority adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~SpellDuel|FullyQualifiedName~StackPriority|FullyQualifiedName~PassPriority|FullyQualifiedName~PlayCard|FullyQualifiedName~Prompt|FullyQualifiedName~CardCatalogBaselineTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 1373, Failed: 0, Skipped: 0, Total: 1373
+```
+
+Latest Swift spell-duel stack-priority hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SwiftStackPriorityPlayCard|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2057, Failed: 0, Skipped: 0, Total: 2057
+```
+
+Latest Swift spell-duel stack-priority backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8764, Failed: 0, Skipped: 0, Total: 8764
+```
 
 Focused validation:
 
