@@ -19,6 +19,7 @@ public sealed class FullGameEndToEndTests
     private const string PoppyChampionCardNo = "UNL-116/219";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaChampionCardNo = "UNL-082/219";
+    private const string WarhawkTokenCardNo = "UNL·T02";
     private const string FaerieEphemeralTokenCardNo = "UNL·T07";
     private const string MutantKittenCardNo = "UNL-036/219";
     private const string LeblancCardNo = "UNL-090/219";
@@ -34,6 +35,7 @@ public sealed class FullGameEndToEndTests
     private const string ReliableSiegeDogSourceSameLocationStaticAuraCardNo = "SFD·159/221";
     private const string SettSameBattlefieldBoonCountStaticAuraCardNo = "OGN·240/298";
     private const string PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo = "UNL-076/219";
+    private const string SoulShepherdFriendlyTokenStaticAuraCardNo = "UNL-077/219";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -505,6 +507,48 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-petal-pixie-same-battlefield-ephemeral-count-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSoulShepherdFriendlyTokenStaticAuraOfficialDeck(catalog);
+        var p2Deck = BuildSoulShepherdFriendlyTokenStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-soul-shepherd-friendly-token-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSoulShepherdFriendlyTokenStaticAuraMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        var tokenObjectId = FindBattlefieldUnitByCardNo(current.State, "P1", WarhawkTokenCardNo, readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not locate a ready Warhawk token after staging.");
+        var battlefieldId = current.State.ObjectLocations[tokenObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not locate the Warhawk token battlefield.");
+        Assert.NotNull(FindBaseUnitByCardNo(current.State, "P1", SoulShepherdFriendlyTokenStaticAuraCardNo));
+        Assert.NotNull(FindBattlefieldUnitByCardNo(current.State, "P2", WildclawBeastmasterCardNo, battlefieldId, readyOnly: true));
+
+        var battleResult = await DriveContestedBattlefieldToSoulShepherdFriendlyTokenStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-soul-shepherd-friendly-token-aura-battle");
+
+        AssertSoulShepherdFriendlyTokenStaticAuraDamage(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-soul-shepherd-friendly-token-aura-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -1786,6 +1830,24 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertSoulShepherdFriendlyTokenStaticAuraDamage(ResolutionResult result)
+    {
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("basePower", out var basePower)
+            && basePower is 1
+            && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
+            && staticPowerBonus is 1);
+        Assert.Equal(1, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -4016,6 +4078,57 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSoulShepherdFriendlyTokenStaticAuraBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitSoulShepherdFriendlyTokenStaticAuraDeclareBattleAsync(
+                    session,
+                    result,
+                    auraControllerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Soul Shepherd friendly-token static aura driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Soul Shepherd friendly-token static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSameBattlefieldOtherFriendlyFilteredStaticAuraBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -5647,6 +5760,100 @@ public sealed class FullGameEndToEndTests
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
         Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
+        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitSoulShepherdFriendlyTokenStaticAuraDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentId)
+    {
+        Assert.Equal(auraControllerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var opponentId = OpponentOf(current.State, playerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Soul Shepherd friendly-token static aura driver could not find DECLARE_BATTLE for {playerId}.");
+        var sourceObjectId = FindBaseUnitByCardNo(
+            current.State,
+            playerId,
+            SoulShepherdFriendlyTokenStaticAuraCardNo)
+            ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not find Soul Shepherd source.");
+        var tokenObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            WarhawkTokenCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not find a ready Warhawk token.");
+        var battlefieldId = current.State.ObjectLocations[tokenObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not locate the Warhawk token battlefield.");
+        Assert.Contains(CardObjectTags.Spellshield, current.State.CardObjects[tokenObjectId].Tags);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(tokenObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var staticAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, tokenObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_FILTERED_UNITS_POWER:{sourceObjectId}:{tokenObjectId}", staticAura.EffectId);
+        Assert.Equal(SoulShepherdFriendlyTokenStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(StaticAuraKinds.FriendlyFilteredUnitsPower, staticAura.EffectKind);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(1, staticAura.BasePower);
+        Assert.Equal(2, staticAura.EffectivePower);
+        Assert.Equal("CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus", staticAura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_FILTERED_PUBLIC_UNITS", staticAura.Condition);
+        Assert.Equal("DERIVED_FROM_CURRENT_PUBLIC_FIELD_FILTERED_UNIT_LOCATIONS", staticAura.Lifecycle);
+        Assert.Equal([tokenObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds));
+        Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds));
+        Assert.Equal([tokenObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds));
+        Assert.Equal([tokenObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
+
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            opponentId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException(
+                $"B0 Soul Shepherd friendly-token static aura driver could not find a ready Wildclaw Beastmaster defender: {DescribeState(current.State)}");
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [tokenObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { tokenObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal([tokenObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
         Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
@@ -7506,6 +7713,32 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildSoulShepherdFriendlyTokenStaticAuraOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    SoulShepherdFriendlyTokenStaticAuraCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildSoulShepherdFriendlyTokenStaticAuraDefenderOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    WildclawBeastmasterCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -8021,6 +8254,92 @@ public sealed class FullGameEndToEndTests
             power: 3,
             tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "仙灵"],
             cardNo: FaerieEphemeralTokenCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildSoulShepherdFriendlyTokenStaticAuraMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [SoulShepherdFriendlyTokenStaticAuraCardNo],
+                    RunePool.Empty),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldDestinationFor(midgameState, "P1")["BATTLEFIELD:".Length..];
+        const string warhawkTokenObjectId = "P1-SOUL-SHEPHERD-WARHAWK-TOKEN-001";
+        var soulShepherdObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            SoulShepherdFriendlyTokenStaticAuraCardNo)
+            ?? throw new InvalidOperationException("B0 Soul Shepherd setup could not find Soul Shepherd in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Soul Shepherd setup could not find Wildclaw Beastmaster in P2 hand.");
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, soulShepherdObjectId, StringComparison.Ordinal)).ToArray(),
+            Base = p1Zones.Base.Concat([soulShepherdObjectId]).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([warhawkTokenObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[soulShepherdObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[warhawkTokenObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[soulShepherdObjectId] = cardObjects[soulShepherdObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[warhawkTokenObjectId] = new CardObjectState(
+            warhawkTokenObjectId,
+            power: 1,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"],
+            cardNo: WarhawkTokenCardNo,
             ownerId: "P1",
             controllerId: "P1");
         cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
