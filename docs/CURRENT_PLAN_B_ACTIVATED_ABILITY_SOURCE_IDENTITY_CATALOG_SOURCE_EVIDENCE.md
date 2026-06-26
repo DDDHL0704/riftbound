@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for routing command-side activated ability source identity checks through the existing catalog source-card group helper instead of direct `ability.SourceCardNo` equality.
+This file records concrete evidence for routing activated ability source identity checks through the existing catalog source-card group helper instead of direct source-card number equality. The original slice covered command-side `ability.SourceCardNo` revalidation; the 2026-06-27 follow-up covers Gatekeeper Maduli prompt target filtering and command target legality.
 
 ## 1. Runtime Evidence
 
@@ -11,6 +11,7 @@ This file records concrete evidence for routing command-side activated ability s
 - `P4ActivatedAbilityCatalog.IsSourceCardNoForAbility` is the shared predicate for checking whether a concrete source card number belongs to that source-card group.
 - `CoreRuleEngine` no longer contains `string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal)`.
 - The remaining command-side source revalidation branches for Vi, Malzahar, Dragon Soul Sage, Xerath, Crimson Rose, Fluft Poro, and Shadow now call `P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)`.
+- `CoreRuleEngine.IsLegalGatekeeperMaduliMoveTarget` and `MatchSession.IsPromptGatekeeperMaduliMoveTarget` fetch `GatekeeperMaduliMoveAbilityId` and use `P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)` instead of direct `sourceState.CardNo` / `GatekeeperMaduliCardNo` equality.
 - This slice does not change source visibility, controller checks, target checks, payment calculation, stack item creation, exhaustion, event payloads, or snapshot projection.
 
 ## 2. Test Evidence
@@ -23,7 +24,9 @@ Coverage:
 
 - `CoreActivatedAbilitySourceChecksUseCatalogSourceCardGroups` blocks reintroducing direct `sourceState.CardNo` / `ability.SourceCardNo` source equality in `CoreRuleEngine`.
 - The same guard requires `P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)` to remain present.
+- `GatekeeperMaduliTargetLegalityUsesCatalogSourceCardGroup` blocks reintroducing direct `sourceState.CardNo` / `P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo` source equality in Core and MatchSession and requires the shared source-card group helper in both files.
 - Adjacent activated ability coverage includes Vi, Xerath, Malzahar, Dragon Soul Sage, Crimson Rose, Fluft Poro, Shadow, plus Renata / Azir / Ezreal source-group representatives and `PaymentEngineCoverageAuditTests`.
+- Follow-up adjacent coverage includes Gatekeeper Maduli prompt / command / stale target representatives, Crimson Rose cannot-ready interaction representatives, `ActivatedAbilitySourceIdentityGuardTests`, and `PaymentEngineCoverageAuditTests`.
 - `MatchRecovery` remains green in the adjacent set.
 
 ## 3. Verification
@@ -35,16 +38,28 @@ Coverage:
 Result: failed before implementation on direct `sourceState.CardNo` / `ability.SourceCardNo` comparison, then 1/1 passed after implementation.
 
 ```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GatekeeperMaduliTargetLegalityUsesCatalogSourceCardGroup" --nologo
+```
+
+Result: failed before implementation on direct `sourceState.CardNo` / `P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo` comparison, then 1/1 passed after implementation.
+
+```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ActivatedAbilitySourceIdentityGuardTests|FullyQualifiedName~ViActivated|FullyQualifiedName~Xerath|FullyQualifiedName~Malzahar|FullyQualifiedName~DragonSoulSage|FullyQualifiedName~CrimsonRose|FullyQualifiedName~FluftPoro|FullyQualifiedName~ShadowActivated|FullyQualifiedName~RenataActivated|FullyQualifiedName~AzirSwiftSwap|FullyQualifiedName~EzrealBlueSwift|FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result: 2992/2992 passed.
 
 ```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ActivatedAbilitySourceIdentityGuardTests|FullyQualifiedName~GatekeeperMaduliActivatedAbilityTests|FullyQualifiedName~CrimsonRoseActivatedAbilityTests|FullyQualifiedName~PaymentEngineCoverageAuditTests" --nologo
+```
+
+Result: 759/759 passed.
+
+```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8768/8768 passed.
+Result: 8771/8771 passed.
 
 ## 4. Non-Closure Statement
 

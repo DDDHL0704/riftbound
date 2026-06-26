@@ -24,6 +24,39 @@ public sealed class ActivatedAbilitySourceIdentityGuardTests
             StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void GatekeeperMaduliTargetLegalityUsesCatalogSourceCardGroup()
+    {
+        var repositoryRoot = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo",
+            matchSessionSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)",
+            matchSessionSource,
+            StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

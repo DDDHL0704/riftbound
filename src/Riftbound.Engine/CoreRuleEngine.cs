@@ -30524,11 +30524,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId,
         string targetBattlefieldObjectId)
     {
+        if (!P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+            out var ability))
+        {
+            return false;
+        }
+
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.GatekeeperMaduliCardNo, StringComparison.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             || !IsControlledFieldObject(state, playerId, sourceObjectId)
             || !TryGetEnemyControlledBattlefieldTarget(
