@@ -1,8 +1,8 @@
 # Plan B / Source Attacking Ready Enemy Static Aura Spec Audit
 
-Date: 2026-06-25
+Date: 2026-06-26
 
-Status: focused source-attacking-ready-enemy static-aura slice accepted; project remains **NOT READY**.
+Status: focused source-attacking-ready-enemy static-aura slice accepted, with official-deck full-game replay evidence added; project remains **NOT READY**.
 
 ## Scope
 
@@ -14,12 +14,14 @@ This slice moves the implemented Dune Drake ready-enemy combat-power representat
 - `RuleTextParsers.StaticAuraParser` now parses the official text into `Kind = SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER`, `Layer = STATIC_AURA`, `TargetScope = SOURCE_OBJECT`, `ParticipantScope = READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS`, `PowerDeltaPerParticipant = 2`, and `RequiredReadyEnemyUnitCount = 1`.
 - `CoreRuleEngine.ResolveSourceAttackingReadyEnemyUnitPowerBonus(...)` now checks `StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(...)` and reads the ready-enemy threshold plus power delta from `StaticAuraSpec`.
 - The old Core `DuneDrakeCardNo` branch is removed.
+- `FullGameEndToEndTests.OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` now carries this same `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route through a legal official Poppy deck, server-authored play / move / declaration prompts, real battle damage, score victory, and action-log replay.
 
 ## Runtime Effect
 
 - Dune Drake still gains `staticPowerBonus = 2` only while it is an attacking unit and the battle has at least one ready enemy defender.
 - Dune Drake does not gain this bonus while defending.
 - The combat damage payload and lethal-damage threshold behavior remain unchanged for the representative test path.
+- The full-game replay observes official-deck `DAMAGE_APPLIED` with basePower 5, staticPowerBonus 2, combatPower 7, and damage 7.
 - The source must still be a public, face-up unit object; hidden / non-unit objects do not receive the bonus.
 - DevUi runtime behavior is unchanged; catalog typing now includes `staticAuras[].requiredReadyEnemyUnitCount`.
 
@@ -28,13 +30,12 @@ This slice moves the implemented Dune Drake ready-enemy combat-power representat
 - This does not implement complete combat continuous-effect projection for every ready-enemy condition text.
 - This does not close complete battle / spell-duel timing, assignment prompts, or simultaneous trigger ordering.
 - This does not migrate remaining combat-power helpers outside this representative family.
-- This does not close B0 full-game readiness or project READY.
+- This does not close complete source-combat static-aura breadth, B0 full-game readiness, or project READY.
 
 ## Validation
 
-- Focused static-aura parse / source guard / Dune Drake representatives: `4/4` passing.
-- Adjacent static-aura / Dune Drake / Waterbender / Scarlet Pigeon / Wise Elder / Ornn / combat damage / declare battle / full-game representatives: `411/411` passing.
-- `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8531/8531` passing.
-- DevUi build: passing.
-- Source-helper count for `private static bool Is*CardNo(...)`: `32` total / `29` in `CoreRuleEngine`.
+- Focused official-deck replay: `OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAura...` `1/1` passing.
+- FullGameEndToEnd cross-slice: `35/35` passing.
+- DuneDrake / SourceAttackingReadyEnemy / SourceCombat / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representatives: `2114/2114` passing.
+- Backend full conformance: `8727/8727` passing.
+- Source-helper count for `private static bool Is*CardNo(...)`: `0` across `src` and `tests`.

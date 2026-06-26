@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B1 Wise Elder source-object-filtered static-aura official-deck replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B1 Dune Drake source-attacking-ready-enemy static-aura official-deck replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -30,6 +30,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy / Garen / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGS·013/024` Garen's `BehaviorSpec.StaticAuras` projection gives `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
 - from a seated official Vex / Baron Nashor / Wildclaw Beastmaster initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> other-friendly static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-147/219` Baron Nashor's `BehaviorSpec.StaticAuras` projection gives `UNL-057/219` Wildclaw Beastmaster `staticPowerBonus=2`;
 - from a seated official Poppy / Scarlet Pigeon / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-combat static-aura two-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-154/219` Scarlet Pigeon's `BehaviorSpec.StaticAuras` source-combat route gives itself `staticPowerBonus=2`;
+- from a seated official Poppy / Dune Drake initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> opposing ready defender on the same battlefield -> source-attacking-ready-enemy static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·131/298` Dune Drake's `BehaviorSpec.StaticAuras` / `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Master Yi intro / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to the opposing battlefield -> friendly single-defender static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGS·019/024` Master Yi intro's `BehaviorSpec.StaticAuras` / `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route gives the single defending `UNL-092/219` Demacia Envoy `staticPowerBonus=2`;
 - from a seated official Master Yi level / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging after a server-resolved sixth-experience gain -> friendly-units static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-191/219` Master Yi level's `BehaviorSpec.StaticAuras` / `FRIENDLY_UNITS_POWER` route gives the attacking `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
@@ -79,6 +80,8 @@ This other-friendly static-aura replay slice also adds no runtime rule changes. 
 
 This source-combat static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `UNL-154/219` Scarlet Pigeon and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, stages both friendly units and an opposing defender through server commands, submits a server-authored `DECLARE_BATTLE` with both Scarlet Pigeon and Demacia Envoy as attackers, observes Scarlet Pigeon's `DAMAGE_APPLIED` with `basePower=3`, `staticPowerBonus=2`, `combatPower=5`, and `damage=5`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for one source-combat static-aura representative; broader source-combat static-aura official-deck breadth remains open.
 
+This Dune Drake source-attacking-ready-enemy static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `OGN·131/298` Dune Drake. The driver uses the normal official opening seed path, stages Dune Drake and an opposing ready defender to the same battlefield through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authored `DECLARE_BATTLE` with Dune Drake as the only attacker, verifies the projected `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` effect uses the ready enemy defender as participant, observes Dune Drake's `DAMAGE_APPLIED` with `basePower=5`, `staticPowerBonus=2`, `combatPower=7`, and `damage=7`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Dune Drake source-attacking-ready-enemy representative; broader source-combat static-aura official-deck breadth remains open.
+
 This source-lone-battle static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to legal official Lillia decks containing official `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel. The driver uses the normal official opening seed path, stages Waterbender and the opposing Watchful Sentinel through server commands to the same battlefield, submits a server-authored `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the `SOURCE_LONE_BATTLE_POWER` continuous effect targets Waterbender itself, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Waterbender source-lone-battle static-aura representative; broader source-lone-battle and source-object static-aura official-deck breadth remains open.
 
 This friendly single-defender static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Master Yi intro deck containing official `OGS·019/024` Master Yi intro as the legend and `UNL-092/219` Demacia Envoy as the single friendly defending unit. The driver uses the normal official opening seed path, stages Demacia Envoy through server commands to the opposing battlefield, lets the battlefield owner declare battle against that single defender, observes the defender's `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Master Yi intro friendly single-defender static-aura representative; broader legend-source static-aura official-deck breadth remains open.
@@ -121,6 +124,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesOtherFriendlyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceCombatStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesFriendlySingleDefenderStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesMasterYiLevelFriendlyUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -152,6 +156,8 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 
 This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves official Lillia multi-defender damage-assignment deck pairs can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow deck pairs can open and resolve a battle response activation through server prompts; official Poppy / Garen / Demacia Envoy, Vex / Baron Nashor / Wildclaw Beastmaster, Poppy / Scarlet Pigeon / Demacia Envoy, Lillia / Waterbender / Watchful Sentinel, Master Yi intro / Demacia Envoy, Master Yi level / Demacia Envoy, Master Yi level / Wise Elder / Arena Rookie / Watchful Sentinel, Vex / Trifarian Training Grounds / Wildclaw Beastmaster, Poppy / Reliable Siege Dog / Demacia Envoy, Poppy / Sett / Arena Rookie / Demacia Envoy, and Poppy / Lee Sin / Arena Rookie / Demacia Envoy decks can carry spec-driven same-battlefield, non-local other-friendly, source-combat, source-lone-battle, friendly single-defender, experience-gated friendly-units, source-object filtered, battlefield-source all-units, source same-location threshold, same-battlefield boon count-to-source, and same-battlefield other-friendly filtered static auras into real battle damage and score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc decks can carry spec-driven same-battlefield RULE_TEXT keyword auras into attacker and defender real battle damage and score-victory replay; and post-battle active `START_BATTLE` tasks no longer strand the game in a WAIT-only B0 state. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, explicit Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Baron Nashor other-friendly static-aura, Scarlet Pigeon source-combat static-aura, Waterbender source-lone-battle static-aura, Master Yi intro friendly single-defender static-aura, Master Yi level friendly-units static-aura, Wise Elder source-object filtered static-aura, Trifarian Training Grounds battlefield all-units static-aura, Reliable Siege Dog source same-location static-aura, Sett same-battlefield boon count-to-source static-aura, Lee Sin same-battlefield other-friendly filtered static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Vex / Shadow / Teemo standby reaction paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, full static-aura official breadth, full RULE_TEXT keyword aura breadth, all response windows, or all card-effect families can complete a game.
 
+This Dune Drake increment additionally proves a legal official Poppy / Dune Drake deck can carry `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` through seated-room official opening, server-authored play / move / declaration prompts, ready-enemy participant projection, real battle damage, score victory, and action-log replay. It still does not close complete source-combat static-aura breadth, complete official deck archetype breadth, or READY.
+
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-harness slice.
 
 Open follow-up:
@@ -162,10 +168,10 @@ Open follow-up:
 
 ## Validation
 
-Focused Wise Elder source-object filtered static-aura validation passed:
+Focused Dune Drake source-attacking-ready-enemy static-aura validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAura" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAura" --nologo
 ```
 
 Result:
@@ -183,19 +189,19 @@ FullGameEndToEnd validation passed:
 Result:
 
 ```text
-Passed: 34, Failed: 0, Skipped: 0, Total: 34
+Passed: 35, Failed: 0, Skipped: 0, Total: 35
 ```
 
 Adjacent / hidden-info validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAura|FullyQualifiedName~WiseElder|FullyQualifiedName~SourceObjectFiltered|FullyQualifiedName~Boon|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~ArenaRookie" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAura|FullyQualifiedName~DuneDrake|FullyQualifiedName~SourceAttackingReadyEnemy|FullyQualifiedName~SourceCombat|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 2207, Failed: 0, Skipped: 0, Total: 2207
+Passed: 2114, Failed: 0, Skipped: 0, Total: 2114
 ```
 
 Backend full validation passed:
@@ -207,5 +213,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8726, Failed: 0, Skipped: 0, Total: 8726
+Passed: 8727, Failed: 0, Skipped: 0, Total: 8727
 ```
