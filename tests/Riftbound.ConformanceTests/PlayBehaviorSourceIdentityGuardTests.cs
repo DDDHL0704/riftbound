@@ -13,6 +13,8 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("UNL-004/219", "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT")]
     [InlineData("UNL-108/219", "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT")]
     [InlineData("OGN·019/298", "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT")]
+    [InlineData("SFD·002/221", "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE")]
+    [InlineData("SFD·109/221", "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesPlaySourceUnitsByEffectKind(
         string cardNo,
         string effectKind)
@@ -32,6 +34,8 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("UNL-108/219", "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT")]
     [InlineData("OGN·019/298", "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT")]
     [InlineData("UNL-004/219", "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT")]
+    [InlineData("SFD·109/221", "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE")]
+    [InlineData("SFD·002/221", "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingPlaySourceUnits(
         string cardNo,
         string effectKind)
@@ -152,6 +156,40 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.Contains(
             "string.Equals(behavior.EffectKind, RampagingSoulConditionalSourceEffectKind",
             coreRuleEngineSource,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void OptionalCostRepresentativeSourcesUseCatalogEffectKind()
+    {
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, ArmedAssaulterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ArmedAssaulterHasteTemperedSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind",
+            matchSessionSource,
             StringComparison.Ordinal);
     }
 

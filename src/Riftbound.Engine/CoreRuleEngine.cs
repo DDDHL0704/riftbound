@@ -127,10 +127,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BladeOfTheRuinedKingAssembleOptionalCost = "ASSEMBLE_YELLOW";
     private const int BladeOfTheRuinedKingAssemblePowerCost = 1;
     private const string SpinningAxeCardNo = "SFD·186/221";
-    private const string ArmedAssaulterCardNo = "SFD·002/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string AkshanCardNo = "SFD·109/221";
+    private const string ArmedAssaulterHasteTemperedSourceEffectKind = "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE";
+    private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
     private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
     private const string AkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string AkshanOrangeExtraEquipmentStealReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
@@ -33513,13 +33514,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.CardNo, ArmedAssaulterCardNo, StringComparison.Ordinal);
+            && string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind, StringComparison.Ordinal);
     }
 
     private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.CardNo, AkshanCardNo, StringComparison.Ordinal);
+            && string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind, StringComparison.Ordinal);
     }
 
     private static bool IsLegalTemperedOptionalAttachChoice(

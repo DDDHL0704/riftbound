@@ -6250,7 +6250,7 @@ internal static class ActionPromptBuilder
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
-    private const string AkshanCardNo = "SFD·109/221";
+    private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
     private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
     private const int AkshanStealEquipmentOrangePowerCost = 2;
     private const int SpinningAxeAssemblePowerCost = 1;
@@ -14193,7 +14193,7 @@ internal static class ActionPromptBuilder
     private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.CardNo, AkshanCardNo, StringComparison.Ordinal);
+            && string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AkshanStealEquipmentChoices(
