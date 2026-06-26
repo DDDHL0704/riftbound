@@ -25,12 +25,15 @@
 
 Accepted implementation facts:
 
-- `P4ActivatedAbilityCatalog.CardCannotBecomeActive()` recognizes official `UNL-144/219` as cannot become active.
+- `BehaviorSpecCatalogBuilder` now parses official `UNL-144/219` text into `StaticAbilityKinds.UnitCannotBecomeActive`.
+- `CardStaticAbilitySpecRules.CardCannotBecomeActive()` resolves cannot-active policy from `BehaviorSpec.StaticAbilities`; it no longer depends on a P4 activated-ability card-number predicate.
+- `BattlefieldStaticAbilitySpecRules` reuses the shared static-ability map, keeping battlefield and unit static lookup on the same BehaviorSpec source.
 - `MatchSession` filters Crimson Rose ready target choices through the cannot-active policy and changes Maduli prompt metadata from `staticCannotBecomeActivePolicy=deferred` to `implemented`.
 - `CoreRuleEngine` rejects hand-written Crimson Rose target attempts against cannot-active cards, skips stale Crimson Rose ready resolution for Maduli, and makes shared `ApplyReadyState` return no `UNIT_READIED` event for cannot-active cards.
 - `CrimsonRoseActivatedAbilityTests` adds prompt filtering, no-mutation command and stale stack skip guards.
 - `HuntReadyGuardTests` adds Maduli to the mass-ready fixture and asserts it remains exhausted while other friendly units ready.
 - `GatekeeperMaduliActivatedAbilityTests` now expects implemented cannot-ready metadata.
+- `CardCatalogBaselineTests` now locks both the `UNIT_CANNOT_BECOME_ACTIVE` parse and the absence of the old P4 card-number predicate.
 
 No frontend files, card matrix JSON or `riftbound-dotnet.sln` were modified.
 
@@ -38,7 +41,8 @@ No frontend files, card matrix JSON or `riftbound-dotnet.sln` were modified.
 
 | Gate | Evidence | Status |
 |---|---|---|
-| Explicit Maduli cannot-ready policy | `P4ActivatedAbilityCatalog.CardCannotBecomeActive()` checks `UNL-144/219` | PASS |
+| Explicit Maduli cannot-ready policy | `BehaviorSpec.StaticAbilities` exposes `UNIT_CANNOT_BECOME_ACTIVE` for official `UNL-144/219` text | PASS |
+| No P4 card-number predicate | `UnitCannotBecomeActiveStaticDoesNotUseP4CardNumberPredicate` | PASS |
 | Prompt does not offer Maduli ready target | `CrimsonRoseReadyUnitPromptHidesGatekeeperMaduliCannotBecomeActiveTarget` | PASS |
 | Hand-written target no-mutation | `CrimsonRoseRejectsHandWrittenGatekeeperMaduliReadyTargetWithoutMutation` | PASS |
 | Stale stack skip / no `UNIT_READIED` | `CrimsonRoseStaleStackItemSkipsGatekeeperMaduliCannotBecomeActiveTarget` | PASS |
@@ -55,6 +59,12 @@ Recorded in `docs/CURRENT_STAGE4D_03AR_GATEKEEPER_MADULI_CANNOT_READY_STATIC_EVI
 - adjacent 375/375 passed
 - backend full 4345/4345 passed
 - `git diff --check` passed
+
+2026-06-27 spec-driven follow-up verification:
+
+- focused BehaviorSpec / source guard 2/2 passed
+- adjacent CardCatalog / Gatekeeper / CrimsonRose / Hunt guard 328/328 passed
+- backend full 8770/8770 passed
 
 ## 5. Non-Completion Notes
 

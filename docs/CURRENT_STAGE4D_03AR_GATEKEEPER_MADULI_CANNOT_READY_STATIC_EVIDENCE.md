@@ -20,7 +20,9 @@ Official text:
 
 Implementation facts:
 
-- `P4ActivatedAbilityCatalog.CardCannotBecomeActive()` binds the cannot-ready policy to official `UNL-144/219`.
+- `BehaviorSpecCatalogBuilder` parses official `UNL-144/219` text into `StaticAbilityKinds.UnitCannotBecomeActive`.
+- `CardStaticAbilitySpecRules.CardCannotBecomeActive()` binds the cannot-ready policy through `BehaviorSpec.StaticAbilities`, not through a P4 activated-ability card-number predicate.
+- `BattlefieldStaticAbilitySpecRules` reuses the shared static-ability map for existing battlefield static lookups.
 - `MatchSession` filters Crimson Rose ready-unit target choices with the cannot-active policy.
 - Maduli `ACTIVATE_ABILITY` prompt metadata now reports `staticCannotBecomeActivePolicy=implemented`.
 - `CoreRuleEngine` rejects direct Crimson Rose ready-unit commands targeting Maduli before payment / stack creation.
@@ -36,6 +38,8 @@ New or updated focused tests cover:
 - Crimson Rose stale stack item targeting Maduli resolves without readying Maduli or emitting Maduli `UNIT_READIED`.
 - Hunt mass ready keeps Maduli exhausted while readying the ordinary friendly base and battlefield units.
 - Maduli purple move prompt metadata now expects `implemented` cannot-ready static policy.
+- BehaviorSpec catalog parses `UNL-144/219` as `UNIT_CANNOT_BECOME_ACTIVE`.
+- Source guards reject the old `P4ActivatedAbilityCatalog.CardCannotBecomeActive` predicate.
 
 ## 4. Commands Run
 
@@ -56,6 +60,24 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
 ```
 
 Result: 4345/4345 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~BehaviorSpecCatalogParsesUnitCannotBecomeActiveStaticAbility|FullyQualifiedName~UnitCannotBecomeActiveStaticDoesNotUseP4CardNumberPredicate"
+```
+
+Result: 2/2 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~GatekeeperMaduli|FullyQualifiedName~CrimsonRose|FullyQualifiedName~HuntReadyGuard"
+```
+
+Result: 328/328 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8770/8770 passed.
 
 ```sh
 git diff --check

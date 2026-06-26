@@ -13576,7 +13576,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
+            || CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
             return RejectWithCorePrompts(
                 state,
@@ -28625,7 +28625,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.IsExhausted
                 && !cardObject.IsFaceDown
-                && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(cardObject.CardNo)
+                && !CardStaticAbilitySpecRules.CardCannotBecomeActive(cardObject.CardNo)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -38082,7 +38082,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown
             && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
+            && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
             events.Add(new GameEvent(
@@ -40619,7 +40619,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId,
         out GameEvent? readyEvent)
     {
-        if (P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo))
+        if (CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
             readyEvent = null;
             return targetState;

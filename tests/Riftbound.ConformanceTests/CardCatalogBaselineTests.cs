@@ -3038,6 +3038,23 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitCannotBecomeActiveStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var gatekeeperMaduli = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-144/219", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            gatekeeperMaduli.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.UnitCannotBecomeActive, StringComparison.Ordinal));
+
+        Assert.Equal(StaticAbilityKinds.UnitCannotBecomeActive, ability.Kind);
+        Assert.Contains("无法变为活跃状态", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldScoreDelayStaticAbility()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3186,6 +3203,35 @@ public sealed class CardCatalogBaselineTests
             "CardBehaviorRegistry.cs");
         var cardBehaviorRegistrySource = File.ReadAllText(cardBehaviorRegistryPath);
         Assert.DoesNotContain("AddsFriendlyFieldEquipmentCountToSourceUnitPower", cardBehaviorRegistrySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitCannotBecomeActiveStaticDoesNotUseP4CardNumberPredicate()
+    {
+        var p4ActivatedAbilityCatalogPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "P4ActivatedAbilityCatalog.cs");
+        var p4ActivatedAbilityCatalogSource = File.ReadAllText(p4ActivatedAbilityCatalogPath);
+
+        Assert.DoesNotContain("CardCannotBecomeActive", p4ActivatedAbilityCatalogSource, StringComparison.Ordinal);
+
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        Assert.DoesNotContain("P4ActivatedAbilityCatalog.CardCannotBecomeActive", matchSessionSource, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        Assert.DoesNotContain("P4ActivatedAbilityCatalog.CardCannotBecomeActive", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

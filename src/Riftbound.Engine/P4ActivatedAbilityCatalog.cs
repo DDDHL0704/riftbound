@@ -127,11 +127,6 @@ public static class P4ActivatedAbilityCatalog
     public const string GatekeeperMaduliMoveAbilityEffectKind = "GATEKEEPER_MADULI_ACTIVATED_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD";
     public const int GatekeeperMaduliMovePurplePowerCost = 1;
 
-    public static bool CardCannotBecomeActive(string? cardNo)
-    {
-        return string.Equals(cardNo, GatekeeperMaduliCardNo, StringComparison.Ordinal);
-    }
-
     public const string EzrealBlueSwiftCardNo = "SFD·082/221";
     public const string EzrealBlueSwiftAltCardNo = "SFD·082a/221";
     public const string EzrealBlueSwiftPromoCardNo = "SFD·082b/221·P";

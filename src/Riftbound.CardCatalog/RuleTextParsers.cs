@@ -1653,6 +1653,17 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
+                || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.UnitCannotBecomeActive,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
+                continue;
+            }
+
             var battlefieldEchoCostReductionMatch = Regex.Match(
                 segment,
                 @"友方\{\{回响\}\}的费用减少\{\{(\d+)\}\}",

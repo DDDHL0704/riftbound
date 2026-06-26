@@ -11080,7 +11080,7 @@ internal static class ActionPromptBuilder
     private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
     {
         return state.CardObjects.TryGetValue(objectId, out var targetState)
-            && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(targetState.CardNo);
+            && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo);
     }
 
     private static bool CanPayShadowTargetCost(
