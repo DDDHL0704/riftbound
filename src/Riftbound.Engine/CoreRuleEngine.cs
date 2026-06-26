@@ -30118,9 +30118,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["trigger"] = triggerSpec.Kind,
+                    ["battlefieldObjectId"] = triggerSourceObjectId,
+                    ["battlefieldCardNo"] = triggerSourceState.CardNo,
                     ["targetObjectId"] = sourceObjectId,
                     ["originZone"] = originZone,
-                    ["destinationZone"] = destinationZone
+                    ["destinationZone"] = destinationZone,
+                    ["powerDelta"] = powerDelta
                 }),
             new GameEvent(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",

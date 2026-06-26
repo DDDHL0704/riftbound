@@ -58,6 +58,7 @@ public sealed class FullGameEndToEndTests
     private const string HuntingGroundsBattlefieldConquerOverkillWarhawkCardNo = "UNL-217/219";
     private const string TreasurePileBattlefieldConquerGoldCardNo = "SFD·220/221";
     private const string SunkenTempleBattlefieldConquerPowerfulDrawCardNo = "SFD·218/221";
+    private const string BackAlleyBarBattlefieldMovedUnitPowerCardNo = "OGN·277/298";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string LostLibraryBattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
@@ -362,6 +363,32 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPowerActionLogReplaysToTriggeredStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldMovedUnitPowerOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldMovedUnitPowerOpeningAsync(
+            "b0-full-game-back-alley-bar-moved-unit-power-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldMovedUnitPowerMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var moved = await SubmitBattlefieldMovedUnitPowerMoveToBaseAsync(
+            session,
+            current,
+            "P1",
+            "b0-back-alley-bar-move-to-base");
+        AssertBattlefieldMovedUnitPowerResolved(current, moved);
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, moved);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -2957,6 +2984,60 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].Hand.Count + 1, result.State.PlayerZones["P1"].Hand.Count);
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].MainDeck.Count - 1, result.State.PlayerZones["P1"].MainDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldMovedUnitPowerResolved(
+        ResolutionResult beforeMove,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            BackAlleyBarBattlefieldMovedUnitPowerCardNo);
+        var movedObjectId = FindBattlefieldUnitByCardNo(
+            beforeMove.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Back Alley Bar assertion could not locate Wildclaw Beastmaster at Back Alley Bar.");
+        var beforeMovedState = beforeMove.State.CardObjects[movedObjectId];
+        const int expectedPowerDelta = 1;
+
+        Assert.DoesNotContain(movedObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(movedObjectId, result.State.PlayerZones["P1"].Base);
+        var movedLocation = result.State.ObjectLocations[movedObjectId];
+        Assert.Equal("P1", movedLocation.PlayerId);
+        Assert.Equal("BASE", movedLocation.Zone);
+        Assert.Null(movedLocation.BattlefieldObjectId);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(BackAlleyBarBattlefieldMovedUnitPowerCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(movedObjectId, triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal("BATTLEFIELD", triggerEvent.Payload["originZone"]);
+        Assert.Equal("BASE", triggerEvent.Payload["destinationZone"]);
+        Assert.Equal(expectedPowerDelta, triggerEvent.Payload["powerDelta"]);
+
+        var movedState = result.State.CardObjects[movedObjectId];
+        var powerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
+        Assert.Equal(movedObjectId, powerEvent.Payload["targetObjectId"]);
+        Assert.Equal(expectedPowerDelta, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(movedState.Power, powerEvent.Payload["resultingPower"]);
+        Assert.Equal(beforeMovedState.Power + expectedPowerDelta, movedState.Power);
+        Assert.Equal(beforeMovedState.UntilEndOfTurnPowerModifier + expectedPowerDelta, movedState.UntilEndOfTurnPowerModifier);
+        var modifier = Assert.Single(movedState.UntilEndOfTurnPowerModifiers);
+        Assert.Equal(TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, modifier.EffectKind);
+        Assert.Equal(movedObjectId, modifier.TargetObjectId);
+        Assert.Equal(battlefieldObjectId, modifier.SourceObjectId);
+        Assert.Equal(BackAlleyBarBattlefieldMovedUnitPowerCardNo, modifier.SourceCardNo);
+        Assert.Equal(expectedPowerDelta, modifier.PowerDelta);
+        Assert.Equal(movedState.Power, modifier.ResultingPower);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -5838,6 +5919,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Sunken Temple opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldMovedUnitPowerOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    BackAlleyBarBattlefieldMovedUnitPowerCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Back Alley Bar opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerSandSoldierOpeningAsync(
@@ -9091,6 +9211,37 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
         Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
         var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldMovedUnitPowerMoveToBaseAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            BackAlleyBarBattlefieldMovedUnitPowerCardNo);
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Back Alley Bar driver could not find a ready Wildclaw Beastmaster to move.");
+
+        var command = new MoveUnitCommand(sourceObjectId, "BATTLEFIELD", "BASE", []);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -13044,6 +13195,29 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldMovedUnitPowerOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                WildclawBeastmasterCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            BackAlleyBarBattlefieldMovedUnitPowerCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -14559,6 +14733,90 @@ public sealed class FullGameEndToEndTests
                     BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
                     StringComparison.Ordinal))
                 .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldMovedUnitPowerMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            BackAlleyBarBattlefieldMovedUnitPowerCardNo);
+        var movedObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Back Alley Bar setup could not find Wildclaw Beastmaster in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Back Alley Bar setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, movedObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([movedObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Base = p2Zones.Base.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[movedObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[movedObjectId] = cardObjects[movedObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[movedObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
         };
