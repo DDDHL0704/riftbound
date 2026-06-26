@@ -1,8 +1,8 @@
 # Plan B / B0 Full-Game E2E Audit
 
-Date: 2026-06-25
+Date: 2026-06-26
 
-Status: focused B0 standby reaction action-log replay slice accepted; project remains **NOT READY**.
+Status: focused B0 accepted-step hidden snapshot guard accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -29,8 +29,10 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
 - a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
 - a legal official Vex deck pair can drive `DECLARE_BATTLE` into `BATTLE_RESPONSE_PRIORITY_OPENED`, activate `UNL-194/219` Shadow through `ACTIVATE_ABILITY`, resolve the stack, return to battle response priority, and close battle with `BATTLE_RESPONSE_PRIORITY_CLOSED` / `BATTLE_CLOSED`;
-- every accepted step checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
+- every accepted step that uses the shared B0 `AssertAccepted` helper now checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
 - the earlier surrender result smoke remains covered separately.
+
+This accepted-step hidden snapshot guard slice adds no runtime rule changes. It tightens the B0 test harness by moving `AssertNoHiddenZoneLeak` into `FullGameEndToEndTests.AssertAccepted`, so accepted `SUBMIT_DECK`, `READY`, `MULLIGAN`, `TAP_RUNE`, `PLAY_CARD`, `MOVE_UNIT`, `DECLARE_BATTLE`, `ACTIVATE_ABILITY`, `ASSIGN_COMBAT_DAMAGE`, `PASS_PRIORITY`, `PASS_FOCUS`, `END_TURN`, `HIDE_CARD`, `REVEAL_CARD` and `SURRENDER` results covered by the shared helper all reject opponent hidden-zone object id leakage immediately.
 
 The first B0 runtime fix was narrow: when spell duel closes into an existing `START_BATTLE` task, the engine promotes `ActivePlayerId` to the task player (`CleanupTaskState.PlayerId`) instead of always keeping the turn player. This preserves the existing battlefield-owner declaration model and fixes natural games where the mover is not the battle-task player.
 
@@ -82,12 +84,13 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to prevent duplicate turn-start `MATCH_WON` events when battlefield scoring wins before draw.
 - Runtime projection / queue filtering changed in `src/Riftbound.Engine/MatchSession.cs` to make the skip marker suppress repeated same-turn battlefield tasks and hide the internal marker from public continuous-effect projection.
 - Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to write replayable raw command payloads for B0 prompt-derived commands instead of only `cmdType`, so action-log recovery can reconstruct the same `GameCommand` object ids / destinations / damage assignments / activated ability choices / hide-reveal standby choices used by the server prompt path.
+- Test guard strengthened in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`: `AssertAccepted` now calls `AssertNoHiddenZoneLeak`, giving the B0 full-game harness step-level hidden snapshot coverage for every accepted result routed through the shared helper.
 
 ## Residuals
 
 This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, and official Vex / Shadow deck pairs can open and resolve a battle response activation through server prompts. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, explicit Pakaa Cub standby hide/reveal, and Vex / Shadow / Teemo standby reaction paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
 
-Current §6 mouth count after this slice: `private static bool Is*CardNo(...)` helper definitions remain 48 in `src/Riftbound.Engine`. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-driver slice.
+Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-harness slice.
 
 Open follow-up:
 
@@ -106,7 +109,7 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 15, Failed: 0, Skipped: 0, Total: 15
+Passed: 19, Failed: 0, Skipped: 0, Total: 19
 ```
 
 Adjacent validation passed:
@@ -118,7 +121,7 @@ Adjacent validation passed:
 Result:
 
 ```text
-Passed: 700, Failed: 0, Skipped: 0, Total: 700
+Passed: 718, Failed: 0, Skipped: 0, Total: 718
 ```
 
 Recovery / hidden-info validation passed:
@@ -142,5 +145,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8469, Failed: 0, Skipped: 0, Total: 8469
+Passed: 8704, Failed: 0, Skipped: 0, Total: 8704
 ```

@@ -1,6 +1,6 @@
 # Plan B / B0 Full-Game E2E Evidence
 
-Date: 2026-06-25
+Date: 2026-06-26
 
 Project status: **NOT READY**.
 
@@ -57,7 +57,7 @@ The response-activation regression proves that a legal official deck pair can re
 
 ## Hidden Information Evidence
 
-`FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after every accepted step and rejects exposure of opponent hand, main-deck and rune-deck object ids. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
+`FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
 
@@ -70,7 +70,7 @@ Focused validation:
 Result:
 
 ```text
-Passed: 15, Failed: 0, Skipped: 0, Total: 15
+Passed: 19, Failed: 0, Skipped: 0, Total: 19
 ```
 
 Adjacent validation:
@@ -82,7 +82,7 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 700, Failed: 0, Skipped: 0, Total: 700
+Passed: 718, Failed: 0, Skipped: 0, Total: 718
 ```
 
 Recovery / hidden-info validation:
@@ -106,7 +106,7 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8469, Failed: 0, Skipped: 0, Total: 8469
+Passed: 8704, Failed: 0, Skipped: 0, Total: 8704
 ```
 
 ## Non-Closure

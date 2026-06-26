@@ -3360,6 +3360,7 @@ public sealed class FullGameEndToEndTests
     {
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Null(result.ErrorCode);
+        AssertNoHiddenZoneLeak(result);
     }
 
     private static void AssertNoHiddenZoneLeak(ResolutionResult result)
