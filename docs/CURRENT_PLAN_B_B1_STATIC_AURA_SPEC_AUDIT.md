@@ -53,6 +53,7 @@ Implemented in this slice:
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
 - `tests/Riftbound.ConformanceTests/WiseElderSourceObjectFilteredPowerTests.cs` now covers `SOURCE_OBJECT_FILTERED_POWER` participating in real `DECLARE_BATTLE` damage: Wise Elder with `CardObjectTags.Boon` deals 5 damage from base 4 plus `staticPowerBonus=1`.
+- `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` now covers the official same-battlefield other-friendly static-power card rows (`OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, `OGN·243a/298`) in continuous-effect projection and real `DECLARE_BATTLE` damage.
 
 ## Not Closed
 
@@ -495,6 +496,38 @@ Result: 1989/1989 passed.
 ```
 
 Result: 8705/8705 passed.
+
+2026-06-26 same-battlefield other-friendly static-power card-row focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefieldOtherFriendlyStaticPowerCardRowTests" --nologo
+```
+
+Result: 5/5 passed.
+
+2026-06-26 same-battlefield other-friendly static-power card-row adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefieldOtherFriendlyStaticPowerCardRowTests|FullyQualifiedName~P79SameBattlefieldOtherFriendlyStaticPower|FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect" --nologo
+```
+
+Result: 680/680 passed.
+
+2026-06-26 same-battlefield other-friendly static-power card-row MatchRecovery hidden-information boundary check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 1989/1989 passed.
+
+2026-06-26 backend full after same-battlefield other-friendly static-power card-row evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8710/8710 passed.
 
 Latest backend full check:
 

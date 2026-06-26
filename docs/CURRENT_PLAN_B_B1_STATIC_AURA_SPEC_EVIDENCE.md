@@ -52,6 +52,7 @@ Recovery:
 - `src/Riftbound.Engine/MatchRecovery.cs` validates same-location source threshold object static auras with fixed power delta even when multiple participant object ids satisfy the threshold.
 - `src/Riftbound.Engine/MatchRecovery.cs` validates source-object combat static-aura durations, effect ids, source paths, conditions, lifecycle strings, source cards, and fixed `powerDelta` scalars through `StaticAuraSpecRules`.
 - `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs` updates the source-card drift expectation to the spec-driven diagnostic.
+- `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` binds all current official `此处的其他友方单位获得{{S}}+1` rows to the same spec-driven projection and combat-damage path, covering `OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, and `OGN·243a/298`.
 
 ## Validation Evidence
 
@@ -81,11 +82,14 @@ Recovery:
 - Latest other-friendly static-power standby hidden-boundary adjacent OtherFriendly / StaticAura / StaticPower / Hidden / Standby / FaceDown / MatchRecovery representative: 2229/2229 passed.
 - Latest same-battlefield other-friendly static-power standby hidden-boundary focused representative: 2/2 passed.
 - Latest same-battlefield other-friendly static-power standby hidden-boundary adjacent SameBattlefield / StaticAura / StaticPower / Hidden / Standby / FaceDown / MatchRecovery representative: 2233/2233 passed.
+- Latest same-battlefield other-friendly static-power card-row focused representative: 5/5 passed.
+- Latest same-battlefield other-friendly static-power card-row adjacent CardCatalogBaseline / StaticAura / StaticPower / ContinuousEffect representative: 680/680 passed.
 - Latest friendly-equipment static-power standby hidden-boundary focused representative: 1/1 passed.
 - Latest friendly-equipment static-power standby hidden-boundary adjacent Ornn / EquipmentKeyword / StaticAura / StaticPower / Standby / Hidden / FaceDown / MatchRecovery representative: 2257/2257 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
 - Latest MatchRecovery hidden-information boundary after source-object filtered static-power evidence: 1989/1989 passed.
+- Latest MatchRecovery hidden-information boundary after same-battlefield other-friendly card-row evidence: 1989/1989 passed.
 - Latest backend full: 8602/8602 passed.
 - Latest backend full after battlefield keyword hidden-boundary fix: 8619/8619 passed.
 - Latest backend full after battlefield static-power hidden-boundary fix: 8621/8621 passed.
@@ -96,6 +100,7 @@ Recovery:
 - Latest backend full after source-combat standby participant hidden-boundary fix: 8631/8631 passed.
 - Latest backend full after source-combat standby source Core guard: 8634/8634 passed.
 - Latest backend full after source-object filtered static-power evidence: 8705/8705 passed.
+- Latest backend full after same-battlefield other-friendly static-power card-row evidence: 8710/8710 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
