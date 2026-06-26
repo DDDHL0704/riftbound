@@ -895,6 +895,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - backend full conformance: passed `8746/8746`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
+2026-06-27 Lost Library high-cost spell insight B0 action-log replay follow-up validation:
+
+- focused B0 Lost Library replay: passed `1/1`;
+- FullGameEndToEnd: passed `51/51`;
+- adjacent BattlefieldHighCostSpellInsight / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2046/2046`;
+- backend full conformance: passed `8747/8747`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
 2026-06-25 conquer overkill create-Warhawk follow-up validation:
 
 - focused behavior-spec/source guard/runtime/GameHub representative: passed `3/3`;
