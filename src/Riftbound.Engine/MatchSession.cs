@@ -6602,7 +6602,7 @@ internal static class ActionPromptBuilder
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
-    private const string EagerApprenticeCardNo = "OGN·084/298";
+    private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitRoamOptionalCost = "ROAM";
@@ -14473,7 +14473,9 @@ internal static class ActionPromptBuilder
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, EagerApprenticeCardNo, StringComparison.Ordinal)
+                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
+                    cardObject.CardNo,
+                    EagerApprenticeSpellCostStaticSourceEffectKind)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 && !cardObject.IsFaceDown))
         {
