@@ -8,6 +8,8 @@ public sealed class WiseElderSourceObjectFilteredPowerTests
 {
     private const string WiseElderObjectId = "P1-WISE-ELDER";
     private const string WiseElderCardNo = "OGN·065/298";
+    private const string BattlefieldObjectId = "P1-WISE-ELDER-BATTLEFIELD";
+    private const string DefenderObjectId = "P2-WISE-ELDER-DEFENDER";
 
     [Fact]
     public void WiseElderBoonStaticPowerProjectsSourceObjectFilteredAura()
@@ -50,6 +52,31 @@ public sealed class WiseElderSourceObjectFilteredPowerTests
                 && string.Equals(effect.SourceObjectId, WiseElderObjectId, StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task WiseElderBoonStaticPowerAppliesToBattleDamage()
+    {
+        var state = BuildBattleState(hasBoon: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-wise-elder-boon-source-filtered-static-power", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [WiseElderObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var damageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, WiseElderObjectId, StringComparison.Ordinal));
+        Assert.Equal(4, damageEvent.Payload["basePower"]);
+        Assert.Equal(1, damageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(5, damageEvent.Payload["combatPower"]);
+        Assert.Equal(5, damageEvent.Payload["damage"]);
+    }
+
     private static MatchState BuildState(bool hasBoon)
     {
         string[] wiseTags = hasBoon
@@ -84,5 +111,74 @@ public sealed class WiseElderSourceObjectFilteredPowerTests
                     ownerId: "P1",
                     controllerId: "P1")
             });
+    }
+
+    private static MatchState BuildBattleState(bool hasBoon)
+    {
+        string[] wiseTags = hasBoon
+            ? [CardObjectTags.UnitCard, CardObjectTags.Boon]
+            : [CardObjectTags.UnitCard];
+
+        return new MatchState(
+            "wise-elder-source-object-filtered-power-battle-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldObjectId, WiseElderObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [BattlefieldObjectId] = Battlefield(BattlefieldObjectId, "P1"),
+                [WiseElderObjectId] = new(
+                    WiseElderObjectId,
+                    cardNo: WiseElderCardNo,
+                    power: 4,
+                    tags: wiseTags,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [DefenderObjectId] = new(
+                    DefenderObjectId,
+                    cardNo: "SFD·125/221",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
+                [WiseElderObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
+                [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)]);
+    }
+
+    private static CardObjectState Battlefield(string objectId, string playerId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: "OGN·275/298",
+            tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+            ownerId: playerId,
+            controllerId: playerId);
     }
 }

@@ -26,6 +26,7 @@ Implemented in this slice:
   - `UNL-154/219` 猩红飞鸽：如果和另一名单位一起进攻一处战场，则自身 `{{S}}+2`。
   - `OGN·055/298` 驭水者：如果独自进攻或防守一处战场，则自身 `{{S}}+2`。
   - `OGN·131/298` 沙丘亚龙：进攻时如果此处有处于活跃状态的敌方单位，则自身 `{{S}}+2`。
+  - `OGN·065/298` 睿智长者：如果自身拥有增益，则自身 `{{S}}+1`。
   - `OGN·297/298` 疾风山丘：此处的单位获得 `{{游走}}`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
@@ -51,6 +52,7 @@ Implemented in this slice:
 - Same-battlefield other-friendly static-power hidden-boundary guard: standby same-battlefield other-friendly power sources no longer project `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` `STATIC_AURA` effects or grant combat static-power bonuses; standby same-battlefield target units are excluded from participant projection and Core static-power bonus.
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
+- `tests/Riftbound.ConformanceTests/WiseElderSourceObjectFilteredPowerTests.cs` now covers `SOURCE_OBJECT_FILTERED_POWER` participating in real `DECLARE_BATTLE` damage: Wise Elder with `CardObjectTags.Boon` deals 5 damage from base 4 plus `staticPowerBonus=1`.
 
 ## Not Closed
 
@@ -83,6 +85,7 @@ This slice does not claim full B1 completion:
 - `UNL-154/219`: `如果我和另一名单位一起进攻一处战场，则我获得{{S}}+2。`
 - `OGN·055/298`: `如果我独自进攻或防守一处战场，则我获得 {{S}}+2。`
 - `OGN·131/298`: `当我进攻时，如果此处有处于活跃状态的敌方单位，则让我{{S}}+2。`
+- `OGN·065/298`: `如果我拥有增益，则我额外获得{{S}}+1。`
 - `OGN·297/298`: `此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
@@ -460,6 +463,38 @@ Latest static-aura stacking / source-combat / recovery adjacent check:
 ```
 
 Result: 2043/2043 passed.
+
+2026-06-26 source-object filtered static-power battle-damage focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~WiseElderSourceObjectFilteredPowerTests" --nologo
+```
+
+Result: 3/3 passed.
+
+2026-06-26 source-object filtered static-power adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~WiseElderSourceObjectFilteredPowerTests|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~ReliableSiegeDog|FullyQualifiedName~MasterYiLegendStaticAuraSpecTests" --nologo
+```
+
+Result: 425/425 passed.
+
+2026-06-26 source-object filtered static-power MatchRecovery hidden-information boundary check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 1989/1989 passed.
+
+2026-06-26 backend full after source-object filtered static-power evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8705/8705 passed.
 
 Latest backend full check:
 

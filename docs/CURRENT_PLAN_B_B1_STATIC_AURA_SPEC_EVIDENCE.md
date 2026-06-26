@@ -27,6 +27,7 @@ Engine projection:
 - `src/Riftbound.Engine/MatchSession.cs` now excludes standby battle participants from source-combat participant evaluation and from static-aura participant / dependency metadata.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now excludes standby source units before applying source-combat static-power bonuses in `DECLARE_BATTLE` damage calculation.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` exposes the lone-battle representative through the generic `ResolveSourceLoneBattlePowerBonus` source path rather than a Waterbender-named helper.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` resolves `SOURCE_OBJECT_FILTERED_POWER` through `ResolveSourceObjectFilteredPowerBonus`; `WiseElderSourceObjectFilteredPowerTests.WiseElderBoonStaticPowerAppliesToBattleDamage` proves the spec-driven source-object filtered static power contributes to real battle damage.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
 - `src/Riftbound.Engine/MatchSession.cs` now excludes standby sources from Ornn-style friendly-equipment static-power projection, and `src/Riftbound.Engine/CoreRuleEngine.cs` excludes standby sources before friendly-equipment source-power recompute.
@@ -68,6 +69,8 @@ Recovery:
 - Latest source-combat static-aura / recovery adjacent after standby source Core guard: 2047/2047 passed.
 - Latest static-aura stacking / until-end modifier focused representative: StaticAuraStackingAndModifier 1/1 passed.
 - Latest static-aura stacking / source-combat / recovery adjacent representative: 2043/2043 passed.
+- Latest source-object filtered static-power battle-damage focused representative: WiseElderSourceObjectFilteredPowerTests 3/3 passed.
+- Latest source-object filtered static-power adjacent StaticAura / StaticPower / ContinuousEffect / ReliableSiegeDog / MasterYi representative: 425/425 passed.
 - Latest battlefield-filtered keyword hidden-boundary focused representative: 2/2 passed.
 - Latest battlefield keyword hidden-boundary adjacent BattlefieldFiltered / BattlefieldStatic / StaticAura / StaticKeyword / Roam / Hidden / FaceDown / MatchRecovery representative: 2206/2206 passed.
 - Latest battlefield-filtered static-power hidden-boundary focused representative: 2/2 passed.
@@ -82,6 +85,7 @@ Recovery:
 - Latest friendly-equipment static-power standby hidden-boundary adjacent Ornn / EquipmentKeyword / StaticAura / StaticPower / Standby / Hidden / FaceDown / MatchRecovery representative: 2257/2257 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
+- Latest MatchRecovery hidden-information boundary after source-object filtered static-power evidence: 1989/1989 passed.
 - Latest backend full: 8602/8602 passed.
 - Latest backend full after battlefield keyword hidden-boundary fix: 8619/8619 passed.
 - Latest backend full after battlefield static-power hidden-boundary fix: 8621/8621 passed.
@@ -91,6 +95,7 @@ Recovery:
 - Latest backend full after friendly-equipment static-power standby hidden-boundary fix: 8628/8628 passed.
 - Latest backend full after source-combat standby participant hidden-boundary fix: 8631/8631 passed.
 - Latest backend full after source-combat standby source Core guard: 8634/8634 passed.
+- Latest backend full after source-object filtered static-power evidence: 8705/8705 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
