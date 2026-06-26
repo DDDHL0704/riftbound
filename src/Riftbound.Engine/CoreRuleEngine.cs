@@ -581,6 +581,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string GarenIntroLegendCardNo = "OGS·023/024";
     private const string LuxIntroLegendCardNo = "OGS·021/024";
     private const string AnnieIntroLegendCardNo = "OGS·017/024";
+    private const string AnnieLegendIdentityId = "LEGEND_IDENTITY_ANNIE";
     private const string VolibearFoundationLegendCardNo = "FND-249/298";
     private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
     private const string PowerfulUnitRuneLegendIdentityId = "LEGEND_IDENTITY_POWERFUL_UNIT_RUNE";
@@ -12270,6 +12271,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             DravenLegendIdentityId => new LegendIdentityDefinition(
                 DravenLegendIdentityId,
                 [DravenLegendCardNo, "SFD·242/221"]),
+            AnnieLegendIdentityId => new LegendIdentityDefinition(
+                AnnieLegendIdentityId,
+                [AnnieIntroLegendCardNo]),
             JinxLegendIdentityId => new LegendIdentityDefinition(
                 JinxLegendIdentityId,
                 [JinxLegendCardNo, "OGN·251/298", "OGN·301/298", "OGN·301*/298"]),
@@ -28707,10 +28711,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.LegendZone.Any(legendObjectId =>
-                cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && string.Equals(legendState.CardNo, AnnieIntroLegendCardNo, StringComparison.Ordinal)))
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        var annieLegendCardNo = zones.LegendZone
+            .Select(legendObjectId => cardObjects.TryGetValue(legendObjectId, out var legendState)
+                && LegendCardHasIdentity(legendState.CardNo, AnnieLegendIdentityId)
+                    ? legendState.CardNo
+                    : null)
+            .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+        if (string.IsNullOrWhiteSpace(annieLegendCardNo))
         {
             return [];
         }
@@ -28740,7 +28752,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["legendCardNo"] = AnnieIntroLegendCardNo,
+                    ["legendCardNo"] = annieLegendCardNo,
                     ["trigger"] = "TURN_END_READY_TWO_RUNES",
                     ["runeObjectIds"] = readiedRuneObjectIds
                 }),

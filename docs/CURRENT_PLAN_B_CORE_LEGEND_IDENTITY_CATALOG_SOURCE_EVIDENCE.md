@@ -1,13 +1,13 @@
 # Plan B Core Legend Identity Catalog Source Evidence
 
-日期：2026-06-25
+日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for removing duplicated Core legend identity card-number helpers for Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi level / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune and routing those checks through a shared identity data definition.
+This file records concrete evidence for removing duplicated Core legend identity card-number helpers and direct source comparisons for Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi level / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune / Annie and routing those checks through a shared identity data definition.
 
 ## 1. Runtime Evidence
 
-- `CoreRuleEngine.TryGetLegendIdentity` now defines source card-number rows for `RengarLegendIdentityId`, `LeonaLegendIdentityId`, `SivirLegendIdentityId`, `JhinLegendIdentityId`, `AhriLegendIdentityId`, `LucianLegendIdentityId`, `MasterYiLevelLegendIdentityId`, `DravenLegendIdentityId`, `SettLegendIdentityId`, `ViLegendIdentityId`, `VexLegendIdentityId`, `RenataLegendIdentityId`, `ReksaiLegendIdentityId`, `IvernLegendIdentityId`, `LeblancLegendIdentityId`, `RumbleLegendIdentityId`, `JinxLegendIdentityId`, and `PowerfulUnitRuneLegendIdentityId`.
+- `CoreRuleEngine.TryGetLegendIdentity` now defines source card-number rows for `RengarLegendIdentityId`, `LeonaLegendIdentityId`, `SivirLegendIdentityId`, `JhinLegendIdentityId`, `AhriLegendIdentityId`, `LucianLegendIdentityId`, `MasterYiLevelLegendIdentityId`, `DravenLegendIdentityId`, `SettLegendIdentityId`, `ViLegendIdentityId`, `VexLegendIdentityId`, `RenataLegendIdentityId`, `ReksaiLegendIdentityId`, `IvernLegendIdentityId`, `LeblancLegendIdentityId`, `RumbleLegendIdentityId`, `JinxLegendIdentityId`, `PowerfulUnitRuneLegendIdentityId`, and `AnnieLegendIdentityId`.
 - `CoreRuleEngine.LegendCardHasIdentity` resolves the identity through `TryGetLegendIdentity` and checks `LegendIdentityDefinition.SourceCardNos`.
 - `CoreRuleEngine.ControllerHasRengarLegend` and `CoreRuleEngine.TryGetRengarLegend` now call `LegendCardHasIdentity(..., RengarLegendIdentityId)`.
 - `CoreRuleEngine.ControllerHasLeonaLegend` and `CoreRuleEngine.TryGetLeonaLegend` now call `LegendCardHasIdentity(..., LeonaLegendIdentityId)`.
@@ -27,6 +27,7 @@ This file records concrete evidence for removing duplicated Core legend identity
 - Rumble mechanical static check now calls `LegendCardHasIdentity(..., RumbleLegendIdentityId)`.
 - `CoreRuleEngine.TryGetJinxTurnStartDrawCardNo` now calls `LegendCardHasIdentity(..., JinxLegendIdentityId)`.
 - `CoreRuleEngine.ResolvePowerfulUnitPlayedRuneLegendTriggers` now calls `LegendCardHasIdentity(..., PowerfulUnitRuneLegendIdentityId)`.
+- `CoreRuleEngine.ReadyRunesForAnnieAtTurnEnd` now calls `LegendCardHasIdentity(..., AnnieLegendIdentityId)` instead of comparing `legendState.CardNo` directly with `AnnieIntroLegendCardNo`.
 - The previous `IsRengarLegendCardNo`, `IsLeonaLegendCardNo`, `IsSivirLegendCardNo`, `IsJhinLegendCardNo`, `IsAhriLegendCardNo`, `IsLucianLegendCardNo`, `IsMasterYiLevelLegendCardNo`, `IsDravenLegendCardNo`, `IsSettLegendCardNo`, `IsViLegendCardNo`, `IsVexLegendCardNo`, `IsRenataLegendCardNo`, `IsReksaiLegendCardNo`, `IsIvernLegendCardNo`, `IsLeblancLegendCardNo`, `IsRumbleLegendCardNo`, `IsJinxLegendCardNo`, and `IsPowerfulUnitRuneLegendCardNo` helpers were deleted.
 - Existing source-control checks, target extraction, trigger resolution, events, prompts, and snapshot shape are unchanged.
 
@@ -46,6 +47,7 @@ Coverage:
 - The same guard requires the seven active legend identity ids, `LegendCardHasIdentity`, and `TryGetLegendIdentity`.
 - `CoreRemainingLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers` blocks reintroducing `IsRumbleLegendCardNo`, `IsJinxLegendCardNo`, and `IsPowerfulUnitRuneLegendCardNo`.
 - The same guard requires the three final identity ids, `LegendCardHasIdentity`, and `TryGetLegendIdentity`.
+- `CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity` blocks reintroducing the direct `string.Equals(legendState.CardNo, AnnieIntroLegendCardNo, ...)` source branch and requires `AnnieLegendIdentityId`, `LegendCardHasIdentity`, and `TryGetLegendIdentity`.
 - Adjacent tests cover Rengar, Leona, Sivir, Jhin, LegendAction, and full-game representatives.
 - Follow-up adjacent tests cover Ahri, Lucian, Master Yi, Draven, LegendStatic, BattleDamageAssignment, and full-game representatives.
 - Active-legend adjacent tests cover Sett, Vi, Vex, Renata, Rek'Sai, Ivern, LeBlanc, battlefield-conquer, and full-game representatives.
@@ -76,6 +78,18 @@ Result: failed before implementation on `IsSettLegendCardNo`, then 1/1 passed af
 ```
 
 Result: failed before implementation on `IsRumbleLegendCardNo`, then 1/1 passed after implementation.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity|FullyQualifiedName~P79LegendTriggerAnnieReadiesTwoRunesAtTurnEnd" --nologo
+```
+
+Result: failed before implementation on direct `AnnieIntroLegendCardNo` source comparison, then 2/2 passed after implementation.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Annie|FullyQualifiedName~LegendActionSourceIdentityGuardTests|FullyQualifiedName~TurnEnd|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2086/2086 passed.
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Rengar|FullyQualifiedName~Leona|FullyQualifiedName~Sivir|FullyQualifiedName~Jhin|FullyQualifiedName~LegendAction|FullyQualifiedName~FullGameEndToEnd"
@@ -111,7 +125,7 @@ Result: 1989/1989 passed.
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8584/8584 passed.
+Result: 8584/8584 passed before the Annie follow-up; 8766/8766 passed after the Annie follow-up.
 
 ## 4. Helper Count
 
@@ -119,4 +133,4 @@ After this slice, `rg -n "private static bool Is.*CardNo\\(" src/Riftbound.Engin
 
 ## 5. Non-Closure Statement
 
-This evidence does not close complete Rengar, Leona, Sivir, Jhin, Ahri, Lucian, Master Yi, Draven, Sett, Vi, Vex, Renata, Rek'Sai, Ivern, LeBlanc, Rumble, Jinx, Volibear, or Fiora official behavior, full legend identity data modeling, card matrix full-official, frontend final validation or READY.
+This evidence does not close complete Rengar, Leona, Sivir, Jhin, Ahri, Lucian, Master Yi, Draven, Sett, Vi, Vex, Renata, Rek'Sai, Ivern, LeBlanc, Rumble, Jinx, Volibear, Fiora, or Annie official behavior, full legend identity data modeling, card matrix full-official, frontend final validation or READY.

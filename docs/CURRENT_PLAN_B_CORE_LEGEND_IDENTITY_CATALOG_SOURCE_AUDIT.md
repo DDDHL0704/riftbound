@@ -1,9 +1,9 @@
 # Plan B Core Legend Identity Catalog Source Audit
 
-日期：2026-06-25
+日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中 Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi level / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune 传奇来源身份识别从独立 `Is*LegendCardNo` helper 改为统一 `LegendCardHasIdentity(cardNo, identityId)` 查询。该切片只迁移来源身份表，不改变触发窗口、目标选择、费用、横置/重置状态、战斗结算、事件 payload 或快照语义。
+本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中 Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi level / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune / Annie 传奇来源身份识别从独立 card-number 分支改为统一 `LegendCardHasIdentity(cardNo, identityId)` 查询。该切片只迁移来源身份表，不改变触发窗口、目标选择、费用、横置/重置状态、战斗结算、事件 payload 或快照语义。
 
 ## 1. Scope
 
@@ -18,7 +18,7 @@ Changed:
 Not changed:
 
 - official card catalog JSON
-- Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune runtime effect semantics
+- Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune / Annie runtime effect semantics
 - control / legacy-owner source checks
 - prompt or snapshot contracts
 - frontend runtime
@@ -45,6 +45,7 @@ Not changed:
 | Rumble legend source identity no longer has a duplicated card-number helper | `IsRumbleLegendCardNo` was removed; Rumble mechanical static check now calls `LegendCardHasIdentity(..., RumbleLegendIdentityId)` | Accepted |
 | Jinx legend source identity no longer has a duplicated card-number helper | `IsJinxLegendCardNo` was removed; `TryGetJinxTurnStartDrawCardNo` now checks `LegendCardHasIdentity(..., JinxLegendIdentityId)` | Accepted |
 | Powerful-unit rune legend source identity no longer has a duplicated card-number helper | `IsPowerfulUnitRuneLegendCardNo` was removed; `ResolvePowerfulUnitPlayedRuneLegendTriggers` now checks `LegendCardHasIdentity(..., PowerfulUnitRuneLegendIdentityId)` | Accepted |
+| Annie turn-end ready-runes source identity no longer compares the legend card number directly | `ReadyRunesForAnnieAtTurnEnd` now checks `LegendCardHasIdentity(..., AnnieLegendIdentityId)` and emits the matched legend card number in the existing payload | Accepted |
 | Source identity consumes a shared data definition | `TryGetLegendIdentity` returns `LegendIdentityDefinition` rows with source card numbers, and `LegendCardHasIdentity` is the only consumer for this slice | Accepted |
 | Hidden-info / recovery boundary | `MatchRecovery` remains green | Accepted |
 | Full Core `Is*CardNo` helper migration | `rg -n "private static bool Is.*CardNo\\(" src/Riftbound.Engine src/Riftbound.CardCatalog src/Riftbound.Contracts` returns no matches | Accepted for Core helper-removal scope, no full-official claim |
@@ -77,6 +78,12 @@ Result: failed before implementation on `IsSettLegendCardNo`, then 1/1 passed af
 
 Result: failed before implementation on `IsRumbleLegendCardNo`, then 1/1 passed after implementation.
 
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity|FullyQualifiedName~P79LegendTriggerAnnieReadiesTwoRunesAtTurnEnd" --nologo
+```
+
+Result: failed before implementation on direct `AnnieIntroLegendCardNo` source comparison, then 2/2 passed after implementation.
+
 Adjacent:
 
 ```sh
@@ -103,6 +110,12 @@ Result: 270/270 passed.
 
 Result: 97/97 passed.
 
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Annie|FullyQualifiedName~LegendActionSourceIdentityGuardTests|FullyQualifiedName~TurnEnd|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2086/2086 passed.
+
 Hidden-info / recovery boundary:
 
 ```sh
@@ -117,11 +130,11 @@ Full backend conformance:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8584/8584 passed.
+Result: 8584/8584 passed before the Annie follow-up; 8766/8766 passed after the Annie follow-up.
 
 ## 4. Residual Risks
 
 - `TryGetLegendIdentity` still lives inside `CoreRuleEngine`; the complete long-term catalog extraction remains open.
-- This does not broaden official Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / Volibear / Fiora behavior beyond already implemented representative paths.
+- This does not broaden official Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi / Draven / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / Volibear / Fiora / Annie behavior beyond already implemented representative paths.
 - This does not move the full `TryGetLegendIdentity` source table out of `CoreRuleEngine`.
 - Project remains **NOT READY**.
