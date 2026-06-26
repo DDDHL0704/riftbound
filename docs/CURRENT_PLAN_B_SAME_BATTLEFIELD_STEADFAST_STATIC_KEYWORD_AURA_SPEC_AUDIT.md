@@ -30,6 +30,7 @@ Runtime evidence now covers:
 - Target-moves lifecycle guard: when the friendly target moves to another battlefield while Taric remains at the original battlefield, the RULE_TEXT continuous effect is absent and the target recomputes without the granted `坚守`.
 - Controller-scope guard: `other friendly` is based on the source object's current controller; a controlled Farron Captain grants `强攻` to the controller's same-battlefield attacker, not to the owner's unit.
 - Official-deck full-game replay: legal official Jhin deck prompts stage Farron Captain and Ascended Believer to the same battlefield, project a `RULE_TEXT` object effect ending in `:强攻`, resolve real battle damage with `basePower=1`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, then score-victory action-log replay reaches the same final state hash.
+- Official-deck defensive replay: legal official Lillia deck prompts stage Taric and LeBlanc to an opposing battlefield, project a `RULE_TEXT` object effect ending in `:坚守`, resolve defender battle damage with `basePower=4`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=5`, and `damage=5`, then score-victory action-log replay reaches the same final state hash after a follow-up battle declaration and no-legal `BATTLE_SKIPPED`.
 - Face-down source guard: a face-down source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses, preserving hidden-information boundaries.
 - Face-down target guard: a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target, preventing hidden target dependency leakage.
 - Standby source guard: a standby source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses from the same-battlefield other-friendly aura path.
@@ -43,7 +44,7 @@ Still open:
 - Full `坚守` keyword family breadth beyond the representative combat bonus path.
 - Full `壁垒` damage-assignment ordering for Taric.
 - Complete RULE_TEXT keyword grant scopes and broader keyword removal/loss layering beyond this same-battlefield represented scope.
-- Farron same-battlefield `强攻` now has a legal official-deck full-game replay representative, but broader RULE_TEXT keyword grant scopes and other official deck archetypes remain open.
+- Farron same-battlefield `强攻` and Taric same-battlefield `坚守` now have legal official-deck full-game replay representatives, but broader RULE_TEXT keyword grant scopes and other official deck archetypes remain open.
 - Complete standby / face-down identity matrix beyond the covered same-battlefield source and target representatives.
 - Complete battle / spell-duel lifecycle and assignment prompt breadth.
 - FU-level matrix blocker reduction / fullOfficial status for `OGN·074/298`.
@@ -252,6 +253,30 @@ Result: 22/22 passed.
 
 Result: 2090/2090 passed.
 
+2026-06-26 official-deck Taric replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeyword" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 official-deck Taric replay FullGameEndToEnd:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 23/23 passed.
+
+2026-06-26 official-deck Taric replay adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Taric|FullyQualifiedName~Farron|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2105/2105 passed.
+
 Hidden-information / recovery:
 
 ```bash
@@ -266,4 +291,4 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8714/8714 passed.
+Result: 8715/8715 passed.

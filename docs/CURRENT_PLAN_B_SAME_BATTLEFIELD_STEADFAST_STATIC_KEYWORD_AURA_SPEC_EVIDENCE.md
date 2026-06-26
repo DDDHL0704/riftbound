@@ -37,6 +37,7 @@ Controller scope:
 Full-game replay:
 
 - `FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash` carries official `OGN·015/298` Farron Captain and `UNL-004/219` Ascended Believer through a legal official Jhin deck path. Server prompts stage both units to the same battlefield, `MatchSession` projects the `RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:*:强攻` object effect from Farron to the Believer, real `DECLARE_BATTLE` damage records `basePower=1`, `keyword=强攻`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash.
+- `FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash` carries official `OGN·074/298` Taric and `UNL-090/219` LeBlanc through a legal official Lillia deck path. Server prompts stage both units to an opposing battlefield, `MatchSession` projects the `RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:*:坚守` object effect from Taric to LeBlanc, real `DECLARE_BATTLE` damage records defender `basePower=4`, `keyword=坚守`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=5`, and `damage=5`, and the score-victory action log replays after a follow-up battle declaration and no-legal `BATTLE_SKIPPED`.
 
 Hidden source boundary:
 
@@ -79,10 +80,15 @@ Existing fixture alignment:
 - SameBattlefield / StaticKeyword / StaticAura / Farron / FullGameEndToEnd / MatchRecovery adjacent representatives after official-deck Farron replay: 2090/2090 passed.
 - MatchRecovery hidden-information boundary after official-deck Farron replay: 1989/1989 passed.
 - Backend full after official-deck Farron replay: 8714/8714 passed.
+- Focused official-deck Taric replay `OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`: 1/1 passed.
+- FullGameEndToEnd B0/B2 cross-slice representatives after official-deck Taric replay: 23/23 passed.
+- SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / Farron / FullGameEndToEnd / MatchRecovery adjacent representatives after official-deck Taric replay: 2105/2105 passed.
+- MatchRecovery hidden-information boundary after official-deck Taric replay: 1989/1989 passed.
+- Backend full after official-deck Taric replay: 8715/8715 passed.
 
 ## Remaining Evidence Needed
 
-- Full Taric official coverage still needs `壁垒` damage ordering and any broader defensive keyword interactions not covered by this representative.
+- Full Taric official coverage still needs `壁垒` damage ordering and any broader defensive keyword interactions not covered by the current same-battlefield Steadfast official-deck representative.
 - Full RULE_TEXT keyword grant scope coverage remains open beyond same-battlefield other-friendly units and beyond the current Farron same-battlefield Assault official-deck replay representative.
 - Full standby / face-down identity coverage remains open beyond the covered same-battlefield source and target representatives.
 - The card-effect matrix FU row for `OGN·074/298` still requires a separate, matrix-aware blocker-reduction slice before its FU-level status is changed.

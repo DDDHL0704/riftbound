@@ -27909,6 +27909,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             return (state, []);
         }
 
+        if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask)
+        {
+            var battleTaskPlayerId = activeStartBattleTask.PlayerId?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(battleTaskPlayerId))
+            {
+                return (state, []);
+            }
+
+            var battlePromptState = state with { ActivePlayerId = battleTaskPlayerId };
+            if (ActionPromptBuilder.CanDeclareBattleForActiveTask(battlePromptState, battleTaskPlayerId))
+            {
+                return (battlePromptState, []);
+            }
+
+            var battleSkip = SkipStartBattleTaskWithNoLegalCombatants(state, activeStartBattleTask);
+            var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(battleSkip.State, causingPlayerId);
+            return (
+                taskAdvance.State,
+                battleSkip.Events.Concat(taskAdvance.Events).ToArray());
+        }
+
         var battlefield = state.BattlefieldStates.Values
             .Where(candidate => candidate.Contested
                 && !state.UntilEndOfTurnEffects.Contains(

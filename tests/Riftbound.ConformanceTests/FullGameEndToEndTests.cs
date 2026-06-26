@@ -24,6 +24,7 @@ public sealed class FullGameEndToEndTests
     private const string CrimsonSignetTreantCardNo = "UNL-029/219";
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
+    private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string DemaciaEnvoyCardNo = "UNL-092/219";
     private const string ForgottenMonumentBattlefieldCardNo = "SFD·209/221";
@@ -325,6 +326,73 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSameBattlefieldSteadfastStaticKeywordOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-steadfast-static-keyword-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSameBattlefieldSteadfastStaticKeywordMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            TaricSameBattlefieldStaticKeywordCardNo,
+            "P2",
+            "b0-same-battlefield-steadfast-stage-source");
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            LeblancCardNo,
+            "P2",
+            "b0-same-battlefield-steadfast-stage-ally");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P2",
+            "b0-same-battlefield-steadfast-stage-attacker");
+
+        var battleResult = await DriveContestedBattlefieldToSameBattlefieldSteadfastBattleAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-same-battlefield-steadfast-battle");
+
+        AssertSameBattlefieldSteadfastStaticKeywordDamage(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-same-battlefield-steadfast-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.True(
+            journal.Entries.Count(entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal)) >= 2,
+            "Expected Taric's surviving contested battlefield to produce a follow-up server-authored battle declaration.");
+        Assert.Contains(
+            journal.Entries.SelectMany(entry => entry.Events),
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal)
+                && gameEvent.Payload.TryGetValue("reason", out var reason)
+                && string.Equals(reason as string, "NO_LEGAL_COMBATANTS", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -721,6 +789,21 @@ public sealed class FullGameEndToEndTests
                 scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
             }
 
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                result = await SubmitFirstDeclareBattleCandidateAsync(
+                    session,
+                    result,
+                    $"{intentPrefix}-clear-pending-battle-{turnIndex}");
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-clear-pending-battle-response-{turnIndex}");
+                result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-clear-pending-battle-assign-{turnIndex}");
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-clear-pending-battle-response-after-assignment-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+                continue;
+            }
+
             if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
                 || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
                 || result.State.PendingTaskQueue.HasTasks)
@@ -911,6 +994,25 @@ public sealed class FullGameEndToEndTests
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertSameBattlefieldSteadfastStaticKeywordDamage(ResolutionResult result)
+    {
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("keyword", out var keyword)
+            && string.Equals(keyword as string, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("keywordBonus", out var keywordBonus)
+            && keywordBonus is 1);
+        Assert.Equal(4, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -2159,6 +2261,23 @@ public sealed class FullGameEndToEndTests
         string cardNo,
         string intentPrefix)
     {
+        return await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            playerId,
+            cardNo,
+            playerId,
+            intentPrefix);
+    }
+
+    private static async ValueTask<ResolutionResult> DriveSpecificUnitToPlayerBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string cardNo,
+        string battlefieldOwnerId,
+        string intentPrefix)
+    {
         var result = current;
         for (var turnIndex = 0; turnIndex < 36; turnIndex++)
         {
@@ -2210,7 +2329,7 @@ public sealed class FullGameEndToEndTests
                 && canPlaySource
                 && (canPayHasteReady || runePool.Mana >= 4))
             {
-                var battlefieldDestination = BattlefieldDestinationFor(result.State, playerId);
+                var battlefieldDestination = BattlefieldDestinationFor(result.State, battlefieldOwnerId);
                 var played = await PlaySpecificUnitToBaseAsync(
                     session,
                     playerId,
@@ -2225,7 +2344,11 @@ public sealed class FullGameEndToEndTests
                     cardNo,
                     battlefieldDestination,
                     $"{intentPrefix}-move-when-ready");
-                Assert.NotNull(FindBattlefieldUnitByCardNo(moved.State, playerId, cardNo));
+                Assert.NotNull(FindBattlefieldUnitByCardNo(
+                    moved.State,
+                    playerId,
+                    cardNo,
+                    battlefieldDestination["BATTLEFIELD:".Length..]));
                 return moved;
             }
 
@@ -2441,6 +2564,59 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException($"B0 same-battlefield static keyword driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSameBattlefieldSteadfastBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string defendingPlayerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitSameBattlefieldSteadfastDeclareBattleAsync(
+                    session,
+                    result,
+                    attackingPlayerId,
+                    defendingPlayerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 same-battlefield steadfast driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 same-battlefield steadfast driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
     private static async ValueTask<ResolutionResult> PreparePlayerBoardAsync(
@@ -3112,6 +3288,91 @@ public sealed class FullGameEndToEndTests
             OptionalCosts: ["COMBAT_ASSIGNMENT"]);
         var declared = await session.SubmitAsync(
             playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitSameBattlefieldSteadfastDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string defendingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 same-battlefield steadfast driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
+        var auraSourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            TaricSameBattlefieldStaticKeywordCardNo)
+            ?? throw new InvalidOperationException("B0 same-battlefield steadfast driver could not find Taric source.");
+        var battlefieldId = current.State.ObjectLocations[auraSourceObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 same-battlefield steadfast driver could not locate Taric's battlefield.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            LeblancCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 same-battlefield steadfast driver could not find a ready granted-keyword defender.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var ruleTextAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, defenderObjectId, StringComparison.Ordinal));
+        Assert.StartsWith("RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:", ruleTextAura.EffectId, StringComparison.Ordinal);
+        Assert.EndsWith($":{CardCombatKeywordNames.Steadfast}", ruleTextAura.EffectId, StringComparison.Ordinal);
+        Assert.Equal("OBJECT", ruleTextAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", ruleTextAura.Duration);
+        Assert.DoesNotContain(
+            current.State.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, auraSourceObjectId, StringComparison.Ordinal));
+
+        var attackerObjectId = legalSourceIds
+            .Where(objectId => IsReadyUnit(current.State, objectId))
+            .Where(objectId => current.State.ObjectLocations.TryGetValue(objectId, out var location)
+                && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
+            .OrderBy(objectId => current.State.CardObjects[objectId].Power)
+            .ThenBy(objectId => current.State.CardObjects[objectId].CardNo, StringComparer.Ordinal)
+            .ThenBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException(
+                $"B0 same-battlefield steadfast driver could not find a legal ready attacker: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            attackingPlayerId,
             intentId,
             command,
             JsonSerializer.SerializeToElement(new
@@ -3812,6 +4073,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildSameBattlefieldSteadfastStaticKeywordOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    TaricSameBattlefieldStaticKeywordCardNo,
+                    LeblancCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSlowBattlefieldLowCurveOfficialDeck(
         OfficialCardCatalog catalog,
         string legendCardNo,
@@ -4103,6 +4378,15 @@ public sealed class FullGameEndToEndTests
             "P1",
             [FarronCaptainSameBattlefieldStaticKeywordCardNo, AscendedBelieverCardNo],
             new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildSameBattlefieldSteadfastStaticKeywordMidgameInitialState(MatchState state)
+    {
+        return BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [TaricSameBattlefieldStaticKeywordCardNo, LeblancCardNo],
+            new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
     }
 
     private static MatchState BuildSpecificCardsMidgameInitialState(
