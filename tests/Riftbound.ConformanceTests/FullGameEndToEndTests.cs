@@ -457,6 +457,43 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldDefendRevealSpellAttackerOfficialDeck(catalog);
+        var p2Deck = BuildBattlefieldDefendRevealNonSpellDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldDefendRevealSpellOpeningAsync(
+            "b0-full-game-ravenbloom-defend-reveal-non-spell-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldDefendRevealNonSpellMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var triggered = await SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-ravenbloom-defend-non-spell");
+        AssertBattlefieldDefendRevealNonSpellRecycled(current, triggered);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            triggered,
+            "b0-ravenbloom-non-spell-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2352,6 +2389,51 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(revealedSpellObjectId, result.State.PlayerZones["P2"].Hand);
         Assert.DoesNotContain(revealedSpellObjectId, result.State.PlayerZones["P2"].MainDeck);
         Assert.Equal(ProphetsOmenSpellCardNo, result.State.CardObjects[revealedSpellObjectId].CardNo);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldDefendRevealNonSpellRecycled(
+        ResolutionResult beforeBattle,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P2",
+            RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo);
+        var revealedObjectId = Assert.Single(beforeBattle.State.PlayerZones["P2"].MainDeck.Take(1));
+        Assert.Equal(MutantKittenCardNo, beforeBattle.State.CardObjects[revealedObjectId].CardNo);
+        Assert.Null(result.State.PendingPayment);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle, StringComparison.Ordinal));
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(revealedObjectId, triggerEvent.Payload["revealedObjectId"]);
+        Assert.Equal(false, triggerEvent.Payload["revealedIsSpell"]);
+
+        var revealedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal("MAIN_DECK", Assert.IsType<string>(revealedEvent.Payload["zone"]));
+        Assert.Equal([revealedObjectId], Assert.IsType<string[]>(revealedEvent.Payload["cardIds"]));
+
+        var recycledEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal("P2", recycledEvent.Payload["playerId"]);
+        Assert.Equal("MAIN_DECK", recycledEvent.Payload["sourceZone"]);
+        Assert.Equal("MAIN_DECK", recycledEvent.Payload["destinationZone"]);
+        Assert.Equal([revealedObjectId], Assert.IsType<string[]>(recycledEvent.Payload["cardIds"]));
+
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(revealedObjectId, result.State.PlayerZones["P2"].Hand);
+        Assert.Contains(revealedObjectId, result.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal(revealedObjectId, result.State.PlayerZones["P2"].MainDeck.Last());
+        Assert.Equal(MutantKittenCardNo, result.State.CardObjects[revealedObjectId].CardNo);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -9580,6 +9662,30 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldDefendRevealNonSpellDefenderOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            LilliaLegendCardNo,
+            LilliaChampionCardNo,
+            [
+                MutantKittenCardNo,
+                MutantKittenCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildSourceCombatStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -10711,6 +10817,112 @@ public sealed class FullGameEndToEndTests
             ControllerId = "P2"
         };
         cardObjects[spellObjectId] = cardObjects[spellObjectId] with
+        {
+            IsFaceDown = false,
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldDefendRevealNonSpellMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [MutantKittenCardNo, MutantKittenCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P2",
+            RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo);
+        var attackerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Ravenbloom non-spell setup could not find Wildclaw Beastmaster in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            MutantKittenCardNo)
+            ?? throw new InvalidOperationException("B0 Ravenbloom non-spell setup could not find Mutant Kitten defender in P2 hand.");
+        var topObjectId = midgameState.PlayerZones["P2"].Hand.FirstOrDefault(objectId =>
+            !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)
+            && midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, MutantKittenCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 Ravenbloom non-spell setup could not find a second Mutant Kitten for P2 main-deck top.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, attackerObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([attackerObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand
+                .Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, topObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            MainDeck = new[] { topObjectId }
+                .Concat(p2Zones.MainDeck.Where(objectId => !string.Equals(objectId, topObjectId, StringComparison.Ordinal)))
+                .ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[attackerObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+        objectLocations[topObjectId] = new ObjectLocationState("P2", "MAIN_DECK");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+        cardObjects[topObjectId] = cardObjects[topObjectId] with
         {
             IsFaceDown = false,
             OwnerId = "P2",

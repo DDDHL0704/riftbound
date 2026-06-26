@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B4 Ravenbloom defend reveal-spell official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B4 Ravenbloom defend reveal non-spell recycle official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -39,6 +39,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, redacts the returned hand object's id from opponent battle metadata snapshots, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path pays the parsed cost, readies the controlled legend, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
@@ -164,6 +165,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Added `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` covering single-defender projection and multi-defender non-projection for `UNL-210/219` Forbidden Wasteland.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRowInDamageAssignmentAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
@@ -209,6 +211,8 @@ This Imperial Shrine increment additionally proves a legal official Vex deck ope
 This Hall of Legends increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-ready-legend route through parsed cost payment, an exhausted controlled legend becoming ready, score victory, and action-log replay. It still does not close optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Ravenbloom increment additionally proves legal official Vex and Lillia deck openings can carry a BehaviorSpec-driven defended-battlefield reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score victory, and action-log replay. It still does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Ravenbloom non-spell increment additionally proves the same legal official deck opening family can carry the miss branch through controlled main-deck top-card reveal, non-spell detection, recycling the revealed card to the bottom of the defending player's main deck, score victory, and action-log replay. It still does not close complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
@@ -554,4 +558,52 @@ Result:
 
 ```text
 Passed: 8740, Failed: 0, Skipped: 0, Total: 8740
+```
+
+Latest Ravenbloom defend reveal non-spell recycle focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycle"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Ravenbloom non-spell FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 47, Failed: 0, Skipped: 0, Total: 47
+```
+
+Latest Ravenbloom non-spell adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Ravenbloom|FullyQualifiedName~DefendReveal|FullyQualifiedName~RevealSpell|FullyQualifiedName~Recycle|FullyQualifiedName~BattlefieldDefend|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2181, Failed: 0, Skipped: 0, Total: 2181
+```
+
+Latest Ravenbloom non-spell backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8741, Failed: 0, Skipped: 0, Total: 8741
 ```
