@@ -60,6 +60,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·055/298` Waterbender's source-lone-battle static aura in a legal official Lillia deck route: server prompts play and move Waterbender plus opposing `OGN·096/298` Watchful Sentinel to the same battlefield, the server-authored `DECLARE_BATTLE` has Waterbender attacking alone, Waterbender's `SOURCE_LONE_BATTLE_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGS·019/024` Master Yi intro's friendly single-defender static aura in a legal official Master Yi intro deck route: server prompts play and move `UNL-092/219` Demacia Envoy to the opposing battlefield, the server-authored `DECLARE_BATTLE` has Demacia Envoy as the only defender, Master Yi intro's `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-191/219` Master Yi level's experience-gated friendly-units static aura in a legal official Master Yi level deck route: the route starts at 5 experience, uses `UNL-092/219` Demacia Envoy's server-resolved on-play text to reach level 6, projects `FRIENDLY_UNITS_POWER` from the legend source to the Envoy, records attacker `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·065/298` Wise Elder's source-object filtered static aura in a legal official Master Yi level green/orange deck route: server prompts stage Wise Elder to a battlefield, `OGN·136/298` Arena Rookie grants Wise Elder `{{增益}}` through targeted `PLAY_CARD`, the spec-driven continuous effect targets Wise Elder itself with `SOURCE_OBJECT_FILTERED_POWER`, Wise Elder records boon-adjusted `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·294/298` Trifarian Training Grounds' battlefield all-units static aura in a legal official Vex deck route: the driver probes official-opening seeds until P1 selects Trifarian Training Grounds, server prompts move `UNL-057/219` Wildclaw Beastmaster and an opposing defender to that battlefield, the spec-driven continuous effect targets both units from the battlefield source, Wildclaw records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·159/221` Reliable Siege Dog's source same-location threshold static aura in a legal official Poppy deck route: server prompts play and move Reliable Siege Dog plus `UNL-092/219` Demacia Envoy to the same battlefield, the spec-driven continuous effect targets Reliable Siege Dog itself with the Envoy as participant, Reliable Siege Dog records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·240/298` Sett's same-battlefield boon count-to-source static aura in a legal official Poppy deck route: server prompts stage `UNL-092/219` Demacia Envoy to a battlefield, `OGN·136/298` Arena Rookie grants the Envoy `{{增益}}` through targeted `PLAY_CARD`, Sett moves to the same battlefield, the spec-driven continuous effect targets Sett itself with the boon-bearing Envoy as participant, Sett records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
@@ -73,7 +74,7 @@ This slice does not claim full B1 completion:
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
-- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck full-game replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
+- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck full-game replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -830,6 +831,38 @@ Result: 2108/2108 passed.
 
 Result: 8724/8724 passed.
 
+2026-06-26 source-object filtered static-power official-deck full-game focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAura" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 source-object filtered static-power official-deck FullGameEndToEnd check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 34/34 passed.
+
+2026-06-26 source-object filtered static-power official-deck adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAura|FullyQualifiedName~WiseElder|FullyQualifiedName~SourceObjectFiltered|FullyQualifiedName~Boon|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~ArenaRookie" --nologo
+```
+
+Result: 2207/2207 passed.
+
+2026-06-26 backend full after source-object filtered static-power official-deck full-game evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8726/8726 passed.
+
 Earlier backend full check:
 
 ```bash
@@ -868,4 +901,4 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8722/8722 passed.
+Latest result: 8726/8726 passed.
