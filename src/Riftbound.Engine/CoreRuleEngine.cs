@@ -519,7 +519,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
-    private const string BalancedDiscipleCardNo = "UNL-097/219";
+    private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
@@ -632,7 +632,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string RagingDrakeNextSpellCostSourceEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
-    private const string PoroHerderCardNo = "OGN·061/298";
+    private const string PoroHerderBoonDrawSourceEffectKind = "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int JhinCompletionSpellCount = 4;
@@ -34060,7 +34060,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }));
             }
 
-            if (string.Equals(behavior.CardNo, PoroHerderCardNo, StringComparison.Ordinal)
+            if (string.Equals(behavior.EffectKind, PoroHerderBoonDrawSourceEffectKind, StringComparison.Ordinal)
                 && ControllerControlsFaceUpPoroUnit(playerZones, cardObjects, stackItem.ControllerId)
                 && cardObjects.TryGetValue(stackItem.SourceObjectId, out var poroHerderState))
             {
@@ -34095,7 +34095,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 rngCursor = drawApplication.RngCursor;
             }
 
-            if (string.Equals(behavior.CardNo, BalancedDiscipleCardNo, StringComparison.Ordinal)
+            if (string.Equals(behavior.EffectKind, BalancedDiscipleOtherPowerDrawSourceEffectKind, StringComparison.Ordinal)
                 && SumOtherControlledUnitPower(
                     playerZones,
                     cardObjects,
