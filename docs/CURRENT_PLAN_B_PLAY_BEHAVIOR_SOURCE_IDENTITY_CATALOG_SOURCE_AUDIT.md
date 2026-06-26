@@ -1,9 +1,9 @@
 # Plan B Play Behavior Source Identity Catalog Source Audit
 
-日期：2026-06-26
+日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 Raging Drake / 狂暴龙怪、Poro Herder / 魄罗牧者、Balanced Disciple / 均衡门徒、Crescent Guard / 新月禁卫、Ascended Believer / 晋升信徒、Sly Salamander / 狡猾的蝾螈、Rampaging Soul / 肆虐狂魂、Armed Assaulter / 武装强袭者、Akshan / 阿克尚的 play-behavior 来源身份，从引擎直接 cardNo 分支迁移到 catalog effect kind 分支。该切片只收窄当前 play resolution / optional-cost / conditional-entry representative source identity 硬编码；不关闭完整 play-trigger family、完整 PaymentEngine breadth、完整 LayerEngine breadth、frontend final validation 或 READY。
+本文件记录 Plan B 小切片：把 Raging Drake / 狂暴龙怪、Poro Herder / 魄罗牧者、Balanced Disciple / 均衡门徒、Crescent Guard / 新月禁卫、Ascended Believer / 晋升信徒、Sly Salamander / 狡猾的蝾螈、Rampaging Soul / 肆虐狂魂、Armed Assaulter / 武装强袭者、Akshan / 阿克尚的 play-behavior 来源身份，从引擎直接 cardNo 分支迁移到 catalog effect kind 分支。2026-06-27 follow-up 继续把 Akshan 橙色额外装备夺取的 stack resolution source revalidation 从 direct `AkshanCardNo` 改为当前 `behavior.CardNo` 行校验，并删除 Core 的 `AkshanCardNo` 常量。该切片只收窄当前 play resolution / optional-cost / conditional-entry representative source identity 硬编码；不关闭完整 play-trigger family、完整 PaymentEngine breadth、完整 LayerEngine breadth、frontend final validation 或 READY。
 
 ## Scope
 
@@ -39,12 +39,13 @@ Not changed:
 | Rampaging Soul conditional keyword source identity no longer directly selects by card number | `CoreRuleEngine` now checks `behavior.EffectKind == RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT` instead of `behavior.CardNo == RampagingSoulCardNo` | Accepted |
 | Armed Assaulter haste / tempered source identity no longer directly selects by card number | `CoreRuleEngine` now checks `behavior.EffectKind == ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE` instead of `behavior.CardNo == ArmedAssaulterCardNo` | Accepted |
 | Akshan orange-extra source identity no longer directly selects by card number | `CoreRuleEngine` and `MatchSession` now check `behavior.EffectKind == AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT` instead of `behavior.CardNo == AkshanCardNo` for representative source selection | Accepted |
+| Akshan orange-extra resolution source revalidation no longer directly selects by card number | `TryResolveAkshanOrangeExtraEquipmentSteal` now checks the resolved source object against the current `behavior.CardNo` row instead of direct `akshanState.CardNo == AkshanCardNo`; the Core `AkshanCardNo` constant was removed | Accepted |
 | Existing next-spell marker semantics are preserved | the branch still creates `RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:<playerId>:<sourceObjectId>` and emits `TRIGGER_RESOLVED.effectKind=RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION` | Accepted |
 | Existing Poro Herder semantics are preserved | the branch still requires a controlled face-up Poro unit, grants boon to the source, and draws 1 | Accepted |
 | Existing Balanced Disciple semantics are preserved | the branch still requires other controlled unit power total at least 5 and draws 1 | Accepted |
 | Existing Crescent Guard semantics are preserved | the branch still requires `PlayerPlayedSpellThisTurn`, still prompts only when service-side purple payment resources are available, and still consumes `SPEND_POWER:purple:1` for ready entry | Accepted |
 | Existing conditional entry semantics are preserved | Ascended Believer still requires `PlayerPlayedFourPlusCostSpellThisTurn` for +4 power; Sly Salamander still requires gained-experience memory for +1 power and roam; Rampaging Soul still requires discarded-hand memory for assault and roam | Accepted |
-| Existing optional-cost representative semantics are preserved | Armed Assaulter still requires the haste / tempered optional-cost branch; Akshan still requires legal enemy equipment and orange power before exposing / resolving the steal option | Accepted |
+| Existing optional-cost representative semantics are preserved | Armed Assaulter still requires the haste / tempered optional-cost branch; Akshan still requires legal enemy equipment, orange power, a live source object matching the stack behavior row, and the existing equipment legality checks before exposing / resolving the steal option | Accepted |
 | Registry identity is exact enough to reject wrong rows | `PlayBehaviorSourceIdentityGuardTests` accepts `OGN·031/298`, `OGN·061/298`, `UNL-097/219`, `UNL-122/219`, `UNL-004/219`, `UNL-108/219`, `OGN·019/298`, `SFD·002/221`, and `SFD·109/221` only for their matching source effect kinds and rejects wrong-card / wrong-effect examples | Accepted |
 | Existing representative behavior is preserved | Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan focused regression and adjacent play / recovery regression remain green | Accepted |
 | Full play-trigger family breadth | complete play-trigger routing, complete PaymentEngine breadth, and complete LayerEngine breadth remain residual | Residual, no READY claim |
@@ -57,7 +58,7 @@ Focused source identity guard:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~PlayBehaviorSourceIdentityGuardTests" --nologo
 ```
 
-Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice.
+Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice, then failed on `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation follow-up.
 
 Focused play-behavior source identity and representative behavior:
 
@@ -67,6 +68,14 @@ Focused play-behavior source identity and representative behavior:
 
 Result after implementation: 87/87 passed.
 
+Focused Akshan resolution source guard:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OptionalCostRepresentativeSourcesUseCatalogEffectKind" --nologo
+```
+
+Result: failed before implementation on direct `akshanState.CardNo, AkshanCardNo`, then 1/1 passed after implementation.
+
 Adjacent play-behavior / recovery regression:
 
 ```sh
@@ -74,6 +83,14 @@ Adjacent play-behavior / recovery regression:
 ```
 
 Result: 2916/2916 passed.
+
+Akshan follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~AkshanGuardTests|FullyQualifiedName~PlayBehaviorSourceIdentityGuardTests|FullyQualifiedName~ArmedAssaulterHasteTemperedTests|FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~ConformanceFixtureShapeTests" --nologo
+```
+
+Result: 926/926 passed.
 
 Hidden-info / recovery boundary:
 
@@ -89,10 +106,10 @@ Full backend conformance:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8700/8700 passed.
+Result: 8771/8771 passed.
 
 ## Residual Risks
 
-- This does not generalize every play-trigger representative; it removes the current Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan source card-number dependencies and routes those branches through implemented catalog effect kinds.
+- This does not generalize every play-trigger representative; it removes the current Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan source card-number dependencies and routes those branches through implemented catalog effect kinds / behavior rows.
 - This does not close complete play-trigger ordering, complete `ORDER_TRIGGERS` / APNAP breadth, complete PaymentEngine breadth, complete LayerEngine breadth, frontend final validation, or READY.
 - Project remains **NOT READY**.

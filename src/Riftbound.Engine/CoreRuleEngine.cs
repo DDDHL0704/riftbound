@@ -129,7 +129,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
-    private const string AkshanCardNo = "SFD·109/221";
     private const string ArmedAssaulterHasteTemperedSourceEffectKind = "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE";
     private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
     private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
@@ -39664,7 +39663,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var akshanState)
             || akshanState.IsFaceDown
-            || !string.Equals(akshanState.CardNo, AkshanCardNo, StringComparison.Ordinal)
+            || !string.Equals(akshanState.CardNo, behavior.CardNo, StringComparison.Ordinal)
             || !akshanState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(akshanState, stackItem.ControllerId)
             || !IsLegalAkshanStealEquipmentChoice(

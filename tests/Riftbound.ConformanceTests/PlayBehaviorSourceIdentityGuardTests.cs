@@ -176,6 +176,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(behavior.CardNo, ArmedAssaulterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("akshanState.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("ArmedAssaulterHasteTemperedSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
