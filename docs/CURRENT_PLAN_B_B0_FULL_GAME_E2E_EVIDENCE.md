@@ -50,6 +50,8 @@ The battlefield extra-standby action-log replay regression proves a legal offici
 
 The same-battlefield static-aura action-log replay regression proves a legal official deck can carry a data-driven `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `OGS·013/024` Garen and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages both friendly units and an opposing defender through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Garen's `BehaviorSpec.StaticAuras` projection targets the Envoy, declares battle with the boosted Envoy, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete static-aura breadth, complete official deck archetype breadth, or READY.
 
+The other-friendly static-aura action-log replay regression proves a legal official deck can carry a non-local data-driven `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesOtherFriendlyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex decks containing `UNL-147/219` Baron Nashor and `UNL-057/219` Wildclaw Beastmaster, follows a seeded official opening path, stages Baron Nashor to base and Wildclaw to a battlefield through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Baron Nashor's `BehaviorSpec.StaticAuras` projection targets the other friendly Wildclaw with `OTHER_FRIENDLY_UNITS_POWER`, declares battle with Wildclaw, observes `DAMAGE_APPLIED` with `basePower=7`, `staticPowerBonus=2`, `combatPower=9`, and `damage=9`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close Baron Nest creation, enemy spell/skill targeting protection, complete static-aura breadth, complete official deck archetype breadth, or READY.
+
 The same-battlefield static-keyword action-log replay regression proves a legal official deck can carry a data-driven `RULE_TEXT` keyword aura through the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Jhin deck containing `OGN·015/298` Farron Captain and `UNL-004/219` Ascended Believer, follows the normal official opening seed path, stages both friendly units and an opposing defender through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Farron's `BehaviorSpec.StaticAuras` / `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD` projection targets the Believer with `强攻`, declares battle with the granted attacker, observes `DAMAGE_APPLIED` with `basePower=1`, `keyword=强攻`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete RULE_TEXT keyword aura breadth, complete official deck archetype breadth, or READY.
 
 The same-battlefield Steadfast static-keyword action-log replay regression proves the defensive side of the same data-driven `RULE_TEXT` aura path in the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Lillia deck containing `OGN·074/298` Taric and `UNL-090/219` LeBlanc, stages both units to an opposing battlefield through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Taric projects `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD` to LeBlanc with `坚守`, lets the battlefield owner declare battle, observes defender `DAMAGE_APPLIED` with `basePower=4`, `keyword=坚守`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=5`, and `damage=5`, then continues through a follow-up server-authored battle declaration, a post-battle no-legal `BATTLE_SKIPPED`, and score-victory replay to the same final state hash. This slice also fixes the shared post-battle task advancement path so active `START_BATTLE` tasks after battle cleanup either expose the task player as active or use the existing no-legal battle skip path instead of leaving a WAIT-only blocker.
@@ -75,7 +77,7 @@ The response-activation regression proves that a legal official deck pair can re
 Focused validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRow"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameAppliesOtherFriendlyStaticAura"
 ```
 
 Result:
@@ -87,25 +89,25 @@ Passed: 1, Failed: 0, Skipped: 0, Total: 1
 Full-game validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
 ```
 
 Result:
 
 ```text
-Passed: 24, Failed: 0, Skipped: 0, Total: 24
+Passed: 25, Failed: 0, Skipped: 0, Total: 25
 ```
 
 Adjacent validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattleDamageAssignment|FullyQualifiedName~AssignCombatDamage|FullyQualifiedName~Steadfast|FullyQualifiedName~Taric|FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OtherFriendly|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~Baron|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
 ```
 
 Result:
 
 ```text
-Passed: 2126, Failed: 0, Skipped: 0, Total: 2126
+Passed: 2114, Failed: 0, Skipped: 0, Total: 2114
 ```
 
 Backend full validation:
@@ -117,9 +119,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8716, Failed: 0, Skipped: 0, Total: 8716
+Passed: 8717, Failed: 0, Skipped: 0, Total: 8717
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; an official Poppy / Garen / Demacia Envoy path can apply a data-driven same-battlefield static aura to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; official Poppy / Garen / Demacia Envoy and Vex / Baron Nashor / Wildclaw Beastmaster paths can apply data-driven same-battlefield and non-local other-friendly static auras to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Baron Nashor other-friendly static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
