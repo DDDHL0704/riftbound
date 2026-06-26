@@ -74,6 +74,8 @@ The Imperial Shrine pay-return-unit create-Sand-Soldier action-log replay regres
 
 The Hall of Legends pay-ready-legend action-log replay regression proves a legal official deck opening can feed a focused conquered-battlefield route with cost payment and legend readiness. `OfficialDeckMidgameResolvesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·210/221` Hall of Legends, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `LEGEND_READIED`, spends one mana, readies the controlled legend, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Hunting Grounds overkill create-Warhawk action-log replay regression proves a legal official deck opening can feed a focused conquered-battlefield overkill-token route. `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `UNL-217/219` Hunting Grounds, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_TOKEN_CREATED`, assigns at least three overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Ravenbloom Conservatory defend reveal-spell action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield reveal route with a controlled main-deck top card. `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARD_DRAWN`, recognizes the revealed card as a spell, moves it to P2 hand, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Ravenbloom Conservatory defend reveal non-spell action-log replay regression covers the miss branch of the same BehaviorSpec route. `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED`, recognizes the revealed card is not a spell, recycles it to the bottom of P2's main deck, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -502,6 +504,54 @@ Result:
 Passed: 8741, Failed: 0, Skipped: 0, Total: 8741
 ```
 
+Latest Hunting Grounds overkill create-Warhawk focused validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawk"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Hunting Grounds full-game validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 48, Failed: 0, Skipped: 0, Total: 48
+```
+
+Latest Hunting Grounds adjacent validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Hunting|FullyQualifiedName~Overkill|FullyQualifiedName~Warhawk|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2142, Failed: 0, Skipped: 0, Total: 2142
+```
+
+Latest Hunting Grounds backend full validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8742, Failed: 0, Skipped: 0, Total: 8742
+```
+
 ## Non-Closure
 
 This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; official Poppy / Garen / Demacia Envoy, Vex / Baron Nashor / Wildclaw Beastmaster, Poppy / Scarlet Pigeon / Demacia Envoy, Lillia / Petal Pixie / Faerie token / Wildclaw Beastmaster, Lillia / Soul Shepherd / Warhawk token / Wildclaw Beastmaster, Lillia / Waterbender / Watchful Sentinel, Master Yi intro / Demacia Envoy, Master Yi level / Demacia Envoy, Master Yi level / Wise Elder / Arena Rookie / Watchful Sentinel, Vex / Trifarian Training Grounds / Wildclaw Beastmaster, Poppy / Reliable Siege Dog / Demacia Envoy, Poppy / Sett / Arena Rookie / Demacia Envoy, and Poppy / Lee Sin / Arena Rookie / Demacia Envoy paths can apply data-driven same-battlefield, non-local other-friendly, source-combat, same-battlefield ephemeral count-to-source, friendly-token filtered, source-lone-battle, friendly single-defender, experience-gated friendly-units, source-object filtered, battlefield-source all-units, source same-location threshold, same-battlefield boon count-to-source, and same-battlefield other-friendly filtered static auras to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Baron Nashor other-friendly static-aura, Scarlet Pigeon source-combat static-aura, Petal Pixie same-battlefield ephemeral count-to-source static-aura, Soul Shepherd friendly-token static-aura, Waterbender source-lone-battle static-aura, Master Yi intro friendly single-defender static-aura, Master Yi level friendly-units static-aura, Wise Elder source-object filtered static-aura, Trifarian Training Grounds battlefield all-units static-aura, Reliable Siege Dog source same-location static-aura, Sett same-battlefield boon count-to-source static-aura, Lee Sin same-battlefield other-friendly filtered static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from their representative initial states through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, token-creation command breadth, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
@@ -517,6 +567,8 @@ The current Sunken Temple increment additionally proves one BehaviorSpec-driven 
 The current Imperial Shrine increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score-victory replay, hidden-info guarded full-game helpers, and opponent-view redaction of returned hidden hand object ids from battle metadata. Optional trigger prompt / decline semantics, complete return-unit target-choice breadth, complete token lifecycle breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Hall of Legends increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-ready-legend route through parsed cost payment, an exhausted controlled legend becoming ready, score-victory replay, and hidden-info guarded full-game helpers. Optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Hunting Grounds increment additionally proves one BehaviorSpec-driven battlefield-conquer overkill-token route through assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score-victory replay, and hidden-info guarded full-game helpers. Complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Ravenbloom increment additionally proves one BehaviorSpec-driven battlefield-defended reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score-victory replay, and hidden-info guarded full-game helpers. The non-spell recycle branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Ravenbloom non-spell B0 action-log replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Hunting Grounds overkill create-Warhawk B0 action-log replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -569,6 +569,8 @@ The 2026-06-25 conquer overkill create-Warhawk follow-up moves another implement
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerOverkillCreateWarhawkCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerOverkillCreateWarhawkCardNo` / `IsBattlefieldConquerOverkillCreateWarhawkCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `61` total / `57` in `CoreRuleEngine`; Core battlefield helper count is `13`.
 
+The 2026-06-26 B0 replay follow-up adds no runtime rule changes. It proves the parsed `UNL-217/219` Hunting Grounds route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, assign at least 3 overkill damage to an enemy unit, create the parsed 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and replay through score victory to the same final state hash.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -860,6 +862,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `47/47`;
 - adjacent Ravenbloom / DefendReveal / RevealSpell / Recycle / BattlefieldDefend / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2181/2181`;
 - backend full conformance: passed `8741/8741`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-06-26 Hunting Grounds overkill create-Warhawk B0 action-log replay follow-up validation:
+
+- focused B0 Hunting Grounds replay: passed `1/1`;
+- FullGameEndToEnd: passed `48/48`;
+- adjacent Hunting / Overkill / Warhawk / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2142/2142`;
+- backend full conformance: passed `8742/8742`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer overkill create-Warhawk follow-up validation:

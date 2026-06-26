@@ -236,6 +236,8 @@ The conquer overkill create-Warhawk follow-up parser path turns the Hunting Grou
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when assigned overkill damage to enemy units reaches the parsed threshold, it creates the parsed Warhawk token on the battlefield. The concrete token resolves by parsed token family and power through `P6TokenFactoryCatalog`, and the parsed `法盾` keyword is checked against the token definition tags before creation.
 
+The B0 full-game replay follow-up now also covers this same parsed Hunting Grounds route through a legal official-deck opening. `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `UNL-217/219` can be selected in opening setup, that a focused midgame `START_BATTLE` state assigns at least three overkill damage to an enemy unit, that the route creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and that the command journal replays through score victory to the same final state hash.
+
 The turn-start damage-units follow-up parser path turns the Frost Hold official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, `Timing=TURN_START`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `DamageAmount=1`. Runtime no longer checks `UNL-212/219` through `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `START_TURN` path keeps the existing start-phase timing before scoring and rune-call progression. It now derives affected units from the source battlefield object's location scope, so the official `此处` wording damages only units at that battlefield object rather than every battlefield-zone unit. The same source-controlled guard remains in place for dirty-state protection.
@@ -355,6 +357,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - defend reveal-spell-or-recycle B0 non-spell adjacent MatchRecovery follow-up: `2181/2181`;
 - conquer overkill create-Warhawk focused behavior-spec/source guard/runtime/GameHub representative: `3/3`;
 - conquer overkill create-Warhawk adjacent BattlefieldConquer / BattlefieldTriggerSpec / Overkill / Warhawk / DeclareBattle representatives: `221/221`;
+- conquer overkill create-Warhawk B0 action-log replay follow-up: `1/1`;
+- conquer overkill create-Warhawk B0 full-game follow-up: `48/48`;
+- conquer overkill create-Warhawk B0 adjacent MatchRecovery follow-up: `2142/2142`;
 - turn-start damage-units focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - turn-start damage-units CardCatalog baseline: `147/147`;
 - turn-start damage-units adjacent BattlefieldTurnStartDamage / BattlefieldTriggerSpec / GameHub representatives: `226/226`;
@@ -403,6 +408,7 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the Hall of Legends B0 action-log replay follow-up: `8739/8739`;
 - backend full conformance after the Ravenbloom B0 action-log replay follow-up: `8740/8740`;
 - backend full conformance after the Ravenbloom non-spell B0 action-log replay follow-up: `8741/8741`;
+- backend full conformance after the Hunting Grounds B0 action-log replay follow-up: `8742/8742`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
@@ -413,4 +419,4 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 
 ## Non-Closure
 
-This evidence proves thirty-nine battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing, two parsed trigger-payment routes now have B0 official-deck action-log replay follow-ups, the parsed Imperial Shrine pay-return-unit create-Sand-Soldier route now has a B0 official-deck action-log replay plus returned-hidden-object metadata redaction coverage, the parsed Hall of Legends pay-ready-legend route now has a B0 official-deck action-log replay, and the parsed Ravenbloom defend reveal route now has B0 official-deck action-log replay coverage for both spell-hit and non-spell-recycle branches. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, complete legend target-choice breadth, complete reveal / recycle hidden-info breadth, the individual unit conquest-effect helper family activated by Reckoner Arena, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-nine battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing, two parsed trigger-payment routes now have B0 official-deck action-log replay follow-ups, the parsed Imperial Shrine pay-return-unit create-Sand-Soldier route now has a B0 official-deck action-log replay plus returned-hidden-object metadata redaction coverage, the parsed Hall of Legends pay-ready-legend route now has a B0 official-deck action-log replay, the parsed Ravenbloom defend reveal route now has B0 official-deck action-log replay coverage for both spell-hit and non-spell-recycle branches, and the parsed Hunting Grounds overkill create-Warhawk route now has a B0 official-deck action-log replay. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, complete legend target-choice breadth, complete reveal / recycle hidden-info breadth, complete token lifecycle breadth, the individual unit conquest-effect helper family activated by Reckoner Arena, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B4 Ravenbloom defend reveal non-spell recycle official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B4 Hunting Grounds overkill create-Warhawk official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -38,6 +38,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, redacts the returned hand object's id from opponent battle metadata snapshots, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path pays the parsed cost, readies the controlled legend, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -164,6 +165,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Added `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` covering single-defender projection and multi-defender non-projection for `UNL-210/219` Forbidden Wasteland.
@@ -209,6 +211,8 @@ This Sunken Temple increment additionally proves a legal official Vex deck openi
 This Imperial Shrine increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score victory, action-log replay, and opponent-view battle metadata redaction for the returned hidden hand object. It still does not close optional trigger prompt / decline semantics, complete return-unit target choice breadth, complete token lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Hall of Legends increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-ready-legend route through parsed cost payment, an exhausted controlled legend becoming ready, score victory, and action-log replay. It still does not close optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Hunting Grounds increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield overkill token route through server-authored `DECLARE_BATTLE`, assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score victory, and action-log replay. It still does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Ravenbloom increment additionally proves legal official Vex and Lillia deck openings can carry a BehaviorSpec-driven defended-battlefield reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score victory, and action-log replay. It still does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -606,4 +610,52 @@ Result:
 
 ```text
 Passed: 8741, Failed: 0, Skipped: 0, Total: 8741
+```
+
+Latest Hunting Grounds overkill create-Warhawk focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawk"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Hunting Grounds FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 48, Failed: 0, Skipped: 0, Total: 48
+```
+
+Latest Hunting Grounds adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Hunting|FullyQualifiedName~Overkill|FullyQualifiedName~Warhawk|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2142, Failed: 0, Skipped: 0, Total: 2142
+```
+
+Latest Hunting Grounds backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8742, Failed: 0, Skipped: 0, Total: 8742
 ```
