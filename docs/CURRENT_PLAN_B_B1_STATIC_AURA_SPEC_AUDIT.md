@@ -58,6 +58,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-147/219` Baron Nashor's non-local other-friendly static aura in a legal official Vex deck route: server prompts play Baron Nashor to base and move `UNL-057/219` Wildclaw Beastmaster to a battlefield, the spec-driven continuous effect targets Wildclaw from the non-local source, real battle damage records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-154/219` Scarlet Pigeon's source-combat static aura in a legal official Poppy deck route: server prompts play and move Scarlet Pigeon plus `UNL-092/219` Demacia Envoy, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's source-combat route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·294/298` Trifarian Training Grounds' battlefield all-units static aura in a legal official Vex deck route: the driver probes official-opening seeds until P1 selects Trifarian Training Grounds, server prompts move `UNL-057/219` Wildclaw Beastmaster and an opposing defender to that battlefield, the spec-driven continuous effect targets both units from the battlefield source, Wildclaw records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·159/221` Reliable Siege Dog's source same-location threshold static aura in a legal official Poppy deck route: server prompts play and move Reliable Siege Dog plus `UNL-092/219` Demacia Envoy to the same battlefield, the spec-driven continuous effect targets Reliable Siege Dog itself with the Envoy as participant, Reliable Siege Dog records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs` now covers Brush's battlefield-filtered `STATIC_AURA` remaining active through a score-time replacement choice: matching attacker / defender units receive `staticPowerBonus=1`, and the same `DECLARE_BATTLE` uses `BRUSH_USE_REPLACED_BATTLEFIELD:*` to resolve the replaced Energy Hub held-score trigger.
 
 ## Not Closed
@@ -67,7 +68,7 @@ This slice does not claim full B1 completion:
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
-- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, and Trifarian Training Grounds battlefield all-units now have legal official-deck full-game replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
+- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Trifarian Training Grounds battlefield all-units, and Reliable Siege Dog source same-location threshold now have legal official-deck full-game replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -664,6 +665,38 @@ Result: 2141/2141 passed.
 
 Result: 8719/8719 passed.
 
+2026-06-26 source same-location static-power official-deck full-game focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSourceSameLocationStaticAura" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 source same-location static-power official-deck FullGameEndToEnd check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 28/28 passed.
+
+2026-06-26 source same-location static-power official-deck adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceSameLocation|FullyQualifiedName~ReliableSiegeDog|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2101/2101 passed.
+
+2026-06-26 backend full after source same-location static-power official-deck full-game evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8720/8720 passed.
+
 Earlier backend full check:
 
 ```bash
@@ -702,4 +735,4 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8602/8602 passed.
+Latest result: 8720/8720 passed.

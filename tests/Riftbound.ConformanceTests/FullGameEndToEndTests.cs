@@ -24,6 +24,7 @@ public sealed class FullGameEndToEndTests
     private const string CrimsonSignetTreantCardNo = "UNL-029/219";
     private const string BaronNashorOtherFriendlyStaticAuraCardNo = "UNL-147/219";
     private const string ScarletPigeonSourceCombatStaticAuraCardNo = "UNL-154/219";
+    private const string ReliableSiegeDogSourceSameLocationStaticAuraCardNo = "SFD·159/221";
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
     private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
@@ -326,6 +327,62 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-battlefield-all-units-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSourceSameLocationStaticAuraOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-source-same-location-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSourceSameLocationStaticAuraMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            ReliableSiegeDogSourceSameLocationStaticAuraCardNo,
+            "b0-source-same-location-aura-stage-source");
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            DemaciaEnvoyCardNo,
+            "b0-source-same-location-aura-stage-ally");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-source-same-location-aura-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToSourceSameLocationStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-source-same-location-aura-battle");
+
+        AssertSourceSameLocationStaticAuraDamage(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-source-same-location-aura-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -1225,6 +1282,24 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(8, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(8, attackerDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertSourceSameLocationStaticAuraDamage(ResolutionResult result)
+    {
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("basePower", out var basePower)
+            && basePower is 2
+            && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
+            && staticPowerBonus is 1);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -3115,6 +3190,57 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 battlefield all-units static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSourceSameLocationStaticAuraBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitSourceSameLocationStaticAuraDeclareBattleAsync(
+                    session,
+                    result,
+                    auraControllerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 source-same-location static aura driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 source-same-location static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSourceCombatStaticAuraBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -4104,6 +4230,97 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(defenderObjectId, participantObjectIds);
         var sourceDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds);
         Assert.Contains(battlefieldId, sourceDependencyObjectIds);
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitSourceSameLocationStaticAuraDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentId)
+    {
+        Assert.Equal(auraControllerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var opponentId = OpponentOf(current.State, playerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 source-same-location static aura driver could not find DECLARE_BATTLE for {playerId}.");
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            ReliableSiegeDogSourceSameLocationStaticAuraCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 source-same-location static aura driver could not find a ready Reliable Siege Dog.");
+        var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 source-same-location static aura driver could not locate Reliable Siege Dog's battlefield.");
+        var allyObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            DemaciaEnvoyCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 source-same-location static aura driver could not find a same-location friendly unit.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(sourceObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var staticAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal(ReliableSiegeDogSourceSameLocationStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, staticAura.EffectKind);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(2, staticAura.BasePower);
+        Assert.Equal(3, staticAura.EffectivePower);
+        Assert.Equal("CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus", staticAura.SourcePath);
+        Assert.Equal("SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_LOCATION", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_SAME_LOCATION_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);
+        var participantObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds);
+        Assert.Contains(allyObjectId, participantObjectIds);
+        Assert.DoesNotContain(sourceObjectId, participantObjectIds);
+        var sourceDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds);
+        Assert.Contains(sourceObjectId, sourceDependencyObjectIds);
+        var targetDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds);
+        Assert.Contains(sourceObjectId, targetDependencyObjectIds);
+        var participantDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds);
+        Assert.Contains(allyObjectId, participantDependencyObjectIds);
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds)
+            ?? throw new InvalidOperationException(
+                $"B0 source-same-location static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [sourceObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { sourceObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
     }
 
     private static async ValueTask<ResolutionResult> SubmitOtherFriendlyStaticAuraDeclareBattleAsync(
@@ -5277,6 +5494,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildSourceSameLocationStaticAuraOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                PoppyLegendCardNo,
+                PoppyChampionCardNo,
+                [
+                    ReliableSiegeDogSourceSameLocationStaticAuraCardNo,
+                    DemaciaEnvoyCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldStaticKeywordOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -5627,6 +5858,15 @@ public sealed class FullGameEndToEndTests
             "P1",
             [ScarletPigeonSourceCombatStaticAuraCardNo, DemaciaEnvoyCardNo],
             new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildSourceSameLocationStaticAuraMidgameInitialState(MatchState state)
+    {
+        return BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [ReliableSiegeDogSourceSameLocationStaticAuraCardNo, DemaciaEnvoyCardNo],
+            new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
     }
 
     private static MatchState BuildSameBattlefieldStaticKeywordMidgameInitialState(MatchState state)
