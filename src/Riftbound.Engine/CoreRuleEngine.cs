@@ -17531,7 +17531,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     out var battlefieldDiscardedObjectIds))
             {
                 playerScores = battlefieldDiscardDrawApplication.PlayerScores;
-                winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId;
+                winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = battlefieldDiscardDrawApplication.RngCursor;
                 untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                     untilEndOfTurnEffects,
@@ -17551,7 +17551,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     out var battlefieldBoonDrawApplication))
             {
                 playerScores = battlefieldBoonDrawApplication.PlayerScores;
-                winnerPlayerId = battlefieldBoonDrawApplication.WinnerPlayerId;
+                winnerPlayerId = battlefieldBoonDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = battlefieldBoonDrawApplication.RngCursor;
             }
             var battlefieldReadyLegendTrigger = ResolveBattlefieldConquerPayOneReadyLegendTrigger(
@@ -17632,7 +17632,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     out var battlefieldOtherDrawApplication))
             {
                 playerScores = battlefieldOtherDrawApplication.PlayerScores;
-                winnerPlayerId = battlefieldOtherDrawApplication.WinnerPlayerId;
+                winnerPlayerId = battlefieldOtherDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = battlefieldOtherDrawApplication.RngCursor;
             }
             TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger(
@@ -17730,7 +17730,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor,
                     combatEvents);
                 playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
         }
@@ -17826,7 +17826,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         defenderObjectIds);
                     combatEvents.AddRange(battlefieldTriggerEvents);
                     playerScores = battlefieldDrawApplication.PlayerScores;
-                    winnerPlayerId = battlefieldDrawApplication.WinnerPlayerId;
+                    winnerPlayerId = battlefieldDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                     rngCursor = battlefieldDrawApplication.RngCursor;
                 }
 
@@ -18211,7 +18211,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         rngCursor,
                         combatEvents);
                     playerScores = vexDrawApplication.PlayerScores;
-                    winnerPlayerId = vexDrawApplication.WinnerPlayerId;
+                    winnerPlayerId = vexDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                     rngCursor = vexDrawApplication.RngCursor;
                 }
 
@@ -18317,7 +18317,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor,
                     combatEvents);
                 playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
         }
