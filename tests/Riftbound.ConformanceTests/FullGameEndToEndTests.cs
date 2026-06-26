@@ -24,6 +24,7 @@ public sealed class FullGameEndToEndTests
     private const string CrimsonSignetTreantCardNo = "UNL-029/219";
     private const string ForgottenMonumentBattlefieldCardNo = "SFD·209/221";
     private const string WinningScoreIncreaseBattlefieldCardNo = "OGN·276/298";
+    private const string BandleTreeBattlefieldCardNo = "OGN·278/298";
     private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
     private const string HasteReadyOptionalCost = "HASTE_READY";
     private const string TeemoSelfPowerCardNo = "OGN·197/298";
@@ -250,6 +251,45 @@ public sealed class FullGameEndToEndTests
         Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
         Assert.True(Assert.IsType<bool>(hiddenEvent.Payload["isFaceDown"]));
         Assert.Contains(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task StandbyOfficialDecksBattlefieldExtraStandbyHideAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildBattlefieldExtraStandbyOfficialDeck(catalog);
+
+        var (initialState, journal, hidden, battleResult, result, hiddenObjectId, battlefieldObjectId) =
+            await DriveOfficialStandbyDecksToBattlefieldExtraStandbyHideScoreVictoryForReplayAsync(
+                "b0-full-game-battlefield-extra-standby-replay-room",
+                deck,
+                deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal));
+        Assert.DoesNotContain(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.RevealCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+
+        var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.Equal("BATTLEFIELD", Assert.IsType<string>(hiddenEvent.Payload["destinationZone"]));
+        Assert.Equal(battlefieldObjectId, Assert.IsType<string>(hiddenEvent.Payload["battlefieldObjectId"]));
+        Assert.Equal(BandleTreeBattlefieldCardNo, Assert.IsType<string>(hiddenEvent.Payload["battlefieldCardNo"]));
+        var standbyPlayerId = Assert.IsType<string>(hiddenEvent.Payload["playerId"]);
+
+        Assert.Contains(hidden.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, hiddenObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(hiddenObjectId, hidden.State.PlayerZones[standbyPlayerId].Battlefields, StringComparer.Ordinal);
+        Assert.True(hidden.State.CardObjects[hiddenObjectId].IsFaceDown);
+        Assert.Equal("BATTLEFIELD", hidden.State.ObjectLocations[hiddenObjectId].Zone);
+        Assert.Equal(battlefieldObjectId, hidden.State.ObjectLocations[hiddenObjectId].BattlefieldObjectId);
+
         Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -1279,14 +1319,89 @@ public sealed class FullGameEndToEndTests
     }
 
     private static async ValueTask<(
+        MatchState InitialState,
+        RecordingMatchJournal Journal,
+        ResolutionResult Hidden,
+        ResolutionResult BattleResult,
+        ResolutionResult Result,
+        string HiddenObjectId,
+        string BattlefieldObjectId)> DriveOfficialStandbyDecksToBattlefieldExtraStandbyHideScoreVictoryForReplayAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldExtraStandbyDriverSeeds())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            var journal = new RecordingMatchJournal();
+            try
+            {
+                var result = await DriveOfficialStandbyDecksToHideRevealScoreVictoryAsync(
+                    initialState,
+                    journal,
+                    p1Deck,
+                    p2Deck,
+                    useBattlefieldExtraStandby: true);
+                return (
+                    initialState,
+                    journal,
+                    result.Hidden,
+                    result.BattleResult,
+                    result.Result,
+                    result.HiddenObjectId,
+                    result.ExtraStandbyBattlefieldObjectId!);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 standby driver", StringComparison.Ordinal))
+            {
+                if (failures.Count < 40)
+                {
+                    failures.Add($"{seed}: {ex.Message}");
+                }
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                if (failures.Count < 40)
+                {
+                    failures.Add($"{seed}: match ended before battlefield extra-standby score path");
+                }
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 standby driver could not find a deterministic official-deck battlefield extra-standby score path. "
+            + string.Join(" | ", failures));
+    }
+
+    private static IEnumerable<int> BattlefieldExtraStandbyDriverSeeds()
+    {
+        foreach (var seed in StandbyDriverSeeds)
+        {
+            yield return seed;
+        }
+
+        var knownSeeds = StandbyDriverSeeds.ToHashSet();
+        for (var seed = 0; seed < 512; seed++)
+        {
+            if (!knownSeeds.Contains(seed))
+            {
+                yield return seed;
+            }
+        }
+    }
+
+    private static async ValueTask<(
         ResolutionResult Hidden,
         ResolutionResult Revealed,
         ResolutionResult BattleResult,
-        ResolutionResult Result)> DriveOfficialStandbyDecksToHideRevealScoreVictoryAsync(
+        ResolutionResult Result,
+        string HiddenObjectId,
+        string? ExtraStandbyBattlefieldObjectId)> DriveOfficialStandbyDecksToHideRevealScoreVictoryAsync(
         MatchState initialState,
         IMatchJournal journal,
         OfficialDecklist p1Deck,
-        OfficialDecklist p2Deck)
+        OfficialDecklist p2Deck,
+        bool useBattlefieldExtraStandby = false)
     {
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-standby-submit-p1");
@@ -1322,19 +1437,43 @@ public sealed class FullGameEndToEndTests
 
         var standbyPlayerId = current.State.ActivePlayerId;
         current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-hide-tap");
-        var (hidden, hiddenObjectId) = await SubmitFirstHideCardCandidateAsync(
-            session,
-            current,
-            standbyPlayerId,
-            "b0-standby-hide-card");
-        var (revealed, revealedObjectId) = await SubmitFirstRevealCardCandidateAsync(
-            session,
-            hidden,
-            standbyPlayerId,
-            "b0-standby-reveal-card");
-        Assert.Equal(hiddenObjectId, revealedObjectId);
-        Assert.Contains(revealedObjectId, revealed.State.PlayerZones[standbyPlayerId].Base, StringComparer.Ordinal);
-        Assert.False(revealed.State.CardObjects[revealedObjectId].IsFaceDown);
+        ResolutionResult hidden;
+        string hiddenObjectId;
+        string? extraStandbyBattlefieldObjectId = null;
+        if (useBattlefieldExtraStandby)
+        {
+            (hidden, hiddenObjectId, extraStandbyBattlefieldObjectId) = await SubmitFirstBattlefieldExtraStandbyHideCardCandidateAsync(
+                session,
+                current,
+                standbyPlayerId,
+                "b0-standby-hide-card");
+        }
+        else
+        {
+            (hidden, hiddenObjectId) = await SubmitFirstHideCardCandidateAsync(
+                session,
+                current,
+                standbyPlayerId,
+                "b0-standby-hide-card");
+        }
+
+        ResolutionResult revealed;
+        if (useBattlefieldExtraStandby)
+        {
+            revealed = hidden;
+        }
+        else
+        {
+            var (ordinaryReveal, revealedObjectId) = await SubmitFirstRevealCardCandidateAsync(
+                session,
+                hidden,
+                standbyPlayerId,
+                "b0-standby-reveal-card");
+            Assert.Equal(hiddenObjectId, revealedObjectId);
+            Assert.Contains(revealedObjectId, ordinaryReveal.State.PlayerZones[standbyPlayerId].Base, StringComparer.Ordinal);
+            Assert.False(ordinaryReveal.State.CardObjects[revealedObjectId].IsFaceDown);
+            revealed = ordinaryReveal;
+        }
 
         current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-end-after-reveal");
         AssertNoHiddenZoneLeak(current);
@@ -1361,7 +1500,7 @@ public sealed class FullGameEndToEndTests
 
         var (_, _, battleResult) = await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, current);
         var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-score");
-        return (hidden, revealed, battleResult, result);
+        return (hidden, revealed, battleResult, result, hiddenObjectId, extraStandbyBattlefieldObjectId);
     }
 
     private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitFirstHideCardCandidateAsync(
@@ -1398,6 +1537,47 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
         return (result, sourceObjectId);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId, string BattlefieldObjectId)> SubmitFirstBattlefieldExtraStandbyHideCardCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.HideCard)
+            ?? throw new InvalidOperationException($"B0 standby driver could not find HIDE_CARD for {playerId}.");
+        var sourceObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide source.");
+        var cardNo = current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            ? cardObject.CardNo
+            : null;
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            throw new InvalidOperationException("B0 standby driver could not resolve the standby hide card number.");
+        }
+
+        var destination = candidate.Destinations?
+            .FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a battlefield extra-standby destination.");
+        var battlefieldObjectId = destination["BATTLEFIELD:".Length..];
+        Assert.False(string.IsNullOrWhiteSpace(battlefieldObjectId));
+        Assert.True(current.State.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldObject));
+        Assert.Equal(BandleTreeBattlefieldCardNo, battlefieldObject.CardNo);
+
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
+            ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide optional cost.");
+        var command = new HideCardCommand(sourceObjectId, cardNo, destination, [optionalCost]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId, battlefieldObjectId);
     }
 
     private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitFirstRevealCardCandidateAsync(
@@ -3238,6 +3418,23 @@ public sealed class FullGameEndToEndTests
                 PakaaCubCardNo,
                 PakaaCubCardNo
             ]);
+    }
+
+    private static OfficialDecklist BuildBattlefieldExtraStandbyOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildStandbyOfficialDeck(catalog);
+        var selectedBattlefields = new List<string>
+        {
+            BandleTreeBattlefieldCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
     }
 
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
