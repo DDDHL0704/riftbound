@@ -1,8 +1,8 @@
 # Plan B / B4 Battlefield Trigger Spec Audit
 
-Date: 2026-06-25
+Date: 2026-06-26
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Treasure Pile B0 action-log replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Sunken Temple B0 action-log replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -494,6 +494,8 @@ The 2026-06-25 conquer powerful pay-draw follow-up moves another implemented con
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPowerfulPayOneDrawCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo` card-number branch and `BattlefieldPowerfulDrawManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `65` total / `61` in `CoreRuleEngine`; Core battlefield helper count is `17`.
 
+The 2026-06-26 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·218/221` Sunken Temple trigger-payment route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, open `TRIGGER_PAYMENT` only after conquest with a surviving powerful attacker, accept replayable `PAY_COST(SPEND_MANA:1)`, draw one controlled main-deck card, and replay through score victory to the same final state hash.
+
 The 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
 - `SFD·207/221` / 帝王神坛 official text: `当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。`
@@ -788,6 +790,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8428/8428`.
+
+2026-06-26 Sunken Temple B0 action-log replay follow-up validation:
+
+- focused B0 Sunken Temple replay: passed `1/1`;
+- FullGameEndToEnd: passed `43/43`;
+- adjacent SunkenTemple / PowerfulDraw / BattlefieldConquerPowerful / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2129/2129`;
+- backend full conformance: passed `8737/8737`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up validation:
 

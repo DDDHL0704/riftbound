@@ -1,6 +1,6 @@
 # Plan B / B4 Battlefield Trigger Spec Evidence
 
-Date: 2026-06-25
+Date: 2026-06-26
 
 Project status: **NOT READY**.
 
@@ -210,6 +210,8 @@ The conquer powerful pay-draw follow-up parser path turns the Sunken Temple offi
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and draws after successful payment. The prompt cost, trigger id, draw count, and required power threshold now come from the parsed spec. The new multi-attacker regression proves the official `此战场上留存至少一名{{强力}}单位` condition is evaluated over all surviving conquest attackers instead of only the first attacker object.
 
+The B0 full-game replay follow-up now also covers this same parsed Sunken Temple route through a legal official-deck opening. `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `SFD·218/221` can be selected in opening setup, that a focused midgame `START_BATTLE` state opens `TRIGGER_PAYMENT` after conquest only with a surviving powerful attacker, that replayable `PAY_COST(SPEND_MANA:1)` draws one controlled main-deck card, and that the command journal replays through score victory to the same final state hash.
+
 The conquer pay-return-unit create-Sand-Soldier follow-up parser path turns the Imperial Shrine official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `ManaCost=1`, `ReturnCount=1`, `ReturnOriginZone=BATTLEFIELD`, `ReturnDestinationZone=HAND`, `CreatedTokenCount=1`, `CreatedTokenName=黄沙士兵`, `CreatedTokenPower=2`, `CreatedTokenDestination=BATTLEFIELD`, and `CreatedTokenExhausted=false`. Runtime no longer checks `SFD·207/221` through `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo`, and no longer uses `BattlefieldSandSoldierManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when mana and a controlled unit are available, it pays the parsed cost, returns the selected unit to its owner's hand, resolves existing unit-returned battlefield hooks, and creates the parsed 2-power Sand Soldier token at that battlefield. The concrete token card now resolves from `P6TokenFactoryCatalog` by parsed token family and power instead of hardcoding the trigger source card number or payment cost.
@@ -322,6 +324,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer powerful pay-draw focused behavior-spec/source guard/runtime representatives: `4/4`;
 - conquer powerful pay-draw GameHub seed representative: `1/1`;
 - conquer powerful pay-draw adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec representatives: `91/91`;
+- conquer powerful pay-draw B0 action-log replay follow-up: `1/1`;
+- conquer powerful pay-draw B0 full-game follow-up: `43/43`;
+- conquer powerful pay-draw B0 adjacent TriggerPayment / MatchRecovery follow-up: `2129/2129`;
 - conquer pay-return-unit create-Sand-Soldier focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer pay-return-unit create-Sand-Soldier adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec / SandSoldier representatives: `141/141`;
 - conquer pay-ready-legend focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
@@ -373,6 +378,7 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the defend grant-Steadfast follow-up: `8454/8454`;
 - backend full conformance after the held activate-unit-conquest-effects follow-up: `8461/8461`;
 - backend full conformance after the Treasure Pile B0 action-log replay follow-up: `8736/8736`;
+- backend full conformance after the Sunken Temple B0 action-log replay follow-up: `8737/8737`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
@@ -383,4 +389,4 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 
 ## Non-Closure
 
-This evidence proves thirty-nine battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, the individual unit conquest-effect helper family activated by Reckoner Arena, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-nine battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing, and two parsed trigger-payment routes now have B0 official-deck action-log replay follow-ups. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, the individual unit conquest-effect helper family activated by Reckoner Arena, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
