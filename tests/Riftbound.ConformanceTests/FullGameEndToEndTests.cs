@@ -37,6 +37,7 @@ public sealed class FullGameEndToEndTests
     private const string PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo = "UNL-076/219";
     private const string SoulShepherdFriendlyTokenStaticAuraCardNo = "UNL-077/219";
     private const string RumbleFriendlyMechanicalStaticAuraCardNo = "SFD·089/221";
+    private const string SpeedingMechFriendlyMechanicalStaticKeywordCardNo = "SFD·071/221";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -677,6 +678,46 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-rumble-legend-friendly-mechanical-steadfast-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSpeedingMechFriendlyMechanicalStaticKeywordOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-speeding-mech-friendly-mechanical-spellshield-roam-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSpeedingMechFriendlyMechanicalStaticKeywordMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        AssertSpeedingMechFriendlyMechanicalStaticKeywordProjection(
+            current,
+            BattlefieldDestinationFor(current.State, "P1")["BATTLEFIELD:".Length..]);
+
+        var battleResult = await DriveContestedBattlefieldToSpeedingMechFriendlyMechanicalStaticKeywordBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-speeding-mech-friendly-mechanical-battle");
+
+        AssertSpeedingMechFriendlyMechanicalStaticKeywordBattleClosed(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-speeding-mech-friendly-mechanical-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -2034,6 +2075,64 @@ public sealed class FullGameEndToEndTests
         }
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertSpeedingMechFriendlyMechanicalStaticKeywordProjection(
+        ResolutionResult result,
+        string expectedBattlefieldId)
+    {
+        var state = result.State;
+        var sourceObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            SpeedingMechFriendlyMechanicalStaticKeywordCardNo)
+            ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find Speeding Mech source.");
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            state,
+            "P1",
+            RumbleChampionCardNo,
+            expectedBattlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find ready Rumble mechanical target.");
+        Assert.Contains("机械", state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardObjectTags.Spellshield, state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, state.CardObjects[targetObjectId].Tags);
+
+        var grantedKeywords = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal))
+            .Select(effect => effect.EffectId.Split(':').Last())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal([CardObjectTags.Spellshield, CardCombatKeywordNames.Roam], grantedKeywords);
+
+        foreach (var keyword in grantedKeywords)
+        {
+            var ruleTextAura = Assert.Single(state.ContinuousEffects, effect =>
+                string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal)
+                && effect.EffectId.EndsWith($":{keyword}", StringComparison.Ordinal));
+            Assert.Equal($"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{targetObjectId}:{keyword}", ruleTextAura.EffectId);
+            Assert.Equal("OBJECT", ruleTextAura.Scope);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", ruleTextAura.Duration);
+        }
+    }
+
+    private static void AssertSpeedingMechFriendlyMechanicalStaticKeywordBattleClosed(ResolutionResult result)
+    {
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("basePower", out var basePower)
+            && basePower is 4);
+        Assert.Equal(4, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -4507,6 +4606,57 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 Rumble legend friendly-mechanical steadfast driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSpeedingMechFriendlyMechanicalStaticKeywordBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitSpeedingMechFriendlyMechanicalStaticKeywordDeclareBattleAsync(
+                    session,
+                    result,
+                    attackingPlayerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Speeding Mech static keyword driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Speeding Mech static keyword driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSameBattlefieldOtherFriendlyFilteredStaticAuraBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -6465,6 +6615,68 @@ public sealed class FullGameEndToEndTests
                 defenderObjectIds = new[] { defenderObjectId },
                 optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
             }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
+        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitSpeedingMechFriendlyMechanicalStaticKeywordDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
+        var defendingPlayerId = OpponentOf(current.State, attackingPlayerId);
+        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Speeding Mech static keyword driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
+        var battlefieldId = BattlefieldDestinationFor(current.State, attackingPlayerId)["BATTLEFIELD:".Length..];
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            attackingPlayerId,
+            RumbleChampionCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find ready Rumble mechanical attacker.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            WatchfulSentinelCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find ready Watchful Sentinel defender.");
+        AssertSpeedingMechFriendlyMechanicalStaticKeywordProjection(current, battlefieldId);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(attackerObjectId, legalSourceIds);
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            attackingPlayerId,
+            intentId,
+            command,
+            RawCommand(command),
             CancellationToken.None);
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
@@ -8449,6 +8661,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildSpeedingMechFriendlyMechanicalStaticKeywordOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [
+                    SpeedingMechFriendlyMechanicalStaticKeywordCardNo,
+                    RumbleChampionCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -9306,6 +9532,105 @@ public sealed class FullGameEndToEndTests
             CardObjects = cardObjects,
             UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
                 .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildSpeedingMechFriendlyMechanicalStaticKeywordMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [SpeedingMechFriendlyMechanicalStaticKeywordCardNo, RumbleChampionCardNo],
+                    RunePool.Empty),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    RunePool.Empty)
+            });
+        var destinationBattlefieldId = BattlefieldDestinationFor(midgameState, "P1")["BATTLEFIELD:".Length..];
+        var speedingMechObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            SpeedingMechFriendlyMechanicalStaticKeywordCardNo)
+            ?? throw new InvalidOperationException("B0 Speeding Mech setup could not find Speeding Mech in P1 hand.");
+        var roamerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            RumbleChampionCardNo)
+            ?? throw new InvalidOperationException("B0 Speeding Mech setup could not find Rumble champion in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Speeding Mech setup could not find Watchful Sentinel in P2 hand.");
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, speedingMechObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, roamerObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Base = p1Zones.Base.Concat([speedingMechObjectId]).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([roamerObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[speedingMechObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[roamerObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", destinationBattlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", destinationBattlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[speedingMechObjectId] = cardObjects[speedingMechObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[speedingMechObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[roamerObjectId] = cardObjects[roamerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[roamerObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(destinationBattlefieldId)])
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
         };

@@ -17,6 +17,7 @@ Implemented evidence:
 - Battle damage assignment legality and ordering now read dynamic friendly-filtered Bulwark / Back Row grants instead of only printed tags.
 - The prior Rumble legend steadfast special case has been removed; `SFD·181/221` and `SFD·240/221` now flow through `FRIENDLY_FILTERED_UNITS_KEYWORD`.
 - Official-deck replay now covers `SFD·181/221` Rumble legend granting `坚守` to an official `SFD·026/221` friendly mechanical unit in a legal Rumble deck route; real defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, then score-victory action-log replay reaches the same final state hash.
+- Official-deck replay now also covers `SFD·071/221` Speeding Mech projecting both `法盾` and `游走` RULE_TEXT effects to an official `SFD·026/221` friendly mechanical unit in a legal Rumble deck route; the target has no printed Spellshield/Roam tags, then the focused battle / score-victory action-log replay reaches the same final state hash.
 - Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 - Static-granted `预知` from `FRIENDLY_FILTERED_UNITS_KEYWORD` now feeds the same lifecycle default when a public source already grants `预知` to a later-played matching friendly unit. `SFD·065/221` Prescient Mech plus `SFD·075/221` Progress Glory is the representative prompt and Core stack-resolution fixture.
 - Hidden-boundary guards now cover `FRIENDLY_FILTERED_UNITS_KEYWORD`: face-down public-field sources do not project RULE_TEXT effects or grant combat keyword bonuses, and face-down matching friendly targets are excluded from continuous-effect target projection.
@@ -53,6 +54,9 @@ Implemented evidence:
 - `FullGameEndToEndTests.OfficialDeckMidgameAppliesRumbleLegendFriendlyMechanicalSteadfastAndScoreVictoryActionLogReplaysToFinalStateHash`
   - Verifies a legal official Lillia / Rumble deck opening can feed a focused midgame route where P2's `SFD·181/221` legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to a P2 `SFD·026/221` mechanical defender at P1's battlefield.
   - Verifies the server-authored `DECLARE_BATTLE` path records `keywordBonus=1` defender damage and that score-victory action-log replay reaches the same final state hash.
+- `FullGameEndToEndTests.OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash`
+  - Verifies a legal official Rumble deck opening can feed a focused midgame route where `SFD·071/221` Speeding Mech in base projects both `法盾` and `游走` through `FRIENDLY_FILTERED_UNITS_KEYWORD` to a friendly official `SFD·026/221` mechanical unit at the same battlefield as an official defender.
+  - Verifies the target is not carrying printed Spellshield/Roam tags, then follows the server-authored `DECLARE_BATTLE` path through score-victory action-log replay to the same final state hash.
 - `ConformanceFixtureRunnerTests.GemstoneSeerPredictPromptExposesOnlyFriendlyTopMainDeckCard`
   - Verifies source-tag `预知` lifecycle defaults expose only the controller's top main-deck card as an optional prompt target, excluding the second friendly card and the opponent's hidden deck card.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard`
@@ -79,10 +83,15 @@ Implemented evidence:
 - Focused Rumble legend official-deck replay slice: 1/1 passed.
 - FullGameEndToEnd replay class after Rumble legend official-deck replay: 40/40 passed.
 - Adjacent RumbleLegendFriendlyMechanicalSteadfast / FriendlyFiltered / StaticKeyword / StaticAura / Steadfast / Rumble / FullGameEndToEnd / MatchRecovery: 2112/2112 passed.
+- Focused Speeding Mech official-deck replay slice: 1/1 passed.
+- Focused Speeding Mech + dynamic non-combat keyword slice: 2/2 passed.
+- FullGameEndToEnd replay class after Speeding Mech official-deck replay: 41/41 passed.
+- Adjacent SpeedingMech / FriendlyFiltered / StaticKeyword / StaticAura / Spellshield / Roam / FullGameEndToEnd / MatchRecovery: 2195/2195 passed.
 - MatchRecovery: 1989/1989 passed.
 - Backend full conformance: 8592/8592 passed.
 - Backend full after hidden-boundary guard: 8617/8617 passed.
 - Backend full after Rumble legend official-deck replay: 8734/8734 passed.
+- Backend full after Speeding Mech official-deck replay: 8735/8735 passed.
 
 ## Residuals
 
