@@ -53,6 +53,7 @@ Recovery:
 - `src/Riftbound.Engine/MatchRecovery.cs` validates source-object combat static-aura durations, effect ids, source paths, conditions, lifecycle strings, source cards, and fixed `powerDelta` scalars through `StaticAuraSpecRules`.
 - `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs` updates the source-card drift expectation to the spec-driven diagnostic.
 - `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` binds all current official `此处的其他友方单位获得{{S}}+1` rows to the same spec-driven projection and combat-damage path, covering `OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, and `OGN·243a/298`.
+- `tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs` binds Brush's battlefield-filtered static-power aura to the score-time replacement path: matching units keep the Brush `staticPowerBonus` during combat, and the held-score trigger resolves against the replaced battlefield chosen through `BRUSH_USE_REPLACED_BATTLEFIELD:*`.
 
 ## Validation Evidence
 
@@ -72,6 +73,8 @@ Recovery:
 - Latest static-aura stacking / source-combat / recovery adjacent representative: 2043/2043 passed.
 - Latest source-object filtered static-power battle-damage focused representative: WiseElderSourceObjectFilteredPowerTests 3/3 passed.
 - Latest source-object filtered static-power adjacent StaticAura / StaticPower / ContinuousEffect / ReliableSiegeDog / MasterYi representative: 425/425 passed.
+- Latest Brush static-aura + replacement lifecycle focused representative: BrushStaticAuraReplacementLifecycleTests 1/1 passed.
+- Latest Brush static-aura + replacement lifecycle adjacent BrushReplacement / BattlefieldFilteredStaticPower / BattlefieldHeldScore / StaticAura / ContinuousEffect representative: 415/415 passed.
 - Latest battlefield-filtered keyword hidden-boundary focused representative: 2/2 passed.
 - Latest battlefield keyword hidden-boundary adjacent BattlefieldFiltered / BattlefieldStatic / StaticAura / StaticKeyword / Roam / Hidden / FaceDown / MatchRecovery representative: 2206/2206 passed.
 - Latest battlefield-filtered static-power hidden-boundary focused representative: 2/2 passed.
@@ -90,6 +93,7 @@ Recovery:
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
 - Latest MatchRecovery hidden-information boundary after source-object filtered static-power evidence: 1989/1989 passed.
 - Latest MatchRecovery hidden-information boundary after same-battlefield other-friendly card-row evidence: 1989/1989 passed.
+- Latest MatchRecovery hidden-information boundary after Brush static-aura + replacement lifecycle evidence: 1989/1989 passed.
 - Latest backend full: 8602/8602 passed.
 - Latest backend full after battlefield keyword hidden-boundary fix: 8619/8619 passed.
 - Latest backend full after battlefield static-power hidden-boundary fix: 8621/8621 passed.
@@ -101,13 +105,14 @@ Recovery:
 - Latest backend full after source-combat standby source Core guard: 8634/8634 passed.
 - Latest backend full after source-object filtered static-power evidence: 8705/8705 passed.
 - Latest backend full after same-battlefield other-friendly static-power card-row evidence: 8710/8710 passed.
+- Latest backend full after Brush static-aura + replacement lifecycle evidence: 8711/8711 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
 
 Before B1 can be called complete, later slices still need evidence for:
 
-- Brush replacement / score-time swap-back lifecycle beyond the token's static aura.
+- Broader Brush replacement / actual swap-back lifecycle beyond the current score-time replacement representative.
 - Other source-unit count-to-source and threshold static auras beyond Petal Pixie / Sett / Reliable Siege Dog, plus source combat static-aura breadth beyond the current Scarlet Pigeon / Waterbender / Dune Drake representatives.
 - Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
 - Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.

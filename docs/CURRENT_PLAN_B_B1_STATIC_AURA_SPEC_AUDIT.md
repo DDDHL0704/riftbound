@@ -54,6 +54,7 @@ Implemented in this slice:
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
 - `tests/Riftbound.ConformanceTests/WiseElderSourceObjectFilteredPowerTests.cs` now covers `SOURCE_OBJECT_FILTERED_POWER` participating in real `DECLARE_BATTLE` damage: Wise Elder with `CardObjectTags.Boon` deals 5 damage from base 4 plus `staticPowerBonus=1`.
 - `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` now covers the official same-battlefield other-friendly static-power card rows (`OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, `OGN·243a/298`) in continuous-effect projection and real `DECLARE_BATTLE` damage.
+- `tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs` now covers Brush's battlefield-filtered `STATIC_AURA` remaining active through a score-time replacement choice: matching attacker / defender units receive `staticPowerBonus=1`, and the same `DECLARE_BATTLE` uses `BRUSH_USE_REPLACED_BATTLEFIELD:*` to resolve the replaced Energy Hub held-score trigger.
 
 ## Not Closed
 
@@ -61,6 +62,7 @@ This slice does not claim full B1 completion:
 
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
+- Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -528,6 +530,38 @@ Result: 1989/1989 passed.
 ```
 
 Result: 8710/8710 passed.
+
+2026-06-26 Brush static-aura + replacement lifecycle focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BrushStaticAuraReplacementLifecycleTests" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 Brush static-aura + replacement lifecycle adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BrushStaticAuraReplacementLifecycleTests|FullyQualifiedName~BrushReplacement|FullyQualifiedName~BattlefieldFilteredStaticPower|FullyQualifiedName~BattlefieldHeldScore|FullyQualifiedName~StaticAura|FullyQualifiedName~ContinuousEffect" --nologo
+```
+
+Result: 415/415 passed.
+
+2026-06-26 Brush static-aura + replacement lifecycle MatchRecovery hidden-information boundary check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 1989/1989 passed.
+
+2026-06-26 backend full after Brush static-aura + replacement lifecycle evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8711/8711 passed.
 
 Latest backend full check:
 
