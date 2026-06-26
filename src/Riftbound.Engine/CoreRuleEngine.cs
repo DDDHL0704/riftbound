@@ -579,7 +579,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MasterYiLevelLegendIdentityId = "LEGEND_IDENTITY_MASTER_YI_LEVEL";
     private const string DravenLegendIdentityId = "LEGEND_IDENTITY_DRAVEN";
     private const string GarenIntroLegendCardNo = "OGS·023/024";
+    private const string GarenIntroLegendIdentityId = "LEGEND_IDENTITY_GAREN_INTRO";
     private const string LuxIntroLegendCardNo = "OGS·021/024";
+    private const string LuxIntroLegendIdentityId = "LEGEND_IDENTITY_LUX_INTRO";
     private const string AnnieIntroLegendCardNo = "OGS·017/024";
     private const string AnnieLegendIdentityId = "LEGEND_IDENTITY_ANNIE";
     private const string VolibearFoundationLegendCardNo = "FND-249/298";
@@ -12271,6 +12273,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             DravenLegendIdentityId => new LegendIdentityDefinition(
                 DravenLegendIdentityId,
                 [DravenLegendCardNo, "SFD·242/221"]),
+            GarenIntroLegendIdentityId => new LegendIdentityDefinition(
+                GarenIntroLegendIdentityId,
+                [GarenIntroLegendCardNo]),
+            LuxIntroLegendIdentityId => new LegendIdentityDefinition(
+                LuxIntroLegendIdentityId,
+                [LuxIntroLegendCardNo]),
             AnnieLegendIdentityId => new LegendIdentityDefinition(
                 AnnieLegendIdentityId,
                 [AnnieIntroLegendCardNo]),
@@ -20638,7 +20646,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var legendObjectId in zones.LegendZone)
         {
             if (cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && string.Equals(legendState.CardNo, GarenIntroLegendCardNo, StringComparison.Ordinal))
+                && LegendCardHasIdentity(legendState.CardNo, GarenIntroLegendIdentityId))
             {
                 cardNo = legendState.CardNo ?? GarenIntroLegendCardNo;
                 return true;
@@ -28690,7 +28698,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (cardObjects.TryGetValue(objectId, out var legendState)
-                && string.Equals(legendState.CardNo, LuxIntroLegendCardNo, StringComparison.Ordinal))
+                && LegendCardHasIdentity(legendState.CardNo, LuxIntroLegendIdentityId))
             {
                 cardNo = legendState.CardNo ?? LuxIntroLegendCardNo;
                 return true;

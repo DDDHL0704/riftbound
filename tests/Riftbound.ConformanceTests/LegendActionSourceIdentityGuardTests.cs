@@ -137,6 +137,30 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void CoreIntroLegendSourcesUseLegendIdentity()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain(
+            "string.Equals(legendState.CardNo, GarenIntroLegendCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "string.Equals(legendState.CardNo, LuxIntroLegendCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains("GarenIntroLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LuxIntroLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
