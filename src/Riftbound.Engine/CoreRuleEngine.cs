@@ -630,7 +630,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
-    private const string RagingDrakeCardNo = "OGN·031/298";
+    private const string RagingDrakeNextSpellCostSourceEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
@@ -34041,7 +34041,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem));
 
-            if (string.Equals(behavior.CardNo, RagingDrakeCardNo, StringComparison.Ordinal))
+            if (string.Equals(behavior.EffectKind, RagingDrakeNextSpellCostSourceEffectKind, StringComparison.Ordinal))
             {
                 var effectId = BuildRagingDrakeNextSpellCostReductionEffectId(
                     stackItem.ControllerId,
