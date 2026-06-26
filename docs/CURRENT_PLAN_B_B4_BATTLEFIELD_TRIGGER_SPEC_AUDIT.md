@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Sunken Temple B0 action-log replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Imperial Shrine B0 action-log replay and hidden metadata redaction follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -516,6 +516,8 @@ The 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up moves anoth
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` card-number branch and `BattlefieldSandSoldierManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `64` total / `60` in `CoreRuleEngine`; Core battlefield helper count is `16`.
 
+The 2026-06-26 B0 replay follow-up proves the parsed `SFD·207/221` Imperial Shrine route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, pay the parsed cost, return the controlled conquest attacker to hand, create a ready 2-power Sand Soldier token at that battlefield, and replay through score victory to the same final state hash. The follow-up also tightens `MatchSession` snapshot projection so object ids that moved into a non-viewer hand, main deck, rune deck, or hidden battlefield standby are redacted from battle / battlefield task / resolution metadata ids and object-id collections.
+
 The 2026-06-25 conquer pay-ready-legend follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
 - `SFD·210/221` / 传奇殿堂 official text: `当你征服此处时，你可以选择支付{{1}}，以此让你的传奇变为活跃状态。`
@@ -805,6 +807,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec / SandSoldier representatives: passed `141/141`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8430/8430`.
+
+2026-06-26 Imperial Shrine B0 action-log replay / hidden metadata redaction follow-up validation:
+
+- focused B0 Imperial Shrine replay: passed `1/1`;
+- FullGameEndToEnd: passed `44/44`;
+- adjacent ImperialShrine / SandSoldier / PayReturnUnit / ReturnUnitCreate / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2122/2122`;
+- backend full conformance: passed `8738/8738`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer pay-ready-legend follow-up validation:
 

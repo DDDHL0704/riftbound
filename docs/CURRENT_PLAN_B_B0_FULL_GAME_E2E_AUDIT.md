@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B4 Sunken Temple powerful-unit trigger-payment official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B4 Imperial Shrine pay-return-unit create-Sand-Soldier official-deck midgame replay and hidden metadata redaction slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -36,6 +36,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
 - from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, redacts the returned hand object's id from opponent battle metadata snapshots, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
@@ -158,6 +159,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Added `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` covering single-defender projection and multi-defender non-projection for `UNL-210/219` Forbidden Wasteland.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRowInDamageAssignmentAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
@@ -173,6 +175,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to resolve active post-battle `START_BATTLE` tasks during shared battlefield task advancement: legal tasks activate the task player, while no-legal tasks emit `BATTLE_SKIPPED` and continue advancement.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` so `ASSIGN_COMBAT_DAMAGE` damage pools and lethal thresholds use battle effective power, including printed combat keyword bonuses, RULE_TEXT-granted keyword bonuses and static power modifiers; assignment `DAMAGE_APPLIED` payloads now expose `combatRole`, ordered `assignmentIndex` and `assignmentRole`.
 - Runtime changed in `src/Riftbound.Engine/MatchSession.cs` to project battlefield isolated-defender RULE_TEXT keyword modifiers from `BehaviorSpec.StaticAuras` when the active battle has exactly one public defender at the source battlefield.
+- Runtime changed in `src/Riftbound.Engine/MatchSession.cs` snapshot projection to redact object ids that have moved into a non-viewer hand, main deck, rune deck or hidden battlefield standby from battle / battlefield task / resolution metadata ids and object-id collections.
 - Runtime projection / queue filtering changed in `src/Riftbound.Engine/MatchSession.cs` to make the skip marker suppress repeated same-turn battlefield tasks and hide the internal marker from public continuous-effect projection.
 - Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to write replayable raw command payloads for B0 prompt-derived commands instead of only `cmdType`, so action-log recovery can reconstruct the same `GameCommand` object ids / destinations / damage assignments / activated ability choices / hide-reveal standby choices / battlefield extra-standby destination used by the server prompt path.
 - Test guard strengthened in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`: `AssertAccepted` now calls `AssertNoHiddenZoneLeak`, giving the B0 full-game harness step-level hidden snapshot coverage for every accepted result routed through the shared helper.
@@ -196,6 +199,8 @@ This Forbidden Wasteland increment additionally proves a legal official Vex / Ru
 This Treasure Pile increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, exhausted Gold token creation, score victory, and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
 This Sunken Temple increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield powerful-unit trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, controlled main-deck draw, score victory, and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+
+This Imperial Shrine increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score victory, action-log replay, and opponent-view battle metadata redaction for the returned hidden hand object. It still does not close optional trigger prompt / decline semantics, complete return-unit target choice breadth, complete token lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
@@ -397,4 +402,52 @@ Result:
 
 ```text
 Passed: 8737, Failed: 0, Skipped: 0, Total: 8737
+```
+
+Latest Imperial Shrine Sand Soldier focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesImperialShrineSandSoldier"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Imperial Shrine FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 44, Failed: 0, Skipped: 0, Total: 44
+```
+
+Latest Imperial Shrine adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ImperialShrine|FullyQualifiedName~SandSoldier|FullyQualifiedName~PayReturnUnit|FullyQualifiedName~ReturnUnitCreate|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2122, Failed: 0, Skipped: 0, Total: 2122
+```
+
+Latest Imperial Shrine backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8738, Failed: 0, Skipped: 0, Total: 8738
 ```

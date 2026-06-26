@@ -4577,10 +4577,16 @@ public sealed record ResolutionResult(
                 ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
                 ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
-                ["battle"] = BuildBattleSnapshotView(state, state.BattleState),
-                ["battleResolutions"] = state.BattleResolutions.Select(BuildBattleResolutionSnapshotView).ToArray(),
-                ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
-                ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
+                ["battle"] = BuildBattleSnapshotView(state, state.BattleState, viewerPlayerId),
+                ["battleResolutions"] = state.BattleResolutions
+                    .Select(resolution => BuildBattleResolutionSnapshotView(state, resolution, viewerPlayerId))
+                    .ToArray(),
+                ["battlefieldTasks"] = state.BattlefieldTasks
+                    .Select(task => BuildBattlefieldTaskSnapshotView(state, task, viewerPlayerId))
+                    .ToArray(),
+                ["battlefieldResolutions"] = state.BattlefieldResolutions
+                    .Select(resolution => BuildBattlefieldResolutionSnapshotView(state, resolution, viewerPlayerId))
+                    .ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, state.PendingPayment),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
@@ -4699,7 +4705,10 @@ public sealed record ResolutionResult(
             .OrderBy(group => group.Key, StringComparer.Ordinal)
             .ToDictionary(
                 group => group.Key,
-                group => (IReadOnlyList<string>)group.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+                group => (IReadOnlyList<string>)VisibleObjectIdsForViewer(
+                    state,
+                    group.OrderBy(objectId => objectId, StringComparer.Ordinal),
+                    viewerPlayerId),
                 StringComparer.Ordinal);
         var scoredByPlayerIds = BattlefieldScoredThisTurnByPlayers(state, battlefield.BattlefieldObjectId);
 
@@ -4711,7 +4720,7 @@ public sealed record ResolutionResult(
             battlefield.ControllerId,
             battlefield.Status,
             battlefield.Contested,
-            battlefield.OccupantObjectIds,
+            VisibleObjectIdsForViewer(state, battlefield.OccupantObjectIds, viewerPlayerId),
             battlefield.OccupantControllerIds,
             unitsBySide,
             visibleStandbyObjectIds,
@@ -5324,21 +5333,27 @@ public sealed record ResolutionResult(
         };
     }
 
-    private static Dictionary<string, object?> BuildBattleSnapshotView(MatchState state, BattleState battle)
+    private static Dictionary<string, object?> BuildBattleSnapshotView(
+        MatchState state,
+        BattleState battle,
+        string viewerPlayerId)
     {
         return new Dictionary<string, object?>
         {
             ["isActive"] = battle.IsActive,
             ["battleId"] = battle.BattleId,
             ["battlefieldObjectId"] = battle.BattlefieldObjectId,
-            ["attackerObjectIds"] = battle.AttackerObjectIds,
-            ["defenderObjectIds"] = battle.DefenderObjectIds,
+            ["attackerObjectIds"] = VisibleObjectIdsForViewer(state, battle.AttackerObjectIds, viewerPlayerId),
+            ["defenderObjectIds"] = VisibleObjectIdsForViewer(state, battle.DefenderObjectIds, viewerPlayerId),
             ["participantControllerIds"] = battle.ParticipantControllerIds,
-            ["damageAssignment"] = BuildBattleDamageAssignmentSnapshotView(state, battle)
+            ["damageAssignment"] = BuildBattleDamageAssignmentSnapshotView(state, battle, viewerPlayerId)
         };
     }
 
-    private static Dictionary<string, object?> BuildBattleDamageAssignmentSnapshotView(MatchState state, BattleState battle)
+    private static Dictionary<string, object?> BuildBattleDamageAssignmentSnapshotView(
+        MatchState state,
+        BattleState battle,
+        string viewerPlayerId)
     {
         if (!HasOpenBattleDamageAssignmentWindow(state))
         {
@@ -5355,25 +5370,92 @@ public sealed record ResolutionResult(
             ["battleId"] = battle.BattleId,
             ["battlefieldId"] = battle.BattlefieldObjectId,
             ["assigningPlayerId"] = BattleDamageAssigningPlayerId(state),
-            ["damagePool"] = BattleDamagePoolFor(state, battle),
-            ["legalTargets"] = BattleDamageLegalTargetsFor(state, battle),
-            ["existingDamage"] = BattleExistingDamageFor(state, battle),
-            ["lethalDamageThreshold"] = BattleLethalDamageThresholdFor(state, battle),
-            ["requiredAssignments"] = BattleRequiredAssignmentsFor(state, battle)
+            ["damagePool"] = BuildVisibleObjectIntMapSnapshotView(state, BattleDamagePoolFor(state, battle), viewerPlayerId),
+            ["legalTargets"] = BuildVisibleBattleDamageLegalTargetsSnapshotView(state, battle, viewerPlayerId),
+            ["existingDamage"] = BuildVisibleObjectIntMapSnapshotView(state, BattleExistingDamageFor(state, battle), viewerPlayerId),
+            ["lethalDamageThreshold"] = BuildVisibleObjectIntMapSnapshotView(state, BattleLethalDamageThresholdFor(state, battle), viewerPlayerId),
+            ["requiredAssignments"] = BuildVisibleBattleRequiredAssignmentsSnapshotView(state, battle, viewerPlayerId)
         };
     }
 
-    private static Dictionary<string, object?> BuildBattlefieldTaskSnapshotView(BattlefieldTaskState task)
+    private static IReadOnlyDictionary<string, int> BuildVisibleObjectIntMapSnapshotView(
+        MatchState state,
+        IReadOnlyDictionary<string, int> valuesByObjectId,
+        string viewerPlayerId)
+    {
+        var view = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var (objectId, value) in valuesByObjectId)
+        {
+            view[VisibleObjectIdForViewer(state, objectId, viewerPlayerId)] = value;
+        }
+
+        return view;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildVisibleBattleDamageLegalTargetsSnapshotView(
+        MatchState state,
+        BattleState battle,
+        string viewerPlayerId)
+    {
+        var view = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var (sourceObjectId, targetObjectIds) in BattleDamageLegalTargetsFor(state, battle))
+        {
+            var visibleSourceObjectId = VisibleObjectIdForViewer(state, sourceObjectId, viewerPlayerId);
+            if (!view.TryGetValue(visibleSourceObjectId, out var visibleTargetObjectIds))
+            {
+                visibleTargetObjectIds = [];
+                view[visibleSourceObjectId] = visibleTargetObjectIds;
+            }
+
+            visibleTargetObjectIds.AddRange(VisibleObjectIdsForViewer(state, targetObjectIds, viewerPlayerId));
+        }
+
+        return view.ToDictionary(
+            entry => entry.Key,
+            entry => (IReadOnlyList<string>)entry.Value.Distinct(StringComparer.Ordinal).ToArray(),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<IReadOnlyDictionary<string, object?>> BuildVisibleBattleRequiredAssignmentsSnapshotView(
+        MatchState state,
+        BattleState battle,
+        string viewerPlayerId)
+    {
+        return BattleRequiredAssignmentsFor(state, battle)
+            .Select(assignment =>
+            {
+                var view = new Dictionary<string, object?>(assignment, StringComparer.Ordinal);
+                if (view.TryGetValue("sourceObjectId", out var sourceObjectId)
+                    && sourceObjectId is string sourceObjectIdValue)
+                {
+                    view["sourceObjectId"] = VisibleObjectIdForViewer(state, sourceObjectIdValue, viewerPlayerId);
+                }
+
+                if (view.TryGetValue("legalTargetObjectIds", out var legalTargetObjectIds)
+                    && legalTargetObjectIds is IReadOnlyList<string> targetObjectIds)
+                {
+                    view["legalTargetObjectIds"] = VisibleObjectIdsForViewer(state, targetObjectIds, viewerPlayerId);
+                }
+
+                return (IReadOnlyDictionary<string, object?>)view;
+            })
+            .ToArray();
+    }
+
+    private static Dictionary<string, object?> BuildBattlefieldTaskSnapshotView(
+        MatchState state,
+        BattlefieldTaskState task,
+        string viewerPlayerId)
     {
         var view = new Dictionary<string, object?>
         {
-            ["taskId"] = task.TaskId,
+            ["taskId"] = VisibleMetadataIdForViewer(state, task.TaskId, viewerPlayerId),
             ["kind"] = task.Kind,
             ["status"] = task.Status,
             ["reason"] = task.Reason,
             ["battlefieldObjectId"] = task.BattlefieldObjectId,
             ["participantControllerIds"] = task.ParticipantControllerIds,
-            ["participantObjectIds"] = task.ParticipantObjectIds,
+            ["participantObjectIds"] = VisibleObjectIdsForViewer(state, task.ParticipantObjectIds, viewerPlayerId),
             ["actingPlayerId"] = task.ActingPlayerId,
             ["stackItemIds"] = task.StackItemIds
         };
@@ -5389,11 +5471,14 @@ public sealed record ResolutionResult(
         return view;
     }
 
-    private static Dictionary<string, object?> BuildBattlefieldResolutionSnapshotView(BattlefieldResolutionState resolution)
+    private static Dictionary<string, object?> BuildBattlefieldResolutionSnapshotView(
+        MatchState state,
+        BattlefieldResolutionState resolution,
+        string viewerPlayerId)
     {
         return new Dictionary<string, object?>
         {
-            ["resolutionId"] = resolution.ResolutionId,
+            ["resolutionId"] = VisibleMetadataIdForViewer(state, resolution.ResolutionId, viewerPlayerId),
             ["tick"] = resolution.Tick,
             ["kind"] = resolution.Kind,
             ["reason"] = resolution.Reason,
@@ -5401,17 +5486,20 @@ public sealed record ResolutionResult(
             ["playerId"] = resolution.PlayerId,
             ["previousControllerId"] = resolution.PreviousControllerId,
             ["controllerId"] = resolution.ControllerId,
-            ["sourceObjectId"] = resolution.SourceObjectId,
-            ["participantObjectIds"] = resolution.ParticipantObjectIds,
+            ["sourceObjectId"] = VisibleObjectIdForViewer(state, resolution.SourceObjectId, viewerPlayerId),
+            ["participantObjectIds"] = VisibleObjectIdsForViewer(state, resolution.ParticipantObjectIds, viewerPlayerId),
             ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }
 
-    private static Dictionary<string, object?> BuildBattleResolutionSnapshotView(BattleResolutionState resolution)
+    private static Dictionary<string, object?> BuildBattleResolutionSnapshotView(
+        MatchState state,
+        BattleResolutionState resolution,
+        string viewerPlayerId)
     {
         return new Dictionary<string, object?>
         {
-            ["resolutionId"] = resolution.ResolutionId,
+            ["resolutionId"] = VisibleMetadataIdForViewer(state, resolution.ResolutionId, viewerPlayerId),
             ["tick"] = resolution.Tick,
             ["kind"] = resolution.Kind,
             ["reason"] = resolution.Reason,
@@ -5419,11 +5507,11 @@ public sealed record ResolutionResult(
             ["attackingPlayerId"] = resolution.AttackingPlayerId,
             ["defendingPlayerId"] = resolution.DefendingPlayerId,
             ["winnerPlayerId"] = resolution.WinnerPlayerId,
-            ["attackerObjectIds"] = resolution.AttackerObjectIds,
-            ["defenderObjectIds"] = resolution.DefenderObjectIds,
-            ["survivingAttackerObjectIds"] = resolution.SurvivingAttackerObjectIds,
-            ["survivingDefenderObjectIds"] = resolution.SurvivingDefenderObjectIds,
-            ["destroyedObjectIds"] = resolution.DestroyedObjectIds,
+            ["attackerObjectIds"] = VisibleObjectIdsForViewer(state, resolution.AttackerObjectIds, viewerPlayerId),
+            ["defenderObjectIds"] = VisibleObjectIdsForViewer(state, resolution.DefenderObjectIds, viewerPlayerId),
+            ["survivingAttackerObjectIds"] = VisibleObjectIdsForViewer(state, resolution.SurvivingAttackerObjectIds, viewerPlayerId),
+            ["survivingDefenderObjectIds"] = VisibleObjectIdsForViewer(state, resolution.SurvivingDefenderObjectIds, viewerPlayerId),
+            ["destroyedObjectIds"] = VisibleObjectIdsForViewer(state, resolution.DestroyedObjectIds, viewerPlayerId),
             ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }
@@ -5439,7 +5527,9 @@ public sealed record ResolutionResult(
             ["hasTasks"] = queue.HasTasks,
             ["isBlocking"] = queue.IsBlocking,
             ["phase"] = queue.Phase,
-            ["activeTaskId"] = activeTask is null ? queue.ActiveTaskId : VisibleCleanupTaskId(state, activeTask, viewerPlayerId),
+            ["activeTaskId"] = activeTask is null
+                ? VisibleMetadataIdForViewer(state, queue.ActiveTaskId, viewerPlayerId)
+                : VisibleCleanupTaskId(state, activeTask, viewerPlayerId),
             ["tasks"] = queue.Tasks.Select(task => BuildCleanupTaskSnapshotView(state, task, viewerPlayerId)).ToArray(),
             ["metadata"] = new Dictionary<string, object?>
             {
@@ -5479,7 +5569,7 @@ public sealed record ResolutionResult(
     {
         if (!ShouldHideCleanupTaskObjectId(state, task, viewerPlayerId))
         {
-            return task.TaskId;
+            return VisibleMetadataIdForViewer(state, task.TaskId, viewerPlayerId);
         }
 
         var ordinal = HiddenStandbyOrdinal(state, task.ObjectId!, task.BattlefieldObjectId, viewerPlayerId);
@@ -5680,7 +5770,10 @@ public sealed record ResolutionResult(
             .OrderBy(group => group.Key, StringComparer.Ordinal)
             .ToDictionary(
                 group => group.Key,
-                group => (IReadOnlyList<string>)group.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+                group => (IReadOnlyList<string>)VisibleObjectIdsForViewer(
+                    state,
+                    group.OrderBy(objectId => objectId, StringComparer.Ordinal),
+                    viewerPlayerId),
                 StringComparer.Ordinal);
         var scoredByPlayerIds = BattlefieldScoredThisTurnByPlayers(state, battlefield.BattlefieldObjectId);
 
@@ -5692,7 +5785,7 @@ public sealed record ResolutionResult(
             ["controllerId"] = battlefield.ControllerId,
             ["status"] = battlefield.Status,
             ["contested"] = battlefield.Contested,
-            ["occupantObjectIds"] = battlefield.OccupantObjectIds,
+            ["occupantObjectIds"] = VisibleObjectIdsForViewer(state, battlefield.OccupantObjectIds, viewerPlayerId),
             ["occupantControllerIds"] = battlefield.OccupantControllerIds,
             ["unitsBySide"] = unitsBySide,
             ["standbyObjectIds"] = visibleStandbyObjectIds,
@@ -5804,6 +5897,109 @@ public sealed record ResolutionResult(
         }
 
         return true;
+    }
+
+    private static string VisibleObjectIdForViewer(
+        MatchState state,
+        string? objectId,
+        string viewerPlayerId)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return string.Empty;
+        }
+
+        return IsHiddenObjectIdForViewer(state, objectId, viewerPlayerId)
+            ? "HIDDEN"
+            : objectId;
+    }
+
+    private static IReadOnlyList<string> VisibleObjectIdsForViewer(
+        MatchState state,
+        IEnumerable<string> objectIds,
+        string viewerPlayerId)
+    {
+        return objectIds
+            .Select(objectId => VisibleObjectIdForViewer(state, objectId, viewerPlayerId))
+            .ToArray();
+    }
+
+    private static string? VisibleMetadataIdForViewer(
+        MatchState state,
+        string? metadataId,
+        string viewerPlayerId)
+    {
+        if (string.IsNullOrWhiteSpace(metadataId))
+        {
+            return metadataId;
+        }
+
+        var visibleId = metadataId;
+        foreach (var hiddenObjectId in HiddenObjectIdsForViewer(state, viewerPlayerId)
+            .OrderByDescending(objectId => objectId.Length)
+            .ThenBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            visibleId = visibleId.Replace(hiddenObjectId, "HIDDEN", StringComparison.Ordinal);
+        }
+
+        return visibleId;
+    }
+
+    private static IReadOnlyList<string> HiddenObjectIdsForViewer(
+        MatchState state,
+        string viewerPlayerId)
+    {
+        var hiddenObjectIds = new List<string>();
+        foreach (var (playerId, zones) in state.PlayerZones)
+        {
+            if (!string.Equals(playerId, viewerPlayerId, StringComparison.Ordinal))
+            {
+                hiddenObjectIds.AddRange(zones.Hand);
+                hiddenObjectIds.AddRange(zones.MainDeck);
+                hiddenObjectIds.AddRange(zones.RuneDeck);
+            }
+
+            hiddenObjectIds.AddRange(zones.Battlefields.Where(objectId =>
+                IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));
+        }
+
+        return hiddenObjectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsHiddenObjectIdForViewer(
+        MatchState state,
+        string objectId,
+        string viewerPlayerId)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return false;
+        }
+
+        if (IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
+        {
+            return true;
+        }
+
+        foreach (var (playerId, zones) in state.PlayerZones)
+        {
+            if (string.Equals(playerId, viewerPlayerId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (zones.Hand.Contains(objectId, StringComparer.Ordinal)
+                || zones.MainDeck.Contains(objectId, StringComparer.Ordinal)
+                || zones.RuneDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string EffectiveFieldControllerId(
