@@ -620,9 +620,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const string SettLegendIdentityId = "LEGEND_IDENTITY_SETT";
     private const int SettLegendManaCost = 1;
-    private const string OgnVayneCardNo = "OGN·035/298";
+    private const string OgnVayneConquerRecallSourceEffectKind = "OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
-    private const string IcevaleArcherCardNo = "UNL-065/219";
+    private const string IcevaleArcherAttackPaymentSourceEffectKind = "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT";
     private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string SfdJaxWeaponAttachSourceEffectKind = "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
     private const string SfdJaxWeaponAttachAltSourceEffectKind = "SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
@@ -24621,12 +24621,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return string.Equals(sourceState.CardNo, OgnVayneCardNo, StringComparison.Ordinal)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            && IsObjectOnField(playerZones, sourceObjectId);
+        return IsControlledVisibleFieldUnitWithEffectKind(
+            sourceState,
+            playerZones,
+            playerId,
+            sourceObjectId,
+            OgnVayneConquerRecallSourceEffectKind);
     }
 
     private static bool TryOpenIcevaleArcherAttackPaymentWindow(
@@ -25067,12 +25067,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return string.Equals(sourceState.CardNo, IcevaleArcherCardNo, StringComparison.Ordinal)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+        return IsControlledVisibleFieldUnitWithEffectKind(
+            sourceState,
+            playerZones,
+            playerId,
+            sourceObjectId,
+            IcevaleArcherAttackPaymentSourceEffectKind);
+    }
+
+    private static bool IsControlledVisibleFieldUnitWithEffectKind(
+        CardObjectState sourceState,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        string sourceEffectKind)
+    {
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            && IsObjectOnField(playerZones, sourceObjectId);
+            && IsObjectOnField(playerZones, sourceObjectId)
+            && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind);
     }
 
     private static bool TryGetIcevaleArcherAttackTarget(

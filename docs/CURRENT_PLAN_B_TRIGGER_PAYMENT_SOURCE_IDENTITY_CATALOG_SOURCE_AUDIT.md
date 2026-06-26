@@ -5,6 +5,8 @@
 
 本文件记录 Plan B 小切片：把 Fiora / Jax 触发支付窗口的来源单位身份从 `CoreRuleEngine` 本地 cardNo allow-list 改为 `CardBehaviorRegistry` 的已实现单位 `EffectKind` 查询。该切片只收窄触发支付 source identity 硬编码，不关闭完整 trigger-payment family、完整 optional payment prompt breadth、完整装备贴附生命周期、Fiora full official、Jax full official 或 READY。
 
+2026-06-26 补充：同一 trigger-payment source identity 口径扩展到 OGN Vayne conquer-recall 与 Icevale Archer attack-payment 代表路径。`TryGetOgnVayneConquerRecallSource` / `TryGetIcevaleArcherAttackSource` 不再直接比较 `sourceState.CardNo` 与 `OgnVayneCardNo` / `IcevaleArcherCardNo`，而是共用 `IsControlledVisibleFieldUnitWithEffectKind`，通过 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` 消费 `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` 与 `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`；仍要求来源为正面单位、非 standby、由当前玩家控制或 legacy-owned、且在场。本补充不关闭完整 Assault3、完整攻击触发支付目标选择、完整 battle lifecycle、完整 PaymentEngine / PAY_COST breadth 或 READY。
+
 ## 1. Scope
 
 Changed:
@@ -37,6 +39,38 @@ Not changed:
 | Full official Jax/Fiora | complete Jax equipment lifecycle and complete Fiora official breadth remain residual | Residual, no full-official claim |
 
 ## 3. Verification
+
+2026-06-26 supplement focused:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CardBehaviorRegistryIdentifiesTriggerPaymentSourceUnitsByEffectKind|FullyQualifiedName~CardBehaviorRegistryRejectsNonMatchingTriggerPaymentSourceUnits|FullyQualifiedName~TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists" --nologo
+```
+
+Result: 13/13 passed.
+
+2026-06-26 supplement adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~TriggerPayment|FullyQualifiedName~Vayne|FullyQualifiedName~Icevale|FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~ActionPrompt" --nologo
+```
+
+Result: 845/845 passed.
+
+2026-06-26 supplement hidden-info / recovery boundary:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 1989/1989 passed.
+
+2026-06-26 supplement full backend conformance:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8664/8664 passed.
 
 Focused:
 
