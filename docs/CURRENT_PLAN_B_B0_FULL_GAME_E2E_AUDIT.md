@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B1 Soul Shepherd friendly-token static-aura official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B1 Rumble friendly-mechanical static-aura official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -33,6 +33,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy / Dune Drake initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> opposing ready defender on the same battlefield -> source-attacking-ready-enemy static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·131/298` Dune Drake's `BehaviorSpec.StaticAuras` / `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Lillia / Petal Pixie / Wildclaw Beastmaster opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-076/219` Petal Pixie, official `UNL·T07` Faerie token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield; the same-battlefield ephemeral count-to-source static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Petal Pixie's `BehaviorSpec.StaticAuras` / `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` route gives itself `staticPowerBonus=1`;
 - from a seated official Lillia / Soul Shepherd / Wildclaw Beastmaster opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-077/219` Soul Shepherd in base, official `UNL·T02` Warhawk token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield; the friendly-token static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Soul Shepherd's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` route gives the token attacker `staticPowerBonus=1`;
+- from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Master Yi intro / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to the opposing battlefield -> friendly single-defender static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGS·019/024` Master Yi intro's `BehaviorSpec.StaticAuras` / `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route gives the single defending `UNL-092/219` Demacia Envoy `staticPowerBonus=2`;
 - from a seated official Master Yi level / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging after a server-resolved sixth-experience gain -> friendly-units static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-191/219` Master Yi level's `BehaviorSpec.StaticAuras` / `FRIENDLY_UNITS_POWER` route gives the attacking `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
@@ -88,6 +89,8 @@ This Petal Pixie same-battlefield ephemeral count-to-source static-aura replay s
 
 This Soul Shepherd friendly-token static-aura replay slice also adds no runtime rule changes. It starts from legal official Lillia deck submission/opening, then builds a focused midgame `START_BATTLE` state with official `UNL-077/219` Soul Shepherd in base, an official `UNL·T02` Warhawk token, and an opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield. The driver verifies Soul Shepherd's `FRIENDLY_FILTERED_UNITS_POWER` continuous effect targets the Warhawk token, uses that official token as the friendly filtered participant, records `basePower=1`, `staticPowerBonus=1`, `combatPower=2`, and `damage=2`, then continues through score victory and action-log replay. This deliberately covers the official token-unit battle-damage route for one friendly filtered static-power representative; token creation and broader friendly-filtered official-deck breadth remain open.
 
+This Rumble friendly-mechanical static-aura replay slice also adds no runtime rule changes. It starts from legal official Rumble deck submission/opening, then builds a focused midgame `START_BATTLE` state with official `SFD·089/221` Rumble and an opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. The driver verifies Rumble's `FRIENDLY_FILTERED_UNITS_POWER` continuous effect targets Rumble itself through the official `机械` tag filter, records `basePower=4`, `staticPowerBonus=1`, `combatPower=5`, and `damage=5`, then continues through score victory and action-log replay. This deliberately covers the tag-filtered self-boost route for one friendly filtered static-power representative; broader friendly-filtered official-deck breadth remains open.
+
 This source-lone-battle static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to legal official Lillia decks containing official `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel. The driver uses the normal official opening seed path, stages Waterbender and the opposing Watchful Sentinel through server commands to the same battlefield, submits a server-authored `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the `SOURCE_LONE_BATTLE_POWER` continuous effect targets Waterbender itself, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Waterbender source-lone-battle static-aura representative; broader source-lone-battle and source-object static-aura official-deck breadth remains open.
 
 This friendly single-defender static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Master Yi intro deck containing official `OGS·019/024` Master Yi intro as the legend and `UNL-092/219` Demacia Envoy as the single friendly defending unit. The driver uses the normal official opening seed path, stages Demacia Envoy through server commands to the opposing battlefield, lets the battlefield owner declare battle against that single defender, observes the defender's `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Master Yi intro friendly single-defender static-aura representative; broader legend-source static-aura official-deck breadth remains open.
@@ -133,6 +136,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesPetalPixieSameBattlefieldEphemeralCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesFriendlySingleDefenderStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesMasterYiLevelFriendlyUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -170,6 +174,8 @@ This Petal Pixie increment additionally proves a legal official Lillia / Petal P
 
 This Soul Shepherd increment additionally proves a legal official Lillia / Soul Shepherd deck can carry `FRIENDLY_FILTERED_UNITS_POWER` with an official `UNL·T02` token-unit target through a focused midgame battle declaration, real damage, score victory, and action-log replay. It still does not close token creation, complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
 
+This Rumble increment additionally proves a legal official Rumble / SFD·089 Rumble deck can carry `FRIENDLY_FILTERED_UNITS_POWER` with a `TAG:机械` target filter and the source object also acting as the boosted target through a focused midgame battle declaration, real damage, score victory, and action-log replay. It still does not close complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
+
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-harness slice.
 
 Open follow-up:
@@ -183,7 +189,7 @@ Open follow-up:
 Focused Soul Shepherd friendly-token static-aura validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAura" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura" --nologo
 ```
 
 Result:
@@ -201,19 +207,19 @@ FullGameEndToEnd validation passed:
 Result:
 
 ```text
-Passed: 37, Failed: 0, Skipped: 0, Total: 37
+Passed: 38, Failed: 0, Skipped: 0, Total: 38
 ```
 
 Adjacent / hidden-info validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAura|FullyQualifiedName~SoulShepherd|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~UnitToken|FullyQualifiedName~Token|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura|FullyQualifiedName~Rumble|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 2203, Failed: 0, Skipped: 0, Total: 2203
+Passed: 2120, Failed: 0, Skipped: 0, Total: 2120
 ```
 
 Backend full validation passed:
@@ -225,5 +231,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8729, Failed: 0, Skipped: 0, Total: 8729
+Passed: 8730, Failed: 0, Skipped: 0, Total: 8730
 ```

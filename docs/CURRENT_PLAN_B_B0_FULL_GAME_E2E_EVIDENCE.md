@@ -60,6 +60,8 @@ The Petal Pixie same-battlefield ephemeral count-to-source static-aura action-lo
 
 The Soul Shepherd friendly-token static-aura action-log replay regression proves a legal official deck opening can feed a focused `FRIENDLY_FILTERED_UNITS_POWER` replay with an official token-unit target. `OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `UNL-077/219` Soul Shepherd, verifies official deck submission/opening first, then starts the replay from a focused midgame `START_BATTLE` state with Soul Shepherd in base, official `UNL·T02` Warhawk token, and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield. The projected `FRIENDLY_FILTERED_UNITS_POWER` effect targets the Warhawk token with that official token as participant, real battle damage records `basePower=1`, `staticPowerBonus=1`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. This slice changes only test / evidence coverage; it does not close token creation, complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
 
+The Rumble friendly-mechanical static-aura action-log replay regression proves a legal official deck opening can feed the tag-filtered self-including branch of `FRIENDLY_FILTERED_UNITS_POWER`. `OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Rumble decks containing `SFD·089/221` Rumble, verifies official deck submission/opening first, then starts the replay from a focused midgame `START_BATTLE` state with Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. The projected `FRIENDLY_FILTERED_UNITS_POWER` effect targets Rumble itself from the same public source object with Rumble's official `机械` tag as the filter match, real battle damage records `basePower=4`, `staticPowerBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory action log replays to the same final state hash. This slice changes only test / evidence coverage; it does not close complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
+
 The source-lone-battle static-aura action-log replay regression proves a legal official deck can carry Waterbender's battle-conditional source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel, follows the normal official opening seed path, stages both units through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authorized `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the projected `SOURCE_LONE_BATTLE_POWER` effect targets Waterbender itself, observes Waterbender's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-lone-battle static-aura breadth, complete official deck archetype breadth, or READY.
 
 The friendly single-defender static-aura action-log replay regression proves a legal official deck can carry Master Yi intro's legend-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesFriendlySingleDefenderStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Master Yi intro deck containing `OGS·019/024` Master Yi intro as the legend and `UNL-092/219` Demacia Envoy as the single friendly defender, follows the normal official opening seed path, stages Demacia Envoy through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts to the opposing battlefield, submits a server-authorized `DECLARE_BATTLE` from the battlefield owner, observes the Envoy's real defender `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete legend-source static-aura breadth, complete official deck archetype breadth, or READY.
@@ -101,7 +103,7 @@ The response-activation regression proves that a legal official deck pair can re
 Focused validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAura" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura" --nologo
 ```
 
 Result:
@@ -119,19 +121,19 @@ Full-game validation:
 Result:
 
 ```text
-Passed: 37, Failed: 0, Skipped: 0, Total: 37
+Passed: 38, Failed: 0, Skipped: 0, Total: 38
 ```
 
 Adjacent validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAura|FullyQualifiedName~SoulShepherd|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~UnitToken|FullyQualifiedName~Token|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura|FullyQualifiedName~Rumble|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 2203, Failed: 0, Skipped: 0, Total: 2203
+Passed: 2120, Failed: 0, Skipped: 0, Total: 2120
 ```
 
 Backend full validation:
@@ -143,7 +145,7 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8729, Failed: 0, Skipped: 0, Total: 8729
+Passed: 8730, Failed: 0, Skipped: 0, Total: 8730
 ```
 
 ## Non-Closure
