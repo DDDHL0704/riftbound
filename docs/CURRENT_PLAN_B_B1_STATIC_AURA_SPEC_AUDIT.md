@@ -28,6 +28,7 @@ Implemented in this slice:
   - `OGN·131/298` 沙丘亚龙：进攻时如果此处有处于活跃状态的敌方单位，则自身 `{{S}}+2`。
   - `OGN·065/298` 睿智长者：如果自身拥有增益，则自身 `{{S}}+1`。
   - `OGN·297/298` 疾风山丘：此处的单位获得 `{{游走}}`。
+  - `UNL-210/219` 禁忌荒地：如果防守此处的单位落单，则该单位 `{{S}}-2`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
   - `UNL-195/219` 翠神：parenthetical reminder text describes the Brush battlefield token and must not be treated as a legend-source `STATIC_AURA`.
@@ -47,6 +48,7 @@ Implemented in this slice:
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
 - `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `ActionPromptBuilder.HasMoveUnitPromptRoamPermission` now grant `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走` instead of the old `BattlefieldStaticRoamCardNo` branch.
 - Battlefield keyword aura hidden-boundary guard: battlefield keyword sources that are face-down no longer project `BATTLEFIELD_*_UNITS_KEYWORD` RULE_TEXT effects, grant combat keyword bonuses, or provide static Roam prompt / movement permission.
+- `MatchSession` now projects battlefield isolated-defender RULE_TEXT keyword modifiers from `BehaviorSpec.StaticAuras` when the active battle has exactly one public defender at the source battlefield; the projection path has no card-number branch.
 - Battlefield static-power hidden-boundary guard: battlefield power sources that are face-down no longer project `BATTLEFIELD_*_UNITS_POWER` `STATIC_AURA` effects or grant combat static-power bonuses; all-units battlefield power targets that are face-down / standby are excluded from participant projection and Core static-power bonus.
 - Other-friendly static-power hidden-boundary guard: standby non-local other-friendly power sources no longer project `OTHER_FRIENDLY_UNITS_POWER` `STATIC_AURA` effects or grant combat static-power bonuses; standby target units are excluded from other-friendly participant projection.
 - Same-battlefield other-friendly static-power hidden-boundary guard: standby same-battlefield other-friendly power sources no longer project `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` `STATIC_AURA` effects or grant combat static-power bonuses; standby same-battlefield target units are excluded from participant projection and Core static-power bonus.
@@ -61,6 +63,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-076/219` Petal Pixie's same-battlefield ephemeral count-to-source static aura in a legal official Lillia deck midgame route: after legal official deck submission/opening is verified, a focused `START_BATTLE` state stages Petal Pixie, official `UNL·T07` Faerie token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield, Petal Pixie's `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` route records `staticPowerBonus=1`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-077/219` Soul Shepherd's friendly-token static aura in a legal official Lillia deck midgame route: after legal official deck submission/opening is verified, a focused `START_BATTLE` state stages Soul Shepherd in base, official `UNL·T02` Warhawk token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield, Soul Shepherd's `FRIENDLY_FILTERED_UNITS_POWER` route records token `staticPowerBonus=1`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·089/221` Rumble's friendly-mechanical static aura in a legal official Rumble deck midgame route: after legal official deck submission/opening is verified, a focused `START_BATTLE` state stages Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield, Rumble's `FRIENDLY_FILTERED_UNITS_POWER` route uses the official `机械` tag filter, boosts Rumble itself, records `staticPowerBonus=1`, and the action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` and `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now cover `UNL-210/219` Forbidden Wasteland's battlefield isolated-defender RULE_TEXT keyword modifier: projection tests prove single-defender projection and multi-defender absence, while the official Vex / Rumble route records LeBlanc defender damage with `keyword=坚守`, `keywordBonus=-2`, `combatPower=2`, and score-victory replay to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·055/298` Waterbender's source-lone-battle static aura in a legal official Lillia deck route: server prompts play and move Waterbender plus opposing `OGN·096/298` Watchful Sentinel to the same battlefield, the server-authored `DECLARE_BATTLE` has Waterbender attacking alone, Waterbender's `SOURCE_LONE_BATTLE_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGS·019/024` Master Yi intro's friendly single-defender static aura in a legal official Master Yi intro deck route: server prompts play and move `UNL-092/219` Demacia Envoy to the opposing battlefield, the server-authored `DECLARE_BATTLE` has Demacia Envoy as the only defender, Master Yi intro's `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-191/219` Master Yi level's experience-gated friendly-units static aura in a legal official Master Yi level deck route: the route starts at 5 experience, uses `UNL-092/219` Demacia Envoy's server-resolved on-play text to reach level 6, projects `FRIENDLY_UNITS_POWER` from the legend source to the Envoy, records attacker `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
@@ -78,8 +81,8 @@ This slice does not claim full B1 completion:
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
-- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
-- Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
+- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1/B2 breadth can be claimed.
+- Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, additional RULE_TEXT keyword grants / modifiers, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
 - Project remains NOT READY.
@@ -106,6 +109,7 @@ This slice does not claim full B1 completion:
 - `OGN·131/298`: `当我进攻时，如果此处有处于活跃状态的敌方单位，则让我{{S}}+2。`
 - `OGN·065/298`: `如果我拥有增益，则我额外获得{{S}}+1。`
 - `OGN·297/298`: `此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）`
+- `UNL-210/219`: `如果防守此处的单位落单，则该单位{{S}}-2。`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
@@ -962,6 +966,38 @@ Result: 2120/2120 passed.
 ```
 
 Result: 8730/8730 passed.
+
+2026-06-26 battlefield isolated-defender keyword-modifier focused/projection official-deck check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier" --nologo
+```
+
+Result: 3/3 passed.
+
+2026-06-26 battlefield isolated-defender keyword-modifier FullGameEndToEnd check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 39/39 passed.
+
+2026-06-26 battlefield isolated-defender keyword-modifier adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier|FullyQualifiedName~BattlefieldIsolated|FullyQualifiedName~ForbiddenWasteland|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~Steadfast|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2111/2111 passed.
+
+2026-06-26 backend full after battlefield isolated-defender keyword-modifier evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8733/8733 passed.
 
 Earlier backend full check:
 

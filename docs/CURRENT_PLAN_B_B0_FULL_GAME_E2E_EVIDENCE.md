@@ -62,6 +62,8 @@ The Soul Shepherd friendly-token static-aura action-log replay regression proves
 
 The Rumble friendly-mechanical static-aura action-log replay regression proves a legal official deck opening can feed the tag-filtered self-including branch of `FRIENDLY_FILTERED_UNITS_POWER`. `OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Rumble decks containing `SFD·089/221` Rumble, verifies official deck submission/opening first, then starts the replay from a focused midgame `START_BATTLE` state with Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. The projected `FRIENDLY_FILTERED_UNITS_POWER` effect targets Rumble itself from the same public source object with Rumble's official `机械` tag as the filter match, real battle damage records `basePower=4`, `staticPowerBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory action log replays to the same final state hash. This slice changes only test / evidence coverage; it does not close complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
 
+The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
+
 The source-lone-battle static-aura action-log replay regression proves a legal official deck can carry Waterbender's battle-conditional source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel, follows the normal official opening seed path, stages both units through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authorized `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the projected `SOURCE_LONE_BATTLE_POWER` effect targets Waterbender itself, observes Waterbender's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-lone-battle static-aura breadth, complete official deck archetype breadth, or READY.
 
 The friendly single-defender static-aura action-log replay regression proves a legal official deck can carry Master Yi intro's legend-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesFriendlySingleDefenderStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Master Yi intro deck containing `OGS·019/024` Master Yi intro as the legend and `UNL-092/219` Demacia Envoy as the single friendly defender, follows the normal official opening seed path, stages Demacia Envoy through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts to the opposing battlefield, submits a server-authorized `DECLARE_BATTLE` from the battlefield owner, observes the Envoy's real defender `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete legend-source static-aura breadth, complete official deck archetype breadth, or READY.
@@ -103,13 +105,13 @@ The response-activation regression proves that a legal official deck pair can re
 Focused validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 1, Failed: 0, Skipped: 0, Total: 1
+Passed: 3, Failed: 0, Skipped: 0, Total: 3
 ```
 
 Full-game validation:
@@ -121,19 +123,19 @@ Full-game validation:
 Result:
 
 ```text
-Passed: 38, Failed: 0, Skipped: 0, Total: 38
+Passed: 39, Failed: 0, Skipped: 0, Total: 39
 ```
 
 Adjacent validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura|FullyQualifiedName~Rumble|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier|FullyQualifiedName~BattlefieldIsolated|FullyQualifiedName~ForbiddenWasteland|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~Steadfast|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 2120, Failed: 0, Skipped: 0, Total: 2120
+Passed: 2111, Failed: 0, Skipped: 0, Total: 2111
 ```
 
 Backend full validation:
@@ -145,9 +147,11 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8730, Failed: 0, Skipped: 0, Total: 8730
+Passed: 8733, Failed: 0, Skipped: 0, Total: 8733
 ```
 
 ## Non-Closure
 
 This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; official Poppy / Garen / Demacia Envoy, Vex / Baron Nashor / Wildclaw Beastmaster, Poppy / Scarlet Pigeon / Demacia Envoy, Lillia / Petal Pixie / Faerie token / Wildclaw Beastmaster, Lillia / Soul Shepherd / Warhawk token / Wildclaw Beastmaster, Lillia / Waterbender / Watchful Sentinel, Master Yi intro / Demacia Envoy, Master Yi level / Demacia Envoy, Master Yi level / Wise Elder / Arena Rookie / Watchful Sentinel, Vex / Trifarian Training Grounds / Wildclaw Beastmaster, Poppy / Reliable Siege Dog / Demacia Envoy, Poppy / Sett / Arena Rookie / Demacia Envoy, and Poppy / Lee Sin / Arena Rookie / Demacia Envoy paths can apply data-driven same-battlefield, non-local other-friendly, source-combat, same-battlefield ephemeral count-to-source, friendly-token filtered, source-lone-battle, friendly single-defender, experience-gated friendly-units, source-object filtered, battlefield-source all-units, source same-location threshold, same-battlefield boon count-to-source, and same-battlefield other-friendly filtered static auras to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Baron Nashor other-friendly static-aura, Scarlet Pigeon source-combat static-aura, Petal Pixie same-battlefield ephemeral count-to-source static-aura, Soul Shepherd friendly-token static-aura, Waterbender source-lone-battle static-aura, Master Yi intro friendly single-defender static-aura, Master Yi level friendly-units static-aura, Wise Elder source-object filtered static-aura, Trifarian Training Grounds battlefield all-units static-aura, Reliable Siege Dog source same-location static-aura, Sett same-battlefield boon count-to-source static-aura, Lee Sin same-battlefield other-friendly filtered static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from their representative initial states through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, token-creation command breadth, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
+
+The current Forbidden Wasteland increment additionally proves one battlefield-source isolated-defender RULE_TEXT keyword-modifier route through direct continuous-effect projection, real defender damage, score-victory replay, and hidden-info guarded full-game helpers. Complete battlefield RULE_TEXT keyword-modifier breadth remains open.

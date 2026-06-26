@@ -1918,6 +1918,7 @@ public sealed record MatchState
         effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildBattlefieldAllUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
@@ -2946,6 +2947,65 @@ public sealed record MatchState
                     participantObjectId,
                     battlefieldObjectId));
             }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        var battleState = state.BattleState;
+        if (!battleState.IsActive
+            || string.IsNullOrWhiteSpace(battleState.BattlefieldObjectId))
+        {
+            return effects;
+        }
+
+        foreach (var battlefieldObjectId in state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!string.Equals(battleState.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || battlefield.IsFaceDown
+                || !StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(battlefield.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var defenderObjectIds = battleState.DefenderObjectIds
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var participant)
+                    && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !participant.IsFaceDown
+                    && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+                    && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                    && IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD")
+                    && state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+                    && string.Equals(objectLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                    && string.Equals(objectLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray();
+            if (defenderObjectIds.Length != 1)
+            {
+                continue;
+            }
+
+            var participantObjectId = defenderObjectIds[0];
+            effects.Add(new ContinuousEffectState(
+                $"RULE_TEXT:BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                "OBJECT",
+                ContinuousEffectLayers.RuleText,
+                aura.Duration,
+                participantObjectId,
+                battlefieldObjectId));
         }
 
         return effects;

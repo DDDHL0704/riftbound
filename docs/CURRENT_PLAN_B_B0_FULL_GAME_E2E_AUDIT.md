@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B1 Rumble friendly-mechanical static-aura official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B2 Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -44,6 +44,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy / Lee Sin / Arena Rookie / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> Arena Rookie boon grant -> same-battlefield other-friendly filtered static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·151/298` Lee Sin's `BehaviorSpec.StaticAuras` / `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER` route gives the boon-bearing Envoy `staticPowerBonus=2`;
 - from a seated official Jhin / Farron Captain / Ascended Believer initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-keyword `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGN·015/298` Farron Captain's `BehaviorSpec.StaticAuras` projection gives `UNL-004/219` Ascended Believer `keyword=强攻` / `keywordBonus=1`;
 - from a seated official Lillia / Taric / LeBlanc initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to an opposing battlefield -> same-battlefield Steadfast static-keyword `DECLARE_BATTLE` -> follow-up battle task -> post-battle no-legal `BATTLE_SKIPPED` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·074/298` Taric's `BehaviorSpec.StaticAuras` projection gives `UNL-090/219` LeBlanc `keyword=坚守` / `keywordBonus=1`;
+- from a seated official Vex / Wildclaw Beastmaster vs Rumble / LeBlanc opening with `UNL-210/219` Forbidden Wasteland selected, a focused midgame `START_BATTLE` state stages `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at P2 Forbidden Wasteland; the battlefield isolated-defender RULE_TEXT keyword-modifier route gives the single defender `keyword=坚守` / `keywordBonus=-2`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex / Teemo / Shadow initial state, the full `HIDE_CARD` -> Shadow `ACTIVATE_ABILITY` -> `REVEAL_CARD` as `STANDBY_REACTION` -> Teemo stack resolution -> Shadow stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
 - a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
@@ -90,6 +91,8 @@ This Petal Pixie same-battlefield ephemeral count-to-source static-aura replay s
 This Soul Shepherd friendly-token static-aura replay slice also adds no runtime rule changes. It starts from legal official Lillia deck submission/opening, then builds a focused midgame `START_BATTLE` state with official `UNL-077/219` Soul Shepherd in base, an official `UNL·T02` Warhawk token, and an opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield. The driver verifies Soul Shepherd's `FRIENDLY_FILTERED_UNITS_POWER` continuous effect targets the Warhawk token, uses that official token as the friendly filtered participant, records `basePower=1`, `staticPowerBonus=1`, `combatPower=2`, and `damage=2`, then continues through score victory and action-log replay. This deliberately covers the official token-unit battle-damage route for one friendly filtered static-power representative; token creation and broader friendly-filtered official-deck breadth remain open.
 
 This Rumble friendly-mechanical static-aura replay slice also adds no runtime rule changes. It starts from legal official Rumble deck submission/opening, then builds a focused midgame `START_BATTLE` state with official `SFD·089/221` Rumble and an opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. The driver verifies Rumble's `FRIENDLY_FILTERED_UNITS_POWER` continuous effect targets Rumble itself through the official `机械` tag filter, records `basePower=4`, `staticPowerBonus=1`, `combatPower=5`, and `damage=5`, then continues through score victory and action-log replay. This deliberately covers the tag-filtered self-boost route for one friendly filtered static-power representative; broader friendly-filtered official-deck breadth remains open.
+
+This Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier replay slice adds a shared `MatchSession` continuous-effect projection path. It starts from legal official Vex and Rumble deck submission/opening with the P2 battlefield seed selecting official `UNL-210/219` Forbidden Wasteland, then builds a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster attacking and `UNL-090/219` LeBlanc as the only public defender at that battlefield. The driver verifies the BehaviorSpec-driven `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` route applies `坚守` with `keywordBonus=-2`, records defender damage with `basePower=4`, `combatPower=2`, and `damage=2`, then continues through score victory and action-log replay. Projection tests separately prove the RULE_TEXT effect is present for exactly one defender and absent when defenders are not isolated.
 
 This source-lone-battle static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to legal official Lillia decks containing official `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel. The driver uses the normal official opening seed path, stages Waterbender and the opposing Watchful Sentinel through server commands to the same battlefield, submits a server-authored `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the `SOURCE_LONE_BATTLE_POWER` continuous effect targets Waterbender itself, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for the Waterbender source-lone-battle static-aura representative; broader source-lone-battle and source-object static-aura official-deck breadth remains open.
 
@@ -147,6 +150,8 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Added `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` covering single-defender projection and multi-defender non-projection for `UNL-210/219` Forbidden Wasteland.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRowInDamageAssignmentAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
@@ -160,6 +165,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to prevent duplicate turn-start `MATCH_WON` events when battlefield scoring wins before draw.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to resolve active post-battle `START_BATTLE` tasks during shared battlefield task advancement: legal tasks activate the task player, while no-legal tasks emit `BATTLE_SKIPPED` and continue advancement.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` so `ASSIGN_COMBAT_DAMAGE` damage pools and lethal thresholds use battle effective power, including printed combat keyword bonuses, RULE_TEXT-granted keyword bonuses and static power modifiers; assignment `DAMAGE_APPLIED` payloads now expose `combatRole`, ordered `assignmentIndex` and `assignmentRole`.
+- Runtime changed in `src/Riftbound.Engine/MatchSession.cs` to project battlefield isolated-defender RULE_TEXT keyword modifiers from `BehaviorSpec.StaticAuras` when the active battle has exactly one public defender at the source battlefield.
 - Runtime projection / queue filtering changed in `src/Riftbound.Engine/MatchSession.cs` to make the skip marker suppress repeated same-turn battlefield tasks and hide the internal marker from public continuous-effect projection.
 - Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to write replayable raw command payloads for B0 prompt-derived commands instead of only `cmdType`, so action-log recovery can reconstruct the same `GameCommand` object ids / destinations / damage assignments / activated ability choices / hide-reveal standby choices / battlefield extra-standby destination used by the server prompt path.
 - Test guard strengthened in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`: `AssertAccepted` now calls `AssertNoHiddenZoneLeak`, giving the B0 full-game harness step-level hidden snapshot coverage for every accepted result routed through the shared helper.
@@ -176,7 +182,9 @@ This Soul Shepherd increment additionally proves a legal official Lillia / Soul 
 
 This Rumble increment additionally proves a legal official Rumble / SFD·089 Rumble deck can carry `FRIENDLY_FILTERED_UNITS_POWER` with a `TAG:机械` target filter and the source object also acting as the boosted target through a focused midgame battle declaration, real damage, score victory, and action-log replay. It still does not close complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
 
-Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-harness slice.
+This Forbidden Wasteland increment additionally proves a legal official Vex / Rumble deck opening can carry a battlefield isolated-defender RULE_TEXT keyword modifier through a focused midgame battle declaration, real defender damage, score victory, and action-log replay. It also adds direct projection coverage for the isolated-defender condition. It still does not close complete battlefield RULE_TEXT keyword-modifier breadth, complete official deck archetype breadth, or READY.
+
+Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B2 slice.
 
 Open follow-up:
 
@@ -186,16 +194,16 @@ Open follow-up:
 
 ## Validation
 
-Focused Soul Shepherd friendly-token static-aura validation passed:
+Focused battlefield isolated-defender keyword-modifier validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 1, Failed: 0, Skipped: 0, Total: 1
+Passed: 3, Failed: 0, Skipped: 0, Total: 3
 ```
 
 FullGameEndToEnd validation passed:
@@ -207,19 +215,19 @@ FullGameEndToEnd validation passed:
 Result:
 
 ```text
-Passed: 38, Failed: 0, Skipped: 0, Total: 38
+Passed: 39, Failed: 0, Skipped: 0, Total: 39
 ```
 
 Adjacent / hidden-info validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAura|FullyQualifiedName~Rumble|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldIsolatedDefenderKeywordModifier|FullyQualifiedName~BattlefieldIsolated|FullyQualifiedName~ForbiddenWasteland|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~Steadfast|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
 ```
 
 Result:
 
 ```text
-Passed: 2120, Failed: 0, Skipped: 0, Total: 2120
+Passed: 2111, Failed: 0, Skipped: 0, Total: 2111
 ```
 
 Backend full validation passed:
@@ -231,5 +239,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8730, Failed: 0, Skipped: 0, Total: 8730
+Passed: 8733, Failed: 0, Skipped: 0, Total: 8733
 ```
