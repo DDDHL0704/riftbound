@@ -4,12 +4,13 @@
 
 ## Evidence Summary
 
-This evidence records the Taric representative for data-driven same-battlefield RULE_TEXT keyword grants.
+This evidence records the Taric and Farron representatives for data-driven same-battlefield RULE_TEXT keyword grants.
 
 Catalog / BehaviorSpec:
 
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `此处的其他友方单位获得{{...}}` into `StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword`.
 - `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` now verifies `OGN·074/298` exposes one `StaticAuraSpec` with `GrantedKeyword=坚守`.
+- `data/official/card-catalog.zh-CN.json` also supplies `OGN·015/298` Farron Captain text `此处的其他友方单位获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）`, which resolves through the same `StaticAuraSpec.Kind=SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD` path with `GrantedKeyword=强攻`.
 
 Engine projection:
 
@@ -32,6 +33,10 @@ Lifecycle removal:
 Controller scope:
 
 - `P79SameBattlefieldStaticKeywordGrantUsesCurrentControllerForFriendlyScope` verifies `other friendly` is evaluated from the source object's current controller. A Farron Captain owned by P1 but controlled by P2 grants `强攻` only to the same-battlefield P2 attacker and not to P1's same-battlefield defender.
+
+Full-game replay:
+
+- `FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash` carries official `OGN·015/298` Farron Captain and `UNL-004/219` Ascended Believer through a legal official Jhin deck path. Server prompts stage both units to the same battlefield, `MatchSession` projects the `RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:*:强攻` object effect from Farron to the Believer, real `DECLARE_BATTLE` damage records `basePower=1`, `keyword=强攻`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash.
 
 Hidden source boundary:
 
@@ -69,10 +74,15 @@ Existing fixture alignment:
 - Same-battlefield static keyword adjacent representatives after standby source guard: 15/15 passed.
 - StaticAura / StaticKeyword / MatchRecovery adjacent representatives after standby source guard: 2050/2050 passed.
 - Backend full after standby source guard: 8629/8629 passed.
+- Focused official-deck Farron replay `OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`: 1/1 passed.
+- FullGameEndToEnd B0/B2 cross-slice representatives after official-deck Farron replay: 22/22 passed.
+- SameBattlefield / StaticKeyword / StaticAura / Farron / FullGameEndToEnd / MatchRecovery adjacent representatives after official-deck Farron replay: 2090/2090 passed.
+- MatchRecovery hidden-information boundary after official-deck Farron replay: 1989/1989 passed.
+- Backend full after official-deck Farron replay: 8714/8714 passed.
 
 ## Remaining Evidence Needed
 
 - Full Taric official coverage still needs `壁垒` damage ordering and any broader defensive keyword interactions not covered by this representative.
-- Full RULE_TEXT keyword grant scope coverage remains open beyond same-battlefield other-friendly units.
+- Full RULE_TEXT keyword grant scope coverage remains open beyond same-battlefield other-friendly units and beyond the current Farron same-battlefield Assault official-deck replay representative.
 - Full standby / face-down identity coverage remains open beyond the covered same-battlefield source and target representatives.
 - The card-effect matrix FU row for `OGN·074/298` still requires a separate, matrix-aware blocker-reduction slice before its FU-level status is changed.

@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B1 same-battlefield static-aura official-deck replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B2 same-battlefield static-keyword official-deck replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -27,6 +27,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy standby initial state, the full `HIDE_CARD` -> `REVEAL_CARD` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Poppy / Bandle Tree initial state, the full `HIDE_CARD` to `BATTLEFIELD:<Bandle Tree>` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while the battlefield standby card remains face-down;
 - from a seated official Poppy / Garen / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGS·013/024` Garen's `BehaviorSpec.StaticAuras` projection gives `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
+- from a seated official Jhin / Farron Captain / Ascended Believer initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-keyword `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGN·015/298` Farron Captain's `BehaviorSpec.StaticAuras` projection gives `UNL-004/219` Ascended Believer `keyword=强攻` / `keywordBonus=1`;
 - from a seated official Vex / Teemo / Shadow initial state, the full `HIDE_CARD` -> Shadow `ACTIVATE_ABILITY` -> `REVEAL_CARD` as `STANDBY_REACTION` -> Teemo stack resolution -> Shadow stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
 - a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
@@ -62,6 +63,8 @@ This battlefield extra-standby replay slice adds no runtime rule changes. It ext
 
 This same-battlefield static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `OGS·013/024` Garen and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, moves both friendly units to the same battlefield through server commands, verifies Garen projects `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` to the Envoy via `BehaviorSpec.StaticAuras`, declares battle with the Envoy, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score victory and action-log replay.
 
+This same-battlefield static-keyword replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Jhin deck containing official `OGN·015/298` Farron Captain and `UNL-004/219` Ascended Believer. The driver uses the normal official opening seed path, moves both friendly units to the same battlefield through server commands, verifies Farron projects `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD` to the Believer via `BehaviorSpec.StaticAuras`, declares battle with the Believer, observes `DAMAGE_APPLIED` with `basePower=1`, `keyword=强攻`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, then continues through score victory and action-log replay.
+
 This standby reaction replay slice also adds no runtime rule changes. It extends the same seated-room action-log recovery check to a real priority-window standby reaction: a legal official Vex deck hides official `OGN·197/298` Teemo through `HIDE_CARD`, opens the existing Shadow battle-response stack, passes priority back to the hidden-card controller, reveals Teemo through `REVEAL_CARD` with `Mode=STANDBY_REACTION` and `Destination=STACK`, resolves Teemo's on-play self-power modifier, then resolves Shadow and closes the battle.
 
 ## Evidence
@@ -80,6 +83,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyOfficialDecksBattlefieldExtraStandbyHideAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
@@ -96,7 +100,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 
 ## Residuals
 
-This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, official Vex / Shadow deck pairs can open and resolve a battle response activation through server prompts, and an official Poppy / Garen / Demacia Envoy deck can carry a spec-driven same-battlefield static aura into real battle damage and score-victory replay. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, explicit Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, and Vex / Shadow / Teemo standby reaction paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, full static-aura official breadth, all response windows, or all card-effect families can complete a game.
+This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, official Vex / Shadow deck pairs can open and resolve a battle response activation through server prompts, an official Poppy / Garen / Demacia Envoy deck can carry a spec-driven same-battlefield static aura into real battle damage and score-victory replay, and an official Jhin / Farron Captain / Ascended Believer deck can carry a spec-driven same-battlefield RULE_TEXT keyword aura into real battle damage and score-victory replay. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, explicit Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Farron same-battlefield static-keyword aura, and Vex / Shadow / Teemo standby reaction paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, full static-aura official breadth, full RULE_TEXT keyword aura breadth, all response windows, or all card-effect families can complete a game.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-harness slice.
 
@@ -117,7 +121,7 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 21, Failed: 0, Skipped: 0, Total: 21
+Passed: 22, Failed: 0, Skipped: 0, Total: 22
 ```
 
 Adjacent validation passed:
@@ -129,7 +133,7 @@ Adjacent validation passed:
 Result:
 
 ```text
-Passed: 720, Failed: 0, Skipped: 0, Total: 720
+Passed: 721, Failed: 0, Skipped: 0, Total: 721
 ```
 
 Recovery / hidden-info validation passed:
@@ -153,5 +157,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8713, Failed: 0, Skipped: 0, Total: 8713
+Passed: 8714, Failed: 0, Skipped: 0, Total: 8714
 ```

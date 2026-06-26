@@ -9,6 +9,7 @@ This slice advances Plan B / B2 RULE_TEXT static keyword aura coverage without a
 Covered representative:
 
 - `OGN·074/298` 塔里克：`此处的其他友方单位获得{{坚守}}。`
+- `OGN·015/298` 法荣队长：`此处的其他友方单位获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）`
 
 The official text parses into:
 
@@ -17,7 +18,7 @@ The official text parses into:
 - `Duration=WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD`
 - `TargetScope=SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS`
 - `ParticipantScope=SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS`
-- `GrantedKeyword=坚守`
+- `GrantedKeyword=坚守` for Taric, `GrantedKeyword=强攻` for Farron Captain
 
 Runtime evidence now covers:
 
@@ -28,6 +29,7 @@ Runtime evidence now covers:
 - Source-leaves lifecycle guard: when Taric is no longer on the field, the RULE_TEXT continuous effect is absent and the formerly granted defender recomputes to `keywordBonus=0` / base combat power.
 - Target-moves lifecycle guard: when the friendly target moves to another battlefield while Taric remains at the original battlefield, the RULE_TEXT continuous effect is absent and the target recomputes without the granted `坚守`.
 - Controller-scope guard: `other friendly` is based on the source object's current controller; a controlled Farron Captain grants `强攻` to the controller's same-battlefield attacker, not to the owner's unit.
+- Official-deck full-game replay: legal official Jhin deck prompts stage Farron Captain and Ascended Believer to the same battlefield, project a `RULE_TEXT` object effect ending in `:强攻`, resolve real battle damage with `basePower=1`, `keywordBonus=1`, no `staticPowerBonus`, `combatPower=2`, and `damage=2`, then score-victory action-log replay reaches the same final state hash.
 - Face-down source guard: a face-down source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses, preserving hidden-information boundaries.
 - Face-down target guard: a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target, preventing hidden target dependency leakage.
 - Standby source guard: a standby source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses from the same-battlefield other-friendly aura path.
@@ -40,7 +42,8 @@ Still open:
 
 - Full `坚守` keyword family breadth beyond the representative combat bonus path.
 - Full `壁垒` damage-assignment ordering for Taric.
-- Complete RULE_TEXT keyword grant scopes and broader keyword removal/loss layering beyond this same-battlefield source-leaves representative.
+- Complete RULE_TEXT keyword grant scopes and broader keyword removal/loss layering beyond this same-battlefield represented scope.
+- Farron same-battlefield `强攻` now has a legal official-deck full-game replay representative, but broader RULE_TEXT keyword grant scopes and other official deck archetypes remain open.
 - Complete standby / face-down identity matrix beyond the covered same-battlefield source and target representatives.
 - Complete battle / spell-duel lifecycle and assignment prompt breadth.
 - FU-level matrix blocker reduction / fullOfficial status for `OGN·074/298`.
@@ -50,6 +53,8 @@ Still open:
 
 - Official catalog: `data/official/card-catalog.zh-CN.json`, `OGN·074/298` 塔里克.
 - Official text: `{{坚守}}（如果我是防守方，则{{S}}+1。）`, `{{壁垒}}（我在战斗中首先承担伤害。）`, `此处的其他友方单位获得{{坚守}}。`
+- Official catalog: `data/official/card-catalog.zh-CN.json`, `OGN·015/298` 法荣队长.
+- Official text: `此处的其他友方单位获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）`
 - `CORE-260330` p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
@@ -223,6 +228,30 @@ Result: 2050/2050 passed.
 
 Result: 8629/8629 passed.
 
+2026-06-26 official-deck Farron replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesSameBattlefieldStaticKeyword" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 official-deck Farron replay FullGameEndToEnd:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 22/22 passed.
+
+2026-06-26 official-deck Farron replay adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Farron|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2090/2090 passed.
+
 Hidden-information / recovery:
 
 ```bash
@@ -237,4 +266,4 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8532/8532 passed.
+Result: 8714/8714 passed.
