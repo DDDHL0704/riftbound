@@ -1,8 +1,8 @@
 # Plan B / B4 Battlefield Trigger Spec Audit
 
-Date: 2026-06-26
+Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Hunting Grounds overkill create-Warhawk B0 action-log replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Plunder Alley defend move-friendly-unit-to-base B0 action-log replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -45,6 +45,12 @@ The 2026-06-25 defend move-friendly-unit-to-base follow-up moves another impleme
 - `CoreRuleEngine.TryResolveBattlefieldDefenderMoveToBaseChoice` and `TryResolveBattlefieldDefenderMoveToBaseTrigger` now find eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(...)` and validate the parsed timing / target scope / movement shape before accepting battlefield targets or resolving the move.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldDefendMoveFriendlyUnitToBaseCardNo` constant; the dev seed keeps only the catalog card number literal for scenario construction.
 - The old `BattlefieldDefendMoveFriendlyUnitToBaseCardNo` / `IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `52` total / `49` in `CoreRuleEngine`; Core battlefield helper count is `5`.
+
+The 2026-06-27 B0 follow-up adds official-deck action-log replay coverage for the same parsed Plunder Alley route without changing runtime code:
+
+- legal Jhin vs Vex official decks submit and open through normal server prompts until P2 selects `OGN·285/298` Plunder Alley;
+- the focused midgame replay stages official `OGN·096/298` Watchful Sentinel and `UNL-057/219` Wildclaw Beastmaster at that battlefield, then submits the surviving defender through `battlefieldTargetObjectIds`;
+- the engine emits parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` resolution plus `UNIT_MOVED_TO_BASE`, moves the selected P2 defender to P2 base, and replays the resulting command log through score victory to the same final state hash.
 
 The 2026-06-25 held pay-power score follow-up moves another implemented battlefield held trigger away from engine card-number branching:
 
@@ -901,6 +907,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `51/51`;
 - adjacent BattlefieldHighCostSpellInsight / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2046/2046`;
 - backend full conformance: passed `8747/8747`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-06-27 Plunder Alley defend move-friendly-unit-to-base B0 action-log replay follow-up validation:
+
+- focused B0 Plunder Alley replay: passed `1/1`;
+- FullGameEndToEnd: passed `68/68`;
+- adjacent Plunder / BattlefieldDefend / BattlefieldTriggerSpec / DeclareBattle / GameHub / FullGameEndToEnd / MatchRecovery representatives: passed `2396/2396`;
+- backend full conformance: passed `8765/8765`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer overkill create-Warhawk follow-up validation:

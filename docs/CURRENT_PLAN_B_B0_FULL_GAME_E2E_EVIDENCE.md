@@ -1,6 +1,6 @@
 # Plan B / B0 Full-Game E2E Evidence
 
-Date: 2026-06-26
+Date: 2026-06-27
 
 Project status: **NOT READY**.
 
@@ -81,6 +81,8 @@ The Dream Tree friendly-spell draw action-log replay regression proves a legal o
 The Ravenbloom Conservatory defend reveal-spell action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield reveal route with a controlled main-deck top card. `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARD_DRAWN`, recognizes the revealed card as a spell, moves it to P2 hand, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Ravenbloom Conservatory defend reveal non-spell action-log replay regression covers the miss branch of the same BehaviorSpec route. `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED`, recognizes the revealed card is not a spell, recycles it to the bottom of P2's main deck, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+The Plunder Alley defend move-friendly-unit-to-base action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield movement route. `OfficialDeckMidgameResolvesPlunderAlleyDefendMoveToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin and Vex deck openings that selected official `OGN·285/298` Plunder Alley for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `DECLARE_BATTLE` route submits the defender through `battlefieldTargetObjectIds`, emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE`, moves the selected surviving friendly defender from battlefield to P2 base through the parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` route, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
 
@@ -170,6 +172,54 @@ Result:
 
 ```text
 Passed: 8764, Failed: 0, Skipped: 0, Total: 8764
+```
+
+Latest Plunder Alley defend move-friendly-unit-to-base focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesPlunderAlleyDefendMoveToBase" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Plunder Alley FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 68, Failed: 0, Skipped: 0, Total: 68
+```
+
+Latest Plunder Alley adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Plunder|FullyQualifiedName~BattlefieldDefend|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHub|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2396, Failed: 0, Skipped: 0, Total: 2396
+```
+
+Latest Plunder Alley backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8765, Failed: 0, Skipped: 0, Total: 8765
 ```
 
 Focused validation:
@@ -775,3 +825,5 @@ The current Lost Library increment additionally proves one BehaviorSpec-driven h
 The current Ravenbloom increment additionally proves one BehaviorSpec-driven battlefield-defended reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score-victory replay, and hidden-info guarded full-game helpers. The non-spell recycle branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Ravenbloom non-spell increment additionally proves the BehaviorSpec-driven battlefield-defended miss branch through controlled main-deck top-card reveal, non-spell detection, recycling the revealed card to the bottom of the defending player's main deck, score-victory replay, and hidden-info guarded full-game helpers. Complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Plunder Alley increment additionally proves one BehaviorSpec-driven battlefield-defended move-friendly-unit-to-base route through legal official Jhin vs Vex deck submission/opening, parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, server-authored defender target submission via `battlefieldTargetObjectIds`, movement of the selected surviving friendly defender to its owner's base, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, and complete official deck archetype breadth remain open.
