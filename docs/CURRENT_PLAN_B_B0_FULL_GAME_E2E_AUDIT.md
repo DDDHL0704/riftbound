@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B2 Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B2 Rumble legend friendly-mechanical Steadfast RULE_TEXT official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -34,6 +34,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Lillia / Petal Pixie / Wildclaw Beastmaster opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-076/219` Petal Pixie, official `UNL·T07` Faerie token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield; the same-battlefield ephemeral count-to-source static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Petal Pixie's `BehaviorSpec.StaticAuras` / `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` route gives itself `staticPowerBonus=1`;
 - from a seated official Lillia / Soul Shepherd / Wildclaw Beastmaster opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-077/219` Soul Shepherd in base, official `UNL·T02` Warhawk token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield; the friendly-token static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Soul Shepherd's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` route gives the token attacker `staticPowerBonus=1`;
 - from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
+- from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Master Yi intro / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to the opposing battlefield -> friendly single-defender static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGS·019/024` Master Yi intro's `BehaviorSpec.StaticAuras` / `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route gives the single defending `UNL-092/219` Demacia Envoy `staticPowerBonus=2`;
 - from a seated official Master Yi level / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging after a server-resolved sixth-experience gain -> friendly-units static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-191/219` Master Yi level's `BehaviorSpec.StaticAuras` / `FRIENDLY_UNITS_POWER` route gives the attacking `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
@@ -140,6 +141,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesPetalPixieSameBattlefieldEphemeralCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesRumbleLegendFriendlyMechanicalSteadfastAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesFriendlySingleDefenderStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesMasterYiLevelFriendlyUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -181,6 +183,8 @@ This Petal Pixie increment additionally proves a legal official Lillia / Petal P
 This Soul Shepherd increment additionally proves a legal official Lillia / Soul Shepherd deck can carry `FRIENDLY_FILTERED_UNITS_POWER` with an official `UNL·T02` token-unit target through a focused midgame battle declaration, real damage, score victory, and action-log replay. It still does not close token creation, complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
 
 This Rumble increment additionally proves a legal official Rumble / SFD·089 Rumble deck can carry `FRIENDLY_FILTERED_UNITS_POWER` with a `TAG:机械` target filter and the source object also acting as the boosted target through a focused midgame battle declaration, real damage, score victory, and action-log replay. It still does not close complete friendly-filtered static-aura breadth, complete official deck archetype breadth, or READY.
+
+This Rumble legend increment additionally proves a legal official Rumble deck can carry `FRIENDLY_FILTERED_UNITS_KEYWORD` with a `TAG:机械` target filter from the legend zone through a focused midgame battle declaration, real defender damage, score victory, and action-log replay. It still does not close complete friendly-filtered RULE_TEXT keyword aura breadth, complete official deck archetype breadth, or READY.
 
 This Forbidden Wasteland increment additionally proves a legal official Vex / Rumble deck opening can carry a battlefield isolated-defender RULE_TEXT keyword modifier through a focused midgame battle declaration, real defender damage, score victory, and action-log replay. It also adds direct projection coverage for the isolated-defender condition. It still does not close complete battlefield RULE_TEXT keyword-modifier breadth, complete official deck archetype breadth, or READY.
 
@@ -240,4 +244,52 @@ Result:
 
 ```text
 Passed: 8733, Failed: 0, Skipped: 0, Total: 8733
+```
+
+Latest Rumble legend friendly-mechanical Steadfast focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RumbleLegendFriendlyMechanicalSteadfast" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 40, Failed: 0, Skipped: 0, Total: 40
+```
+
+Latest adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RumbleLegendFriendlyMechanicalSteadfast|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Rumble|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2112, Failed: 0, Skipped: 0, Total: 2112
+```
+
+Latest backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8734, Failed: 0, Skipped: 0, Total: 8734
 ```

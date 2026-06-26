@@ -127,6 +127,9 @@ Recovery:
 - Latest battlefield isolated-defender keyword-modifier focused/projection official-deck representative: 3/3 passed.
 - Latest FullGameEndToEnd B0/B2 cross-slice representative after Forbidden Wasteland battlefield isolated-defender replay: 39/39 passed.
 - Latest BattlefieldIsolatedDefenderKeywordModifier / BattlefieldIsolated / ForbiddenWasteland / StaticAura / StaticKeyword / Steadfast / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Forbidden Wasteland battlefield isolated-defender replay: 2111/2111 passed.
+- Latest friendly-filtered Steadfast RULE_TEXT official-deck midgame focused representative: 1/1 passed.
+- Latest FullGameEndToEnd B0/B2 cross-slice representative after Rumble legend friendly-mechanical Steadfast replay: 40/40 passed.
+- Latest RumbleLegendFriendlyMechanicalSteadfast / FriendlyFiltered / StaticKeyword / StaticAura / Steadfast / Rumble / FullGameEndToEnd / MatchRecovery adjacent representative after Rumble legend friendly-mechanical Steadfast replay: 2112/2112 passed.
 - Latest battlefield all-units static-power official-deck full-game focused representative: 1/1 passed.
 - Latest FullGameEndToEnd B0/B1 cross-slice representative after Trifarian Training Grounds battlefield all-units replay: 27/27 passed.
 - Latest BattlefieldAllUnits / BattlefieldStatic / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Trifarian Training Grounds battlefield all-units replay: 2141/2141 passed.
@@ -186,6 +189,7 @@ Recovery:
 - Latest backend full after Soul Shepherd friendly-token static-power official-deck midgame evidence: 8729/8729 passed.
 - Latest backend full after Rumble friendly-mechanical static-power official-deck midgame evidence: 8730/8730 passed.
 - Latest backend full after Forbidden Wasteland battlefield isolated-defender keyword-modifier evidence: 8733/8733 passed.
+- Latest backend full after Rumble legend friendly-mechanical Steadfast official-deck midgame evidence: 8734/8734 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
@@ -194,7 +198,7 @@ Before B1 can be called complete, later slices still need evidence for:
 
 - Broader Brush replacement / actual swap-back lifecycle beyond the current score-time replacement representative.
 - Other source-unit count-to-source and threshold static auras beyond the Petal Pixie same-battlefield ephemeral count-to-source midgame representative, the Reliable Siege Dog source same-location official-deck representative, and the Sett same-battlefield boon count-to-source official-deck representative, plus source combat static-aura official-deck breadth beyond the current Scarlet Pigeon, Dune Drake, and Waterbender representatives.
-- Additional full-game official-deck routes for static-aura / RULE_TEXT modifier families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token, Rumble friendly-mechanical filtered self-boost, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered representatives.
+- Additional full-game official-deck routes for static-aura / RULE_TEXT modifier families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered representatives.
 - Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
 - Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant / modifier scopes.

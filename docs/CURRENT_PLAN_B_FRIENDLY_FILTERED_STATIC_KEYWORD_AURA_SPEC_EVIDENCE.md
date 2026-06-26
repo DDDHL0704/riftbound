@@ -16,6 +16,7 @@ Implemented evidence:
 - Spellshield target-tax calculation reads dynamic friendly-filtered Spellshield grants for both action prompts and Core payment plans.
 - Battle damage assignment legality and ordering now read dynamic friendly-filtered Bulwark / Back Row grants instead of only printed tags.
 - The prior Rumble legend steadfast special case has been removed; `SFD·181/221` and `SFD·240/221` now flow through `FRIENDLY_FILTERED_UNITS_KEYWORD`.
+- Official-deck replay now covers `SFD·181/221` Rumble legend granting `坚守` to an official `SFD·026/221` friendly mechanical unit in a legal Rumble deck route; real defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, then score-victory action-log replay reaches the same final state hash.
 - Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 - Static-granted `预知` from `FRIENDLY_FILTERED_UNITS_KEYWORD` now feeds the same lifecycle default when a public source already grants `预知` to a later-played matching friendly unit. `SFD·065/221` Prescient Mech plus `SFD·075/221` Progress Glory is the representative prompt and Core stack-resolution fixture.
 - Hidden-boundary guards now cover `FRIENDLY_FILTERED_UNITS_KEYWORD`: face-down public-field sources do not project RULE_TEXT effects or grant combat keyword bonuses, and face-down matching friendly targets are excluded from continuous-effect target projection.
@@ -49,6 +50,9 @@ Implemented evidence:
   - Verifies Lillia's dynamic Bulwark grant makes a friendly unit token eligible as the assignment keyword defender in a multi-defender declaration.
 - `ConformanceFixtureRunnerTests.P79LegendStaticRumbleGrantsSteadfastToMechanicalDefender`
   - Verifies Rumble legend Steadfast is projected as a RULE_TEXT continuous effect and contributes `keywordBonus=1` to a mechanical defender.
+- `FullGameEndToEndTests.OfficialDeckMidgameAppliesRumbleLegendFriendlyMechanicalSteadfastAndScoreVictoryActionLogReplaysToFinalStateHash`
+  - Verifies a legal official Lillia / Rumble deck opening can feed a focused midgame route where P2's `SFD·181/221` legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to a P2 `SFD·026/221` mechanical defender at P1's battlefield.
+  - Verifies the server-authored `DECLARE_BATTLE` path records `keywordBonus=1` defender damage and that score-victory action-log replay reaches the same final state hash.
 - `ConformanceFixtureRunnerTests.GemstoneSeerPredictPromptExposesOnlyFriendlyTopMainDeckCard`
   - Verifies source-tag `预知` lifecycle defaults expose only the controller's top main-deck card as an optional prompt target, excluding the second friendly card and the opponent's hidden deck card.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard`
@@ -72,9 +76,13 @@ Implemented evidence:
 - Adjacent Predict / Gemstone / Lifecycle: 112/112 passed.
 - Focused hidden-boundary slice: 2/2 passed.
 - Adjacent FriendlyFiltered / StaticKeyword / StaticAura / Roam / Spellshield / Hidden / FaceDown / MatchRecovery: 2238/2238 passed.
+- Focused Rumble legend official-deck replay slice: 1/1 passed.
+- FullGameEndToEnd replay class after Rumble legend official-deck replay: 40/40 passed.
+- Adjacent RumbleLegendFriendlyMechanicalSteadfast / FriendlyFiltered / StaticKeyword / StaticAura / Steadfast / Rumble / FullGameEndToEnd / MatchRecovery: 2112/2112 passed.
 - MatchRecovery: 1989/1989 passed.
 - Backend full conformance: 8592/8592 passed.
 - Backend full after hidden-boundary guard: 8617/8617 passed.
+- Backend full after Rumble legend official-deck replay: 8734/8734 passed.
 
 ## Residuals
 

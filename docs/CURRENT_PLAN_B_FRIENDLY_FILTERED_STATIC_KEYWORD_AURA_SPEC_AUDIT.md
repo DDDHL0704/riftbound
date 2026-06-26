@@ -30,6 +30,7 @@ Runtime evidence now covers:
 - `MatchSession` continuous-effect projection produces RULE_TEXT object effects from public-field unit sources and legend-zone sources to matching friendly public units.
 - Rumble hero grants Assault to friendly mechanical units and excludes non-mechanical friendly units plus opposing mechanical units.
 - Rumble legend grants Steadfast to friendly mechanical defenders through the same `FRIENDLY_FILTERED_UNITS_KEYWORD` path, replacing the old Rumble-specific steadfast branch.
+- `FullGameEndToEndTests.OfficialDeckMidgameAppliesRumbleLegendFriendlyMechanicalSteadfastAndScoreVictoryActionLogReplaysToFinalStateHash` now carries that Rumble legend Steadfast grant through legal official deck submission/opening, focused midgame battle declaration, real defender damage, score victory, and action-log replay.
 - Lillia grants Bulwark to friendly unit-token objects; Core and prompt legality treat the dynamic Bulwark as a battle-damage-assignment keyword for multi-defender declarations.
 - `SFD·071/221` grants two keyword specs from one official sentence; dynamic Roam is visible in move prompts and accepted by Core precise battlefield movement without a printed Roam tag.
 - `SFD·071/221` dynamic Spellshield contributes one mana of enemy spell target tax in both prompt legality and Core payment.
@@ -129,6 +130,30 @@ Result: 2/2 passed.
 
 Result: 2238/2238 passed.
 
+2026-06-26 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RumbleLegendFriendlyMechanicalSteadfast" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 full-game replay class:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 40/40 passed.
+
+2026-06-26 official-deck replay adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RumbleLegendFriendlyMechanicalSteadfast|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Rumble|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2112/2112 passed.
+
 Hidden-information / recovery:
 
 ```bash
@@ -152,3 +177,11 @@ Result: 8592/8592 passed.
 ```
 
 Result: 8617/8617 passed.
+
+2026-06-26 backend full after Rumble legend official-deck replay:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8734/8734 passed.
