@@ -61,6 +61,7 @@ public sealed class FullGameEndToEndTests
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string LostLibraryBattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string IdolValleyBattlefieldPlayUnitBoonCardNo = "UNL-218/219";
     private const string SavageStrengthSpellCardNo = "SFD·034/221";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
     private const string SandSoldierTokenCardNo = "SFD·T02";
@@ -574,6 +575,44 @@ public sealed class FullGameEndToEndTests
             session,
             spellResolved,
             "b0-lost-library-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesIdolValleyUnitPlayBoonAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldPlayUnitBoonOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldPlayUnitBoonOpeningAsync(
+            "b0-full-game-idol-valley-unit-play-boon-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldPlayUnitBoonMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var unitPlayed = await SubmitBattlefieldPlayUnitBoonUnitAsync(
+            session,
+            current,
+            "P1",
+            "b0-idol-valley-unit-play-boon");
+        var unitResolved = await ResolveStackPassPassAsync(
+            session,
+            unitPlayed,
+            "b0-idol-valley-unit-play-boon-resolve");
+        AssertBattlefieldPlayUnitBoonResolved(current, unitResolved);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            unitResolved,
+            "b0-idol-valley-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -2707,6 +2746,58 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldPlayUnitBoonResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            IdolValleyBattlefieldPlayUnitBoonCardNo);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Idol Valley assertion could not locate Wildclaw Beastmaster in P1 hand.");
+        var beforeUnit = beforePlay.State.CardObjects[sourceObjectId];
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldPlayUnitPayBoon, StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(IdolValleyBattlefieldPlayUnitBoonCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(sourceObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(sourceObjectId, triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldObjectId}", triggerEvent.Payload["destination"]);
+        Assert.Equal(1, triggerEvent.Payload["manaCost"]);
+
+        var costEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldPlayUnitPayBoon, StringComparison.Ordinal));
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal(1, costEvent.Payload["mana"]);
+
+        var boonEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", boonEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, boonEvent.Payload["sourceObjectId"]);
+        Assert.Equal(TriggerKinds.BattlefieldPlayUnitPayBoon, boonEvent.Payload["abilityId"]);
+        Assert.Equal(beforeUnit.Power + 1, boonEvent.Payload["power"]);
+
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        var location = result.State.ObjectLocations[sourceObjectId];
+        Assert.Equal("P1", location.PlayerId);
+        Assert.Equal("BATTLEFIELD", location.Zone);
+        Assert.Equal(battlefieldObjectId, location.BattlefieldObjectId);
+
+        var unit = result.State.CardObjects[sourceObjectId];
+        Assert.Equal(beforeUnit.Power + 1, unit.Power);
+        Assert.Contains(CardObjectTags.Boon, unit.Tags);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldDefendRevealSpellResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -4760,6 +4851,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Lost Library opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldPlayUnitBoonOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    IdolValleyBattlefieldPlayUnitBoonCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Idol Valley opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldDefendRevealSpellOpeningAsync(
@@ -7589,6 +7719,49 @@ public sealed class FullGameEndToEndTests
             WatchfulSentinelCardNo,
             battlefieldId)
             ?? throw new InvalidOperationException("B0 Lost Library driver could not find a Watchful Sentinel target at Lost Library.");
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldPlayUnitBoonUnitAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Idol Valley driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            IdolValleyBattlefieldPlayUnitBoonCardNo);
+        var unitObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Idol Valley driver could not find Wildclaw Beastmaster in P1 hand.");
+        var destination = $"BATTLEFIELD:{battlefieldId}";
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(unitObjectId, legalSourceIds);
+        Assert.Contains(destination, legalDestinationIds);
+
+        var command = new PlayCardCommand(
+            unitObjectId,
+            WildclawBeastmasterCardNo,
+            [],
+            Destination: destination);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
@@ -10444,6 +10617,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldPlayUnitBoonOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [WildclawBeastmasterCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            IdolValleyBattlefieldPlayUnitBoonCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldDefendRevealSpellAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -11868,6 +12062,67 @@ public sealed class FullGameEndToEndTests
             OwnerId = "P1",
             ControllerId = "P1"
         };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldPlayUnitBoonMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            IdolValleyBattlefieldPlayUnitBoonCardNo);
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Idol Valley setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p2Zones = playerZones["P2"];
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
         {
             Damage = 0,
