@@ -58,6 +58,7 @@ Recovery:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `UNL-154/219` Scarlet Pigeon's source-combat static aura through a legal official Poppy deck route: Scarlet Pigeon and `UNL-092/219` Demacia Envoy are played and moved through server prompts, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER` route contributes `staticPowerBonus=2` to real battle damage, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGN·294/298` Trifarian Training Grounds' battlefield all-units static aura through a legal official Vex deck route: official-opening seed probing selects the battlefield, `UNL-057/219` Wildclaw Beastmaster and an opposing defender are moved there through server prompts, the projected `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` effects target both units from the battlefield source, Wildclaw's real battle damage records `basePower=7`, `staticPowerBonus=1`, `combatPower=8`, and `damage=8`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `SFD·159/221` Reliable Siege Dog's source same-location threshold static aura through a legal official Poppy deck route: Reliable Siege Dog and `UNL-092/219` Demacia Envoy are played and moved through server prompts to the same battlefield, the projected `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` effect targets Reliable Siege Dog itself with the Envoy as same-location participant, Reliable Siege Dog's real battle damage records `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, and the action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGN·240/298` Sett's same-battlefield boon count-to-source static aura through a legal official Poppy deck route: `UNL-092/219` Demacia Envoy is staged to a battlefield, `OGN·136/298` Arena Rookie grants the Envoy `{{增益}}` through a server-authored targeted `PLAY_CARD`, Sett moves to that same battlefield, the projected `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` effect targets Sett itself with the boon-bearing Envoy as participant, Sett's real battle damage records `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs` binds Brush's battlefield-filtered static-power aura to the score-time replacement path: matching units keep the Brush `staticPowerBonus` during combat, and the held-score trigger resolves against the replaced battlefield chosen through `BRUSH_USE_REPLACED_BATTLEFIELD:*`.
 
 ## Validation Evidence
@@ -106,6 +107,9 @@ Recovery:
 - Latest source same-location static-power official-deck full-game focused representative: 1/1 passed.
 - Latest FullGameEndToEnd B0/B1 cross-slice representative after Reliable Siege Dog source same-location replay: 28/28 passed.
 - Latest SourceSameLocation / ReliableSiegeDog / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Reliable Siege Dog source same-location replay: 2101/2101 passed.
+- Latest same-battlefield boon count-to-source static-power official-deck full-game focused representative: 1/1 passed.
+- Latest FullGameEndToEnd B0/B1 cross-slice representative after Sett same-battlefield boon count-to-source replay: 29/29 passed.
+- Latest Sett / Boon / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Sett same-battlefield boon count-to-source replay: 2214/2214 passed.
 - Latest friendly-equipment static-power standby hidden-boundary focused representative: 1/1 passed.
 - Latest friendly-equipment static-power standby hidden-boundary adjacent Ornn / EquipmentKeyword / StaticAura / StaticPower / Standby / Hidden / FaceDown / MatchRecovery representative: 2257/2257 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
@@ -130,6 +134,7 @@ Recovery:
 - Latest backend full after source-combat static-power official-deck full-game evidence: 8718/8718 passed.
 - Latest backend full after battlefield all-units static-power official-deck full-game evidence: 8719/8719 passed.
 - Latest backend full after source same-location static-power official-deck full-game evidence: 8720/8720 passed.
+- Latest backend full after same-battlefield boon count-to-source static-power official-deck full-game evidence: 8721/8721 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
@@ -137,8 +142,8 @@ Recovery:
 Before B1 can be called complete, later slices still need evidence for:
 
 - Broader Brush replacement / actual swap-back lifecycle beyond the current score-time replacement representative.
-- Other source-unit count-to-source and threshold static auras beyond Petal Pixie / Sett lower-level representatives and the Reliable Siege Dog official-deck representative, plus source combat static-aura official-deck breadth beyond the current Scarlet Pigeon representative and lower-level Waterbender / Dune Drake representatives.
-- Additional full-game official-deck routes for static-aura families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Trifarian Training Grounds battlefield all-units, and Reliable Siege Dog source same-location representatives.
+- Other source-unit count-to-source and threshold static auras beyond Petal Pixie lower-level coverage, the Reliable Siege Dog source same-location official-deck representative, and the Sett same-battlefield boon count-to-source official-deck representative, plus source combat static-aura official-deck breadth beyond the current Scarlet Pigeon representative and lower-level Waterbender / Dune Drake representatives.
+- Additional full-game official-deck routes for static-aura families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location, and Sett same-battlefield boon count-to-source representatives.
 - Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
 - Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant scopes.
