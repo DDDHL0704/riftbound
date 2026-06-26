@@ -10,6 +10,9 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("OGN·061/298", "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT")]
     [InlineData("UNL-097/219", "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT")]
     [InlineData("UNL-122/219", "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-004/219", "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-108/219", "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT")]
+    [InlineData("OGN·019/298", "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesPlaySourceUnitsByEffectKind(
         string cardNo,
         string effectKind)
@@ -26,6 +29,9 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("OGN·061/298", "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT")]
     [InlineData("UNL-122/219", "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT")]
     [InlineData("OGN·031/298", "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-108/219", "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT")]
+    [InlineData("OGN·019/298", "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-004/219", "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingPlaySourceUnits(
         string cardNo,
         string effectKind)
@@ -114,6 +120,38 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.Contains(
             "string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind",
             matchSessionSource,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ConditionalSourceUnitPowerAndTagsUseCatalogEffectKind()
+    {
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+
+        Assert.DoesNotContain("AscendedBelieverCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SlySalamanderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RampagingSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, AscendedBelieverCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, SlySalamanderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, RampagingSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AscendedBelieverConditionalSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SlySalamanderConditionalSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("RampagingSoulConditionalSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, AscendedBelieverConditionalSourceEffectKind",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, SlySalamanderConditionalSourceEffectKind",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, RampagingSoulConditionalSourceEffectKind",
+            coreRuleEngineSource,
             StringComparison.Ordinal);
     }
 

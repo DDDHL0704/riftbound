@@ -516,9 +516,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
-    private const string AscendedBelieverCardNo = "UNL-004/219";
-    private const string SlySalamanderCardNo = "UNL-108/219";
-    private const string RampagingSoulCardNo = "OGN·019/298";
+    private const string AscendedBelieverConditionalSourceEffectKind = "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT";
+    private const string SlySalamanderConditionalSourceEffectKind = "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT";
+    private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string OgnFioraCardNo = "OGN·232/298";
@@ -39728,13 +39728,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
-        if (string.Equals(behavior.CardNo, SlySalamanderCardNo, StringComparison.Ordinal)
+        if (string.Equals(behavior.EffectKind, SlySalamanderConditionalSourceEffectKind, StringComparison.Ordinal)
             && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId))
         {
             return [CardCombatKeywordNames.Roam];
         }
 
-        if (string.Equals(behavior.CardNo, RampagingSoulCardNo, StringComparison.Ordinal)
+        if (string.Equals(behavior.EffectKind, RampagingSoulConditionalSourceEffectKind, StringComparison.Ordinal)
             && PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId))
         {
             return [CardCombatKeywordNames.Assault, CardCombatKeywordNames.Roam];
@@ -39748,13 +39748,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
-        if (string.Equals(behavior.CardNo, AscendedBelieverCardNo, StringComparison.Ordinal)
+        if (string.Equals(behavior.EffectKind, AscendedBelieverConditionalSourceEffectKind, StringComparison.Ordinal)
             && PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId))
         {
             return 4;
         }
 
-        return string.Equals(behavior.CardNo, SlySalamanderCardNo, StringComparison.Ordinal)
+        return string.Equals(behavior.EffectKind, SlySalamanderConditionalSourceEffectKind, StringComparison.Ordinal)
             && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId)
                 ? 1
                 : 0;
