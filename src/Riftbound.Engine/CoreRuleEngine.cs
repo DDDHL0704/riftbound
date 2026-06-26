@@ -563,7 +563,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         0,
         0,
         PowerModifierAmount: 1);
-    private const string BilgewaterBullyCardNo = "OGN·125/298";
+    private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -29927,7 +29927,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasBilgewaterBullyBoonRoamPermission(CardObjectState sourceState)
     {
-        return string.Equals(sourceState.CardNo, BilgewaterBullyCardNo, StringComparison.Ordinal)
+        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
+                sourceState.CardNo,
+                BilgewaterBullyBoonRoamSourceEffectKind)
             && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
     }
 

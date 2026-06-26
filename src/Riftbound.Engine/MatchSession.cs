@@ -6600,7 +6600,7 @@ internal static class ActionPromptBuilder
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const string BilgewaterBullyCardNo = "OGN·125/298";
+    private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
@@ -9345,7 +9345,9 @@ internal static class ActionPromptBuilder
 
     private static bool HasBilgewaterBullyBoonPromptRoamPermission(CardObjectState sourceState)
     {
-        return string.Equals(sourceState.CardNo, BilgewaterBullyCardNo, StringComparison.Ordinal)
+        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
+                sourceState.CardNo,
+                BilgewaterBullyBoonRoamSourceEffectKind)
             && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
     }
 
