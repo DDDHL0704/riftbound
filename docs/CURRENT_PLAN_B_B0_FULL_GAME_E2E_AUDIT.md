@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused B0/B2 Speeding Mech friendly-mechanical Spellshield/Roam RULE_TEXT official-deck midgame replay slice accepted; project remains **NOT READY**.
+Status: focused B0/B4 Treasure Pile trigger-payment official-deck midgame replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -36,6 +36,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
 - from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Master Yi intro / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to the opposing battlefield -> friendly single-defender static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGS·019/024` Master Yi intro's `BehaviorSpec.StaticAuras` / `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route gives the single defending `UNL-092/219` Demacia Envoy `staticPowerBonus=2`;
 - from a seated official Master Yi level / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging after a server-resolved sixth-experience gain -> friendly-units static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-191/219` Master Yi level's `BehaviorSpec.StaticAuras` / `FRIENDLY_UNITS_POWER` route gives the attacking `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
@@ -154,6 +155,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldSteadfastStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Added `tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs` covering single-defender projection and multi-defender non-projection for `UNL-210/219` Forbidden Wasteland.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameOrdersTaricBulwarkBeforeBackRowInDamageAssignmentAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
@@ -189,7 +191,9 @@ This Rumble legend increment additionally proves a legal official Rumble deck ca
 
 This Forbidden Wasteland increment additionally proves a legal official Vex / Rumble deck opening can carry a battlefield isolated-defender RULE_TEXT keyword modifier through a focused midgame battle declaration, real defender damage, score victory, and action-log replay. It also adds direct projection coverage for the isolated-defender condition. It still does not close complete battlefield RULE_TEXT keyword-modifier breadth, complete official deck archetype breadth, or READY.
 
-Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B2 slice.
+This Treasure Pile increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, exhausted Gold token creation, score victory, and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+
+Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
 Open follow-up:
 
@@ -293,4 +297,52 @@ Result:
 
 ```text
 Passed: 8734, Failed: 0, Skipped: 0, Total: 8734
+```
+
+Latest Treasure Pile trigger-payment focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgamePaysTreasurePileConquerGold"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Treasure Pile FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 42, Failed: 0, Skipped: 0, Total: 42
+```
+
+Latest Treasure Pile adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~TreasurePile|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~TriggerPayment|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2124, Failed: 0, Skipped: 0, Total: 2124
+```
+
+Latest Treasure Pile backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8736, Failed: 0, Skipped: 0, Total: 8736
 ```

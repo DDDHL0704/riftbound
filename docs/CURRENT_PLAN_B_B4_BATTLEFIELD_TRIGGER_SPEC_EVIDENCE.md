@@ -204,6 +204,8 @@ The conquer pay-create-gold follow-up parser path turns the Treasure Pile offici
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and creates an exhausted Gold equipment token after successful payment. The prompt cost, trigger id, token name, token destination and exhausted state now come from the parsed spec while preserving the existing `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED` event contract and hidden information boundaries.
 
+The B0 full-game replay follow-up now also covers this same parsed Treasure Pile route through a legal official-deck opening. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `SFD·220/221` can be selected in opening setup, that a focused midgame `START_BATTLE` state opens `TRIGGER_PAYMENT` after conquest, that replayable `PAY_COST(SPEND_MANA:1)` creates an exhausted Gold token, and that the command journal replays through score victory to the same final state hash.
+
 The conquer powerful pay-draw follow-up parser path turns the Sunken Temple official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, `RequiredPowerThreshold=5`, `ManaCost=1`, and `DrawCount=1`. Runtime no longer checks `SFD·218/221` through `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo`, and no longer uses `BattlefieldPowerfulDrawManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and draws after successful payment. The prompt cost, trigger id, draw count, and required power threshold now come from the parsed spec. The new multi-attacker regression proves the official `此战场上留存至少一名{{强力}}单位` condition is evaluated over all surviving conquest attackers instead of only the first attacker object.
@@ -314,6 +316,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer ready-equipment adjacent BattlefieldConquer / BattlefieldTriggerSpec / Equipment / FullGame / GameHub representatives: `750/750`;
 - conquer pay-create-gold focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer pay-create-gold adjacent BattlefieldConquer / TriggerPayment representatives: `130/130`;
+- conquer pay-create-gold B0 action-log replay follow-up: `1/1`;
+- conquer pay-create-gold B0 full-game follow-up: `42/42`;
+- conquer pay-create-gold B0 adjacent TriggerPayment / MatchRecovery follow-up: `2124/2124`;
 - conquer powerful pay-draw focused behavior-spec/source guard/runtime representatives: `4/4`;
 - conquer powerful pay-draw GameHub seed representative: `1/1`;
 - conquer powerful pay-draw adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec representatives: `91/91`;
@@ -367,6 +372,7 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the defend move-friendly-unit-to-base follow-up: `8452/8452`;
 - backend full conformance after the defend grant-Steadfast follow-up: `8454/8454`;
 - backend full conformance after the held activate-unit-conquest-effects follow-up: `8461/8461`;
+- backend full conformance after the Treasure Pile B0 action-log replay follow-up: `8736/8736`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.

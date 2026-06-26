@@ -66,6 +66,8 @@ The Rumble legend friendly-mechanical Steadfast action-log replay regression pro
 
 The Speeding Mech friendly-mechanical Spellshield/Roam action-log replay regression proves a legal official deck opening can feed the multi-keyword public-field-source branch of `FRIENDLY_FILTERED_UNITS_KEYWORD`. `OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Rumble deck containing `SFD·071/221` Speeding Mech and a second official `SFD·026/221` Rumble unit, verifies official deck submission/opening first, then starts the replay from a focused midgame `START_BATTLE` state with Speeding Mech in P1 base, the friendly mechanical Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. Speeding Mech projects two RULE_TEXT effects, `法盾` and `游走`, to the friendly mechanical Rumble target without adding printed tags to the target object, then the server-authored `DECLARE_BATTLE` path continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; dynamic Roam movement and Spellshield tax remain covered by the focused P79 representative, and this slice does not close complete friendly-filtered RULE_TEXT keyword aura breadth, complete official deck archetype breadth, or READY.
 
+The Treasure Pile trigger-payment action-log replay regression proves a legal official deck opening can feed a focused battlefield-conquer payment route through the B0 score-victory replay path. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·220/221` Treasure Pile, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, and sufficient available mana at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED`, creates an exhausted Gold equipment token, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+
 The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
 
 The source-lone-battle static-aura action-log replay regression proves a legal official deck can carry Waterbender's battle-conditional source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel, follows the normal official opening seed path, stages both units through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authorized `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the projected `SOURCE_LONE_BATTLE_POWER` effect targets Waterbender itself, observes Waterbender's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-lone-battle static-aura breadth, complete official deck archetype breadth, or READY.
@@ -202,6 +204,54 @@ Result:
 Passed: 8734, Failed: 0, Skipped: 0, Total: 8734
 ```
 
+Latest Treasure Pile trigger-payment focused validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgamePaysTreasurePileConquerGold"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Treasure Pile full-game validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 42, Failed: 0, Skipped: 0, Total: 42
+```
+
+Latest Treasure Pile adjacent validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~TreasurePile|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~TriggerPayment|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2124, Failed: 0, Skipped: 0, Total: 2124
+```
+
+Latest Treasure Pile backend full validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8736, Failed: 0, Skipped: 0, Total: 8736
+```
+
 ## Non-Closure
 
 This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; official Poppy / Garen / Demacia Envoy, Vex / Baron Nashor / Wildclaw Beastmaster, Poppy / Scarlet Pigeon / Demacia Envoy, Lillia / Petal Pixie / Faerie token / Wildclaw Beastmaster, Lillia / Soul Shepherd / Warhawk token / Wildclaw Beastmaster, Lillia / Waterbender / Watchful Sentinel, Master Yi intro / Demacia Envoy, Master Yi level / Demacia Envoy, Master Yi level / Wise Elder / Arena Rookie / Watchful Sentinel, Vex / Trifarian Training Grounds / Wildclaw Beastmaster, Poppy / Reliable Siege Dog / Demacia Envoy, Poppy / Sett / Arena Rookie / Demacia Envoy, and Poppy / Lee Sin / Arena Rookie / Demacia Envoy paths can apply data-driven same-battlefield, non-local other-friendly, source-combat, same-battlefield ephemeral count-to-source, friendly-token filtered, source-lone-battle, friendly single-defender, experience-gated friendly-units, source-object filtered, battlefield-source all-units, source same-location threshold, same-battlefield boon count-to-source, and same-battlefield other-friendly filtered static auras to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Baron Nashor other-friendly static-aura, Scarlet Pigeon source-combat static-aura, Petal Pixie same-battlefield ephemeral count-to-source static-aura, Soul Shepherd friendly-token static-aura, Waterbender source-lone-battle static-aura, Master Yi intro friendly single-defender static-aura, Master Yi level friendly-units static-aura, Wise Elder source-object filtered static-aura, Trifarian Training Grounds battlefield all-units static-aura, Reliable Siege Dog source same-location static-aura, Sett same-battlefield boon count-to-source static-aura, Lee Sin same-battlefield other-friendly filtered static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from their representative initial states through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, token-creation command breadth, all standby reaction card effects / targeted standby reactions, battlefield extra-standby reveal / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
@@ -209,3 +259,5 @@ This evidence proves the engine can drive mirrored Jhin low-curve decks, a disti
 The current Forbidden Wasteland increment additionally proves one battlefield-source isolated-defender RULE_TEXT keyword-modifier route through direct continuous-effect projection, real defender damage, score-victory replay, and hidden-info guarded full-game helpers. Complete battlefield RULE_TEXT keyword-modifier breadth remains open.
 
 The current Rumble legend increment additionally proves one legend-source friendly-filtered RULE_TEXT keyword aura route through real defender damage, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-filtered RULE_TEXT keyword aura breadth remains open.
+
+The current Treasure Pile increment additionally proves one BehaviorSpec-driven battlefield-conquer trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, exhausted Gold token creation, score-victory replay, and hidden-info guarded full-game helpers. Complete triggered-cost battlefield FUs and complete PaymentEngine breadth remain open.

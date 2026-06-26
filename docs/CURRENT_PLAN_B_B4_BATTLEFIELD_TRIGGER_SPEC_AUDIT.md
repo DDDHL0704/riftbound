@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Treasure Pile B0 action-log replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -476,6 +476,8 @@ The 2026-06-25 conquer pay-create-gold follow-up moves another implemented conqu
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneCreateGoldCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneCreateGoldCardNo` / `IsBattlefieldConquerPayOneCreateGoldCardNo` card-number branch and `BattlefieldGoldManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `66` total / `62` in `CoreRuleEngine`; Core battlefield helper count is `18`.
 
+The 2026-06-26 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·220/221` Treasure Pile trigger-payment route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, open `TRIGGER_PAYMENT`, accept replayable `PAY_COST(SPEND_MANA:1)`, create an exhausted Gold token, and replay through score victory to the same final state hash.
+
 The 2026-06-25 conquer powerful pay-draw follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
 - `SFD·218/221` / 沉没神庙 official text: `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
@@ -769,6 +771,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8425/8425`.
+
+2026-06-26 Treasure Pile B0 action-log replay follow-up validation:
+
+- focused B0 Treasure Pile replay: passed `1/1`;
+- FullGameEndToEnd: passed `42/42`;
+- adjacent TreasurePile / BattlefieldConquerGold / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2124/2124`;
+- backend full conformance: passed `8736/8736`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer powerful pay-draw follow-up validation:
 
