@@ -19,6 +19,7 @@ public sealed class FullGameEndToEndTests
     private const string PoppyChampionCardNo = "UNL-116/219";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaChampionCardNo = "UNL-082/219";
+    private const string FaerieEphemeralTokenCardNo = "UNL·T07";
     private const string MutantKittenCardNo = "UNL-036/219";
     private const string LeblancCardNo = "UNL-090/219";
     private const string VexLegendCardNo = "UNL-232/219";
@@ -32,6 +33,7 @@ public sealed class FullGameEndToEndTests
     private const string WaterbenderSourceLoneBattleStaticAuraCardNo = "OGN·055/298";
     private const string ReliableSiegeDogSourceSameLocationStaticAuraCardNo = "SFD·159/221";
     private const string SettSameBattlefieldBoonCountStaticAuraCardNo = "OGN·240/298";
+    private const string PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo = "UNL-076/219";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -460,6 +462,51 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesPetalPixieSameBattlefieldEphemeralCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraOfficialDeck(catalog);
+        var p2Deck = BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-petal-pixie-same-battlefield-ephemeral-count-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        var petalObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            "P1",
+            PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo)
+            ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not locate Petal Pixie after staging.");
+        var battlefieldId = current.State.ObjectLocations[petalObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not locate Petal Pixie's battlefield.");
+        Assert.NotNull(FindBattlefieldUnitByCardNo(current.State, "P1", FaerieEphemeralTokenCardNo, battlefieldId));
+        Assert.NotNull(FindBattlefieldUnitByCardNo(current.State, "P2", WildclawBeastmasterCardNo, battlefieldId, readyOnly: true));
+
+        var battleResult = await DriveContestedBattlefieldToPetalPixieSameBattlefieldEphemeralCountStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-petal-pixie-same-battlefield-ephemeral-count-aura-battle");
+
+        AssertPetalPixieSameBattlefieldEphemeralCountStaticAuraDamage(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-petal-pixie-same-battlefield-ephemeral-count-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -1721,6 +1768,24 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(6, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(6, attackerDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertPetalPixieSameBattlefieldEphemeralCountStaticAuraDamage(ResolutionResult result)
+    {
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("basePower", out var basePower)
+            && basePower is 2
+            && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
+            && staticPowerBonus is 1);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -3900,6 +3965,57 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 same-battlefield boon-count static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToPetalPixieSameBattlefieldEphemeralCountStaticAuraBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitPetalPixieSameBattlefieldEphemeralCountStaticAuraDeclareBattleAsync(
+                    session,
+                    result,
+                    auraControllerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Petal Pixie same-battlefield ephemeral-count static aura driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSameBattlefieldOtherFriendlyFilteredStaticAuraBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -5437,6 +5553,101 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitPetalPixieSameBattlefieldEphemeralCountStaticAuraDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentId)
+    {
+        Assert.Equal(auraControllerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var opponentId = OpponentOf(current.State, playerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find DECLARE_BATTLE for {playerId}.");
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find a ready Petal Pixie.");
+        var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not locate Petal Pixie's battlefield.");
+        var ephemeralParticipantObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            FaerieEphemeralTokenCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find a same-battlefield ephemeral participant.");
+        Assert.Contains(CardObjectTags.Ephemeral, current.State.CardObjects[ephemeralParticipantObjectId].Tags);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(sourceObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var staticAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:{StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower}:{sourceObjectId}", staticAura.EffectId);
+        Assert.Equal(PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, staticAura.EffectKind);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(2, staticAura.BasePower);
+        Assert.Equal(3, staticAura.EffectivePower);
+        Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus", staticAura.SourcePath);
+        Assert.Equal("SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);
+        Assert.Equal([ephemeralParticipantObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds));
+        Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds));
+        Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds));
+        Assert.Equal([ephemeralParticipantObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
+
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            opponentId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException(
+                $"B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find a ready Wildclaw Beastmaster defender: {DescribeState(current.State)}");
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [sourceObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { sourceObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
+        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -7269,6 +7480,32 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraDefenderOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    WildclawBeastmasterCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -7722,6 +7959,91 @@ public sealed class FullGameEndToEndTests
             "P1",
             [SettSameBattlefieldBoonCountStaticAuraCardNo, ArenaRookieGrantBoonCardNo, DemaciaEnvoyCardNo],
             new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo],
+                    RunePool.Empty),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldDestinationFor(midgameState, "P1")["BATTLEFIELD:".Length..];
+        const string faerieTokenObjectId = "P1-PETAL-PIXIE-FAERIE-TOKEN-001";
+        var petalObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo)
+            ?? throw new InvalidOperationException("B0 Petal Pixie setup could not find Petal Pixie in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Petal Pixie setup could not find Wildclaw Beastmaster in P2 hand.");
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, petalObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([petalObjectId, faerieTokenObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[petalObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[faerieTokenObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[petalObjectId] = cardObjects[petalObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[faerieTokenObjectId] = new CardObjectState(
+            faerieTokenObjectId,
+            power: 3,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "仙灵"],
+            cardNo: FaerieEphemeralTokenCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
     }
 
     private static MatchState BuildSameBattlefieldOtherFriendlyFilteredStaticAuraMidgameInitialState(MatchState state)

@@ -58,6 +58,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-147/219` Baron Nashor's non-local other-friendly static aura in a legal official Vex deck route: server prompts play Baron Nashor to base and move `UNL-057/219` Wildclaw Beastmaster to a battlefield, the spec-driven continuous effect targets Wildclaw from the non-local source, real battle damage records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-154/219` Scarlet Pigeon's source-combat static aura in a legal official Poppy deck route: server prompts play and move Scarlet Pigeon plus `UNL-092/219` Demacia Envoy, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's source-combat route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·131/298` Dune Drake's source-attacking-ready-enemy static aura in a legal official Poppy deck route: server prompts play and move Dune Drake plus an opposing ready defender to the same battlefield, the server-authored `DECLARE_BATTLE` has Dune Drake attacking alone, Dune Drake's `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-076/219` Petal Pixie's same-battlefield ephemeral count-to-source static aura in a legal official Lillia deck midgame route: after legal official deck submission/opening is verified, a focused `START_BATTLE` state stages Petal Pixie, official `UNL·T07` Faerie token and opposing `UNL-057/219` Wildclaw Beastmaster at the same P1 battlefield, Petal Pixie's `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` route records `staticPowerBonus=1`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·055/298` Waterbender's source-lone-battle static aura in a legal official Lillia deck route: server prompts play and move Waterbender plus opposing `OGN·096/298` Watchful Sentinel to the same battlefield, the server-authored `DECLARE_BATTLE` has Waterbender attacking alone, Waterbender's `SOURCE_LONE_BATTLE_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGS·019/024` Master Yi intro's friendly single-defender static aura in a legal official Master Yi intro deck route: server prompts play and move `UNL-092/219` Demacia Envoy to the opposing battlefield, the server-authored `DECLARE_BATTLE` has Demacia Envoy as the only defender, Master Yi intro's `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-191/219` Master Yi level's experience-gated friendly-units static aura in a legal official Master Yi level deck route: the route starts at 5 experience, uses `UNL-092/219` Demacia Envoy's server-resolved on-play text to reach level 6, projects `FRIENDLY_UNITS_POWER` from the legend source to the Envoy, records attacker `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
@@ -75,7 +76,7 @@ This slice does not claim full B1 completion:
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
-- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck full-game replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
+- Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1 breadth can be claimed.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, RULE_TEXT keyword grants, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text remains on the existing unit-entry lifecycle path and is not closed by this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -864,6 +865,38 @@ Result: 2207/2207 passed.
 
 Result: 8726/8726 passed.
 
+2026-06-26 same-battlefield ephemeral count-to-source static-power official-deck midgame focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesPetalPixieSameBattlefieldEphemeralCountStaticAura" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 same-battlefield ephemeral count-to-source static-power official-deck FullGameEndToEnd check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result: 36/36 passed.
+
+2026-06-26 same-battlefield ephemeral count-to-source static-power official-deck adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesPetalPixieSameBattlefieldEphemeralCountStaticAura|FullyQualifiedName~PetalPixie|FullyQualifiedName~SameBattlefieldFriendlyFiltered|FullyQualifiedName~Ephemeral|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2139/2139 passed.
+
+2026-06-26 backend full after same-battlefield ephemeral count-to-source static-power official-deck midgame evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8728/8728 passed.
+
 Earlier backend full check:
 
 ```bash
@@ -902,4 +935,4 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8726/8726 passed.
+Latest result: 8728/8728 passed.
