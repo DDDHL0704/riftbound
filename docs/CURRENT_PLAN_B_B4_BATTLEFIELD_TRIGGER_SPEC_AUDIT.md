@@ -887,6 +887,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - backend full conformance: passed `8745/8745`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
+2026-06-26 Waste Hall spell-power bonus B0 action-log replay follow-up validation:
+
+- focused B0 Waste Hall replay: passed `1/1`;
+- FullGameEndToEnd: passed `50/50`;
+- adjacent BattlefieldSpellPowerBonus / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery representatives: passed `2045/2045`;
+- backend full conformance: passed `8746/8746`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
 2026-06-25 conquer overkill create-Warhawk follow-up validation:
 
 - focused behavior-spec/source guard/runtime/GameHub representative: passed `3/3`;

@@ -59,6 +59,7 @@ public sealed class FullGameEndToEndTests
     private const string TreasurePileBattlefieldConquerGoldCardNo = "SFD·220/221";
     private const string SunkenTempleBattlefieldConquerPowerfulDrawCardNo = "SFD·218/221";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
+    private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string SavageStrengthSpellCardNo = "SFD·034/221";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
@@ -491,6 +492,45 @@ public sealed class FullGameEndToEndTests
             session,
             spellResolved,
             "b0-dream-tree-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesWasteHallSpellPowerBonusAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldSpellPowerBonusOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldSpellPowerBonusOpeningAsync(
+            "b0-full-game-waste-hall-spell-power-bonus-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldSpellPowerBonusMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var spellPlayed = await SubmitBattlefieldSpellPowerBonusSpellAsync(
+            session,
+            current,
+            "P1",
+            "b0-waste-hall-spell-power-bonus");
+        AssertBattlefieldSpellPowerBonusResolved(current, spellPlayed);
+
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-waste-hall-spell-power-bonus-resolve");
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-waste-hall-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -2539,6 +2579,53 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldSpellPowerBonusResolved(
+        ResolutionResult beforeSpell,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            WasteHallBattlefieldSpellPowerBonusCardNo);
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            beforeSpell.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Waste Hall assertion could not locate Wildclaw Beastmaster at Waste Hall.");
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldSpellPowerBonus, StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(WasteHallBattlefieldSpellPowerBonusCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(SavageStrengthSpellCardNo, triggerEvent.Payload["playedCardNo"]);
+        var triggerTargetObjectId = Assert.IsType<string>(triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["powerDelta"]);
+        var triggerTargetLocation = beforeSpell.State.ObjectLocations[triggerTargetObjectId];
+        Assert.Equal("P1", triggerTargetLocation.PlayerId);
+        Assert.Equal("BATTLEFIELD", triggerTargetLocation.Zone);
+        Assert.Equal(battlefieldObjectId, triggerTargetLocation.BattlefieldObjectId);
+        var beforeTriggerTarget = beforeSpell.State.CardObjects[triggerTargetObjectId];
+        var triggerTarget = result.State.CardObjects[triggerTargetObjectId];
+        Assert.Equal("P1", beforeTriggerTarget.ControllerId);
+        Assert.Contains(CardObjectTags.UnitCard, beforeTriggerTarget.Tags);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(triggerTarget.Power, powerEvent.Payload["resultingPower"]);
+        Assert.Equal(beforeTriggerTarget.Power + 1, triggerTarget.Power);
+        Assert.Equal(beforeTriggerTarget.UntilEndOfTurnPowerModifier + 1, triggerTarget.UntilEndOfTurnPowerModifier);
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, SavageStrengthSpellCardNo, StringComparison.Ordinal)
+            && Assert.IsType<string[]>(gameEvent.Payload["targetObjectIds"]).Contains(targetObjectId, StringComparer.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldDefendRevealSpellResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -4514,6 +4601,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Dream Tree opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldSpellPowerBonusOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    WasteHallBattlefieldSpellPowerBonusCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Waste Hall opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldDefendRevealSpellOpeningAsync(
@@ -7223,6 +7349,53 @@ public sealed class FullGameEndToEndTests
             WildclawBeastmasterCardNo,
             battlefieldId)
             ?? throw new InvalidOperationException("B0 Dream Tree driver could not find a Wildclaw Beastmaster target at Dream Tree.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(spellObjectId, legalSourceIds);
+        Assert.Contains(targetObjectId, legalTargetIds);
+
+        var command = new PlayCardCommand(
+            spellObjectId,
+            SavageStrengthSpellCardNo,
+            [targetObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldSpellPowerBonusSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Waste Hall driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            WasteHallBattlefieldSpellPowerBonusCardNo);
+        var spellObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            SavageStrengthSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Waste Hall driver could not find Savage Strength in P1 hand.");
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId)
+            ?? throw new InvalidOperationException("B0 Waste Hall driver could not find a Wildclaw Beastmaster target at Waste Hall.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -10051,6 +10224,30 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldSpellPowerBonusOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                WildclawBeastmasterCardNo,
+                SavageStrengthSpellCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            WasteHallBattlefieldSpellPowerBonusCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldDefendRevealSpellAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -11276,6 +11473,90 @@ public sealed class FullGameEndToEndTests
             "P2",
             WatchfulSentinelCardNo)
             ?? throw new InvalidOperationException("B0 Dream Tree setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, targetObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([targetObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[targetObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[targetObjectId] = cardObjects[targetObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[targetObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldSpellPowerBonusMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo, SavageStrengthSpellCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            WasteHallBattlefieldSpellPowerBonusCardNo);
+        var targetObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Waste Hall setup could not find Wildclaw Beastmaster in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Waste Hall setup could not find Watchful Sentinel in P2 hand.");
 
         var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var p1Zones = playerZones["P1"];

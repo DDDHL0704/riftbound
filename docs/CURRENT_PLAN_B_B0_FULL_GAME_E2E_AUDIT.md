@@ -708,3 +708,51 @@ Result:
 ```text
 Passed: 8745, Failed: 0, Skipped: 0, Total: 8745
 ```
+
+Latest Waste Hall spell-power bonus focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesWasteHallSpellPowerBonus"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Waste Hall FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 50, Failed: 0, Skipped: 0, Total: 50
+```
+
+Latest Waste Hall adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~BattlefieldSpellPowerBonus|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~OfficialDeckMidgameResolvesWasteHallSpellPowerBonus|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2045, Failed: 0, Skipped: 0, Total: 2045
+```
+
+Latest Waste Hall backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8746, Failed: 0, Skipped: 0, Total: 8746
+```
