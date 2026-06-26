@@ -19141,6 +19141,11 @@ public sealed class MatchSession : IMatchSession
             tags.Add("CARD_TYPE:BATTLEFIELD");
         }
 
+        if (!string.IsNullOrWhiteSpace(card.CardCategoryName))
+        {
+            tags.Add($"CARD_CATEGORY:{card.CardCategoryName.Trim()}");
+        }
+
         if (string.Equals(card.CardCategoryName, "英雄单位", StringComparison.Ordinal))
         {
             tags.Add("CARD_TYPE:HERO");
