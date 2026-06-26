@@ -56,6 +56,7 @@ Recovery:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGS·013/024` Garen's same-battlefield other-friendly static aura through a legal official Poppy deck route: Garen and `UNL-092/219` Demacia Envoy are played and moved through server prompts, the projected `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` effect targets the Envoy, real battle damage records `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `UNL-147/219` Baron Nashor's non-local other-friendly static aura through a legal official Vex deck route: Baron Nashor is played to base, `UNL-057/219` Wildclaw Beastmaster is played and moved to a battlefield through server prompts, the projected `OTHER_FRIENDLY_UNITS_POWER` effect targets Wildclaw from the non-local source, real battle damage records `basePower=7`, `staticPowerBonus=2`, `combatPower=9`, and `damage=9`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `UNL-154/219` Scarlet Pigeon's source-combat static aura through a legal official Poppy deck route: Scarlet Pigeon and `UNL-092/219` Demacia Envoy are played and moved through server prompts, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER` route contributes `staticPowerBonus=2` to real battle damage, and the action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGN·294/298` Trifarian Training Grounds' battlefield all-units static aura through a legal official Vex deck route: official-opening seed probing selects the battlefield, `UNL-057/219` Wildclaw Beastmaster and an opposing defender are moved there through server prompts, the projected `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` effects target both units from the battlefield source, Wildclaw's real battle damage records `basePower=7`, `staticPowerBonus=1`, `combatPower=8`, and `damage=8`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs` binds Brush's battlefield-filtered static-power aura to the score-time replacement path: matching units keep the Brush `staticPowerBonus` during combat, and the held-score trigger resolves against the replaced battlefield chosen through `BRUSH_USE_REPLACED_BATTLEFIELD:*`.
 
 ## Validation Evidence
@@ -98,6 +99,9 @@ Recovery:
 - Latest source-combat static-power official-deck full-game focused representative: 1/1 passed.
 - Latest FullGameEndToEnd B0/B1 cross-slice representative after Scarlet Pigeon source-combat replay: 26/26 passed.
 - Latest SourceCombat / StaticAura / StaticPower / Scarlet / FullGameEndToEnd / MatchRecovery adjacent representative after Scarlet Pigeon source-combat replay: 2106/2106 passed.
+- Latest battlefield all-units static-power official-deck full-game focused representative: 1/1 passed.
+- Latest FullGameEndToEnd B0/B1 cross-slice representative after Trifarian Training Grounds battlefield all-units replay: 27/27 passed.
+- Latest BattlefieldAllUnits / BattlefieldStatic / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Trifarian Training Grounds battlefield all-units replay: 2141/2141 passed.
 - Latest friendly-equipment static-power standby hidden-boundary focused representative: 1/1 passed.
 - Latest friendly-equipment static-power standby hidden-boundary adjacent Ornn / EquipmentKeyword / StaticAura / StaticPower / Standby / Hidden / FaceDown / MatchRecovery representative: 2257/2257 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
@@ -120,6 +124,7 @@ Recovery:
 - Latest backend full after same-battlefield other-friendly static-power official-deck full-game evidence: 8713/8713 passed.
 - Latest backend full after other-friendly static-power official-deck full-game evidence: 8717/8717 passed.
 - Latest backend full after source-combat static-power official-deck full-game evidence: 8718/8718 passed.
+- Latest backend full after battlefield all-units static-power official-deck full-game evidence: 8719/8719 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
@@ -128,7 +133,7 @@ Before B1 can be called complete, later slices still need evidence for:
 
 - Broader Brush replacement / actual swap-back lifecycle beyond the current score-time replacement representative.
 - Other source-unit count-to-source and threshold static auras beyond Petal Pixie / Sett / Reliable Siege Dog, plus source combat static-aura official-deck breadth beyond the current Scarlet Pigeon representative and lower-level Waterbender / Dune Drake representatives.
-- Additional full-game official-deck routes for static-aura families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, and Scarlet Pigeon source-combat representatives.
+- Additional full-game official-deck routes for static-aura families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, and Trifarian Training Grounds battlefield all-units representatives.
 - Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
 - Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant scopes.
