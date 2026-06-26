@@ -520,7 +520,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
-    private const string CrescentGuardCardNo = "UNL-122/219";
+    private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
@@ -32179,7 +32179,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
         if (normalizedOptionalCosts.Count != 1
-            || !string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+            || !string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
             || !PlayerPlayedSpellThisTurn(state.UntilEndOfTurnEffects, playerId)
             || !TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait)
             || powerCost != 1
@@ -39775,7 +39775,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts)
     {
-        return string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+        return string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
             && optionalCosts.Any(optionalCost =>
                 TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
                 && powerCost == 1

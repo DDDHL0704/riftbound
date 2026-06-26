@@ -9,6 +9,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("OGN·031/298", "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT")]
     [InlineData("OGN·061/298", "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT")]
     [InlineData("UNL-097/219", "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-122/219", "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesPlaySourceUnitsByEffectKind(
         string cardNo,
         string effectKind)
@@ -23,6 +24,8 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     [InlineData("OGN·031/298", "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT")]
     [InlineData("UNL-097/219", "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT")]
     [InlineData("OGN·061/298", "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT")]
+    [InlineData("UNL-122/219", "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT")]
+    [InlineData("OGN·031/298", "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingPlaySourceUnits(
         string cardNo,
         string effectKind)
@@ -81,6 +84,36 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.Contains(
             "string.Equals(behavior.EffectKind, BalancedDiscipleOtherPowerDrawSourceEffectKind",
             coreRuleEngineSource,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CrescentGuardReadyOptionalCostSourceUsesCatalogEffectKind()
+    {
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("CrescentGuardCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CrescentGuardCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, CrescentGuardCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(behavior.CardNo, CrescentGuardCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CrescentGuardReadyOptionalCostSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CrescentGuardReadyOptionalCostSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind",
+            matchSessionSource,
             StringComparison.Ordinal);
     }
 

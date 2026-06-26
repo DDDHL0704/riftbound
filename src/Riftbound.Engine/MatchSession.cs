@@ -6597,7 +6597,7 @@ internal static class ActionPromptBuilder
             && ImplementedAssembleEquipmentProfiles.ContainsKey(cardNo);
     }
 
-    private const string CrescentGuardCardNo = "UNL-122/219";
+    private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
@@ -14945,7 +14945,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+        return string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
             && PromptPlayerPlayedSpellThisTurn(state, playerId);
     }
 
