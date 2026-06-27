@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer reveal/recycle B0 official-deck replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest moved-unit power B0 score-victory follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -331,6 +331,12 @@ The 2026-06-25 held move-unit-to-base follow-up moves another implemented held-b
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldMoveUnitToBaseCardNo` constant.
 - The old `BattlefieldHeldMoveUnitToBaseCardNo` / `IsBattlefieldHeldMoveUnitToBaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `79` total / `75` in `CoreRuleEngine`; Core battlefield helper count is `31`.
 
+The 2026-06-27 B0 score-victory follow-up extends the same parsed Rehearsal Hall route without adding any card-number branch:
+
+- legal official decks submit and open through normal prompts until P2 selects `UNL-207/219` Rehearsal Hall;
+- the focused midgame replay stages official `OGN·096/298` Watchful Sentinel and `UNL-057/219` Wildclaw Beastmaster at that battlefield, resolves the held trigger, moves the surviving defender to its owner's base, and then continues through score victory;
+- `CoreRuleEngine.ApplyBattlefieldHeldScoresAtTurnStart` now uses the shared effective field controller resolver, so official battlefield objects with null `ControllerId` still score for their owner / effective controller during turn-start held scoring.
+
 The 2026-06-25 held grant-boon follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
 
 - `OGN·283/298` / 纳沃利角斗场 official text: `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`
@@ -417,6 +423,8 @@ The 2026-06-25 conquer mill follow-up moves another implemented conquered-battle
 - `CoreRuleEngine.TryResolveBattlefieldConquerMillTwoTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(...)` and reads the mill count and zones from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerMillTwoCardNo` constant.
 - The old `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `73` total / `69` in `CoreRuleEngine`; Core battlefield helper count is `25`.
+
+The 2026-06-27 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·212/221` Minefield route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, move the top two controlled main-deck cards to graveyard, and replay through score victory to the same final state hash.
 
 The 2026-06-25 conquer recycle-rune follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
@@ -622,6 +630,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`;
 - `git diff --check`: passed.
 
+2026-06-27 moved-unit power B0 score-victory follow-up validation:
+
+- focused B0 Back Alley Bar replay: passed `1/1`;
+- FullGameEndToEnd: passed `76/76`;
+- adjacent BackAlleyBar / BattlefieldMovedUnitPower / BattlefieldMovePower / MoveUnit / FullGameEndToEnd / MatchRecovery representatives: passed `2152/2152`;
+- backend full conformance: passed `8832/8832`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
 2026-06-25 held-next-spell Echo follow-up validation:
 
 - focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
@@ -787,6 +803,22 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8411/8411`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-27 conquer mill B0 action-log replay follow-up validation:
+
+- focused B0 Minefield replay: passed `1/1`;
+- FullGameEndToEnd: passed `76/76`;
+- adjacent Minefield / BattlefieldConquerMill / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / GameHubJoin / MatchRecovery representatives: passed `2356/2356`;
+- backend full conformance: passed `8832/8832`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-06-27 held move-unit-to-base B0 score-victory owner-fallback follow-up validation:
+
+- focused B0 Rehearsal Hall replay: passed `1/1`;
+- FullGameEndToEnd: passed `76/76`;
+- adjacent RehearsalHall / BattlefieldHeldMoveUnitToBase / BattlefieldHeldScore / BattlefieldHeld / MoveUnit / FullGameEndToEnd / MatchRecovery representatives: passed `2233/2233`;
+- backend full conformance: passed `8832/8832`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer recycle-rune follow-up validation:
 

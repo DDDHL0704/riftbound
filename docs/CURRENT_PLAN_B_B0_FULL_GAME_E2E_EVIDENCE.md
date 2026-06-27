@@ -80,6 +80,8 @@ The Hunting Grounds overkill create-Warhawk action-log replay regression proves 
 
 The Candlelit Sanctum conquered reveal/recycle action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer reveal/recycle route into the B0 score-victory path. `OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·291/298` Candlelit Sanctum, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `CARDS_REVEALED`, and `CARDS_RECYCLED`, reveals the top two controlled P1 main-deck cards, recycles the parsed count to the bottom of that deck, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Minefield conquered mill action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer mill route into the B0 score-victory path. `OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·212/221` Minefield, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_MILL_TOP_TWO` and `CARDS_MILLED`, moves the top two controlled P1 main-deck cards to P1 graveyard, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete main-deck / graveyard replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Dream Tree friendly-spell draw action-log replay regression proves a legal official deck opening can feed a focused `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` spell-target trigger route before the game continues to a normal score victory. `OfficialDeckMidgameResolvesDreamTreeFriendlySpellDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·292/298` Dream Tree, then starts from a focused midgame main-phase state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel located at that P1 battlefield, plus official `SFD·034/221` Savage Strength in P1 hand. The server-authored `PLAY_CARD` route targets the same-battlefield friendly unit, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DRAWN`, and `STACK_ITEM_ADDED`, records `BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:{battlefieldObjectId}` until end of turn, resolves the spell stack, then continues through score-victory action-log replay to the same final state hash. This slice does not close complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Ravenbloom Conservatory defend reveal-spell action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield reveal route with a controlled main-deck top card. `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARD_DRAWN`, recognizes the revealed card as a spell, moves it to P2 hand, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -87,6 +89,10 @@ The Ravenbloom Conservatory defend reveal-spell action-log replay regression pro
 The Ravenbloom Conservatory defend reveal non-spell action-log replay regression covers the miss branch of the same BehaviorSpec route. `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED`, recognizes the revealed card is not a spell, recycles it to the bottom of P2's main deck, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Plunder Alley defend move-friendly-unit-to-base action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield movement route. `OfficialDeckMidgameResolvesPlunderAlleyDefendMoveToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin and Vex deck openings that selected official `OGN·285/298` Plunder Alley for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `DECLARE_BATTLE` route submits the defender through `battlefieldTargetObjectIds`, emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE`, moves the selected surviving friendly defender from battlefield to P2 base through the parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` route, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+The Rehearsal Hall held move-unit-to-base action-log replay regression proves a legal official deck opening can feed a focused held-battlefield movement route and still reach score victory. `OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin and Vex deck openings that selected official `UNL-207/219` Rehearsal Hall for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE`, moves the surviving defender from battlefield to P2 base through the parsed `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE` route, then continues through effective-controller turn-start battlefield scoring and score-victory action-log replay to the same final state hash. Runtime changed in `CoreRuleEngine.ApplyBattlefieldHeldScoresAtTurnStart` to score official battlefield objects by shared effective field controller rather than only explicit `ControllerId`.
+
+The Back Alley Bar moved-unit power action-log replay regression now proves a legal official deck opening can feed the parsed movement trigger into the B0 score-victory path. `OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPowerAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·277/298` Back Alley Bar, then starts from a focused midgame movement state with P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `MOVE_UNIT` route moves Wildclaw Beastmaster from battlefield to base, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, applies the parsed until-end-of-turn power modifier ledger entry to the moved unit, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Vaults of Helia held unit-cost action-log replay regression proves a legal official deck opening can feed the BehaviorSpec-backed held-battlefield cost marker into a later server-authored play prompt. `OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening that selected official `UNL-219/219` Vaults of Helia for P1, then starts from a focused midgame main phase with `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` active and official `OGN·211/298` Loyal Craftsman in P1 hand. The server-authored `PLAY_CARD` prompt exposes Loyal Craftsman with `manaCost=3`, `minimumManaCost=4`, and `battlefieldHeldUnitCostIncreaseMana=1`; submitting the play pays 4 mana, emits `COST_PAID` with the parsed held-unit-cost surcharge, adds the unit stack item, resolves it, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage plus a catalog reason string; it does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -133,6 +139,150 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Back Alley Bar moved-unit power score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPower"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Back Alley Bar FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Back Alley Bar adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~BackAlleyBar|FullyQualifiedName~BattlefieldMovedUnitPower|FullyQualifiedName~BattlefieldMovePower|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2152, Failed: 0, Skipped: 0, Total: 2152
+```
+
+Latest Back Alley Bar backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
+
+Latest Rehearsal Hall held move-unit-to-base score-victory owner-fallback focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBase"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Rehearsal Hall FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Rehearsal Hall adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~RehearsalHall|FullyQualifiedName~BattlefieldHeldMoveUnitToBase|FullyQualifiedName~BattlefieldHeldScore|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2233, Failed: 0, Skipped: 0, Total: 2233
+```
+
+Latest Rehearsal Hall backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
+
+Latest Minefield conquered mill official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMinefieldConquerMill"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Minefield FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Minefield adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~Minefield|FullyQualifiedName~BattlefieldConquerMill|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2356, Failed: 0, Skipped: 0, Total: 2356
+```
+
+Latest Minefield backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
 
 Latest Candlelit Sanctum conquered reveal/recycle official-deck replay focused validation passed:
 
@@ -1017,6 +1167,12 @@ The current Hall of Legends increment additionally proves one BehaviorSpec-drive
 The current Hunting Grounds increment additionally proves one BehaviorSpec-driven battlefield-conquer overkill-token route through assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score-victory replay, and hidden-info guarded full-game helpers. Complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Candlelit Sanctum increment additionally proves one BehaviorSpec-driven battlefield-conquer reveal/recycle route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, controlled main-deck top-two reveal, parsed-count recycle to the bottom of the main deck, score-victory replay, and hidden-info guarded full-game helpers. The official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Minefield increment additionally proves one BehaviorSpec-driven battlefield-conquer mill route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, controlled main-deck top-two movement into graveyard, score-victory replay, and hidden-info guarded full-game helpers. Complete main-deck / graveyard replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Rehearsal Hall increment additionally proves one BehaviorSpec-driven held move-unit-to-base route through legal official Jhin vs Vex deck submission/opening, parsed `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE`, server-authored movement of the surviving defender to owner base, score-victory replay through effective-controller battlefield scoring, and hidden-info guarded full-game helpers. Optional yes/no trigger prompts, complete same-battlefield target-choice breadth, complete movement / control-zone edge cases, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Back Alley Bar increment additionally proves one BehaviorSpec-driven moved-unit power route through legal official Vex deck submission/opening, server-authored `MOVE_UNIT`, parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, until-end-of-turn power-modifier ledger, score-victory replay, and hidden-info guarded full-game helpers. Complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Dream Tree increment additionally proves one BehaviorSpec-driven friendly-spell draw route through an official `PLAY_CARD` target at the same battlefield, parsed `BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`, one controlled main-deck draw, until-end trigger memory, spell stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Candlelit Sanctum conquered reveal/recycle score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 Back Alley Bar moved-unit power score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -39,11 +39,14 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `OGN·285/298` Plunder Alley, P1 `OGN·096/298` Watchful Sentinel, and P2 `UNL-057/219` Wildclaw Beastmaster defender at that battlefield; the defense path accepts the server-authored `battlefieldTargetObjectIds` defender target, resolves `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, moves the defender to its owner's base, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Jhin vs Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `UNL-207/219` Rehearsal Hall, P1 `OGN·096/298` Watchful Sentinel, and P2 `UNL-057/219` Wildclaw Beastmaster defender at that battlefield; the held path resolves `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE`, moves the surviving defender to its owner's base, then uses effective-controller turn-start battlefield scoring to continue through score victory and action-log replay to the same final state hash;
 - from a seated official Poppy opening state, a verified legal official-deck opening selects P1 `UNL-219/219` Vaults of Helia, then starts a focused midgame main phase with the parsed `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` marker active; P1 plays official `OGN·211/298` Loyal Craftsman through the server-authored `PLAY_CARD` prompt, the prompt metadata and `COST_PAID` event record base mana `3`, minimum/paid mana `4`, and `battlefieldHeldUnitCostIncreaseMana=1`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel; the defender survives, the unit-source `UNIT_BATTLEFIELD_HELD_DRAW` trigger draws two controlled main-deck cards for P2, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -176,6 +179,8 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBaseAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesDreamTreeFriendlySpellDrawAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRavenbloomDefendRevealNonSpellRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -224,9 +229,15 @@ This Imperial Shrine increment additionally proves a legal official Vex deck ope
 
 This Hall of Legends increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-ready-legend route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)`, the exhausted controlled legend becoming ready only on payment, declined window closure without `COST_PAID`, score victory, and action-log replay. It still does not close complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Back Alley Bar increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven moved-unit power route through server-authored `MOVE_UNIT`, the parsed until-end-of-turn power-modifier ledger, score victory, and action-log replay. It still does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Hunting Grounds increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield overkill token route through server-authored `DECLARE_BATTLE`, assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score victory, and action-log replay. It still does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Candlelit Sanctum increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield reveal/recycle route through server-authored `DECLARE_BATTLE`, top-two controlled main-deck reveal, parsed-count recycle to the bottom of the main deck, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close the official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Minefield increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield mill route through server-authored `DECLARE_BATTLE`, moving the top two controlled main-deck cards to graveyard, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close complete main-deck / graveyard replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Rehearsal Hall increment additionally proves a legal official Jhin vs Vex deck opening can carry the BehaviorSpec-driven held move-unit-to-base route through server-authored `DECLARE_BATTLE`, move the surviving defender to its owner's base, recover turn-start battlefield scoring through owner / effective-controller fallback when the official battlefield object has no explicit `ControllerId`, and continue through score victory plus action-log replay. It still does not close optional yes/no trigger prompts, complete same-battlefield target-choice breadth, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Ravenbloom increment additionally proves legal official Vex and Lillia deck openings can carry a BehaviorSpec-driven defended-battlefield reveal-top spell route through controlled main-deck top-card reveal, spell detection, moving the revealed spell to hand, score victory, and action-log replay. It still does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -249,6 +260,150 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Back Alley Bar moved-unit power score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPower"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Back Alley Bar FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Back Alley Bar adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~BackAlleyBar|FullyQualifiedName~BattlefieldMovedUnitPower|FullyQualifiedName~BattlefieldMovePower|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2152, Failed: 0, Skipped: 0, Total: 2152
+```
+
+Latest Back Alley Bar backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
+
+Latest Rehearsal Hall held move-unit-to-base score-victory owner-fallback focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBase"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Rehearsal Hall FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Rehearsal Hall adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~RehearsalHall|FullyQualifiedName~BattlefieldHeldMoveUnitToBase|FullyQualifiedName~BattlefieldHeldScore|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2233, Failed: 0, Skipped: 0, Total: 2233
+```
+
+Latest Rehearsal Hall backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
+
+Latest Minefield conquered mill official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMinefieldConquerMill"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Minefield FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Minefield adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~Minefield|FullyQualifiedName~BattlefieldConquerMill|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2356, Failed: 0, Skipped: 0, Total: 2356
+```
+
+Latest Minefield backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
 
 Latest Candlelit Sanctum conquered reveal/recycle official-deck replay focused validation passed:
 

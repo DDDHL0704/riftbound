@@ -44771,7 +44771,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldCardObject(cardObject)
                 && !HasDedicatedBattlefieldScoreRuleSpec(cardObject.CardNo)
-                && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+                && string.Equals(EffectiveFieldControllerId(playerZones, objectId, cardObject), playerId, StringComparison.Ordinal)
                 && !BattlefieldScoredThisTurn(untilEndOfTurnEffects, objectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
