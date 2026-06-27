@@ -332,6 +332,35 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(P6TokenFactoryCatalog.CopySourceRequiredTag, imageDefinition.Tags);
     }
 
+    [Fact]
+    public void P6TokenBattlefieldIdentityRoutesThroughCatalogHelpers()
+    {
+        Assert.True(P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(P6TokenFactoryCatalog.BaronNestTokenCardNo));
+        Assert.False(P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo));
+        Assert.True(P6TokenFactoryCatalog.IsBrushBattlefieldToken(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo));
+        Assert.False(P6TokenFactoryCatalog.IsBrushBattlefieldToken(P6TokenFactoryCatalog.BaronNestTokenCardNo));
+
+        var repositoryRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("string.Equals(destinationBattlefield.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(destinationState.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(brushBattlefieldState.CardNo, BrushBattlefieldTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(originalBattlefieldState.CardNo, BrushBattlefieldTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(cardObject.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(brushState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(originalState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo", matchSessionSource, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("UNL·T02")]
     [InlineData("UNL·T06")]

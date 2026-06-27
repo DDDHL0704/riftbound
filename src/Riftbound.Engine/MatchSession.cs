@@ -9245,7 +9245,7 @@ internal static class ActionPromptBuilder
 
         return zones.Battlefields
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal)
+                && P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(cardObject.CardNo)
                 && IsPromptBattlefieldCardObject(cardObject)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .Select(objectId => new ActionPromptChoiceDto(
@@ -13493,7 +13493,7 @@ internal static class ActionPromptBuilder
     {
         choice = new ActionPromptChoiceDto(string.Empty, string.Empty);
         if (!state.CardObjects.TryGetValue(brushBattlefieldObjectId, out var brushState)
-            || !string.Equals(brushState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, StringComparison.Ordinal))
+            || !P6TokenFactoryCatalog.IsBrushBattlefieldToken(brushState.CardNo))
         {
             return false;
         }
@@ -13512,7 +13512,7 @@ internal static class ActionPromptBuilder
         if (string.Equals(originalBattlefieldObjectId, brushBattlefieldObjectId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(originalBattlefieldObjectId, out var originalState)
             || !IsPromptBattlefieldCardObject(originalState)
-            || string.Equals(originalState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, StringComparison.Ordinal)
+            || P6TokenFactoryCatalog.IsBrushBattlefieldToken(originalState.CardNo)
             || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(originalState.CardNo, out _)
             || !PublicBattlefieldCardObjects(state).Contains(originalBattlefieldObjectId, StringComparer.Ordinal))
         {

@@ -5,6 +5,10 @@
 
 4D-03AB 完成 `UNL·T03` 草丛 battlefield replacement focused representative，并从 `P6TokenFactoryCatalog.GetDeferredRuleSurfaces()` 退役最后一个 token deferred surface。
 
+## 2026-06-28 Catalog-Boundary Supplement
+
+`UNL·T03` 的运行时 battlefield identity 现在由 `P6TokenFactoryCatalog.IsBrushBattlefieldToken(cardNo)` 承载。`MatchSession` Brush replacement prompt 候选与 `CoreRuleEngine` Brush replacement choice 校验不再直接比较 Brush token cardNo；Ivern 创建 Brush token 与事件 payload 仍使用 catalog token cardNo 作为对象工厂/审计数据。新增 `CardCatalogBaselineTests.P6TokenBattlefieldIdentityRoutesThroughCatalogHelpers` 锁住该边界。Validation passed: focused guard 1/1；BaronNest / BrushReplacement / BrushStaticAura / P6TokenFactory representatives 43/43；CardCatalogBaseline / BaronNest / BrushReplacement / BrushStaticAura / MoveUnit / DeclareBattle / BattlefieldHeld / MatchRecovery adjacent 2557/2557；backend full 8868/8868。项目仍 **NOT READY**。
+
 ## Scope
 
 已退役 surface：

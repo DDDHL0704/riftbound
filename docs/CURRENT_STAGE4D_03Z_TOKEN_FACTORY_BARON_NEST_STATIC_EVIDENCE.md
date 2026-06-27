@@ -3,6 +3,13 @@
 日期：2026-05-14
 结论：**VALIDATED / PROJECT NOT READY**
 
+## 2026-06-28 Catalog-Boundary Evidence
+
+- `P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(cardNo)` is the shared runtime identity query for Baron Nest token battlefield objects.
+- `MatchSession.MoveUnitBaronNestDestinationChoices` and `CoreRuleEngine` Baron Nest movement validation no longer directly compare `P6TokenFactoryCatalog.BaronNestTokenCardNo`.
+- `CardCatalogBaselineTests.P6TokenBattlefieldIdentityRoutesThroughCatalogHelpers` covers positive/negative helper identity and source guards against reintroducing the direct runtime comparisons.
+- Validation passed: focused guard 1/1; BaronNest / BrushReplacement / BrushStaticAura / P6TokenFactory representatives 43/43; CardCatalogBaseline / BaronNest / BrushReplacement / BrushStaticAura / MoveUnit / DeclareBattle / BattlefieldHeld / MatchRecovery adjacent 2557/2557; backend full 8868/8868.
+
 ## Change Evidence
 
 - `P6TokenFactoryCatalog.GetDeferredRuleSurfaces()` count is now 2.

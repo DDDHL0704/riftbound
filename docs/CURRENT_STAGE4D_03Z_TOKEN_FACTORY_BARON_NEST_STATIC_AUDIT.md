@@ -5,6 +5,10 @@
 
 4D-03Z 完成 `UNL·T01` 男爵巢穴 token battlefield static 的 focused representative：服务端现在支持受控正面非战斗单位从另一处精确战场 no-ROAM 移动到受控 Baron Nest。
 
+## 2026-06-28 Catalog-Boundary Supplement
+
+`UNL·T01` 的运行时 battlefield identity 现在由 `P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(cardNo)` 承载。`MatchSession` prompt 候选与 `CoreRuleEngine` Baron Nest movement 校验不再直接比较 `P6TokenFactoryCatalog.BaronNestTokenCardNo`；对象工厂/审计 payload 仍可保留 catalog token cardNo。新增 `CardCatalogBaselineTests.P6TokenBattlefieldIdentityRoutesThroughCatalogHelpers` 锁住该边界。Validation passed: focused guard 1/1；BaronNest / BrushReplacement / BrushStaticAura / P6TokenFactory representatives 43/43；CardCatalogBaseline / BaronNest / BrushReplacement / BrushStaticAura / MoveUnit / DeclareBattle / BattlefieldHeld / MatchRecovery adjacent 2557/2557；backend full 8868/8868。项目仍 **NOT READY**。
+
 ## Scope
 
 已退役的 token deferred representative：

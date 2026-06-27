@@ -151,6 +151,24 @@ public static class P6TokenFactoryCatalog
             && TryGetByCardNo(cardNo.Trim(), out _);
     }
 
+    public static bool IsBaronNestBattlefieldToken(string? cardNo)
+    {
+        return IsBattlefieldToken(cardNo, BaronNestTokenCardNo);
+    }
+
+    public static bool IsBrushBattlefieldToken(string? cardNo)
+    {
+        return IsBattlefieldToken(cardNo, BrushBattlefieldTokenCardNo);
+    }
+
+    private static bool IsBattlefieldToken(string? cardNo, string tokenCardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && TryGetByCardNo(cardNo.Trim(), out var definition)
+            && string.Equals(definition.CardNo, tokenCardNo, StringComparison.Ordinal)
+            && definition.Tags.Contains(BattlefieldCardTag, StringComparer.Ordinal);
+    }
+
     private static P6TokenFactoryDefinition Unit(
         string cardNo,
         string cardName,

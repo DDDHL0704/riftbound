@@ -205,7 +205,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string ReksaiLegendIdentityId = "LEGEND_IDENTITY_REKSAI";
     private const string IvernLegendIdentityId = "LEGEND_IDENTITY_IVERN";
-    private const string BrushBattlefieldTokenCardNo = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
@@ -16669,7 +16668,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
             || string.Equals(originBattlefieldObjectId, destinationBattlefieldObjectId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationBattlefield)
-            || !string.Equals(destinationBattlefield.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal)
+            || !P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(destinationBattlefield.CardNo)
             || !IsBattlefieldCardObject(destinationBattlefield)
             || !SourceObjectControlledByPlayerOrLegacyOwned(destinationBattlefield, intent.PlayerId)
             || !state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
@@ -16875,7 +16874,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination));
         return !string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
             && state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationState)
-            && string.Equals(destinationState.CardNo, P6TokenFactoryCatalog.BaronNestTokenCardNo, StringComparison.Ordinal);
+            && P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(destinationState.CardNo);
     }
 
     private static ResolutionResult ResolvePreciseRoamMoveUnit(
@@ -19547,7 +19546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         replacement = new BrushReplacementChoice(string.Empty, string.Empty, new CardObjectState(), string.Empty, new CardObjectState());
         if (brushReplacementChoices.Count != 1
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var brushBattlefieldObjectId, out var brushBattlefieldState)
-            || !string.Equals(brushBattlefieldState.CardNo, BrushBattlefieldTokenCardNo, StringComparison.Ordinal))
+            || !P6TokenFactoryCatalog.IsBrushBattlefieldToken(brushBattlefieldState.CardNo))
         {
             return false;
         }
@@ -19573,7 +19572,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (replacementTags.Length != 1
             || !string.Equals(replacementTags[0], submittedOriginalBattlefieldObjectId, StringComparison.Ordinal)
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, submittedOriginalBattlefieldObjectId, out var originalBattlefieldObjectId, out var originalBattlefieldState)
-            || string.Equals(originalBattlefieldState.CardNo, BrushBattlefieldTokenCardNo, StringComparison.Ordinal)
+            || P6TokenFactoryCatalog.IsBrushBattlefieldToken(originalBattlefieldState.CardNo)
             || string.IsNullOrWhiteSpace(originalBattlefieldState.CardNo))
         {
             return false;
@@ -21828,12 +21827,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(BrushBattlefieldTokenCardNo, out var definition)
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, out var definition)
             ? definition.CreateObject(tokenObjectId, playerId, playerId)
             : new CardObjectState(
                 tokenObjectId,
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                cardNo: BrushBattlefieldTokenCardNo,
+                cardNo: P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
                 ownerId: playerId,
                 controllerId: playerId);
         var tokenTags = tokenState.Tags
@@ -21871,7 +21870,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = battleSourceObjectId,
                     ["battlefieldId"] = battlefieldId,
                     ["tokenObjectId"] = tokenObjectId,
-                    ["tokenCardNo"] = BrushBattlefieldTokenCardNo
+                    ["tokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo
                 }),
             new GameEvent(
                 "LEGEND_EXHAUSTED",
@@ -21890,7 +21889,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
                     ["tokenObjectId"] = tokenObjectId,
-                    ["tokenCardNo"] = BrushBattlefieldTokenCardNo,
+                    ["tokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
                     ["tokenName"] = "草丛",
                     ["battlefieldId"] = battlefieldId,
                     ["destinationZone"] = "BATTLEFIELD",
@@ -21906,7 +21905,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = legendObjectId,
                     ["battlefieldId"] = battlefieldId,
                     ["replacementTokenObjectId"] = tokenObjectId,
-                    ["replacementTokenCardNo"] = BrushBattlefieldTokenCardNo,
+                    ["replacementTokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
                     ["replacementTokenName"] = "草丛",
                     ["trigger"] = trigger
                 })
