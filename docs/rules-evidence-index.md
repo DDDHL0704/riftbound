@@ -3024,6 +3024,13 @@
 - 验证：focused Moonveil Altar B0 replay 1/1 passed；FullGameEndToEnd 87/87 passed；adjacent ReadyEquipment / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery 2157/2157 passed；backend full 8851/8851 passed。
 - 该证据只关闭月帷祭坛 ready-equipment 的 B0 整局代表 replay；不关闭可选装备选择 prompt、完整武装贴附/卸除边界、完整 B4 battlefield-effect family 或最终 READY audit。
 
+## Plan B B4 Shirana Monastery Consume Boon Draw B0 Replay Evidence
+
+- 证据入口：`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`、`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`、`docs/CURRENT_PLAN_B_B4_BATTLEFIELD_TRIGGER_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B4_BATTLEFIELD_TRIGGER_SPEC_EVIDENCE.md`。
+- 本批新增 `FullGameEndToEndTests.OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex vs Rumble deck opening 派生中盘，覆盖 `OGN·282/298` 希拉娜修道院 parsed `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`，消耗官方 `UNL-057/219` 野爪兽王身上的增益、战力 -1、抽一张受控主牌堆牌，再走 score victory 与 action-log replay 到相同 final state hash。
+- 验证：focused Shirana Monastery B0 replay 1/1 passed；FullGameEndToEnd 88/88 passed；adjacent ConsumeBoon / Boon / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery 2255/2255 passed；backend full 8852/8852 passed。
+- 该证据只关闭希拉娜修道院 consume-boon draw 的 B0 整局代表 replay；不关闭可选 yes/no prompt、完整 boon target-choice / replacement breadth、完整 B4 battlefield-effect family 或最终 READY audit。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

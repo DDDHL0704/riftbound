@@ -67,6 +67,7 @@ public sealed class FullGameEndToEndTests
     private const string ThunderSigilBattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string ZaunSumpBattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string SeatOfPowerBattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
+    private const string ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string MoonveilAltarBattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string MountTargonBattlefieldConquerReadyRunesAtEndCardNo = "OGN·289/298";
     private const string MinefieldBattlefieldConquerMillCardNo = "SFD·212/221";
@@ -1128,6 +1129,44 @@ public sealed class FullGameEndToEndTests
             session,
             triggered,
             "b0-zaun-sump-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.DoesNotContain(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldConquerConsumeBoonDrawOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldConquerConsumeBoonDrawOpeningAsync(
+            "b0-full-game-shirana-monastery-conquer-consume-boon-draw-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldConquerConsumeBoonDrawMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var triggered = await SubmitBattlefieldConquerConsumeBoonDrawDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-shirana-monastery-conquer");
+        AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            triggered,
+            "b0-shirana-monastery-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -4745,6 +4784,82 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldConquerConsumeBoonDrawResolved(
+        ResolutionResult beforeBattle,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo);
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            beforeBattle.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Shirana Monastery assertion could not locate Wildclaw Beastmaster before battle.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            beforeBattle.State,
+            "P2",
+            WatchfulSentinelCardNo,
+            battlefieldObjectId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Shirana Monastery assertion could not locate Watchful Sentinel before battle.");
+        var expectedDrawnObjectId = beforeBattle.State.PlayerZones["P1"].MainDeck.FirstOrDefault()
+            ?? throw new InvalidOperationException("B0 Shirana Monastery assertion expected at least one P1 main-deck card to draw.");
+        Assert.Contains(CardObjectTags.Boon, beforeBattle.State.CardObjects[attackerObjectId].Tags);
+        var previousPower = beforeBattle.State.CardObjects[attackerObjectId].Power;
+        Assert.Null(result.State.PendingPayment);
+
+        var events = result.Events.ToArray();
+        var conqueredIndex = Array.FindIndex(
+            events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["battlefieldId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.True(conqueredIndex >= 0, $"Expected battlefield conquered before Shirana Monastery trigger: {JsonSerializer.Serialize(result.Events)}");
+        var triggerIndex = Array.FindIndex(
+            events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerConsumeBoonDraw, StringComparison.Ordinal));
+        Assert.True(triggerIndex > conqueredIndex, $"Expected Shirana Monastery trigger after conquest: {JsonSerializer.Serialize(result.Events)}");
+
+        var triggerEvent = events[triggerIndex];
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(attackerObjectId, triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
+
+        var boonEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, attackerObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", boonEvent.Payload["playerId"]);
+        Assert.Equal(previousPower, boonEvent.Payload["previousPower"]);
+        Assert.Equal(previousPower - 1, boonEvent.Payload["power"]);
+        Assert.Equal(TriggerKinds.BattlefieldConquerConsumeBoonDraw, boonEvent.Payload["reason"]);
+
+        var drawEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        Assert.Equal(1, drawEvent.Payload["count"]);
+        if (drawEvent.Payload.TryGetValue("cardIds", out var drawnCardIds))
+        {
+            Assert.Equal([expectedDrawnObjectId], Assert.IsType<string[]>(drawnCardIds));
+        }
+
+        Assert.DoesNotContain(CardObjectTags.Boon, result.State.CardObjects[attackerObjectId].Tags);
+        Assert.Equal(previousPower - 1, result.State.CardObjects[attackerObjectId].Power);
+        Assert.Contains(expectedDrawnObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(expectedDrawnObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].Hand.Count + 1, result.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck.Count - 1, result.State.PlayerZones["P1"].MainDeck.Count);
+        Assert.DoesNotContain(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldConquerDrawForOtherBattlefieldsResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -8223,6 +8338,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             ZaunSumpBattlefieldConquerDiscardDrawCardNo,
             "Zaun Sump");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerConsumeBoonDrawOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo,
+            "Shirana Monastery");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerDrawForOtherBattlefieldsOpeningAsync(
@@ -12152,6 +12280,73 @@ public sealed class FullGameEndToEndTests
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
                 $"B0 Zaun Sump driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            conqueringPlayerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        Assert.Null(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldConquerConsumeBoonDrawDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string conqueringPlayerId,
+        string intentId)
+    {
+        Assert.Equal(conqueringPlayerId, current.State.ActivePlayerId);
+        var opponentId = OpponentOf(current.State, conqueringPlayerId);
+        var candidate = EnabledCandidate(current.Prompts[conqueringPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Shirana Monastery driver could not find DECLARE_BATTLE for {conqueringPlayerId}.");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            conqueringPlayerId,
+            ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo);
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            conqueringPlayerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Shirana Monastery driver could not find a ready Wildclaw Beastmaster attacker.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(attackerObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds,
+            maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
+            ?? throw new InvalidOperationException(
+                $"B0 Shirana Monastery driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -16534,6 +16729,29 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldConquerConsumeBoonDrawOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                WildclawBeastmasterCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerDrawForOtherBattlefieldsOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -18595,6 +18813,98 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldConquerConsumeBoonDrawMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo);
+        var attackerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Shirana Monastery setup could not find Wildclaw Beastmaster in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Shirana Monastery setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, attackerObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([attackerObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[attackerObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var attackerTags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId])
+            .Concat([CardObjectTags.Boon])
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = attackerTags,
             OwnerId = "P1",
             ControllerId = "P1"
         };
