@@ -370,6 +370,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathDiscardDrawTrigger);
         }
 
+        var hasUnitLastBreathPowerfulDrawTrigger =
+            TryParseUnitLastBreathPowerfulDraw(text, out var unitLastBreathPowerfulDrawTrigger);
+        if (hasUnitLastBreathPowerfulDrawTrigger)
+        {
+            triggers.Add(unitLastBreathPowerfulDrawTrigger);
+        }
+
         var hasUnitLastBreathCreateBaseUnitTrigger =
             TryParseUnitLastBreathCreateBaseUnit(text, out var unitLastBreathCreateBaseUnitTrigger);
         if (hasUnitLastBreathCreateBaseUnitTrigger)
@@ -532,6 +539,29 @@ public static class TriggerParser
             TargetScope: TriggerTargetScopes.SourceUnit,
             DiscardCount: ParseChineseNumber(match.Groups[1].Value),
             DrawCount: ParseChineseNumber(match.Groups[2].Value));
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathPowerfulDraw(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念>?\}\}\s*[—-]?\s*如果我为\{\{强力\}\}单位，则抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.UnitLastBreathPowerfulDraw,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath powerful draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            DrawCount: ParseChineseNumber(match.Groups[1].Value),
+            RequiredPowerThreshold: PowerfulUnitPowerThreshold);
         return true;
     }
 

@@ -3321,6 +3321,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathPowerfulDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var unsungHero = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·167/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            unsungHero.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathPowerfulDraw, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathPowerfulDraw, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(2, trigger.DrawCount);
+        Assert.Equal(5, trigger.RequiredPowerThreshold);
+        Assert.Contains("{{绝念}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("如果我为{{强力}}单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽两张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath powerful draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Theory]
     [InlineData("OGN·239/298", "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", 3, "随从", 1, null)]
     [InlineData("SFD·021/221", "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", 2, "机器人", 3, null)]
@@ -4872,6 +4896,22 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("UndercoverAgentLastBreathEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("ResolveUndercoverAgentLastBreathStackItem", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathPowerfulDrawTriggerDoesNotUseCoreCardNumberBehavior()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("UnsungHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnsungHeroLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnsungHeroLastBreathPowerfulDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -52,9 +52,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string KogmawTriggerBattlefieldMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
-    private const string UnsungHeroCardNo = "SFD·167/221";
-    private const string UnsungHeroLastBreathSourceEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT";
-    private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -6350,15 +6347,21 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string? ResolveUnsungHeroLastBreathDrawPlayerId(
         CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
+        FieldRemovalResult removalResult,
+        out TriggerSpec triggerSpec)
     {
+        triggerSpec = default!;
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnitWithEffectKind(
-                destroyedState,
-                UnsungHeroLastBreathSourceEffectKind)
-            || destroyedState.Power < PowerfulUnitPowerThreshold)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(
+                destroyedState.CardNo,
+                out triggerSpec)
+            || !IsUnitLastBreathPowerfulDrawTriggerSpec(triggerSpec)
+            || destroyedState.Power < triggerSpec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold))
         {
             return null;
         }
@@ -6804,6 +6807,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             && trigger.DrawCount is > 0;
     }
 
+    private static bool IsUnitLastBreathPowerfulDrawTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathPowerfulDraw,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.DrawCount is > 0
+            && trigger.RequiredPowerThreshold is > 0;
+    }
+
     private static bool IsUnitLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
         return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
@@ -6900,6 +6915,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsUnitLastBreathDrawIfNotAloneTriggerSpec(trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
+    }
+
+    private static int UnitLastBreathPowerfulDrawCount(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId)
+    {
+        return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            && UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceState.CardNo, out var trigger)
+            && IsUnitLastBreathPowerfulDrawTriggerSpec(trigger)
+                ? trigger.DrawCount.GetValueOrDefault(2)
+                : 2;
     }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildViktorDestroyedNonMinionTriggerQueueItems(
@@ -33907,7 +33933,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : ResolveUnitLastBreathDrawIfNotAloneStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, UnsungHeroLastBreathPowerfulDrawEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathPowerfulDraw, StringComparison.Ordinal))
         {
             return ResolveUnsungHeroLastBreathStackItem(state, stackItem);
         }
@@ -36075,14 +36101,15 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                             var unsungHeroDrawPlayerId = ResolveUnsungHeroLastBreathDrawPlayerId(
                                 targetState,
-                                removalResult);
+                                removalResult,
+                                out var unsungHeroTriggerSpec);
                             if (unsungHeroDrawPlayerId is not null)
                             {
                                 var trigger = BuildLastBreathTriggerQueueItem(
                                     stackItem,
                                     targetObjectId,
                                     unsungHeroDrawPlayerId,
-                                    UnsungHeroLastBreathPowerfulDrawEffectKind);
+                                    unsungHeroTriggerSpec.Kind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 events.Add(BuildTriggerResolvedEvent(trigger));
 
@@ -36091,7 +36118,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     playerScores,
                                     unsungHeroDrawPlayerId,
-                                    2,
+                                    unsungHeroTriggerSpec.DrawCount.GetValueOrDefault(2),
                                     rngCursor,
                                     events);
                                 playerScores = drawApplication.PlayerScores;
@@ -36645,14 +36672,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
-            else if (string.Equals(trigger.EffectKind, UnsungHeroLastBreathPowerfulDrawEffectKind, StringComparison.Ordinal))
+            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathPowerfulDraw, StringComparison.Ordinal))
             {
+                var powerfulDrawCount = cardObjects.TryGetValue(trigger.SourceObjectId, out var sourceState)
+                    && UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceState.CardNo, out var triggerSpec)
+                    && IsUnitLastBreathPowerfulDrawTriggerSpec(triggerSpec)
+                        ? triggerSpec.DrawCount.GetValueOrDefault(2)
+                        : 2;
                 var drawApplication = ApplyDrawToPlayer(
                     state,
                     playerZones,
                     playerScores,
                     trigger.ControllerId,
-                    2,
+                    powerfulDrawCount,
                     rngCursor,
                     events);
                 playerScores = drawApplication.PlayerScores;
@@ -37249,7 +37281,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
-        return ResolveLastBreathDrawStackItem(state, stackItem, drawCount: 2);
+        return ResolveLastBreathDrawStackItem(
+            state,
+            stackItem,
+            UnitLastBreathPowerfulDrawCount(state.CardObjects, stackItem.SourceObjectId));
     }
 
     private static StackResolutionResult ResolveLastBreathDrawStackItem(
@@ -43187,21 +43222,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var unsungHeroDrawPlayerId = cleanupLocation is not null &&
-                string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
-                    ? ResolveUnsungHeroLastBreathDrawPlayerId(
-                        destroyedState,
-                        removalResult)
-                    : null;
-            if (unsungHeroDrawPlayerId is not null)
+            if (cleanupLocation is not null
+                && string.Equals(cleanupLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal))
             {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
-                    objectId,
-                    unsungHeroDrawPlayerId,
-                    UnsungHeroLastBreathPowerfulDrawEffectKind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
+                var unsungHeroDrawPlayerId = ResolveUnsungHeroLastBreathDrawPlayerId(
+                    destroyedState,
+                    removalResult,
+                    out var unsungHeroTriggerSpec);
+                if (unsungHeroDrawPlayerId is not null)
+                {
+                    var trigger = BuildLastBreathTriggerQueueItem(
+                        stackItem,
+                        objectId,
+                        unsungHeroDrawPlayerId,
+                        unsungHeroTriggerSpec.Kind);
+                    events.Add(BuildTriggerQueuedEvent(trigger));
+                    triggerQueue.Add(trigger);
+                }
             }
 
             if (sadPoroLastBreathDrawPlayerId is not null)

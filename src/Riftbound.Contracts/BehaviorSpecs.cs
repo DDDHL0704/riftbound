@@ -181,6 +181,8 @@ public static class TriggerKinds
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     public const string UnitLastBreathDiscardDraw =
         "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
+    public const string UnitLastBreathPowerfulDraw =
+        "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =
