@@ -1,6 +1,6 @@
 # Plan B / B4 Battlefield Static Ability Spec Evidence
 
-Date: 2026-06-25
+Date: 2026-06-28
 
 Project status: **NOT READY**.
 
@@ -20,6 +20,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldStaticReducesEchoCost`, `P79BattlefieldStaticEchoCostReductionSkipsOpponentControlledSource`, `P79BattlefieldStaticEchoCostReductionPromptSkipsOpponentControlledSource`, and `P79BattlefieldStaticEchoCostReductionSeedPaysReducedEchoCost` remain the runtime evidence for the Echo cost-reduction behavior.
 - Existing representative tests `P79BattlefieldStaticReducesFirstEquipmentCost`, `P79BattlefieldStaticEquipmentCostReductionSkipsOpponentControlledSource`, `P79BattlefieldStaticEquipmentCostReductionPromptSkipsOpponentControlledSource`, and `P79BattlefieldStaticEquipmentCostReductionSeedPaysReducedEquipmentCost` remain the runtime evidence for the equipment cost-reduction behavior.
 - Existing representative tests `P79BattlefieldUnitExperienceAbilityExhaustsSourceAndGainsExperience`, `P79BattlefieldUnitExperienceAbilityRequiresReadySource`, `P79BattlefieldUnitExperienceAbilitySkipsOpponentControlledSource`, and the matching GameHub seed tests remain the runtime evidence for the granted unit-experience behavior.
+- `OfficialDeckMidgameResolvesMutationGardenGrantedUnitExperienceAndScoreVictoryActionLogReplaysToFinalStateHash` now proves the same granted unit-experience behavior through legal official Vex deck submission/opening, P1 `UNL-213/219` Mutation Garden selection, server-authored `BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE`, source exhaustion, `EXPERIENCE_GAINED.totalExperience=1`, score victory, and final-state action-log replay.
 - Existing representative tests `P79BattlefieldTargetDamageBonusAddsOneToSpellDamage`, `P79BattlefieldTargetDamageBonusSkipsOpponentControlledSource`, `P79BattlefieldTargetDamageBonusSkipsTargetsWithoutVoidGate`, the matching GameHub seed test, and adjacent Xerath skill-damage tests remain the runtime evidence for the target spell/skill damage-bonus behavior.
 - `OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash` now proves the same target spell/skill damage-bonus behavior through legal official Jhin vs Vex deck submission/opening, P2 `OGN·296/298` Void Gate selection, official `UNL-007/219` Punishment stack resolution against a public same-battlefield `UNL-057/219` Wildclaw Beastmaster, score victory, and final-state action-log replay.
 - Existing representative tests `P79BattlefieldBandleTreeArrangesExtraStandbyCard`, `P79BattlefieldBandleTreeRejectsExtraStandbyWithoutControlledTree`, and `P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides` remain the runtime evidence for the extra-standby destination behavior.
@@ -37,6 +38,7 @@ The accepted `MOVE_UNIT` and `PLAY_CARD` paths preserve the same server-authorit
 - Echo optional-cost reduction from `BATTLEFIELD_ECHO_COST_REDUCTION` still reduces the extra Echo mana by `Amount = 1`, exposes the reduced optional-cost candidate in server prompt metadata, records `battlefieldEchoCostReductionMana = 1` in `COST_PAID`, and skips sources not controlled by the battlefield owner.
 - Equipment cost reduction from `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` still reduces the first friendly equipment `PLAY_CARD` mana cost each turn by `Amount = 1`, exposes `minimumManaCost` / `battlefieldEquipmentCostReductionMana` in server prompt metadata, records `PLAYED_EQUIPMENT_THIS_TURN:<playerId>`, and skips sources not controlled by the battlefield owner.
 - Granted unit-experience activation from `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` still requires a ready source unit at the battlefield, exhausts that source, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `amount = 1`, emits `EXPERIENCE_GAINED.amount = 1`, and skips sources not controlled by the battlefield owner.
+- The official-deck replay path now carries that same `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` route from server-authored `ACTIVATE_ABILITY` prompt through source exhaustion, `BATTLEFIELD_TRIGGER_RESOLVED.amount = 1`, `EXPERIENCE_GAINED.totalExperience = 1`, score victory, and final-state action-log replay.
 - Target spell/skill damage bonus from `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` still requires the target unit to be at the same controlled battlefield, skips dirty opponent-controlled battlefield sources, and adds `Amount = 1` to the resolved damage.
 - The official-deck replay path now carries that same `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` route from server-authored `PLAY_CARD` prompt through stack resolution and verifies `DAMAGE_APPLIED.damage = 4` for official Punishment against a public Wildclaw target at Void Gate.
 - Extra standby destination permission from `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` still exposes `BATTLEFIELD:<objectId>` as a `HIDE_CARD` destination only for a controlled/legacy-owned battlefield source, accepts both official Bandle Tree variants, records `CARD_HIDDEN.destinationZone = BATTLEFIELD`, and rejects dirty opponent-controlled sources without state mutation.
@@ -49,6 +51,9 @@ No hidden-zone or opponent-hand projection logic was changed. The extra-standby 
 
 ## Validation
 
+- latest Mutation Garden official-deck replay focused validation: `1/1`;
+- latest Mutation Garden granted unit-experience / FullGameEndToEnd / MatchRecovery adjacent validation: `2183/2183`;
+- backend full conformance after the Mutation Garden replay increment: `8857/8857`;
 - latest Void Gate official-deck replay focused validation: `1/1`;
 - latest Void Gate target-damage / FullGameEndToEnd / MatchRecovery adjacent validation: `2086/2086`;
 - backend full conformance after the Void Gate replay increment: `8856/8856`;

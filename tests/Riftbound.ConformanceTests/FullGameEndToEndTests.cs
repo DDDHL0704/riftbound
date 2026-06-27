@@ -82,6 +82,7 @@ public sealed class FullGameEndToEndTests
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string VoidGateBattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
+    private const string MutationGardenBattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string LostLibraryBattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string IdolValleyBattlefieldPlayUnitBoonCardNo = "UNL-218/219";
     private const string MeteorSpringBattlefieldFirstUnitMoveOtherCardNo = "UNL-215/219";
@@ -106,6 +107,7 @@ public sealed class FullGameEndToEndTests
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
     private const string ForbiddenWastelandBattlefieldIsolatedDefenderKeywordModifierCardNo = "UNL-210/219";
+    private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string HasteReadyOptionalCost = "HASTE_READY";
     private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string PakaaCubCardNo = "OGN·135/298";
@@ -1449,6 +1451,39 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesMutationGardenGrantedUnitExperienceAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldGrantUnitExperienceOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldGrantUnitExperienceOpeningAsync(
+            "b0-full-game-mutation-garden-granted-unit-experience-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldGrantUnitExperienceMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+
+        var activated = await SubmitBattlefieldGrantUnitExperienceAbilityAsync(
+            session,
+            current,
+            "P1",
+            "b0-mutation-garden-grant-experience");
+        AssertBattlefieldGrantUnitExperienceResolved(current, activated);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            activated,
+            "b0-mutation-garden-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5522,6 +5557,61 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(spellResolved);
     }
 
+    private static void AssertBattlefieldGrantUnitExperienceResolved(
+        ResolutionResult beforeActivation,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            beforeActivation.State,
+            "P1",
+            MutationGardenBattlefieldGrantUnitExperienceCardNo);
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            beforeActivation.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Mutation Garden assertion could not locate ready Wildclaw Beastmaster at Mutation Garden.");
+
+        Assert.Equal(0, beforeActivation.State.PlayerExperience.GetValueOrDefault("P1"));
+        Assert.Equal(1, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Empty(result.State.StackItems);
+
+        var abilityEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal("P1", abilityEvent.Payload["playerId"]);
+        Assert.Equal(sourceObjectId, abilityEvent.Payload["sourceObjectId"]);
+        Assert.Equal(BattlefieldUnitGainExperienceAbilityId, abilityEvent.Payload["abilityId"]);
+        Assert.Equal(battlefieldObjectId, abilityEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(MutationGardenBattlefieldGrantUnitExperienceCardNo, abilityEvent.Payload["battlefieldCardNo"]);
+
+        var exhaustedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal(sourceObjectId, exhaustedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(battlefieldObjectId, exhaustedEvent.Payload["battlefieldObjectId"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(sourceObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(MutationGardenBattlefieldGrantUnitExperienceCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(1, triggerEvent.Payload["amount"]);
+
+        var experienceEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P1", experienceEvent.Payload["playerId"]);
+        Assert.Equal(sourceObjectId, experienceEvent.Payload["sourceObjectId"]);
+        Assert.Equal(WildclawBeastmasterCardNo, experienceEvent.Payload["cardNo"]);
+        Assert.Equal(1, experienceEvent.Payload["amount"]);
+        Assert.Equal(1, experienceEvent.Payload["totalExperience"]);
+        Assert.Equal(BattlefieldUnitGainExperienceAbilityId, experienceEvent.Payload["abilityId"]);
+        Assert.Equal(battlefieldObjectId, experienceEvent.Payload["battlefieldObjectId"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldHighCostSpellInsightResolved(
         ResolutionResult beforeSpell,
         ResolutionResult result)
@@ -8956,6 +9046,19 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Void Gate opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldGrantUnitExperienceOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            MutationGardenBattlefieldGrantUnitExperienceCardNo,
+            "Mutation Garden");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHighCostSpellInsightOpeningAsync(
@@ -13286,6 +13389,49 @@ public sealed class FullGameEndToEndTests
             spellObjectId,
             PunishmentSpellCardNo,
             [targetObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldGrantUnitExperienceAbilityAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.ActivateAbility)
+            ?? throw new InvalidOperationException($"B0 Mutation Garden driver could not find ACTIVATE_ABILITY for {playerId}: {DescribeState(current.State)}");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            MutationGardenBattlefieldGrantUnitExperienceCardNo);
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Mutation Garden driver could not find a ready Wildclaw Beastmaster at Mutation Garden.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalModeIds = candidate.Modes?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(sourceObjectId, legalSourceIds);
+        Assert.Contains(BattlefieldUnitGainExperienceAbilityId, legalModeIds);
+
+        var command = new ActivateAbilityCommand(
+            sourceObjectId,
+            BattlefieldUnitGainExperienceAbilityId,
+            []);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -17887,6 +18033,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldGrantUnitExperienceOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [WildclawBeastmasterCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            MutationGardenBattlefieldGrantUnitExperienceCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldHighCostSpellInsightOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -21194,6 +21361,65 @@ public sealed class FullGameEndToEndTests
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldGrantUnitExperienceMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            MutationGardenBattlefieldGrantUnitExperienceCardNo);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Mutation Garden setup could not find Wildclaw Beastmaster in P1 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([sourceObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[sourceObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerExperience = midgameState.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
             UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
                 .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
                 .Distinct(StringComparer.Ordinal)

@@ -1,8 +1,8 @@
 # Plan B / B4 Battlefield Static Ability Spec Audit
 
-Date: 2026-06-25
+Date: 2026-06-28
 
-Status: focused B4 Void Gate target spell/skill damage bonus official-deck replay accepted; project remains **NOT READY**.
+Status: focused B4 Mutation Garden granted unit-experience official-deck replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -31,6 +31,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `CoreRuleEngine` Echo optional-cost planning now reads `BATTLEFIELD_ECHO_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEchoCostReductionCardNo` branch.
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
 - `CoreRuleEngine` battlefield granted unit-experience activation now reads `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldGrantUnitExperienceCardNo` branch, and uses `Amount` for the experience event.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` path through legal official Vex deck submission/opening, server-authored `ACTIVATE_ABILITY`, source exhaustion, `EXPERIENCE_GAINED.totalExperience=1`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` spell/skill damage resolution now reads `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` branch, and uses `Amount` for the damage modifier.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` path through legal official Jhin vs Vex deck submission/opening, official `UNL-007/219` Punishment stack resolution, `DAMAGE_APPLIED.damage=4`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` `HIDE_CARD` battlefield destination validation now reads `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldExtraStandbyCardNo` / `BattlefieldExtraStandbyAltCardNo` branch.
@@ -49,6 +50,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Mutation Garden official-deck replay focused validation: passed `1/1`;
+- latest Mutation Garden granted unit-experience / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2183/2183`;
+- backend full conformance after the Mutation Garden replay increment: passed `8857/8857`;
 - latest Void Gate official-deck replay focused validation: passed `1/1`;
 - latest Void Gate target-damage / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2086/2086`;
 - backend full conformance after the Void Gate replay increment: passed `8856/8856`;

@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Void Gate target spell/skill damage bonus replay accepted; project remains **NOT READY**.
+Status: focused B0 Mutation Garden granted unit-experience replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -41,6 +41,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·297/298` Wind Hill / 疾风山丘, then server prompts play and move `UNL-057/219` Wildclaw Beastmaster to Wind Hill, project `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` / `游走` from the battlefield source without adding printed tags, submit a server-authored precise `MOVE_UNIT` from `BATTLEFIELD:<Wind Hill>` to a second official P1 battlefield with optional cost `ROAM`, and continue through score victory and action-log replay to the same final state hash;
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening selects P2 `OGN·296/298` Void Gate / 虚空之门, then a focused midgame state keeps P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `PLAY_CARD` prompt lets P1 cast official `UNL-007/219` Punishment at that public battlefield target, the stack resolves through `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` for 4 total damage, and the command stream continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-213/219` Mutation Garden / 蜕变花园, then a focused midgame state keeps P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `ACTIVATE_ABILITY` prompt exposes `BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE`, the command exhausts that unit, emits `BATTLEFIELD_TRIGGER_RESOLVED.amount = 1` and `EXPERIENCE_GAINED.totalExperience = 1`, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -201,6 +202,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesMutationGardenGrantedUnitExperienceAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -307,6 +309,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Mutation Garden granted unit-experience official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMutationGardenGrantedUnitExperienceAndScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Mutation Garden granted unit-experience adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldUnitExperienceAbility|FullyQualifiedName~BattlefieldGrantUnitExperience|FullyQualifiedName~MutationGarden|FullyQualifiedName~ActivateAbility|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2183, Failed: 0, Skipped: 0, Total: 2183
+```
+
+Latest Mutation Garden granted unit-experience backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8857, Failed: 0, Skipped: 0, Total: 8857
+```
 
 Latest Void Gate target spell/skill damage bonus official-deck replay focused validation passed:
 
