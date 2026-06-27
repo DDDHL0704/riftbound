@@ -32,6 +32,7 @@ public sealed class FullGameEndToEndTests
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string AggressiveDragonhoundCardNo = "SFD·006/221";
     private const string LongSwordEquipmentCardNo = "SFD·022/221";
+    private const string OrnnFriendlyEquipmentStaticAuraCardNo = "SFD·085/221";
     private const string BaronNashorOtherFriendlyStaticAuraCardNo = "UNL-147/219";
     private const string ScarletPigeonSourceCombatStaticAuraCardNo = "UNL-154/219";
     private const string DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo = "OGN·131/298";
@@ -2231,6 +2232,56 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-darius-same-battlefield-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildOrnnFriendlyEquipmentStaticAuraOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-ornn-friendly-equipment-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildOrnnFriendlyEquipmentStaticAuraMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            OrnnFriendlyEquipmentStaticAuraCardNo,
+            "b0-ornn-friendly-equipment-aura-stage-source");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-ornn-friendly-equipment-aura-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToOrnnFriendlyEquipmentStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-ornn-friendly-equipment-aura-battle");
+
+        AssertOrnnFriendlyEquipmentStaticAuraDamage(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-ornn-friendly-equipment-aura-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -6376,6 +6427,22 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertOrnnFriendlyEquipmentStaticAuraDamage(ResolutionResult result)
+    {
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("basePower", out var basePower)
+            && basePower is 5);
+        Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldAllUnitsStaticAuraDamage(ResolutionResult result)
     {
         var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
@@ -10010,6 +10077,57 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException($"B0 same-battlefield static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToOrnnFriendlyEquipmentStaticAuraBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitOrnnFriendlyEquipmentStaticAuraDeclareBattleAsync(
+                    session,
+                    result,
+                    auraControllerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Ornn friendly-equipment static aura driver cannot advance to battle: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Ornn friendly-equipment static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToOtherFriendlyStaticAuraBattleAsync(
@@ -14188,6 +14306,99 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitOrnnFriendlyEquipmentStaticAuraDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string auraControllerId,
+        string intentId)
+    {
+        Assert.Equal(auraControllerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var opponentId = OpponentOf(current.State, playerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Ornn friendly-equipment static aura driver could not find DECLARE_BATTLE for {playerId}.");
+        var sourceObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            OrnnFriendlyEquipmentStaticAuraCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Ornn friendly-equipment static aura driver could not find ready Ornn source.");
+        var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Ornn friendly-equipment static aura driver could not locate Ornn's battlefield.");
+        var equipmentObjectId = current.State.PlayerZones[playerId].Base
+            .Single(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, LongSwordEquipmentCardNo, StringComparison.Ordinal)
+                && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(sourceObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var staticAura = Assert.Single(current.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{sourceObjectId}", staticAura.EffectId);
+        Assert.Equal("OBJECT", staticAura.Scope);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", staticAura.Duration);
+        Assert.Equal(OrnnFriendlyEquipmentStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, staticAura.EffectKind);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(5, staticAura.EffectivePower);
+        Assert.Equal("CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute", staticAura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
+        Assert.Equal([equipmentObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds));
+        Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds));
+        Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds));
+        Assert.Equal([equipmentObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds)
+            ?? throw new InvalidOperationException(
+                $"B0 Ornn friendly-equipment static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [sourceObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { sourceObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
+        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldAllUnitsStaticAuraDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -18089,6 +18300,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildOrnnFriendlyEquipmentStaticAuraOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [
+                    OrnnFriendlyEquipmentStaticAuraCardNo,
+                    LongSwordEquipmentCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -18500,6 +18725,54 @@ public sealed class FullGameEndToEndTests
             "P1",
             [auraSourceCardNo, boostedAllyCardNo],
             new RunePool(mana, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildOrnnFriendlyEquipmentStaticAuraMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [OrnnFriendlyEquipmentStaticAuraCardNo, LongSwordEquipmentCardNo],
+            new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var equipmentObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn friendly-equipment setup could not find Long Sword in P1 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, equipmentObjectId, StringComparison.Ordinal)).ToArray(),
+            Base = p1Zones.Base.Concat([equipmentObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[equipmentObjectId] = new ObjectLocationState("P1", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[equipmentObjectId] = cardObjects[equipmentObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon, CardEquipmentKeywordNames.Agile],
+            AttachedToObjectId = null,
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects
+        };
     }
 
     private static MatchState BuildOtherFriendlyStaticAuraMidgameInitialState(MatchState state)
