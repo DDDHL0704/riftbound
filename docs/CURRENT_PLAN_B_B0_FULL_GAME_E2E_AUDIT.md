@@ -1803,3 +1803,51 @@ Result:
 ```text
 Passed: 8824, Failed: 0, Skipped: 0, Total: 8824
 ```
+
+Latest Moonveil Altar conquer ready-equipment B0 score-victory replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipment"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 87, Failed: 0, Skipped: 0, Total: 87
+```
+
+Latest Moonveil Altar adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~ReadyEquipment|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2157, Failed: 0, Skipped: 0, Total: 2157
+```
+
+Latest backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8851, Failed: 0, Skipped: 0, Total: 8851
+```

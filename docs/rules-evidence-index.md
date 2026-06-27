@@ -3017,6 +3017,13 @@
 - 验证：focused `StaticAuraStackingAndModifier` 1/1 passed；adjacent static-aura/source-combat/recovery 2043/2043 passed；backend full 8602/8602 passed。
 - 该证据只关闭 B1 当前代表性叠加覆盖；不关闭完整官方静态光环广度、完整 LayerEngine timestamp ordering、全部 RULE_TEXT 关键词授予 / 移除范围或最终 READY audit。
 
+## Plan B B4 Moonveil Altar Ready Equipment B0 Replay Evidence
+
+- 证据入口：`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`、`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`、`docs/CURRENT_PLAN_B_B4_BATTLEFIELD_TRIGGER_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B4_BATTLEFIELD_TRIGGER_SPEC_EVIDENCE.md`。
+- 本批新增 `FullGameEndToEndTests.OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipmentAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Rumble vs Rumble deck opening 派生中盘，覆盖 `SFD·221/221` 月帷祭坛 parsed `BATTLEFIELD_CONQUERED_READY_EQUIPMENT`，将官方 `SFD·022/221` 长剑作为已横置且贴附的友方武装装备重置并卸除，再走 score victory 与 action-log replay 到相同 final state hash。
+- 验证：focused Moonveil Altar B0 replay 1/1 passed；FullGameEndToEnd 87/87 passed；adjacent ReadyEquipment / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery 2157/2157 passed；backend full 8851/8851 passed。
+- 该证据只关闭月帷祭坛 ready-equipment 的 B0 整局代表 replay；不关闭可选装备选择 prompt、完整武装贴附/卸除边界、完整 B4 battlefield-effect family 或最终 READY audit。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

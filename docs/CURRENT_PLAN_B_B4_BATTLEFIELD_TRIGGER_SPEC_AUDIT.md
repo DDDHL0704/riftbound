@@ -1158,3 +1158,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8461/8461`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-06-28 Moonveil Altar ready-equipment B0 score-victory follow-up validation:
+
+- focused `OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipmentAndScoreVictoryActionLogReplaysToFinalStateHash`: passed `1/1`;
+- FullGameEndToEnd: passed `87/87`;
+- adjacent ReadyEquipment / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2157/2157`;
+- backend full conformance: passed `8851/8851`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
