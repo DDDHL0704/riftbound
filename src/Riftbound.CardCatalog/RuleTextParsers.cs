@@ -2083,6 +2083,17 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("当我在场上时", StringComparison.Ordinal)
+                && segment.Contains("其他友方单位以活跃状态进场", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.OtherFriendlyUnitsEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Other-friendly active-entry static ability parsed for spec-driven unit-entry routing."));
+                continue;
+            }
+
             if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
                 || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
             {

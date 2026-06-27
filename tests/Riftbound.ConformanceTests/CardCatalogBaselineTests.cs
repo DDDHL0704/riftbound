@@ -3527,6 +3527,23 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesOtherFriendlyUnitsEnterReadyStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var moltenDrake = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·011/298", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            moltenDrake.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.OtherFriendlyUnitsEnterReady, StringComparison.Ordinal));
+
+        Assert.Equal(StaticAbilityKinds.OtherFriendlyUnitsEnterReady, ability.Kind);
+        Assert.Contains("其他友方单位以活跃状态进场", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesUnitPowerfulSelfKeywordStaticAbility()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

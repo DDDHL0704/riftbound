@@ -40440,6 +40440,60 @@ public sealed class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
+    private static bool TryGetOtherFriendlyUnitsEnterReadyStaticAbilitySource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string enteringObjectId,
+        string? enteringCardNo,
+        out string sourceObjectId,
+        out CardObjectState sourceState,
+        out StaticAbilitySpec ability)
+    {
+        sourceObjectId = string.Empty;
+        sourceState = new CardObjectState();
+        ability = default!;
+
+        if (CardStaticAbilitySpecRules.CardCannotBecomeActive(enteringCardNo))
+        {
+            return false;
+        }
+
+        var fieldObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal);
+        foreach (var candidateObjectId in fieldObjectIds)
+        {
+            if (string.Equals(candidateObjectId, enteringObjectId, StringComparison.Ordinal)
+                || !cardObjects.TryGetValue(candidateObjectId, out var candidateState)
+                || candidateState.IsFaceDown
+                || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || candidateState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility(
+                    candidateState.CardNo,
+                    out var candidateAbility)
+                || !TryGetPublicFieldControllerId(
+                    playerZones,
+                    cardObjects,
+                    candidateObjectId,
+                    candidateState,
+                    out var candidateControllerId)
+                || !string.Equals(candidateControllerId, controllerId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            sourceObjectId = candidateObjectId;
+            sourceState = candidateState;
+            ability = candidateAbility;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsCrescentGuardReadyOptionalCostPaid(
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts)
@@ -40503,10 +40557,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         var crescentGuardReadyOptionalCostPaid = IsCrescentGuardReadyOptionalCostPaid(
             behavior,
             stackItem.OptionalCosts);
+        var entersReadyFromOtherFriendlyStaticAbility =
+            TryGetOtherFriendlyUnitsEnterReadyStaticAbilitySource(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                behavior.CardNo,
+                out var entryStaticAbilitySourceObjectId,
+                out var entryStaticAbilitySourceState,
+                out var entryStaticAbility);
         var unitState = existingState with
         {
             Power = unitPower,
             IsExhausted = entersActiveFromMasterYiLevel
+                || entersReadyFromOtherFriendlyStaticAbility
                 || crescentGuardReadyOptionalCostPaid
                     ? false
                     : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
@@ -40538,7 +40603,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 unitState,
                 hasteReadyOptionalCostPaid,
                 crescentGuardReadyOptionalCostPaid,
-                friendlyEquipmentPowerBonus)));
+                friendlyEquipmentPowerBonus,
+                entersReadyFromOtherFriendlyStaticAbility ? entryStaticAbility : null,
+                entryStaticAbilitySourceObjectId,
+                entryStaticAbilitySourceState.CardNo)));
     }
 
     private static bool IsHasteReadyOptionalCostPaidForPlayUnit(
@@ -40604,11 +40672,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
         unitPower += friendlyEquipmentPowerBonus;
+        var entersReadyFromOtherFriendlyStaticAbility =
+            TryGetOtherFriendlyUnitsEnterReadyStaticAbilitySource(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                behavior.CardNo,
+                out var entryStaticAbilitySourceObjectId,
+                out var entryStaticAbilitySourceState,
+                out var entryStaticAbility);
 
         var unitState = existingState with
         {
             Power = unitPower,
             IsExhausted = entersActiveFromMasterYiLevel
+                || entersReadyFromOtherFriendlyStaticAbility
                 ? false
                 : existingState.IsExhausted || behavior.SourceUnitIsExhausted,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
@@ -40637,7 +40716,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 unitState,
-                friendlyEquipmentPowerBonus)));
+                friendlyEquipmentPowerBonus,
+                entersReadyFromOtherFriendlyStaticAbility ? entryStaticAbility : null,
+                entryStaticAbilitySourceObjectId,
+                entryStaticAbilitySourceState.CardNo)));
     }
 
     private static bool ControllerMeetsLevelExperienceThreshold(
@@ -40656,7 +40738,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardObjectState unitState,
         bool hasteReadyOptionalCostPaid,
         bool crescentGuardReadyOptionalCostPaid,
-        int friendlyEquipmentPowerBonus)
+        int friendlyEquipmentPowerBonus,
+        StaticAbilitySpec? entryStaticAbility = null,
+        string? entryStaticAbilitySourceObjectId = null,
+        string? entryStaticAbilitySourceCardNo = null)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -40690,6 +40775,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["friendlyEquipmentPowerBonus"] = friendlyEquipmentPowerBonus;
         }
 
+        AddEntryStaticAbilityPayload(
+            payload,
+            entryStaticAbility,
+            entryStaticAbilitySourceObjectId,
+            entryStaticAbilitySourceCardNo);
+
         return payload;
     }
 
@@ -40697,7 +40788,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         CardBehaviorDefinition behavior,
         CardObjectState unitState,
-        int friendlyEquipmentPowerBonus)
+        int friendlyEquipmentPowerBonus,
+        StaticAbilitySpec? entryStaticAbility = null,
+        string? entryStaticAbilitySourceObjectId = null,
+        string? entryStaticAbilitySourceCardNo = null)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -40720,7 +40814,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["friendlyEquipmentPowerBonus"] = friendlyEquipmentPowerBonus;
         }
 
+        AddEntryStaticAbilityPayload(
+            payload,
+            entryStaticAbility,
+            entryStaticAbilitySourceObjectId,
+            entryStaticAbilitySourceCardNo);
+
         return payload;
+    }
+
+    private static void AddEntryStaticAbilityPayload(
+        Dictionary<string, object?> payload,
+        StaticAbilitySpec? entryStaticAbility,
+        string? entryStaticAbilitySourceObjectId,
+        string? entryStaticAbilitySourceCardNo)
+    {
+        if (entryStaticAbility is null
+            || string.IsNullOrWhiteSpace(entryStaticAbilitySourceObjectId))
+        {
+            return;
+        }
+
+        payload["isExhausted"] = false;
+        payload["entryStaticAbilityKind"] = entryStaticAbility.Kind;
+        payload["entryStaticAbilitySourceObjectId"] = entryStaticAbilitySourceObjectId;
+        if (!string.IsNullOrWhiteSpace(entryStaticAbilitySourceCardNo))
+        {
+            payload["entryStaticAbilitySourceCardNo"] = entryStaticAbilitySourceCardNo;
+        }
     }
 
     private static void BanishFriendlyGraveyardUnits(
