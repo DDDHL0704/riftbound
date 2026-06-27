@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Seat of Power conquered draw-for-other-battlefields replay accepted; project remains **NOT READY**.
+Status: focused B0 Mount Targon conquered ready-runes-at-end replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -52,6 +52,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·287/298` Thunder Sigil / 雷霆之纹, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed recycle-rune trigger, moves one controlled P1 base rune to the bottom of the P1 main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·298/298` Zaun Sump / 祖安地沟, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed discard-draw trigger, discards one controlled P1 hand card to graveyard, draws one controlled P1 main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·217/221` Seat of Power / 权能之座, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the focused state carries two other controlled P1 battlefield card objects from the official selected battlefield pool, the conquest path reads the parsed draw-for-other-battlefields trigger, draws two controlled P1 main-deck cards, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·289/298` Mount Targon / 巨神峰之巅, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the focused state carries two exhausted controlled P1 base runes, the conquest path schedules parsed end-turn ready-rune effects, subsequent server-authored `END_TURN` readies those runes and clears the markers, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -261,6 +262,8 @@ This Zaun Sump increment additionally proves a legal official Vex deck opening c
 
 This Seat of Power increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield draw-for-other-battlefields route through server-authored `DECLARE_BATTLE`, parsed `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, two other controlled battlefield source objects, controlled main-deck draw count two, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close ally / two-headed-giant semantics, complete other-battlefield control breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Mount Targon increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield ready-runes-at-end route through server-authored `DECLARE_BATTLE`, parsed `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, two controlled exhausted base runes, delayed end-turn rune-ready markers, subsequent server-authored `END_TURN` marker cleanup and rune readying, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close optional rune choice prompts, complete delayed end-turn trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Minefield increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield mill route through server-authored `DECLARE_BATTLE`, moving the top two controlled main-deck cards to graveyard, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close complete main-deck / graveyard replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Rehearsal Hall increment additionally proves a legal official Jhin vs Vex deck opening can carry the BehaviorSpec-driven held move-unit-to-base route through server-authored `DECLARE_BATTLE`, move the surviving defender to its owner's base, recover turn-start battlefield scoring through owner / effective-controller fallback when the official battlefield object has no explicit `ControllerId`, and continue through score victory plus action-log replay. It still does not close optional yes/no trigger prompts, complete same-battlefield target-choice breadth, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -288,6 +291,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Mount Targon conquered ready-runes-at-end official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMountTargonConquerReadyRunesAtEnd" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Mount Targon FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 86, Failed: 0, Skipped: 0, Total: 86
+```
+
+Latest Mount Targon adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldConquerReadyRunesAtEnd|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2079, Failed: 0, Skipped: 0, Total: 2079
+```
+
+Latest Mount Targon backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8850, Failed: 0, Skipped: 0, Total: 8850
+```
 
 Latest Seat of Power conquered draw-for-other-battlefields official-deck replay focused validation passed:
 

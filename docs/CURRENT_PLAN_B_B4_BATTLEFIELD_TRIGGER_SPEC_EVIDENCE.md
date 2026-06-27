@@ -246,6 +246,8 @@ The conquer ready-runes-at-end follow-up parser path turns the Mount Targon offi
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still schedules the existing delayed end-of-turn ready effects for owned base runes, skips opponent-owned dirty rune objects in the base zone, and then `END_TURN` resolves those markers through the existing `BATTLEFIELD_END_TURN_READY_RUNES` path. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `RUNE_READY_SCHEDULED` with `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, while preserving the existing end-turn marker shape and snapshot hidden-information boundaries.
 
+The 2026-06-28 B0 follow-up now also covers this same parsed Mount Targon route through a legal official-deck opening. `OfficialDeckMidgameResolvesMountTargonConquerReadyRunesAtEndAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `OGN·289/298` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, schedules two delayed end-turn ready markers for two exhausted controlled base runes, a subsequent server-authored `END_TURN` readies those runes and clears the markers, and that the command journal replays through score victory to the same final state hash.
+
 The conquer ready-equipment follow-up parser path turns the Moonveil Altar official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=FRIENDLY_EQUIPMENT`, `EquipmentReadyCount=1`, and `DetachesArmament=true`. Runtime no longer checks `SFD·221/221` through `BattlefieldConquerReadyEquipmentCardNo` / `IsBattlefieldConquerReadyEquipmentCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still readies the first controlled exhausted equipment in the conquering player's base / battlefield zones, skips opponent-owned dirty equipment objects, and detaches the target when the parsed trigger allows armament detach and the target is attached armament. It emits `BATTLEFIELD_TRIGGER_RESOLVED`, `EQUIPMENT_READIED`, and, when applicable, `EQUIPMENT_DETACHED` with `BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, while preserving existing equipment ownership / controller guards.
@@ -467,6 +469,10 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer draw-for-other-battlefields Seat of Power backend full follow-up: `8849/8849`;
 - conquer ready-runes-at-end focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer ready-runes-at-end adjacent BattlefieldConquer / BattlefieldTriggerSpec / Rune / FullGame / GameHub representatives: `458/458`;
+- conquer ready-runes-at-end Mount Targon B0 action-log replay follow-up: `1/1`;
+- conquer ready-runes-at-end Mount Targon B0 FullGameEndToEnd follow-up: `86/86`;
+- conquer ready-runes-at-end Mount Targon B0 adjacent / hidden-info follow-up: `2079/2079`;
+- conquer ready-runes-at-end Mount Targon backend full follow-up: `8850/8850`;
 - conquer ready-equipment focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer ready-equipment adjacent BattlefieldConquer / BattlefieldTriggerSpec / Equipment / FullGame / GameHub representatives: `750/750`;
 - conquer pay-create-gold focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
@@ -634,6 +640,8 @@ This Thunder Sigil B0 follow-up additionally proves the parsed conquer recycle-r
 This Zaun Sump B0 follow-up additionally proves the parsed conquer discard-draw route can carry from a legal official Vex opening into a real battle declaration, controlled hand discard to graveyard, controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Complete discard choice prompts, complete discard replacement / trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Seat of Power B0 follow-up additionally proves the parsed conquer draw-for-other-battlefields route can carry from a legal official Vex opening into a real battle declaration, count two other controlled battlefield source objects, draw two controlled main-deck cards, score-victory replay, and hidden-info guarded full-game helpers. Ally / two-headed-giant semantics, complete other-battlefield control breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+This Mount Targon B0 follow-up additionally proves the parsed conquer ready-runes-at-end route can carry from a legal official Vex opening into a real battle declaration, schedule delayed ready markers for two exhausted controlled base runes, consume those markers on a subsequent server-authored `END_TURN`, ready the same runes, score-victory replay, and hidden-info guarded full-game helpers. Optional rune choice prompts, complete delayed end-turn trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Rehearsal Hall B0 score-victory follow-up additionally proves the parsed held move-unit-to-base route can carry from a legal official opening into a real held battle declaration, server-authored unit movement to owner base, owner / effective-controller turn-start battlefield scoring, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete same-battlefield target-choice breadth, and complete movement / control-zone edge cases remain open.
 
