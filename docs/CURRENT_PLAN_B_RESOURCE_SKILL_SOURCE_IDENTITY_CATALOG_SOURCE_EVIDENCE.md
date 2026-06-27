@@ -3,16 +3,18 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for routing Blue Sentinel delayed resource-skill source identity, Lux spell-only resource-skill source identity, and Jhin movement resource-skill source identity through the activated/resource ability source-card group helper instead of direct card-number equality, plus evidence that Jhin's official alt-A card number shares the same movement resource ability source group.
+This file records concrete evidence for routing Blue Sentinel delayed resource-skill source identity, Lux spell-only resource-skill source identity, and Jhin movement resource-skill source identity through the activated/resource ability source-card group helper instead of direct card-number equality, plus evidence that Jhin's official alt-A card number and Blue Sentinel's official alt-A card number share their matching resource ability source groups.
 
 ## Runtime Evidence
 
 - `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId` now allows callers to validate a concrete source card number through the ability row's `SourceCardNosForAbility` group without hand-rolling `TryGetByAbilityId` at every call site.
 - `CoreRuleEngine.BlueSentinelDelayedSourceStillHoldsBattlefield` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, sourceState.CardNo)`.
 - `CoreRuleEngine.BuildBlueSentinelHeldDelayedResourceTriggers` uses the same helper before creating `BLUE_SENTINEL_HELD_DELAYED_RESOURCE` trigger queue entries.
+- `P4ActivatedAbilityCatalog.SourceCardNosForAbility(BlueSentinelResourceAbilityId)` now returns `UNL-087/219` and official alt-A `UNL-087a/219`.
+- `CoreRuleEngine.TryMaterializeBlueSentinelDelayedResources` emits `ABILITY_ACTIVATED.cardNo` from the source object's actual card number, so alt-A delayed resources report `UNL-087a/219` without changing event shape.
 - `MatchSession` uses the same helper in both Blue Sentinel delayed-resource prompt/payment metadata source-still-holds-battlefield checks.
 - `MatchRecovery` uses the same helper for recovered snapshot, authoritative state, and spectator replay trigger-queue source-card validation.
-- `MatchRecovery.ExpectedSourceCardNoLabelForAbilityId` builds source-card diagnostic labels from `P4ActivatedAbilityCatalog.SourceCardNosForAbility`, so the current single-card message remains `UNL-087/219` while future source groups do not need a recovery-code change.
+- `MatchRecovery.ExpectedSourceCardNoLabelForAbilityId` builds source-card diagnostic labels from `P4ActivatedAbilityCatalog.SourceCardNosForAbility`, so Blue Sentinel diagnostics now use `UNL-087/219 or UNL-087a/219` without a recovery-code branch.
 - `CoreRuleEngine.BuildJhinMovementResourceTrigger` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, sourceState.CardNo)`.
 - `MatchRecovery.ValidateTriggerQueueJhinMovementResourceContext` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, sourceCardNo)`.
 - `P4ActivatedAbilityCatalog.SourceCardNosForAbility(JhinMoveResourceAbilityId)` now returns `UNL-022/219` and official alt-A `UNL-022a/219`.
@@ -32,8 +34,10 @@ Coverage:
 
 - `CatalogExposesBlueSentinelDelayedResourceSkill` keeps the catalog row evidence for `BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER`.
 - `BlueSentinelSourceIdentityUsesAbilitySourceCardGroup` blocks direct `sourceState.CardNo` / `sourceCardNo` comparisons to `P4ActivatedAbilityCatalog.BlueSentinelCardNo` in Core, MatchSession, and MatchRecovery, and requires `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId` in all three files.
+- `BlueSentinelSourceGroupIncludesAltArt` locks the source-card group to include both `UNL-087/219` and `UNL-087a/219`.
+- `BlueSentinelAltHeldBattlefieldQueuesAndConsumesDelayedResourceWithActualSourceCard` proves official alt-A Blue Sentinel now creates the same server-captured held-battlefield delayed resource trigger, consumes that resource during the next main rune payment window, and emits `ABILITY_ACTIVATED.cardNo = UNL-087a/219`.
 - Existing Blue Sentinel focused tests still cover held-battlefield delayed trigger creation, next-main payment prompt metadata, generated power materialization, no-stack resource resolution, stale trigger rejection, hidden/standby/wrong-controller/wrong-battlefield guards, and temporary payment resource cleanup.
-- Adjacent `MatchRecovery` coverage keeps recovered/spectator trigger queue context validation green.
+- Adjacent `MatchRecovery` Blue Sentinel source-card drift tests now derive the expected label from `SourceCardNosForAbility`, preserving recovered/spectator trigger queue context validation while reflecting `UNL-087/219 or UNL-087a/219`.
 - `CatalogExposesJhinMovementResourceSkill` keeps the catalog row evidence for `JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER`.
 - `JhinMovementSourceIdentityUsesAbilitySourceCardGroup` blocks direct `sourceState.CardNo` / `sourceCardNo` comparisons to `P4ActivatedAbilityCatalog.JhinCardNo` in Core and MatchRecovery, and requires `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId` in both files.
 - `JhinMovementResourceSourceGroupIncludesAltArt` locks the source-card group to include both `UNL-022/219` and `UNL-022a/219`.
@@ -51,6 +55,12 @@ Coverage:
 ```
 
 Result: failed before implementation on direct `sourceState.CardNo` / `P4ActivatedAbilityCatalog.BlueSentinelCardNo`, then 1/1 passed after implementation.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BlueSentinelSourceGroupIncludesAltArt|FullyQualifiedName~BlueSentinelAltHeldBattlefieldQueuesAndConsumesDelayedResourceWithActualSourceCard" --nologo
+```
+
+Result: failed before implementation because `SourceCardNosForAbility` returned only `UNL-087/219` and alt-A held-battlefield produced no delayed trigger, then 2/2 passed after implementation.
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~JhinMovementSourceIdentityUsesAbilitySourceCardGroup" --nologo
@@ -71,10 +81,16 @@ Result: failed before implementation because `SourceCardNosForAbility` returned 
 Result: failed before implementation on direct `sourceState.CardNo` / `P4ActivatedAbilityCatalog.LuxCardNo`, then 1/1 passed after implementation.
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BlueSentinelResourceSkillTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~PaymentEngineCoverageAuditTests" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BlueSentinelResourceSkillTests" --nologo
 ```
 
-Result: 2701/2701 passed.
+Result: 17/17 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BlueSentinelResourceSkillTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~PaymentEngineUnificationTests" --nologo
+```
+
+Result: 2797/2797 passed.
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~JhinMovementResourceSkillTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~PaymentEngineCoverageAuditTests" --nologo
@@ -92,7 +108,7 @@ Result: 2698/2698 passed.
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8776/8776 passed.
+Result: 8780/8780 passed.
 
 ## Non-Closure Statement
 

@@ -6736,7 +6736,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in objects; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
+                $"snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {BlueSentinelResourceExpectedSourceCardNoLabel()} in objects; expected {BlueSentinelResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -30300,7 +30300,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
+                $"authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {BlueSentinelResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {BlueSentinelResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -140296,7 +140296,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
+                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {BlueSentinelResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {BlueSentinelResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -140428,7 +140428,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
+                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {BlueSentinelResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {BlueSentinelResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -200389,6 +200389,15 @@ public sealed class MatchRecoveryTests
     {
         Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
             P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
+            out var definition));
+
+        return string.Join(" or ", P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition));
+    }
+
+    private static string BlueSentinelResourceExpectedSourceCardNoLabel()
+    {
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
             out var definition));
 
         return string.Join(" or ", P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition));

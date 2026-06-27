@@ -2415,6 +2415,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 remainingPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
                 allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
                 createdTick: state.Tick + 1);
+            var sourceCardNo = state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                ? sourceState.CardNo
+                : P4ActivatedAbilityCatalog.BlueSentinelCardNo;
             materializedResources.Add(temporaryResource);
             events.Add(BuildTriggerResolvedEvent(trigger));
             events.Add(new GameEvent(
@@ -2424,7 +2427,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = pendingPayment.PlayerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["cardNo"] = P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                    ["cardNo"] = sourceCardNo,
                     ["abilityId"] = P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
                     ["effectKind"] = P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
                     ["paymentWindow"] = pendingPayment.PaymentWindow,
@@ -7649,7 +7652,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             ability.EffectKind,
-            ability.SourceCardNo,
+            sourceState.CardNo ?? ability.SourceCardNo,
             [],
             0,
             1,

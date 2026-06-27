@@ -49,6 +49,7 @@ public sealed record P4SigilTypedResourceProfile(
 public static class P4ActivatedAbilityCatalog
 {
     public const string ViCardNo = "UNL-030/219";
+    public const string ViAltACardNo = "UNL-030a/219";
     public const string ViDoublePowerAbilityId = "PAY_2_RED_DOUBLE_POWER";
     public const string ViDoublePowerAbilityEffectKind = "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN";
     public const int ViDoublePowerAbilityManaCost = 2;
@@ -90,6 +91,7 @@ public static class P4ActivatedAbilityCatalog
     public const string HoneyfruitPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_HONEYFRUIT_TEMPORARY_LEDGER_4D_03CP";
 
     public const string BlueSentinelCardNo = "UNL-087/219";
+    public const string BlueSentinelAltACardNo = "UNL-087a/219";
     public const string BlueSentinelResourceAbilityId = "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER";
     public const string BlueSentinelResourceAbilityEffectKind = "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER";
     public const int BlueSentinelGeneratedPower = 1;
@@ -772,7 +774,9 @@ public static class P4ActivatedAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
-        return string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)
+        return string.Equals(definition.AbilityId, ViDoublePowerAbilityId, StringComparison.Ordinal)
+            ? [ViCardNo, ViAltACardNo]
+            : string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)
             || string.Equals(definition.AbilityId, RenataGlascScoreAbilityId, StringComparison.Ordinal)
                 ? [RenataGlascCardNo, RenataGlascAltCardNo]
             : string.Equals(definition.AbilityId, AzirSwiftSwapAbilityId, StringComparison.Ordinal)
@@ -781,6 +785,8 @@ public static class P4ActivatedAbilityCatalog
                 ? [EzrealBlueSwiftCardNo, EzrealBlueSwiftAltCardNo, EzrealBlueSwiftPromoCardNo]
             : string.Equals(definition.AbilityId, JhinMoveResourceAbilityId, StringComparison.Ordinal)
                 ? [JhinCardNo, JhinAltACardNo]
+            : string.Equals(definition.AbilityId, BlueSentinelResourceAbilityId, StringComparison.Ordinal)
+                ? [BlueSentinelCardNo, BlueSentinelAltACardNo]
                 : [definition.SourceCardNo];
     }
 

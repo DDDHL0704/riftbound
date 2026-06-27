@@ -29,6 +29,18 @@ public sealed class BlueSentinelResourceSkillTests
     }
 
     [Fact]
+    public void BlueSentinelSourceGroupIncludesAltArt()
+    {
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+            out var ability));
+
+        var sourceCardNos = P4ActivatedAbilityCatalog.SourceCardNosForAbility(ability);
+        Assert.Contains(P4ActivatedAbilityCatalog.BlueSentinelCardNo, sourceCardNos);
+        Assert.Contains(P4ActivatedAbilityCatalog.BlueSentinelAltACardNo, sourceCardNos);
+    }
+
+    [Fact]
     public void BlueSentinelSourceIdentityUsesAbilitySourceCardGroup()
     {
         var repositoryRoot = RepositoryRoot();
@@ -85,6 +97,35 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["triggerId"] as string, trigger.TriggerId, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task BlueSentinelAltHeldBattlefieldQueuesAndConsumesDelayedResourceWithActualSourceCard()
+    {
+        var held = await ResolveHeldBattleAsync(P4ActivatedAbilityCatalog.BlueSentinelAltACardNo);
+        Assert.True(held.Accepted, held.ErrorMessage);
+
+        var trigger = Assert.Single(held.State.TriggerQueue);
+        Assert.Equal(BlueSentinelObjectId, trigger.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, trigger.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelAltACardNo, held.State.CardObjects[BlueSentinelObjectId].CardNo);
+
+        var payment = PendingRunePayment();
+        var paymentState = NextMainPaymentState(held.State, payment);
+        var action = $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}";
+        var result = await new CoreRuleEngine().ResolveAsync(
+            paymentState,
+            new PlayerIntent("intent-blue-sentinel-alt-pay-generated", "P2", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [action, "SPEND_POWER:any:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var activatedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelAltACardNo, activatedEvent.Payload["cardNo"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, activatedEvent.Payload["abilityId"]);
+        Assert.Equal(BlueSentinelObjectId, activatedEvent.Payload["sourceObjectId"]);
     }
 
     [Fact]
@@ -462,10 +503,10 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.Empty(result.Events);
     }
 
-    private static async Task<ResolutionResult> ResolveHeldBattleAsync()
+    private static async Task<ResolutionResult> ResolveHeldBattleAsync(string cardNo = P4ActivatedAbilityCatalog.BlueSentinelCardNo)
     {
         return await new CoreRuleEngine().ResolveAsync(
-            BuildHeldBattleState(),
+            BuildHeldBattleState(cardNo),
             new PlayerIntent("intent-blue-sentinel-held-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
                 BattlefieldObjectId,
@@ -556,7 +597,7 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static MatchState BuildHeldBattleState()
+    private static MatchState BuildHeldBattleState(string cardNo = P4ActivatedAbilityCatalog.BlueSentinelCardNo)
     {
         return new MatchState(
             roomId: "blue-sentinel-resource-skill-test",
@@ -599,7 +640,7 @@ public sealed class BlueSentinelResourceSkillTests
                     controllerId: "P1"),
                 [BlueSentinelObjectId] = new(
                     BlueSentinelObjectId,
-                    cardNo: P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                    cardNo: cardNo,
                     power: 4,
                     tags: [CardObjectTags.UnitCard, "坚守2"],
                     ownerId: "P2",
