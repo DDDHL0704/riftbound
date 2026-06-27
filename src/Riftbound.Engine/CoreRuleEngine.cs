@@ -30251,7 +30251,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         string destination)
     {
         if (string.Equals(origin, destination, StringComparison.Ordinal)
-            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.JhinCardNo, StringComparison.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
+                sourceState.CardNo)
             || sourceState.IsFaceDown
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)

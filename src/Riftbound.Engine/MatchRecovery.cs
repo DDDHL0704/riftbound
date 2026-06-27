@@ -20260,7 +20260,9 @@ public static class MatchRecoveryValidator
 
         if (objectCardNos is not null
             && objectCardNos.TryGetValue(expectedSourceObjectId, out var sourceCardNo)
-            && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.JhinCardNo, StringComparison.Ordinal))
+            && !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
+                sourceCardNo))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
             AddTriggerQueueSourceCardNoMismatch(
@@ -20268,7 +20270,7 @@ public static class MatchRecoveryValidator
                 "jhin movement resource",
                 expectedSourceObjectId,
                 sourceCardNoLabel,
-                P4ActivatedAbilityCatalog.JhinCardNo,
+                ExpectedSourceCardNoLabelForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId),
                 objectCardNoLabel,
                 errors);
         }

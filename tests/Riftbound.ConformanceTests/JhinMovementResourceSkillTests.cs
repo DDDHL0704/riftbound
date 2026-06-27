@@ -29,6 +29,33 @@ public sealed class JhinMovementResourceSkillTests
     }
 
     [Fact]
+    public void JhinMovementSourceIdentityUsesAbilitySourceCardGroup()
+    {
+        var repositoryRoot = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchRecoverySource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs"));
+
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.JhinCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "sourceCardNo, P4ActivatedAbilityCatalog.JhinCardNo",
+            matchRecoverySource,
+            StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task JhinResourceSkillPromptAppearsOnlyAfterServerCapturedMoveTrigger()
     {
         var beforeMovePrompt = ResolutionResult.BuildPrompts(BuildJhinBaseState())["P1"];
@@ -822,5 +849,22 @@ public sealed class JhinMovementResourceSkillTests
             Entries.Add(entry);
             return ValueTask.CompletedTask;
         }
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }
