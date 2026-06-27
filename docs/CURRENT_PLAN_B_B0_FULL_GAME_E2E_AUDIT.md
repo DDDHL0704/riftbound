@@ -1,8 +1,8 @@
 # Plan B / B0 Full-Game E2E Audit
 
-Date: 2026-06-27
+Date: 2026-06-28
 
-Status: focused B0 winning-score increase score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 battlefield held / defend evidence alignment accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -60,6 +60,13 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from the same seated official Vex / Treasure Pile opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, creates no Gold token, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from the same seated official Vex / Sunken Temple opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, draws no card, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects `UNL-218/219` Idol Valley, then plays an official `UNL-057/219` Wildclaw Beastmaster to that battlefield; the parsed `BATTLEFIELD_PLAY_UNIT_PAY_BOON` route pays 1 mana, grants the played unit `{{增益}}`, and continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects `UNL-215/219` Meteor Spring, then plays a first unit to that battlefield while another friendly unit is already there; the parsed `BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE` route moves the other same-battlefield friendly unit to base, records the once-per-turn marker, and continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects `UNL-214/219` Ghost Bay, then plays official `OGN·104/298` Reconsider to return a unit from that battlefield; the parsed `BATTLEFIELD_UNIT_RETURNED_PAY_CALL_RUNE` route pays 1 mana, calls an additional rune, and continues through score victory and action-log replay to the same final state hash;
+- from seated official battlefield-held opening states, focused midgame B0 routes now cover `OGN·280/298` Hidden Valley draw-one, `OGN·288/298` Star Peak call-rune, and `SFD·219/221` Confetti Tree each-player-call-rune held triggers through `DECLARE_BATTLE`, score victory, hidden-info guarded helpers, and action-log replay;
+- from seated official battlefield-held opening states, focused midgame B0 routes now cover `OGN·283/298` Navori Arena grant-boon, `OGN·275/298` Unity Sanctum create-Minion, `OGN·281/298` Hallowed Tomb return-hero, `OGN·293/298` Grand Plaza seven-units win, `SFD·214/221` Energy Hub pay-power score, and `OGN·286/298` Reckoner Arena activate-unit-conquest triggers through server-authored battle prompts and action-log replay;
+- from a seated official Jhin vs Vex opening state, focused midgame B0 routes now also cover `OGN·279/298` Fortified Position defend-grant-Steadfast through server-authored defender declaration, real battle close, score victory, and action-log replay;
+- from a seated official Crimson Signet Treant opening state, the B0 route now carries `UNL-029/219` Crimson Signet Treant's unit-conquest repeat into real conquest, observes repeated triggered resolution metadata, and continues through score victory and action-log replay;
 - from a seated official Lillia / Waterbender / Watchful Sentinel initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> source-lone-battle static-aura one-attacker `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGN·055/298` Waterbender's `BehaviorSpec.StaticAuras` / `SOURCE_LONE_BATTLE_POWER` route gives itself `staticPowerBonus=2`;
 - from a seated official Master Yi intro / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging to the opposing battlefield -> friendly single-defender static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `OGS·019/024` Master Yi intro's `BehaviorSpec.StaticAuras` / `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` route gives the single defending `UNL-092/219` Demacia Envoy `staticPowerBonus=2`;
 - from a seated official Master Yi level / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging after a server-resolved sixth-experience gain -> friendly-units static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `UNL-191/219` Master Yi level's `BehaviorSpec.StaticAuras` / `FRIENDLY_UNITS_POWER` route gives the attacking `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
@@ -260,7 +267,9 @@ This Dunehorn Beast increment additionally proves a legal official Jhin deck ope
 
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
-Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
+This evidence-alignment increment records already-green B0 routes that were present in `FullGameEndToEndTests` but missing from this audit: Crimson Signet Treant conquest repeat; Idol Valley unit-play boon; Meteor Spring first-unit move-other; Ghost Bay returned-unit call-rune; Hidden Valley, Star Peak, Confetti Tree held triggers; Navori Arena, Unity Sanctum, Hallowed Tomb, Grand Plaza, Energy Hub, Reckoner Arena held triggers; and Fortified Position defend-grant-Steadfast. It changes documentation only, not runtime behavior or test code, and does not close complete battlefield FU breadth, complete official deck archetype breadth, or READY.
+
+Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
 Open follow-up:
 
@@ -269,6 +278,30 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest B0 evidence-alignment focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 82, Failed: 0, Skipped: 0, Total: 82
+```
+
+Latest B0 evidence-alignment backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8846, Failed: 0, Skipped: 0, Total: 8846
+```
 
 Latest winning-score increase score-victory focused validation passed:
 
