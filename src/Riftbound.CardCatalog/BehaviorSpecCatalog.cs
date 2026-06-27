@@ -454,7 +454,8 @@ public static class BehaviorSpecCatalogBuilder
         BehaviorTemplateIds.Banish,
         BehaviorTemplateIds.Stun,
         BehaviorTemplateIds.TempMight,
-        BehaviorTemplateIds.Boon
+        BehaviorTemplateIds.Boon,
+        BehaviorTemplateIds.Control
     };
 
     private static readonly HashSet<string> ManualRuleRequiredCategories = new(StringComparer.Ordinal)

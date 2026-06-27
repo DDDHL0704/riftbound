@@ -15,6 +15,7 @@ public static class CardBasicActionNames
     public const string TempMight = "temp_might";
     public const string Boon = "boon";
     public const string Experience = "experience";
+    public const string Control = "control";
 }
 
 public static class CardBasicActionProfileStatuses
@@ -36,6 +37,7 @@ public sealed record CardBasicActionProfile(
     bool HasTempMight,
     bool HasBoon,
     bool HasExperience,
+    bool HasControl,
     IReadOnlyList<string> PrimitiveActions,
     IReadOnlyList<string> DelegatedP2Actions,
     IReadOnlyList<string> DeferredActions,
@@ -73,6 +75,8 @@ public static class CardBasicActionRules
             || spec.OfficialText.Contains(CardObjectTags.Boon, StringComparison.Ordinal);
         var hasExperience = HasTemplate(spec, BehaviorTemplateIds.GainExperience)
             || spec.OfficialText.Contains("经验", StringComparison.Ordinal);
+        var hasControl = HasTemplate(spec, BehaviorTemplateIds.Control)
+            || HasControlBehavior(behavior);
         var hasDrawPrimitive = behavior?.DrawCount > 0 || behavior?.LevelDrawOnPlayCount > 0;
         var hasDamagePrimitive = behavior?.DamageAmount > 0;
         var hasDestroyPrimitive = behavior?.DestroysTarget == true;
@@ -93,6 +97,7 @@ public static class CardBasicActionRules
         AddIf(delegatedActions, hasBanish && HasBanishBehavior(behavior), CardBasicActionNames.Banish);
         AddIf(delegatedActions, hasBoon && HasBoonBehavior(behavior), CardBasicActionNames.Boon);
         AddIf(delegatedActions, hasExperience && HasExperienceBehavior(behavior), CardBasicActionNames.Experience);
+        AddIf(delegatedActions, hasControl && HasControlBehavior(behavior), CardBasicActionNames.Control);
 
         var deferredActions = new List<string>();
         AddIf(deferredActions, hasDraw && !hasDrawPrimitive, CardBasicActionNames.Draw);
@@ -106,6 +111,7 @@ public static class CardBasicActionRules
         AddIf(deferredActions, hasTempMight && !hasTempMightPrimitive, CardBasicActionNames.TempMight);
         AddIf(deferredActions, hasBoon && !HasBoonBehavior(behavior), CardBasicActionNames.Boon);
         AddIf(deferredActions, hasExperience && !HasExperienceBehavior(behavior), CardBasicActionNames.Experience);
+        AddIf(deferredActions, hasControl && !HasControlBehavior(behavior), CardBasicActionNames.Control);
 
         var hasAnyAction = hasDraw
             || hasDamage
@@ -117,7 +123,8 @@ public static class CardBasicActionRules
             || hasBanish
             || hasTempMight
             || hasBoon
-            || hasExperience;
+            || hasExperience
+            || hasControl;
         var status = !hasAnyAction
             ? CardBasicActionProfileStatuses.NotApplicable
             : deferredActions.Count > 0
@@ -136,6 +143,7 @@ public static class CardBasicActionRules
             hasTempMight,
             hasBoon,
             hasExperience,
+            hasControl,
             primitiveActions,
             delegatedActions,
             deferredActions,
@@ -205,7 +213,8 @@ public static class CardBasicActionRules
                 || behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
                 || behavior.ReturnsGraveyardTargetToHand
                 || behavior.RuneCallCountAfterTargetReturn > 0
-                || behavior.GainsControlOfTargetToBase);
+                || behavior.GainsControlOfTargetToBase
+                || behavior.GainsControlOfTargetToBattlefield);
     }
 
     private static bool HasRecycleBehavior(CardBehaviorDefinition? behavior)
@@ -242,6 +251,14 @@ public static class CardBasicActionRules
             && (behavior.GainExperienceOnPlay > 0
                 || behavior.GainExperienceOnPlayPerFriendlyFieldUnit > 0
                 || behavior.OptionalExperienceCost > 0);
+    }
+
+    private static bool HasControlBehavior(CardBehaviorDefinition? behavior)
+    {
+        return behavior is not null
+            && (behavior.GainsControlOfTargetToBase
+                || behavior.GainsControlOfTargetToBattlefield
+                || behavior.GainsControlOfTargetStackSpell);
     }
 
     private static void AddIf(

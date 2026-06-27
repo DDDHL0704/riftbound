@@ -524,15 +524,17 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Recycle,
                 BehaviorTemplateIds.Banish,
                 BehaviorTemplateIds.TempMight,
-                BehaviorTemplateIds.Boon
+                BehaviorTemplateIds.Boon,
+                BehaviorTemplateIds.Control
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 49, 49, 0, 0, 43, 43, 0);
-        AssertFamily(report, BehaviorTemplateIds.Move, 136, 136, 0, 0, 111, 111, 0);
+        AssertFamily(report, BehaviorTemplateIds.Move, 123, 123, 0, 0, 102, 102, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 63, 0, 0, 51, 51, 0);
         AssertFamily(report, BehaviorTemplateIds.Banish, 11, 11, 0, 0, 9, 9, 0);
         AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 292, 0, 0, 230, 230, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
+        AssertFamily(report, BehaviorTemplateIds.Control, 4, 4, 0, 0, 4, 4, 0);
         Assert.All(report.Families, family =>
         {
             Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
@@ -5030,7 +5032,8 @@ public sealed class CardCatalogBaselineTests
             BehaviorTemplateIds.GainExperience,
             BehaviorTemplateIds.Assemble,
             BehaviorTemplateIds.Echo,
-            BehaviorTemplateIds.Ambush
+            BehaviorTemplateIds.Ambush,
+            BehaviorTemplateIds.Control
         };
         var registered = BehaviorTemplateRegistry.GetAll().Select(template => template.TemplateId).ToArray();
         Assert.All(requiredTemplates, templateId => Assert.Contains(templateId, registered));
@@ -5077,7 +5080,8 @@ public sealed class CardCatalogBaselineTests
             new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish, EffectKind = "PORTALPAL_RESCUE_BANISH_FRIENDLY_UNIT_PLAY_TO_BASE" },
             new { CardNo = "OGN·050/298", TemplateId = BehaviorTemplateIds.Stun, EffectKind = "RUNE_PRISON_STUN_UNIT" },
             new { CardNo = "OGN·004/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "CLEAVE_OVERWHELM_3" },
-            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon, EffectKind = "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS" }
+            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon, EffectKind = "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS" },
+            new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control, EffectKind = "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT" }
         };
 
         foreach (var candidate in candidates)
@@ -5125,6 +5129,10 @@ public sealed class CardCatalogBaselineTests
                     break;
                 case BehaviorTemplateIds.Boon:
                     Assert.True(delegation.DelegatedBehavior.GrantsBoon);
+                    break;
+                case BehaviorTemplateIds.Control:
+                    Assert.True(delegation.DelegatedBehavior.GainsControlOfTargetToBattlefield);
+                    Assert.True(delegation.DelegatedBehavior.ReadiesTarget);
                     break;
             }
         }
@@ -5239,7 +5247,8 @@ public sealed class CardCatalogBaselineTests
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
             new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle },
             new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish },
-            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon }
+            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon },
+            new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
         };
         foreach (var candidate in delegatedCandidates)
         {
@@ -6340,6 +6349,34 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
         Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
         Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, safetyInspector.Status);
+
+        var hostileTakeover = BuildBasicActionProfile(specs, "SFD·202/221");
+        Assert.True(hostileTakeover.HasControl);
+        Assert.Contains(CardBasicActionNames.Control, hostileTakeover.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Control, hostileTakeover.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.RecognizedCovered, hostileTakeover.Status);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecsParseControlChangingOfficialSpellTemplates()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var hostileTakeover = specs.Single(spec => string.Equals(spec.CardNo, "SFD·202/221", StringComparison.Ordinal));
+        Assert.Contains(BehaviorTemplateIds.Control, hostileTakeover.TemplateIds);
+        Assert.Contains(hostileTakeover.Effects, effect =>
+            string.Equals(effect.TemplateId, BehaviorTemplateIds.Control, StringComparison.Ordinal)
+            && effect.Phrase.Contains("获得战场上一名敌方单位的控制权", StringComparison.Ordinal));
+
+        var forcedConscription = specs.Single(spec => string.Equals(spec.CardNo, "UNL-140/219", StringComparison.Ordinal));
+        Assert.Contains(BehaviorTemplateIds.Control, forcedConscription.TemplateIds);
+        Assert.Contains(BehaviorTemplateIds.Recall, forcedConscription.TemplateIds);
+
+        var takenForARide = specs.Single(spec => string.Equals(spec.CardNo, "OGN·203/298", StringComparison.Ordinal));
+        Assert.Contains(BehaviorTemplateIds.Control, takenForARide.TemplateIds);
+        Assert.Contains(BehaviorTemplateIds.Recall, takenForARide.TemplateIds);
     }
 
     [Fact]
@@ -6452,6 +6489,8 @@ public sealed class CardCatalogBaselineTests
         Cover("basic:放逐", banish.DelegatedP2Actions.Contains(CardBasicActionNames.Banish, StringComparer.Ordinal));
         var boon = BuildBasicActionProfile(specs, "OGN·053/298");
         Cover("basic:增益", boon.DelegatedP2Actions.Contains(CardBasicActionNames.Boon, StringComparer.Ordinal));
+        var control = BuildBasicActionProfile(specs, "SFD·202/221");
+        Cover("basic:控制权", control.DelegatedP2Actions.Contains(CardBasicActionNames.Control, StringComparer.Ordinal));
         var experienceGain = BuildBasicActionProfile(specs, "UNL-158/219");
         Cover(
             "basic:经验获得",
@@ -6494,6 +6533,7 @@ public sealed class CardCatalogBaselineTests
             "basic:放逐",
             "basic:临时战力",
             "basic:增益",
+            "basic:控制权",
             "basic:经验获得",
             "basic:经验消耗"
         };

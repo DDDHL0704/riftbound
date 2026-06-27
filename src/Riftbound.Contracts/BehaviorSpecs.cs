@@ -32,6 +32,7 @@ public static class BehaviorTemplateIds
     public const string Assemble = "assemble";
     public const string Echo = "echo";
     public const string Ambush = "ambush";
+    public const string Control = "control";
 }
 
 public static class TriggerKinds

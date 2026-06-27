@@ -2631,7 +2631,7 @@ public static class EffectPhraseParser
         AddIf(templateIds, text, BehaviorTemplateIds.Draw, "抽");
         AddIf(templateIds, text, BehaviorTemplateIds.Damage, "伤害");
         AddIf(templateIds, text, BehaviorTemplateIds.Destroy, "摧毁");
-        AddIf(templateIds, text, BehaviorTemplateIds.Move, "移动");
+        AddMoveIf(templateIds, text);
         AddIf(templateIds, text, BehaviorTemplateIds.Recall, "返回", "召回");
         AddIf(templateIds, text, BehaviorTemplateIds.Recycle, "回收");
         AddIf(templateIds, text, BehaviorTemplateIds.Banish, "放逐");
@@ -2642,6 +2642,7 @@ public static class EffectPhraseParser
         AddIf(templateIds, text, BehaviorTemplateIds.Assemble, "装配", "百炼");
         AddIf(templateIds, text, BehaviorTemplateIds.Echo, "回响");
         AddIf(templateIds, text, BehaviorTemplateIds.Ambush, "伏击");
+        AddIf(templateIds, text, BehaviorTemplateIds.Control, "控制权");
         return templateIds.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     }
 
@@ -2654,6 +2655,26 @@ public static class EffectPhraseParser
         if (needles.Any(needle => (text ?? string.Empty).Contains(needle, StringComparison.Ordinal)))
         {
             templateIds.Add(templateId);
+        }
+    }
+
+    private static void AddMoveIf(List<string> templateIds, string text)
+    {
+        foreach (var segment in TargetParser.SplitRulesText(text ?? string.Empty))
+        {
+            if (!segment.Contains("移动", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var positiveMovementText = segment
+                .Replace("不算作移动", string.Empty, StringComparison.Ordinal)
+                .Replace("不被视为移动", string.Empty, StringComparison.Ordinal);
+            if (positiveMovementText.Contains("移动", StringComparison.Ordinal))
+            {
+                templateIds.Add(BehaviorTemplateIds.Move);
+                return;
+            }
         }
     }
 
@@ -2675,6 +2696,7 @@ public static class EffectPhraseParser
             BehaviorTemplateIds.Assemble => ["装配", "百炼"],
             BehaviorTemplateIds.Echo => ["回响"],
             BehaviorTemplateIds.Ambush => ["伏击"],
+            BehaviorTemplateIds.Control => ["控制权"],
             _ => [templateId]
         };
 

@@ -49,7 +49,8 @@ public static class BehaviorTemplateRegistry
         new(BehaviorTemplateIds.GainExperience, "Gain Experience", "Skeleton route for experience gain/payment hooks."),
         new(BehaviorTemplateIds.Assemble, "Assemble", "Skeleton route for assemble/equipment attachment keywords."),
         new(BehaviorTemplateIds.Echo, "Echo", "Skeleton route for echo optional cost and repeat behavior."),
-        new(BehaviorTemplateIds.Ambush, "Ambush", "Skeleton route for ambush timing and hidden-card behavior.")
+        new(BehaviorTemplateIds.Ambush, "Ambush", "Skeleton route for ambush timing and hidden-card behavior."),
+        new(BehaviorTemplateIds.Control, "Control", "Skeleton route for changing control of units or stack spells.")
     ];
 
     public static IReadOnlyList<BehaviorTemplateDefinition> GetAll()
