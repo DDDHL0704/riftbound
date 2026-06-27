@@ -4955,6 +4955,20 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void AmbushReactionPlayDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("GloomyApothecaryCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AmbushInteractionSpecRules.HasAmbush", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BattlefieldHeldCallRuneTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -6350,6 +6364,10 @@ public sealed class CardCatalogBaselineTests
         var gloomyApothecary = BuildInteractionProfile(specs, "UNL-021/219", CardInteractionKeywordNames.Ambush);
         Assert.True(gloomyApothecary.HasAmbush);
         Assert.Contains("Ambush", gloomyApothecary.Reason, StringComparison.Ordinal);
+
+        var vi = BuildInteractionProfile(specs, "UNL-176/219", CardInteractionKeywordNames.Ambush);
+        Assert.True(vi.HasAmbush);
+        Assert.Contains("Ambush", vi.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -10,7 +10,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BaseWinningScore = 8;
     private const string AmbushPlayMode = "AMBUSH";
     private const string AmbushUnsupportedMessage = "当前伏击出牌路径尚未由服务端开放。";
-    private const string GloomyApothecaryCardNo = "UNL-021/219";
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
     private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
@@ -5528,7 +5527,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!string.Equals(command.CardNo, GloomyApothecaryCardNo, StringComparison.Ordinal)
+        if (!AmbushInteractionSpecRules.HasAmbush(command.CardNo)
             || !CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out behavior)
             || !behavior.PlaysSourceToBaseAsUnit
             || !HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds))

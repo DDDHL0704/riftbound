@@ -55124,6 +55124,70 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AmbushPlayCardModeInPriorityWindowPlaysBehaviorSpecAmbushUnitToBattlefield()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNL-VI"],
+                    Battlefields = ["P1-BATTLEFIELD-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-VI"] = new(
+                    "P1-HAND-UNL-VI",
+                    cardNo: "UNL-176/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush]),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-ambush-play-card-behavior-spec-unit", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-HAND-UNL-VI",
+                "UNL-176/219",
+                [],
+                Mode: "AMBUSH",
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        var ambushStackItem = Assert.Single(
+            result.State.StackItems,
+            stackItem => string.Equals(stackItem.SourceObjectId, "P1-HAND-UNL-VI", StringComparison.Ordinal));
+        Assert.Equal("VI_AMBUSH_ATTACK_STUN_STATIC", ambushStackItem.EffectKind);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", ambushStackItem.Destination);
+    }
+
+    [Fact]
     public async Task P4AmbushPlayCardModePriorityWindowRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
