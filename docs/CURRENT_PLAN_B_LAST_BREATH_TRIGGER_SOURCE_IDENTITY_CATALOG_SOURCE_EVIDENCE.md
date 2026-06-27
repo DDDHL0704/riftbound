@@ -13,8 +13,8 @@ This file records concrete evidence for removing direct source card-number check
   - `IsFaceDown == false`
   - no `CardObjectTags.Standby`
   - `CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind)`
-- `ResolveKogmawLastBreathAoePlayerId(...)` now uses source effect kind `OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT`.
-- The original 2026-06-26 slice routed Undercover Agent, Honest Broker, and Unsung Hero source identity through catalog effect-kind rows; later 2026-06-27 follow-ups migrated their executable shapes to `BehaviorSpec.Triggers`.
+- The original 2026-06-26 slice routed Kogmaw, Undercover Agent, Honest Broker, and Unsung Hero source identity through catalog effect-kind rows; later 2026-06-27 follow-ups migrated their executable shapes to `BehaviorSpec.Triggers`.
+- Kogmaw now resolves through `TriggerSpec.Kind=OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT`.
 - Undercover Agent now resolves through `TriggerSpec.Kind=UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`.
 - Honest Broker now resolves through `TriggerSpec.Kind=HONEST_BROKER_LAST_BREATH_CREATE_GOLD`.
 - Unsung Hero now resolves through `TriggerSpec.Kind=UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2`.
@@ -24,6 +24,8 @@ This file records concrete evidence for removing direct source card-number check
 2026-06-27 follow-up: Undercover Agent last-breath discard/draw source and count shape now also routes through `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_DISCARD_DRAW_TRIGGER_SPEC_EVIDENCE.md`.
 
 2026-06-27 follow-up: Unsung Hero last-breath powerful-draw source, threshold and draw-count shape now also routes through `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_POWERFUL_DRAW_TRIGGER_SPEC_EVIDENCE.md`.
+
+2026-06-27 follow-up: Kogmaw last-breath source-battlefield AoE damage source, target scope and damage amount shape now also routes through `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_SOURCE_BATTLEFIELD_AOE_DAMAGE_TRIGGER_SPEC_EVIDENCE.md`.
 
 ## Test Evidence
 
@@ -66,4 +68,4 @@ Result: 8660/8660 passed.
 
 ## Non-Closure Statement
 
-This evidence does not close complete last-breath trigger timing, complete trigger queue ordering, complete effective-power / LayerEngine powerful checks, card matrix full-official state, frontend final validation, or READY. Honest Broker create-Gold, Undercover Agent discard/draw and Unsung Hero powerful-draw shapes are covered by the 2026-06-27 follow-up evidence.
+This evidence does not close complete last-breath trigger timing, complete trigger queue ordering, complete effective-power / LayerEngine powerful checks, complete AoE damage / replacement / prevention matrix, card matrix full-official state, frontend final validation, or READY. Kogmaw source-battlefield AoE damage, Honest Broker create-Gold, Undercover Agent discard/draw and Unsung Hero powerful-draw shapes are covered by the 2026-06-27 follow-up evidence.

@@ -91,6 +91,14 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLastBreathSourceBattlefieldAoeDamageTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits,
+            out trigger);
+    }
+
     public static bool TryGetLastBreathCreateBaseUnitTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

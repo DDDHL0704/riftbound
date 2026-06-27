@@ -183,6 +183,8 @@ public static class TriggerKinds
         "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     public const string UnitLastBreathPowerfulDraw =
         "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
+    public const string UnitLastBreathDamageSourceBattlefieldUnits =
+        "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =
@@ -241,6 +243,7 @@ public static class TriggerTargetScopes
     public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";
     public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
     public const string SourceUnit = "SOURCE_UNIT";
+    public const string SourceBattlefieldUnits = "SOURCE_BATTLEFIELD_UNITS";
 }
 
 public static class TriggerDurations

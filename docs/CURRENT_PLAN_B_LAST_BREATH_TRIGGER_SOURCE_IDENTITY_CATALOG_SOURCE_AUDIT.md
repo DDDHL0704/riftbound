@@ -29,8 +29,8 @@ Not changed:
 
 | Requirement | Evidence | Verdict |
 |---|---|---|
-| Last-breath representative sources no longer directly select by these source card numbers | The original 2026-06-26 slice replaced direct `destroyedState.CardNo` checks with catalog source identity rows; 2026-06-27 follow-ups moved Honest Broker, Undercover Agent, and Unsung Hero executable shapes to `BehaviorSpec.Triggers`, leaving Kogmaw as the remaining source-identity-only representative | Accepted |
-| Runtime source checks consume registered source behavior rows | Kogmaw still uses `OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT` through `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`; Undercover Agent, Honest Broker, and Unsung Hero now resolve through `TriggerSpec.Kind=UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`, `HONEST_BROKER_LAST_BREATH_CREATE_GOLD`, and `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2` respectively | Accepted |
+| Last-breath representative sources no longer directly select by these source card numbers | The original 2026-06-26 slice replaced direct `destroyedState.CardNo` checks with catalog source identity rows; 2026-06-27 follow-ups moved Honest Broker, Undercover Agent, Unsung Hero, and Kogmaw executable shapes to `BehaviorSpec.Triggers` | Accepted |
+| Runtime source checks consume registered source behavior rows | Kogmaw, Undercover Agent, Honest Broker, and Unsung Hero now resolve through `TriggerSpec.Kind=OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT`, `UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`, `HONEST_BROKER_LAST_BREATH_CREATE_GOLD`, and `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2` respectively | Accepted |
 | Hidden/standby source boundary remains enforced consistently | the shared helper requires unit tag, not face-down, and not `CardObjectTags.Standby` before accepting the catalog source effect kind | Accepted |
 | Existing representative behavior is preserved | adjacent Kogmaw / Undercover Agent / Honest Broker / Unsung Hero regression remains green | Accepted |
 | Full last-breath trigger engine breadth | complete `TriggerSpec` migration, optional trigger ordering, APNAP, effective-power checks, and full official breadth remain residual | Residual, no READY claim |
@@ -85,9 +85,11 @@ Result: 8660/8660 passed.
 
 `SFD·167/221` Unsung Hero's last-breath powerful-draw source, threshold and draw-count shape has since moved from local `CoreRuleEngine` Unsung constants to `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_POWERFUL_DRAW_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_POWERFUL_DRAW_TRIGGER_SPEC_EVIDENCE.md`.
 
+`OGN·190/298` Kogmaw's last-breath source-battlefield AoE damage source, target scope and damage amount shape has since moved from local `CoreRuleEngine` Kogmaw constants to `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_SOURCE_BATTLEFIELD_AOE_DAMAGE_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_SOURCE_BATTLEFIELD_AOE_DAMAGE_TRIGGER_SPEC_EVIDENCE.md`.
+
 ## Residual Risks
 
-- Kogmaw remains a source-identity-only migration because its current representative carries destroyed-source battlefield context for AoE damage; Honest Broker create-Gold, Undercover Agent discard/draw and Unsung Hero powerful-draw shapes are covered by the 2026-06-27 follow-ups.
+- Kogmaw source-battlefield AoE damage, Honest Broker create-Gold, Undercover Agent discard/draw and Unsung Hero powerful-draw shapes are covered by the 2026-06-27 follow-ups.
 - This does not implement complete simultaneous trigger ordering, complete last-breath family breadth, or full `ORDER_TRIGGERS` semantics.
 - Unsung Hero still uses the existing `CardObjectState.Power >= TriggerSpec.RequiredPowerThreshold` representative guard for powerful; complete effective-power / LayerEngine integration remains open.
 - Project remains **NOT READY**.

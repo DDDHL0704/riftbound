@@ -3345,6 +3345,29 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathSourceBattlefieldAoeDamageTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var kogmaw = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·190/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            kogmaw.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceBattlefieldUnits, trigger.TargetScope);
+        Assert.Equal(4, trigger.DamageAmount);
+        Assert.Contains("{{绝念}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("我所处战场上的所有单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("4点伤害", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath source-battlefield AoE damage trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Theory]
     [InlineData("OGN·239/298", "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", 3, "随从", 1, null)]
     [InlineData("SFD·021/221", "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", 2, "机器人", 3, null)]
@@ -4912,6 +4935,22 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("UnsungHeroLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UnsungHeroLastBreathPowerfulDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathSourceBattlefieldAoeDamageTriggerDoesNotUseCoreCardNumberBehavior()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("KogmawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("KogmawLastBreathAoeEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("KogmawLastBreathDamage", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

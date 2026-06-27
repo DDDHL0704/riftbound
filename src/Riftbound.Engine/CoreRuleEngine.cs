@@ -46,10 +46,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
-    private const string KogmawCardNo = "OGN·190/298";
-    private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
-    private const int KogmawLastBreathDamage = 4;
-    private const string KogmawTriggerBattlefieldMarker = "::BATTLEFIELD::";
+    private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
@@ -6263,18 +6260,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             ?? removalResult.OwnerPlayerId;
     }
 
-    private static string? ResolveKogmawLastBreathAoePlayerId(
+    private static string? ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult,
-        string? battlefieldObjectId)
+        string? battlefieldObjectId,
+        out TriggerSpec triggerSpec)
     {
+        triggerSpec = default!;
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnitWithEffectKind(
-                destroyedState,
-                KogmawLastBreathAoeEffectKind))
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(
+                destroyedState.CardNo,
+                out triggerSpec)
+            || !IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(triggerSpec))
         {
             return null;
         }
@@ -6513,21 +6516,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             "UNIT_DESTROYED");
     }
 
-    private static TriggerQueueItemState BuildKogmawLastBreathTriggerQueueItem(
+    private static TriggerQueueItemState BuildLastBreathSourceBattlefieldTriggerQueueItem(
         StackItemState stackItem,
         string sourceObjectId,
         string controllerId,
-        string battlefieldObjectId)
+        string battlefieldObjectId,
+        string effectKind)
     {
         return new TriggerQueueItemState(
-            $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{KogmawLastBreathAoeEffectKind}{KogmawTriggerBattlefieldMarker}{battlefieldObjectId}",
+            $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{effectKind}{SourceBattlefieldTriggerContextMarker}{battlefieldObjectId}",
             controllerId,
             sourceObjectId,
-            KogmawLastBreathAoeEffectKind,
+            effectKind,
             "UNIT_DESTROYED");
     }
 
-    private static bool TryReadKogmawTriggerBattlefieldObjectId(
+    private static bool TryReadTriggerBattlefieldObjectId(
         string triggerOrStackItemId,
         out string battlefieldObjectId)
     {
@@ -6535,13 +6539,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var triggerId = triggerOrStackItemId.StartsWith("ordered-", StringComparison.Ordinal)
             ? triggerOrStackItemId["ordered-".Length..]
             : triggerOrStackItemId;
-        var markerIndex = triggerId.LastIndexOf(KogmawTriggerBattlefieldMarker, StringComparison.Ordinal);
+        var markerIndex = triggerId.LastIndexOf(SourceBattlefieldTriggerContextMarker, StringComparison.Ordinal);
         if (markerIndex < 0)
         {
             return false;
         }
 
-        battlefieldObjectId = triggerId[(markerIndex + KogmawTriggerBattlefieldMarker.Length)..];
+        battlefieldObjectId = triggerId[(markerIndex + SourceBattlefieldTriggerContextMarker.Length)..];
         return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
@@ -6819,6 +6823,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             && trigger.RequiredPowerThreshold is > 0;
     }
 
+    private static bool IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceBattlefieldUnits, StringComparison.Ordinal)
+            && trigger.DamageAmount is > 0;
+    }
+
     private static bool IsUnitLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
         return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
@@ -6991,8 +7006,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ["effectKind"] = trigger.EffectKind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
-        if (string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
-            && TryReadKogmawTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
+        if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
+            && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
         {
             payload["battlefieldObjectId"] = battlefieldObjectId;
         }
@@ -33953,10 +33968,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveUnitLastBreathCreateBaseUnitStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
-            && TryReadKogmawTriggerBattlefieldObjectId(stackItem.StackItemId, out _))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
+            && TryReadTriggerBattlefieldObjectId(stackItem.StackItemId, out _))
         {
-            return ResolveKogmawLastBreathStackItem(state, stackItem);
+            return ResolveUnitLastBreathSourceBattlefieldAoeDamageStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal)
@@ -35976,7 +35991,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    var kogmawBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
+                    var sourceBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
                         state.ObjectLocations,
                         targetObjectId);
                     if (behavior.DestroysTarget
@@ -36055,18 +36070,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var kogmawAoePlayerId = ResolveKogmawLastBreathAoePlayerId(
+                            var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
                                 targetState,
                                 removalResult,
-                                kogmawBattlefieldObjectIdBeforeRemoval);
-                            if (kogmawAoePlayerId is not null
-                                && !string.IsNullOrWhiteSpace(kogmawBattlefieldObjectIdBeforeRemoval))
+                                sourceBattlefieldObjectIdBeforeRemoval,
+                                out var sourceBattlefieldAoeTriggerSpec);
+                            if (sourceBattlefieldAoePlayerId is not null
+                                && !string.IsNullOrWhiteSpace(sourceBattlefieldObjectIdBeforeRemoval))
                             {
-                                var trigger = BuildKogmawLastBreathTriggerQueueItem(
+                                var trigger = BuildLastBreathSourceBattlefieldTriggerQueueItem(
                                     stackItem,
                                     targetObjectId,
-                                    kogmawAoePlayerId,
-                                    kogmawBattlefieldObjectIdBeforeRemoval);
+                                    sourceBattlefieldAoePlayerId,
+                                    sourceBattlefieldObjectIdBeforeRemoval,
+                                    sourceBattlefieldAoeTriggerSpec.Kind);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -37481,7 +37498,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveKogmawLastBreathStackItem(
+    private static StackResolutionResult ResolveUnitLastBreathSourceBattlefieldAoeDamageStackItem(
         MatchState state,
         StackItemState stackItem)
     {
@@ -37499,8 +37516,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        if (TryReadKogmawTriggerBattlefieldObjectId(stackItem.StackItemId, out var battlefieldObjectId))
+        if (TryReadTriggerBattlefieldObjectId(stackItem.StackItemId, out var battlefieldObjectId))
         {
+            var damageAmount = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+                && UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(
+                    sourceState.CardNo,
+                    out var triggerSpec)
+                && IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(triggerSpec)
+                    ? triggerSpec.DamageAmount.GetValueOrDefault(4)
+                    : 4;
             var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
             foreach (var targetObjectId in GetBattlefieldUnitObjectIdsAtBattlefield(
                 playerZones,
@@ -37511,12 +37535,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 var damageApplication = ApplyDamageToCardObject(
                     cardObjects,
                     targetObjectId,
-                    KogmawLastBreathDamage);
+                    damageAmount);
                 var payload = BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication);
                 payload["battlefieldObjectId"] = battlefieldObjectId;
                 events.Add(new GameEvent(
                     "DAMAGE_APPLIED",
-                    $"克格莫造成 {damageApplication.DamageAmount} 点伤害",
+                    $"绝念造成 {damageApplication.DamageAmount} 点伤害",
                     payload));
             }
         }
@@ -38017,7 +38041,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
             && !IsUnitLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
-            && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
     }
 
@@ -43144,7 +43168,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             var destroyedControllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
             var cleanupLocation = FindFieldObjectLocation(playerZones, objectId);
-            var kogmawBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
+            var sourceBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
                 objectLocations,
                 objectId,
                 cleanupLocation is not null
@@ -43291,18 +43315,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var kogmawAoePlayerId = ResolveKogmawLastBreathAoePlayerId(
+            var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
                 destroyedState,
                 removalResult,
-                kogmawBattlefieldObjectIdBeforeRemoval);
-            if (kogmawAoePlayerId is not null
-                && !string.IsNullOrWhiteSpace(kogmawBattlefieldObjectIdBeforeRemoval))
+                sourceBattlefieldObjectIdBeforeRemoval,
+                out var sourceBattlefieldAoeTriggerSpec);
+            if (sourceBattlefieldAoePlayerId is not null
+                && !string.IsNullOrWhiteSpace(sourceBattlefieldObjectIdBeforeRemoval))
             {
-                var trigger = BuildKogmawLastBreathTriggerQueueItem(
+                var trigger = BuildLastBreathSourceBattlefieldTriggerQueueItem(
                     stackItem,
                     objectId,
-                    kogmawAoePlayerId,
-                    kogmawBattlefieldObjectIdBeforeRemoval);
+                    sourceBattlefieldAoePlayerId,
+                    sourceBattlefieldObjectIdBeforeRemoval,
+                    sourceBattlefieldAoeTriggerSpec.Kind);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

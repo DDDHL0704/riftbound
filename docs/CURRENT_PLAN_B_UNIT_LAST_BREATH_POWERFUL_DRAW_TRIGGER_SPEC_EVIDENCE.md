@@ -63,4 +63,4 @@ DevUi build was not rerun because this slice did not change DevUi source or shar
 
 ## 5. Non-Closure Statement
 
-This evidence does not close complete effective-power / LayerEngine powerful checks, complete last-breath trigger timing, complete trigger queue ordering, Kogmaw TriggerSpec migration, card matrix full-official state, frontend final validation, or READY.
+This evidence does not close complete effective-power / LayerEngine powerful checks, complete last-breath trigger timing, complete trigger queue ordering, complete AoE damage matrix, card matrix full-official state, frontend final validation, or READY.

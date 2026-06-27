@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 `SFD·167/221` 无名英雄 `{{绝念}} — 如果我为{{强力}}单位，则抽两张牌` 的既有代表性结算，从 `CoreRuleEngine` 本地 Unsung Hero 专用常量迁移到官方文本解析出的 `BehaviorSpec.Triggers`。该切片只收窄 Unsung Hero last-breath powerful-draw 的 source / threshold / draw count 来源；不关闭完整 effective-power / LayerEngine 强力矩阵、完整绝念家族、完整 `ORDER_TRIGGERS` / APNAP、Kogmaw TriggerSpec migration、P0 full objective 或 READY。
+本文件记录 Plan B 小切片：把 `SFD·167/221` 无名英雄 `{{绝念}} — 如果我为{{强力}}单位，则抽两张牌` 的既有代表性结算，从 `CoreRuleEngine` 本地 Unsung Hero 专用常量迁移到官方文本解析出的 `BehaviorSpec.Triggers`。该切片只收窄 Unsung Hero last-breath powerful-draw 的 source / threshold / draw count 来源；不关闭完整 effective-power / LayerEngine 强力矩阵、完整绝念家族、完整 `ORDER_TRIGGERS` / APNAP、完整 AoE damage matrix、P0 full objective 或 READY。
 
 ## 1. Scope
 
@@ -44,7 +44,7 @@ Not changed:
 | Runtime draw count reads TriggerSpec | immediate and stack last-breath draw paths derive draw count from `TriggerSpec.DrawCount` with compatibility fallback | Accepted |
 | Public wire compatibility is preserved | `TriggerKinds.UnitLastBreathPowerfulDraw` keeps the existing effect string `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2`; existing recovery and trigger tests remain green | Accepted |
 | Core no longer owns Unsung local constants | `UnsungHeroCardNo`, `UnsungHeroLastBreathSourceEffectKind`, and `UnsungHeroLastBreathPowerfulDrawEffectKind` are absent from `CoreRuleEngine`; the guard test blocks reintroduction | Accepted |
-| Full official breadth | complete effective-power / LayerEngine threshold matrix, complete last-breath family, APNAP ordering and Kogmaw TriggerSpec migration remain residual | Residual, no full-official claim |
+| Full official breadth | complete effective-power / LayerEngine threshold matrix, complete last-breath family, APNAP ordering and AoE damage matrix remain residual | Residual, no full-official claim |
 
 ## 4. Verification
 
