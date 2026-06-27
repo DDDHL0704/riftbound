@@ -12289,9 +12289,7 @@ internal static class ActionPromptBuilder
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
-        if (string.Equals(cardObject.CardNo, "SFD·039/221", StringComparison.Ordinal)
-            && behaviors.Any(behavior => !string.IsNullOrWhiteSpace(behavior.Mode)
-                && PromptHasRequiredTargetChoices(state, playerId, behavior)))
+        if (ShouldPreferModeSpecificPlayCardBehaviors(state, playerId, behaviors))
         {
             return behaviors
                 .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
@@ -12299,6 +12297,35 @@ internal static class ActionPromptBuilder
         }
 
         return behaviors;
+    }
+
+    private static bool ShouldPreferModeSpecificPlayCardBehaviors(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<CardBehaviorDefinition> behaviors)
+    {
+        var modeBehaviors = behaviors
+            .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
+            .ToArray();
+
+        return modeBehaviors.Length > 0
+            && behaviors.Any(IsDefaultUnitPlayBehavior)
+            && modeBehaviors.All(IsModeSpecificUnitPlayBehavior)
+            && modeBehaviors.Any(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior));
+    }
+
+    private static bool IsDefaultUnitPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return string.IsNullOrWhiteSpace(behavior.Mode)
+            && behavior.PlaysSourceToBaseAsUnit
+            && behavior.RequiredTargetCount == 0;
+    }
+
+    private static bool IsModeSpecificUnitPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return !string.IsNullOrWhiteSpace(behavior.Mode)
+            && behavior.PlaysSourceToBaseAsUnit
+            && behavior.RequiredTargetCount > 0;
     }
 
     private static CardBehaviorDefinition ApplyPromptStaticGrantedPredictLifecycleDefault(

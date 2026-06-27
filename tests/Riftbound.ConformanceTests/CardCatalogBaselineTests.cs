@@ -4009,6 +4009,19 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void PlayCardPromptModePreferenceDoesNotUseRoyalAttendantCardNumberBranch()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("string.Equals(cardObject.CardNo, \"SFD·039/221\"", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BattlefieldHeldMoveUnitToBaseTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
