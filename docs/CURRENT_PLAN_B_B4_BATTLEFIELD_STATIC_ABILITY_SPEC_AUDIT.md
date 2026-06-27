@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 Poro Forge legend attach-armament official-deck replay accepted; project remains **NOT READY**.
+Status: focused B4 Blood Altar battle-destroyed recall official-deck replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -38,6 +38,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` path through legal official Jhin vs Vex deck submission/opening, official `UNL-007/219` Punishment stack resolution, `DAMAGE_APPLIED.damage=4`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` `HIDE_CARD` battlefield destination validation now reads `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldExtraStandbyCardNo` / `BattlefieldExtraStandbyAltCardNo` branch.
 - `CoreRuleEngine` battle-destroyed recall replacement now reads `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldDestroyedInBattleRecallCardNo` branch, and uses `Amount` for the mana payment.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` path through legal official Vex vs Rumble deck submission/opening, P2 `UNL-206/219` Blood Altar selection, real `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE`, 3-mana payment, replacement recall to base, score victory, and final-state action-log replay.
 - `CoreRuleEngine` battlefield-granted legend armament attach action now requires the player to control a battlefield whose `BehaviorSpec.StaticAbilities` includes `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`, instead of requiring `SFD·208/221` through `BattlefieldGrantLegendAttachArmamentCardNo` / `RequiredControlledBattlefieldCardNo`.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` path through legal official Rumble deck submission/opening, server-authored `LEGEND_ACT` prompt metadata, legend exhaustion, armament attachment, score victory, and final-state action-log replay.
 - `MatchSession` prompt filtering, Echo/equipment cost metadata, and battlefield-object recognition use the same static ability spec queries instead of the old `BattlefieldPreventMoveToBaseCardNo` / `BattlefieldPreventUnitPlayCardNo` / `BattlefieldEchoCostReductionCardNo` / `BattlefieldEquipmentCostReductionCardNo` constants.
@@ -53,6 +54,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Blood Altar official-deck replay focused validation: passed `1/1`;
+- latest Blood Altar battle-destroyed recall / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2597/2597`;
+- backend full conformance after the Blood Altar replay increment: passed `8861/8861`;
 - latest Poro Forge official-deck replay focused validation: passed `1/1`;
 - latest Poro Forge legend attach-armament / LegendAct / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2249/2249`;
 - backend full conformance after the Poro Forge replay increment: passed `8860/8860`;
