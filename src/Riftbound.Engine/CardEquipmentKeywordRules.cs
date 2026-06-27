@@ -173,7 +173,7 @@ public static class CardEquipmentKeywordRules
             || hasTempered
             || hasWeapon;
         var hasImplementedRepresentativeAssembleBoundary = hasAssemble
-            && ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile(spec.CardNo);
+            && AssembleEquipmentProfileCatalog.HasImplementedRepresentative(spec.CardNo);
         var hasImplementedRepresentativeAgileDirectPlayAttachBoundary = hasAgile
             && HasAgileDirectPlayAttachRepresentativeBoundary(spec.CardNo);
         var hasImplementedRepresentativeTemperedOptionalAttachBoundary = hasTempered

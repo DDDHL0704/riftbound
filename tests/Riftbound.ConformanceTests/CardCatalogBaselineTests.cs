@@ -6252,6 +6252,33 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void AssembleEquipmentRepresentativeProfilesUseSharedCatalog()
+    {
+        var engineRoot = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine");
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
+        var equipmentKeywordSource = File.ReadAllText(Path.Combine(engineRoot, "CardEquipmentKeywordRules.cs"));
+
+        Assert.DoesNotContain("private sealed record AssembleEquipmentProfile", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private sealed record AssembleEquipmentProfile", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ImplementedAssembleEquipmentProfiles", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ImplementedAssembleEquipmentProfiles", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("AssembleEquipmentProfileCatalog.TryGet", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AssembleEquipmentProfileCatalog.TryGet", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile",
+            equipmentKeywordSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "AssembleEquipmentProfileCatalog.HasImplementedRepresentative",
+            equipmentKeywordSource,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P5EquipmentStateAssembleLongSwordOwnerControllerFixtureProfileBindsExistingVerifierAnchors()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
