@@ -38268,8 +38268,9 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldConquerReadyLegendPaysOne()
     {
         var state = BattlefieldConquerReadyLegendState();
+        var engine = new CoreRuleEngine();
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-battlefield-ready-legend", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
@@ -38280,13 +38281,35 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.False(result.State.CardObjects["P1-LEGEND-READY-TARGET"].IsExhausted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-READY-TARGET"].IsExhausted);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-READY-TARGET", StringComparison.Ordinal));
+
+        var paid = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p7-9-battlefield-ready-legend-pay", "P1", "PAY_COST"),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.False(paid.State.CardObjects["P1-LEGEND-READY-TARGET"].IsExhausted);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+        Assert.Contains(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-READY-TARGET", StringComparison.Ordinal));
     }
@@ -38665,8 +38688,9 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldConquerSandSoldierPaysOneReturnsUnitAndCreatesToken()
     {
         var state = BattlefieldConquerSandSoldierState();
+        var engine = new CoreRuleEngine();
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-battlefield-sand-soldier", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
@@ -38677,22 +38701,46 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
-        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.CardObjects.Keys);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", result.State.CardObjects.Keys);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
+
+        var paid = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p7-9-battlefield-sand-soldier-pay", "P1", "PAY_COST"),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.CardObjects.Keys);
+        var triggerEvent = Assert.Single(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-SAND-ATTACKER", triggerEvent.Payload["returnedObjectId"]);
-        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+        var tokenEvent = Assert.Single(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
         var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
-        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal("SFD·T02", result.State.CardObjects[tokenObjectId].CardNo);
-        Assert.Equal(2, result.State.CardObjects[tokenObjectId].Power);
-        Assert.Contains(CardObjectTags.SandSoldier, result.State.CardObjects[tokenObjectId].Tags);
+        Assert.Contains(tokenObjectId, paid.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("SFD·T02", paid.State.CardObjects[tokenObjectId].CardNo);
+        Assert.Equal(2, paid.State.CardObjects[tokenObjectId].Power);
+        Assert.Contains(CardObjectTags.SandSoldier, paid.State.CardObjects[tokenObjectId].Tags);
     }
 
     [Fact]
@@ -67057,7 +67105,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-LEGEND-READY-TARGET"] = new(
                     "P1-LEGEND-READY-TARGET",
-                    cardNo: "SFD·195/221",
+                    cardNo: "TEST-LEGEND-READY-TARGET",
                     isExhausted: true,
                     tags: ["CARD_TYPE:LEGEND"],
                     ownerId: "P1",

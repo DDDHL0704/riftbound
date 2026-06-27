@@ -24978,7 +24978,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-LEGEND-READY-TARGET"] = new(
                     "P1-LEGEND-READY-TARGET",
-                    cardNo: "SFD·195/221",
+                    cardNo: "TEST-LEGEND-READY-TARGET",
                     isExhausted: true,
                     tags: ["CARD_TYPE:LEGEND"],
                     ownerId: seed.P1,

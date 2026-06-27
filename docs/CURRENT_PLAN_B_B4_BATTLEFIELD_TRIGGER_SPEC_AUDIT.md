@@ -536,11 +536,11 @@ The 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up moves anoth
   - `CreatedTokenPower = 2`
   - `CreatedTokenDestination = BATTLEFIELD`
   - `CreatedTokenExhausted = false`
-- `CoreRuleEngine.TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(...)`, reads the mana cost / return zones / token name and token power from `BehaviorSpec.Triggers`, and resolves the concrete unit token through `P6TokenFactoryCatalog` by token family and power.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneReturnUnitCreateSandSoldierPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(...)`, reads the mana cost / return zones / token name and token power from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerSandSoldierTriggerPayment` commits the payment before returning the selected unit and creating the concrete unit token through `P6TokenFactoryCatalog` by token family and power.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` card-number branch and `BattlefieldSandSoldierManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `64` total / `60` in `CoreRuleEngine`; Core battlefield helper count is `16`.
 
-The 2026-06-26 B0 replay follow-up proves the parsed `SFD·207/221` Imperial Shrine route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, pay the parsed cost, return the controlled conquest attacker to hand, create a ready 2-power Sand Soldier token at that battlefield, and replay through score victory to the same final state hash. The follow-up also tightens `MatchSession` snapshot projection so object ids that moved into a non-viewer hand, main deck, rune deck, or hidden battlefield standby are redacted from battle / battlefield task / resolution metadata ids and object-id collections.
+The 2026-06-27 B0 replay follow-up proves the parsed `SFD·207/221` Imperial Shrine route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, open `TRIGGER_PAYMENT`, accept replayable `PAY_COST(SPEND_MANA:1)` to pay the parsed cost, return the controlled conquest attacker to hand and create a ready 2-power Sand Soldier token at that battlefield, accept replayable `PAY_COST(DECLINE)` to close the same trigger window without cost, return, or token creation, and replay both branches through score victory to the same final state hash. The follow-up also keeps `MatchSession` snapshot projection redacting object ids that moved into a non-viewer hand, main deck, rune deck, or hidden battlefield standby from battle / battlefield task / resolution metadata ids and object-id collections.
 
 The 2026-06-25 conquer pay-ready-legend follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
@@ -551,11 +551,11 @@ The 2026-06-25 conquer pay-ready-legend follow-up moves another implemented conq
   - `TargetScope = CONTROLLED_LEGEND`
   - `ManaCost = 1`
   - `LegendReadyCount = 1`
-- `CoreRuleEngine.ResolveBattlefieldConquerPayOneReadyLegendTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(...)` and reads the mana cost and legend-ready count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayReadyLegendPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(...)`, reads the mana cost and legend-ready count from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerReadyLegendTriggerPayment` commits the payment before readying the selected exhausted legend.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReadyLegendCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReadyLegendCardNo` / `IsBattlefieldConquerPayOneReadyLegendCardNo` card-number branch and `BattlefieldReadyLegendManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `63` total / `59` in `CoreRuleEngine`; Core battlefield helper count is `15`.
 
-The 2026-06-26 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·210/221` Hall of Legends route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state with an exhausted controlled legend, pay the parsed cost, ready that legend, and replay through score victory to the same final state hash.
+The 2026-06-27 B0 replay follow-up moves the parsed `SFD·210/221` Hall of Legends route onto `TRIGGER_PAYMENT`. It proves the route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state with an exhausted controlled legend, accept replayable `PAY_COST(SPEND_MANA:1)` to pay the parsed cost and ready that legend, accept replayable `PAY_COST(DECLINE)` to close the same trigger window without cost and leave that legend exhausted, and replay both branches through score victory to the same final state hash.
 
 The 2026-06-25 defend reveal-spell-or-recycle follow-up moves another implemented defended-battlefield trigger away from engine card-number branching:
 
@@ -840,12 +840,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8430/8430`.
 
-2026-06-26 Imperial Shrine B0 action-log replay / hidden metadata redaction follow-up validation:
+2026-06-27 Imperial Shrine / Hall of Legends B0 trigger-payment replay follow-up validation:
 
-- focused B0 Imperial Shrine replay: passed `1/1`;
-- FullGameEndToEnd: passed `44/44`;
-- adjacent ImperialShrine / SandSoldier / PayReturnUnit / ReturnUnitCreate / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2122/2122`;
-- backend full conformance: passed `8738/8738`;
+- focused B0 Imperial Shrine / Hall of Legends pay + decline replay: passed `4/4`;
+- FullGameEndToEnd: passed `72/72`;
+- adjacent ImperialShrine / SandSoldier / PayReturnUnit / ReturnUnitCreate / HallOfLegends / ReadyLegend / LegendReadied / TriggerPayment / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2222/2222`;
+- backend full conformance: passed `8828/8828`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer pay-ready-legend follow-up validation:
@@ -855,14 +855,6 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8432/8432`.
-
-2026-06-26 Hall of Legends B0 action-log replay follow-up validation:
-
-- focused B0 Hall of Legends replay: passed `1/1`;
-- FullGameEndToEnd: passed `45/45`;
-- adjacent HallOfLegends / ReadyLegend / LegendReadied / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2117/2117`;
-- backend full conformance: passed `8739/8739`;
-- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 defend reveal-spell-or-recycle follow-up validation:
 

@@ -37,8 +37,8 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
 - from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
-- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, redacts the returned hand object's id from opponent battle metadata snapshots, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
-- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path pays the parsed cost, readies the controlled legend, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -216,9 +216,9 @@ This Treasure Pile increment additionally proves a legal official Vex deck openi
 
 This Sunken Temple increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield powerful-unit trigger-payment route through both `TRIGGER_PAYMENT` branches: replayable `PAY_COST(SPEND_MANA:1)` draws one controlled main-deck card, while replayable `PAY_COST(DECLINE)` closes the trigger window without `COST_PAID`, draw, or hidden-info leakage. Both branches continue through score victory and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
-This Imperial Shrine increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score victory, action-log replay, and opponent-view battle metadata redaction for the returned hidden hand object. It still does not close optional trigger prompt / decline semantics for all battlefield families, complete return-unit target choice breadth, complete token lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+This Imperial Shrine increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-return-unit create-Sand-Soldier route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)`, controlled unit return-to-hand and ready 2-power Sand Soldier token creation only on payment, declined window closure without `COST_PAID`, score victory, action-log replay, and opponent-view battle metadata redaction for the returned hidden hand object. It still does not close complete return-unit target choice breadth, complete token lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
-This Hall of Legends increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-ready-legend route through parsed cost payment, an exhausted controlled legend becoming ready, score victory, and action-log replay. It still does not close optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+This Hall of Legends increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield pay-ready-legend route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)`, the exhausted controlled legend becoming ready only on payment, declined window closure without `COST_PAID`, score victory, and action-log replay. It still does not close complete legend target-choice breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Hunting Grounds increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield overkill token route through server-authored `DECLARE_BATTLE`, assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score victory, and action-log replay. It still does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -480,91 +480,43 @@ Result:
 Passed: 8826, Failed: 0, Skipped: 0, Total: 8826
 ```
 
-Latest Imperial Shrine Sand Soldier focused validation passed:
+Latest Imperial Shrine / Hall of Legends trigger-payment focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesImperialShrineSandSoldier"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~ImperialShrineSandSoldier|FullyQualifiedName~HallOfLegendsReadyLegend"
 ```
 
 Result:
 
 ```text
-Passed: 1, Failed: 0, Skipped: 0, Total: 1
+Passed: 4, Failed: 0, Skipped: 0, Total: 4
 ```
 
-Latest Imperial Shrine FullGameEndToEnd validation passed:
+Latest Imperial Shrine / Hall of Legends FullGameEndToEnd validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
 ```
 
 Result:
 
 ```text
-Passed: 44, Failed: 0, Skipped: 0, Total: 44
+Passed: 72, Failed: 0, Skipped: 0, Total: 72
 ```
 
-Latest Imperial Shrine adjacent / hidden-info validation passed:
+Latest Imperial Shrine / Hall of Legends adjacent / hidden-info validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ImperialShrine|FullyQualifiedName~SandSoldier|FullyQualifiedName~PayReturnUnit|FullyQualifiedName~ReturnUnitCreate|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~ImperialShrine|FullyQualifiedName~SandSoldier|FullyQualifiedName~PayReturnUnit|FullyQualifiedName~ReturnUnitCreate|FullyQualifiedName~HallOfLegends|FullyQualifiedName~ReadyLegend|FullyQualifiedName~LegendReadied|FullyQualifiedName~TriggerPayment|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
 ```
 
 Result:
 
 ```text
-Passed: 2122, Failed: 0, Skipped: 0, Total: 2122
+Passed: 2222, Failed: 0, Skipped: 0, Total: 2222
 ```
 
-Latest Imperial Shrine backend full validation passed:
-
-```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
-```
-
-Result:
-
-```text
-Passed: 8738, Failed: 0, Skipped: 0, Total: 8738
-```
-
-Latest Hall of Legends pay-ready-legend focused validation passed:
-
-```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesHallOfLegendsReadyLegend"
-```
-
-Result:
-
-```text
-Passed: 1, Failed: 0, Skipped: 0, Total: 1
-```
-
-Latest Hall of Legends FullGameEndToEnd validation passed:
-
-```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
-```
-
-Result:
-
-```text
-Passed: 45, Failed: 0, Skipped: 0, Total: 45
-```
-
-Latest Hall of Legends adjacent / hidden-info validation passed:
-
-```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~HallOfLegends|FullyQualifiedName~ReadyLegend|FullyQualifiedName~LegendReadied|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
-```
-
-Result:
-
-```text
-Passed: 2117, Failed: 0, Skipped: 0, Total: 2117
-```
-
-Latest Hall of Legends backend full validation passed:
+Latest Imperial Shrine / Hall of Legends backend full validation passed:
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
@@ -573,7 +525,7 @@ Latest Hall of Legends backend full validation passed:
 Result:
 
 ```text
-Passed: 8739, Failed: 0, Skipped: 0, Total: 8739
+Passed: 8828, Failed: 0, Skipped: 0, Total: 8828
 ```
 
 Latest Ravenbloom defend reveal-spell focused validation passed:

@@ -545,21 +545,73 @@ public sealed class FullGameEndToEndTests
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
         Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
 
-        var triggered = await SubmitBattlefieldConquerSandSoldierDeclareBattleAsync(
+        var paymentOpened = await SubmitBattlefieldConquerSandSoldierDeclareBattleAsync(
             session,
             current,
             "P1",
             "b0-imperial-shrine-conquer");
-        AssertBattlefieldConquerSandSoldierResolved(current, triggered);
+        AssertBattlefieldConquerSandSoldierPaymentOpened(paymentOpened);
+
+        var paid = await PayBattlefieldConquerSandSoldierPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-imperial-shrine-pay-trigger");
+        AssertBattlefieldConquerSandSoldierResolved(paymentOpened, paid);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
-            triggered,
+            paid,
             "b0-imperial-shrine-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        Assert.DoesNotContain(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameDeclinesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldConquerSandSoldierOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldConquerSandSoldierOpeningAsync(
+            "b0-full-game-imperial-shrine-sand-soldier-decline-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldConquerSandSoldierMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var paymentOpened = await SubmitBattlefieldConquerSandSoldierDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-imperial-shrine-decline-conquer");
+        AssertBattlefieldConquerSandSoldierPaymentOpened(paymentOpened);
+
+        var declined = await DeclineTriggerPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-imperial-shrine-decline-trigger");
+        AssertBattlefieldConquerSandSoldierDeclined(paymentOpened, declined);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-imperial-shrine-decline-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -583,21 +635,73 @@ public sealed class FullGameEndToEndTests
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
         Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
 
-        var triggered = await SubmitBattlefieldConquerReadyLegendDeclareBattleAsync(
+        var paymentOpened = await SubmitBattlefieldConquerReadyLegendDeclareBattleAsync(
             session,
             current,
             "P1",
             "b0-hall-of-legends-conquer");
-        AssertBattlefieldConquerReadyLegendResolved(current, triggered);
+        AssertBattlefieldConquerReadyLegendPaymentOpened(paymentOpened);
+
+        var paid = await PayBattlefieldConquerReadyLegendPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-hall-of-legends-pay-trigger");
+        AssertBattlefieldConquerReadyLegendResolved(paymentOpened, paid);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
-            triggered,
+            paid,
             "b0-hall-of-legends-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        Assert.DoesNotContain(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameDeclinesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldConquerReadyLegendOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldConquerReadyLegendOpeningAsync(
+            "b0-full-game-hall-of-legends-ready-legend-decline-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldConquerReadyLegendMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var paymentOpened = await SubmitBattlefieldConquerReadyLegendDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-hall-of-legends-decline-conquer");
+        AssertBattlefieldConquerReadyLegendPaymentOpened(paymentOpened);
+
+        var declined = await DeclineTriggerPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-hall-of-legends-decline-trigger");
+        AssertBattlefieldConquerReadyLegendDeclined(paymentOpened, declined);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-hall-of-legends-decline-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -3181,6 +3285,93 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].Hand.Count, result.State.PlayerZones["P1"].Hand.Count);
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].MainDeck.Count, result.State.PlayerZones["P1"].MainDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerSandSoldierPaymentOpened(ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            ImperialShrineBattlefieldConquerSandSoldierCardNo);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        Assert.Equal(battlefieldObjectId, openedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(ImperialShrineBattlefieldConquerSandSoldierCardNo, openedEvent.Payload["battlefieldCardNo"]);
+        var returnedObjectId = Assert.IsType<string>(openedEvent.Payload["returnedObjectId"]);
+        Assert.Equal(WildclawBeastmasterCardNo, result.State.CardObjects[returnedObjectId].CardNo);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerSandSoldierDeclined(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        AssertTriggerPaymentDeclined(paymentOpened, result, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier);
+        Assert.Equal(paymentOpened.State.RunePools["P1"].Mana, result.State.RunePools["P1"].Mana);
+        Assert.Equal(paymentOpened.State.PlayerZones["P1"].Hand.Count, result.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(paymentOpened.State.PlayerZones["P1"].Battlefields.Count, result.State.PlayerZones["P1"].Battlefields.Count);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerReadyLegendPaymentOpened(ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            HallOfLegendsBattlefieldConquerReadyLegendCardNo);
+        var legendObjectId = Assert.Single(result.State.PlayerZones["P1"].LegendZone);
+        Assert.True(result.State.CardObjects[legendObjectId].IsExhausted);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));
+        Assert.Equal(battlefieldObjectId, openedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(HallOfLegendsBattlefieldConquerReadyLegendCardNo, openedEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(legendObjectId, openedEvent.Payload["legendObjectId"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerReadyLegendDeclined(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        var legendObjectId = Assert.Single(paymentOpened.State.PlayerZones["P1"].LegendZone);
+        AssertTriggerPaymentDeclined(paymentOpened, result, TriggerKinds.BattlefieldConquerPayReadyLegend);
+        Assert.Equal(paymentOpened.State.RunePools["P1"].Mana, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects[legendObjectId].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -9754,7 +9945,30 @@ public sealed class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
-        Assert.Null(result.State.PendingPayment);
+        Assert.NotNull(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> PayBattlefieldConquerSandSoldierPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Imperial Shrine payment driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
         return result;
     }
@@ -9821,7 +10035,30 @@ public sealed class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
-        Assert.Null(result.State.PendingPayment);
+        Assert.NotNull(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> PayBattlefieldConquerReadyLegendPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Hall of Legends payment driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
         return result;
     }
