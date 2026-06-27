@@ -144,6 +144,8 @@ The Marai Spire Echo cost-reduction action-log replay regression proves a legal 
 
 The Ornn's Forge equipment cost-reduction action-log replay regression proves a legal official deck can carry a B4 battlefield static cost modifier through the real `PLAY_CARD` equipment prompt path. `OfficialDeckMidgameResolvesOrnnForgeEquipmentCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Rumble decks whose battlefield set includes `SFD·213/221` Ornn's Forge / 奥恩的锻炉, probes official-opening seeds until P1 randomly selects that battlefield, stages official `SFD·022/221` Long Sword in hand with only 1 mana and official `SFD·006/221` Aggressive Dragonhound in base as the controlled attachment target, verifies `PLAY_CARD.sourceRequirements` exposes `manaCost = 2`, `minimumManaCost = 1`, and `battlefieldEquipmentCostReductionMana = 1`, verifies `COST_PAID.mana = 1`, `baseMana = 2`, `battlefieldEquipmentCostReductionMana = 1`, records `PLAYED_EQUIPMENT_THIS_TURN:P1`, resolves Long Sword onto the controlled unit, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complex equipment costs, all payment-resource combinations, complete equipment attachment lifecycle breadth, complete B4, complete official deck archetype breadth, or READY.
 
+The Poro Forge legend attach-armament action-log replay regression proves a legal official deck can carry a B4 battlefield-granted legend action through the real `LEGEND_ACT` prompt path. `OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Rumble decks whose battlefield set includes `SFD·208/221` Poro Forge / 魄罗熔炉, probes official-opening seeds until P1 randomly selects that battlefield, stages official `SFD·181/221` Rumble legend as a ready known source, official `SFD·006/221` Aggressive Dragonhound in base as the controlled unit target, and official `SFD·022/221` Long Sword in base as a controlled `武装`. The server-authored `LEGEND_ACT` prompt exposes `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD` plus indexed target choices for the controlled unit and armament; submitting it exhausts the legend, emits `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, `BATTLEFIELD_TRIGGER_RESOLVED.trigger = BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT`, and `EQUIPMENT_ATTACHED`, attaches Long Sword to the controlled unit, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage plus `FullGameEndToEndTests.RawCommand` replay serialization for `LegendActCommand`; it does not close full activated ability modeling for granted abilities, complete armament attachment lifecycle breadth, complete B4, complete official deck archetype breadth, or READY.
+
 The source same-location static-aura action-log replay regression proves a legal official deck can carry a threshold source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `SFD·159/221` Reliable Siege Dog and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages both friendly units and an opposing defender through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Reliable Siege Dog's `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` projection targets itself with the Envoy as a same-location participant, observes Reliable Siege Dog's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete same-location / count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
 
 The same-battlefield boon count-to-source static-aura action-log replay regression proves a legal official deck can carry a filtered count-to-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `OGN·240/298` Sett, `OGN·136/298` Arena Rookie, and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages Demacia Envoy to a battlefield, uses Arena Rookie's server-authored targeted `PLAY_CARD` prompt to grant `{{增益}}` to Demacia Envoy, stages Sett to the same battlefield, verifies Sett's `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` projection targets itself with the boon-bearing Envoy as participant, observes Sett's real `DAMAGE_APPLIED` with `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
@@ -173,6 +175,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Poro Forge legend attach-armament official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesPoroForgeLegendAttachArmament"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Poro Forge legend attach-armament adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~LegendAttachArmament|FullyQualifiedName~PoroForge|FullyQualifiedName~LegendAct|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2249, Failed: 0, Skipped: 0, Total: 2249
+```
+
+Latest Poro Forge legend attach-armament backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8860, Failed: 0, Skipped: 0, Total: 8860
+```
 
 Latest Ornn's Forge equipment cost-reduction official-deck replay focused validation passed:
 

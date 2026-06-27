@@ -28,6 +28,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldBandleTreeArrangesExtraStandbyCard`, `P79BattlefieldBandleTreeRejectsExtraStandbyWithoutControlledTree`, and `P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides` remain the runtime evidence for the extra-standby destination behavior.
 - Existing representative tests `P79BattlefieldBattleDestroyedUnitPaysThreeAndRecalls`, `P79BattlefieldBattleDestroyedUnitSkipsOpponentOwnedAltar`, `P79BattlefieldBattleDestroyedUnitFallsBackToDestroyWhenNoMana`, and `P79BattlefieldBattleDestroyedRecallSeedOffersBattlefieldDestinationAndRecalls` remain the runtime evidence for the battle-destroyed recall replacement behavior.
 - Existing representative tests `P79BattlefieldForgeGrantsLegendArmamentAttach`, `P79BattlefieldForgeReattachesControlledArmament`, `P79BattlefieldForgeLegendAttachRejectedWithoutControlledForge`, `P79BattlefieldForgeLegendAttachRejectsOpponentOwnedForge`, `P79BattlefieldForgeLegendAttachRejectsLegendSourceWithoutCardNo`, and `P79BattlefieldLegendAttachArmamentSeedOffersLegendActionAndAttaches` remain the runtime evidence for the battlefield-granted legend attach-armament behavior.
+- `OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash` now proves the same battlefield-granted legend attach-armament behavior through legal official Rumble deck submission/opening, P1 `SFD·208/221` Poro Forge selection, official `SFD·181/221` Rumble legend, official `SFD·006/221` Aggressive Dragonhound as the controlled unit target, official `SFD·022/221` Long Sword as a controlled `武装`, server-authored `LEGEND_ACT`, legend exhaustion, `BATTLEFIELD_TRIGGER_RESOLVED.trigger = BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT`, `EQUIPMENT_ATTACHED`, score victory, and final-state action-log replay.
 
 ## Runtime Evidence
 
@@ -48,6 +49,7 @@ The accepted `MOVE_UNIT` and `PLAY_CARD` paths preserve the same server-authorit
 - Extra standby destination permission from `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` still exposes `BATTLEFIELD:<objectId>` as a `HIDE_CARD` destination only for a controlled/legacy-owned battlefield source, accepts both official Bandle Tree variants, records `CARD_HIDDEN.destinationZone = BATTLEFIELD`, and rejects dirty opponent-controlled sources without state mutation.
 - Battle-destroyed recall replacement from `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` still applies only during `DECLARE_BATTLE_COMBAT_DAMAGE`, requires the controlled/legacy-owned battlefield source, reads `Amount = 3` for the mana payment, removes damage, exhausts the unit, recalls it to its controller's base, and falls back to normal destruction when the controller cannot pay.
 - Battlefield-granted legend attach-armament from `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` still exposes `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD` only when the player controls a battlefield with that static ability, rejects missing/opponent-controlled sources without mutation, exhausts the legend, attaches or reattaches the controlled armament, and emits `BATTLEFIELD_TRIGGER_RESOLVED` with the concrete `battlefieldObjectId` and `battlefieldCardNo`.
+- The official-deck replay path now carries that same `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` route from server-authored `LEGEND_ACT` prompt through prompt-indexed controlled-unit / armament choices, `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, `BATTLEFIELD_TRIGGER_RESOLVED.trigger = BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT`, `EQUIPMENT_ATTACHED`, score victory, and final-state action-log replay.
 
 ## Hidden Information Evidence
 
@@ -55,6 +57,9 @@ No hidden-zone or opponent-hand projection logic was changed. The extra-standby 
 
 ## Validation
 
+- latest Poro Forge official-deck replay focused validation: `1/1`;
+- latest Poro Forge legend attach-armament / LegendAct / FullGameEndToEnd / MatchRecovery adjacent validation: `2249/2249`;
+- backend full conformance after the Poro Forge replay increment: `8860/8860`;
 - latest Ornn's Forge official-deck replay focused validation: `1/1`;
 - latest Ornn's Forge equipment cost-reduction / LongSword / FullGameEndToEnd / MatchRecovery adjacent validation: `2179/2179`;
 - backend full conformance after the Ornn's Forge replay increment: `8859/8859`;

@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Ornn's Forge equipment cost-reduction replay accepted; project remains **NOT READY**.
+Status: focused B0 Poro Forge legend attach-armament replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -44,6 +44,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-213/219` Mutation Garden / 蜕变花园, then a focused midgame state keeps P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `ACTIVATE_ABILITY` prompt exposes `BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE`, the command exhausts that unit, emits `BATTLEFIELD_TRIGGER_RESOLVED.amount = 1` and `EXPERIENCE_GAINED.totalExperience = 1`, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening selects P1 `SFD·211/221` Marai Spire / 玛莱尖塔, then a focused midgame state keeps official `UNL-061/219` Center Stage in P1 hand with only 3 mana; the server-authored `PLAY_CARD` prompt exposes `ECHO` with the battlefield reduction reason, the command pays base 2 plus reduced Echo 1, records `battlefieldEchoCostReductionMana = 1`, creates a stack item with `effectRepeatCount = 2`, resolves to draw two cards, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening selects P1 `SFD·213/221` Ornn's Forge / 奥恩的锻炉, then a focused midgame state keeps official `SFD·022/221` Long Sword in P1 hand, official `SFD·006/221` Aggressive Dragonhound in P1 base, and only 1 mana; the server-authored `PLAY_CARD` prompt exposes `minimumManaCost = 1` and `battlefieldEquipmentCostReductionMana = 1`, the command pays the reduced first-equipment cost, records `PLAYED_EQUIPMENT_THIS_TURN:P1`, resolves Long Sword onto the controlled unit, and the command stream continues through score victory and action-log replay to the same final state hash;
+- from a seated official Rumble opening state, a verified legal official-deck opening selects P1 `SFD·208/221` Poro Forge / 魄罗熔炉, then a focused midgame state keeps official `SFD·181/221` Rumble legend ready, official `SFD·006/221` Aggressive Dragonhound in P1 base, and official `SFD·022/221` Long Sword in P1 base as a controlled `武装`; the server-authored `LEGEND_ACT` prompt exposes `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD` plus indexed controlled-unit / armament target choices, the command exhausts the legend, emits `BATTLEFIELD_TRIGGER_RESOLVED.trigger = BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT`, attaches Long Sword to the controlled unit, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -312,6 +313,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Poro Forge legend attach-armament official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesPoroForgeLegendAttachArmament"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Poro Forge legend attach-armament adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~LegendAttachArmament|FullyQualifiedName~PoroForge|FullyQualifiedName~LegendAct|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2249, Failed: 0, Skipped: 0, Total: 2249
+```
+
+Latest Poro Forge legend attach-armament backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8860, Failed: 0, Skipped: 0, Total: 8860
+```
 
 Latest Marai Spire Echo cost-reduction official-deck replay focused validation passed:
 

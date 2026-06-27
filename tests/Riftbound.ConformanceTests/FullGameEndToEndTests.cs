@@ -81,6 +81,7 @@ public sealed class FullGameEndToEndTests
     private const string VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string MaraiSpireBattlefieldEchoCostReductionCardNo = "SFD·211/221";
+    private const string PoroForgeBattlefieldLegendAttachArmamentCardNo = "SFD·208/221";
     private const string OrnnForgeBattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string VoidGateBattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
@@ -111,6 +112,7 @@ public sealed class FullGameEndToEndTests
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
     private const string ForbiddenWastelandBattlefieldIsolatedDefenderKeywordModifierCardNo = "UNL-210/219";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
+    private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
     private const string HasteReadyOptionalCost = "HASTE_READY";
     private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string PakaaCubCardNo = "OGN·135/298";
@@ -1565,6 +1567,39 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldLegendAttachArmamentOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldLegendAttachArmamentOpeningAsync(
+            "b0-full-game-poro-forge-legend-attach-armament-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldLegendAttachArmamentMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.LegendAct, current.Prompts["P1"].Actions);
+
+        var attached = await SubmitBattlefieldLegendAttachArmamentAsync(
+            session,
+            current,
+            "P1",
+            "b0-poro-forge-legend-attach-armament");
+        AssertBattlefieldLegendAttachArmamentResolved(current, attached);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            attached,
+            "b0-poro-forge-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.LegendAct, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5830,6 +5865,68 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldLegendAttachArmamentResolved(
+        ResolutionResult beforeAttach,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            beforeAttach.State,
+            "P1",
+            PoroForgeBattlefieldLegendAttachArmamentCardNo);
+        var legendObjectId = Assert.Single(beforeAttach.State.PlayerZones["P1"].LegendZone);
+        var targetObjectId = FindBaseUnitByCardNo(
+            beforeAttach.State,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge assertion could not locate Aggressive Dragonhound in P1 base.");
+        var equipmentObjectId = FindBaseArmamentByCardNo(
+            beforeAttach.State,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge assertion could not locate Long Sword armament in P1 base.");
+
+        Assert.Empty(result.State.StackItems);
+        Assert.True(result.State.CardObjects[legendObjectId].IsExhausted);
+        Assert.Contains(targetObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(equipmentObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(targetObjectId, result.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Contains(CardObjectTags.EquipmentCard, result.State.CardObjects[equipmentObjectId].Tags);
+        Assert.Contains("武装", result.State.CardObjects[equipmentObjectId].Tags);
+
+        var activatedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal("P1", activatedEvent.Payload["playerId"]);
+        Assert.Equal(legendObjectId, activatedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(BattlefieldGrantedLegendAttachArmamentAbilityId, activatedEvent.Payload["abilityId"]);
+
+        var exhaustedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal("P1", exhaustedEvent.Payload["playerId"]);
+        Assert.Equal(legendObjectId, exhaustedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(BattlefieldGrantedLegendAttachArmamentAbilityId, exhaustedEvent.Payload["abilityId"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(PoroForgeBattlefieldLegendAttachArmamentCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(legendObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(targetObjectId, triggerEvent.Payload["unitObjectId"]);
+        Assert.Equal(equipmentObjectId, triggerEvent.Payload["equipmentObjectId"]);
+        Assert.Equal(BattlefieldGrantedLegendAttachArmamentAbilityId, triggerEvent.Payload["abilityId"]);
+
+        var attachedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1", attachedEvent.Payload["playerId"]);
+        Assert.Equal(legendObjectId, attachedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(BattlefieldGrantedLegendAttachArmamentAbilityId, attachedEvent.Payload["abilityId"]);
+        Assert.Equal(targetObjectId, attachedEvent.Payload["unitObjectId"]);
+        Assert.Equal(equipmentObjectId, attachedEvent.Payload["equipmentObjectId"]);
+        Assert.Equal(targetObjectId, attachedEvent.Payload["attachedToObjectId"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldHighCostSpellInsightResolved(
         ResolutionResult beforeSpell,
         ResolutionResult result)
@@ -9303,6 +9400,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             OrnnForgeBattlefieldEquipmentCostReductionCardNo,
             "Ornn's Forge");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldLegendAttachArmamentOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            PoroForgeBattlefieldLegendAttachArmamentCardNo,
+            "Poro Forge");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHighCostSpellInsightOpeningAsync(
@@ -13797,6 +13907,66 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldLegendAttachArmamentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.LegendAct)
+            ?? throw new InvalidOperationException($"B0 Poro Forge driver could not find LEGEND_ACT for {playerId}: {DescribeState(current.State)}");
+        _ = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            PoroForgeBattlefieldLegendAttachArmamentCardNo);
+        var legendObjectId = Assert.Single(current.State.PlayerZones[playerId].LegendZone);
+        var targetObjectId = FindBaseUnitByCardNo(
+            current.State,
+            playerId,
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge driver could not find Aggressive Dragonhound in P1 base.");
+        var equipmentObjectId = FindBaseArmamentByCardNo(
+            current.State,
+            playerId,
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge driver could not find Long Sword armament in P1 base.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalModeIds = candidate.Modes?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(legendObjectId, legalSourceIds);
+        Assert.Contains(BattlefieldGrantedLegendAttachArmamentAbilityId, legalModeIds);
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, legendObjectId, StringComparison.Ordinal)
+                && string.Equals(requirement["abilityId"] as string, BattlefieldGrantedLegendAttachArmamentAbilityId, StringComparison.Ordinal));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["exhaustsSource"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Contains(targetObjectId, targetChoicesByIndex["0"].Select(choice => choice.Id));
+        Assert.Contains(equipmentObjectId, targetChoicesByIndex["1"].Select(choice => choice.Id));
+
+        var command = new LegendActCommand(
+            legendObjectId,
+            BattlefieldGrantedLegendAttachArmamentAbilityId,
+            [targetObjectId, equipmentObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldHighCostSpellInsightSpellAsync(
         MatchSession session,
         ResolutionResult current,
@@ -17351,6 +17521,21 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown);
     }
 
+    private static string? FindBaseArmamentByCardNo(
+        MatchState state,
+        string playerId,
+        string cardNo)
+    {
+        return state.PlayerZones[playerId].Base.FirstOrDefault(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+            && state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "BASE", StringComparison.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && cardObject.Tags.Contains("武装", StringComparer.Ordinal)
+            && !cardObject.IsFaceDown);
+    }
+
     private static string? FindReadyBattlefieldDefender(
         MatchState state,
         string playerId,
@@ -18439,6 +18624,27 @@ public sealed class FullGameEndToEndTests
         var selectedBattlefields = new List<string>
         {
             OrnnForgeBattlefieldEquipmentCostReductionCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildBattlefieldLegendAttachArmamentOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            RumbleLegendCardNo,
+            RumbleChampionCardNo,
+            [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            PoroForgeBattlefieldLegendAttachArmamentCardNo,
             WinningScoreIncreaseBattlefieldCardNo,
             FirstTurnExtraRuneBattlefieldCardNo
         };
@@ -19582,6 +19788,14 @@ public sealed class FullGameEndToEndTests
                 abilityId = activateAbility.AbilityId,
                 targetObjectIds = activateAbility.TargetObjectIds,
                 optionalCosts = activateAbility.OptionalCosts ?? []
+            }),
+            LegendActCommand legendAct => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = legendAct.CmdType,
+                sourceObjectId = legendAct.SourceObjectId,
+                abilityId = legendAct.AbilityId,
+                targetObjectIds = legendAct.TargetObjectIds,
+                optionalCosts = legendAct.OptionalCosts ?? []
             }),
             AssignCombatDamageCommand assignCombatDamage => JsonSerializer.SerializeToElement(new
             {
@@ -21885,6 +22099,101 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[targetObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(effectId, "PLAYED_EQUIPMENT_THIS_TURN:P1", StringComparison.Ordinal))
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldLegendAttachArmamentMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo],
+                    new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        _ = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            PoroForgeBattlefieldLegendAttachArmamentCardNo);
+        var targetObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge setup could not find Aggressive Dragonhound in P1 hand.");
+        var equipmentObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge setup could not find Long Sword in P1 hand.");
+        var legendObjectId = Assert.Single(midgameState.PlayerZones["P1"].LegendZone);
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, targetObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, equipmentObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Base = p1Zones.Base.Concat([targetObjectId, equipmentObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[targetObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[equipmentObjectId] = new ObjectLocationState("P1", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[legendObjectId] = cardObjects[legendObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[targetObjectId] = cardObjects[targetObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[targetObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[equipmentObjectId] = cardObjects[equipmentObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags =
+            [
+                CardObjectTags.EquipmentCard,
+                "武装",
+                CardEquipmentKeywordNames.Weapon,
+                CardEquipmentKeywordNames.Agile
+            ],
+            AttachedToObjectId = null,
             OwnerId = "P1",
             ControllerId = "P1"
         };
