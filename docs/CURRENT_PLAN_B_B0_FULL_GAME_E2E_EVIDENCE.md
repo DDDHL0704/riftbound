@@ -100,6 +100,8 @@ The Frost Hold turn-start damage action-log replay regression now proves a legal
 
 The Duskpetal Lab turn-start destroy/draw action-log replay regression now proves a legal official deck opening can feed the parsed optional turn-start battlefield trigger into score victory. `OfficialDeckMidgameResolvesDuskpetalLabTurnStartDestroyDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex openings that select official `UNL-209/219` Duskpetal Lab for P2, then starts from a focused midgame main phase with one P2 official `UNL-057/219` Wildclaw Beastmaster at Duskpetal Lab and another P2 Wildclaw at a different battlefield. The server-authored `END_TURN` route advances to P2's turn start, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, destroys only the same-battlefield controlled unit, moves it to P2 graveyard, draws one P2 card before scoring, leaves the offsite controlled unit on the battlefield, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close optional yes/no trigger prompts, complete turn-start battlefield breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Power Obelisk first-turn extra-rune action-log replay regression now proves a legal official deck opening can select the parsed first-turn extra-rune battlefield source and feed a focused first-turn replay into score victory. `OfficialDecksResolvePowerObeliskFirstTurnExtraRuneAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex official openings that select official `OGN·284/298` Power Obelisk for P1, then derives a focused first-turn replay state from that official opening. The server-authored `END_TURN` route advances to P2's first turn start, emits `RUNES_CALLED` with `count=4`, decreases P2's rune deck by four, preserves hidden-zone snapshot boundaries, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close natural earliest opening rune-call timing, complete turn-start battlefield breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Vaults of Helia held unit-cost action-log replay regression proves a legal official deck opening can feed the BehaviorSpec-backed held-battlefield cost marker into a later server-authored play prompt. `OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening that selected official `UNL-219/219` Vaults of Helia for P1, then starts from a focused midgame main phase with `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` active and official `OGN·211/298` Loyal Craftsman in P1 hand. The server-authored `PLAY_CARD` prompt exposes Loyal Craftsman with `manaCost=3`, `minimumManaCost=4`, and `battlefieldHeldUnitCostIncreaseMana=1`; submitting the play pays 4 mana, emits `COST_PAID` with the parsed held-unit-cost surcharge, adds the unit stack item, resolves it, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage plus a catalog reason string; it does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Dunehorn Beast unit battlefield-held draw action-log replay regression proves a legal official deck opening can feed a unit-source held trigger into the B0 score-victory route. `OfficialDeckMidgameResolvesDunehornBeastUnitHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin deck openings, then starts from a focused midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel. The server-authored `DECLARE_BATTLE` route leaves Dunehorn Beast as the surviving holder, emits `TRIGGER_RESOLVED` with `trigger=UNIT_BATTLEFIELD_HELD_DRAW`, `sourceCardNo=SFD·027/221`, and `drawCount=2`, draws two controlled main-deck cards for P2, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -145,6 +147,54 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Power Obelisk first-turn extra-rune score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDecksResolvePowerObeliskFirstTurnExtraRune"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Power Obelisk FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 79, Failed: 0, Skipped: 0, Total: 79
+```
+
+Latest Power Obelisk adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~PowerObelisk|FullyQualifiedName~FirstTurnRune|FullyQualifiedName~BattlefieldFirstTurn|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2076, Failed: 0, Skipped: 0, Total: 2076
+```
+
+Latest Power Obelisk backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8835, Failed: 0, Skipped: 0, Total: 8835
+```
 
 Latest Duskpetal Lab turn-start destroy-draw score-victory focused validation passed:
 
@@ -1329,6 +1379,8 @@ The current Piltover Academy increment additionally proves one BehaviorSpec-driv
 The current Frost Hold increment additionally proves one BehaviorSpec-driven turn-start damage route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, same-battlefield target scoping for both players' official Wildclaw Beastmasters, pre-scoring damage application, score-victory replay, and hidden-info guarded full-game helpers. Complete turn-start battlefield trigger breadth, optional trigger choice prompts, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Duskpetal Lab increment additionally proves one BehaviorSpec-driven turn-start destroy-draw route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, same-battlefield controlled-unit destruction, one-card draw before scoring, offsite controlled-unit preservation, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete turn-start battlefield trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Power Obelisk increment additionally proves one BehaviorSpec-driven first-turn extra-rune route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, a focused first-turn replay state derived from that opening, replayable P2 first-turn `RUNES_CALLED` count four, score-victory replay, and hidden-info guarded full-game helpers. Natural earliest opening rune-call timing, complete turn-start battlefield trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Dream Tree increment additionally proves one BehaviorSpec-driven friendly-spell draw route through an official `PLAY_CARD` target at the same battlefield, parsed `BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`, one controlled main-deck draw, until-end trigger memory, spell stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Duskpetal Lab turn-start destroy-draw score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 Power Obelisk first-turn extra-rune score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -43,6 +43,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy vs Vex opening state, a verified legal official-deck opening selects P2 `UNL-216/219` Piltover Academy, then starts a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield; the held path resolves the parsed `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO` marker, and a derived P2 neutral-open next-spell window plays official `UNL-007/219` Punishment with the granted Echo optional cost, resolves the repeated spell stack, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-212/219` Frost Hold, then starts a focused midgame main phase with both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield; server-authored `END_TURN` advances to P2 turn start, resolves parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, applies one pre-scoring damage to both same-battlefield units, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P2 `UNL-209/219` Duskpetal Lab, then starts a focused midgame main phase with one P2 official `UNL-057/219` Wildclaw Beastmaster at Duskpetal Lab and another P2 Wildclaw at a different battlefield; server-authored `END_TURN` advances to P2 turn start, resolves parsed `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, destroys only the same-battlefield controlled unit, draws one card before scoring, leaves the offsite controlled unit on the battlefield, and continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·284/298` Power Obelisk, then starts a focused first-turn replay state derived from that official opening; server-authored `END_TURN` advances to P2 first turn start, resolves parsed `BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, calls four runes for P2, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -265,6 +266,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Power Obelisk first-turn extra-rune score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDecksResolvePowerObeliskFirstTurnExtraRune"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Power Obelisk FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 79, Failed: 0, Skipped: 0, Total: 79
+```
+
+Latest Power Obelisk adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~PowerObelisk|FullyQualifiedName~FirstTurnRune|FullyQualifiedName~BattlefieldFirstTurn|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2076, Failed: 0, Skipped: 0, Total: 2076
+```
+
+Latest Power Obelisk backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8835, Failed: 0, Skipped: 0, Total: 8835
+```
 
 Latest Duskpetal Lab turn-start destroy-draw score-victory focused validation passed:
 
