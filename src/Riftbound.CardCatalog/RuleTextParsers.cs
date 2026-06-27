@@ -583,6 +583,21 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var unitBattlefieldHeldDrawMatch = Regex.Match(
+            segment,
+            @"当我据守一处战场时，抽([0-9一两二三四五六七八九十]+)张牌。?$",
+            RegexOptions.CultureInvariant);
+        if (unitBattlefieldHeldDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitBattlefieldHeldDraw,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Unit battlefield-held draw trigger parsed for B4 routing; execution is available through shared unit battlefield-held TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: ParseChineseNumber(unitBattlefieldHeldDrawMatch.Groups[1].Value));
+        }
+
         var unitConquestGrantSelfBoonMatch = Regex.Match(
             segment,
             @"当我被打出时、或当我征服一处战场时，给予我增益。?$",

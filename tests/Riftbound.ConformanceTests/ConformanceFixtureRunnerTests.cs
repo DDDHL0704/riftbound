@@ -37555,9 +37555,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitBattlefieldHeldDraw, StringComparison.Ordinal));
         Assert.Equal("P2", triggerEvent.Payload["playerId"]);
         Assert.Equal("P2-DUNEHORN-BEAST", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(TriggerKinds.UnitBattlefieldHeldDraw, triggerEvent.Payload["effectKind"]);
         Assert.Equal(2, triggerEvent.Payload["drawCount"]);
         var drawEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)

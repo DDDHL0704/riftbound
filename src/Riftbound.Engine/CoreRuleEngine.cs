@@ -425,8 +425,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseEquipmentTokenIsExhausted: true);
     private const string MountainApeElderCardNo = "SFD·047/221";
     private const string MountainApeElderBoonReadyEffectKind = "MOUNTAIN_APE_ELDER_BOON_READY";
-    private const string DunehornBeastCardNo = "SFD·027/221";
-    private const string DunehornBeastBattlefieldHeldDrawEffectKind = "DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2";
     private const string UnsungHeroCardNo = "SFD·167/221";
     private const string UnsungHeroLastBreathSourceEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
@@ -17826,8 +17824,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor = battlefieldDrawApplication.RngCursor;
                 }
 
-                var dunehornBeastHeldEvents = new List<GameEvent>();
-                if (TryResolveDunehornBeastBattlefieldHeldDrawTrigger(
+                var unitHeldDrawEvents = new List<GameEvent>();
+                if (TryResolveUnitBattlefieldHeldDrawTriggers(
                         state,
                         playerZones,
                         cardObjects,
@@ -17836,8 +17834,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         battlefieldId,
                         defenderObjectIds,
                         rngCursor,
-                        dunehornBeastHeldEvents,
-                        out var dunehornBeastHeldDrawApplication))
+                        unitHeldDrawEvents,
+                        out var unitHeldDrawApplication))
                 {
                     AddBattlefieldHeldEventIfNeeded(
                         combatEvents,
@@ -17846,10 +17844,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                         battlefieldId,
                         attackerObjectId,
                         defenderObjectIds);
-                    combatEvents.AddRange(dunehornBeastHeldEvents);
-                    playerScores = dunehornBeastHeldDrawApplication.PlayerScores;
-                    winnerPlayerId = dunehornBeastHeldDrawApplication.WinnerPlayerId ?? winnerPlayerId;
-                    rngCursor = dunehornBeastHeldDrawApplication.RngCursor;
+                    combatEvents.AddRange(unitHeldDrawEvents);
+                    playerScores = unitHeldDrawApplication.PlayerScores;
+                    winnerPlayerId = unitHeldDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+                    rngCursor = unitHeldDrawApplication.RngCursor;
                 }
 
                 var battlefieldMinionEvents = new List<GameEvent>();
@@ -21965,7 +21963,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryResolveDunehornBeastBattlefieldHeldDrawTrigger(
+    private static bool TryResolveUnitBattlefieldHeldDrawTriggers(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -21978,14 +21976,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
-        var sourceObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, DunehornBeastCardNo, StringComparison.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+        var sourceTriggers = new List<(string ObjectId, CardObjectState CardObject, TriggerSpec Trigger)>();
+        foreach (var objectId in SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds)
             .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal)
-            .ToArray();
-        if (sourceObjectIds.Length == 0)
+            .OrderBy(static candidate => candidate, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                || !UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(cardObject.CardNo, out var trigger))
+            {
+                continue;
+            }
+
+            sourceTriggers.Add((objectId, cardObject, trigger));
+        }
+
+        if (sourceTriggers.Count == 0)
         {
             return false;
         }
@@ -21993,25 +21999,33 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextPlayerScores = playerScores;
         var nextRngCursor = rngCursor;
         string? nextWinnerPlayerId = null;
-        foreach (var sourceObjectId in sourceObjectIds)
+        foreach (var source in sourceTriggers)
         {
+            var drawCount = source.Trigger.DrawCount.GetValueOrDefault();
+            if (drawCount <= 0)
+            {
+                continue;
+            }
+
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{sourceObjectId} 据守战场并抽两张牌",
+                $"{source.ObjectId} 据守战场并抽牌",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["battlefieldId"] = battlefieldId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["effectKind"] = DunehornBeastBattlefieldHeldDrawEffectKind,
-                    ["drawCount"] = 2
+                    ["sourceObjectId"] = source.ObjectId,
+                    ["sourceCardNo"] = source.CardObject.CardNo,
+                    ["trigger"] = source.Trigger.Kind,
+                    ["effectKind"] = source.Trigger.Kind,
+                    ["drawCount"] = drawCount
                 }));
             var sourceDrawApplication = ApplyDrawToPlayer(
                 state,
                 playerZones,
                 nextPlayerScores,
                 playerId,
-                2,
+                drawCount,
                 nextRngCursor,
                 events);
             nextPlayerScores = sourceDrawApplication.PlayerScores;

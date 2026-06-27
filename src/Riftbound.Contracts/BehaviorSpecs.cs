@@ -149,6 +149,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
+    public const string UnitBattlefieldHeldDraw =
+        "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =

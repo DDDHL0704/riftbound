@@ -1718,6 +1718,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitBattlefieldHeldDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var dunehornBeast = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·027/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            dunehornBeast.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitBattlefieldHeldDraw, StringComparison.Ordinal));
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(2, trigger.DrawCount);
+        Assert.Contains("当我据守一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽两张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit battlefield-held draw trigger parsed for B4 routing; execution is available through shared unit battlefield-held TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldCallRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4882,6 +4903,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHoldDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHoldDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitBattlefieldHeldDrawTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("DunehornBeastCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DunehornBeastBattlefieldHeldDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

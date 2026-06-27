@@ -16,6 +16,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-214/219` 鬼影湾 has official text `当此处的一名单位返回到一名玩家的手牌时，该玩家可以选择支付{{1}}，以此召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-215/219` 流星疗泉 has official text `每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·280/298` has official text `当你据守此处时，抽一张牌。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·027/221` 穿沙角兽 has official text `如果你的手牌不超过两张，则我以活跃状态进场。` / `当我据守一处战场时，抽两张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·288/298` 星尖峰 has official text `当你据守此处时，你可以选择召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·219/221` 彩纸灵树 has official text `当你据守此处时，每名玩家召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-207/219` 业余排练厅 has official text `当你据守此处时，你可以选择将战场上的一名单位移动到其基地。`
@@ -58,6 +59,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldReturnedUnit...` and GameHub `P79BattlefieldReturnCallRuneSeed...` remain the runtime evidence for the unit-returned pay-mana call-rune behavior.
 - Existing representative tests `P79BattlefieldFirstUnitPlayedMoveOther...` and GameHub `P79BattlefieldFirstUnitMoveOtherSeed...` remain the runtime evidence for the first non-token unit-play move-other-to-base behavior.
 - Existing representative tests `P79BattlefieldHeldDraw...` and GameHub `P79BattlefieldHeldDrawSeed...` remain the runtime evidence for the held draw-one behavior.
+- Representative tests `BehaviorSpecCatalogParsesUnitBattlefieldHeldDrawTrigger`, `UnitBattlefieldHeldDrawTriggerDoesNotUseCardNumberAllowList`, and `P79DunehornBeastDrawsTwoWhenHoldingBattlefield` are the runtime evidence for the unit battlefield-held draw behavior.
 - Existing representative tests `P79BattlefieldHeldCallsRuneForHolder` and GameHub `P79BattlefieldHeldRuneSeedOffersBattlefieldDestinationAndCallsRuneForHolder` remain the runtime evidence for the held call-rune behavior.
 - Existing representative tests `P79BattlefieldHeldCallsRunesForEachPlayer` and GameHub `P79BattlefieldHeldRunesSeedOffersBattlefieldDestinationAndCallsRunes` remain the runtime evidence for the held each-player call-rune behavior.
 - Existing representative tests `P79BattlefieldHeldMovesSurvivingDefenderToBase` and GameHub `P79BattlefieldHeldMoveToBaseSeedOffersBattlefieldDestinationAndMovesDefender` remain the runtime evidence for the held move-unit-to-base behavior.
@@ -145,6 +147,10 @@ The held draw-one follow-up parser path turns the official battlefield text into
 The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and applies the authoritative draw path through `ApplyDrawToPlayer`. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` payload now uses the parsed trigger kind and parsed draw count, preserving hidden main-deck ordering boundaries through the existing draw implementation.
 
 The 2026-06-27 B0 follow-up adds an official-deck action-log replay for `OGN·280/298`. It selects the BehaviorSpec battlefield source through normal opening prompts, stages a low-power official attacker and a surviving official defender at that battlefield, resolves the `DECLARE_BATTLE` held path, asserts the parsed draw trigger and hidden-safe draw state transition, then replays the resulting action log to the final score-victory state hash.
+
+The unit battlefield-held draw follow-up parser path turns the Dunehorn Beast held sentence into a structured `TriggerSpec` with `Kind=UNIT_BATTLEFIELD_HELD_DRAW`, `Timing=BATTLEFIELD_HELD`, `TargetScope=SOURCE_UNIT`, and `DrawCount=2`. Runtime no longer checks `SFD·027/221` through `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind`; it queries `BehaviorSpec.Triggers` via `UnitBattlefieldHeldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` held-unit path still requires the battlefield holder to survive combat and be controlled by the battlefield holder. The emitted `TRIGGER_RESOLVED` payload now uses the parsed trigger kind for both `trigger` and `effectKind`, carries the parsed draw count, and applies the authoritative hidden-safe draw path through `ApplyDrawToPlayer`. The separate low-hand active entry sentence remains outside this slice.
 
 The held call-rune follow-up parser path turns the Star Peak official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_CALL_RUNE`, `Timing=BATTLEFIELD_HELD`, and `RuneCallCount=1`. Runtime no longer checks `OGN·288/298` through `BattlefieldHoldCallRuneCardNo` / `IsBattlefieldHoldCallRuneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
@@ -340,6 +346,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held draw-one `OGN·280/298` B0 action-log replay follow-up: `1/1`;
 - held draw-one `OGN·280/298` B0 full-game follow-up: `55/55`;
 - held draw-one `OGN·280/298` B0 adjacent BattlefieldHeld / BattlefieldTriggerSpec follow-up: `88/88`;
+- unit battlefield-held draw focused behavior-spec/source guard/runtime representative: `3/3`;
+- unit battlefield-held draw adjacent Dunehorn / BattlefieldHeld / BattlefieldTriggerSpec / MatchRecovery representatives: `2078/2078`;
+- unit battlefield-held draw backend full conformance: `8807/8807`;
 - held call-rune focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - held call-rune adjacent BattlefieldHeld / BattlefieldTriggerSpec / BattlefieldReturnCallRune representatives: `64/64`;
 - held call-rune Star Peak B0 action-log replay follow-up: `1/1`;
