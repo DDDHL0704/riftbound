@@ -36443,7 +36443,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "OVERKILL_CONQUER_READY_UNIT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestOverkillExhaustReadyUnit, StringComparison.Ordinal));
         Assert.Equal("UNL-187/219", triggerEvent.Payload["legendCardNo"]);
         Assert.Equal("P1-VI-READY-TARGET", triggerEvent.Payload["readyTargetObjectId"]);
         Assert.Contains(result.Events, gameEvent =>
@@ -36473,7 +36473,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "OVERKILL_CONQUER_READY_UNIT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestOverkillExhaustReadyUnit, StringComparison.Ordinal));
     }
 
     [Fact]

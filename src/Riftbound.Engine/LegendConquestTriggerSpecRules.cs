@@ -24,6 +24,14 @@ internal static class LegendConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLegendConquestOverkillExhaustReadyUnitTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.LegendConquestOverkillExhaustReadyUnit,
+            out trigger);
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

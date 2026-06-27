@@ -17662,7 +17662,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignedOverkillDamageToEnemyUnits,
                 combatEvents);
 
-            combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
+            combatEvents.AddRange(ResolveLegendConquestOverkillExhaustReadyUnitTrigger(
                 playerZones,
                 cardObjects,
                 intent.PlayerId,
@@ -20664,7 +20664,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static IReadOnlyList<GameEvent> ResolveViLegendOverkillConquerTrigger(
+    private static IReadOnlyList<GameEvent> ResolveLegendConquestOverkillExhaustReadyUnitTrigger(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -20672,17 +20672,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         string attackerObjectId,
         int assignedOverkillDamageToEnemyUnits)
     {
-        if (assignedOverkillDamageToEnemyUnits < ViLegendOverkillThreshold
-            || !TryGetActiveViLegend(
+        if (!TryGetActiveLegendConquestOverkillExhaustReadyUnitSource(
                 playerZones,
                 cardObjects,
                 playerId,
                 out var legendObjectId,
-                out var legendState)
-            || !TryGetViLegendReadyTarget(
+                out var legendState,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ExhaustedUnitOnField, StringComparison.Ordinal)
+            || trigger.RequiredOverkillDamage is not > 0
+            || assignedOverkillDamageToEnemyUnits < trigger.RequiredOverkillDamage.Value
+            || trigger.ExhaustsSource is not true
+            || trigger.UnitReadyCount is not 1
+            || !TryGetLegendConquestReadyUnitTarget(
                 playerZones,
                 cardObjects,
-                playerId,
                 out var readyTargetObjectId,
                 out var readyTargetState))
         {
@@ -20702,13 +20707,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         [
             new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的皮城执法官因过量伤害征服触发",
+                $"{playerId} 的传奇因过量伤害征服触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["legendObjectId"] = legendObjectId,
                     ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = "OVERKILL_CONQUER_READY_UNIT",
+                    ["trigger"] = trigger.Kind,
                     ["sourceObjectId"] = attackerObjectId,
                     ["battlefieldId"] = battlefieldId,
                     ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
@@ -20721,7 +20726,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "OVERKILL_CONQUER_READY_UNIT"
+                    ["reason"] = trigger.Kind
                 }),
             new GameEvent(
                 "UNIT_READIED",
@@ -20733,7 +20738,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = readyTargetObjectId,
                     ["wasExhausted"] = true,
                     ["isExhausted"] = false,
-                    ["reason"] = "OVERKILL_CONQUER_READY_UNIT"
+                    ["reason"] = trigger.Kind
                 })
         ];
     }
@@ -21277,15 +21282,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryGetActiveViLegend(
+    private static bool TryGetActiveLegendConquestOverkillExhaustReadyUnitSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         out string legendObjectId,
-        out CardObjectState legendState)
+        out CardObjectState legendState,
+        out TriggerSpec trigger)
     {
         legendObjectId = string.Empty;
         legendState = new CardObjectState();
+        trigger = default!;
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -21294,7 +21301,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !LegendCardHasIdentity(candidate.CardNo, ViLegendIdentityId)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+                || !LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger(candidate.CardNo, out var triggerSpec)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -21302,27 +21310,25 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             legendObjectId = objectId;
             legendState = candidate;
+            trigger = triggerSpec;
             return true;
         }
 
         return false;
     }
 
-    private static bool TryGetViLegendReadyTarget(
+    private static bool TryGetLegendConquestReadyUnitTarget(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
         out string readyTargetObjectId,
         out CardObjectState readyTargetState)
     {
         readyTargetObjectId = string.Empty;
         readyTargetState = new CardObjectState();
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.Base.Concat(zones.Battlefields).OrderBy(objectId => objectId, StringComparer.Ordinal))
+        foreach (var objectId in playerZones
+            .Values
+            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)

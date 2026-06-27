@@ -92,6 +92,8 @@ public static class TriggerKinds
         "LEGEND_CONQUEST_PAY_1_READY_SELF";
     public const string LegendConquestReadySelf =
         "LEGEND_CONQUEST_READY_SELF";
+    public const string LegendConquestOverkillExhaustReadyUnit =
+        "LEGEND_CONQUEST_OVERKILL_EXHAUST_READY_UNIT";
     public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
         "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE";
     public const string BattlefieldConquerOverkillCreateWarhawk =
@@ -198,6 +200,7 @@ public static class TriggerTargetScopes
     public const string ControlledUnitAtThisBattlefield = "CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ControlledLegend = "CONTROLLED_LEGEND";
     public const string SourceLegend = "SOURCE_LEGEND";
+    public const string ExhaustedUnitOnField = "EXHAUSTED_UNIT_ON_FIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
@@ -428,6 +431,8 @@ public sealed record TriggerSpec(
     int? RuneCallCount = null,
     int? RuneReadyCount = null,
     bool? ReadiesSource = null,
+    bool? ExhaustsSource = null,
+    int? UnitReadyCount = null,
     string? ReadyTiming = null,
     int? EquipmentReadyCount = null,
     int? LegendReadyCount = null,

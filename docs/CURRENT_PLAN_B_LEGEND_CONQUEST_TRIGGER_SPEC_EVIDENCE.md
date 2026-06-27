@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records the concrete evidence for routing legend-source conquered-battlefield ready-self triggers through BehaviorSpec instead of single-legend Core resolvers.
+This file records the concrete evidence for routing legend-source conquered-battlefield triggers through BehaviorSpec instead of single-legend Core resolvers.
 
 ## 1. Official Source
 
@@ -13,6 +13,9 @@ This file records the concrete evidence for routing legend-source conquered-batt
 - `data/official/card-catalog.zh-CN.json`: `OGN·269/298` 腕豪 has official text `当你征服一处战场时，让我变为活跃状态。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·310/298` 腕豪 has the same conquest ready-self text.
 - `data/official/card-catalog.zh-CN.json`: `OGN·310*/298` 腕豪 has the same conquest ready-self text.
+- `data/official/card-catalog.zh-CN.json`: `UNL-187/219` 皮城执法官 has official text `当你征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则你可以选择让我变为休眠状态，以此让一名单位变为活跃状态。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-229/219` 皮城执法官 has the same overkill exhaust-ready-unit text.
+- `data/official/card-catalog.zh-CN.json`: `UNL-229*/219` 皮城执法官 has the same overkill exhaust-ready-unit text.
 
 ## 2. BehaviorSpec Evidence
 
@@ -37,6 +40,18 @@ The parser evidence is covered by `BehaviorSpecCatalogParsesLegendConquestPayRea
 
 The parser evidence is covered by `BehaviorSpecCatalogParsesLegendConquestReadySelfTrigger`, which checks all three official Sett entries.
 
+`RuleTextParser` now parses the official Vi conquest text into:
+
+- `Kind = LEGEND_CONQUEST_OVERKILL_EXHAUST_READY_UNIT`
+- `Timing = BATTLEFIELD_CONQUERED`
+- `TargetScope = EXHAUSTED_UNIT_ON_FIELD`
+- `RequiredOverkillDamage = 3`
+- `ExhaustsSource = true`
+- `UnitReadyCount = 1`
+- `Optional = true`
+
+The parser evidence is covered by `BehaviorSpecCatalogParsesLegendConquestOverkillExhaustReadyUnitTrigger`, which checks all three official Vi entries.
+
 ## 3. Runtime Evidence
 
 - `LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger(cardNo, out trigger)` builds its trigger map from `BehaviorSpecCatalogBuilder`.
@@ -49,6 +64,11 @@ The parser evidence is covered by `BehaviorSpecCatalogParsesLegendConquestReadyS
 - `CoreRuleEngine.ResolveLegendConquestReadySelfTrigger` scans the conquering player's legend zone and accepts only controlled, exhausted legends whose card number has the parsed `LEGEND_CONQUEST_READY_SELF` trigger.
 - The old `ResolveSettLegendConquerReadyTrigger` helper is removed, and `LegendConquestReadySelfTriggerDoesNotUseSettSpecificResolver` blocks reintroducing that Sett-specific resolver.
 - `P79LegendTriggerSettReadiesOnConquer` and `SettLegendExhaustedReprintReadiesOnConquer` prove the accepted `DECLARE_BATTLE` path readies the exhausted Sett legend.
+- `LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger(cardNo, out trigger)` reads the overkill threshold, source-exhaust policy, and unit-ready shape from `BehaviorSpecCatalogBuilder`.
+- `CoreRuleEngine.ResolveLegendConquestOverkillExhaustReadyUnitTrigger` scans the conquering player's active legend sources by parsed trigger, verifies the battle-assigned overkill count against `RequiredOverkillDamage`, exhausts the source legend, and readies one exhausted field unit.
+- The old `ResolveViLegendOverkillConquerTrigger` helper is removed, and `LegendConquestOverkillReadyUnitTriggerDoesNotUseViSpecificResolver` blocks reintroducing that Vi-specific resolver.
+- `P79LegendTriggerViReadiesUnitOnOverkillConquer` proves the accepted `DECLARE_BATTLE` path with 4 assigned overkill damage exhausts the source Vi legend and readies one exhausted unit.
+- `P79LegendTriggerViRequiresThreeOverkillOnConquer` proves the trigger does not resolve when the assigned overkill damage is below the parsed threshold.
 
 The existing Hall of Legends battlefield route remains separate: `BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND` still describes a battlefield source readying a controlled legend; `LEGEND_CONQUEST_PAY_1_READY_SELF` describes a legend source readying itself when its controller conquers a battlefield.
 The no-cost Sett route is also distinct: `LEGEND_CONQUEST_READY_SELF` describes a legend source readying itself without a parsed payment cost.
@@ -96,6 +116,24 @@ Result: 2430/2430 passed.
 ```
 
 Result: 8789/8789 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquestOverkill|FullyQualifiedName~P79LegendTriggerVi" --nologo
+```
+
+Result: first failed before implementation on missing `TriggerKinds.LegendConquestOverkillExhaustReadyUnit` / `TriggerTargetScopes.ExhaustedUnitOnField`; then 4/4 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquestOverkill|FullyQualifiedName~P79LegendTriggerVi|FullyQualifiedName~ViLegend|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~DeclareBattle|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2422/2422 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8791/8791 passed.
 
 ## 5. Non-Closure
 

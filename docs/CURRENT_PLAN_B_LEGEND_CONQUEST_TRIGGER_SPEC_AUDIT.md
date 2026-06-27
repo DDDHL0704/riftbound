@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把传奇来源的“征服一处战场后让我变为活跃状态”家族从 `CoreRuleEngine` 的单传奇专用 resolver 迁移到 BehaviorSpec 驱动的传奇征服触发路径。首批覆盖刀锋舞者的付费 ready-self，后续同家族覆盖腕豪的无费用 ready-self。该切片不改变刀锋舞者的传奇反应技能、腕豪的增益单位摧毁替代技能、支付语义、战斗征服条件或完整传奇触发排序语义。
+本文件记录 Plan B 小切片：把传奇来源的征服触发从 `CoreRuleEngine` 的单传奇专用 resolver 迁移到 BehaviorSpec 驱动的传奇征服触发路径。首批覆盖刀锋舞者的付费 ready-self、腕豪的无费用 ready-self；本 follow-up 覆盖皮城执法官的 overkill exhaust-ready-unit。该切片不改变刀锋舞者的传奇反应技能、腕豪的增益单位摧毁替代技能、战斗征服条件或完整传奇触发排序语义。
 
 ## 1. Scope
 
@@ -24,6 +24,7 @@ Not changed:
 - `TryGetLegendAbility` source list for the Irelia reaction ability
 - `TryGetLegendIdentity` source list for Sett's boon-unit destroyed replacement
 - the existing representative auto-pay behavior for optional trigger costs
+- the existing representative auto-resolution behavior for optional trigger choices
 - battlefield `BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND` / Hall of Legends routing
 - frontend runtime
 
@@ -37,6 +38,9 @@ Not changed:
 | Official Sett conquest ready-self text parses into BehaviorSpec | `OGN·269/298`, `OGN·310/298`, and `OGN·310*/298` parse to `LEGEND_CONQUEST_READY_SELF` with `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SOURCE_LEGEND`, `LegendReadyCount=1`, `ReadiesSource=true`, and no mana cost | Accepted |
 | Core no longer uses a Sett-specific conquest resolver | `ResolveSettLegendConquerReadyTrigger` is removed; `CoreRuleEngine` calls `ResolveLegendConquestReadySelfTrigger` and checks `LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger` | Accepted |
 | Sett runtime behavior remains covered | Existing Sett conquest representatives still ready the exhausted source legend after a conquered battlefield | Accepted |
+| Official Vi overkill conquest exhaust-ready-unit text parses into BehaviorSpec | `UNL-187/219`, `UNL-229/219`, and `UNL-229*/219` parse to `LEGEND_CONQUEST_OVERKILL_EXHAUST_READY_UNIT` with `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=EXHAUSTED_UNIT_ON_FIELD`, `RequiredOverkillDamage=3`, `ExhaustsSource=true`, `UnitReadyCount=1`, and `Optional=true` | Accepted |
+| Core no longer uses a Vi-specific conquest resolver | `ResolveViLegendOverkillConquerTrigger` is removed; `CoreRuleEngine` calls `ResolveLegendConquestOverkillExhaustReadyUnitTrigger` and checks `LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger` | Accepted |
+| Vi runtime behavior remains covered | Existing Vi conquest representatives still require at least 3 assigned overkill damage to enemy units, exhaust the source legend, and ready one exhausted unit | Accepted |
 | Hidden-info / recovery boundary | `MatchRecovery` adjacent representatives remain green | Accepted |
 | Complete legend-trigger breadth | Multi-source ordering, optional decline prompts, and the rest of legend conquest trigger family remain residual | Residual, no full-official claim |
 
@@ -95,6 +99,30 @@ Full backend after Sett follow-up:
 ```
 
 Result: 8789/8789 passed.
+
+Vi overkill exhaust-ready-unit follow-up focused:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquestOverkill|FullyQualifiedName~P79LegendTriggerVi" --nologo
+```
+
+Result: first failed before implementation on missing `TriggerKinds.LegendConquestOverkillExhaustReadyUnit` / `TriggerTargetScopes.ExhaustedUnitOnField`; then 4/4 passed.
+
+Vi overkill exhaust-ready-unit follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquestOverkill|FullyQualifiedName~P79LegendTriggerVi|FullyQualifiedName~ViLegend|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~DeclareBattle|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2422/2422 passed.
+
+Full backend after Vi follow-up:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8791/8791 passed.
 
 ## 4. Residuals
 

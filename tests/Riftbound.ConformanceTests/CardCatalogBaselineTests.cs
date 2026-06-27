@@ -2356,6 +2356,38 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesLegendConquestOverkillExhaustReadyUnitTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        foreach (var cardNo in new[] { "UNL-187/219", "UNL-229/219", "UNL-229*/219" })
+        {
+            var vi = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                vi.Triggers,
+                trigger => string.Equals(
+                    trigger.Kind,
+                    TriggerKinds.LegendConquestOverkillExhaustReadyUnit,
+                    StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.ExhaustedUnitOnField, trigger.TargetScope);
+            Assert.Equal(3, trigger.RequiredOverkillDamage);
+            Assert.Equal(1, trigger.UnitReadyCount);
+            Assert.True(trigger.ExhaustsSource);
+            Assert.True(trigger.Optional);
+            Assert.Contains("当你征服一处战场时", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("不低于3点的过量伤害", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("让我变为休眠状态", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("让一名单位变为活跃状态", trigger.Text, StringComparison.Ordinal);
+            Assert.Equal(
+                "Legend conquest overkill exhaust-ready-unit trigger parsed for legend-trigger routing; execution is available through shared legend conquest TriggerSpec resolution.",
+                trigger.Reason);
+        }
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldDefendRevealSpellTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4084,6 +4116,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ResolveSettLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LegendConquestOverkillReadyUnitTriggerDoesNotUseViSpecificResolver()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResolveViLegendOverkillConquerTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
