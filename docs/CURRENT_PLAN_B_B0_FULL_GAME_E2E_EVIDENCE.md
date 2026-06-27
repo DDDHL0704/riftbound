@@ -84,6 +84,8 @@ The Thunder Sigil conquered recycle-rune action-log replay regression proves a l
 
 The Zaun Sump conquered discard-draw action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer discard-draw route into the B0 score-victory path. `OfficialDeckMidgameResolvesZaunSumpConquerDiscardDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·298/298` 祖安地沟, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_DISCARD_DRAW`, `CARD_DISCARDED`, and `CARD_DRAWN`, moves one controlled P1 hand card to P1 graveyard, draws one controlled P1 main-deck card, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete discard choice prompts, complete discard replacement / trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Seat of Power conquered draw-for-other-battlefields action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer draw-for-other-battlefields route into the B0 score-victory path. `OfficialDeckMidgameResolvesSeatOfPowerConquerDrawForOtherBattlefieldsAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·217/221` 权能之座, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, and two other controlled P1 battlefield card objects from the official selected battlefield pool. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, includes the two `otherBattlefieldObjectIds`, draws two controlled P1 main-deck cards, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close ally / two-headed-giant semantics, complete other-battlefield control breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Minefield conquered mill action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer mill route into the B0 score-victory path. `OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·212/221` Minefield, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_MILL_TOP_TWO` and `CARDS_MILLED`, moves the top two controlled P1 main-deck cards to P1 graveyard, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete main-deck / graveyard replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Dream Tree friendly-spell draw action-log replay regression proves a legal official deck opening can feed a focused `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` spell-target trigger route before the game continues to a normal score victory. `OfficialDeckMidgameResolvesDreamTreeFriendlySpellDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·292/298` Dream Tree, then starts from a focused midgame main-phase state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel located at that P1 battlefield, plus official `SFD·034/221` Savage Strength in P1 hand. The server-authored `PLAY_CARD` route targets the same-battlefield friendly unit, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DRAWN`, and `STACK_ITEM_ADDED`, records `BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:{battlefieldObjectId}` until end of turn, resolves the spell stack, then continues through score-victory action-log replay to the same final state hash. This slice does not close complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -157,6 +159,54 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Seat of Power conquered draw-for-other-battlefields official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesSeatOfPowerConquerDrawForOtherBattlefields" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Seat of Power FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 85, Failed: 0, Skipped: 0, Total: 85
+```
+
+Latest Seat of Power adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldConquerDrawForOtherBattlefields|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2076, Failed: 0, Skipped: 0, Total: 2076
+```
+
+Latest Seat of Power backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8849, Failed: 0, Skipped: 0, Total: 8849
+```
 
 Latest Zaun Sump conquered discard-draw official-deck replay focused validation passed:
 
@@ -1621,6 +1671,8 @@ The current Candlelit Sanctum increment additionally proves one BehaviorSpec-dri
 The current Thunder Sigil increment additionally proves one BehaviorSpec-driven battlefield-conquer recycle-rune route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, controlled base-rune movement to the bottom of the main deck, score-victory replay, and hidden-info guarded full-game helpers. Optional rune choice prompts, complete base/main-deck replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Zaun Sump increment additionally proves one BehaviorSpec-driven battlefield-conquer discard-draw route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_DISCARD_DRAW`, controlled hand discard to graveyard, controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Complete discard choice prompts, complete discard replacement / trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Seat of Power increment additionally proves one BehaviorSpec-driven battlefield-conquer draw-for-other-battlefields route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, two other controlled battlefield source objects, two-card controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Ally / two-headed-giant semantics, complete other-battlefield control breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Minefield increment additionally proves one BehaviorSpec-driven battlefield-conquer mill route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, controlled main-deck top-two movement into graveyard, score-victory replay, and hidden-info guarded full-game helpers. Complete main-deck / graveyard replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

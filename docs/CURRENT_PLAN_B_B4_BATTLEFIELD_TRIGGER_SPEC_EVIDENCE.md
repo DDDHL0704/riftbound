@@ -240,6 +240,8 @@ The conquer draw-for-other-battlefields follow-up parser path turns the Seat of 
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still counts other controlled battlefield card objects, excludes the conquered source battlefield object, skips opponent-owned dirty battlefield objects, and draws `otherBattlefieldObjectIds.Length * DrawCountPerParticipant`. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` while preserving hidden main-deck ordering boundaries through the existing draw implementation.
 
+The 2026-06-28 B0 follow-up now also covers this same parsed Seat of Power route through a legal official-deck opening. `OfficialDeckMidgameResolvesSeatOfPowerConquerDrawForOtherBattlefieldsAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `SFD·217/221` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` with two other controlled battlefield source objects, draws two controlled main-deck cards, and that the command journal replays through score victory to the same final state hash.
+
 The conquer ready-runes-at-end follow-up parser path turns the Mount Targon official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RuneReadyCount=2`, and `ReadyTiming=END_OF_TURN`. Runtime no longer checks `OGN·289/298` through `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still schedules the existing delayed end-of-turn ready effects for owned base runes, skips opponent-owned dirty rune objects in the base zone, and then `END_TURN` resolves those markers through the existing `BATTLEFIELD_END_TURN_READY_RUNES` path. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `RUNE_READY_SCHEDULED` with `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, while preserving the existing end-turn marker shape and snapshot hidden-information boundaries.
@@ -459,6 +461,10 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer discard-draw Zaun Sump backend full follow-up: `8848/8848`;
 - conquer draw-for-other-battlefields focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer draw-for-other-battlefields adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `282/282`;
+- conquer draw-for-other-battlefields Seat of Power B0 action-log replay follow-up: `1/1`;
+- conquer draw-for-other-battlefields Seat of Power B0 FullGameEndToEnd follow-up: `85/85`;
+- conquer draw-for-other-battlefields Seat of Power B0 adjacent / hidden-info follow-up: `2076/2076`;
+- conquer draw-for-other-battlefields Seat of Power backend full follow-up: `8849/8849`;
 - conquer ready-runes-at-end focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer ready-runes-at-end adjacent BattlefieldConquer / BattlefieldTriggerSpec / Rune / FullGame / GameHub representatives: `458/458`;
 - conquer ready-equipment focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
@@ -626,6 +632,8 @@ This Minefield B0 follow-up additionally proves the parsed conquer mill route ca
 This Thunder Sigil B0 follow-up additionally proves the parsed conquer recycle-rune route can carry from a legal official Vex opening into a real battle declaration, controlled base-rune movement to main-deck bottom, score-victory replay, and hidden-info guarded full-game helpers. Optional rune choice prompts, complete base/main-deck replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Zaun Sump B0 follow-up additionally proves the parsed conquer discard-draw route can carry from a legal official Vex opening into a real battle declaration, controlled hand discard to graveyard, controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Complete discard choice prompts, complete discard replacement / trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+This Seat of Power B0 follow-up additionally proves the parsed conquer draw-for-other-battlefields route can carry from a legal official Vex opening into a real battle declaration, count two other controlled battlefield source objects, draw two controlled main-deck cards, score-victory replay, and hidden-info guarded full-game helpers. Ally / two-headed-giant semantics, complete other-battlefield control breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Rehearsal Hall B0 score-victory follow-up additionally proves the parsed held move-unit-to-base route can carry from a legal official opening into a real held battle declaration, server-authored unit movement to owner base, owner / effective-controller turn-start battlefield scoring, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete same-battlefield target-choice breadth, and complete movement / control-zone edge cases remain open.
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Zaun Sump discard-draw B0 score-victory follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest Seat of Power draw-for-other-battlefields B0 score-victory follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -520,6 +520,8 @@ The 2026-06-25 conquer draw-for-other-battlefields follow-up moves another imple
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerDrawForOtherBattlefieldsCardNo` constant.
 - The old `BattlefieldConquerDrawForOtherBattlefieldsCardNo` / `IsBattlefieldConquerDrawForOtherBattlefieldsCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `69` total / `65` in `CoreRuleEngine`; Core battlefield helper count is `21`.
 
+The 2026-06-28 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·217/221` Seat of Power / 权能之座 route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state with two other controlled battlefield source objects, draw two controlled main-deck cards, and replay through score victory to the same final state hash.
+
 The 2026-06-25 conquer ready-runes-at-end follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
 - `OGN·289/298` / 巨神峰之巅 official text: `当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。`
@@ -915,6 +917,14 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8419/8419`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-28 conquer draw-for-other-battlefields B0 action-log replay follow-up validation:
+
+- focused B0 Seat of Power replay: passed `1/1`;
+- FullGameEndToEnd: passed `85/85`;
+- adjacent BattlefieldConquerDrawForOtherBattlefields / FullGameEndToEnd / MatchRecovery representatives: passed `2076/2076`;
+- backend full conformance: passed `8849/8849`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer ready-runes-at-end follow-up validation:
 
