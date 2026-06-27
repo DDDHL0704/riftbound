@@ -1521,7 +1521,7 @@ public static class TriggerParser
                 TriggerKinds.BattlefieldHeldUnitCostIncrease,
                 TriggerTimings.BattlefieldHeld,
                 segment,
-                "Battlefield held non-token unit cost increase parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                "Battlefield held non-token unit cost increase parsed for B4 routing; execution is available through engine support that reads BehaviorSpec.Triggers.",
                 Duration: TriggerDurations.UntilEndOfTurn,
                 ManaDelta: manaDelta);
         }

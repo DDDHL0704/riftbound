@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest unit battlefield-held draw TriggerSpec follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held unit-cost B0 official-deck replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -175,6 +175,12 @@ The 2026-06-25 held unit-cost follow-up moves another implemented held-battlefie
 - `CoreRuleEngine` and `MatchSession` read the mana increase from the until-end marker; the `+1` case keeps the existing marker shape `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:{playerId}` for compatibility, while larger future deltas can be encoded as a marker suffix.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldUnitCostIncreaseCardNo` constant.
 - The old `BattlefieldHeldUnitCostIncreaseCardNo` / `IsBattlefieldHeldUnitCostIncreaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `91` total / `87` in `CoreRuleEngine`; Core battlefield helper count is `43`.
+
+The 2026-06-27 B0 follow-up adds official-deck action-log replay coverage for the same parsed Vaults of Helia route without adding a runtime card-number branch:
+
+- legal Poppy official decks submit and open through normal server prompts until P1 selects `UNL-219/219` Vaults of Helia;
+- the focused midgame replay carries `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` into a later main-phase `PLAY_CARD` prompt for official `OGN·211/298` Loyal Craftsman;
+- the engine exposes `manaCost=3`, `minimumManaCost=4`, and `battlefieldHeldUnitCostIncreaseMana=1` in source requirements, emits `COST_PAID` with the same surcharge, and replays the resulting command log through score victory to the same final state hash.
 
 The 2026-06-25 friendly-spell draw follow-up moves another implemented battlefield trigger away from engine card-number branching:
 
@@ -623,6 +629,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`;
 - backend full conformance: passed `8375/8375`.
+
+2026-06-27 held unit-cost B0 official-deck replay follow-up validation:
+
+- focused behavior-spec parser plus Vaults of Helia action-log replay: passed `2/2`;
+- FullGameEndToEnd: passed `73/73`;
+- adjacent BattlefieldHeldUnitCostIncrease / VaultsOfHelia / PaymentEngine / PlayCard / BattlefieldHeld / BattlefieldTriggerSpec / CardCatalogBaselineTests / FullGameEndToEnd / MatchRecovery: passed `3445/3445`;
+- backend full conformance: passed `8829/8829`;
 
 2026-06-25 friendly-spell draw follow-up validation:
 

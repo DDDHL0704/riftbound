@@ -60,6 +60,7 @@ public sealed class FullGameEndToEndTests
     private const string SunkenTempleBattlefieldConquerPowerfulDrawCardNo = "SFD·218/221";
     private const string BackAlleyBarBattlefieldMovedUnitPowerCardNo = "OGN·277/298";
     private const string PiltoverAcademyBattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
+    private const string VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string LostLibraryBattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
@@ -82,6 +83,7 @@ public sealed class FullGameEndToEndTests
     private const string PunishmentSpellCardNo = "UNL-007/219";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
     private const string ReconsiderSpellCardNo = "OGN·104/298";
+    private const string LoyalCraftsmanCardNo = "OGN·211/298";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
     private const string ForbiddenWastelandBattlefieldIsolatedDefenderKeywordModifierCardNo = "UNL-210/219";
@@ -524,6 +526,45 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(echoReadyState, echoJournal, spellPlayed);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldHeldUnitCostIncreaseOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldHeldUnitCostIncreaseOpeningAsync(
+            "b0-full-game-vaults-of-helia-held-unit-cost-increase-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldHeldUnitCostIncreasePlayMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await SubmitBattlefieldHeldUnitCostIncreaseUnitAsync(
+            session,
+            current,
+            "P1",
+            "b0-vaults-of-helia-held-unit-cost-increase-play");
+        AssertBattlefieldHeldUnitCostIncreasePaid(current, played);
+
+        var resolved = await ResolveStackPassPassAsync(
+            session,
+            played,
+            "b0-vaults-of-helia-held-unit-cost-increase-resolve");
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            resolved,
+            "b0-vaults-of-helia-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
     }
 
     [Fact]
@@ -3512,6 +3553,37 @@ public sealed class FullGameEndToEndTests
         Assert.Equal([EchoOptionalCostNames.Echo], Assert.IsType<string[]>(triggerEvent.Payload["optionalCosts"]));
         Assert.True(Assert.IsType<bool>(triggerEvent.Payload["echoPaid"]));
         Assert.Equal(2, triggerEvent.Payload["effectRepeatCount"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldHeldUnitCostIncreasePaid(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        const string effectId = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1";
+        Assert.Contains(effectId, beforePlay.State.UntilEndOfTurnEffects);
+        Assert.Contains(effectId, result.State.UntilEndOfTurnEffects);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            LoyalCraftsmanCardNo)
+            ?? throw new InvalidOperationException("B0 Vaults of Helia assertion could not locate Loyal Craftsman in P1 hand.");
+
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        Assert.Equal(4, costPaid.Payload["mana"]);
+        Assert.Equal(3, costPaid.Payload["baseMana"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldHeldUnitCostIncreaseMana"]);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, LoyalCraftsmanCardNo, StringComparison.Ordinal));
+        Assert.Contains(result.State.StackItems, item =>
+            string.Equals(item.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(item.CardNo, LoyalCraftsmanCardNo, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -6955,6 +7027,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Piltover Academy opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHeldUnitCostIncreaseOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected P1 battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Vaults of Helia opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHeldEachPlayerCallRuneOpeningAsync(
@@ -10648,6 +10759,47 @@ public sealed class FullGameEndToEndTests
             PunishmentSpellCardNo,
             [targetObjectId],
             OptionalCosts: [EchoOptionalCostNames.Echo]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldHeldUnitCostIncreaseUnitAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Vaults of Helia driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var unitObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            LoyalCraftsmanCardNo)
+            ?? throw new InvalidOperationException("B0 Vaults of Helia driver could not find Loyal Craftsman in P1 hand.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(unitObjectId, legalSourceIds);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, unitObjectId, StringComparison.Ordinal));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["battlefieldHeldUnitCostIncreaseMana"]));
+
+        var command = new PlayCardCommand(
+            unitObjectId,
+            LoyalCraftsmanCardNo,
+            []);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -14388,6 +14540,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldHeldUnitCostIncreaseOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            PoppyLegendCardNo,
+            PoppyChampionCardNo,
+            [LoyalCraftsmanCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldHeldEachPlayerCallRuneAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -16821,6 +16994,50 @@ public sealed class FullGameEndToEndTests
             PriorityPlayerId = null,
             PassedPriorityPlayerIds = [],
             StackItems = []
+        };
+    }
+
+    private static MatchState BuildBattlefieldHeldUnitCostIncreasePlayMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [LoyalCraftsmanCardNo],
+                    new RunePool(mana: 4, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo);
+        var unitObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            LoyalCraftsmanCardNo)
+            ?? throw new InvalidOperationException("B0 Vaults of Helia setup could not find Loyal Craftsman in P1 hand.");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[unitObjectId] = cardObjects[unitObjectId] with
+        {
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[unitObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append($"BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1")
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
         };
     }
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 optional trigger-payment decline score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 held unit-cost official-deck score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -43,6 +43,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `OGN·285/298` Plunder Alley, P1 `OGN·096/298` Watchful Sentinel, and P2 `UNL-057/219` Wildclaw Beastmaster defender at that battlefield; the defense path accepts the server-authored `battlefieldTargetObjectIds` defender target, resolves `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, moves the defender to its owner's base, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Poppy opening state, a verified legal official-deck opening selects P1 `UNL-219/219` Vaults of Helia, then starts a focused midgame main phase with the parsed `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` marker active; P1 plays official `OGN·211/298` Loyal Craftsman through the server-authored `PLAY_CARD` prompt, the prompt metadata and `COST_PAID` event record base mana `3`, minimum/paid mana `4`, and `battlefieldHeldUnitCostIncreaseMana=1`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from the same seated official Vex / Treasure Pile opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, creates no Gold token, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -228,6 +229,8 @@ This Ravenbloom non-spell increment additionally proves the same legal official 
 
 This Plunder Alley increment additionally proves a legal official Jhin vs Vex deck opening can carry a BehaviorSpec-driven defended-battlefield move-friendly-unit-to-base route through server-authored `DECLARE_BATTLE`, parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, moving the selected surviving friendly defender to its owner's base, score victory, and action-log replay. It still does not close complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Vaults of Helia increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven held-battlefield non-token unit cost increase into a later server-authored `PLAY_CARD` prompt, charge an official non-token unit `+1` mana through prompt source requirements and `COST_PAID`, then continue through score victory and action-log replay. It still does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
@@ -239,6 +242,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Vaults of Helia held unit-cost official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BehaviorSpecCatalogParsesBattlefieldHeldUnitCostIncreaseTrigger|FullyQualifiedName~OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncrease" --nologo
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Vaults of Helia FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 73, Failed: 0, Skipped: 0, Total: 73
+```
+
+Latest Vaults of Helia adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldHeldUnitCostIncrease|FullyQualifiedName~VaultsOfHelia|FullyQualifiedName~PaymentEngine|FullyQualifiedName~PlayCard|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 3445, Failed: 0, Skipped: 0, Total: 3445
+```
+
+Latest Vaults of Helia backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8829, Failed: 0, Skipped: 0, Total: 8829
+```
 
 Focused battlefield isolated-defender keyword-modifier validation passed:
 

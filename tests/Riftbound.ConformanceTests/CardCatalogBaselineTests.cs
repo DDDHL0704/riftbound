@@ -1694,7 +1694,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("非指示物单位在本回合内的打出费用增加{{1}}", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
-            "Battlefield held non-token unit cost increase parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            "Battlefield held non-token unit cost increase parsed for B4 routing; execution is available through engine support that reads BehaviorSpec.Triggers.",
             trigger.Reason);
     }
 
