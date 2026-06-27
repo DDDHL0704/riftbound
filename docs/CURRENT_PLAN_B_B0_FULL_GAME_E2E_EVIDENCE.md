@@ -78,6 +78,8 @@ The Hall of Legends pay-ready-legend action-log replay regressions prove a legal
 
 The Hunting Grounds overkill create-Warhawk action-log replay regression proves a legal official deck opening can feed a focused conquered-battlefield overkill-token route. `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `UNL-217/219` Hunting Grounds, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_TOKEN_CREATED`, assigns at least three overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Candlelit Sanctum conquered reveal/recycle action-log replay regression proves a legal official deck opening can feed the parsed battlefield-conquer reveal/recycle route into the B0 score-victory path. `OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·291/298` Candlelit Sanctum, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `CARDS_REVEALED`, and `CARDS_RECYCLED`, reveals the top two controlled P1 main-deck cards, recycles the parsed count to the bottom of that deck, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Dream Tree friendly-spell draw action-log replay regression proves a legal official deck opening can feed a focused `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` spell-target trigger route before the game continues to a normal score victory. `OfficialDeckMidgameResolvesDreamTreeFriendlySpellDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·292/298` Dream Tree, then starts from a focused midgame main-phase state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel located at that P1 battlefield, plus official `SFD·034/221` Savage Strength in P1 hand. The server-authored `PLAY_CARD` route targets the same-battlefield friendly unit, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DRAWN`, and `STACK_ITEM_ADDED`, records `BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:{battlefieldObjectId}` until end of turn, resolves the spell stack, then continues through score-victory action-log replay to the same final state hash. This slice does not close complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Ravenbloom Conservatory defend reveal-spell action-log replay regression proves a legal official deck opening can feed a focused defended-battlefield reveal route with a controlled main-deck top card. `OfficialDeckMidgameResolvesRavenbloomDefendRevealSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex and Lillia deck openings that selected official `SFD·215/221` Ravenbloom Conservatory for P2, then starts from a focused midgame `START_BATTLE` state with P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARD_DRAWN`, recognizes the revealed card as a spell, moves it to P2 hand, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close the non-spell recycle B0 branch, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -131,6 +133,54 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Candlelit Sanctum conquered reveal/recycle official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycle"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Candlelit Sanctum FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 75, Failed: 0, Skipped: 0, Total: 75
+```
+
+Latest Candlelit Sanctum adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~Candlelit|FullyQualifiedName~BattlefieldConquerRevealRecycle|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2355, Failed: 0, Skipped: 0, Total: 2355
+```
+
+Latest Candlelit Sanctum backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8831, Failed: 0, Skipped: 0, Total: 8831
+```
 
 Latest Dunehorn Beast unit battlefield-held draw official-deck replay focused validation passed:
 
@@ -965,6 +1015,8 @@ The current Imperial Shrine increment additionally proves one BehaviorSpec-drive
 The current Hall of Legends increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-ready-legend route through `TRIGGER_PAYMENT`, both replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)` branches, the exhausted controlled legend becoming ready only on payment, declined window closure without `COST_PAID`, score-victory replay, and hidden-info guarded full-game helpers. Complete legend target-choice breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Hunting Grounds increment additionally proves one BehaviorSpec-driven battlefield-conquer overkill-token route through assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score-victory replay, and hidden-info guarded full-game helpers. Complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Candlelit Sanctum increment additionally proves one BehaviorSpec-driven battlefield-conquer reveal/recycle route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, controlled main-deck top-two reveal, parsed-count recycle to the bottom of the main deck, score-victory replay, and hidden-info guarded full-game helpers. The official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Dream Tree increment additionally proves one BehaviorSpec-driven friendly-spell draw route through an official `PLAY_CARD` target at the same battlefield, parsed `BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`, one controlled main-deck draw, until-end trigger memory, spell stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
