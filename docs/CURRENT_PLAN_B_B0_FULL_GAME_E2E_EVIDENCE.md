@@ -68,9 +68,9 @@ The Rumble legend friendly-mechanical Steadfast action-log replay regression pro
 
 The Speeding Mech friendly-mechanical Spellshield/Roam action-log replay regression proves a legal official deck opening can feed the multi-keyword public-field-source branch of `FRIENDLY_FILTERED_UNITS_KEYWORD`. `OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Rumble deck containing `SFD·071/221` Speeding Mech and a second official `SFD·026/221` Rumble unit, verifies official deck submission/opening first, then starts the replay from a focused midgame `START_BATTLE` state with Speeding Mech in P1 base, the friendly mechanical Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield. Speeding Mech projects two RULE_TEXT effects, `法盾` and `游走`, to the friendly mechanical Rumble target without adding printed tags to the target object, then the server-authored `DECLARE_BATTLE` path continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; dynamic Roam movement and Spellshield tax remain covered by the focused P79 representative, and this slice does not close complete friendly-filtered RULE_TEXT keyword aura breadth, complete official deck archetype breadth, or READY.
 
-The Treasure Pile trigger-payment action-log replay regression proves a legal official deck opening can feed a focused battlefield-conquer payment route through the B0 score-victory replay path. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·220/221` Treasure Pile, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, and sufficient available mana at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED`, creates an exhausted Gold equipment token, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+The Treasure Pile trigger-payment action-log replay regressions prove a legal official deck opening can feed both focused battlefield-conquer payment choices through the B0 score-victory replay path. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·220/221` Treasure Pile, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, and sufficient available mana at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`; the pay branch accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED`, creates an exhausted Gold equipment token, and continues through score-victory action-log replay to the same final state hash. `OfficialDeckMidgameDeclinesTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records replayable `PAY_COST(DECLINE)` from the same official opening family, emits `TRIGGER_PAYMENT_DECLINED` plus declined `PAYMENT_WINDOW_CLOSED`, creates no token, emits no `COST_PAID`, and still continues through score-victory replay. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
-The Sunken Temple powerful-unit trigger-payment action-log replay regression proves another legal official deck opening can feed a focused battlefield-conquer payment route with a condition and hidden draw. `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·218/221` Sunken Temple, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster as the surviving powerful conquest attacker and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `CARD_DRAWN`, moves one controlled main-deck card into P1 hand, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+The Sunken Temple powerful-unit trigger-payment action-log replay regressions prove another legal official deck opening can feed both focused battlefield-conquer payment choices with a condition and hidden draw. `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·218/221` Sunken Temple, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster as the surviving powerful conquest attacker and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`; the pay branch accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `CARD_DRAWN`, moves one controlled main-deck card into P1 hand, and continues through score-victory action-log replay to the same final state hash. `OfficialDeckMidgameDeclinesSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records replayable `PAY_COST(DECLINE)` from the same official opening family, emits `TRIGGER_PAYMENT_DECLINED` plus declined `PAYMENT_WINDOW_CLOSED`, draws no card, emits no `COST_PAID`, and still continues through score-victory replay. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
 The Imperial Shrine pay-return-unit create-Sand-Soldier action-log replay regression proves a legal official deck opening can feed a focused conquered-battlefield route with cost payment, zone movement, token creation, and hidden metadata redaction. `OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·207/221` Imperial Shrine, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, `UNIT_RETURNED_TO_HAND`, and `UNIT_TOKEN_CREATED`, spends one mana, returns the controlled Wildclaw object to P1 hand, creates a ready 2-power `SFD·T02` Sand Soldier token at the battlefield, and continues through score-victory action-log replay to the same final state hash. The runtime snapshot follow-up redacts object ids that have moved into a non-viewer hand, main deck, rune deck, or hidden battlefield standby from battle / battlefield task / resolution metadata ids and object-id collections, closing the opponent-view leak exposed by this replay. This slice does not close optional trigger prompt / decline semantics, complete return-unit target choice breadth, complete token lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -462,6 +462,54 @@ Result:
 
 ```text
 Passed: 8737, Failed: 0, Skipped: 0, Total: 8737
+```
+
+Latest Treasure Pile / Sunken Temple trigger-payment decline focused validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameDeclinesTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDeckMidgameDeclinesSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash" --nologo
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Treasure Pile / Sunken Temple decline full-game validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 70, Failed: 0, Skipped: 0, Total: 70
+```
+
+Latest Treasure Pile / Sunken Temple decline adjacent validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~TreasurePile|FullyQualifiedName~SunkenTemple|FullyQualifiedName~BattlefieldConquerGold|FullyQualifiedName~BattlefieldConquerPowerful|FullyQualifiedName~TriggerPayment|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2156, Failed: 0, Skipped: 0, Total: 2156
+```
+
+Latest Treasure Pile / Sunken Temple decline backend full validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8826, Failed: 0, Skipped: 0, Total: 8826
 ```
 
 Latest Imperial Shrine Sand Soldier focused validation:
@@ -856,11 +904,11 @@ The current Forbidden Wasteland increment additionally proves one battlefield-so
 
 The current Rumble legend increment additionally proves one legend-source friendly-filtered RULE_TEXT keyword aura route through real defender damage, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-filtered RULE_TEXT keyword aura breadth remains open.
 
-The current Treasure Pile increment additionally proves one BehaviorSpec-driven battlefield-conquer trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, exhausted Gold token creation, score-victory replay, and hidden-info guarded full-game helpers. Complete triggered-cost battlefield FUs and complete PaymentEngine breadth remain open.
+The current Treasure Pile increment additionally proves one BehaviorSpec-driven battlefield-conquer trigger-payment route through both replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)` branches, exhausted Gold token creation only on payment, declined window closure without `COST_PAID`, score-victory replay, and hidden-info guarded full-game helpers. Complete triggered-cost battlefield FUs and complete PaymentEngine breadth remain open.
 
-The current Sunken Temple increment additionally proves one BehaviorSpec-driven battlefield-conquer powerful-unit trigger-payment route through `TRIGGER_PAYMENT`, replayable `PAY_COST(SPEND_MANA:1)`, controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, and complete PaymentEngine breadth remain open.
+The current Sunken Temple increment additionally proves one BehaviorSpec-driven battlefield-conquer powerful-unit trigger-payment route through both replayable `PAY_COST(SPEND_MANA:1)` and `PAY_COST(DECLINE)` branches, controlled main-deck draw only on payment, declined window closure without `COST_PAID`, score-victory replay, and hidden-info guarded full-game helpers. Complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, and complete PaymentEngine breadth remain open.
 
-The current Imperial Shrine increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score-victory replay, hidden-info guarded full-game helpers, and opponent-view redaction of returned hidden hand object ids from battle metadata. Optional trigger prompt / decline semantics, complete return-unit target-choice breadth, complete token lifecycle breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+The current Imperial Shrine increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-return-unit create-Sand-Soldier route through parsed cost payment, controlled unit return-to-hand, ready 2-power Sand Soldier token creation at that battlefield, score-victory replay, hidden-info guarded full-game helpers, and opponent-view redaction of returned hidden hand object ids from battle metadata. Optional trigger prompt / decline semantics for all battlefield families, complete return-unit target-choice breadth, complete token lifecycle breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Hall of Legends increment additionally proves one BehaviorSpec-driven battlefield-conquer pay-ready-legend route through parsed cost payment, an exhausted controlled legend becoming ready, score-victory replay, and hidden-info guarded full-game helpers. Optional trigger prompt / decline semantics, complete legend target-choice breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

@@ -324,6 +324,51 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameDeclinesTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldConquerGoldOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldConquerGoldOpeningAsync(
+            "b0-full-game-treasure-pile-conquer-gold-decline-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldConquerGoldMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var paymentOpened = await SubmitBattlefieldConquerGoldDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-treasure-pile-decline-conquer");
+        AssertBattlefieldConquerGoldPaymentOpened(paymentOpened);
+
+        var declined = await DeclineTriggerPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-treasure-pile-decline-trigger");
+        AssertBattlefieldConquerGoldDeclined(paymentOpened, declined);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-treasure-pile-decline-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -360,6 +405,51 @@ public sealed class FullGameEndToEndTests
             session,
             paid,
             "b0-sunken-temple-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameDeclinesSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldConquerPowerfulDrawOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldConquerPowerfulDrawOpeningAsync(
+            "b0-full-game-sunken-temple-powerful-draw-decline-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldConquerPowerfulDrawMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var paymentOpened = await SubmitBattlefieldConquerPowerfulDrawDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-sunken-temple-decline-conquer");
+        AssertBattlefieldConquerPowerfulDrawPaymentOpened(paymentOpened);
+
+        var declined = await DeclineTriggerPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-sunken-temple-decline-trigger");
+        AssertBattlefieldConquerPowerfulDrawDeclined(paymentOpened, declined);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-sunken-temple-decline-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -3013,6 +3103,18 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldConquerGoldDeclined(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        AssertTriggerPaymentDeclined(paymentOpened, result, TriggerKinds.BattlefieldConquerPayCreateGold);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldConquerPayCreateGold, StringComparison.Ordinal));
+        Assert.Equal(paymentOpened.State.PlayerZones["P1"].Base.Count, result.State.PlayerZones["P1"].Base.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldConquerPowerfulDrawPaymentOpened(ResolutionResult result)
     {
         var battlefieldObjectId = BattlefieldObjectIdForCardNo(
@@ -3066,6 +3168,49 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].Hand.Count + 1, result.State.PlayerZones["P1"].Hand.Count);
         Assert.Equal(paymentOpened.State.PlayerZones["P1"].MainDeck.Count - 1, result.State.PlayerZones["P1"].MainDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerPowerfulDrawDeclined(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        AssertTriggerPaymentDeclined(paymentOpened, result, TriggerKinds.BattlefieldConquerPowerfulPayDraw);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        Assert.Equal(paymentOpened.State.PlayerZones["P1"].Hand.Count, result.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(paymentOpened.State.PlayerZones["P1"].MainDeck.Count, result.State.PlayerZones["P1"].MainDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertTriggerPaymentDeclined(
+        ResolutionResult paymentOpened,
+        ResolutionResult result,
+        string triggerKind)
+    {
+        var payment = paymentOpened.State.PendingPayment
+            ?? throw new InvalidOperationException("Expected opened payment before decline assertion.");
+        Assert.Null(result.State.PendingPayment);
+        var declinedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_PAYMENT_DECLINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, triggerKind, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, declinedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, declinedEvent.Payload["paymentWindow"]);
+        Assert.Equal(payment.PlayerId, declinedEvent.Payload["playerId"]);
+
+        var closedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, triggerKind, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, closedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, closedEvent.Payload["paymentWindow"]);
+        Assert.Equal(payment.PlayerId, closedEvent.Payload["playerId"]);
+        Assert.True(Assert.IsType<bool>(closedEvent.Payload["declined"]));
+
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, triggerKind, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -9482,6 +9627,29 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
         Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
         var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> DeclineTriggerPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 trigger payment decline driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("DECLINE", payment.LegalPaymentChoiceIds);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
