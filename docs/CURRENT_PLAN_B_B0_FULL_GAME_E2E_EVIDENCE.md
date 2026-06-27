@@ -134,6 +134,8 @@ The Wise Elder source-object filtered static-aura action-log replay regression p
 
 The battlefield all-units static-aura action-log replay regression proves a legal official deck can carry a public battlefield-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex decks whose battlefield set includes `OGN·294/298` Trifarian Training Grounds, probes official-opening seeds until P1 randomly selects that battlefield, stages `UNL-057/219` Wildclaw Beastmaster and an opposing defender to that battlefield through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies the battlefield's `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` projection targets both attacker and defender, observes Wildclaw's real `DAMAGE_APPLIED` with `basePower=7`, `staticPowerBonus=1`, `combatPower=8`, and `damage=8`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete battlefield static-aura breadth, complete official deck archetype breadth, or READY.
 
+The battlefield all-units static-keyword action-log replay regression proves a legal official deck can carry a public battlefield-source `RULE_TEXT` keyword aura into a real movement command. `OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex decks whose battlefield set includes `OGN·297/298` Wind Hill / 疾风山丘, probes official-opening seeds until P1 randomly selects that battlefield, stages `UNL-057/219` Wildclaw Beastmaster to Wind Hill through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies the battlefield's `BATTLEFIELD_ALL_UNITS_KEYWORD` projection grants `游走` without adding a printed tag, submits the server-authored precise battlefield `MOVE_UNIT` from Wind Hill to a second official P1 battlefield with optional cost `ROAM`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete battlefield RULE_TEXT keyword breadth, complete official deck archetype breadth, or READY.
+
 The source same-location static-aura action-log replay regression proves a legal official deck can carry a threshold source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `SFD·159/221` Reliable Siege Dog and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages both friendly units and an opposing defender through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Reliable Siege Dog's `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` projection targets itself with the Envoy as a same-location participant, observes Reliable Siege Dog's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete same-location / count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
 
 The same-battlefield boon count-to-source static-aura action-log replay regression proves a legal official deck can carry a filtered count-to-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `OGN·240/298` Sett, `OGN·136/298` Arena Rookie, and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages Demacia Envoy to a battlefield, uses Arena Rookie's server-authored targeted `PLAY_CARD` prompt to grant `{{增益}}` to Demacia Envoy, stages Sett to the same battlefield, verifies Sett's `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` projection targets itself with the boon-bearing Envoy as participant, observes Sett's real `DAMAGE_APPLIED` with `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
@@ -163,6 +165,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Wind Hill battlefield all-units RULE_TEXT Roam official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Wind Hill battlefield all-units RULE_TEXT Roam adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldAllUnits|FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Roam|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2212, Failed: 0, Skipped: 0, Total: 2212
+```
+
+Latest Wind Hill battlefield all-units RULE_TEXT Roam backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8855, Failed: 0, Skipped: 0, Total: 8855
+```
 
 Latest Mount Targon conquered ready-runes-at-end official-deck replay focused validation passed:
 

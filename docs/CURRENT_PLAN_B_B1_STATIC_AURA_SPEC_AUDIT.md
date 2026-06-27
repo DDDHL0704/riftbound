@@ -72,6 +72,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-191/219` Master Yi level's experience-gated friendly-units static aura in a legal official Master Yi level deck route: the route starts at 5 experience, uses `UNL-092/219` Demacia Envoy's server-resolved on-play text to reach level 6, projects `FRIENDLY_UNITS_POWER` from the legend source to the Envoy, records attacker `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·065/298` Wise Elder's source-object filtered static aura in a legal official Master Yi level green/orange deck route: server prompts stage Wise Elder to a battlefield, `OGN·136/298` Arena Rookie grants Wise Elder `{{增益}}` through targeted `PLAY_CARD`, the spec-driven continuous effect targets Wise Elder itself with `SOURCE_OBJECT_FILTERED_POWER`, Wise Elder records boon-adjusted `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·294/298` Trifarian Training Grounds' battlefield all-units static aura in a legal official Vex deck route: the driver probes official-opening seeds until P1 selects Trifarian Training Grounds, server prompts move `UNL-057/219` Wildclaw Beastmaster and an opposing defender to that battlefield, the spec-driven continuous effect targets both units from the battlefield source, Wildclaw records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·297/298` Wind Hill / 疾风山丘's battlefield all-units RULE_TEXT keyword aura in a legal official Vex deck route: the driver probes official-opening seeds until P1 selects Wind Hill, server prompts move `UNL-057/219` Wildclaw Beastmaster to Wind Hill, the spec-driven continuous effect grants `游走` from the battlefield source without adding a printed tag, the server-authored precise battlefield `MOVE_UNIT` pays `ROAM` to move that unit to a second official P1 battlefield object, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·159/221` Reliable Siege Dog's source same-location threshold static aura in a legal official Poppy deck route: server prompts play and move Reliable Siege Dog plus `UNL-092/219` Demacia Envoy to the same battlefield, the spec-driven continuous effect targets Reliable Siege Dog itself with the Envoy as participant, Reliable Siege Dog records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·240/298` Sett's same-battlefield boon count-to-source static aura in a legal official Poppy deck route: server prompts stage `UNL-092/219` Demacia Envoy to a battlefield, `OGN·136/298` Arena Rookie grants the Envoy `{{增益}}` through targeted `PLAY_CARD`, Sett moves to the same battlefield, the spec-driven continuous effect targets Sett itself with the boon-bearing Envoy as participant, Sett records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·151/298` Lee Sin's same-battlefield other-friendly filtered static aura in a legal official Poppy deck route: server prompts stage `UNL-092/219` Demacia Envoy to a battlefield, `OGN·136/298` Arena Rookie grants the Envoy `{{增益}}` through targeted `PLAY_CARD`, Lee Sin moves to the same battlefield, the spec-driven continuous effect targets the boon-bearing Envoy but not Lee Sin, the Envoy records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
@@ -681,6 +682,30 @@ Result: 2141/2141 passed.
 ```
 
 Result: 8719/8719 passed.
+
+2026-06-28 battlefield all-units RULE_TEXT Roam official-deck full-game focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result: 1/1 passed.
+
+2026-06-28 battlefield all-units RULE_TEXT Roam adjacent check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldAllUnits|FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Roam|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result: 2212/2212 passed.
+
+2026-06-28 backend full after battlefield all-units RULE_TEXT Roam official-deck full-game evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result: 8855/8855 passed.
 
 2026-06-26 source same-location static-power official-deck full-game focused check:
 

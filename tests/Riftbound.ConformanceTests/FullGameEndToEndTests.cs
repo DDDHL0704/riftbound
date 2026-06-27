@@ -114,6 +114,7 @@ public sealed class FullGameEndToEndTests
         2, 3, 4, 10, 11, 15, 20, 21, 23, 24, 26, 28, 29, 35, 36, 42, 46, 49, 51, 52,
         60, 68, 69, 70, 73, 79, 80, 81, 86, 87, 90, 92, 93, 99, 100, 101, 109, 112, 116, 119
     ];
+    private const string WindHillBattlefieldAllUnitsStaticKeywordCardNo = "OGN·297/298";
     private static readonly int[] OtherFriendlyStaticAuraDriverSeeds = [7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242];
     private static readonly int[] ShadowResponseDriverSeeds = [7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242];
     private static readonly int[] StandbyDriverSeeds = [424242, 7, 11, 17, 23, 31, 42, 101, 404, 20260624];
@@ -2333,6 +2334,67 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-battlefield-all-units-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldAllUnitsStaticKeywordOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldAllUnitsStaticKeywordOpeningAsync(
+            "b0-full-game-battlefield-all-units-static-keyword-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldAllUnitsStaticKeywordMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            WildclawBeastmasterCardNo,
+            "P1",
+            "b0-battlefield-all-units-keyword-stage-roamer",
+            WindHillBattlefieldAllUnitsStaticKeywordCardNo);
+
+        var originBattlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            "P1",
+            WindHillBattlefieldAllUnitsStaticKeywordCardNo);
+        var destinationBattlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            "P1",
+            WinningScoreIncreaseBattlefieldCardNo);
+        AssertBattlefieldAllUnitsStaticKeywordRoamProjection(current, originBattlefieldId);
+
+        current = await DriveBattlefieldAllUnitsStaticKeywordRoamerToBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            originBattlefieldId,
+            destinationBattlefieldId,
+            "b0-battlefield-all-units-keyword-roam-move");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-battlefield-all-units-keyword-stage-defender",
+            WinningScoreIncreaseBattlefieldCardNo);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            current,
+            "b0-battlefield-all-units-keyword-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -6461,6 +6523,31 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldAllUnitsStaticKeywordRoamProjection(
+        ResolutionResult result,
+        string sourceBattlefieldId)
+    {
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            result.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            sourceBattlefieldId)
+            ?? throw new InvalidOperationException("B0 battlefield all-units static keyword driver could not find the Wind Hill roamer.");
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, result.State.CardObjects[targetObjectId].Tags);
+        Assert.Equal(WindHillBattlefieldAllUnitsStaticKeywordCardNo, result.State.CardObjects[sourceBattlefieldId].CardNo);
+
+        var ruleTextAura = Assert.Single(result.State.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceBattlefieldId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal)
+            && effect.EffectId.EndsWith($":{CardCombatKeywordNames.Roam}", StringComparison.Ordinal));
+        Assert.Equal(
+            $"RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD:{sourceBattlefieldId}:{targetObjectId}:{CardCombatKeywordNames.Roam}",
+            ruleTextAura.EffectId);
+        Assert.Equal("OBJECT", ruleTextAura.Scope);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", ruleTextAura.Duration);
+    }
+
     private static void AssertBattlefieldIsolatedDefenderKeywordModifierDamage(ResolutionResult result)
     {
         var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
@@ -8044,6 +8131,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 battlefield all-units static aura opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldAllUnitsStaticKeywordOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds)
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    WindHillBattlefieldAllUnitsStaticKeywordCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 battlefield all-units static keyword opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldIsolatedDefenderKeywordModifierOpeningAsync(
@@ -10230,6 +10356,92 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException($"B0 battlefield all-units static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveBattlefieldAllUnitsStaticKeywordRoamerToBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string originBattlefieldId,
+        string destinationBattlefieldId,
+        string intentPrefix)
+    {
+        var result = current;
+        var origin = $"BATTLEFIELD:{originBattlefieldId}";
+        var destination = $"BATTLEFIELD:{destinationBattlefieldId}";
+        for (var turnIndex = 0; turnIndex < 24; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                result = await SubmitFirstDeclareBattleCandidateAsync(
+                    session,
+                    result,
+                    $"{intentPrefix}-clear-existing-battle-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 battlefield all-units static keyword driver cannot move roamer: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, playerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            var sourceObjectId = FindBattlefieldUnitByCardNo(
+                result.State,
+                playerId,
+                WildclawBeastmasterCardNo,
+                originBattlefieldId,
+                readyOnly: true);
+            var moveCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.MoveUnit);
+            if (sourceObjectId is not null
+                && moveCandidate?.Sources?.Any(choice => string.Equals(choice.Id, sourceObjectId, StringComparison.Ordinal)) == true
+                && moveCandidate.Destinations?.Any(choice => string.Equals(choice.Id, destination, StringComparison.Ordinal)) == true
+                && moveCandidate.OptionalCosts?.Any(choice => string.Equals(choice.Id, "ROAM", StringComparison.Ordinal)) == true)
+            {
+                var command = new MoveUnitCommand(sourceObjectId, origin, destination, ["ROAM"]);
+                var move = await session.SubmitAsync(
+                    playerId,
+                    $"{intentPrefix}-move-{turnIndex}",
+                    command,
+                    RawCommand(command),
+                    CancellationToken.None);
+                AssertAccepted(move);
+                AssertNoHiddenZoneLeak(move);
+
+                var moveEvent = Assert.Single(move.Events, gameEvent =>
+                    string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
+                    && gameEvent.Payload.TryGetValue("sourceObjectId", out var eventSourceObjectId)
+                    && string.Equals(eventSourceObjectId as string, sourceObjectId, StringComparison.Ordinal));
+                Assert.Equal(CardCombatKeywordNames.Roam, moveEvent.Payload["movementKeyword"]);
+                Assert.Equal(origin, moveEvent.Payload["origin"]);
+                Assert.Equal(destination, moveEvent.Payload["destination"]);
+                Assert.Equal(destinationBattlefieldId, move.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+                return move;
+            }
+
+            result = await EndTurnAsync(session, playerId, $"{intentPrefix}-wait-ready-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 battlefield all-units static keyword driver could not move a legal roamer: {DescribeState(result.State)}");
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToBattlefieldIsolatedDefenderKeywordModifierBattleAsync(
@@ -16910,6 +17122,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldAllUnitsStaticKeywordOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [WildclawBeastmasterCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            WindHillBattlefieldAllUnitsStaticKeywordCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldIsolatedDefenderKeywordModifierAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -18791,6 +19024,19 @@ public sealed class FullGameEndToEndTests
             "P1",
             [WildclawBeastmasterCardNo],
             new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildBattlefieldAllUnitsStaticKeywordMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [WildclawBeastmasterCardNo],
+            new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        return EnsureP1BattlefieldSource(
+            midgameState,
+            WinningScoreIncreaseBattlefieldCardNo,
+            "P1-BATTLEFIELD-WIND-HILL-ROAM-DEST");
     }
 
     private static MatchState BuildBattlefieldIsolatedDefenderKeywordModifierMidgameInitialState(MatchState state)
