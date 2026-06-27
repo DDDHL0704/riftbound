@@ -46,6 +46,7 @@ public sealed class FullGameEndToEndTests
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
     private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
     private const string WildclawBeastmasterCardNo = "UNL-057/219";
+    private const string DunehornBeastCardNo = "SFD·027/221";
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string DemaciaEnvoyCardNo = "UNL-092/219";
     private const string ForgottenMonumentBattlefieldCardNo = "SFD·209/221";
@@ -1048,6 +1049,43 @@ public sealed class FullGameEndToEndTests
             session,
             triggered,
             "b0-hidden-valley-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesDunehornBeastUnitHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldHeldDrawAttackerOfficialDeck(catalog);
+        var p2Deck = BuildDunehornBeastHeldDrawOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-dunehorn-beast-unit-held-draw-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildUnitBattlefieldHeldDrawMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.True(
+            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
+            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+
+        var triggered = await SubmitUnitBattlefieldHeldDrawDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-dunehorn-beast-unit-held-draw");
+        AssertUnitBattlefieldHeldDrawResolved(current, triggered);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            triggered,
+            "b0-dunehorn-beast-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -4075,6 +4113,59 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertUnitBattlefieldHeldDrawResolved(
+        ResolutionResult beforeBattle,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForPlayer(beforeBattle.State, "P2");
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            beforeBattle.State,
+            "P1",
+            WatchfulSentinelCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast assertion could not locate the attacking Watchful Sentinel.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            beforeBattle.State,
+            "P2",
+            DunehornBeastCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast assertion could not locate the defending Dunehorn Beast.");
+        var expectedDrawnObjectIds = beforeBattle.State.PlayerZones["P2"].MainDeck.Take(2).ToArray();
+        Assert.Equal(2, expectedDrawnObjectIds.Length);
+
+        var resultEvents = result.Events.ToArray();
+        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitBattlefieldHeldDraw, StringComparison.Ordinal));
+        Assert.True(heldIndex >= 0);
+        Assert.True(triggerIndex > heldIndex);
+
+        var triggerEvent = resultEvents[triggerIndex];
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldId"]);
+        Assert.Equal(defenderObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(DunehornBeastCardNo, triggerEvent.Payload["sourceCardNo"]);
+        Assert.Equal(TriggerKinds.UnitBattlefieldHeldDraw, triggerEvent.Payload["effectKind"]);
+        Assert.Equal(2, triggerEvent.Payload["drawCount"]);
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
+            && Equals(2, gameEvent.Payload["count"]));
+
+        foreach (var objectId in expectedDrawnObjectIds)
+        {
+            Assert.Contains(objectId, result.State.PlayerZones["P2"].Hand);
+            Assert.DoesNotContain(objectId, result.State.PlayerZones["P2"].MainDeck);
+        }
+
+        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
+        Assert.Contains(attackerObjectId, beforeBattle.State.PlayerZones["P1"].Battlefields);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldHeldCallRuneResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -6949,6 +7040,42 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Hidden Valley opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P2"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (!string.IsNullOrWhiteSpace(selectedBattlefieldCardNo))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected P2 battlefield <missing>");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Dunehorn Beast opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHeldCallRuneOpeningAsync(
@@ -10588,6 +10715,71 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitUnitBattlefieldHeldDrawDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
+        var defendingPlayerId = OpponentOf(current.State, attackingPlayerId);
+        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Dunehorn Beast driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(current.State, defendingPlayerId);
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            attackingPlayerId,
+            WatchfulSentinelCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast driver could not find a ready Watchful Sentinel attacker.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            DunehornBeastCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast driver could not find a ready Dunehorn Beast defender.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(attackerObjectId, legalSourceIds);
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            attackingPlayerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        Assert.Null(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldHeldCallRuneDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -13548,6 +13740,14 @@ public sealed class FullGameEndToEndTests
         return $"BATTLEFIELD:{battlefieldObjectId}";
     }
 
+    private static string BattlefieldObjectIdForPlayer(MatchState state, string playerId)
+    {
+        return state.PlayerZones[playerId].Battlefields
+            .FirstOrDefault(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal))
+            ?? throw new InvalidOperationException($"B0 auto-driver could not find a battlefield object for {playerId}.");
+    }
+
     private static string BattlefieldObjectIdForCardNo(MatchState state, string playerId, string battlefieldCardNo)
     {
         return state.PlayerZones[playerId].Battlefields
@@ -14471,6 +14671,17 @@ public sealed class FullGameEndToEndTests
         var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
         return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildDunehornBeastHeldDrawOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [DunehornBeastCardNo]));
     }
 
     private static OfficialDecklist BuildBattlefieldHeldCallRuneAttackerOfficialDeck(OfficialCardCatalog catalog)
@@ -16738,6 +16949,91 @@ public sealed class FullGameEndToEndTests
             "P2",
             WildclawBeastmasterCardNo)
             ?? throw new InvalidOperationException("B0 Hidden Valley setup could not find Wildclaw Beastmaster in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, attackerObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([attackerObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[attackerObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildUnitBattlefieldHeldDrawMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [DunehornBeastCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P2");
+        var attackerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast setup could not find Watchful Sentinel in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            DunehornBeastCardNo)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast setup could not find Dunehorn Beast in P2 hand.");
 
         var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var p1Zones = playerZones["P1"];

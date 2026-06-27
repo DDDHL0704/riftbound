@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 held unit-cost official-deck score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 Dunehorn Beast unit battlefield-held draw score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -44,6 +44,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `OGN·285/298` Plunder Alley, P1 `OGN·096/298` Watchful Sentinel, and P2 `UNL-057/219` Wildclaw Beastmaster defender at that battlefield; the defense path accepts the server-authored `battlefieldTargetObjectIds` defender target, resolves `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, moves the defender to its owner's base, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Poppy opening state, a verified legal official-deck opening selects P1 `UNL-219/219` Vaults of Helia, then starts a focused midgame main phase with the parsed `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` marker active; P1 plays official `OGN·211/298` Loyal Craftsman through the server-authored `PLAY_CARD` prompt, the prompt metadata and `COST_PAID` event record base mana `3`, minimum/paid mana `4`, and `battlefieldHeldUnitCostIncreaseMana=1`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Jhin opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel; the defender survives, the unit-source `UNIT_BATTLEFIELD_HELD_DRAW` trigger draws two controlled main-deck cards for P2, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from the same seated official Vex / Treasure Pile opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, creates no Gold token, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -231,6 +232,8 @@ This Plunder Alley increment additionally proves a legal official Jhin vs Vex de
 
 This Vaults of Helia increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven held-battlefield non-token unit cost increase into a later server-authored `PLAY_CARD` prompt, charge an official non-token unit `+1` mana through prompt source requirements and `COST_PAID`, then continue through score victory and action-log replay. It still does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Dunehorn Beast increment additionally proves a legal official Jhin deck opening can carry the BehaviorSpec-driven unit battlefield-held draw trigger through a real `DECLARE_BATTLE`, draw two controlled main-deck cards from the surviving held unit source, then continue through score victory and action-log replay. It still does not close Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
 Current §6 mouth count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
@@ -242,6 +245,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Dunehorn Beast unit battlefield-held draw official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastUnitHeldDraw" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Dunehorn Beast FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 74, Failed: 0, Skipped: 0, Total: 74
+```
+
+Latest Dunehorn Beast adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Dunehorn|FullyQualifiedName~UnitBattlefieldHeldDraw|FullyQualifiedName~BattlefieldHeldDraw|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2152, Failed: 0, Skipped: 0, Total: 2152
+```
+
+Latest Dunehorn Beast backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8830, Failed: 0, Skipped: 0, Total: 8830
+```
 
 Latest Vaults of Helia held unit-cost official-deck replay focused validation passed:
 

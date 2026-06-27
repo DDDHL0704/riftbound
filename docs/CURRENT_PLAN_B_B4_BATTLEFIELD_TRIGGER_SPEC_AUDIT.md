@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held unit-cost B0 official-deck replay follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest unit battlefield-held draw B0 official-deck replay follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -288,6 +288,12 @@ The 2026-06-27 unit battlefield-held draw follow-up moves the implemented Duneho
 - `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` now recognizes surviving held units through `UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(...)` and reads the draw count from `BehaviorSpec.Triggers`.
 - The old `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind` card-number branch is removed. The emitted runtime event uses the parsed trigger kind for both `trigger` and `effectKind`.
 - This slice only closes the unit battlefield-held draw path. The separate low-hand active entry condition remains open.
+
+The 2026-06-27 B0 follow-up adds official-deck action-log replay coverage for the same parsed Dunehorn Beast route without changing runtime code:
+
+- legal Jhin official decks submit and open through normal server prompts;
+- the focused midgame replay stages P2 official `SFD·027/221` Dunehorn Beast as a surviving defender holding P2's selected slow battlefield;
+- the engine emits parsed `UNIT_BATTLEFIELD_HELD_DRAW`, draws two controlled main-deck cards for P2, and replays the resulting command log through score victory to the same final state hash.
 
 The 2026-06-25 held call-rune follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
 
@@ -692,6 +698,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8391/8391`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-27 unit battlefield-held draw B0 official-deck replay follow-up validation:
+
+- focused Dunehorn Beast action-log replay: passed `1/1`;
+- FullGameEndToEnd: passed `74/74`;
+- adjacent Dunehorn / UnitBattlefieldHeldDraw / BattlefieldHeldDraw / BattlefieldHeld / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2152/2152`;
+- backend full conformance: passed `8830/8830`;
 
 2026-06-25 held call-rune follow-up validation:
 

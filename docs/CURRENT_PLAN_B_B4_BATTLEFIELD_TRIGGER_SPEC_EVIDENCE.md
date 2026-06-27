@@ -154,6 +154,8 @@ The unit battlefield-held draw follow-up parser path turns the Dunehorn Beast he
 
 The accepted `DECLARE_BATTLE` held-unit path still requires the battlefield holder to survive combat and be controlled by the battlefield holder. The emitted `TRIGGER_RESOLVED` payload now uses the parsed trigger kind for both `trigger` and `effectKind`, carries the parsed draw count, and applies the authoritative hidden-safe draw path through `ApplyDrawToPlayer`. The separate low-hand active entry sentence remains outside this slice.
 
+The 2026-06-27 B0 follow-up adds an official-deck action-log replay for Dunehorn Beast (`SFD·027/221`). It uses legal Jhin official decks through normal opening prompts, starts a focused `START_BATTLE` replay with P2 Dunehorn Beast defending a slow battlefield against official `OGN·096/298` Watchful Sentinel, asserts the parsed unit-held trigger source identity and `drawCount=2`, verifies the two controlled main-deck cards move to P2 hand, then replays the resulting command log through score victory to the same final state hash.
+
 The held call-rune follow-up parser path turns the Star Peak official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_CALL_RUNE`, `Timing=BATTLEFIELD_HELD`, and `RuneCallCount=1`. Runtime no longer checks `OGN·288/298` through `BattlefieldHoldCallRuneCardNo` / `IsBattlefieldHoldCallRuneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and applies the authoritative rune-call path through `CallRunes`. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` payload now uses the parsed trigger kind and the rune-call count is read from the parsed spec. This preserves the existing representative auto-resolution path; optional trigger choice prompts remain outside this slice.
@@ -353,6 +355,10 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held draw-one `OGN·280/298` B0 full-game follow-up: `55/55`;
 - held draw-one `OGN·280/298` B0 adjacent BattlefieldHeld / BattlefieldTriggerSpec follow-up: `88/88`;
 - unit battlefield-held draw focused behavior-spec/source guard/runtime representative: `3/3`;
+- unit battlefield-held draw Dunehorn Beast B0 action-log replay follow-up: `1/1`;
+- unit battlefield-held draw Dunehorn Beast B0 FullGame follow-up: `74/74`;
+- unit battlefield-held draw Dunehorn Beast adjacent / hidden-info follow-up: `2152/2152`;
+- unit battlefield-held draw Dunehorn Beast backend full follow-up: `8830/8830`;
 - unit battlefield-held draw adjacent Dunehorn / BattlefieldHeld / BattlefieldTriggerSpec / MatchRecovery representatives: `2078/2078`;
 - unit battlefield-held draw backend full conformance: `8807/8807`;
 - held call-rune focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
@@ -548,6 +554,8 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held activate-unit-conquest-effects DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 ## Non-Closure
+
+This Dunehorn Beast B0 follow-up additionally proves the parsed unit battlefield-held draw route can carry from a legal official Jhin opening into a real battle declaration, surviving source identity, two-card controlled draw, score-victory replay, and hidden-info guarded full-game helpers. Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Vaults of Helia B0 follow-up additionally proves the parsed held unit-cost route can carry from a legal official Poppy opening into prompt source requirements, `COST_PAID`, stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

@@ -88,6 +88,8 @@ The Plunder Alley defend move-friendly-unit-to-base action-log replay regression
 
 The Vaults of Helia held unit-cost action-log replay regression proves a legal official deck opening can feed the BehaviorSpec-backed held-battlefield cost marker into a later server-authored play prompt. `OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening that selected official `UNL-219/219` Vaults of Helia for P1, then starts from a focused midgame main phase with `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` active and official `OGN·211/298` Loyal Craftsman in P1 hand. The server-authored `PLAY_CARD` prompt exposes Loyal Craftsman with `manaCost=3`, `minimumManaCost=4`, and `battlefieldHeldUnitCostIncreaseMana=1`; submitting the play pays 4 mana, emits `COST_PAID` with the parsed held-unit-cost surcharge, adds the unit stack item, resolves it, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage plus a catalog reason string; it does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Dunehorn Beast unit battlefield-held draw action-log replay regression proves a legal official deck opening can feed a unit-source held trigger into the B0 score-victory route. `OfficialDeckMidgameResolvesDunehornBeastUnitHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin deck openings, then starts from a focused midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel. The server-authored `DECLARE_BATTLE` route leaves Dunehorn Beast as the surviving holder, emits `TRIGGER_RESOLVED` with `trigger=UNIT_BATTLEFIELD_HELD_DRAW`, `sourceCardNo=SFD·027/221`, and `drawCount=2`, draws two controlled main-deck cards for P2, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
 
 The source-lone-battle static-aura action-log replay regression proves a legal official deck can carry Waterbender's battle-conditional source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel, follows the normal official opening seed path, stages both units through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authorized `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the projected `SOURCE_LONE_BATTLE_POWER` effect targets Waterbender itself, observes Waterbender's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-lone-battle static-aura breadth, complete official deck archetype breadth, or READY.
@@ -129,6 +131,54 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Dunehorn Beast unit battlefield-held draw official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastUnitHeldDraw" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Dunehorn Beast FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 74, Failed: 0, Skipped: 0, Total: 74
+```
+
+Latest Dunehorn Beast adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Dunehorn|FullyQualifiedName~UnitBattlefieldHeldDraw|FullyQualifiedName~BattlefieldHeldDraw|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2152, Failed: 0, Skipped: 0, Total: 2152
+```
+
+Latest Dunehorn Beast backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8830, Failed: 0, Skipped: 0, Total: 8830
+```
 
 Latest Vaults of Helia held unit-cost official-deck replay focused validation passed:
 
@@ -929,5 +979,7 @@ The current Ravenbloom non-spell increment additionally proves the BehaviorSpec-
 The current Plunder Alley increment additionally proves one BehaviorSpec-driven battlefield-defended move-friendly-unit-to-base route through legal official Jhin vs Vex deck submission/opening, parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, server-authored defender target submission via `battlefieldTargetObjectIds`, movement of the selected surviving friendly defender to its owner's base, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Vaults of Helia increment additionally proves one BehaviorSpec-driven held-battlefield non-token unit cost increase route through legal official Poppy deck submission/opening, parsed `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE`, prompt source requirement surcharge metadata, `COST_PAID` surcharge payload, stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Dunehorn Beast increment additionally proves one BehaviorSpec-driven unit battlefield-held draw route through legal official Jhin deck submission/opening, parsed `UNIT_BATTLEFIELD_HELD_DRAW`, surviving held unit source identity, two-card controlled main-deck draw, score-victory replay, and hidden-info guarded full-game helpers. Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Hub official-opening play-card surrender-win action-log replay smoke additionally proves the public Hub path can reach and resolve a real prompt-authored `PLAY_CARD` after official deck opening resources, advance the turn, emit a terminal surrender `MATCH_WON`, and replay the recorded command stream to the same final state hash. It does not by itself prove battle, score victory, all deck archetypes, all response windows, or complete card-effect breadth; those remain covered only by focused `FullGameEndToEndTests` representatives and remain open overall.
