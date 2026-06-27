@@ -12,6 +12,7 @@ public sealed class FullGameEndToEndTests
     private const string JhinChampionCardNo = "UNL-022/219";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string RumbleChampionCardNo = "SFD·026/221";
+    private const string DariusLegendCardNo = "OGN·253/298";
     private const string MasterYiIntroSingleDefenderStaticAuraLegendCardNo = "OGS·019/024";
     private const string MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo = "UNL-191/219";
     private const string MasterYiChampionCardNo = "UNL-113/219";
@@ -45,6 +46,8 @@ public sealed class FullGameEndToEndTests
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
+    private const string DariusSameBattlefieldStaticAuraCardNo = "SFD·236/221";
+    private const string DariusChampionCardNo = "OGN·243/298";
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
     private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
     private const string WildclawBeastmasterCardNo = "UNL-057/219";
@@ -2161,6 +2164,73 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-same-battlefield-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesDariusSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSameBattlefieldStaticAuraOfficialDeck(
+            catalog,
+            DariusLegendCardNo,
+            DariusChampionCardNo,
+            DariusSameBattlefieldStaticAuraCardNo,
+            AggressiveDragonhoundCardNo);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-darius-same-battlefield-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSameBattlefieldStaticAuraMidgameInitialState(
+            openingResult.State,
+            DariusSameBattlefieldStaticAuraCardNo,
+            AggressiveDragonhoundCardNo,
+            mana: 9);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            DariusSameBattlefieldStaticAuraCardNo,
+            "b0-darius-same-battlefield-aura-stage-source");
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            AggressiveDragonhoundCardNo,
+            "b0-darius-same-battlefield-aura-stage-ally");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-darius-same-battlefield-aura-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToSameBattlefieldStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-darius-same-battlefield-aura-battle",
+            DariusSameBattlefieldStaticAuraCardNo,
+            AggressiveDragonhoundCardNo);
+
+        AssertSameBattlefieldStaticAuraDamage(battleResult, expectedBasePower: 3);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-darius-same-battlefield-aura-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -6290,7 +6360,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertSameBattlefieldStaticAuraDamage(ResolutionResult result)
+    private static void AssertSameBattlefieldStaticAuraDamage(ResolutionResult result, int expectedBasePower = 2)
     {
         var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
@@ -6298,10 +6368,10 @@ public sealed class FullGameEndToEndTests
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
             && staticPowerBonus is 1);
-        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(expectedBasePower, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
-        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
-        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+        Assert.Equal(expectedBasePower + 1, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(expectedBasePower + 1, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -9891,7 +9961,9 @@ public sealed class FullGameEndToEndTests
         MatchSession session,
         ResolutionResult current,
         string auraControllerId,
-        string intentPrefix)
+        string intentPrefix,
+        string auraSourceCardNo = GarenSameBattlefieldStaticAuraCardNo,
+        string boostedAllyCardNo = DemaciaEnvoyCardNo)
     {
         var result = current;
         for (var turnIndex = 0; turnIndex < 20; turnIndex++)
@@ -9921,7 +9993,9 @@ public sealed class FullGameEndToEndTests
                     session,
                     result,
                     auraControllerId,
-                    $"{intentPrefix}-declare-{turnIndex}");
+                    $"{intentPrefix}-declare-{turnIndex}",
+                    auraSourceCardNo,
+                    boostedAllyCardNo);
             }
 
             if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -14034,7 +14108,9 @@ public sealed class FullGameEndToEndTests
         MatchSession session,
         ResolutionResult current,
         string auraControllerId,
-        string intentId)
+        string intentId,
+        string auraSourceCardNo = GarenSameBattlefieldStaticAuraCardNo,
+        string boostedAllyCardNo = DemaciaEnvoyCardNo)
     {
         Assert.Equal(auraControllerId, current.State.ActivePlayerId);
         var playerId = current.State.ActivePlayerId;
@@ -14044,17 +14120,17 @@ public sealed class FullGameEndToEndTests
         var auraSourceObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             playerId,
-            GarenSameBattlefieldStaticAuraCardNo)
-            ?? throw new InvalidOperationException("B0 same-battlefield static aura driver could not find Garen source.");
+            auraSourceCardNo)
+            ?? throw new InvalidOperationException($"B0 same-battlefield static aura driver could not find source {auraSourceCardNo}.");
         var battlefieldId = current.State.ObjectLocations[auraSourceObjectId].BattlefieldObjectId
-            ?? throw new InvalidOperationException("B0 same-battlefield static aura driver could not locate Garen's battlefield.");
+            ?? throw new InvalidOperationException($"B0 same-battlefield static aura driver could not locate source {auraSourceCardNo}'s battlefield.");
         var attackerObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             playerId,
-            DemaciaEnvoyCardNo,
+            boostedAllyCardNo,
             battlefieldId,
             readyOnly: true)
-            ?? throw new InvalidOperationException("B0 same-battlefield static aura driver could not find a ready boosted ally.");
+            ?? throw new InvalidOperationException($"B0 same-battlefield static aura driver could not find a ready boosted ally {boostedAllyCardNo}.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
         var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -14068,7 +14144,7 @@ public sealed class FullGameEndToEndTests
             string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             && string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
             && string.Equals(effect.TargetObjectId, attackerObjectId, StringComparison.Ordinal));
-        Assert.Equal(GarenSameBattlefieldStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(auraSourceCardNo, staticAura.SourceCardNo);
         Assert.Equal(StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne, staticAura.EffectKind);
         Assert.Equal(1, staticAura.PowerDelta);
         Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus", staticAura.SourcePath);
@@ -16554,16 +16630,38 @@ public sealed class FullGameEndToEndTests
 
     private static OfficialDecklist BuildSameBattlefieldStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
+        return BuildSameBattlefieldStaticAuraOfficialDeck(
+            catalog,
+            PoppyLegendCardNo,
+            PoppyChampionCardNo,
+            GarenSameBattlefieldStaticAuraCardNo,
+            DemaciaEnvoyCardNo);
+    }
+
+    private static OfficialDecklist BuildSameBattlefieldStaticAuraOfficialDeck(
+        OfficialCardCatalog catalog,
+        string legendCardNo,
+        string championCardNo,
+        string auraSourceCardNo,
+        string boostedAllyCardNo)
+    {
         return WithSlowBattlefields(
             catalog,
             BuildLowCurveOfficialDeck(
                 catalog,
-                PoppyLegendCardNo,
-                PoppyChampionCardNo,
-                [
-                    GarenSameBattlefieldStaticAuraCardNo,
-                    DemaciaEnvoyCardNo
-                ]));
+                legendCardNo,
+                championCardNo,
+                RequiredSameBattlefieldStaticAuraMainDeckCards(championCardNo, auraSourceCardNo, boostedAllyCardNo)));
+    }
+
+    private static string[] RequiredSameBattlefieldStaticAuraMainDeckCards(
+        string championCardNo,
+        string auraSourceCardNo,
+        string boostedAllyCardNo)
+    {
+        return string.Equals(championCardNo, auraSourceCardNo, StringComparison.Ordinal)
+            ? [boostedAllyCardNo]
+            : [auraSourceCardNo, boostedAllyCardNo];
     }
 
     private static OfficialDecklist BuildOtherFriendlyStaticAuraOfficialDeck(OfficialCardCatalog catalog)
@@ -18384,11 +18482,24 @@ public sealed class FullGameEndToEndTests
 
     private static MatchState BuildSameBattlefieldStaticAuraMidgameInitialState(MatchState state)
     {
+        return BuildSameBattlefieldStaticAuraMidgameInitialState(
+            state,
+            GarenSameBattlefieldStaticAuraCardNo,
+            DemaciaEnvoyCardNo,
+            mana: 6);
+    }
+
+    private static MatchState BuildSameBattlefieldStaticAuraMidgameInitialState(
+        MatchState state,
+        string auraSourceCardNo,
+        string boostedAllyCardNo,
+        int mana)
+    {
         return BuildSpecificCardsMidgameInitialState(
             state,
             "P1",
-            [GarenSameBattlefieldStaticAuraCardNo, DemaciaEnvoyCardNo],
-            new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+            [auraSourceCardNo, boostedAllyCardNo],
+            new RunePool(mana, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
     }
 
     private static MatchState BuildOtherFriendlyStaticAuraMidgameInitialState(MatchState state)

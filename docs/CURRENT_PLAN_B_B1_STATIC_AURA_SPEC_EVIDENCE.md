@@ -1,6 +1,6 @@
 # Plan B B1 Static Aura Spec Evidence
 
-更新时间：2026-06-26
+更新时间：2026-06-28
 
 ## Evidence Summary
 
@@ -55,6 +55,7 @@ Recovery:
 - `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs` updates the source-card drift expectation to the spec-driven diagnostic.
 - `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` binds all current official `此处的其他友方单位获得{{S}}+1` rows to the same spec-driven projection and combat-damage path, covering `OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, and `OGN·243a/298`.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGS·013/024` Garen's same-battlefield other-friendly static aura through a legal official Poppy deck route: Garen and `UNL-092/219` Demacia Envoy are played and moved through server prompts, the projected `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` effect targets the Envoy, real battle damage records `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, and the action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also carries `SFD·236/221` Darius's same-battlefield other-friendly static aura through a legal official Darius deck route with `OGN·253/298` legend and `OGN·243/298` champion: Darius and `SFD·006/221` Aggressive Dragonhound are played and moved through server prompts, the projected `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` effect targets the Dragonhound, real battle damage records `basePower=3`, `staticPowerBonus=1`, `combatPower=4`, and `damage=4`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `UNL-147/219` Baron Nashor's non-local other-friendly static aura through a legal official Vex deck route: Baron Nashor is played to base, `UNL-057/219` Wildclaw Beastmaster is played and moved to a battlefield through server prompts, the projected `OTHER_FRIENDLY_UNITS_POWER` effect targets Wildclaw from the non-local source, real battle damage records `basePower=7`, `staticPowerBonus=2`, `combatPower=9`, and `damage=9`, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `UNL-154/219` Scarlet Pigeon's source-combat static aura through a legal official Poppy deck route: Scarlet Pigeon and `UNL-092/219` Demacia Envoy are played and moved through server prompts, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER` route contributes `staticPowerBonus=2` to real battle damage, and the action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now carries `OGN·131/298` Dune Drake's source-attacking-ready-enemy static aura through a legal official Poppy deck route: Dune Drake and an opposing ready defender are played and moved to the same battlefield through server prompts, the server-authored `DECLARE_BATTLE` has Dune Drake attacking alone, Dune Drake's `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route contributes `staticPowerBonus=2` to real battle damage, and the action log replays through score victory to the same final state hash.
@@ -106,6 +107,10 @@ Recovery:
 - Latest same-battlefield other-friendly static-power card-row adjacent CardCatalogBaseline / StaticAura / StaticPower / ContinuousEffect representative: 680/680 passed.
 - Latest same-battlefield other-friendly static-power official-deck full-game focused representative: 1/1 passed.
 - Latest FullGameEndToEnd B0/B1 cross-slice representative: 21/21 passed.
+- Latest Darius same-battlefield other-friendly static-power official-deck full-game focused representative: 1/1 passed.
+- Latest same-battlefield other-friendly static-power focused representative after Darius official-deck replay: 7/7 passed.
+- Latest FullGameEndToEnd B0/B1 cross-slice representative after Darius same-battlefield other-friendly replay: 89/89 passed.
+- Latest Darius / SameBattlefieldOtherFriendly / SameBattlefieldStaticAura / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent representative after Darius same-battlefield other-friendly replay: 2166/2166 passed.
 - Latest other-friendly static-power official-deck full-game focused representative: 1/1 passed.
 - Latest FullGameEndToEnd B0/B1 cross-slice representative after Baron Nashor other-friendly replay: 25/25 passed.
 - Latest OtherFriendly / StaticAura / StaticPower / Baron / FullGameEndToEnd / MatchRecovery adjacent representative after Baron Nashor other-friendly replay: 2114/2114 passed.
@@ -190,6 +195,7 @@ Recovery:
 - Latest backend full after Rumble friendly-mechanical static-power official-deck midgame evidence: 8730/8730 passed.
 - Latest backend full after Forbidden Wasteland battlefield isolated-defender keyword-modifier evidence: 8733/8733 passed.
 - Latest backend full after Rumble legend friendly-mechanical Steadfast official-deck midgame evidence: 8734/8734 passed.
+- Latest backend full after Darius same-battlefield other-friendly static-power official-deck full-game evidence: 8853/8853 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
@@ -198,7 +204,7 @@ Before B1 can be called complete, later slices still need evidence for:
 
 - Broader Brush replacement / actual swap-back lifecycle beyond the current score-time replacement representative.
 - Other source-unit count-to-source and threshold static auras beyond the Petal Pixie same-battlefield ephemeral count-to-source midgame representative, the Reliable Siege Dog source same-location official-deck representative, and the Sett same-battlefield boon count-to-source official-deck representative, plus source combat static-aura official-deck breadth beyond the current Scarlet Pigeon, Dune Drake, and Waterbender representatives.
-- Additional full-game official-deck routes for static-aura / RULE_TEXT modifier families beyond the current Garen same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered representatives.
+- Additional full-game official-deck routes for static-aura / RULE_TEXT modifier families beyond the current Garen and Darius same-battlefield other-friendly, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered representatives.
 - Broader multiple static auras and aura stacking beyond the current source-combat + other-friendly additive representative.
 - Broader interaction with until-end-of-turn power modifiers beyond the current representative coverage.
 - Additional conditional subscopes, keyword removal, and remaining RULE_TEXT keyword grant / modifier scopes.
