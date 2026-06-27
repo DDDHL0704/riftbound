@@ -1940,7 +1940,7 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
-    public async Task OfficialDeckCanPlayPromptLegalCardAfterOpeningResourcesThroughHub()
+    public async Task OfficialDeckCanPlayPromptLegalCardAndReachSurrenderWinThroughHub()
     {
         const string roomId = "official-hub-real-deck-play-card-smoke";
         var opening = await StartOfficialDeckGameThroughResourceRecycleAsync(roomId);
@@ -2017,6 +2017,48 @@ public sealed class GameHubJoinTests
         var resolvedSnapshot = SnapshotFor(passSecondClients, opening.ActivePlayerId);
         Assert.Empty(resolvedSnapshot.Stack);
         AssertOfficialSnapshotKeepsOpponentHandHidden(resolvedSnapshot, opening.ActivePlayerId, opening.SecondPlayerId);
+
+        var resolvedPrompt = PromptFor(passSecondClients, opening.ActivePlayerId);
+        Assert.True(resolvedPrompt.Actionable);
+        Assert.Contains("END_TURN", resolvedPrompt.Actions);
+
+        var endTurnClients = new RecordingHubClients();
+        await CreateHub(
+                endTurnClients,
+                new RecordingGroupManager(),
+                ConnectionFor(opening.ActivePlayerId),
+                opening.Registry)
+            .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-end-turn", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "END_TURN"
+            }));
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        var nextSnapshot = SnapshotFor(endTurnClients, opening.SecondPlayerId);
+        Assert.Equal(opening.SecondPlayerId, nextSnapshot.ActivePlayerId);
+        AssertOfficialSnapshotKeepsOpponentHandHidden(nextSnapshot, opening.SecondPlayerId, opening.ActivePlayerId);
+
+        var surrenderClients = new RecordingHubClients();
+        await CreateHub(
+                surrenderClients,
+                new RecordingGroupManager(),
+                ConnectionFor(opening.SecondPlayerId),
+                opening.Registry)
+            .SubmitIntent(roomId, opening.SecondPlayerId, "official-real-deck-play-next-surrender", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "SURRENDER"
+            }));
+        Assert.Empty(surrenderClients.CallerClient.Errors);
+        var winEvent = Assert.Single(
+            EventsFor(surrenderClients),
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(opening.ActivePlayerId, Assert.IsType<string>(winEvent.Payload["winnerPlayerId"]));
+        Assert.Equal(opening.SecondPlayerId, Assert.IsType<string>(winEvent.Payload["surrenderedPlayerId"]));
+        var surrenderSnapshot = SnapshotFor(surrenderClients, opening.ActivePlayerId);
+        Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(surrenderSnapshot.Timing["roomStatus"]));
+        Assert.Equal(opening.ActivePlayerId, Assert.IsType<string>(surrenderSnapshot.Timing["winnerPlayerId"]));
     }
 
     [Fact]
