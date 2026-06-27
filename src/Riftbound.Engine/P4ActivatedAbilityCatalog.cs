@@ -761,6 +761,14 @@ public static class P4ActivatedAbilityCatalog
             .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
     }
 
+    public static bool IsSourceCardNoForAbilityId(
+        string abilityId,
+        string? cardNo)
+    {
+        return TryGetByAbilityId(abilityId, out var definition)
+            && IsSourceCardNoForAbility(definition, cardNo);
+    }
+
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         return string.Equals(definition.AbilityId, RenataGlascDrawAbilityId, StringComparison.Ordinal)

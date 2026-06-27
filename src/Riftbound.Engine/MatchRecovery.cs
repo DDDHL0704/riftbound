@@ -13685,7 +13685,9 @@ public static class MatchRecoveryValidator
         string battlefieldObjectId)
     {
         return authoritativeState.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -19809,6 +19811,13 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {actualCardNoLabel} must be {expectedCardNoLabel} in {contextLabel}; {FormatExpectedActualForRecovery(expectedCardNoLabel, actualCardNoLabel)}");
     }
 
+    private static string ExpectedSourceCardNoLabelForAbilityId(string abilityId)
+    {
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(abilityId, out var definition)
+            ? string.Join(" or ", P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition))
+            : abilityId;
+    }
+
     private static void AddTriggerQueueSourceObjectIdBeforeEffectKindMismatch(
         string payloadLabel,
         string diagnosticName,
@@ -19940,7 +19949,9 @@ public static class MatchRecoveryValidator
 
         if (objectCardNos is not null
             && objectCardNos.TryGetValue(expectedSourceObjectId, out var sourceCardNo)
-            && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal))
+            && !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                sourceCardNo))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
             AddTriggerQueueSourceCardNoMismatch(
@@ -19948,7 +19959,7 @@ public static class MatchRecoveryValidator
                 "blue sentinel delayed resource",
                 expectedSourceObjectId,
                 sourceCardNoLabel,
-                P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                ExpectedSourceCardNoLabelForAbilityId(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId),
                 objectCardNoLabel,
                 errors);
         }

@@ -5123,7 +5123,9 @@ public sealed record ResolutionResult(
         string battlefieldObjectId)
     {
         return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -15844,7 +15846,9 @@ internal static class ActionPromptBuilder
         string battlefieldObjectId)
     {
         return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)

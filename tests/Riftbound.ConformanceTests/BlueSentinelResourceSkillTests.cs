@@ -29,6 +29,47 @@ public sealed class BlueSentinelResourceSkillTests
     }
 
     [Fact]
+    public void BlueSentinelSourceIdentityUsesAbilitySourceCardGroup()
+    {
+        var repositoryRoot = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+        var matchRecoverySource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs"));
+
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo",
+            matchSessionSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo",
+            matchRecoverySource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "sourceCardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo",
+            matchRecoverySource,
+            StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task BlueSentinelHeldBattlefieldQueuesServerOwnedDelayedTrigger()
     {
         var result = await ResolveHeldBattleAsync();
@@ -600,5 +641,22 @@ public sealed class BlueSentinelResourceSkillTests
             Entries.Add(entry);
             return ValueTask.CompletedTask;
         }
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }

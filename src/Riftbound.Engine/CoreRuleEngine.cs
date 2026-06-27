@@ -9262,7 +9262,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldObjectId)
     {
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                sourceState.CardNo)
             || sourceState.IsFaceDown
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -18712,7 +18714,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return defenderObjectIds
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal)
+                && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                    P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
+                    sourceState.CardNo)
                 && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !sourceState.IsFaceDown
                 && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
