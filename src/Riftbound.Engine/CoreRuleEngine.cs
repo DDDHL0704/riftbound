@@ -17669,15 +17669,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 attackerObjectId,
                 assignedOverkillDamageToEnemyUnits));
-            var ireliaConquerTrigger = ResolveIreliaLegendConquerReadyTrigger(
+            var legendConquestReadySelfTrigger = ResolveLegendConquestPayReadySelfTrigger(
                 playerZones,
                 cardObjects,
                 runePools,
                 intent.PlayerId,
                 battlefieldId,
                 attackerObjectId);
-            runePools = ireliaConquerTrigger.RunePools;
-            combatEvents.AddRange(ireliaConquerTrigger.Events);
+            runePools = legendConquestReadySelfTrigger.RunePools;
+            combatEvents.AddRange(legendConquestReadySelfTrigger.Events);
             var settConquerTrigger = ResolveSettLegendConquerReadyTrigger(
                 playerZones,
                 cardObjects,
@@ -20772,7 +20772,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static (IReadOnlyDictionary<string, RunePool> RunePools, IReadOnlyList<GameEvent> Events)
-        ResolveIreliaLegendConquerReadyTrigger(
+        ResolveLegendConquestPayReadySelfTrigger(
             IReadOnlyDictionary<string, PlayerZones> playerZones,
             Dictionary<string, CardObjectState> cardObjects,
             IReadOnlyDictionary<string, RunePool> runePools,
@@ -20780,18 +20780,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             string battlefieldId,
             string attackerObjectId)
     {
-        if (!TryGetExhaustedIreliaLegend(
+        if (!TryGetExhaustedLegendConquestPayReadySelfSource(
                 playerZones,
                 cardObjects,
                 playerId,
                 out var legendObjectId,
-                out var legendState))
+                out var legendState,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            || trigger.ManaCost is not > 0
+            || trigger.LegendReadyCount is not 1
+            || trigger.ReadiesSource is not true)
         {
             return (runePools, []);
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < IreliaLegendManaCost)
+        var manaCost = trigger.ManaCost.Value;
+        if (currentPool.Mana < manaCost)
         {
             return (runePools, []);
         }
@@ -20799,7 +20806,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         nextRunePools[playerId] = currentPool with
         {
-            Mana = currentPool.Mana - IreliaLegendManaCost
+            Mana = currentPool.Mana - manaCost
         };
         cardObjects[legendObjectId] = legendState with
         {
@@ -20810,25 +20817,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         [
             new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的刀锋舞者因征服战场触发",
+                $"{playerId} 的传奇因征服战场触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["legendObjectId"] = legendObjectId,
                     ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND",
+                    ["trigger"] = trigger.Kind,
                     ["sourceObjectId"] = attackerObjectId,
                     ["battlefieldId"] = battlefieldId
                 }),
             new GameEvent(
                 "COST_PAID",
-                $"{playerId} 支付刀锋舞者征服触发费用",
+                $"{playerId} 支付传奇征服触发费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["mana"] = IreliaLegendManaCost,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
-                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                    ["reason"] = trigger.Kind
                 }),
             new GameEvent(
                 "LEGEND_READIED",
@@ -20837,8 +20844,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
-            })
+                    ["reason"] = trigger.Kind
+                })
         ]);
     }
 
@@ -21190,15 +21197,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryGetExhaustedIreliaLegend(
+    private static bool TryGetExhaustedLegendConquestPayReadySelfSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         out string legendObjectId,
-        out CardObjectState legendState)
+        out CardObjectState legendState,
+        out TriggerSpec trigger)
     {
         legendObjectId = string.Empty;
         legendState = new CardObjectState();
+        trigger = default!;
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -21208,7 +21217,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendCardHasAbility(candidate.CardNo, IreliaLegendAbilityId)
+                || !LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger(candidate.CardNo, out var triggerSpec)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -21216,6 +21225,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             legendObjectId = objectId;
             legendState = candidate;
+            trigger = triggerSpec;
             return true;
         }
 

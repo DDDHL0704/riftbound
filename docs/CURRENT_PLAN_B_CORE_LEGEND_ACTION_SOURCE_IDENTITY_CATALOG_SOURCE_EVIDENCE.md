@@ -10,7 +10,7 @@ This file records the concrete evidence for removing duplicated Core legend-acti
 - `CoreRuleEngine.ControllerHasAzirLegend` now calls `LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId)`.
 - `CoreRuleEngine.ControllerHasEzrealLegend` now calls `LegendCardHasAbility(cardObject.CardNo, EzrealLegendAbilityId)`.
 - Core `HasTeemoStandbyHidePermission` now calls `LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId)`.
-- `CoreRuleEngine.TryGetExhaustedIreliaLegend` now calls `LegendCardHasAbility(candidate.CardNo, IreliaLegendAbilityId)`.
+- The Irelia reaction ability source row still resolves through `LegendCardHasAbility(cardNo, IreliaLegendAbilityId)` and `TryGetLegendAbility`; the separate Irelia conquest ready-self trigger was later moved to the legend-conquest `TriggerSpec` path.
 - `LegendCardHasAbility` resolves the ability through `TryGetLegendAbility` and checks the ability's `SourceCardNos`.
 - The previous `IsAzirLegendCardNo`, `IsEzrealLegendCardNo`, `IsTeemoLegendCardNo`, and `IsIreliaLegendCardNo` helpers were deleted.
 - Existing events, prompts, payment semantics, and snapshot shape are unchanged.

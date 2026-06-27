@@ -2303,6 +2303,33 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesLegendConquestPayReadySelfTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        foreach (var cardNo in new[] { "SFD·195/221", "SFD·195a/221·P", "SFD·246/221" })
+        {
+            var bladeDancer = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                bladeDancer.Triggers,
+                trigger => string.Equals(trigger.Kind, TriggerKinds.LegendConquestPayReadySelf, StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.SourceLegend, trigger.TargetScope);
+            Assert.Equal(1, trigger.ManaCost);
+            Assert.Equal(1, trigger.LegendReadyCount);
+            Assert.True(trigger.ReadiesSource);
+            Assert.Contains("当你征服一处战场时", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("让我变为活跃状态", trigger.Text, StringComparison.Ordinal);
+            Assert.Equal(
+                "Legend conquest pay-ready-self trigger parsed for legend-trigger routing; execution is available through shared legend conquest TriggerSpec resolution.",
+                trigger.Reason);
+        }
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldDefendRevealSpellTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4003,6 +4030,20 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldReadyLegendManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LegendConquestPayReadySelfTriggerDoesNotUseIreliaSpecificResolver()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResolveIreliaLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

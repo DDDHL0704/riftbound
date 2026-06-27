@@ -1104,6 +1104,23 @@ public static class TriggerParser
                 LegendReadyCount: 1);
         }
 
+        var legendConquestPayReadySelfMatch = Regex.Match(
+            segment,
+            @"当你征服一处战场时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此让我变为活跃状态。?$",
+            RegexOptions.CultureInvariant);
+        if (legendConquestPayReadySelfMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.LegendConquestPayReadySelf,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Legend conquest pay-ready-self trigger parsed for legend-trigger routing; execution is available through shared legend conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceLegend,
+                ManaCost: ParseChineseNumber(legendConquestPayReadySelfMatch.Groups[1].Value),
+                LegendReadyCount: 1,
+                ReadiesSource: true);
+        }
+
         var battlefieldConquerOverkillWarhawkMatch = Regex.Match(
             segment,
             @"当你征服此处时，如果你给敌方单位分配了不低于([0-9一两二三四五六七八九十]+)点的过量伤害，则打出一名([0-9一两二三四五六七八九十]+)\{\{S\}\}“([^”]+)”，它拥有\{\{([^}]+)\}\}",

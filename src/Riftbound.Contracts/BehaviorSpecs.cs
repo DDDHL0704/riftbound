@@ -88,6 +88,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
     public const string BattlefieldConquerPayReadyLegend =
         "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND";
+    public const string LegendConquestPayReadySelf =
+        "LEGEND_CONQUEST_PAY_1_READY_SELF";
     public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
         "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE";
     public const string BattlefieldConquerOverkillCreateWarhawk =
@@ -193,6 +195,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ControlledUnitAtThisBattlefield = "CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ControlledLegend = "CONTROLLED_LEGEND";
+    public const string SourceLegend = "SOURCE_LEGEND";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";

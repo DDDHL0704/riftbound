@@ -36597,7 +36597,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestPayReadySelf, StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-IRELIA-PROMO", StringComparison.Ordinal));
@@ -36622,7 +36622,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.State.CardObjects["P1-LEGEND-IRELIA"].IsExhausted);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestPayReadySelf, StringComparison.Ordinal));
     }
 
     [Fact]

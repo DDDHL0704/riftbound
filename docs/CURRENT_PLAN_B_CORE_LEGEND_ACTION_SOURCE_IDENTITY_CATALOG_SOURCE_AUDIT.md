@@ -30,7 +30,7 @@ Not changed:
 | Core Azir legend source identity no longer has a duplicated card-number helper | `IsAzirLegendCardNo` was removed; `ControllerHasAzirLegend` now checks `LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId)` | Accepted |
 | Core Ezreal legend source identity no longer has a duplicated card-number helper | `IsEzrealLegendCardNo` was removed; `ControllerHasEzrealLegend` now checks `LegendCardHasAbility(cardObject.CardNo, EzrealLegendAbilityId)` | Accepted |
 | Core Teemo standby-hide source identity no longer has a duplicated card-number helper | `IsTeemoLegendCardNo` was removed; Core `HasTeemoStandbyHidePermission` now checks `LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId)` | Accepted |
-| Core Irelia trigger source identity no longer has a duplicated card-number helper | `IsIreliaLegendCardNo` was removed; `TryGetExhaustedIreliaLegend` now checks `LegendCardHasAbility(candidate.CardNo, IreliaLegendAbilityId)` | Accepted |
+| Core Irelia reaction ability source identity no longer has a duplicated card-number helper | `IsIreliaLegendCardNo` was removed; the `LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT` source row is still consumed through `LegendCardHasAbility(cardNo, IreliaLegendAbilityId)`. The separate conquest ready-self trigger was later moved to `LegendConquestTriggerSpecRules`. | Accepted |
 | Source identity consumes existing legend-action ability rows | `LegendCardHasAbility` reads `TryGetLegendAbility(abilityId).SourceCardNos` | Accepted |
 | Hidden-info / recovery boundary | `MatchRecovery` remains green | Accepted |
 | Full official legend-action breadth | complete legend-action data modeling and remaining Core legend helper migration remain residual | Residual, no full-official claim |
