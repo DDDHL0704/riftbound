@@ -81,6 +81,7 @@ public sealed class FullGameEndToEndTests
     private const string VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string MaraiSpireBattlefieldEchoCostReductionCardNo = "SFD·211/221";
+    private const string OrnnForgeBattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string VoidGateBattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string MutationGardenBattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -1522,6 +1523,45 @@ public sealed class FullGameEndToEndTests
             session,
             spellResolved,
             "b0-marai-spire-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesOrnnForgeEquipmentCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldEquipmentCostReductionOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldEquipmentCostReductionOpeningAsync(
+            "b0-full-game-ornn-forge-equipment-cost-reduction-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldEquipmentCostReductionMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var equipmentPlayed = await SubmitBattlefieldEquipmentCostReductionEquipmentAsync(
+            session,
+            current,
+            "P1",
+            "b0-ornn-forge-equipment-cost-reduction");
+        AssertBattlefieldEquipmentCostReductionEquipmentPlayed(current, equipmentPlayed);
+
+        var equipmentResolved = await ResolveStackPassPassAsync(
+            session,
+            equipmentPlayed,
+            "b0-ornn-forge-equipment-cost-reduction-resolve");
+        AssertBattlefieldEquipmentCostReductionEquipmentResolved(current, equipmentResolved);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            equipmentResolved,
+            "b0-ornn-forge-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -5719,6 +5759,77 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldEquipmentCostReductionEquipmentPlayed(
+        ResolutionResult beforeEquipment,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            beforeEquipment.State,
+            "P1",
+            OrnnForgeBattlefieldEquipmentCostReductionCardNo);
+        var equipmentObjectId = FindHandCardObjectByCardNo(
+            beforeEquipment.State,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge assertion could not locate Long Sword in P1 hand.");
+        var targetObjectId = FindBaseUnitByCardNo(
+            beforeEquipment.State,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge assertion could not locate Aggressive Dragonhound in P1 base.");
+
+        Assert.Equal(new RunePool(mana: 1, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), beforeEquipment.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), result.State.RunePools["P1"]);
+        Assert.DoesNotContain(equipmentObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.Contains("PLAYED_EQUIPMENT_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
+        Assert.Single(result.State.StackItems, item =>
+            string.Equals(item.ControllerId, "P1", StringComparison.Ordinal)
+            && string.Equals(item.CardNo, LongSwordEquipmentCardNo, StringComparison.Ordinal));
+
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, equipmentObjectId, StringComparison.Ordinal));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaid.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaid.Payload["paymentWindow"]);
+        Assert.Equal("P1", costPaid.Payload["playerId"]);
+        Assert.Equal(1, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["baseManaCost"]);
+        Assert.Equal(1, costPaid.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldEquipmentCostReductionMana"]);
+
+        var stackEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, equipmentObjectId, StringComparison.Ordinal));
+        Assert.Equal(LongSwordEquipmentCardNo, stackEvent.Payload["cardNo"]);
+        Assert.Equal([targetObjectId], Assert.IsType<string[]>(stackEvent.Payload["targetObjectIds"]));
+        Assert.Equal(battlefieldObjectId, BattlefieldObjectIdForCardNo(result.State, "P1", OrnnForgeBattlefieldEquipmentCostReductionCardNo));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldEquipmentCostReductionEquipmentResolved(
+        ResolutionResult beforeEquipment,
+        ResolutionResult result)
+    {
+        var equipmentObjectId = FindHandCardObjectByCardNo(
+            beforeEquipment.State,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge assertion could not locate Long Sword in P1 hand.");
+        var targetObjectId = FindBaseUnitByCardNo(
+            beforeEquipment.State,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge assertion could not locate Aggressive Dragonhound in P1 base.");
+
+        Assert.Empty(result.State.StackItems);
+        Assert.Contains(equipmentObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(equipmentObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(targetObjectId, result.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Contains(CardObjectTags.EquipmentCard, result.State.CardObjects[equipmentObjectId].Tags);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldHighCostSpellInsightResolved(
         ResolutionResult beforeSpell,
         ResolutionResult result)
@@ -9179,6 +9290,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             MaraiSpireBattlefieldEchoCostReductionCardNo,
             "Marai Spire");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldEquipmentCostReductionOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            OrnnForgeBattlefieldEquipmentCostReductionCardNo,
+            "Ornn's Forge");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHighCostSpellInsightOpeningAsync(
@@ -13608,6 +13732,60 @@ public sealed class FullGameEndToEndTests
             CenterStageSpellCardNo,
             [],
             OptionalCosts: [EchoOptionalCostNames.Echo]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldEquipmentCostReductionEquipmentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Ornn's Forge driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        _ = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            OrnnForgeBattlefieldEquipmentCostReductionCardNo);
+        var equipmentObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge driver could not find Long Sword in P1 hand.");
+        var targetObjectId = FindBaseUnitByCardNo(
+            current.State,
+            playerId,
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge driver could not find Aggressive Dragonhound in P1 base.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(equipmentObjectId, legalSourceIds);
+        Assert.Contains(targetObjectId, legalTargetIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, equipmentObjectId, StringComparison.Ordinal));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["battlefieldEquipmentCostReductionMana"]));
+
+        var command = new PlayCardCommand(
+            equipmentObjectId,
+            LongSwordEquipmentCardNo,
+            [targetObjectId]);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -18251,6 +18429,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldEquipmentCostReductionOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            RumbleLegendCardNo,
+            RumbleChampionCardNo,
+            [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            OrnnForgeBattlefieldEquipmentCostReductionCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldHighCostSpellInsightOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -21643,6 +21842,63 @@ public sealed class FullGameEndToEndTests
         {
             ActivePlayerId = "P1",
             TurnPlayerId = "P1"
+        };
+    }
+
+    private static MatchState BuildBattlefieldEquipmentCostReductionMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo],
+                    new RunePool(mana: 1, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        _ = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            OrnnForgeBattlefieldEquipmentCostReductionCardNo);
+        var targetObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Ornn's Forge setup could not find Aggressive Dragonhound in P1 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, targetObjectId, StringComparison.Ordinal)).ToArray(),
+            Base = p1Zones.Base.Concat([targetObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[targetObjectId] = new ObjectLocationState("P1", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[targetObjectId] = cardObjects[targetObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[targetObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(effectId, "PLAYED_EQUIPMENT_THIS_TURN:P1", StringComparison.Ordinal))
+                .ToArray()
         };
     }
 

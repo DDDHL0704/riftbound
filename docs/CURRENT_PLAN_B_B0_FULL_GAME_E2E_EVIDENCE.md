@@ -142,6 +142,8 @@ The Mutation Garden granted unit-experience action-log replay regression proves 
 
 The Marai Spire Echo cost-reduction action-log replay regression proves a legal official deck can carry a B4 battlefield static cost modifier through the real `PLAY_CARD` optional-cost prompt path. `OfficialDeckMidgameResolvesMaraiSpireEchoCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Jhin decks whose battlefield set includes `SFD·211/221` Marai Spire / 玛莱尖塔, probes official-opening seeds until P1 randomly selects that battlefield, stages official `UNL-061/219` Center Stage in hand with only 3 mana, submits the server-authored `ECHO` optional cost after prompt metadata exposes the battlefield reduction reason, verifies `COST_PAID.mana = 3`, `baseMana = 2`, `battlefieldEchoCostReductionMana = 1`, stack `effectRepeatCount = 2`, final Center Stage in graveyard, two-card draw state movement, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complex Echo costs, all optional-cost/payment-resource combinations, complete B4, complete official deck archetype breadth, or READY.
 
+The Ornn's Forge equipment cost-reduction action-log replay regression proves a legal official deck can carry a B4 battlefield static cost modifier through the real `PLAY_CARD` equipment prompt path. `OfficialDeckMidgameResolvesOrnnForgeEquipmentCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Rumble decks whose battlefield set includes `SFD·213/221` Ornn's Forge / 奥恩的锻炉, probes official-opening seeds until P1 randomly selects that battlefield, stages official `SFD·022/221` Long Sword in hand with only 1 mana and official `SFD·006/221` Aggressive Dragonhound in base as the controlled attachment target, verifies `PLAY_CARD.sourceRequirements` exposes `manaCost = 2`, `minimumManaCost = 1`, and `battlefieldEquipmentCostReductionMana = 1`, verifies `COST_PAID.mana = 1`, `baseMana = 2`, `battlefieldEquipmentCostReductionMana = 1`, records `PLAYED_EQUIPMENT_THIS_TURN:P1`, resolves Long Sword onto the controlled unit, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complex equipment costs, all payment-resource combinations, complete equipment attachment lifecycle breadth, complete B4, complete official deck archetype breadth, or READY.
+
 The source same-location static-aura action-log replay regression proves a legal official deck can carry a threshold source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `SFD·159/221` Reliable Siege Dog and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages both friendly units and an opposing defender through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Reliable Siege Dog's `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` projection targets itself with the Envoy as a same-location participant, observes Reliable Siege Dog's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete same-location / count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
 
 The same-battlefield boon count-to-source static-aura action-log replay regression proves a legal official deck can carry a filtered count-to-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Poppy decks containing `OGN·240/298` Sett, `OGN·136/298` Arena Rookie, and `UNL-092/219` Demacia Envoy, follows the normal official opening seed path, stages Demacia Envoy to a battlefield, uses Arena Rookie's server-authored targeted `PLAY_CARD` prompt to grant `{{增益}}` to Demacia Envoy, stages Sett to the same battlefield, verifies Sett's `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` projection targets itself with the boon-bearing Envoy as participant, observes Sett's real `DAMAGE_APPLIED` with `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete count-to-source static-aura breadth, complete official deck archetype breadth, or READY.
@@ -171,6 +173,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Ornn's Forge equipment cost-reduction official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesOrnnForgeEquipmentCostReduction"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Ornn's Forge equipment cost-reduction adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~EquipmentCostReduction|FullyQualifiedName~LongSword|FullyQualifiedName~EquipmentKeyword|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2179, Failed: 0, Skipped: 0, Total: 2179
+```
+
+Latest Ornn's Forge equipment cost-reduction backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8859, Failed: 0, Skipped: 0, Total: 8859
+```
 
 Latest Marai Spire Echo cost-reduction official-deck replay focused validation passed:
 

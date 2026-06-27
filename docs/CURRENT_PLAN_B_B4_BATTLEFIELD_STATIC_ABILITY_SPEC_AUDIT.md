@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 Marai Spire Echo cost-reduction official-deck replay accepted; project remains **NOT READY**.
+Status: focused B4 Ornn's Forge equipment cost-reduction official-deck replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -31,6 +31,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `CoreRuleEngine` Echo optional-cost planning now reads `BATTLEFIELD_ECHO_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEchoCostReductionCardNo` branch.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_ECHO_COST_REDUCTION` path through legal official Jhin deck submission/opening, server-authored `ECHO` optional-cost prompt metadata, reduced cost payment, stack repeat count, two-card draw resolution, score victory, and final-state action-log replay.
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` path through legal official Rumble deck submission/opening, server-authored Long Sword `PLAY_CARD` prompt metadata, reduced first-equipment payment, equipment stack resolution, score victory, and final-state action-log replay.
 - `CoreRuleEngine` battlefield granted unit-experience activation now reads `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldGrantUnitExperienceCardNo` branch, and uses `Amount` for the experience event.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` path through legal official Vex deck submission/opening, server-authored `ACTIVATE_ABILITY`, source exhaustion, `EXPERIENCE_GAINED.totalExperience=1`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` spell/skill damage resolution now reads `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` branch, and uses `Amount` for the damage modifier.
@@ -51,6 +52,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Ornn's Forge official-deck replay focused validation: passed `1/1`;
+- latest Ornn's Forge equipment cost-reduction / LongSword / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2179/2179`;
+- backend full conformance after the Ornn's Forge replay increment: passed `8859/8859`;
 - latest Marai Spire official-deck replay focused validation: passed `1/1`;
 - latest Marai Spire Echo / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2208/2208`;
 - backend full conformance after the Marai Spire replay increment: passed `8858/8858`;
