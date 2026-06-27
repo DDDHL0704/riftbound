@@ -309,6 +309,7 @@ public static class StaticAuraKinds
     public const string FriendlySingleDefendingUnitPower = "FRIENDLY_SINGLE_DEFENDING_UNIT_POWER";
     public const string FriendlyUnitsPower = "FRIENDLY_UNITS_POWER";
     public const string OtherFriendlyUnitsPower = "OTHER_FRIENDLY_UNITS_POWER";
+    public const string OtherFriendlyUnitsKeyword = "OTHER_FRIENDLY_UNITS_KEYWORD";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";

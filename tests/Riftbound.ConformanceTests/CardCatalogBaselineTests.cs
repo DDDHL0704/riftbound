@@ -1545,6 +1545,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("你的“机械”属性单位获得{{预知}}", prescientMechAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, prescientMechAura.Status);
 
+        var gemstoneSeer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·100/298", StringComparison.Ordinal));
+        var gemstoneSeerAura = Assert.Single(gemstoneSeer.StaticAuras);
+        Assert.Equal(StaticAuraKinds.OtherFriendlyUnitsKeyword, gemstoneSeerAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, gemstoneSeerAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", gemstoneSeerAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.OtherFriendlyUnits, gemstoneSeerAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.OtherFriendlyPublicUnits, gemstoneSeerAura.ParticipantScope);
+        Assert.Equal(0, gemstoneSeerAura.PowerDeltaPerParticipant);
+        Assert.Null(gemstoneSeerAura.TargetFilter);
+        Assert.Equal("预知", gemstoneSeerAura.GrantedKeyword);
+        Assert.Contains("其他友方单位获得{{预知}}", gemstoneSeerAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, gemstoneSeerAura.Status);
+
         var speedingMech = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·071/221", StringComparison.Ordinal));
         var speedingMechAuras = speedingMech.StaticAuras
             .Where(aura => string.Equals(aura.Kind, StaticAuraKinds.FriendlyFilteredUnitsKeyword, StringComparison.Ordinal))

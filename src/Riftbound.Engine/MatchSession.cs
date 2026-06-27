@@ -1923,6 +1923,7 @@ public sealed record MatchState
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildFriendlyUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsStaticAuraEffects(state));
@@ -2585,6 +2586,54 @@ public sealed record MatchState
                     SourceDependencyObjectIds: sourceDependencyObjectIds,
                     TargetDependencyObjectIds: targetDependencyObjectIds,
                     ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildOtherFriendlyUnitsKeywordAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(state))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var source)
+                || string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var controllerId = EffectivePublicStaticAuraSourceControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(source.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                {
+                    continue;
+                }
+
+                var participantObjectIds = OtherFriendlyPublicFieldUnitObjectIds(
+                    state,
+                    sourceObjectId,
+                    controllerId);
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    effects.Add(new ContinuousEffectState(
+                        $"RULE_TEXT:OTHER_FRIENDLY_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                        "OBJECT",
+                        ContinuousEffectLayers.RuleText,
+                        aura.Duration,
+                        participantObjectId,
+                        sourceObjectId));
+                }
             }
         }
 
@@ -12703,7 +12752,7 @@ internal static class ActionPromptBuilder
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            || !HasPromptFriendlyFilteredStaticGrantedKeyword(
+            || !HasPromptStaticGrantedKeyword(
                 state,
                 sourceObjectId,
                 sourceState,
@@ -12723,7 +12772,7 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static bool HasPromptFriendlyFilteredStaticGrantedKeyword(
+    private static bool HasPromptStaticGrantedKeyword(
         MatchState state,
         string targetObjectId,
         CardObjectState targetState,
@@ -12749,6 +12798,15 @@ internal static class ActionPromptBuilder
                 if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                     && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal)
                     && StaticAuraSpecRules.TargetMatchesFilter(aura, targetState))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -16947,11 +17005,16 @@ internal static class ActionPromptBuilder
                 state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 && !sourceState.IsFaceDown
                 && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword)
+                && (StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword)
                     .Any(aura => string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                         && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                         && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0
                         && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                    || StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword)
+                        .Any(aura => string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                            && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0
+                            && !string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)))
                 && string.Equals(
                     EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -16997,6 +17060,20 @@ internal static class ActionPromptBuilder
                 if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                     || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                     || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                {
+                    continue;
+                }
+
+                tax = Math.Max(
+                    tax,
+                    CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                    || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
                 {
                     continue;
                 }

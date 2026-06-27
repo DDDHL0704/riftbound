@@ -20134,6 +20134,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                 bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
             }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                    || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+            }
         }
 
         return bonus;
@@ -20179,6 +20190,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                     || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                     || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                {
+                    continue;
+                }
+
+                amount = Math.Max(amount, GrantedResourceKeywordAmount(aura, resourceKeyword));
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                    || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
                 {
                     continue;
                 }
@@ -26614,7 +26637,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            || !HasFriendlyFilteredStaticGrantedKeyword(
+            || !HasStaticGrantedKeyword(
                 state,
                 sourceObjectId,
                 sourceState,
@@ -26634,7 +26657,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
-    private static bool HasFriendlyFilteredStaticGrantedKeyword(
+    private static bool HasStaticGrantedKeyword(
         MatchState state,
         string targetObjectId,
         CardObjectState targetState,
@@ -26660,6 +26683,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                     && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal)
                     && StaticAuraSpecRules.TargetMatchesFilter(aura, targetState))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword))
+            {
+                if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal))
                 {
                     return true;
                 }

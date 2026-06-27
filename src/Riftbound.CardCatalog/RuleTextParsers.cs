@@ -2433,6 +2433,31 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var otherFriendlyKeywordMatch = Regex.Match(
+                segment,
+                @"其他友方单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (otherFriendlyKeywordMatch.Success)
+            {
+                var grantedKeyword = otherFriendlyKeywordMatch.Groups[1].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.OtherFriendlyUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.OtherFriendlyUnits,
+                        StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
             var sameBattlefieldOtherFriendlyBoonPowerMatch = Regex.Match(
                 segment,
                 @"我所在战场上其他拥有增益的友方单位获得\{\{S\}\}\+(\d+)",
