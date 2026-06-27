@@ -287,6 +287,7 @@ public static class StaticAbilityKinds
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string OtherFriendlyUnitsEnterReady = "OTHER_FRIENDLY_UNITS_ENTER_READY";
+    public const string FriendlyFilteredUnitsEnterReady = "FRIENDLY_FILTERED_UNITS_ENTER_READY";
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
     public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
     public const string BattlefieldEchoCostReduction = "BATTLEFIELD_ECHO_COST_REDUCTION";
@@ -380,6 +381,7 @@ public static class StaticAuraTargetFilters
 {
     public const string AnyPrefix = "ANY:";
     public const string CardNamePrefix = "CARD_NAME:";
+    public const string Token = "TOKEN";
     public const string UnitToken = "UNIT_TOKEN";
     public const string TagPrefix = "TAG:";
 }
@@ -520,7 +522,8 @@ public sealed record StaticAbilitySpec(
     string Reason,
     int Amount = 0,
     int? RequiredPowerThreshold = null,
-    IReadOnlyList<string>? GrantedKeywords = null);
+    IReadOnlyList<string>? GrantedKeywords = null,
+    string? TargetFilter = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

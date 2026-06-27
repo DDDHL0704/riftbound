@@ -1,30 +1,40 @@
-# Plan B Other-Friendly Active-Entry Static Ability Spec Audit
+# Plan B Active-Entry Static Ability Spec Audit
 
 更新时间：2026-06-27
 
 ## Scope
 
-This slice advances Plan B by moving `OGN·011/298` 熔浆巨龙's static active-entry text from a deferred card row into the shared BehaviorSpec-driven unit-entry lifecycle.
+This audit tracks Plan B active-entry static ability slices that move card text from deferred card rows into shared BehaviorSpec-driven entry lifecycles.
 
-Implemented in this slice:
+Implemented for `OGN·011/298` 熔浆巨龙:
 
 - `StaticAbilityKinds.OtherFriendlyUnitsEnterReady = OTHER_FRIENDLY_UNITS_ENTER_READY`.
 - `RuleTextParsers.StaticAbilityParser` parses `当我在场上时，其他友方单位以活跃状态进场。` into `BehaviorSpec.StaticAbilities`.
 - `CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility` exposes the parsed spec to engine runtime.
-- `CoreRuleEngine` unit-entry resolution now checks public, face-up, non-standby friendly field-unit sources with that static ability before deciding whether a played unit enters exhausted.
+- `CoreRuleEngine` unit-entry resolution checks public, face-up, non-standby friendly field-unit sources with that static ability before deciding whether a played unit enters exhausted.
 - The source object is excluded from its own static ability, and face-down / standby sources do not grant active entry.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata when this static ability controls the entry state.
+
+Implemented for `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克:
+
+- `StaticAbilityKinds.FriendlyFilteredUnitsEnterReady = FRIENDLY_FILTERED_UNITS_ENTER_READY`.
+- `StaticAbilitySpec.TargetFilter` can now carry entry filters; Renata parses `你的指示物以活跃状态进场。` with `TargetFilter=TOKEN`.
+- `P6TokenFactoryCatalog.IsTokenFactory` backs the generic token filter rather than a local card-number helper.
+- `CoreRuleEngine` uses the same public, face-up, non-standby friendly source scan for filtered token active-entry specs.
+- Unit token factory entry paths share `ApplyUnitTokenEntryStaticAbility`; token creation payloads can include the same `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata.
+- Existing fallback token paths without token factory identity remain unchanged until their token metadata is upgraded.
 
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
 - `OGN·011/298` 熔浆巨龙: `当我在场上时，其他友方单位以活跃状态进场。`
+- `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克: `你的指示物以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
 ## Not Closed
 
-- Full active-entry family breadth remains open: low-hand entry, level-gated entry, turn-scoped spell-granted entry, token-only entry, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
+- Full active-entry family breadth remains open: low-hand entry, level-gated entry, turn-scoped spell-granted entry, equipment / battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
 - This slice does not add legal official-deck score-victory replay coverage for 熔浆巨龙.
 - This slice does not close P0 full objective or READY.
 
@@ -38,6 +48,14 @@ Focused red/green:
 
 Result: initially failed 2/3 before implementation; after implementation 3/3 passed.
 
+Renata token filtered active-entry focused red/green:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RenataTokenActiveEntryStaticAbilityTests" --nologo
+```
+
+Result: initially failed at compile because `FRIENDLY_FILTERED_UNITS_ENTER_READY` / `TargetFilter` did not exist; after implementation 3/3 passed.
+
 Adjacent:
 
 ```bash
@@ -46,10 +64,18 @@ Adjacent:
 
 Result: 2306/2306 passed.
 
+Renata / token adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RenataTokenActiveEntryStaticAbilityTests|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntryTests|FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActAzir|FullyQualifiedName~P79LegendActCreatesMinionWithViktor|FullyQualifiedName~P79BattlefieldHeldCreatesMinionInBase|FullyQualifiedName~P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed|FullyQualifiedName~P79IroncladVanguardCreatesTwoRobotsWhenDestroyed|FullyQualifiedName~Warhawk" --nologo
+```
+
+Result: 335/335 passed.
+
 Backend full:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8841/8841 passed.
+Result: 8844/8844 passed after the Renata token slice.

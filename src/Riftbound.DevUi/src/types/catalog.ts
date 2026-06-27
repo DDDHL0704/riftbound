@@ -123,6 +123,7 @@ export type BehaviorSpec = {
     amount?: number | null;
     requiredPowerThreshold?: number | null;
     grantedKeywords?: string[] | null;
+    targetFilter?: string | null;
   }>;
   staticAuras: StaticAuraSpec[];
   effects: Array<{ templateId: string; phrase: string; status: string; reason: string }>;

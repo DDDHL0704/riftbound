@@ -39,6 +39,15 @@ internal static class CardStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetFriendlyFilteredUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.FriendlyFilteredUnitsEnterReady,
+            out ability)
+            && !string.IsNullOrWhiteSpace(ability.TargetFilter);
+    }
+
     public static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;

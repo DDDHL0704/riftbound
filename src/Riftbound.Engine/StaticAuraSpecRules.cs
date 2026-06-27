@@ -218,6 +218,11 @@ internal static class StaticAuraSpecRules
 
     private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)
     {
+        if (string.Equals(targetFilter, StaticAuraTargetFilters.Token, StringComparison.Ordinal))
+        {
+            return P6TokenFactoryCatalog.IsTokenFactory(target.CardNo);
+        }
+
         if (string.Equals(targetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
         {
             return P6TokenFactoryCatalog.IsUnitTokenFactory(target.CardNo);

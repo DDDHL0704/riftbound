@@ -2083,6 +2083,17 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("你的指示物以活跃状态进场", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.FriendlyFilteredUnitsEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Friendly filtered-token active-entry static ability parsed for spec-driven token-entry routing.",
+                    TargetFilter: StaticAuraTargetFilters.Token));
+                continue;
+            }
+
             if (segment.Contains("当我在场上时", StringComparison.Ordinal)
                 && segment.Contains("其他友方单位以活跃状态进场", StringComparison.Ordinal))
             {

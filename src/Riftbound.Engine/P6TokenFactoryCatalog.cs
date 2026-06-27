@@ -145,6 +145,12 @@ public static class P6TokenFactoryCatalog
             && string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal);
     }
 
+    public static bool IsTokenFactory(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && TryGetByCardNo(cardNo.Trim(), out _);
+    }
+
     private static P6TokenFactoryDefinition Unit(
         string cardNo,
         string cardName,
