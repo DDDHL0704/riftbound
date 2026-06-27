@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Back Alley Bar moved-unit power score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 Piltover Academy held-next-spell Echo score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -40,6 +40,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Poppy vs Vex opening state, a verified legal official-deck opening selects P2 `UNL-216/219` Piltover Academy, then starts a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield; the held path resolves the parsed `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO` marker, and a derived P2 neutral-open next-spell window plays official `UNL-007/219` Punishment with the granted Echo optional cost, resolves the repeated spell stack, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -231,6 +232,8 @@ This Hall of Legends increment additionally proves a legal official Vex deck ope
 
 This Back Alley Bar increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven moved-unit power route through server-authored `MOVE_UNIT`, the parsed until-end-of-turn power-modifier ledger, score victory, and action-log replay. It still does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Piltover Academy increment additionally proves a legal official Poppy vs Vex deck opening can carry the BehaviorSpec-driven held-next-spell Echo marker into a derived next-spell window, pay the granted Echo optional cost on official `UNL-007/219` Punishment, resolve the repeated spell stack, and continue through score victory plus action-log replay. It still does not close natural same-turn non-active spell access, Swift stack-response `PLAY_CARD` prompts, complete Echo optional prompt breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Hunting Grounds increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield overkill token route through server-authored `DECLARE_BATTLE`, assigned overkill threshold checking, 1-power `UNL·T02` Warhawk token creation with `法盾` at that battlefield, score victory, and action-log replay. It still does not close complete token lifecycle breadth, complete overkill / damage-assignment breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Candlelit Sanctum increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield reveal/recycle route through server-authored `DECLARE_BATTLE`, top-two controlled main-deck reveal, parsed-count recycle to the bottom of the main deck, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close the official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -260,6 +263,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Piltover Academy held-next-spell Echo score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEcho"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Piltover Academy FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 76, Failed: 0, Skipped: 0, Total: 76
+```
+
+Latest Piltover Academy adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~PiltoverAcademy|FullyQualifiedName~HeldNextSpellEcho|FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~Stack|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2655, Failed: 0, Skipped: 0, Total: 2655
+```
+
+Latest Piltover Academy backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8832, Failed: 0, Skipped: 0, Total: 8832
+```
 
 Latest Back Alley Bar moved-unit power score-victory focused validation passed:
 

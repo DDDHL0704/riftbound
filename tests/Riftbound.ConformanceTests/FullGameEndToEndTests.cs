@@ -497,7 +497,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoActionLogReplaysToStackStateHash()
+    public async Task OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldNextSpellEchoAttackerOfficialDeck(catalog);
@@ -533,9 +533,22 @@ public sealed class FullGameEndToEndTests
             "b0-piltover-academy-punishment-echo");
         AssertBattlefieldHeldNextSpellEchoSpellPlayed(echoReady, spellPlayed);
 
-        await AssertActionLogReplaysToFinalStateHashOnlyAsync(echoReadyState, echoJournal, spellPlayed);
+        var resolved = await ResolveStackPassPassAsync(
+            echoSession,
+            spellPlayed,
+            "b0-piltover-academy-punishment-echo-resolve");
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            echoSession,
+            resolved,
+            "b0-piltover-academy-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, responseOpened);
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(echoReadyState, echoJournal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
     }
 
     [Fact]
