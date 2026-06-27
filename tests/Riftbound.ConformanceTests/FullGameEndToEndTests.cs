@@ -53,6 +53,7 @@ public sealed class FullGameEndToEndTests
     private const string WinningScoreIncreaseBattlefieldCardNo = "OGN·276/298";
     private const string BandleTreeBattlefieldCardNo = "OGN·278/298";
     private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
+    private const string FirstTurnScoreBattlefieldCardNo = "OGN·290/298";
     private const string FrostHoldBattlefieldTurnStartDamageCardNo = "UNL-212/219";
     private const string DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo = "UNL-209/219";
     private const string ImperialShrineBattlefieldConquerSandSoldierCardNo = "SFD·207/221";
@@ -629,7 +630,9 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-power-obelisk-first-turn-extra-rune-replay-room",
             p1Deck,
             p2Deck);
-        var replayInitialState = BuildBattlefieldFirstTurnExtraRuneMidgameInitialState(openingResult.State);
+        var replayInitialState = BuildBattlefieldFirstTurnReplayInitialState(
+            openingResult.State,
+            FirstTurnExtraRuneBattlefieldCardNo);
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
@@ -646,6 +649,41 @@ public sealed class FullGameEndToEndTests
             session,
             runeCalled,
             "b0-power-obelisk-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(replayInitialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveGloryArenaFirstTurnScoreAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldFirstTurnScoreOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldFirstTurnScoreOpeningAsync(
+            "b0-full-game-glory-arena-first-turn-score-replay-room",
+            p1Deck,
+            p2Deck);
+        var replayInitialState = BuildBattlefieldFirstTurnReplayInitialState(
+            openingResult.State,
+            FirstTurnScoreBattlefieldCardNo);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(replayInitialState);
+        Assert.Equal("P1", current.State.ActivePlayerId);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+
+        var scored = await EndTurnAsync(
+            session,
+            "P1",
+            "b0-glory-arena-first-turn-score");
+        AssertBattlefieldFirstTurnScoreResolved(current, scored);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            scored,
+            "b0-glory-arena-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(replayInitialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
@@ -3960,6 +3998,36 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(
             beforeTurnStart.State.PlayerZones["P2"].RuneDeck.Count - 4,
             result.State.PlayerZones["P2"].RuneDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldFirstTurnScoreResolved(
+        ResolutionResult beforeTurnStart,
+        ResolutionResult result)
+    {
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            FirstTurnScoreBattlefieldCardNo);
+        Assert.Equal(0, beforeTurnStart.State.PlayerScores["P2"]);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
+        Assert.Equal(1, triggerEvent.Payload["amount"]);
+        Assert.Equal(1, triggerEvent.Payload["score"]);
+
+        var scoreEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal(1, scoreEvent.Payload["score"]);
+        Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(scoreEvent.Payload["sourceObjectIds"]));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -7316,6 +7384,34 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
     {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            FirstTurnExtraRuneBattlefieldCardNo,
+            "Power Obelisk");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldFirstTurnScoreOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            FirstTurnScoreBattlefieldCardNo,
+            "Glory Arena");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck,
+        string expectedBattlefieldCardNo,
+        string sourceDescription)
+    {
         var failures = new List<string>();
         foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
         {
@@ -7332,7 +7428,7 @@ public sealed class FullGameEndToEndTests
                     .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
                 if (string.Equals(
                     selectedBattlefieldCardNo,
-                    FirstTurnExtraRuneBattlefieldCardNo,
+                    expectedBattlefieldCardNo,
                     StringComparison.Ordinal))
                 {
                     return (initialState, result);
@@ -7347,7 +7443,7 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException(
-            $"B0 Power Obelisk opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+            $"B0 {sourceDescription} opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerSandSoldierOpeningAsync(
@@ -15398,6 +15494,26 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldFirstTurnScoreOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo);
+        var selectedBattlefields = new List<string>
+        {
+            FirstTurnScoreBattlefieldCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            BandleTreeBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -17443,12 +17559,12 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildBattlefieldFirstTurnExtraRuneMidgameInitialState(MatchState state)
+    private static MatchState BuildBattlefieldFirstTurnReplayInitialState(MatchState state, string sourceBattlefieldCardNo)
     {
         _ = BattlefieldObjectIdForCardNo(
             state,
             "P1",
-            FirstTurnExtraRuneBattlefieldCardNo);
+            sourceBattlefieldCardNo);
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);

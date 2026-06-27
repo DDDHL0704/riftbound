@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest first-turn extra-rune Power Obelisk B0 score-victory follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest first-turn score Glory Arena B0 score-victory follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -98,6 +98,12 @@ The 2026-06-25 first-turn score follow-up moves another implemented battlefield 
 - `CoreRuleEngine.ApplyBattlefieldFirstTurnScore` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(...)` and sums parsed score amounts from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFirstTurnScoreCardNo` constant.
 - The old `BattlefieldFirstTurnScoreCardNo` / `IsBattlefieldFirstTurnScoreCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `57` total / `53` in `CoreRuleEngine`; Core battlefield helper count is `9`.
+
+The 2026-06-27 B0 follow-up adds official-deck score-victory action-log replay coverage for the same parsed Glory Arena route without changing runtime code:
+
+- legal Vex official decks submit and open through normal server prompts until P1 selects `OGN·290/298` Glory Arena;
+- the focused replay state is derived from that official opening, reset to a replayable P1 main phase before P2's first turn, then submits replayable `END_TURN`;
+- P2 first turn start resolves the parsed `BATTLEFIELD_FIRST_TURN_GAIN_SCORE` source, emits `BATTLEFIELD_TRIGGER_RESOLVED` and `SCORE_GAINED` with amount `1`, and replays the resulting command log through score victory to the same final state hash.
 
 The 2026-06-25 first-turn extra-rune follow-up moves another implemented battlefield rule away from engine card-number branching:
 
@@ -1052,6 +1058,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `79/79`;
 - adjacent PowerObelisk / FirstTurnRune / BattlefieldFirstTurn / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2076/2076`;
 - backend full conformance: passed `8835/8835`.
+
+2026-06-27 Glory Arena first-turn score B0 score-victory follow-up validation:
+
+- focused `OfficialDecksResolveGloryArenaFirstTurnScoreAndScoreVictoryActionLogReplaysToFinalStateHash`: passed `1/1`;
+- FullGameEndToEnd: passed `80/80`;
+- adjacent GloryArena / FirstTurnScore / ScoreDelay / BattlefieldFirstTurn / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2083/2083`;
+- backend full conformance: passed `8836/8836`.
 
 2026-06-25 turn-start destroy-draw follow-up validation:
 
