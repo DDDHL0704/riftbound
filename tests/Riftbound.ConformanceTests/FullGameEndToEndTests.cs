@@ -691,6 +691,39 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDecksResolveForgottenMonumentScoreDelayAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldScoreDelayOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldScoreDelayOpeningAsync(
+            "b0-full-game-forgotten-monument-score-delay-replay-room",
+            p1Deck,
+            p2Deck);
+        var replayInitialState = BuildBattlefieldScoreDelayFirstTurnReplayInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(replayInitialState);
+        Assert.Equal("P1", current.State.ActivePlayerId);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+
+        var prevented = await EndTurnAsync(
+            session,
+            "P1",
+            "b0-forgotten-monument-score-delay");
+        AssertBattlefieldScoreDelayPreventedFirstTurnScore(current, prevented);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            prevented,
+            "b0-forgotten-monument-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(replayInitialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4028,6 +4061,37 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(1, scoreEvent.Payload["amount"]);
         Assert.Equal(1, scoreEvent.Payload["score"]);
         Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(scoreEvent.Payload["sourceObjectIds"]));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldScoreDelayPreventedFirstTurnScore(
+        ResolutionResult beforeTurnStart,
+        ResolutionResult result)
+    {
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        var scoreDelaySourceObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            ForgottenMonumentBattlefieldCardNo);
+        var scoreSourceObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            FirstTurnScoreBattlefieldCardNo);
+        Assert.Equal(0, beforeTurnStart.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+
+        var preventedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
+        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN", preventedEvent.Payload["trigger"]);
+        Assert.Equal(TriggerKinds.BattlefieldFirstTurnScore, preventedEvent.Payload["preventedReason"]);
+        Assert.Equal([scoreDelaySourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(preventedEvent.Payload["sourceObjectIds"]));
+        Assert.Equal([scoreSourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(preventedEvent.Payload["scoreSourceObjectIds"]));
+        Assert.Equal(1, preventedEvent.Payload["turnOrdinal"]);
+        Assert.Equal(3, preventedEvent.Payload["releasedTurnOrdinal"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -7403,6 +7467,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             FirstTurnScoreBattlefieldCardNo,
             "Glory Arena");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldScoreDelayOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            ForgottenMonumentBattlefieldCardNo,
+            "Forgotten Monument");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
@@ -15514,6 +15591,26 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldScoreDelayOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo);
+        var selectedBattlefields = new List<string>
+        {
+            ForgottenMonumentBattlefieldCardNo,
+            FirstTurnScoreBattlefieldCardNo,
+            BandleTreeBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -17622,6 +17719,46 @@ public sealed class FullGameEndToEndTests
             UntilEndOfTurnEffects = [],
             PlayerScores = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
             PlayerCardsPlayedThisTurn = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BuildBattlefieldScoreDelayFirstTurnReplayInitialState(MatchState state)
+    {
+        var replayState = BuildBattlefieldFirstTurnReplayInitialState(
+            state,
+            ForgottenMonumentBattlefieldCardNo);
+        if (replayState.PlayerZones["P1"].Battlefields.Any(objectId =>
+            replayState.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, FirstTurnScoreBattlefieldCardNo, StringComparison.Ordinal)))
+        {
+            return replayState;
+        }
+
+        const string scoreSourceObjectId = "B0-P1-BATTLEFIELD-GLORY-ARENA-SCORE-DELAY";
+        var playerZones = replayState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Battlefields = p1Zones.Battlefields
+                .Append(scoreSourceObjectId)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        var cardObjects = replayState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[scoreSourceObjectId] = new CardObjectState(
+            scoreSourceObjectId,
+            cardNo: FirstTurnScoreBattlefieldCardNo,
+            tags: ["CARD_TYPE:BATTLEFIELD"],
+            ownerId: "P1",
+            controllerId: "P1");
+        var objectLocations = replayState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[scoreSourceObjectId] = new ObjectLocationState("P1", "BATTLEFIELD");
+
+        return replayState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
         };
     }
 
