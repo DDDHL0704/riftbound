@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 battlefield held / defend evidence alignment accepted; project remains **NOT READY**.
+Status: focused B0 Thunder Sigil conquered recycle-rune replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -49,6 +49,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·276/298` winning-score increase battlefield, then starts a focused first-turn replay state derived from that official opening with P2 on seven score and official `OGN·290/298` Glory Arena as the first-turn score source; server-authored `END_TURN` advances to P2 first turn start, raises the effective winning score to nine, grants P2 its eighth score without a win, and continues through score victory at the raised threshold with action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·287/298` Thunder Sigil / 雷霆之纹, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed recycle-rune trigger, moves one controlled P1 base rune to the bottom of the P1 main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten, and official `SFD·087/221` Prophet's Omen on top of P2's controlled main deck; the defense path reveals the top card, recognizes it as a spell, moves it to P2 hand, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `SFD·215/221` Ravenbloom Conservatory, P1 `UNL-057/219` Wildclaw Beastmaster, P2 `UNL-036/219` Mutant Kitten defender, and a second official `UNL-036/219` Mutant Kitten on top of P2's controlled main deck; the defense path reveals the top card, recognizes it is not a spell, recycles it to the bottom of P2's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -193,6 +194,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHallOfLegendsReadyLegendAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesThunderSigilConquerRecycleRuneAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBaseAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesDreamTreeFriendlySpellDrawAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -251,6 +253,8 @@ This Hunting Grounds increment additionally proves a legal official Vex deck ope
 
 This Candlelit Sanctum increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield reveal/recycle route through server-authored `DECLARE_BATTLE`, top-two controlled main-deck reveal, parsed-count recycle to the bottom of the main deck, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close the official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Thunder Sigil increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield recycle-rune route through server-authored `DECLARE_BATTLE`, parsed `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, controlled base-rune movement to the bottom of the main deck, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close optional rune choice prompts, complete base/main-deck replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 This Minefield increment additionally proves a legal official Vex deck opening can carry the BehaviorSpec-driven conquered-battlefield mill route through server-authored `DECLARE_BATTLE`, moving the top two controlled main-deck cards to graveyard, score victory, action-log replay, and hidden-info guarded full-game helpers. It still does not close complete main-deck / graveyard replacement breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Rehearsal Hall increment additionally proves a legal official Jhin vs Vex deck opening can carry the BehaviorSpec-driven held move-unit-to-base route through server-authored `DECLARE_BATTLE`, move the surviving defender to its owner's base, recover turn-start battlefield scoring through owner / effective-controller fallback when the official battlefield object has no explicit `ControllerId`, and continue through score victory plus action-log replay. It still does not close optional yes/no trigger prompts, complete same-battlefield target-choice breadth, complete movement / control-zone edge cases, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -278,6 +282,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Thunder Sigil conquered recycle-rune official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameResolvesThunderSigilConquerRecycleRune" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Thunder Sigil FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests" --nologo
+```
+
+Result:
+
+```text
+Passed: 83, Failed: 0, Skipped: 0, Total: 83
+```
+
+Latest Thunder Sigil adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldConquerRecycleRune|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2076, Failed: 0, Skipped: 0, Total: 2076
+```
+
+Latest Thunder Sigil backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8847, Failed: 0, Skipped: 0, Total: 8847
+```
 
 Latest B0 evidence-alignment focused validation passed:
 

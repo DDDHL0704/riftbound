@@ -1,6 +1,6 @@
 # Plan B / B4 Battlefield Trigger Spec Evidence
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 Project status: **NOT READY**.
 
@@ -320,6 +320,8 @@ The accepted effective-winning-score path keeps the existing representative beha
 
 The 2026-06-27 B0 follow-up adds an official-deck score-victory action-log replay for the winning-score increase route (`OGN·276/298`). It verifies a legal Vex official opening selects the BehaviorSpec battlefield source, derives a focused first-turn replay state from that official opening with official `OGN·290/298` Glory Arena as the first-turn score source and P2 on seven score, submits replayable `END_TURN`, asserts P2's first turn start projects `winningScore=9` and grants an eighth score without `MATCH_WON`, then continues through battlefield score victory and replays the resulting action log to the final score-victory state hash with `winningScore=9`.
 
+The 2026-06-28 B0 follow-up adds an official-deck score-victory action-log replay for Thunder Sigil (`OGN·287/298`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages official `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that battlefield, resolves the `DECLARE_BATTLE` conquest path, asserts the parsed `BATTLEFIELD_CONQUERED_RECYCLE_RUNE` trigger and hidden-safe `CARDS_RECYCLED` movement from P1 base to P1 main-deck bottom, then replays the resulting action log to the final score-victory state hash.
+
 The held pay-power score follow-up parser path turns the Energy Hub official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`, `Timing=BATTLEFIELD_HELD`, `PowerCost=4`, `ScoreAmount=1`, and `Optional=true`. Runtime no longer checks `SFD·214/221` through `BattlefieldHeldPayPowerScoreCardNo` / `IsBattlefieldHeldPayPowerScoreCardNo`, and no longer uses a fixed `BattlefieldHeldScorePowerCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` held-battlefield path keeps the existing representative behavior: when the battlefield holder can pay the parsed power cost, the engine pays through the same PaymentEngine path, marks the battlefield scored for the turn, adds the parsed score amount, and emits the existing `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `SCORE_GAINED` payloads with `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`. The same spec-routed cost is used by prompt payment-resource choices, battle-response resume filtering, and Brush replacement validation.
@@ -441,6 +443,10 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer mill Minefield backend full follow-up: `8832/8832`;
 - conquer recycle-rune focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer recycle-rune adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `276/276`;
+- conquer recycle-rune Thunder Sigil B0 action-log replay follow-up: `1/1`;
+- conquer recycle-rune Thunder Sigil B0 full-game follow-up: `83/83`;
+- conquer recycle-rune Thunder Sigil B0 adjacent / hidden-info follow-up: `2076/2076`;
+- conquer recycle-rune Thunder Sigil backend full follow-up: `8847/8847`;
 - conquer consume-boon draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer consume-boon draw adjacent BattlefieldConquer / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: `357/357`;
 - conquer discard-draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
@@ -610,6 +616,8 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 This Candlelit Sanctum B0 follow-up additionally proves the parsed conquer reveal/recycle route can carry from a legal official Vex opening into a real battle declaration, controlled top-two main-deck reveal, parsed-count recycle, score-victory replay, and hidden-info guarded full-game helpers. The official optional any-number recycle choice, arbitrary return ordering prompt, complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Minefield B0 follow-up additionally proves the parsed conquer mill route can carry from a legal official Vex opening into a real battle declaration, controlled top-two main-deck movement to graveyard, score-victory replay, and hidden-info guarded full-game helpers. Complete main-deck / graveyard replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+This Thunder Sigil B0 follow-up additionally proves the parsed conquer recycle-rune route can carry from a legal official Vex opening into a real battle declaration, controlled base-rune movement to main-deck bottom, score-victory replay, and hidden-info guarded full-game helpers. Optional rune choice prompts, complete base/main-deck replacement breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 This Rehearsal Hall B0 score-victory follow-up additionally proves the parsed held move-unit-to-base route can carry from a legal official opening into a real held battle declaration, server-authored unit movement to owner base, owner / effective-controller turn-start battlefield scoring, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete same-battlefield target-choice breadth, and complete movement / control-zone edge cases remain open.
 
