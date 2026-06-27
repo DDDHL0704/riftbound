@@ -28,6 +28,7 @@ public static class EquipmentRepresentativeBoundaryKinds
 {
     public const string AgileDirectPlayAttach = "AGILE_DIRECT_PLAY_ATTACH";
     public const string TemperedOptionalAttach = "TEMPERED_OPTIONAL_ATTACH";
+    public const string TemperedOptionalAttachEquipment = "TEMPERED_OPTIONAL_ATTACH_EQUIPMENT";
     public const string FriendlyEquipmentStaticPower = "FRIENDLY_EQUIPMENT_STATIC_POWER";
     public const string EquipmentState = "EQUIPMENT_STATE";
 }
@@ -74,6 +75,7 @@ public static class CardEquipmentKeywordRules
         new("SFD·008/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
         new("SFD·119/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
         new("SFD·119a/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
+        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment),
         new("SFD·085/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
         new("SFD·085a/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
         new("SFD·022/221", EquipmentRepresentativeBoundaryKinds.EquipmentState)
@@ -127,6 +129,13 @@ public static class CardEquipmentKeywordRules
         return HasRepresentativeBoundary(
             cardNo,
             EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach);
+    }
+
+    public static bool CanBeTemperedOptionalAttachEquipment(string? cardNo)
+    {
+        return HasRepresentativeBoundary(
+            cardNo,
+            EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment);
     }
 
     public static bool HasFriendlyEquipmentStaticPowerRepresentativeBoundary(string? cardNo)

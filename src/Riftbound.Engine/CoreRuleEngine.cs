@@ -31,7 +31,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MoveUnitRoamKeyword = "游走";
     private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
-    private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string ArmedAssaulterHasteTemperedSourceEffectKind = "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE";
@@ -34300,7 +34299,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return location is not null
             && string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
             && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-            && string.Equals(equipmentState.CardNo, SpinningAxeCardNo, StringComparison.Ordinal)
+            && CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(equipmentState.CardNo)
             && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !equipmentState.IsFaceDown
             && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId);

@@ -6505,7 +6505,6 @@ internal static class ActionPromptBuilder
     private const string StandbyReactionModeLabel = "作为反应打出";
     private const string StandbyReactionDestination = "STACK";
     private const int BaseWinningScore = 8;
-    private const string SpinningAxeCardNo = "SFD·186/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
@@ -14122,7 +14121,7 @@ internal static class ActionPromptBuilder
         return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
             && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.CardNo, SpinningAxeCardNo, StringComparison.Ordinal)
+            && CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);

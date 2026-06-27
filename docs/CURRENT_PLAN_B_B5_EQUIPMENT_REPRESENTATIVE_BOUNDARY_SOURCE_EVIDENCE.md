@@ -5,6 +5,17 @@
 
 This file records concrete evidence for removing duplicated equipment representative card-number helpers and routing those checks through a shared representative-boundary source table.
 
+## 2026-06-28 Supplement: Tempered Attach Equipment Choice Boundary
+
+- `EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment` now identifies equipment cards that may be selected by the existing Tempered optional attach representative path.
+- `CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(cardNo)` routes that choice check through `HasRepresentativeBoundary`.
+- `SFD·186/221` remains the only implemented representative equipment source row for this narrow path.
+- `ActionPromptBuilder.IsPromptTemperedOptionalAttachChoice` now calls `CanBeTemperedOptionalAttachEquipment` instead of comparing against a `SpinningAxeCardNo` runtime constant.
+- `CoreRuleEngine.IsLegalTemperedOptionalAttachChoice` uses the same helper during command validation and stack-resolution revalidation.
+- `EquipmentKeywordRepresentativeBoundaryGuardTests.TemperedOptionalAttachEquipmentChoiceDoesNotUseRuntimeSpinningAxeCardNumberConstant` blocks reintroducing `SpinningAxeCardNo` in `CoreRuleEngine` or `MatchSession`.
+- Validation passed: focused guard / Tempered / Jax / Armed Assaulter representative 62/62; EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2506/2506; backend full 8867/8867.
+- Non-closure: this does not expand legal equipment choices beyond the existing Spinning Axe representative row, and it does not close full Tempered official breadth, owner/controller breadth, attach lifecycle breadth, copy-text effects, LayerEngine, frontend final validation, full official, or READY.
+
 ## 1. Runtime Evidence
 
 - `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` now defines `CardEquipmentRepresentativeBoundary` rows keyed by `EquipmentRepresentativeBoundaryKinds`.

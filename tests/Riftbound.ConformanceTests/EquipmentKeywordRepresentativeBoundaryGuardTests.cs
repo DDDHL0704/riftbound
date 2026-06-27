@@ -27,11 +27,31 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
         Assert.False(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·033/221"));
         Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·008/221"));
         Assert.False(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·033/221"));
+        Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·186/221"));
+        Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·022/221"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085/221"));
         Assert.False(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·033/221"));
         Assert.True(CardEquipmentKeywordRules.TryGetEquipmentStateRepresentative("SFD·022/221", out var stateRepresentative));
         Assert.Equal("Long Sword", stateRepresentative.CardName);
         Assert.False(CardEquipmentKeywordRules.TryGetEquipmentStateRepresentative("SFD·033/221", out _));
+    }
+
+    [Fact]
+    public void TemperedOptionalAttachEquipmentChoiceDoesNotUseRuntimeSpinningAxeCardNumberConstant()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+
+        Assert.DoesNotContain("SpinningAxeCardNo", File.ReadAllText(coreRuleEnginePath), StringComparison.Ordinal);
+        Assert.DoesNotContain("SpinningAxeCardNo", File.ReadAllText(matchSessionPath), StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

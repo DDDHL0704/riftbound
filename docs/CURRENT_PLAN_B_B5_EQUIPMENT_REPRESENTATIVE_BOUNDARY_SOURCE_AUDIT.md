@@ -5,6 +5,12 @@
 
 本文件记录 Plan B 小切片：把装备关键词代表性边界从 `CardEquipmentKeywordRules` 中独立 `Is*CardNo` helper / set 查询迁移到 `EquipmentRepresentativeBoundaries` source rows，并让 `CoreRuleEngine` 与 `MatchSession` 通过领域查询消费这些 source rows。该切片只迁移代表性边界来源，不改变装备打出、装配、百炼可选贴附、奥恩静态力量重算、事件 payload、prompt 或 snapshot 语义。
 
+## 2026-06-28 Supplement: Tempered Attach Equipment Source Boundary
+
+本补充把百炼 optional attach 中“可被选择的装备来源”也迁移到同一 representative-boundary source rows：`EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment` 现在记录 `SFD·186/221`，`CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(cardNo)` 是 prompt 与 Core 结算重验共享的唯一查询。`MatchSession.IsPromptTemperedOptionalAttachChoice` 与 `CoreRuleEngine.IsLegalTemperedOptionalAttachChoice` 不再持有 `SpinningAxeCardNo` runtime 常量或直接比较 `SFD·186/221`。语义不扩大：当前仍只关闭既有《旋转飞斧》代表路径，不关闭 full Tempered official breadth。
+
+验证：focused guard / Tempered / Jax / Armed Assaulter representative 62/62；EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2506/2506；backend full 8867/8867。
+
 ## 1. Scope
 
 Changed:
