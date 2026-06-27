@@ -53,20 +53,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string UndercoverAgentCardNo = "OGN·178/298";
     private const string UndercoverAgentLastBreathEffectKind = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
-    private const string HonestBrokerCardNo = "SFD·155/221";
     private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
-    private const string HonestBrokerLastBreathCreateGoldEffectKind = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
-    private static readonly CardBehaviorDefinition HonestBrokerLastBreathCreateGoldBehavior = new(
-        HonestBrokerCardNo,
-        "诚实掮客",
-        0,
-        HonestBrokerLastBreathCreateGoldEffectKind,
-        0,
-        0,
-        CreatedBaseEquipmentTokenCount: 1,
-        CreatedBaseEquipmentTokenName: "金币",
-        CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
-        CreatedBaseEquipmentTokenIsExhausted: true);
     private const string UnsungHeroCardNo = "SFD·167/221";
     private const string UnsungHeroLastBreathSourceEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
@@ -33911,7 +33898,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveUnsungHeroLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal))
         {
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
@@ -36066,7 +36053,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     stackItem,
                                     targetObjectId,
                                     honestBrokerGoldPlayerId,
-                                    HonestBrokerLastBreathCreateGoldEffectKind);
+                                    TriggerKinds.UnitLastBreathCreateDormantGold);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -36657,14 +36644,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
-            else if (string.Equals(trigger.EffectKind, HonestBrokerLastBreathCreateGoldEffectKind, StringComparison.Ordinal))
+            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal))
             {
-                CreateBaseEquipmentTokens(
-                    playerZones,
-                    cardObjects,
-                    HonestBrokerLastBreathCreateGoldBehavior,
-                    BuildStackItemForLastBreathTrigger(trigger, HonestBrokerCardNo),
-                    events);
+                var cardNo = cardObjects.TryGetValue(trigger.SourceObjectId, out var sourceState)
+                    ? sourceState.CardNo ?? string.Empty
+                    : string.Empty;
+                var triggerStackItem = BuildStackItemForLastBreathTrigger(trigger, cardNo);
+                if (TryGetLastBreathCreateDormantGoldTrigger(triggerStackItem, out var triggerSpec))
+                {
+                    CreateBaseEquipmentTokensFromTrigger(
+                        playerZones,
+                        cardObjects,
+                        triggerStackItem,
+                        triggerSpec,
+                        events);
+                }
             }
             else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal))
             {
@@ -37303,12 +37297,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
-        CreateBaseEquipmentTokens(
-            playerZones,
-            cardObjects,
-            HonestBrokerLastBreathCreateGoldBehavior,
-            stackItem,
-            events);
+        if (TryGetLastBreathCreateDormantGoldTrigger(stackItem, out var trigger))
+        {
+            CreateBaseEquipmentTokensFromTrigger(
+                playerZones,
+                cardObjects,
+                stackItem,
+                trigger,
+                events);
+        }
 
         return new StackResolutionResult(
             playerZones,
@@ -37967,6 +37964,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             sourceObjectId: trigger.SourceObjectId,
             effectKind: trigger.EffectKind,
             cardNo: cardNo);
+    }
+
+    private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
+    {
+        if (UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(stackItem.CardNo, out trigger)
+            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
+            && string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal);
     }
 
     private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(
@@ -39423,6 +39432,63 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "EQUIPMENT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出装备指示物到基地",
                 payload));
+        }
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
+        };
+    }
+
+    private static void CreateBaseEquipmentTokensFromTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        TriggerSpec trigger,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+            || trigger.CreatedTokenCount is not > 0
+            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.OwnerBase, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var tokenName = trigger.CreatedTokenName;
+        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
+            .Concat(trigger.CreatedTokenKeywords ?? [])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        var isExhausted = trigger.CreatedTokenExhausted.GetValueOrDefault();
+        var createdTokenObjectIds = new List<string>();
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                tokenIndex + 1);
+            createdTokenObjectIds.Add(tokenObjectId);
+            cardObjects[tokenObjectId] = new CardObjectState(
+                tokenObjectId,
+                isExhausted: isExhausted,
+                tags: tokenTags);
+            events.Add(new GameEvent(
+                "EQUIPMENT_TOKEN_CREATED",
+                $"{tokenName}装备指示物进入基地",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenName"] = tokenName,
+                    ["destinationZone"] = "BASE",
+                    ["isExhausted"] = isExhausted,
+                    ["tokenTags"] = tokenTags
+                }));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -43125,7 +43191,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     objectId,
                     honestBrokerControllerId,
-                    HonestBrokerLastBreathCreateGoldEffectKind);
+                    TriggerKinds.UnitLastBreathCreateDormantGold);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

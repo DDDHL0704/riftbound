@@ -955,8 +955,8 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(["P2-CLEANUP-HONEST-BROKER-TOKEN-001"], p2ResolvesP1Trigger.State.PlayerZones["P2"].Base);
         Assert.True(p2ResolvesP1Trigger.State.CardObjects["P1-CLEANUP-HONEST-BROKER-TOKEN-001"].IsExhausted);
         Assert.True(p2ResolvesP1Trigger.State.CardObjects["P2-CLEANUP-HONEST-BROKER-TOKEN-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P1-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
-        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P2-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], p2ResolvesP1Trigger.State.CardObjects["P1-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], p2ResolvesP1Trigger.State.CardObjects["P2-CLEANUP-HONEST-BROKER-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -2529,8 +2529,8 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(["P2-HONEST-BROKER-TOKEN-001"], p2ResolvesP1Trigger.State.PlayerZones["P2"].Base);
         Assert.True(p2ResolvesP1Trigger.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"].IsExhausted);
         Assert.True(p2ResolvesP1Trigger.State.CardObjects["P2-HONEST-BROKER-TOKEN-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"].Tags);
-        Assert.Equal([CardObjectTags.EquipmentCard], p2ResolvesP1Trigger.State.CardObjects["P2-HONEST-BROKER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], p2ResolvesP1Trigger.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], p2ResolvesP1Trigger.State.CardObjects["P2-HONEST-BROKER-TOKEN-001"].Tags);
     }
 
     [Fact]

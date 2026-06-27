@@ -356,6 +356,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathCallRuneTrigger);
         }
 
+        var hasUnitLastBreathCreateDormantGoldTrigger =
+            TryParseUnitLastBreathCreateDormantGold(text, out var unitLastBreathCreateDormantGoldTrigger);
+        if (hasUnitLastBreathCreateDormantGoldTrigger)
+        {
+            triggers.Add(unitLastBreathCreateDormantGoldTrigger);
+        }
+
         var hasUnitLastBreathCreateBaseUnitTrigger =
             TryParseUnitLastBreathCreateBaseUnit(text, out var unitLastBreathCreateBaseUnitTrigger);
         if (hasUnitLastBreathCreateBaseUnitTrigger)
@@ -466,6 +473,35 @@ public static class TriggerParser
             "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
             RuneCallCount: 1);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathCreateDormantGold(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念>?\}\}\s*[—-]?\s*打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var rawCount = match.Groups[1].Success && !string.IsNullOrWhiteSpace(match.Groups[1].Value)
+            ? match.Groups[1].Value
+            : "一";
+        trigger = new TriggerSpec(
+            TriggerKinds.UnitLastBreathCreateDormantGold,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath create-dormant-Gold trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            CreatedTokenCount: ParseChineseNumber(rawCount),
+            CreatedTokenName: "金币",
+            CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+            CreatedTokenExhausted: true,
+            CreatedTokenKeywords: ["反应"]);
         return true;
     }
 

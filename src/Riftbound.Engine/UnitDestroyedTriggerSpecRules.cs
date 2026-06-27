@@ -67,6 +67,14 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLastBreathCreateDormantGoldTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitLastBreathCreateDormantGold,
+            out trigger);
+    }
+
     public static bool TryGetLastBreathCreateBaseUnitTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

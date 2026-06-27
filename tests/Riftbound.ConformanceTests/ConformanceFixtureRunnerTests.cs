@@ -41898,12 +41898,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("金币", tokenEvent.Payload["tokenName"]);
         Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
         Assert.Equal(true, tokenEvent.Payload["isExhausted"]);
-        Assert.Equal([CardObjectTags.EquipmentCard], Assert.IsAssignableFrom<IReadOnlyList<string>>(tokenEvent.Payload["tokenTags"]));
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], Assert.IsAssignableFrom<IReadOnlyList<string>>(tokenEvent.Payload["tokenTags"]));
 
         Assert.Equal(["P1-HONEST-BROKER-TOKEN-001"], p2Pass.State.PlayerZones["P1"].Base);
         var goldToken = p2Pass.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"];
         Assert.True(goldToken.IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], goldToken.Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], goldToken.Tags);
         Assert.Equal(["P1-HONEST-BROKER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-HONEST-BROKER"));
     }

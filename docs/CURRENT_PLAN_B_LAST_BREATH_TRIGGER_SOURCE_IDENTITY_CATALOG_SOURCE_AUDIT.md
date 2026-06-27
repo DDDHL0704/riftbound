@@ -77,9 +77,13 @@ Full backend conformance:
 
 Result: 8660/8660 passed.
 
+## 2026-06-27 Follow-Up
+
+`SFD·155/221` Honest Broker's last-breath create-Gold token shape has since moved from the local `CoreRuleEngine` behavior object to `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_CREATE_DORMANT_GOLD_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_CREATE_DORMANT_GOLD_TRIGGER_SPEC_EVIDENCE.md`.
+
 ## Residual Risks
 
-- This does not move these last-breath conditions into `TriggerSpecRules`; it only removes direct source card-number identity checks from the current representative runtime paths.
+- Kogmaw, Undercover Agent, and Unsung Hero remain source-identity-only migrations; Honest Broker create-Gold token shape is covered by the 2026-06-27 follow-up.
 - This does not implement complete simultaneous trigger ordering, complete last-breath family breadth, or full `ORDER_TRIGGERS` semantics.
 - Unsung Hero still uses the existing `destroyedState.Power >= 5` representative guard for powerful; complete effective-power / LayerEngine integration remains open.
 - Project remains **NOT READY**.

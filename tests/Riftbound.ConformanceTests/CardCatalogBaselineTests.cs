@@ -3271,6 +3271,32 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathCreateDormantGoldTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var honestBroker = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·155/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            honestBroker.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathCreateDormantGold, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("金币", trigger.CreatedTokenName);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.True(trigger.CreatedTokenExhausted);
+        Assert.Equal(["反应"], trigger.CreatedTokenKeywords);
+        Assert.Contains("{{绝念", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath create-dormant-Gold trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Theory]
     [InlineData("OGN·239/298", "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", 3, "随从", 1, null)]
     [InlineData("SFD·021/221", "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", 2, "机器人", 3, null)]
@@ -4789,6 +4815,23 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ScoutingWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScoutingWarhawkLastBreathCallRuneEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathCreateDormantGoldTriggerDoesNotUseCoreCardNumberBehavior()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("HonestBrokerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldBehavior", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CreateBaseEquipmentTokensFromTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
