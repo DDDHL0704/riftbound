@@ -5,7 +5,7 @@
 
 This file records the concrete evidence for removing duplicated Fiora / Jax trigger-payment source card-number allow-lists from `CoreRuleEngine`.
 
-2026-06-26 supplement: this evidence now also covers OGN Vayne conquer-recall and Icevale Archer attack-payment representative source identity. Their trigger-payment source checks now use catalog source effect kinds instead of direct `sourceState.CardNo` comparison in `CoreRuleEngine`.
+2026-06-26 supplement: this evidence also covered OGN Vayne conquer-recall and Icevale Archer attack-payment representative source identity at the catalog source-effect layer. 2026-06-27 update: Vayne conquer-recall has moved again to the B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec route; Icevale Archer attack-payment remains on the catalog source-effect route.
 
 ## 1. Runtime Evidence
 
@@ -15,7 +15,7 @@ This file records the concrete evidence for removing duplicated Fiora / Jax trig
 - The previous `SfdJaxWeaponAttachCardNo`, `SfdJaxWeaponAttachAltCardNo`, and `IsJaxWeaponAttachCardNo` Core allow-list were deleted.
 - The previous `SfdFioraPowerfulReadyCardNo`, `SfdFioraPowerfulReadyAltCardNo`, and `IsSfdFioraPowerfulReadyCardNo` Core allow-list were deleted.
 - Existing runtime guards remain: source must be a visible unit, not standby, controlled by the acting player or legacy-owned path, and on the field.
-- 2026-06-26: `CoreRuleEngine.TryGetOgnVayneConquerRecallSource` now validates source identity through `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` using `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT`.
+- 2026-06-26: `CoreRuleEngine.TryGetOgnVayneConquerRecallSource` validated source identity through `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` using `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT`; this was superseded on 2026-06-27 by B3 `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec lookup through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)`.
 - 2026-06-26: `CoreRuleEngine.TryGetIcevaleArcherAttackSource` now validates source identity through `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` using `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`.
 - 2026-06-26: the previous direct `sourceState.CardNo` comparisons against `OgnVayneCardNo` and `IcevaleArcherCardNo` were deleted from `CoreRuleEngine`.
 
@@ -31,9 +31,9 @@ Coverage:
 - `CardBehaviorRegistryRejectsNonMatchingTriggerPaymentSourceUnits` rejects unrelated Jax (`SFD·054/221`), wrong Jax effect kind, Fiora alt/source cross-match, and unrelated Ezreal.
 - `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` blocks reintroducing the deleted Core cardNo source allow-lists and verifies `CoreRuleEngine` consumes `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`.
 - Existing Jax / Fiora trigger-payment representative tests verify runtime behavior remains intact.
-- 2026-06-26: `CardBehaviorRegistryIdentifiesTriggerPaymentSourceUnitsByEffectKind` accepts `OGN·035/298` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` and `UNL-065/219` / `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`.
+- 2026-06-26: `CardBehaviorRegistryIdentifiesTriggerPaymentSourceUnitsByEffectKind` accepted `OGN·035/298` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` and `UNL-065/219` / `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`; the Vayne row is superseded by the 2026-06-27 B3 BehaviorSpec source test, while the Icevale row remains active here.
 - 2026-06-26: `CardBehaviorRegistryRejectsNonMatchingTriggerPaymentSourceUnits` rejects Vayne/Icevale cross-effect source identity matches.
-- 2026-06-26: `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` blocks reintroducing direct `sourceState.CardNo` comparisons for `OgnVayneCardNo` and `IcevaleArcherCardNo`.
+- 2026-06-27: `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` also blocks reintroducing `OgnVayneConquerRecallSourceEffectKind` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` into `CoreRuleEngine` and verifies Vayne now uses `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger`; the same guard continues to block direct `sourceState.CardNo` comparisons for `OgnVayneCardNo` and `IcevaleArcherCardNo`.
 
 ## 3. Verification
 

@@ -48,6 +48,14 @@ internal static class UnitConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetUnitConquestPayReturnSelfToHandTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitConquestPayReturnSelfToHand,
+            out trigger);
+    }
+
     public static bool TryGetUnitConquestGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

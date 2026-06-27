@@ -2554,6 +2554,36 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("OGN·035/298")]
+    [InlineData("SFD·223/221")]
+    [InlineData("SFD·223*/221")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestPayReturnSelfToHandTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var vayne = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            vayne.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.ReturnCount);
+        Assert.Equal(TriggerZones.Battlefield, trigger.ReturnOriginZone);
+        Assert.Equal(TriggerZones.Hand, trigger.ReturnDestinationZone);
+        Assert.True(trigger.Optional);
+        Assert.Contains("征服一处战场", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("返回所属的手牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest pay-return-self trigger parsed for B3 trigger-payment routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
     {

@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, attack-overkill gain-score, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, and official-deck midgame Treant replay slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, attack-overkill gain-score, pay-return-self-to-hand, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, and official-deck midgame Treant replay slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -60,6 +60,17 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `ScoreAmount = 1`
 - `CoreRuleEngine` now routes 泰达米尔's representative through the same natural unit-conquest overkill context. When a natural attacking conquest assigns enough overkill damage, the shared resolver emits `UNIT_CONQUEST_EFFECT_ACTIVATED`, applies `ScoreAmount`, emits `SCORE_GAINED`, and propagates `MATCH_WON` when the extra score reaches the effective winning score.
 - No `OGN·034/298` card-number branch was added.
+- `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩 official text from `data/official/card-catalog.zh-CN.json`: `每当我征服一处战场时，你可以选择支付{{1}}来让我返回所属的手牌。`
+- `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = SOURCE_UNIT`
+  - `ManaCost = 1`
+  - `ReturnOriginZone = BATTLEFIELD`
+  - `ReturnDestinationZone = HAND`
+  - `Optional = true`
+- `CoreRuleEngine` now opens and resolves the existing trigger-payment window for 薇恩's representative through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)`, reading the trigger id and mana cost from `BehaviorSpec.Triggers`. The old play-behavior source effect id `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` is no longer a Core source selector for this trigger.
+- No `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` card-number branch was added.
 - `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 瑟提 official text from `data/official/card-catalog.zh-CN.json`: `当我被打出时、或当我征服一处战场时，给予我增益。`
 - `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
   - `Kind = UNIT_CONQUEST_GRANT_SELF_BOON`
@@ -115,7 +126,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
 
 ## Non-Goals
 
-- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds natural battle-conquest representative routes including overkill-gated Gold creation and attack-overkill score gain, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` representative.
+- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds natural battle-conquest representative routes including overkill-gated Gold creation, attack-overkill score gain, and pay-return-self-to-hand trigger payment, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` representative.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, the full official opening-to-5-cost Treant window, B0 full-game readiness, or project READY.
 

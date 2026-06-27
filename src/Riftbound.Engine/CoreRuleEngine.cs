@@ -623,8 +623,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const string SettLegendIdentityId = "LEGEND_IDENTITY_SETT";
     private const int SettLegendManaCost = 1;
-    private const string OgnVayneConquerRecallSourceEffectKind = "OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT";
-    private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
+    private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string IcevaleArcherAttackPaymentSourceEffectKind = "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT";
     private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string SfdJaxWeaponAttachSourceEffectKind = "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
@@ -1363,13 +1362,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 powerfulObjectId);
         }
 
-        if (TryReadOgnVayneConquerRecallPaymentContext(
+        if (TryReadUnitConquestPayReturnSelfToHandPaymentContext(
                 pendingPayment,
                 out var vayneBattlefieldId,
                 out var vayneBattlefieldObjectId,
                 out var vayneSourceObjectId))
         {
-            return ResolveOgnVayneConquerRecallTriggerPayment(
+            return ResolveUnitConquestPayReturnSelfToHandTriggerPayment(
                 state,
                 intent,
                 pendingPayment,
@@ -1636,7 +1635,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
     }
 
-    private static ResolutionResult ResolveOgnVayneConquerRecallTriggerPayment(
+    private static ResolutionResult ResolveUnitConquestPayReturnSelfToHandTriggerPayment(
         MatchState state,
         PlayerIntent intent,
         PendingPaymentState pendingPayment,
@@ -1649,19 +1648,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out _)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !TryGetOgnVayneConquerRecallSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
             || !TryReturnTargetToHand(playerZones, cardObjects, sourceObjectId, out var ownerPlayerId, out _))
         {
             return RejectWithCorePrompts(
                 state,
-                "当前触发支付窗口的薇恩来源已不可用。",
+                "当前触发支付窗口的征服回手来源单位已不可用。",
                 ErrorCodes.InvalidTarget);
         }
 
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            OgnVayneConquerPayOneRecallEffectKind,
+            UnitConquestPayReturnSelfToHandEffectKind,
             sourceObjectId);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
         if (!paymentCommit.Accepted)
@@ -1677,7 +1676,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             new(
                 "COST_PAID",
-                $"{intent.PlayerId} 支付薇恩征服触发费用",
+                $"{intent.PlayerId} 支付征服回手触发费用",
                 PaymentCostRules.BuildCostPaidPayload(
                     paymentPlan,
                     runePools,
@@ -1688,17 +1687,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+                        ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
                     })),
             new(
                 "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 的薇恩因征服战场返回手牌",
+                $"{intent.PlayerId} 的征服回手来源单位返回手牌",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldId"] = battlefieldId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
-                    ["trigger"] = OgnVayneConquerPayOneRecallEffectKind,
+                    ["trigger"] = UnitConquestPayReturnSelfToHandEffectKind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["returnedObjectId"] = sourceObjectId,
                     ["ownerPlayerId"] = ownerPlayerId,
@@ -1713,7 +1712,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["targetObjectId"] = sourceObjectId,
                     ["ownerPlayerId"] = ownerPlayerId,
-                    ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+                    ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
                 })
         };
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -2221,13 +2220,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["sourceObjectId"] = sourceObjectId;
             payload["powerfulObjectId"] = powerfulObjectId;
         }
-        else if (TryReadOgnVayneConquerRecallPaymentContext(
+        else if (TryReadUnitConquestPayReturnSelfToHandPaymentContext(
                      pendingPayment,
                      out battlefieldId,
                      out battlefieldObjectId,
                      out sourceObjectId))
         {
-            payload["trigger"] = OgnVayneConquerPayOneRecallEffectKind;
+            payload["trigger"] = UnitConquestPayReturnSelfToHandEffectKind;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
@@ -2942,20 +2941,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static string BuildOgnVayneConquerRecallPaymentReason(
+    private static string BuildUnitConquestPayReturnSelfToHandPaymentReason(
         string battlefieldId,
         string battlefieldObjectId,
         string sourceObjectId)
     {
         return string.Join(
             '|',
-            OgnVayneConquerPayOneRecallEffectKind,
+            UnitConquestPayReturnSelfToHandEffectKind,
             battlefieldId,
             battlefieldObjectId,
             sourceObjectId);
     }
 
-    private static bool TryReadOgnVayneConquerRecallPaymentContext(
+    private static bool TryReadUnitConquestPayReturnSelfToHandPaymentContext(
         PendingPaymentState pendingPayment,
         out string battlefieldId,
         out string battlefieldObjectId,
@@ -2972,7 +2971,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
-            || !string.Equals(parts[0], OgnVayneConquerPayOneRecallEffectKind, StringComparison.Ordinal)
+            || !string.Equals(parts[0], UnitConquestPayReturnSelfToHandEffectKind, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -17755,7 +17754,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         if (attackerConqueredBattlefield
             && pendingPayment is null
-            && TryOpenOgnVayneConquerRecallPaymentWindow(
+            && TryOpenUnitConquestPayReturnSelfToHandPaymentWindow(
                 playerZones,
                 cardObjects,
                 intent.PlayerId,
@@ -17763,9 +17762,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId,
                 state.Tick + 1,
                 combatEvents,
-                out var ognVaynePendingPayment))
+                out var unitConquestPayReturnSelfToHandPendingPayment))
         {
-            pendingPayment = ognVaynePendingPayment;
+            pendingPayment = unitConquestPayReturnSelfToHandPendingPayment;
         }
         IReadOnlyList<TriggerQueueItemState> blueSentinelDelayedTriggers = [];
         if (TryResolveBattleWinnerPlayerId(
@@ -24753,7 +24752,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryOpenOgnVayneConquerRecallPaymentWindow(
+    private static bool TryOpenUnitConquestPayReturnSelfToHandPaymentWindow(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -24765,11 +24764,15 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _)
-            || !TryGetOgnVayneConquerRecallSource(cardObjects, playerZones, playerId, sourceObjectId, out _))
+            || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, playerId, sourceObjectId, out var sourceState)
+            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            || trigger.ManaCost is not > 0)
         {
             return false;
         }
 
+        var manaCost = trigger.ManaCost.Value;
+        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
             TriggerPaymentWindow,
@@ -24779,12 +24782,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             TriggerPaymentWindow,
             playerId,
-            manaCost: 1,
-            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildOgnVayneConquerRecallPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
+            manaCost: manaCost,
+            legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
+            reason: BuildUnitConquestPayReturnSelfToHandPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
-            $"{playerId} 的薇恩征服战场后等待支付返回手牌触发费用",
+            $"{playerId} 征服战场后等待支付回手触发费用",
             new Dictionary<string, object?>
             {
                 ["paymentId"] = paymentId,
@@ -24792,23 +24795,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
-                ["trigger"] = OgnVayneConquerPayOneRecallEffectKind,
+                ["trigger"] = UnitConquestPayReturnSelfToHandEffectKind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["mana"] = 1,
+                ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
                 {
-                    ["mana"] = 1,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
-                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = OgnVayneConquerPayOneRecallEffectKind
+                ["paymentChoices"] = new[] { spendManaChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
             }));
         return true;
     }
 
-    private static bool TryGetOgnVayneConquerRecallSource(
+    private static bool TryGetUnitConquestPayReturnSelfToHandSource(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string playerId,
@@ -24822,12 +24825,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return IsControlledVisibleFieldUnitWithEffectKind(
-            sourceState,
-            playerZones,
-            playerId,
-            sourceObjectId,
-            OgnVayneConquerRecallSourceEffectKind);
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            && IsObjectOnField(playerZones, sourceObjectId)
+            && UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.ReturnCount is > 0
+            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && trigger.Optional == true;
     }
 
     private static bool TryOpenIcevaleArcherAttackPaymentWindow(

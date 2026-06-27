@@ -639,6 +639,25 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitConquestPayReturnSelfToHandMatch = Regex.Match(
+            segment,
+            @"每?当我征服一处战场时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}来让我返回所属的手牌。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestPayReturnSelfToHandMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestPayReturnSelfToHand,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest pay-return-self trigger parsed for B3 trigger-payment routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                ManaCost: ParseChineseNumber(unitConquestPayReturnSelfToHandMatch.Groups[1].Value),
+                ReturnCount: 1,
+                ReturnOriginZone: TriggerZones.Battlefield,
+                ReturnDestinationZone: TriggerZones.Hand,
+                Optional: true);
+        }
+
         var unitFriendlyDestroyedGainExperienceMatch = Regex.Match(
             segment,
             @"当另一名友方单位被摧毁时，获得([0-9一两二三四五六七八九十]+)经验。?$",

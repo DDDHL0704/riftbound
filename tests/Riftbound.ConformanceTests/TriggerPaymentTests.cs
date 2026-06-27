@@ -9,7 +9,7 @@ public sealed class TriggerPaymentTests
 {
     private const string GoldTrigger = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     private const string PowerfulDrawTrigger = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
-    private const string VayneTrigger = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
+    private const string VayneTrigger = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string JaxTrigger = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string FioraTrigger = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
@@ -23,7 +23,6 @@ public sealed class TriggerPaymentTests
     [InlineData("SFD·119a/221", "SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT")]
     [InlineData("SFD·180/221", "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT")]
     [InlineData("SFD·180a/221", "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT")]
-    [InlineData("OGN·035/298", "OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT")]
     [InlineData("UNL-065/219", "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesTriggerPaymentSourceUnitsByEffectKind(
         string cardNo,
@@ -38,7 +37,6 @@ public sealed class TriggerPaymentTests
     [InlineData("SFD·180/221", "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT")]
     [InlineData("SFD·082/221", "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT")]
     [InlineData("OGN·035/298", "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT")]
-    [InlineData("UNL-065/219", "OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingTriggerPaymentSourceUnits(
         string cardNo,
         string effectKind)
@@ -62,6 +60,12 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain("IsJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachAltCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("OgnVayneConquerRecallSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetOgnVayneConquerRecallSource", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryOpenOgnVayneConquerRecallPaymentWindow", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT", source, StringComparison.Ordinal);
+        Assert.Contains("UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("TryOpenUnitConquestPayReturnSelfToHandPaymentWindow", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, OgnVayneCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, IcevaleArcherCardNo", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
