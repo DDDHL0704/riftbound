@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held-next-spell Echo B0 score-victory follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest turn-start damage-units Frost Hold B0 score-victory follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -139,6 +139,12 @@ The 2026-06-25 turn-start damage-units follow-up moves another implemented battl
 - The runtime now resolves the affected unit set from the source battlefield's `ObjectLocations[source].BattlefieldObjectId` and no longer damages units at unrelated battlefield objects, preserving the official `此处` boundary.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldTurnStartDamageAllUnitsCardNo` constant, and the dev seed now includes explicit battlefield `ObjectLocations` for the source and targets.
 - The old `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `60` total / `56` in `CoreRuleEngine`; Core battlefield helper count is `12`.
+
+The 2026-06-27 B0 follow-up adds official-deck score-victory action-log replay coverage for the same parsed Frost Hold route without changing runtime code:
+
+- legal Vex official decks submit and open through normal server prompts until P1 selects `UNL-212/219` Frost Hold;
+- the focused midgame replay stages both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield and submits replayable `END_TURN`;
+- turn start resolves the parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS` source before scoring, damages only units scoped to that Frost Hold battlefield, and replays the resulting command log through score victory to the same final state hash.
 
 This slice moves one implemented battlefield trigger away from engine card-number branching:
 
@@ -1013,6 +1019,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGame representatives: passed `7/7`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8438/8438`.
+
+2026-06-27 Frost Hold turn-start damage B0 score-victory follow-up validation:
+
+- focused `OfficialDeckMidgameResolvesFrostHoldTurnStartDamageAndScoreVictoryActionLogReplaysToFinalStateHash`: passed `1/1`;
+- FullGameEndToEnd: passed `77/77`;
+- adjacent FrostHold / BattlefieldTurnStartDamage / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2071/2071`;
+- backend full conformance: passed `8833/8833`.
 
 2026-06-25 turn-start destroy-draw follow-up validation:
 

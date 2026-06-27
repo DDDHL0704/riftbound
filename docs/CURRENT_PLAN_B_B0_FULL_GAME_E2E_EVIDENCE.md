@@ -96,6 +96,8 @@ The Back Alley Bar moved-unit power action-log replay regression now proves a le
 
 The Piltover Academy held-next-spell Echo action-log replay regression now proves a legal official deck opening can feed the parsed held marker into a later spell stack that reaches score victory. `OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Poppy and Vex deck openings that selected official `UNL-216/219` Piltover Academy for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, stores `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2`, and replays the marker path. The derived P2 neutral-open next-spell window then submits official `UNL-007/219` Punishment with the granted Echo optional cost, pays 4 mana from base cost 2 plus Echo 2, consumes the marker, records repeat count 2, resolves the repeated spell stack, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close natural same-turn non-active spell access, Swift stack-response `PLAY_CARD` prompts, complete Echo optional prompt breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+The Frost Hold turn-start damage action-log replay regression now proves a legal official deck opening can feed the parsed turn-start battlefield trigger into score victory. `OfficialDeckMidgameResolvesFrostHoldTurnStartDamageAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Vex official deck openings that select official `UNL-212/219` Frost Hold for P1, then starts from a focused midgame main phase with both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield. The server-authored `END_TURN` route advances to P2's turn start, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, applies one damage to both same-battlefield units before scoring, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close optional trigger prompts, complete turn-start battlefield breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Vaults of Helia held unit-cost action-log replay regression proves a legal official deck opening can feed the BehaviorSpec-backed held-battlefield cost marker into a later server-authored play prompt. `OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening that selected official `UNL-219/219` Vaults of Helia for P1, then starts from a focused midgame main phase with `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` active and official `OGN·211/298` Loyal Craftsman in P1 hand. The server-authored `PLAY_CARD` prompt exposes Loyal Craftsman with `manaCost=3`, `minimumManaCost=4`, and `battlefieldHeldUnitCostIncreaseMana=1`; submitting the play pays 4 mana, emits `COST_PAID` with the parsed held-unit-cost surcharge, adds the unit stack item, resolves it, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage plus a catalog reason string; it does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Dunehorn Beast unit battlefield-held draw action-log replay regression proves a legal official deck opening can feed a unit-source held trigger into the B0 score-victory route. `OfficialDeckMidgameResolvesDunehornBeastUnitHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin deck openings, then starts from a focused midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel. The server-authored `DECLARE_BATTLE` route leaves Dunehorn Beast as the surviving holder, emits `TRIGGER_RESOLVED` with `trigger=UNIT_BATTLEFIELD_HELD_DRAW`, `sourceCardNo=SFD·027/221`, and `drawCount=2`, draws two controlled main-deck cards for P2, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close Dunehorn's separate low-hand active-entry sentence, complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -141,6 +143,54 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Frost Hold turn-start damage score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFrostHoldTurnStartDamage"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Frost Hold FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 77, Failed: 0, Skipped: 0, Total: 77
+```
+
+Latest Frost Hold adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FrostHold|FullyQualifiedName~BattlefieldTurnStartDamage|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2071, Failed: 0, Skipped: 0, Total: 2071
+```
+
+Latest Frost Hold backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8833, Failed: 0, Skipped: 0, Total: 8833
+```
 
 Latest Piltover Academy held-next-spell Echo score-victory focused validation passed:
 
@@ -1225,6 +1275,8 @@ The current Rehearsal Hall increment additionally proves one BehaviorSpec-driven
 The current Back Alley Bar increment additionally proves one BehaviorSpec-driven moved-unit power route through legal official Vex deck submission/opening, server-authored `MOVE_UNIT`, parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, until-end-of-turn power-modifier ledger, score-victory replay, and hidden-info guarded full-game helpers. Complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Piltover Academy increment additionally proves one BehaviorSpec-driven held-next-spell Echo marker route through legal official Poppy vs Vex deck submission/opening, parsed `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO`, a derived next-spell window, Echo optional cost payment, repeated spell stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Natural same-turn non-active spell access, Swift stack-response `PLAY_CARD` prompts, complete Echo optional prompt breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Frost Hold increment additionally proves one BehaviorSpec-driven turn-start damage route through legal official Vex deck submission/opening, parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, same-battlefield target scoping for both players' official Wildclaw Beastmasters, pre-scoring damage application, score-victory replay, and hidden-info guarded full-game helpers. Complete turn-start battlefield trigger breadth, optional trigger choice prompts, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Dream Tree increment additionally proves one BehaviorSpec-driven friendly-spell draw route through an official `PLAY_CARD` target at the same battlefield, parsed `BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`, one controlled main-deck draw, until-end trigger memory, spell stack resolution, score-victory replay, and hidden-info guarded full-game helpers. Complete friendly-spell target breadth, optional spell-duel target timing breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 

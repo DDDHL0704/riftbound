@@ -53,6 +53,7 @@ public sealed class FullGameEndToEndTests
     private const string WinningScoreIncreaseBattlefieldCardNo = "OGN·276/298";
     private const string BandleTreeBattlefieldCardNo = "OGN·278/298";
     private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
+    private const string FrostHoldBattlefieldTurnStartDamageCardNo = "UNL-212/219";
     private const string ImperialShrineBattlefieldConquerSandSoldierCardNo = "SFD·207/221";
     private const string HallOfLegendsBattlefieldConquerReadyLegendCardNo = "SFD·210/221";
     private const string RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo = "SFD·215/221";
@@ -548,6 +549,39 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesFrostHoldTurnStartDamageAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldTurnStartDamageOfficialDeck(catalog);
+        var p2Deck = BuildBattlefieldTurnStartDamageOpponentOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldTurnStartDamageOpeningAsync(
+            "b0-full-game-frost-hold-turn-start-damage-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldTurnStartDamageMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Equal("P1", current.State.ActivePlayerId);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+
+        var damaged = await EndTurnAsync(
+            session,
+            "P1",
+            "b0-frost-hold-turn-start-damage");
+        AssertBattlefieldTurnStartDamageResolved(current, damaged);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            damaged,
+            "b0-frost-hold-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
 
@@ -3724,6 +3758,64 @@ public sealed class FullGameEndToEndTests
         Assert.Equal([EchoOptionalCostNames.Echo], Assert.IsType<string[]>(triggerEvent.Payload["optionalCosts"]));
         Assert.True(Assert.IsType<bool>(triggerEvent.Payload["echoPaid"]));
         Assert.Equal(2, triggerEvent.Payload["effectRepeatCount"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldTurnStartDamageResolved(
+        ResolutionResult beforeTurnStart,
+        ResolutionResult result)
+    {
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            FrostHoldBattlefieldTurnStartDamageCardNo);
+        var p1TargetObjectId = FindBattlefieldUnitByCardNo(
+            beforeTurnStart.State,
+            "P1",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Frost Hold assertion could not locate the P1 Wildclaw Beastmaster target.");
+        var p2TargetObjectId = FindBattlefieldUnitByCardNo(
+            beforeTurnStart.State,
+            "P2",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Frost Hold assertion could not locate the P2 Wildclaw Beastmaster target.");
+        var expectedTargetObjectIds = new[] { p1TargetObjectId, p2TargetObjectId }
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldTurnStartDamageAllUnits, StringComparison.Ordinal));
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
+        Assert.Equal(expectedTargetObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["targetObjectIds"]));
+        Assert.Equal(1, triggerEvent.Payload["damage"]);
+        Assert.True((bool)triggerEvent.Payload["beforeScoring"]!);
+
+        var damageEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldTurnStartDamageAllUnits, StringComparison.Ordinal))
+            .OrderBy(gameEvent => gameEvent.Payload["targetObjectId"] as string, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(expectedTargetObjectIds, damageEvents.Select(gameEvent => gameEvent.Payload["targetObjectId"] as string).ToArray());
+        foreach (var damageEvent in damageEvents)
+        {
+            var targetObjectId = Assert.IsType<string>(damageEvent.Payload["targetObjectId"]);
+            Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(damageEvent.Payload["sourceObjectIds"]));
+            Assert.Equal(1, damageEvent.Payload["damage"]);
+            Assert.Equal(
+                beforeTurnStart.State.CardObjects[targetObjectId].Damage + 1,
+                result.State.CardObjects[targetObjectId].Damage);
+        }
+
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("targetObjectId", out var targetObjectId)
+            && targetObjectId is string destroyedObjectId
+            && expectedTargetObjectIds.Contains(destroyedObjectId, StringComparer.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -6995,6 +7087,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Back Alley Bar opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldTurnStartDamageOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P1"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    FrostHoldBattlefieldTurnStartDamageCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Frost Hold opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerSandSoldierOpeningAsync(
@@ -14955,6 +15086,42 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldTurnStartDamageOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                WildclawBeastmasterCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            FrostHoldBattlefieldTurnStartDamageCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildBattlefieldTurnStartDamageOpponentOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                VexLegendCardNo,
+                VexChampionCardNo,
+                [
+                    WildclawBeastmasterCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -16826,6 +16993,90 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldTurnStartDamageMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            FrostHoldBattlefieldTurnStartDamageCardNo);
+        var p1UnitObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Frost Hold setup could not find Wildclaw Beastmaster in P1 hand.");
+        var p2UnitObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 Frost Hold setup could not find Wildclaw Beastmaster in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, p1UnitObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([p1UnitObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, p2UnitObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([p2UnitObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[p1UnitObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[p2UnitObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[p1UnitObjectId] = cardObjects[p1UnitObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[p1UnitObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[p2UnitObjectId] = cardObjects[p2UnitObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[p2UnitObjectId]),
             OwnerId = "P2",
             ControllerId = "P2"
         };
