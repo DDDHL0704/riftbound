@@ -3297,6 +3297,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathDiscardDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var undercoverAgent = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·178/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            undercoverAgent.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathDiscardDraw, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(2, trigger.DiscardCount);
+        Assert.Equal(2, trigger.DrawCount);
+        Assert.Contains("{{绝念}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("弃置两张手牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽两张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath discard-draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Theory]
     [InlineData("OGN·239/298", "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", 3, "随从", 1, null)]
     [InlineData("SFD·021/221", "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", 2, "机器人", 3, null)]
@@ -4832,6 +4856,22 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CreateBaseEquipmentTokensFromTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathDiscardDrawTriggerDoesNotUseCoreCardNumberBehavior()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("UndercoverAgentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("UndercoverAgentLastBreathEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveUndercoverAgentLastBreathStackItem", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

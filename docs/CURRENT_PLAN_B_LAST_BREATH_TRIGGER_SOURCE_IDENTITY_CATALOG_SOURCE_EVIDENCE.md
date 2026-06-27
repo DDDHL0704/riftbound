@@ -20,6 +20,8 @@ This file records concrete evidence for removing direct source card-number check
 
 2026-06-27 follow-up: Honest Broker create-Gold token shape now also routes through `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_CREATE_DORMANT_GOLD_TRIGGER_SPEC_EVIDENCE.md`.
 
+2026-06-27 follow-up: Undercover Agent last-breath discard/draw source and count shape now also routes through `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_DISCARD_DRAW_TRIGGER_SPEC_EVIDENCE.md`.
+
 ## Test Evidence
 
 Focused test file:
@@ -61,4 +63,4 @@ Result: 8660/8660 passed.
 
 ## Non-Closure Statement
 
-This evidence does not close complete last-breath trigger timing, complete trigger queue ordering, complete effective-power / LayerEngine powerful checks, card matrix full-official state, frontend final validation, or READY. Honest Broker create-Gold token shape is covered by the 2026-06-27 follow-up evidence.
+This evidence does not close complete last-breath trigger timing, complete trigger queue ordering, complete effective-power / LayerEngine powerful checks, card matrix full-official state, frontend final validation, or READY. Honest Broker create-Gold and Undercover Agent discard/draw shapes are covered by the 2026-06-27 follow-up evidence.

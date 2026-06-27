@@ -50,8 +50,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     private const int KogmawLastBreathDamage = 4;
     private const string KogmawTriggerBattlefieldMarker = "::BATTLEFIELD::";
-    private const string UndercoverAgentCardNo = "OGN·178/298";
-    private const string UndercoverAgentLastBreathEffectKind = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
     private const string UnsungHeroCardNo = "SFD·167/221";
@@ -6296,9 +6294,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnitWithEffectKind(
-                destroyedState,
-                UndercoverAgentLastBreathEffectKind))
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(
+                destroyedState.CardNo,
+                out var triggerSpec)
+            || !IsUnitLastBreathDiscardDrawTriggerSpec(triggerSpec))
         {
             return null;
         }
@@ -6788,6 +6790,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 trigger.CreatedTokenDestination,
                 TriggerTokenDestinations.OwnerBase,
                 StringComparison.Ordinal);
+    }
+
+    private static bool IsUnitLastBreathDiscardDrawTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathDiscardDraw,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.DiscardCount is > 0
+            && trigger.DrawCount is > 0;
     }
 
     private static bool IsUnitLastBreathCreateBaseUnitEffectKind(string? effectKind)
@@ -33919,7 +33933,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveKogmawLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, UndercoverAgentLastBreathEffectKind, StringComparison.Ordinal)
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal)
+            && TryGetLastBreathDiscardDrawTrigger(stackItem, out _)
             && string.Equals(stackItem.TimingContext, "ORDERED_TRIGGER", StringComparison.Ordinal))
         {
             return ResolveUndercoverAgentLastBreathStackItem(state, stackItem);
@@ -36039,7 +36054,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     stackItem,
                                     targetObjectId,
                                     undercoverAgentPlayerId,
-                                    UndercoverAgentLastBreathEffectKind);
+                                    TriggerKinds.UnitLastBreathDiscardDraw);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -37497,6 +37512,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects.ToArray();
         var rngCursor = state.RngCursor;
+        var triggerSpec = TryGetLastBreathDiscardDrawTrigger(stackItem, out var matchedTrigger)
+            && IsUnitLastBreathDiscardDrawTriggerSpec(matchedTrigger)
+                ? matchedTrigger
+                : null;
+        var discardCount = triggerSpec?.DiscardCount.GetValueOrDefault(2) ?? 2;
+        var drawCount = triggerSpec?.DrawCount.GetValueOrDefault(2) ?? 2;
         var events = new List<GameEvent>
         {
             BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -37514,18 +37535,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, stackItem.ControllerId, objectId))
                 .ToArray()
             : [];
+        var choiceCount = Math.Min(discardCount, handObjectIds.Length);
         var pendingChoice = new PendingHandChoiceState(
             choiceId: BuildUndercoverAgentHandChoiceId(stackItem),
             choiceWindow: UndercoverAgentHandChoiceWindow,
             playerId: stackItem.ControllerId,
-            requiredCount: Math.Min(2, handObjectIds.Length),
-            maxCount: Math.Min(2, handObjectIds.Length),
+            requiredCount: choiceCount,
+            maxCount: choiceCount,
             legalObjectIds: handObjectIds,
-            reason: UndercoverAgentLastBreathEffectKind,
+            reason: TriggerKinds.UnitLastBreathDiscardDraw,
             sourceObjectId: stackItem.SourceObjectId,
-            effectKind: UndercoverAgentLastBreathEffectKind);
+            effectKind: TriggerKinds.UnitLastBreathDiscardDraw);
 
-        if (handObjectIds.Length >= 2)
+        if (discardCount > 0 && handObjectIds.Length >= discardCount)
         {
             events.Add(new GameEvent(
                 "HAND_CHOICE_REQUESTED",
@@ -37536,7 +37558,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
                     ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["effectKind"] = UndercoverAgentLastBreathEffectKind,
+                    ["effectKind"] = TriggerKinds.UnitLastBreathDiscardDraw,
                     ["requiredCount"] = pendingChoice.RequiredCount,
                     ["maxCount"] = pendingChoice.MaxCount,
                     ["legalCount"] = handObjectIds.Length
@@ -37560,28 +37582,38 @@ public sealed class CoreRuleEngine : IRuleEngine
                 pendingChoice);
         }
 
-        if (handObjectIds.Length == 1)
+        if (choiceCount > 0)
         {
-            var discardedObjectId = handObjectIds[0];
-            if (TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, discardedObjectId))
+            var discardedObjectIds = new List<string>();
+            foreach (var discardedObjectId in handObjectIds.Take(choiceCount))
             {
+                if (!TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, discardedObjectId))
+                {
+                    continue;
+                }
+
+                discardedObjectIds.Add(discardedObjectId);
                 events.Add(BuildUndercoverAgentDiscardedEvent(
                     pendingChoice,
                     stackItem.ControllerId,
                     discardedObjectId,
                     autoDiscard: true));
+            }
+
+            if (discardedObjectIds.Count > 0)
+            {
                 ResolveHandCardsDiscardedReadyPowerTriggers(
                     playerZones,
                     cardObjects,
                     stackItem.ControllerId,
                     "CARD_DISCARDED",
                     stackItem.SourceObjectId,
-                    [discardedObjectId],
+                    discardedObjectIds,
                     events);
                 untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                         untilEndOfTurnEffects,
                         stackItem.ControllerId,
-                        [discardedObjectId])
+                        discardedObjectIds)
                     .ToArray();
             }
         }
@@ -37596,9 +37628,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
                     ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["effectKind"] = UndercoverAgentLastBreathEffectKind,
+                    ["effectKind"] = TriggerKinds.UnitLastBreathDiscardDraw,
                     ["availableHandCount"] = 0,
-                    ["drawCount"] = 2
+                    ["drawCount"] = drawCount
                 }));
         }
 
@@ -37607,7 +37639,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             playerScores,
             stackItem.ControllerId,
-            2,
+            drawCount,
             rngCursor,
             events);
 
@@ -37951,7 +37983,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
             && !IsUnitLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
             && !string.Equals(trigger.EffectKind, KogmawLastBreathAoeEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, UndercoverAgentLastBreathEffectKind, StringComparison.Ordinal);
+            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
     }
 
     private static StackItemState BuildStackItemForLastBreathTrigger(
@@ -37976,6 +38008,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
             && string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal);
+    }
+
+    private static bool TryGetLastBreathDiscardDrawTrigger(StackItemState stackItem, out TriggerSpec trigger)
+    {
+        if (UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(stackItem.CardNo, out trigger)
+            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
+            && string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
     }
 
     private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(
@@ -43235,7 +43279,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     objectId,
                     undercoverAgentPlayerId,
-                    UndercoverAgentLastBreathEffectKind);
+                    TriggerKinds.UnitLastBreathDiscardDraw);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

@@ -179,6 +179,8 @@ public static class TriggerKinds
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     public const string UnitLastBreathCreateDormantGold =
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
+    public const string UnitLastBreathDiscardDraw =
+        "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =

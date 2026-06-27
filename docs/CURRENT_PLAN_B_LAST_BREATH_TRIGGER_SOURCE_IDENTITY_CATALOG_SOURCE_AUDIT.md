@@ -81,9 +81,11 @@ Result: 8660/8660 passed.
 
 `SFD·155/221` Honest Broker's last-breath create-Gold token shape has since moved from the local `CoreRuleEngine` behavior object to `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_CREATE_DORMANT_GOLD_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_CREATE_DORMANT_GOLD_TRIGGER_SPEC_EVIDENCE.md`.
 
+`OGN·178/298` Undercover Agent's last-breath discard/draw source and count shape has since moved from the local `CoreRuleEngine` Undercover effect constant to `BehaviorSpec.Triggers`; see `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_DISCARD_DRAW_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_LAST_BREATH_DISCARD_DRAW_TRIGGER_SPEC_EVIDENCE.md`.
+
 ## Residual Risks
 
-- Kogmaw, Undercover Agent, and Unsung Hero remain source-identity-only migrations; Honest Broker create-Gold token shape is covered by the 2026-06-27 follow-up.
+- Kogmaw and Unsung Hero remain source-identity-only migrations; Honest Broker create-Gold and Undercover Agent discard/draw shapes are covered by the 2026-06-27 follow-ups.
 - This does not implement complete simultaneous trigger ordering, complete last-breath family breadth, or full `ORDER_TRIGGERS` semantics.
 - Unsung Hero still uses the existing `destroyedState.Power >= 5` representative guard for powerful; complete effective-power / LayerEngine integration remains open.
 - Project remains **NOT READY**.

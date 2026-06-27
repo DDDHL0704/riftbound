@@ -363,6 +363,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathCreateDormantGoldTrigger);
         }
 
+        var hasUnitLastBreathDiscardDrawTrigger =
+            TryParseUnitLastBreathDiscardDraw(text, out var unitLastBreathDiscardDrawTrigger);
+        if (hasUnitLastBreathDiscardDrawTrigger)
+        {
+            triggers.Add(unitLastBreathDiscardDrawTrigger);
+        }
+
         var hasUnitLastBreathCreateBaseUnitTrigger =
             TryParseUnitLastBreathCreateBaseUnit(text, out var unitLastBreathCreateBaseUnitTrigger);
         if (hasUnitLastBreathCreateBaseUnitTrigger)
@@ -502,6 +509,29 @@ public static class TriggerParser
             CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
             CreatedTokenExhausted: true,
             CreatedTokenKeywords: ["反应"]);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathDiscardDraw(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念>?\}\}\s*[—-]?\s*弃置([0-9一两二三四五六七八九十]+)张手牌，然后抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.UnitLastBreathDiscardDraw,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath discard-draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            DiscardCount: ParseChineseNumber(match.Groups[1].Value),
+            DrawCount: ParseChineseNumber(match.Groups[2].Value));
         return true;
     }
 
