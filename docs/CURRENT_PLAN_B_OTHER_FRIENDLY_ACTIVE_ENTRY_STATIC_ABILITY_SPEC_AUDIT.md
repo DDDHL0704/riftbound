@@ -21,8 +21,10 @@ Implemented for `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克:
 - `StaticAbilitySpec.TargetFilter` can now carry entry filters; Renata parses `你的指示物以活跃状态进场。` with `TargetFilter=TOKEN`.
 - `P6TokenFactoryCatalog.IsTokenFactory` backs the generic token filter rather than a local card-number helper.
 - `CoreRuleEngine` uses the same public, face-up, non-standby friendly source scan for filtered token active-entry specs.
-- Unit token factory entry paths share `ApplyUnitTokenEntryStaticAbility`; token creation payloads can include the same `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata.
-- Existing fallback token paths without token factory identity remain unchanged until their token metadata is upgraded.
+- Unit token factory entry paths retain `ApplyUnitTokenEntryStaticAbility`, which now delegates to token-aware entry resolution.
+- Equipment token creation paths now bind P6 token factory identity before entry resolution, so Gold equipment tokens can carry official `tokenCardNo`, owner/controller, tags, and shared `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata when Renata controls entry.
+- `OTHER_FRIENDLY_UNITS_ENTER_READY` remains unit-only; equipment tokens only receive active entry from filtered token specs such as Renata's `TargetFilter=TOKEN`.
+- Battlefield token entry payload coverage remains unchanged until its token metadata is upgraded.
 
 ## Rule Authority
 
@@ -34,7 +36,7 @@ Implemented for `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克:
 
 ## Not Closed
 
-- Full active-entry family breadth remains open: low-hand entry, level-gated entry, turn-scoped spell-granted entry, equipment / battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
+- Full active-entry family breadth remains open: low-hand entry, level-gated entry, turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
 - This slice does not add legal official-deck score-victory replay coverage for 熔浆巨龙.
 - This slice does not close P0 full objective or READY.
 
@@ -54,7 +56,7 @@ Renata token filtered active-entry focused red/green:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~RenataTokenActiveEntryStaticAbilityTests" --nologo
 ```
 
-Result: initially failed at compile because `FRIENDLY_FILTERED_UNITS_ENTER_READY` / `TargetFilter` did not exist; after implementation 3/3 passed.
+Result: initially failed at compile because `FRIENDLY_FILTERED_UNITS_ENTER_READY` / `TargetFilter` did not exist; after unit-token implementation 3/3 passed. The equipment-token follow-up initially failed because Gold equipment tokens lacked official token identity and remained exhausted under public Renata; after implementation 5/5 passed.
 
 Adjacent:
 
@@ -72,10 +74,26 @@ Renata / token adjacent:
 
 Result: 335/335 passed.
 
+Gold token / fixture adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GoldTokenResourceSkillTests|FullyQualifiedName~TriggerPaymentTests|FullyQualifiedName~TreasureHunterMoveTriggerTests|FullyQualifiedName~RealTriggerQueueTests" --nologo
+```
+
+Result: 190/190 passed.
+
+Conformance fixture runner after Gold token identity sync:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ConformanceFixtureRunnerTests" --nologo
+```
+
+Result: 3108/3108 passed.
+
 Backend full:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8844/8844 passed after the Renata token slice.
+Result: 8846/8846 passed after the Renata equipment-token follow-up slice.

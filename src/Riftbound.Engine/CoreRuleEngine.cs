@@ -13131,30 +13131,66 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        cardObjects[tokenObjectId] = new CardObjectState(
+        var sourceCardNo = cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            ? sourceState.CardNo
+            : string.Empty;
+        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
+            tokenName,
+            tokenTags,
+            sourceCardNo,
+            out var tokenDefinition);
+        var resolvedTokenTags = ResolveEquipmentTokenTags(tokenName, tokenTags, hasTokenDefinition ? tokenDefinition : null);
+        var tokenState = hasTokenDefinition
+            ? tokenDefinition.CreateObject(tokenObjectId, playerId, playerId, isExhausted) with
+            {
+                Tags = resolvedTokenTags
+            }
+            : new CardObjectState(
+                tokenObjectId,
+                isExhausted: isExhausted,
+                tags: resolvedTokenTags,
+                ownerId: playerId,
+                controllerId: playerId);
+        tokenState = ApplyTokenEntryStaticAbility(
+            playerZones,
+            cardObjects,
+            playerId,
             tokenObjectId,
-            isExhausted: isExhausted,
-            tags: tokenTags,
-            ownerId: playerId,
-            controllerId: playerId);
+            tokenState,
+            out var entersReadyFromStaticAbility,
+            out var entryStaticAbilitySourceObjectId,
+            out var entryStaticAbilitySourceState,
+            out var entryStaticAbility);
+        cardObjects[tokenObjectId] = tokenState;
         playerZones[playerId] = zones with
         {
             Base = zones.Base.Concat([tokenObjectId]).ToArray()
         };
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = playerId,
+            ["sourceObjectId"] = sourceObjectId,
+            ["abilityId"] = abilityId,
+            ["tokenObjectId"] = tokenObjectId,
+            ["tokenName"] = tokenName,
+            ["destinationZone"] = "BASE",
+            ["isExhausted"] = tokenState.IsExhausted,
+            ["tokenTags"] = tokenState.Tags.ToArray()
+        };
+        if (hasTokenDefinition)
+        {
+            payload["tokenCardNo"] = tokenDefinition.CardNo;
+        }
+
+        AddEntryStaticAbilityPayload(
+            payload,
+            entersReadyFromStaticAbility ? entryStaticAbility : null,
+            entryStaticAbilitySourceObjectId,
+            entryStaticAbilitySourceState.CardNo);
         events.Add(new GameEvent(
             "EQUIPMENT_TOKEN_CREATED",
             $"{sourceObjectId} 打出装备指示物",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = tokenName,
-                ["destinationZone"] = "BASE",
-                ["isExhausted"] = isExhausted,
-                ["tokenTags"] = tokenTags
-            }));
+            payload));
     }
 
     private static void CreateLegendMinion(
@@ -24228,6 +24264,62 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(definition => definition.CardNo, StringComparer.Ordinal)
             .FirstOrDefault()!;
         return tokenDefinition is not null;
+    }
+
+    private static bool TryGetEquipmentTokenDefinition(
+        string tokenName,
+        IReadOnlyList<string> tokenTags,
+        string? sourceCardNo,
+        out P6TokenFactoryDefinition tokenDefinition)
+    {
+        var sourceSetCode = CardSetCode(sourceCardNo);
+        var requiredTags = tokenTags
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Where(tag => !string.Equals(tag, CardObjectTags.EquipmentCard, StringComparison.Ordinal))
+            .Where(tag => !string.Equals(tag, tokenName, StringComparison.Ordinal))
+            .Where(tag => !string.Equals(tag, P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        tokenDefinition = P6TokenFactoryCatalog.GetAll()
+            .Where(definition => string.Equals(definition.TokenFamilyName, tokenName, StringComparison.Ordinal)
+                && definition.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && requiredTags.All(requiredTag => definition.Tags.Contains(requiredTag, StringComparer.Ordinal)))
+            .OrderByDescending(definition => !string.IsNullOrWhiteSpace(sourceSetCode)
+                && string.Equals(CardSetCode(definition.CardNo), sourceSetCode, StringComparison.Ordinal))
+            .ThenBy(definition => definition.CardNo, StringComparer.Ordinal)
+            .FirstOrDefault()!;
+        return tokenDefinition is not null;
+    }
+
+    private static IReadOnlyList<string> ResolveEquipmentTokenTags(
+        string tokenName,
+        IReadOnlyList<string> tokenTags,
+        P6TokenFactoryDefinition? tokenDefinition)
+    {
+        return (tokenDefinition?.Tags ?? [])
+            .Concat(tokenTags)
+            .Concat(string.IsNullOrWhiteSpace(tokenName) ? [] : [tokenName])
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string CardSetCode(string? cardNo)
+    {
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            return string.Empty;
+        }
+
+        var trimmed = cardNo.Trim();
+        var dashIndex = trimmed.IndexOf('-', StringComparison.Ordinal);
+        var middleDotIndex = trimmed.IndexOf('·');
+        var separatorIndex = dashIndex >= 0 && middleDotIndex >= 0
+            ? Math.Min(dashIndex, middleDotIndex)
+            : Math.Max(dashIndex, middleDotIndex);
+        return separatorIndex > 0 ? trimmed[..separatorIndex] : string.Empty;
     }
 
     private static bool TokenDefinitionHasRequiredKeywords(
@@ -40081,6 +40173,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             : behavior.CreatedBaseEquipmentTokenCount;
         var tokenCount = baseTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
         var tokenTags = ParseDelimitedValues(behavior.CreatedBaseEquipmentTokenTags);
+        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
+            behavior.CreatedBaseEquipmentTokenName,
+            tokenTags,
+            behavior.CardNo,
+            out var tokenDefinition);
+        var resolvedTokenTags = ResolveEquipmentTokenTags(
+            behavior.CreatedBaseEquipmentTokenName,
+            tokenTags,
+            hasTokenDefinition ? tokenDefinition : null);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -40090,10 +40191,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 tokenIndex + 1);
             createdTokenObjectIds.Add(tokenObjectId);
-            cardObjects[tokenObjectId] = new CardObjectState(
+            var tokenState = hasTokenDefinition
+                ? tokenDefinition.CreateObject(
+                    tokenObjectId,
+                    stackItem.ControllerId,
+                    stackItem.ControllerId,
+                    behavior.CreatedBaseEquipmentTokenIsExhausted) with
+                {
+                    Tags = resolvedTokenTags
+                }
+                : new CardObjectState(
+                    tokenObjectId,
+                    isExhausted: behavior.CreatedBaseEquipmentTokenIsExhausted,
+                    tags: resolvedTokenTags,
+                    ownerId: stackItem.ControllerId,
+                    controllerId: stackItem.ControllerId);
+            tokenState = ApplyTokenEntryStaticAbility(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
                 tokenObjectId,
-                isExhausted: behavior.CreatedBaseEquipmentTokenIsExhausted,
-                tags: tokenTags);
+                tokenState,
+                out var entersReadyFromStaticAbility,
+                out var entryStaticAbilitySourceObjectId,
+                out var entryStaticAbilitySourceState,
+                out var entryStaticAbility);
+            cardObjects[tokenObjectId] = tokenState;
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = stackItem.ControllerId,
@@ -40101,13 +40224,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseEquipmentTokenName,
                 ["destinationZone"] = "BASE",
-                ["isExhausted"] = behavior.CreatedBaseEquipmentTokenIsExhausted
+                ["isExhausted"] = tokenState.IsExhausted
             };
-            if (tokenTags.Count > 0)
+            if (hasTokenDefinition)
             {
-                payload["tokenTags"] = tokenTags;
+                payload["tokenCardNo"] = tokenDefinition.CardNo;
             }
 
+            if (tokenState.Tags.Count > 0)
+            {
+                payload["tokenTags"] = tokenState.Tags.ToArray();
+            }
+
+            AddEntryStaticAbilityPayload(
+                payload,
+                entersReadyFromStaticAbility ? entryStaticAbility : null,
+                entryStaticAbilitySourceObjectId,
+                entryStaticAbilitySourceState.CardNo);
             events.Add(new GameEvent(
                 "EQUIPMENT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出装备指示物到基地",
@@ -40142,6 +40275,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
+        var sourceCardNo = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            ? sourceState.CardNo
+            : stackItem.CardNo;
+        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
+            tokenName,
+            tokenTags,
+            sourceCardNo,
+            out var tokenDefinition);
+        var resolvedTokenTags = ResolveEquipmentTokenTags(tokenName, tokenTags, hasTokenDefinition ? tokenDefinition : null);
         var isExhausted = trigger.CreatedTokenExhausted.GetValueOrDefault();
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
@@ -40152,23 +40294,56 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 tokenIndex + 1);
             createdTokenObjectIds.Add(tokenObjectId);
-            cardObjects[tokenObjectId] = new CardObjectState(
+            var tokenState = hasTokenDefinition
+                ? tokenDefinition.CreateObject(
+                    tokenObjectId,
+                    stackItem.ControllerId,
+                    stackItem.ControllerId,
+                    isExhausted) with
+                {
+                    Tags = resolvedTokenTags
+                }
+                : new CardObjectState(
+                    tokenObjectId,
+                    isExhausted: isExhausted,
+                    tags: resolvedTokenTags,
+                    ownerId: stackItem.ControllerId,
+                    controllerId: stackItem.ControllerId);
+            tokenState = ApplyTokenEntryStaticAbility(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
                 tokenObjectId,
-                isExhausted: isExhausted,
-                tags: tokenTags);
+                tokenState,
+                out var entersReadyFromStaticAbility,
+                out var entryStaticAbilitySourceObjectId,
+                out var entryStaticAbilitySourceState,
+                out var entryStaticAbility);
+            cardObjects[tokenObjectId] = tokenState;
+            var payload = new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = tokenName,
+                ["destinationZone"] = "BASE",
+                ["isExhausted"] = tokenState.IsExhausted,
+                ["tokenTags"] = tokenState.Tags.ToArray()
+            };
+            if (hasTokenDefinition)
+            {
+                payload["tokenCardNo"] = tokenDefinition.CardNo;
+            }
+
+            AddEntryStaticAbilityPayload(
+                payload,
+                entersReadyFromStaticAbility ? entryStaticAbility : null,
+                entryStaticAbilitySourceObjectId,
+                entryStaticAbilitySourceState.CardNo);
             events.Add(new GameEvent(
                 "EQUIPMENT_TOKEN_CREATED",
                 $"{tokenName}装备指示物进入基地",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["tokenObjectId"] = tokenObjectId,
-                    ["tokenName"] = tokenName,
-                    ["destinationZone"] = "BASE",
-                    ["isExhausted"] = isExhausted,
-                    ["tokenTags"] = tokenTags
-                }));
+                payload));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -40650,11 +40825,34 @@ public sealed class CoreRuleEngine : IRuleEngine
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
     {
+        return TryGetFriendlyEnterReadyStaticAbilitySource(
+            playerZones,
+            cardObjects,
+            controllerId,
+            enteringObjectId,
+            enteringCardNo,
+            enteringIsUnit: true,
+            out sourceObjectId,
+            out sourceState,
+            out ability);
+    }
+
+    private static bool TryGetFriendlyEnterReadyStaticAbilitySource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string enteringObjectId,
+        string? enteringCardNo,
+        bool enteringIsUnit,
+        out string sourceObjectId,
+        out CardObjectState sourceState,
+        out StaticAbilitySpec ability)
+    {
         sourceObjectId = string.Empty;
         sourceState = new CardObjectState();
         ability = default!;
 
-        if (CardStaticAbilitySpecRules.CardCannotBecomeActive(enteringCardNo))
+        if (enteringIsUnit && CardStaticAbilitySpecRules.CardCannotBecomeActive(enteringCardNo))
         {
             return false;
         }
@@ -40682,7 +40880,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (!TryGetEntryReadyStaticAbility(candidateState.CardNo, enteringCardNo, out var candidateAbility))
+            if (!TryGetEntryReadyStaticAbility(
+                    candidateState.CardNo,
+                    enteringCardNo,
+                    enteringIsUnit,
+                    out var candidateAbility))
             {
                 continue;
             }
@@ -40699,9 +40901,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryGetEntryReadyStaticAbility(
         string? sourceCardNo,
         string? enteringCardNo,
+        bool enteringIsUnit,
         out StaticAbilitySpec ability)
     {
-        if (CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability))
+        if (enteringIsUnit
+            && CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability))
         {
             return true;
         }
@@ -40975,12 +41179,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         out CardObjectState entryStaticAbilitySourceState,
         out StaticAbilitySpec entryStaticAbility)
     {
-        entersReadyFromStaticAbility = TryGetFriendlyUnitEnterReadyStaticAbilitySource(
+        return ApplyTokenEntryStaticAbility(
+            playerZones,
+            cardObjects,
+            controllerId,
+            tokenObjectId,
+            tokenState,
+            out entersReadyFromStaticAbility,
+            out entryStaticAbilitySourceObjectId,
+            out entryStaticAbilitySourceState,
+            out entryStaticAbility);
+    }
+
+    private static CardObjectState ApplyTokenEntryStaticAbility(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string tokenObjectId,
+        CardObjectState tokenState,
+        out bool entersReadyFromStaticAbility,
+        out string entryStaticAbilitySourceObjectId,
+        out CardObjectState entryStaticAbilitySourceState,
+        out StaticAbilitySpec entryStaticAbility)
+    {
+        var enteringIsUnit = tokenState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+        entersReadyFromStaticAbility = TryGetFriendlyEnterReadyStaticAbilitySource(
             playerZones,
             cardObjects,
             controllerId,
             tokenObjectId,
             tokenState.CardNo,
+            enteringIsUnit,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
             out entryStaticAbility);

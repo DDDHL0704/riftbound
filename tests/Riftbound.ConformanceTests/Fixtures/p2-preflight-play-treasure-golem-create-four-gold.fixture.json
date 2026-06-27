@@ -146,9 +146,10 @@
           "sourceObjectId": "P1-UNIT-TREASURE-GOLEM",
           "tokenObjectId": "P1-UNIT-TREASURE-GOLEM-TOKEN-001",
           "tokenName": "金币",
+          "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
         }
       },
       {
@@ -158,9 +159,10 @@
           "sourceObjectId": "P1-UNIT-TREASURE-GOLEM",
           "tokenObjectId": "P1-UNIT-TREASURE-GOLEM-TOKEN-002",
           "tokenName": "金币",
+          "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
         }
       },
       {
@@ -170,9 +172,10 @@
           "sourceObjectId": "P1-UNIT-TREASURE-GOLEM",
           "tokenObjectId": "P1-UNIT-TREASURE-GOLEM-TOKEN-003",
           "tokenName": "金币",
+          "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
         }
       },
       {
@@ -182,9 +185,10 @@
           "sourceObjectId": "P1-UNIT-TREASURE-GOLEM",
           "tokenObjectId": "P1-UNIT-TREASURE-GOLEM-TOKEN-004",
           "tokenName": "金币",
+          "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
         }
       }
     ],
@@ -227,20 +231,32 @@
           "isExhausted": false
         },
         "P1-UNIT-TREASURE-GOLEM-TOKEN-001": {
-          "tags": ["CARD_TYPE:EQUIPMENT"],
-          "isExhausted": true
+          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "isExhausted": true,
+          "cardNo": "SFD·T03",
+          "ownerId": "P1",
+          "controllerId": "P1"
         },
         "P1-UNIT-TREASURE-GOLEM-TOKEN-002": {
-          "tags": ["CARD_TYPE:EQUIPMENT"],
-          "isExhausted": true
+          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "isExhausted": true,
+          "cardNo": "SFD·T03",
+          "ownerId": "P1",
+          "controllerId": "P1"
         },
         "P1-UNIT-TREASURE-GOLEM-TOKEN-003": {
-          "tags": ["CARD_TYPE:EQUIPMENT"],
-          "isExhausted": true
+          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "isExhausted": true,
+          "cardNo": "SFD·T03",
+          "ownerId": "P1",
+          "controllerId": "P1"
         },
         "P1-UNIT-TREASURE-GOLEM-TOKEN-004": {
-          "tags": ["CARD_TYPE:EQUIPMENT"],
-          "isExhausted": true
+          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "isExhausted": true,
+          "cardNo": "SFD·T03",
+          "ownerId": "P1",
+          "controllerId": "P1"
         }
       }
     },

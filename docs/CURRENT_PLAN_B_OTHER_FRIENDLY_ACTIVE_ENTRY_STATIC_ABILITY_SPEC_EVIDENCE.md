@@ -29,9 +29,12 @@ Filtered token active-entry runtime:
 
 - `src/Riftbound.Engine/P6TokenFactoryCatalog.cs` exposes `IsTokenFactory`, covering unit / equipment / battlefield token factory identities without local card-number checks.
 - `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetFriendlyFilteredUnitsEnterReadyAbility`.
-- `src/Riftbound.Engine/CoreRuleEngine.cs` routes both `OTHER_FRIENDLY_UNITS_ENTER_READY` and `FRIENDLY_FILTERED_UNITS_ENTER_READY` through `TryGetFriendlyUnitEnterReadyStaticAbilitySource`.
-- `ApplyUnitTokenEntryStaticAbility` applies the same entry source scan to token factory unit entries and emits shared `entryStaticAbility*` audit metadata.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes `OTHER_FRIENDLY_UNITS_ENTER_READY` and `FRIENDLY_FILTERED_UNITS_ENTER_READY` through the same public-source scan, while keeping `OTHER_FRIENDLY_UNITS_ENTER_READY` unit-only.
+- `ApplyTokenEntryStaticAbility` applies the entry source scan to token factory unit and equipment entries and emits shared `entryStaticAbility*` audit metadata.
 - `tests/Riftbound.ConformanceTests/RenataTokenActiveEntryStaticAbilityTests.cs` proves public face-up Renata marks an Azir-created `SFD·T02` 黄沙士兵 token entry with `FRIENDLY_FILTERED_UNITS_ENTER_READY`, while face-down / standby Renata does not.
+- `tests/Riftbound.ConformanceTests/RenataTokenActiveEntryStaticAbilityTests.cs` now also proves public face-up Renata makes a Pyke-created `UNL·T05` Gold equipment token enter ready, while face-down / standby Renata leaves that Gold token exhausted and emits no entry-static metadata.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` resolves equipment token factory identity by token family plus source set, so UNL sources create `UNL·T05` Gold and SFD sources create `SFD·T03` Gold without local source-card branches.
+- Gold equipment token fixtures now expect official token identity payloads / states: `tokenCardNo=SFD·T03`, tags `[CARD_TYPE:EQUIPMENT, 反应, 金币]`, owner/controller, and exhausted state unless a valid entry-static ability changes it.
 - Adjacent token fixtures prove existing Azir, Viktor, battlefield held, Mechanical Trickster, Ironclad Vanguard, and Warhawk token routes still preserve token creation behavior.
 
 ## Validation Evidence
@@ -40,12 +43,16 @@ Filtered token active-entry runtime:
 - Focused post-implementation: 3/3 passed.
 - Adjacent CardCatalogBaseline / HasteReady / MatchRecovery regression: 2306/2306 passed.
 - Renata filtered token pre-implementation red: `RenataTokenActiveEntryStaticAbilityTests` failed at compile because `FRIENDLY_FILTERED_UNITS_ENTER_READY` / `TargetFilter` did not exist.
-- Renata filtered token focused post-implementation: 3/3 passed.
+- Renata filtered token focused post-implementation after unit-token support: 3/3 passed.
 - Renata / Molten / token factory adjacent regression: 335/335 passed.
-- Backend full after this slice: 8844/8844 passed.
+- Renata equipment-token pre-implementation red: `RenataMakesFriendlyEquipmentTokenEnterReadyFromStaticAbilitySpec` observed the Gold token still exhausted, and the face-down-source guard observed no `tokenCardNo` payload.
+- Renata equipment-token focused post-implementation: 5/5 passed.
+- Gold / trigger adjacent regression: 190/190 passed.
+- Conformance fixture runner after Gold token identity sync: 3108/3108 passed.
+- Backend full after this slice: 8846/8846 passed.
 
 ## Remaining Evidence Needed
 
 - Official-deck score-victory replay coverage for 熔浆巨龙 remains open.
-- Broader active-entry static ability families remain open: low-hand active entry, level-gated active entry, equipment / battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
+- Broader active-entry static ability families remain open: low-hand active entry, level-gated active entry, battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.

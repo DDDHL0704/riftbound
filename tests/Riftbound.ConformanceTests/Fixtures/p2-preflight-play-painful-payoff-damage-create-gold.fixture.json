@@ -147,9 +147,10 @@
           "sourceObjectId": "P1-SPELL-PAINFUL-PAYOFF",
           "tokenObjectId": "P1-SPELL-PAINFUL-PAYOFF-TOKEN-001",
           "tokenName": "金币",
+          "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
         }
       }
     ],
@@ -196,7 +197,10 @@
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true,
-          "tags": ["CARD_TYPE:EQUIPMENT"]
+          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "cardNo": "SFD·T03",
+          "ownerId": "P1",
+          "controllerId": "P1"
         }
       }
     },

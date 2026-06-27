@@ -15418,8 +15418,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-TREASURE-GOLEM"].Tags);
         foreach (var tokenObjectId in result.FinalState.PlayerZones["P1"].Base.Skip(1))
         {
-            Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects[tokenObjectId].Tags);
-            Assert.True(result.FinalState.CardObjects[tokenObjectId].IsExhausted);
+            var token = result.FinalState.CardObjects[tokenObjectId];
+            Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], token.Tags);
+            Assert.Equal("SFD·T03", token.CardNo);
+            Assert.True(token.IsExhausted);
         }
     }
 
@@ -27805,8 +27807,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(3, result.FinalState.CardObjects["P2-BATTLEFIELD-PAINFUL-PAYOFF-001"].Damage);
         Assert.Equal(["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
-        Assert.True(result.FinalState.CardObjects["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"].Tags);
+        var painfulPayoffGold = result.FinalState.CardObjects["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"];
+        Assert.True(painfulPayoffGold.IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], painfulPayoffGold.Tags);
+        Assert.Equal("SFD·T03", painfulPayoffGold.CardNo);
     }
 
     [Fact]
@@ -27823,8 +27827,10 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
-        Assert.True(result.FinalState.CardObjects["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"].Tags);
+        var jungleAmbushGold = result.FinalState.CardObjects["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"];
+        Assert.True(jungleAmbushGold.IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], jungleAmbushGold.Tags);
+        Assert.Equal("SFD·T03", jungleAmbushGold.CardNo);
     }
 
     [Fact]
