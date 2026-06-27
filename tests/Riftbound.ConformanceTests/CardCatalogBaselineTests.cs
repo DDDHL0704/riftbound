@@ -1832,19 +1832,31 @@ public sealed class CardCatalogBaselineTests
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
-        var ravenbloomStudent = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·103/298", StringComparison.Ordinal));
-        var trigger = Assert.Single(ravenbloomStudent.Triggers);
-        Assert.Equal(TriggerKinds.UnitSpellPlayedPowerModifier, trigger.Kind);
-        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
-        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
-        Assert.Equal(1, trigger.PowerDelta);
-        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
-        Assert.Null(trigger.MinimumPaidMana);
-        Assert.Contains("每当你打出一张法术牌时", trigger.Text, StringComparison.Ordinal);
-        Assert.Contains("本回合内{{S}}+1", trigger.Text, StringComparison.Ordinal);
-        Assert.Equal(
-            "Unit spell-play power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
-            trigger.Reason);
+        AssertUnitSpellPlayedPowerModifier("OGN·103/298", 1, "每当你打出一张法术牌时", "本回合内{{S}}+1");
+        AssertUnitSpellPlayedPowerModifier("UNL-149/219", 2, "每当你打出一个法术时", "本回合内{{S}}+2");
+        AssertUnitSpellPlayedPowerModifier("UNL-149a/219", 2, "每当你打出一个法术时", "本回合内{{S}}+2");
+
+        void AssertUnitSpellPlayedPowerModifier(
+            string cardNo,
+            int expectedPowerDelta,
+            string expectedTriggerText,
+            string expectedPowerText)
+        {
+            var spec = Assert.Single(specs, candidate => string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                spec.Triggers,
+                candidate => string.Equals(candidate.Kind, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+            Assert.Equal(expectedPowerDelta, trigger.PowerDelta);
+            Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+            Assert.Null(trigger.MinimumPaidMana);
+            Assert.Contains(expectedTriggerText, trigger.Text, StringComparison.Ordinal);
+            Assert.Contains(expectedPowerText, trigger.Text, StringComparison.Ordinal);
+            Assert.Equal(
+                "Unit spell-play power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+                trigger.Reason);
+        }
     }
 
     [Fact]

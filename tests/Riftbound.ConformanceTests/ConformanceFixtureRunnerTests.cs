@@ -26428,6 +26428,41 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("UNL-149/219")]
+    [InlineData("UNL-149a/219")]
+    public async Task CoreRuleEngineTriggersDianaUnitSpellPlayedPowerModifierWhenSpellPlayed(string dianaCardNo)
+    {
+        var state = DianaSpellTriggerState(dianaCardNo);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-diana-{dianaCardNo}-spell-trigger", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PRACTICAL-EXPERIENCE",
+                "UNL-031/219",
+                ["P2-BATTLEFIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var diana = result.State.CardObjects["P1-UNIT-DIANA"];
+        Assert.Equal(5, diana.Power);
+        Assert.Equal(2, diana.UntilEndOfTurnPowerModifier);
+        Assert.Contains(result.Events, evt =>
+            string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && evt.Payload.TryGetValue("trigger", out var trigger)
+            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal)
+            && evt.Payload.TryGetValue("triggerSourceObjectId", out var triggerSourceObjectId)
+            && string.Equals(triggerSourceObjectId as string, "P1-UNIT-DIANA", StringComparison.Ordinal)
+            && evt.Payload.TryGetValue("powerDelta", out var powerDelta)
+            && Equals(powerDelta, 2));
+        Assert.Contains(result.Events, evt =>
+            string.Equals(evt.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(evt.Payload["targetObjectId"] as string, "P1-UNIT-DIANA", StringComparison.Ordinal)
+            && Equals(evt.Payload["powerDelta"], 2)
+            && Equals(evt.Payload["resultingPower"], 5));
+    }
+
     [Fact]
     public async Task CoreRuleEngineSkipsRavenbloomStudentSpellTriggerWhenSourceIsStandby()
     {
@@ -68679,6 +68714,47 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-UNIT-RAVENBLOOM-STUDENT",
                     cardNo: "OGN·103/298",
                     power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-PRACTICAL-EXPERIENCE"] = new(
+                    "P1-SPELL-PRACTICAL-EXPERIENCE",
+                    cardNo: "UNL-031/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-001",
+                    cardNo: "UNL-097/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState DianaSpellTriggerState(string dianaCardNo)
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PRACTICAL-EXPERIENCE"],
+                    Base = ["P1-UNIT-DIANA"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-DIANA"] = new(
+                    "P1-UNIT-DIANA",
+                    cardNo: dianaCardNo,
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),

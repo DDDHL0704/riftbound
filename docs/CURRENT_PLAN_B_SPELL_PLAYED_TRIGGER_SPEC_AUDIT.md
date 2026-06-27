@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 OGS Lux / 光辉女郎 high-cost spell 代表触发，以及 Ravenbloom Student / 拉文布鲁姆学生 spell-play power 代表触发，从 `CoreRuleEngine` 的单卡专用 resolver 迁移到 BehaviorSpec 驱动的 spell-play trigger 路径。该切片覆盖单位来源的高费法术本回合战力修正、intro legend 来源的高费法术抽牌，以及单位来源的无阈值 spell-play 本回合战力修正；不改变 OGS Lux trigger queue 兼容 effectKind、Ravenbloom compatibility trigger id、恢复校验 payload 形状、完整 APNAP / `ORDER_TRIGGERS` 或完整 spell-play trigger breadth。
+本文件记录 Plan B 小切片：把 OGS Lux / 光辉女郎 high-cost spell 代表触发、Ravenbloom Student / 拉文布鲁姆学生 spell-play power 代表触发，以及 Diana / 黛安娜主卡与 alt A 的 spell-play power 代表触发，迁移或接入 BehaviorSpec 驱动的 spell-play trigger 路径。该切片覆盖单位来源的高费法术本回合战力修正、intro legend 来源的高费法术抽牌，以及单位来源的无阈值 spell-play 本回合战力修正；不改变 OGS Lux trigger queue 兼容 effectKind、Ravenbloom compatibility trigger id、恢复校验 payload 形状、Diana 伏击 / 反应打出流程、完整 APNAP / `ORDER_TRIGGERS` 或完整 spell-play trigger breadth。
 
 ## 1. Scope
 
@@ -25,6 +25,7 @@ Not changed:
 - `MatchRecovery` OGS Lux trigger queue compatibility validation
 - OGS Lux unit trigger queue effectKind `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3`
 - Ravenbloom Student compatibility trigger id `RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1`
+- Diana ambush / reaction hand-to-battlefield timing
 - spell stack / priority lifecycle
 - PaymentEngine paid-cost calculation
 - frontend runtime
@@ -38,8 +39,10 @@ Not changed:
 | Core no longer uses a Lux-specific spell-play resolver | `ResolveOgsLuxHighCostSpellPlayedTriggers` is removed; `CoreRuleEngine` calls `ResolveUnitHighCostSpellPowerModifierTriggers` and checks `SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger` / `TryGetLegendHighCostSpellDrawTrigger` | Accepted |
 | Runtime behavior remains covered | Existing Lux high-cost paid-cost representatives still use server-resolved paid mana: reduction below threshold does not trigger, Spellshield tax up to threshold triggers unit +3 and legend draw 1 | Accepted |
 | Official Ravenbloom Student spell-play power text parses into BehaviorSpec | `OGN·103/298` parses to `UNIT_SPELL_PLAYED_POWER_MODIFIER` with `Timing=BATTLEFIELD_SPELL_PLAYED`, `TargetScope=SOURCE_UNIT`, `PowerDelta=1`, and `Duration=UNTIL_END_OF_TURN` | Accepted |
+| Official Diana spell-play power text parses into BehaviorSpec | `UNL-149/219` and `UNL-149a/219` parse to `UNIT_SPELL_PLAYED_POWER_MODIFIER` with `Timing=BATTLEFIELD_SPELL_PLAYED`, `TargetScope=SOURCE_UNIT`, `PowerDelta=2`, and `Duration=UNTIL_END_OF_TURN` | Accepted |
 | Core no longer uses a Ravenbloom-specific spell-play resolver | `ResolveRavenbloomStudentSpellPlayedTriggers` is removed; `CoreRuleEngine` calls `ResolveUnitSpellPlayedPowerModifierTriggers` and checks `SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger` | Accepted |
 | Ravenbloom runtime behavior remains covered | Existing Ravenbloom representatives still trigger when the controller plays a spell, give the source unit +1 until end of turn, and skip standby sources | Accepted |
+| Diana runtime behavior is covered through the same resolver | `CoreRuleEngineTriggersDianaUnitSpellPlayedPowerModifierWhenSpellPlayed` proves both `UNL-149/219` and `UNL-149a/219` trigger from an already-controlled field unit when the controller plays a spell, read `PowerDelta=2` from BehaviorSpec, and apply +2 until end of turn | Accepted |
 | Hidden-info / recovery boundary | Opponent snapshots still hide drawn card identity; MatchRecovery adjacent representatives remain green while OGS Lux trigger queue effectKind compatibility is preserved | Accepted |
 | Complete spell-play trigger breadth | Jhin high-cost banish, battlefield spell-play triggers, full ordering, and optional choices remain residual | Residual, no full-official claim |
 
@@ -77,18 +80,35 @@ Ravenbloom Student follow-up adjacent:
 
 Result: 2361/2361 passed.
 
+Diana follow-up focused:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~UnitSpellPlayedPowerModifier|FullyQualifiedName~DianaUnitSpellPlayedPowerModifier|FullyQualifiedName~RavenbloomStudent" --nologo
+```
+
+Result: first failed before implementation because Diana parsed as generic `on-play` and runtime remained at 3 power; then 6/6 passed.
+
+Diana follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~UnitSpellPlayedPowerModifier|FullyQualifiedName~DianaUnitSpellPlayedPowerModifier|FullyQualifiedName~RavenbloomStudent|FullyQualifiedName~SpellPlayed|FullyQualifiedName~Diana|FullyQualifiedName~LuxHighCost|FullyQualifiedName~HighCostSpell|FullyQualifiedName~RealTriggerQueue|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery|FullyQualifiedName~TriggerSourceIdentityGuard" --nologo
+```
+
+Result: 2373/2373 passed.
+
 Full backend after this spell-play follow-up:
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8796/8796 passed.
+Result: 8798/8798 passed.
 
 ## 4. Residuals
 
 - `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` remains as compatibility effectKind for current recovery and replay tests.
-- `RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1` remains as compatibility trigger id for current Ravenbloom event/fixture tests.
+- `RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1` remains as compatibility trigger id for current no-threshold unit spell-play power event/fixture tests.
 - Jhin high-cost spell banish remains a separate future TriggerSpec migration candidate.
+- Diana ambush / reaction hand-to-battlefield timing remains outside this slice.
 - Complete simultaneous spell-play trigger ordering and APNAP remain open.
 - Project remains NOT READY.
