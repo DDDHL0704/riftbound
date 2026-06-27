@@ -39,10 +39,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string AkshanOrangeExtraEquipmentStealReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
     private const int AkshanStealEquipmentOrangePowerCost = 2;
-    private const string EmberMonkCardNo = "OGN·167/298";
     private const string EmberMonkStandbyTriggerSourceEffectKind = "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT";
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
-    private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";

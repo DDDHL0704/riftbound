@@ -59,6 +59,8 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, ArenaServiceCrewCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, EmberMonkCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(attackerState.CardNo, SharpshooterPirateCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string EmberMonkCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string SharpshooterPirateCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, KogmawCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UndercoverAgentCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, HonestBrokerCardNo", source, StringComparison.Ordinal);
