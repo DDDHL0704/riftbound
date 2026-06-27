@@ -42867,11 +42867,12 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-MOUNTAIN-APE-ELDER", StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "MOUNTAIN_APE_ELDER_BOON_READY", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitBoonGrantedReadySelf, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, TriggerKinds.UnitBoonGrantedReadySelf, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["grantingSourceObjectId"] as string, "P1-SPELL-SECRET-ART-MERCY", StringComparison.Ordinal));
         var readyEvent = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "MOUNTAIN_APE_ELDER_BOON_READY", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitBoonGrantedReadySelf, StringComparison.Ordinal));
         Assert.Equal("P1-UNIT-MOUNTAIN-APE-ELDER", readyEvent.Payload["sourceObjectId"]);
         Assert.Equal("P1-UNIT-MOUNTAIN-APE-ELDER", readyEvent.Payload["targetObjectId"]);
         Assert.Equal(true, readyEvent.Payload["wasExhausted"]);
@@ -42915,7 +42916,7 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-MOUNTAIN-APE-ELDER", StringComparison.Ordinal));
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "MOUNTAIN_APE_ELDER_BOON_READY", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitBoonGrantedReadySelf, StringComparison.Ordinal));
     }
 
     [Theory]

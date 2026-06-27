@@ -1739,6 +1739,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitBoonGrantedReadySelfTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var mountainApeElder = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·047/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            mountainApeElder.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitBoonGrantedReadySelf, StringComparison.Ordinal));
+        Assert.Equal(TriggerTimings.UnitBoonGranted, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.True(trigger.ReadiesSource);
+        Assert.Contains("当你给予我增益时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("让我变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit boon-granted ready-self trigger parsed for B5 routing; execution is available through shared unit boon-granted TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldCallRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4917,6 +4938,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("DunehornBeastCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("DunehornBeastBattlefieldHeldDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitBoonGrantedReadySelfTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("MountainApeElderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MountainApeElderBoonReadyEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

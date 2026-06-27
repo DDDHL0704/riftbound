@@ -423,8 +423,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseEquipmentTokenName: "金币",
         CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
         CreatedBaseEquipmentTokenIsExhausted: true);
-    private const string MountainApeElderCardNo = "SFD·047/221";
-    private const string MountainApeElderBoonReadyEffectKind = "MOUNTAIN_APE_ELDER_BOON_READY";
     private const string UnsungHeroCardNo = "SFD·167/221";
     private const string UnsungHeroLastBreathSourceEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
@@ -40857,7 +40855,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (ShouldReadyMountainApeElderAfterBoon(nextTargetState, stackItem.ControllerId))
+        if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
         {
             var wasExhausted = nextTargetState.IsExhausted;
             nextTargetState = nextTargetState with
@@ -40872,8 +40870,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = stackItem.ControllerId,
                     ["sourceObjectId"] = targetObjectId,
                     ["targetObjectId"] = targetObjectId,
+                    ["sourceCardNo"] = nextTargetState.CardNo,
                     ["grantingSourceObjectId"] = stackItem.SourceObjectId,
-                    ["effectKind"] = MountainApeElderBoonReadyEffectKind
+                    ["trigger"] = boonGrantedTrigger.Kind,
+                    ["effectKind"] = boonGrantedTrigger.Kind
                 }));
             nextBoonEvents.Add(new GameEvent(
                 "UNIT_READIED",
@@ -40886,7 +40886,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["grantingSourceObjectId"] = stackItem.SourceObjectId,
                     ["wasExhausted"] = wasExhausted,
                     ["isExhausted"] = false,
-                    ["reason"] = MountainApeElderBoonReadyEffectKind
+                    ["reason"] = boonGrantedTrigger.Kind
                 }));
         }
 
@@ -40895,10 +40895,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         return nextTargetState;
     }
 
-    private static bool ShouldReadyMountainApeElderAfterBoon(CardObjectState targetState, string playerId)
+    private static bool TryGetUnitBoonGrantedReadySelfTrigger(
+        CardObjectState targetState,
+        string playerId,
+        out TriggerSpec trigger)
     {
-        return string.Equals(targetState.CardNo, MountainApeElderCardNo, StringComparison.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId);
+        trigger = default!;
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
+            || !UnitBoonGrantedTriggerSpecRules.TryGetUnitBoonGrantedReadySelfTrigger(targetState.CardNo, out var candidate)
+            || !string.Equals(candidate.Timing, TriggerTimings.UnitBoonGranted, StringComparison.Ordinal)
+            || !string.Equals(candidate.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            || candidate.ReadiesSource != true)
+        {
+            return false;
+        }
+
+        trigger = candidate;
+        return true;
     }
 
     private static CardObjectState ApplyOgnFioraPowerfulKeywordTags(CardObjectState state)

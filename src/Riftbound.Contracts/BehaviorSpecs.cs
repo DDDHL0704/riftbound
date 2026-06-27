@@ -151,6 +151,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
+    public const string UnitBoonGrantedReadySelf =
+        "UNIT_BOON_GRANTED_READY_SELF";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -195,6 +197,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string UnitMoved = "UNIT_MOVED";
+    public const string UnitBoonGranted = "UNIT_BOON_GRANTED";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";

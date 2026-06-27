@@ -598,6 +598,21 @@ public static class TriggerParser
                 DrawCount: ParseChineseNumber(unitBattlefieldHeldDrawMatch.Groups[1].Value));
         }
 
+        var unitBoonGrantedReadySelfMatch = Regex.Match(
+            segment,
+            @"当你给予我增益时，让我变为活跃状态。?$",
+            RegexOptions.CultureInvariant);
+        if (unitBoonGrantedReadySelfMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitBoonGrantedReadySelf,
+                TriggerTimings.UnitBoonGranted,
+                segment,
+                "Unit boon-granted ready-self trigger parsed for B5 routing; execution is available through shared unit boon-granted TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                ReadiesSource: true);
+        }
+
         var unitConquestGrantSelfBoonMatch = Regex.Match(
             segment,
             @"当我被打出时、或当我征服一处战场时，给予我增益。?$",
