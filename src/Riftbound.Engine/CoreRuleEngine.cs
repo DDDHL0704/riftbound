@@ -523,11 +523,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
-    private const string RavenbloomStudentCardNo = "OGN·103/298";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
-    private const string RavenbloomStudentSpellTriggerSourceEffectKind = "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadySourceEffectKind = "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyAltSourceEffectKind = "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT";
@@ -537,14 +535,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
-    private static readonly CardBehaviorDefinition RavenbloomStudentSpellPowerBehavior = new(
-        RavenbloomStudentCardNo,
-        "拉文布鲁姆学生",
-        0,
-        RavenbloomStudentSpellPowerEffectKind,
-        0,
-        0,
-        PowerModifierAmount: 1);
     private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
         EclipseVanguardCardNo,
         "星蚀先锋",
@@ -5230,7 +5220,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem,
             events);
-        ResolveRavenbloomStudentSpellPlayedTriggers(
+        ResolveUnitSpellPlayedPowerModifierTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -33036,7 +33026,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static void ResolveRavenbloomStudentSpellPlayedTriggers(
+    private static void ResolveUnitSpellPlayedPowerModifierTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -33051,21 +33041,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && IsControlledFaceUpFieldUnitWithEffectKind(
-                    sourceState,
-                    RavenbloomStudentSpellTriggerSourceEffectKind))
+                && IsFaceUpNonStandbyUnit(sourceState)
+                && SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger(sourceState.CardNo, out var triggerSpec)
+                && IsUnitSpellPlayedPowerModifierTriggerSpec(triggerSpec))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
+            if (!SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger(
+                    sourceState.CardNo,
+                    out var triggerSpec)
+                || !IsUnitSpellPlayedPowerModifierTriggerSpec(triggerSpec))
+            {
+                continue;
+            }
+
+            var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+            var triggerBehavior = new CardBehaviorDefinition(
+                sourceState.CardNo ?? string.Empty,
+                "法术打出触发",
+                0,
+                RavenbloomStudentSpellPowerEffectKind,
+                0,
+                0,
+                PowerModifierAmount: powerDelta);
             var triggerStackItem = new StackItemState(
                 stackItemId: $"{sourceObjectId}:spell-played-power",
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
                 effectKind: RavenbloomStudentSpellPowerEffectKind,
-                cardNo: sourceState.CardNo ?? RavenbloomStudentCardNo);
+                cardNo: sourceState.CardNo);
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{playerId} 的拉文布鲁姆学生因法术打出获得战力",
+                $"{playerId} 的单位因法术打出获得战力",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
@@ -33073,17 +33080,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["triggerSourceObjectId"] = sourceObjectId,
                     ["playedCardNo"] = stackItem.CardNo,
                     ["playedSourceObjectId"] = stackItem.SourceObjectId,
-                    ["powerDelta"] = RavenbloomStudentSpellPowerBehavior.PowerModifierAmount
+                    ["powerDelta"] = powerDelta
                 }));
             cardObjects[sourceObjectId] = ApplyPowerModifier(
                 sourceState,
-                RavenbloomStudentSpellPowerBehavior,
+                triggerBehavior,
                 triggerStackItem,
                 sourceObjectId,
-                RavenbloomStudentSpellPowerBehavior.PowerModifierAmount,
+                powerDelta,
                 out var powerEvent);
             events.Add(powerEvent);
         }
+    }
+
+    private static bool IsUnitSpellPlayedPowerModifierTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta.GetValueOrDefault() != 0;
     }
 
     private static void ResolveUnitHighCostSpellPowerModifierTriggers(

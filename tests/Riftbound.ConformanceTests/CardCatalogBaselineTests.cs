@@ -1826,6 +1826,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitSpellPlayedPowerModifierTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var ravenbloomStudent = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·103/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(ravenbloomStudent.Triggers);
+        Assert.Equal(TriggerKinds.UnitSpellPlayedPowerModifier, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Null(trigger.MinimumPaidMana);
+        Assert.Contains("每当你打出一张法术牌时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合内{{S}}+1", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit spell-play power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesLegendHighCostSpellDrawTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4187,6 +4209,20 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SpellPlayedPowerTriggersDoNotUseRavenbloomSpecificResolver()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResolveRavenbloomStudentSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

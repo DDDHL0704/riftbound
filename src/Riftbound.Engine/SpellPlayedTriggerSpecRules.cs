@@ -8,6 +8,14 @@ internal static class SpellPlayedTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
+    public static bool TryGetUnitSpellPlayedPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitSpellPlayedPowerModifier,
+            out trigger);
+    }
+
     public static bool TryGetUnitHighCostSpellPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

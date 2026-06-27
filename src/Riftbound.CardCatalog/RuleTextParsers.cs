@@ -1552,6 +1552,23 @@ public static class TriggerParser
                 RecycleCount: 1);
         }
 
+        var unitSpellPlayedPowerMatch = Regex.Match(
+            segment,
+            @"每当你打出一张法术牌时，让我本回合内\{\{S\}\}\+(\d+)",
+            RegexOptions.CultureInvariant);
+        if (unitSpellPlayedPowerMatch.Success
+            && int.TryParse(unitSpellPlayedPowerMatch.Groups[1].Value, out var spellPlayedPowerDelta))
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitSpellPlayedPowerModifier,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Unit spell-play power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                PowerDelta: spellPlayedPowerDelta,
+                Duration: TriggerDurations.UntilEndOfTurn);
+        }
+
         var unitHighCostSpellPowerMatch = Regex.Match(
             segment,
             @"每当你打出费用不低于\{\{(\d+)\}\}的法术时，让我本回合内\{\{S\}\}\+(\d+)",
