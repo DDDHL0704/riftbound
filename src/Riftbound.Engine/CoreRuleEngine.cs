@@ -17678,13 +17678,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = legendConquestReadySelfTrigger.RunePools;
             combatEvents.AddRange(legendConquestReadySelfTrigger.Events);
-            var settConquerTrigger = ResolveSettLegendConquerReadyTrigger(
+            var legendConquestReadySelfNoCostTrigger = ResolveLegendConquestReadySelfTrigger(
                 playerZones,
                 cardObjects,
                 intent.PlayerId,
                 battlefieldId,
                 attackerObjectId);
-            combatEvents.AddRange(settConquerTrigger);
+            combatEvents.AddRange(legendConquestReadySelfNoCostTrigger);
             if (TryResolveLeblancLegendImageTrigger(
                     playerZones,
                     cardObjects,
@@ -20849,14 +20849,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         ]);
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSettLegendConquerReadyTrigger(
+    private static IReadOnlyList<GameEvent> ResolveLegendConquestReadySelfTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldId,
         string attackerObjectId)
     {
-        if (!TryGetExhaustedSettLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState))
+        if (!TryGetExhaustedLegendConquestReadySelfSource(
+                playerZones,
+                cardObjects,
+                playerId,
+                out var legendObjectId,
+                out var legendState,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            || trigger.LegendReadyCount is not 1
+            || trigger.ReadiesSource is not true)
         {
             return [];
         }
@@ -20870,13 +20880,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         [
             new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的腕豪因征服战场触发",
+                $"{playerId} 的传奇因征服战场触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["legendObjectId"] = legendObjectId,
                     ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = "BATTLEFIELD_CONQUERED_READY_LEGEND",
+                    ["trigger"] = trigger.Kind,
                     ["sourceObjectId"] = attackerObjectId,
                     ["battlefieldId"] = battlefieldId
                 }),
@@ -20887,7 +20897,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "BATTLEFIELD_CONQUERED_READY_LEGEND"
+                    ["reason"] = trigger.Kind
                 })
         ];
     }
@@ -21135,15 +21145,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryGetExhaustedSettLegend(
+    private static bool TryGetExhaustedLegendConquestReadySelfSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         out string legendObjectId,
-        out CardObjectState legendState)
+        out CardObjectState legendState,
+        out TriggerSpec trigger)
     {
         legendObjectId = string.Empty;
         legendState = new CardObjectState();
+        trigger = default!;
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -21152,7 +21164,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !LegendCardHasIdentity(candidate.CardNo, SettLegendIdentityId)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+                || !LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger(candidate.CardNo, out var triggerSpec)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -21160,6 +21173,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             legendObjectId = objectId;
             legendState = candidate;
+            trigger = triggerSpec;
             return true;
         }
 

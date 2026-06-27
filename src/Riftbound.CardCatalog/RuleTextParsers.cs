@@ -1121,6 +1121,22 @@ public static class TriggerParser
                 ReadiesSource: true);
         }
 
+        var legendConquestReadySelfMatch = Regex.Match(
+            segment,
+            @"当你征服一处战场时，让我变为活跃状态。?$",
+            RegexOptions.CultureInvariant);
+        if (legendConquestReadySelfMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.LegendConquestReadySelf,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Legend conquest ready-self trigger parsed for legend-trigger routing; execution is available through shared legend conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceLegend,
+                LegendReadyCount: 1,
+                ReadiesSource: true);
+        }
+
         var battlefieldConquerOverkillWarhawkMatch = Regex.Match(
             segment,
             @"当你征服此处时，如果你给敌方单位分配了不低于([0-9一两二三四五六七八九十]+)点的过量伤害，则打出一名([0-9一两二三四五六七八九十]+)\{\{S\}\}“([^”]+)”，它拥有\{\{([^}]+)\}\}",

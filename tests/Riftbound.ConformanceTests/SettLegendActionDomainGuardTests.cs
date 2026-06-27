@@ -242,7 +242,7 @@ public sealed class SettLegendActionDomainGuardTests
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_LEGEND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestReadySelf, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["legendObjectId"] as string, "P1-LEGEND-SETT-REPRINT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)

@@ -90,6 +90,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND";
     public const string LegendConquestPayReadySelf =
         "LEGEND_CONQUEST_PAY_1_READY_SELF";
+    public const string LegendConquestReadySelf =
+        "LEGEND_CONQUEST_READY_SELF";
     public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
         "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE";
     public const string BattlefieldConquerOverkillCreateWarhawk =
