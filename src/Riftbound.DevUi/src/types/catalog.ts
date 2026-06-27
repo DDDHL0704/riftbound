@@ -74,6 +74,7 @@ export type BehaviorSpec = {
     banishCount?: number | null;
     manaCost?: number | null;
     powerCost?: number | null;
+    powerCostTrait?: string | null;
     boonCount?: number | null;
     consumedBoonCount?: number | null;
     runeCallCount?: number | null;

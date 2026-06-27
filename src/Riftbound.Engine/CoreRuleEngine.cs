@@ -167,8 +167,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
-    private const string SfdFioraPowerfulReadySourceEffectKind = "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT";
-    private const string SfdFioraPowerfulReadyAltSourceEffectKind = "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
@@ -244,8 +242,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string IcevaleArcherAttackPaymentSourceEffectKind = "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT";
     private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
-    private const string SfdJaxWeaponAttachSourceEffectKind = "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
-    private const string SfdJaxWeaponAttachAltSourceEffectKind = "SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
     private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
@@ -1472,7 +1468,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
             || !TryGetAttachedArmamentForJax(cardObjects, playerZones, intent.PlayerId, sourceObjectId, equipmentObjectId, out var equipmentState))
         {
             return RejectWithCorePrompts(
@@ -1480,6 +1476,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "当前触发支付窗口的贾克斯或武装来源已不可用。",
                 ErrorCodes.InvalidTarget);
         }
+        var drawCount = trigger.DrawCount.GetValueOrDefault();
 
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
@@ -1523,7 +1520,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["equipmentObjectId"] = equipmentObjectId,
                     ["equipmentCardNo"] = equipmentState.CardNo,
-                    ["drawCount"] = 1,
+                    ["drawCount"] = drawCount,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
                 })
@@ -1534,7 +1531,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             state.PlayerScores,
             intent.PlayerId,
-            1,
+            drawCount,
             state.RngCursor,
             events);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -1565,14 +1562,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
             || !TryGetControlledVisibleFieldUnit(
                 playerZones,
                 cardObjects,
                 targetObjectId,
                 intent.PlayerId,
                 out var targetState)
-            || targetState.Power < PowerfulUnitPowerThreshold)
+            || targetState.Power < trigger.RequiredPowerThreshold.GetValueOrDefault())
         {
             return RejectWithCorePrompts(
                 state,
@@ -24601,11 +24598,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         out PendingPaymentState? pendingPayment)
     {
         pendingPayment = null;
-        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, playerId, sourceObjectId, out _)
+        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, playerId, sourceObjectId, out var trigger)
             || !TryGetAttachedArmamentForJax(cardObjects, playerZones, playerId, sourceObjectId, equipmentObjectId, out var equipmentState))
         {
             return false;
         }
+        var manaCost = trigger.ManaCost.GetValueOrDefault();
 
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -24616,7 +24614,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             TriggerPaymentWindow,
             playerId,
-            manaCost: 1,
+            manaCost: manaCost,
             legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
             reason: BuildJaxWeaponAttachPaymentReason(sourceObjectId, equipmentObjectId));
         events.Add(new GameEvent(
@@ -24631,11 +24629,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["equipmentCardNo"] = equipmentState.CardNo,
-                ["mana"] = 1,
+                ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
                 {
-                    ["mana"] = 1,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
@@ -24715,6 +24713,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return false;
         }
+        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, playerId, sourceObjectId, out var trigger)
+            || previousPower >= trigger.RequiredPowerThreshold.GetValueOrDefault()
+            || resultingPower < trigger.RequiredPowerThreshold.GetValueOrDefault())
+        {
+            return false;
+        }
+        var powerCost = trigger.PowerCost.GetValueOrDefault();
+        var powerCostTrait = trigger.PowerCostTrait ?? RuneTrait.Yellow;
 
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -24724,7 +24730,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             reason: SfdFioraPowerfulReadyEffectKind);
         var powerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
         {
-            [RuneTrait.Yellow] = 1
+            [powerCostTrait] = powerCost
         };
         var paymentResourceActionIds = SfdFioraPowerfulReadyPaymentResourceActionIds(
             playerZones,
@@ -24836,20 +24842,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string playerId,
         string sourceObjectId,
-        out CardObjectState sourceState)
+        out TriggerSpec trigger)
     {
-        sourceState = default!;
+        trigger = default!;
         if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
         {
             return false;
         }
 
-        sourceState = candidate;
-        return IsSfdFioraPowerfulReadySourceBehavior(sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+        return UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(candidate.CardNo, out trigger)
+            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             && IsObjectOnField(playerZones, sourceObjectId);
     }
 
@@ -24894,31 +24899,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(controllerId);
     }
 
-    private static bool IsSfdFioraPowerfulReadySourceBehavior(string? cardNo)
-    {
-        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdFioraPowerfulReadySourceEffectKind)
-            || CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdFioraPowerfulReadyAltSourceEffectKind);
-    }
-
     private static bool TryGetJaxWeaponAttachSource(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string playerId,
         string sourceObjectId,
-        out CardObjectState sourceState)
+        out TriggerSpec trigger)
     {
-        sourceState = default!;
+        trigger = default!;
         if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
         {
             return false;
         }
 
-        sourceState = candidate;
-        return IsJaxWeaponAttachSourceBehavior(sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+        return UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger(candidate.CardNo, out trigger)
+            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             && IsObjectOnField(playerZones, sourceObjectId);
     }
 
@@ -24943,12 +24941,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(candidate.AttachedToObjectId, sourceObjectId, StringComparison.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             && IsObjectOnField(playerZones, equipmentObjectId);
-    }
-
-    private static bool IsJaxWeaponAttachSourceBehavior(string? cardNo)
-    {
-        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdJaxWeaponAttachSourceEffectKind)
-            || CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdJaxWeaponAttachAltSourceEffectKind);
     }
 
     private static bool TryGetIcevaleArcherAttackSource(

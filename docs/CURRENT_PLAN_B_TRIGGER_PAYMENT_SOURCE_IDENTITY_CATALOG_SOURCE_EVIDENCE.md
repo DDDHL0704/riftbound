@@ -5,7 +5,7 @@
 
 This file records the concrete evidence for removing duplicated Fiora / Jax trigger-payment source card-number allow-lists from `CoreRuleEngine`.
 
-2026-06-26 supplement: this evidence also covered OGN Vayne conquer-recall and Icevale Archer attack-payment representative source identity at the catalog source-effect layer. 2026-06-27 update: Vayne conquer-recall has moved again to the B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec route; Icevale Archer attack-payment remains on the catalog source-effect route.
+2026-06-26 supplement: this evidence also covered OGN Vayne conquer-recall and Icevale Archer attack-payment representative source identity at the catalog source-effect layer. 2026-06-27 update: Vayne conquer-recall has moved again to the B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec route; Jax weapon-attach and Fiora powerful-ready have moved again to the unit trigger-payment `BehaviorSpec.Triggers` route recorded in `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_EVIDENCE.md`; Icevale Archer attack-payment remains on the catalog source-effect route.
 
 ## 1. Runtime Evidence
 

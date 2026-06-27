@@ -153,6 +153,10 @@ public static class TriggerKinds
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
         "UNIT_BOON_GRANTED_READY_SELF";
+    public const string UnitArmamentAttachedPayDraw =
+        "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
+    public const string UnitControlledUnitPowerfulPayPowerReady =
+        "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -198,6 +202,8 @@ public static class TriggerTimings
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string UnitMoved = "UNIT_MOVED";
     public const string UnitBoonGranted = "UNIT_BOON_GRANTED";
+    public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
+    public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
@@ -441,6 +447,7 @@ public sealed record TriggerSpec(
     int? BanishCount = null,
     int? ManaCost = null,
     int? PowerCost = null,
+    string? PowerCostTrait = null,
     int? BoonCount = null,
     int? AdditionalTriggerCount = null,
     int? ConsumedBoonCount = null,

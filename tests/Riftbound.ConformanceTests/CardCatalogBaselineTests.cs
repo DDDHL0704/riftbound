@@ -1760,6 +1760,48 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitTriggerPaymentTriggers()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        foreach (var cardNo in new[] { "SFD·119/221", "SFD·119a/221" })
+        {
+            var jax = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                jax.Triggers,
+                candidate => string.Equals(candidate.Kind, TriggerKinds.UnitArmamentAttachedPayDraw, StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.UnitArmamentAttached, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.FriendlyEquipment, trigger.TargetScope);
+            Assert.Equal(1, trigger.ManaCost);
+            Assert.Equal(1, trigger.DrawCount);
+            Assert.True(trigger.Optional);
+            Assert.Contains("当你为我贴附武装时", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        }
+
+        foreach (var cardNo in new[] { "SFD·180/221", "SFD·180a/221" })
+        {
+            var fiora = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                fiora.Triggers,
+                candidate => string.Equals(candidate.Kind, TriggerKinds.UnitControlledUnitPowerfulPayPowerReady, StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.ControlledUnitBecamePowerful, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.ControlledUnitOnField, trigger.TargetScope);
+            Assert.Equal(1, trigger.PowerCost);
+            Assert.Equal(RuneTrait.Yellow, trigger.PowerCostTrait);
+            Assert.Equal(5, trigger.RequiredPowerThreshold);
+            Assert.Equal(1, trigger.UnitReadyCount);
+            Assert.True(trigger.Optional);
+            Assert.Contains("当你控制的一名单位变为{{强力}}时", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("支付{{黄色}}", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("让其变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldCallRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

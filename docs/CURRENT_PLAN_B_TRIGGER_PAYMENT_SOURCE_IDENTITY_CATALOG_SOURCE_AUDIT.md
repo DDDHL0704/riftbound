@@ -9,6 +9,8 @@
 
 2026-06-27 补充：Vayne conquer-recall representative source identity 已进一步迁移到 B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec / `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)` 路径；`OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` 不再作为 `CoreRuleEngine` 的 Vayne trigger-payment source selector。Icevale Archer attack-payment 仍保留本文件记录的 catalog source-effect route。
 
+2026-06-27 补充：Jax weapon-attach 与 Fiora powerful-ready representative source identity 也已进一步迁移到 unit trigger-payment `BehaviorSpec.Triggers` 路径，审计入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再使用 `SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` / `SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` 或 `SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT` / `SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT` 作为 Jax / Fiora trigger-payment source selectors；Icevale Archer attack-payment 仍保留本文件记录的 catalog source-effect route。
+
 ## 1. Scope
 
 Changed:

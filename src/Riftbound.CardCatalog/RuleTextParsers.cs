@@ -952,6 +952,46 @@ public static class TriggerParser
                 ReadiesSource: true);
         }
 
+        var unitArmamentAttachedPayDrawMatch = Regex.Match(
+            segment,
+            @"当你为我贴附武装时，可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此抽([0-9一两二三四五六七八九十]+)张牌。?$",
+            RegexOptions.CultureInvariant);
+        if (unitArmamentAttachedPayDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitArmamentAttachedPayDraw,
+                TriggerTimings.UnitArmamentAttached,
+                segment,
+                "Unit armament-attached pay-draw trigger parsed for trigger-payment routing; execution is available through shared unit trigger-payment TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.FriendlyEquipment,
+                ManaCost: ParseChineseNumber(unitArmamentAttachedPayDrawMatch.Groups[1].Value),
+                DrawCount: ParseChineseNumber(unitArmamentAttachedPayDrawMatch.Groups[2].Value),
+                Optional: true);
+        }
+
+        var unitControlledUnitPowerfulPayReadyMatch = Regex.Match(
+            segment,
+            @"当你控制的一名单位变为\{\{强力\}\}时，你可以选择支付\{\{([^}]+)\}\}，以此让其变为活跃状态(?:。?（战力达到([0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",
+            RegexOptions.CultureInvariant);
+        if (unitControlledUnitPowerfulPayReadyMatch.Success
+            && TryParsePowerTrait(unitControlledUnitPowerfulPayReadyMatch.Groups[1].Value, out var powerTrait))
+        {
+            var requiredPowerThreshold = unitControlledUnitPowerfulPayReadyMatch.Groups[2].Success
+                ? ParseChineseNumber(unitControlledUnitPowerfulPayReadyMatch.Groups[2].Value)
+                : PowerfulUnitPowerThreshold;
+            return new TriggerSpec(
+                TriggerKinds.UnitControlledUnitPowerfulPayPowerReady,
+                TriggerTimings.ControlledUnitBecamePowerful,
+                segment,
+                "Unit controlled-unit becomes-powerful pay-power ready trigger parsed for trigger-payment routing; execution is available through shared unit trigger-payment TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField,
+                PowerCost: 1,
+                PowerCostTrait: powerTrait,
+                RequiredPowerThreshold: requiredPowerThreshold,
+                UnitReadyCount: 1,
+                Optional: true);
+        }
+
         var unitConquestDrawOrCallRuneMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌或召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
@@ -1775,6 +1815,22 @@ public static class TriggerParser
     private static int ParsePowerCostSymbols(string raw)
     {
         return Regex.Matches(raw, @"\{\{A\}\}", RegexOptions.CultureInvariant).Count;
+    }
+
+    private static bool TryParsePowerTrait(string raw, out string trait)
+    {
+        trait = raw.Trim() switch
+        {
+            "红色" => "red",
+            "绿色" => "green",
+            "蓝色" => "blue",
+            "橙色" => "orange",
+            "紫色" => "purple",
+            "黄色" => "yellow",
+            _ => string.Empty
+        };
+
+        return !string.IsNullOrWhiteSpace(trait);
     }
 
     private static string DetermineKind(string segment)
