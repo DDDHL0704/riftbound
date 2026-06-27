@@ -54,6 +54,7 @@ public sealed class FullGameEndToEndTests
     private const string BandleTreeBattlefieldCardNo = "OGN·278/298";
     private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
     private const string FrostHoldBattlefieldTurnStartDamageCardNo = "UNL-212/219";
+    private const string DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo = "UNL-209/219";
     private const string ImperialShrineBattlefieldConquerSandSoldierCardNo = "SFD·207/221";
     private const string HallOfLegendsBattlefieldConquerReadyLegendCardNo = "SFD·210/221";
     private const string RavenbloomConservatoryBattlefieldDefendRevealSpellCardNo = "SFD·215/221";
@@ -579,6 +580,39 @@ public sealed class FullGameEndToEndTests
             session,
             damaged,
             "b0-frost-hold-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesDuskpetalLabTurnStartDestroyDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldTurnStartDestroyDrawOpponentOfficialDeck(catalog);
+        var p2Deck = BuildBattlefieldTurnStartDestroyDrawOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldTurnStartDestroyDrawOpeningAsync(
+            "b0-full-game-duskpetal-lab-turn-start-destroy-draw-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldTurnStartDestroyDrawMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Equal("P1", current.State.ActivePlayerId);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+
+        var destroyedAndDrew = await EndTurnAsync(
+            session,
+            "P1",
+            "b0-duskpetal-lab-turn-start-destroy-draw");
+        AssertBattlefieldTurnStartDestroyDrawResolved(current, destroyedAndDrew);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            destroyedAndDrew,
+            "b0-duskpetal-lab-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
@@ -3816,6 +3850,62 @@ public sealed class FullGameEndToEndTests
             && gameEvent.Payload.TryGetValue("targetObjectId", out var targetObjectId)
             && targetObjectId is string destroyedObjectId
             && expectedTargetObjectIds.Contains(destroyedObjectId, StringComparer.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldTurnStartDestroyDrawResolved(
+        ResolutionResult beforeTurnStart,
+        ResolutionResult result)
+    {
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P2",
+            DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo);
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            beforeTurnStart.State,
+            "P2",
+            WildclawBeastmasterCardNo,
+            battlefieldObjectId)
+            ?? throw new InvalidOperationException("B0 Duskpetal Lab assertion could not locate the same-battlefield Wildclaw Beastmaster target.");
+        var offsiteObjectId = beforeTurnStart.State.PlayerZones["P2"].Battlefields.FirstOrDefault(objectId =>
+            beforeTurnStart.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, WildclawBeastmasterCardNo, StringComparison.Ordinal)
+            && beforeTurnStart.State.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 Duskpetal Lab assertion could not locate the offsite Wildclaw Beastmaster guard.");
+
+        var indexedEvents = result.Events
+            .Select((gameEvent, index) => (gameEvent, index))
+            .ToArray();
+        var triggerEntry = Assert.Single(indexedEvents, entry =>
+            string.Equals(entry.gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(entry.gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, StringComparison.Ordinal));
+        var triggerEvent = triggerEntry.gameEvent;
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
+        Assert.Equal(targetObjectId, triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
+        Assert.True((bool)triggerEvent.Payload["beforeScoring"]!);
+
+        var destroyEntry = Assert.Single(indexedEvents, entry =>
+            string.Equals(entry.gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(entry.gameEvent.Payload["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, destroyEntry.gameEvent.Payload["reason"]);
+        Assert.True(destroyEntry.index > triggerEntry.index);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations[targetObjectId].Zone);
+        Assert.Contains(targetObjectId, result.State.PlayerZones["P2"].Graveyard);
+
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations[offsiteObjectId].Zone);
+        Assert.DoesNotContain(offsiteObjectId, result.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains(offsiteObjectId, result.State.PlayerZones["P2"].Battlefields);
+
+        var firstP2DrawEntry = indexedEvents.First(entry =>
+            string.Equals(entry.gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(entry.gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.True(firstP2DrawEntry.index > destroyEntry.index);
+        Assert.Equal(1, firstP2DrawEntry.gameEvent.Payload["count"]);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -7126,6 +7216,45 @@ public sealed class FullGameEndToEndTests
 
         throw new InvalidOperationException(
             $"B0 Frost Hold opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldTurnStartDestroyDrawOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldAllUnitsStaticAuraDriverSeeds.Concat([(int)LowCurveReplaySeed]).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            try
+            {
+                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                    initialState,
+                    NoopMatchJournal.Instance,
+                    p1Deck,
+                    p2Deck);
+                var selectedBattlefieldCardNo = result.State.PlayerZones["P2"].Battlefields
+                    .Select(objectId => result.State.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.CardNo : null)
+                    .FirstOrDefault(cardNo => !string.IsNullOrWhiteSpace(cardNo));
+                if (string.Equals(
+                    selectedBattlefieldCardNo,
+                    DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo,
+                    StringComparison.Ordinal))
+                {
+                    return (initialState, result);
+                }
+
+                failures.Add($"{seed}: selected P2 battlefield {selectedBattlefieldCardNo ?? "<missing>"}");
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"B0 Duskpetal Lab opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldConquerSandSoldierOpeningAsync(
@@ -15122,6 +15251,40 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildBattlefieldTurnStartDestroyDrawOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                WildclawBeastmasterCardNo,
+                WildclawBeastmasterCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildBattlefieldTurnStartDestroyDrawOpponentOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                VexLegendCardNo,
+                VexChampionCardNo));
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -17090,6 +17253,78 @@ public sealed class FullGameEndToEndTests
             CardObjects = cardObjects,
             UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
                 .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldTurnStartDestroyDrawMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo, WildclawBeastmasterCardNo],
+                    new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P2",
+            DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo);
+        var offsiteBattlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P1");
+        var p2UnitObjectIds = midgameState.PlayerZones["P2"].Hand
+            .Where(objectId => midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, WildclawBeastmasterCardNo, StringComparison.Ordinal))
+            .TakeLast(2)
+            .ToArray();
+        Assert.Equal(2, p2UnitObjectIds.Length);
+        var targetObjectId = p2UnitObjectIds[0];
+        var offsiteObjectId = p2UnitObjectIds[1];
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p2Zones = playerZones["P2"];
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand
+                .Where(objectId => !p2UnitObjectIds.Contains(objectId, StringComparer.Ordinal))
+                .ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([targetObjectId, offsiteObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[targetObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+        objectLocations[offsiteObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", offsiteBattlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in p2UnitObjectIds)
+        {
+            cardObjects[objectId] = cardObjects[objectId] with
+            {
+                Damage = 0,
+                IsExhausted = false,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                Tags = ApplyRegisteredSourceUnitTags(cardObjects[objectId]),
+                OwnerId = "P2",
+                ControllerId = "P2"
+            };
+        }
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Append(BattlefieldTaskMarkers.BattleSkipped(offsiteBattlefieldId))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
         };

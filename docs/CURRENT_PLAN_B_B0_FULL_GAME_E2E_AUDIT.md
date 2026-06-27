@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Frost Hold turn-start damage score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 Duskpetal Lab turn-start destroy-draw score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -42,6 +42,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Poppy vs Vex opening state, a verified legal official-deck opening selects P2 `UNL-216/219` Piltover Academy, then starts a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield; the held path resolves the parsed `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO` marker, and a derived P2 neutral-open next-spell window plays official `UNL-007/219` Punishment with the granted Echo optional cost, resolves the repeated spell stack, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-212/219` Frost Hold, then starts a focused midgame main phase with both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield; server-authored `END_TURN` advances to P2 turn start, resolves parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, applies one pre-scoring damage to both same-battlefield units, and continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P2 `UNL-209/219` Duskpetal Lab, then starts a focused midgame main phase with one P2 official `UNL-057/219` Wildclaw Beastmaster at Duskpetal Lab and another P2 Wildclaw at a different battlefield; server-authored `END_TURN` advances to P2 turn start, resolves parsed `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, destroys only the same-battlefield controlled unit, draws one card before scoring, leaves the offsite controlled unit on the battlefield, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -264,6 +265,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Duskpetal Lab turn-start destroy-draw score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDeckMidgameResolvesDuskpetalLabTurnStartDestroyDraw"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Duskpetal Lab FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 78, Failed: 0, Skipped: 0, Total: 78
+```
+
+Latest Duskpetal Lab adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~Duskpetal|FullyQualifiedName~BattlefieldTurnStartDestroy|FullyQualifiedName~BattlefieldTurnStart|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2077, Failed: 0, Skipped: 0, Total: 2077
+```
+
+Latest Duskpetal Lab backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8834, Failed: 0, Skipped: 0, Total: 8834
+```
 
 Latest Piltover Academy held-next-spell Echo score-victory focused validation passed:
 
