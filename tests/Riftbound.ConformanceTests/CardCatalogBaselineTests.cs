@@ -1804,6 +1804,48 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitHighCostSpellPowerModifierTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var lux = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGS·006/024", StringComparison.Ordinal));
+        var trigger = Assert.Single(lux.Triggers);
+        Assert.Equal(TriggerKinds.UnitHighCostSpellPowerModifier, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(5, trigger.MinimumPaidMana);
+        Assert.Equal(3, trigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Contains("每当你打出费用不低于{{5}}的法术时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合内{{S}}+3", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit high-cost spell power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesLegendHighCostSpellDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var luxLegend = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGS·021/024", StringComparison.Ordinal));
+        var trigger = Assert.Single(luxLegend.Triggers);
+        Assert.Equal(TriggerKinds.LegendHighCostSpellDrawOne, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+        Assert.Equal(5, trigger.MinimumPaidMana);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Contains("每当你打出一张费用不低于{{5}}的法术时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Legend high-cost spell draw trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldPlayUnitBoonTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4130,6 +4172,21 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ResolveViLegendOverkillConquerTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HighCostSpellTriggersDoNotUseLuxSpecificResolver()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

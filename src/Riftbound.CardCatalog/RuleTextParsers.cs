@@ -1552,6 +1552,41 @@ public static class TriggerParser
                 RecycleCount: 1);
         }
 
+        var unitHighCostSpellPowerMatch = Regex.Match(
+            segment,
+            @"每当你打出费用不低于\{\{(\d+)\}\}的法术时，让我本回合内\{\{S\}\}\+(\d+)",
+            RegexOptions.CultureInvariant);
+        if (unitHighCostSpellPowerMatch.Success
+            && int.TryParse(unitHighCostSpellPowerMatch.Groups[1].Value, out var unitMinimumPaidMana)
+            && int.TryParse(unitHighCostSpellPowerMatch.Groups[2].Value, out var unitPowerDelta))
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitHighCostSpellPowerModifier,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Unit high-cost spell power modifier trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                PowerDelta: unitPowerDelta,
+                Duration: TriggerDurations.UntilEndOfTurn,
+                MinimumPaidMana: unitMinimumPaidMana);
+        }
+
+        var legendHighCostSpellDrawMatch = Regex.Match(
+            segment,
+            @"每当你打出一张费用不低于\{\{(\d+)\}\}的法术时，抽一张牌",
+            RegexOptions.CultureInvariant);
+        if (legendHighCostSpellDrawMatch.Success
+            && int.TryParse(legendHighCostSpellDrawMatch.Groups[1].Value, out var legendMinimumPaidMana))
+        {
+            return new TriggerSpec(
+                TriggerKinds.LegendHighCostSpellDrawOne,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Legend high-cost spell draw trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
+                MinimumPaidMana: legendMinimumPaidMana,
+                DrawCount: 1);
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",

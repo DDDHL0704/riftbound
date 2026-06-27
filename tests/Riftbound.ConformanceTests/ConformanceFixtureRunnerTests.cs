@@ -47100,7 +47100,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Single(result.State.StackItems);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "HIGH_COST_SPELL_DRAW_ONE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["playedCardNo"] as string, "OGN·114/298", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Null(result.State.WinnerPlayerId);

@@ -148,6 +148,10 @@ public static class TriggerKinds
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
+    public const string UnitHighCostSpellPowerModifier =
+        "UNIT_HIGH_COST_SPELL_POWER_MODIFIER";
+    public const string LegendHighCostSpellDrawOne =
+        "LEGEND_HIGH_COST_SPELL_DRAW_ONE";
     public const string UnitFriendlyDestroyedGainExperience =
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =

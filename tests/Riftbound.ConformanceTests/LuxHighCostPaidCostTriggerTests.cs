@@ -20,7 +20,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
     private const string LowerPrintedSpellEffectKind = "CRESCENT_STRIKE_DAMAGE_TARGET_4_OTHER_ENEMY_BATTLEFIELD_1";
     private const string SpellshieldTargetObjectId = "P2-ORNN-SPELLSHIELD-2";
     private const string LuxUnitHighCostEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
-    private const string LuxLegendHighCostTrigger = "HIGH_COST_SPELL_DRAW_ONE";
+    private const string LuxLegendHighCostTrigger = TriggerKinds.LegendHighCostSpellDrawOne;
     private const string RagingDrakeReductionEffectId =
         "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE";
 

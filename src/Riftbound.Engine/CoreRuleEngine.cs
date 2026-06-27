@@ -524,12 +524,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
-    private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string RavenbloomStudentSpellTriggerSourceEffectKind = "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT";
-    private const string OgsLuxHighCostSpellTriggerSourceEffectKind = "OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadySourceEffectKind = "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyAltSourceEffectKind = "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT";
@@ -547,14 +545,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         0,
         0,
         PowerModifierAmount: 1);
-    private static readonly CardBehaviorDefinition OgsLuxHighCostSpellPowerBehavior = new(
-        OgsLuxHighCostSpellCardNo,
-        "拉克丝",
-        0,
-        OgsLuxHighCostSpellPowerEffectKind,
-        0,
-        0,
-        PowerModifierAmount: 3);
     private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
         EclipseVanguardCardNo,
         "星蚀先锋",
@@ -5247,7 +5237,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem,
             events);
-        ResolveOgsLuxHighCostSpellPlayedTriggers(
+        ResolveUnitHighCostSpellPowerModifierTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -5274,22 +5264,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.AddRange(battlefieldInsightResult.Events);
         rngCursor = battlefieldInsightResult.RngCursor;
 
-        if (TryGetLuxHighCostSpellDrawCardNo(
+        if (TryGetLegendHighCostSpellDrawTriggerSource(
                 playerZones,
                 cardObjects,
                 intent.PlayerId,
                 behavior,
                 plan.TotalManaCost,
-                out var luxLegendCardNo))
+                out var highCostSpellLegendCardNo,
+                out var highCostSpellDrawTrigger))
         {
             events.Add(new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 的光辉女郎高费法术触发",
+                $"{intent.PlayerId} 的传奇高费法术触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["legendCardNo"] = luxLegendCardNo,
-                    ["trigger"] = "HIGH_COST_SPELL_DRAW_ONE",
+                    ["legendCardNo"] = highCostSpellLegendCardNo,
+                    ["trigger"] = highCostSpellDrawTrigger.Kind,
                     ["playedCardNo"] = command.CardNo,
                     ["playedCardManaCost"] = behavior.ManaCost
                 }));
@@ -5298,7 +5289,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 playerScores,
                 intent.PlayerId,
-                1,
+                highCostSpellDrawTrigger.DrawCount.GetValueOrDefault(),
                 rngCursor,
                 events);
             playerScores = luxDrawApplication.PlayerScores;
@@ -28851,16 +28842,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryGetLuxHighCostSpellDrawCardNo(
+    private static bool TryGetLegendHighCostSpellDrawTriggerSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         CardBehaviorDefinition playedBehavior,
         int paidMana,
-        out string cardNo)
+        out string sourceCardNo,
+        out TriggerSpec trigger)
     {
-        cardNo = LuxIntroLegendCardNo;
-        if (!IsHighCostSpellForLux(playedBehavior, paidMana)
+        sourceCardNo = string.Empty;
+        trigger = default!;
+        if (!IsSpellPlayBehavior(playedBehavior)
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -28869,9 +28862,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (cardObjects.TryGetValue(objectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, LuxIntroLegendIdentityId))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
+                && SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger(legendState.CardNo, out var triggerSpec)
+                && IsLegendHighCostSpellDrawTriggerSpec(triggerSpec)
+                && paidMana >= triggerSpec.MinimumPaidMana.GetValueOrDefault()
+                && triggerSpec.DrawCount.GetValueOrDefault() > 0)
             {
-                cardNo = legendState.CardNo ?? LuxIntroLegendCardNo;
+                sourceCardNo = legendState.CardNo ?? string.Empty;
+                trigger = triggerSpec;
                 return true;
             }
         }
@@ -28879,10 +28877,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool IsHighCostSpellForLux(CardBehaviorDefinition behavior, int paidMana)
+    private static bool IsLegendHighCostSpellDrawTriggerSpec(TriggerSpec trigger)
     {
-        return paidMana >= 5
-            && IsSpellPlayBehavior(behavior);
+        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 
     private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
@@ -29257,13 +29257,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return IsFaceUpNonStandbyUnitWithEffectKind(sourceState, sourceEffectKind);
     }
 
+    private static bool IsFaceUpNonStandbyUnit(CardObjectState sourceState)
+    {
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+    }
+
     private static bool IsFaceUpNonStandbyUnitWithEffectKind(
         CardObjectState sourceState,
         string sourceEffectKind)
     {
-        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+        return IsFaceUpNonStandbyUnit(sourceState)
             && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind);
     }
 
@@ -33081,7 +33086,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static void ResolveOgsLuxHighCostSpellPlayedTriggers(
+    private static void ResolveUnitHighCostSpellPowerModifierTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -33090,19 +33095,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         int paidMana,
         List<GameEvent> events)
     {
-        if (!IsHighCostSpellForLux(behavior, paidMana))
+        if (!IsSpellPlayBehavior(behavior))
         {
             return;
         }
 
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && IsControlledFaceUpFieldUnitWithEffectKind(
-                    sourceState,
-                    OgsLuxHighCostSpellTriggerSourceEffectKind))
+                && IsFaceUpNonStandbyUnit(sourceState)
+                && SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceState.CardNo, out var triggerSpec)
+                && IsUnitHighCostSpellPowerModifierTriggerSpec(triggerSpec)
+                && paidMana >= triggerSpec.MinimumPaidMana.GetValueOrDefault())
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
+            if (!SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(
+                    sourceState.CardNo,
+                    out var triggerSpec)
+                || !IsUnitHighCostSpellPowerModifierTriggerSpec(triggerSpec))
+            {
+                continue;
+            }
+
+            var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+            var triggerBehavior = new CardBehaviorDefinition(
+                sourceState.CardNo ?? string.Empty,
+                "高费法术触发",
+                0,
+                OgsLuxHighCostSpellPowerEffectKind,
+                0,
+                0,
+                PowerModifierAmount: powerDelta);
             var trigger = new TriggerQueueItemState(
                 $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKind}",
                 playerId,
@@ -33114,19 +33137,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
                 effectKind: OgsLuxHighCostSpellPowerEffectKind,
-                cardNo: sourceState.CardNo ?? OgsLuxHighCostSpellCardNo);
+                cardNo: sourceState.CardNo);
 
             events.Add(BuildTriggerQueuedEvent(trigger));
             events.Add(BuildTriggerResolvedEvent(trigger));
             cardObjects[sourceObjectId] = ApplyPowerModifier(
                 sourceState,
-                OgsLuxHighCostSpellPowerBehavior,
+                triggerBehavior,
                 triggerStackItem,
                 sourceObjectId,
-                OgsLuxHighCostSpellPowerBehavior.PowerModifierAmount,
+                powerDelta,
                 out var powerEvent);
             events.Add(powerEvent);
         }
+    }
+
+    private static bool IsUnitHighCostSpellPowerModifierTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitHighCostSpellPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.PowerDelta.GetValueOrDefault() != 0;
     }
 
     private static void ResolveArenaServiceCrewEquipmentPlayedTriggers(
