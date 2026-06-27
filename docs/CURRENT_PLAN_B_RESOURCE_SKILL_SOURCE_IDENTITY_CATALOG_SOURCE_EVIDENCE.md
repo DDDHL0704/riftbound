@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for routing Blue Sentinel delayed resource-skill source identity, Lux spell-only resource-skill source identity, and Jhin movement resource-skill source identity through the activated/resource ability source-card group helper instead of direct card-number equality.
+This file records concrete evidence for routing Blue Sentinel delayed resource-skill source identity, Lux spell-only resource-skill source identity, and Jhin movement resource-skill source identity through the activated/resource ability source-card group helper instead of direct card-number equality, plus evidence that Jhin's official alt-A card number shares the same movement resource ability source group.
 
 ## Runtime Evidence
 
@@ -15,7 +15,8 @@ This file records concrete evidence for routing Blue Sentinel delayed resource-s
 - `MatchRecovery.ExpectedSourceCardNoLabelForAbilityId` builds source-card diagnostic labels from `P4ActivatedAbilityCatalog.SourceCardNosForAbility`, so the current single-card message remains `UNL-087/219` while future source groups do not need a recovery-code change.
 - `CoreRuleEngine.BuildJhinMovementResourceTrigger` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, sourceState.CardNo)`.
 - `MatchRecovery.ValidateTriggerQueueJhinMovementResourceContext` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, sourceCardNo)`.
-- Jhin recovery expected source-card diagnostics now flow through `MatchRecovery.ExpectedSourceCardNoLabelForAbilityId`, preserving the current single-card message while avoiding a recovery-code change if the ability row's source-card group changes later.
+- `P4ActivatedAbilityCatalog.SourceCardNosForAbility(JhinMoveResourceAbilityId)` now returns `UNL-022/219` and official alt-A `UNL-022a/219`.
+- Jhin recovery expected source-card diagnostics now flow through `MatchRecovery.ExpectedSourceCardNoLabelForAbilityId`, so the expected label updates to `UNL-022/219 or UNL-022a/219` without a recovery-code branch.
 - `CoreRuleEngine.CanUseLuxSpellOnlyResourceSource` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.LuxResourceAbilityId, sourceState.CardNo)`.
 - `MatchSession.CanPromptLuxSpellOnlyResourceSource` uses `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.LuxResourceAbilityId, cardObject.CardNo)`.
 
@@ -35,7 +36,10 @@ Coverage:
 - Adjacent `MatchRecovery` coverage keeps recovered/spectator trigger queue context validation green.
 - `CatalogExposesJhinMovementResourceSkill` keeps the catalog row evidence for `JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER`.
 - `JhinMovementSourceIdentityUsesAbilitySourceCardGroup` blocks direct `sourceState.CardNo` / `sourceCardNo` comparisons to `P4ActivatedAbilityCatalog.JhinCardNo` in Core and MatchRecovery, and requires `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId` in both files.
+- `JhinMovementResourceSourceGroupIncludesAltArt` locks the source-card group to include both `UNL-022/219` and `UNL-022a/219`.
+- `JhinAltMovementResourceSkillGainsManaAndPaymentOnlyPower` proves official alt-A Jhin now creates the same server-captured movement resource trigger and resolves to the same generated mana plus payment-only power.
 - Existing Jhin focused tests still cover server-captured movement trigger creation, prompt metadata, generated mana/power materialization, no-stack resource resolution, stale prompt replay, hidden/standby/wrong-controller/wrong-location guards, and payment-only lifecycle.
+- Adjacent `MatchRecovery` Jhin source-card drift tests now derive the expected label from `SourceCardNosForAbility`, preserving spectator and authoritative recovery validation.
 - `CatalogExposesLuxSpellOnlyResourceSkill` keeps the catalog row evidence for `LUX_REACTION_SPELL_ONLY_GAIN_2_POWER`.
 - `LuxSpellOnlySourceIdentityUsesAbilitySourceCardGroup` blocks direct `sourceState.CardNo` / `cardObject.CardNo` comparisons to `P4ActivatedAbilityCatalog.LuxCardNo` in Core and MatchSession, and requires `P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId` in both files.
 - Existing Lux focused tests still cover spell-only power generation, spell payment consumption, non-spell rejection, source exhaust, source visibility/location/controller guards, payment-only lifecycle, and prompt source filtering.
@@ -55,6 +59,12 @@ Result: failed before implementation on direct `sourceState.CardNo` / `P4Activat
 Result: failed before implementation on direct `sourceState.CardNo` / `P4ActivatedAbilityCatalog.JhinCardNo`, then 1/1 passed after implementation.
 
 ```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~JhinMovementResourceSourceGroupIncludesAltArt|FullyQualifiedName~JhinAltMovementResourceSkillGainsManaAndPaymentOnlyPower" --nologo
+```
+
+Result: failed before implementation because `SourceCardNosForAbility` returned only `UNL-022/219` and alt-A movement produced no trigger, then 2/2 passed after implementation.
+
+```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LuxSpellOnlySourceIdentityUsesAbilitySourceCardGroup" --nologo
 ```
 
@@ -70,7 +80,7 @@ Result: 2701/2701 passed.
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~JhinMovementResourceSkillTests|FullyQualifiedName~MatchRecovery|FullyQualifiedName~PaymentEngineCoverageAuditTests" --nologo
 ```
 
-Result: 2703/2703 passed.
+Result: 2705/2705 passed.
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LuxResourceSkillTests|FullyQualifiedName~PaymentEngineCoverageAuditTests|FullyQualifiedName~MatchRecovery" --nologo
@@ -82,8 +92,8 @@ Result: 2698/2698 passed.
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8774/8774 passed.
+Result: 8776/8776 passed.
 
 ## Non-Closure Statement
 
-This evidence does not close complete resource-skill official breadth, complete ability source-card group cardinality for alternate arts/reprints, complete PaymentEngine / PAY_COST matrix, complete recovery payload breadth, frontend final validation, full official card matrix, or READY.
+This evidence does not close complete resource-skill official breadth, remaining ability source-card group cardinality for other alternate arts/reprints, complete PaymentEngine / PAY_COST matrix, complete recovery payload breadth, frontend final validation, full official card matrix, or READY.

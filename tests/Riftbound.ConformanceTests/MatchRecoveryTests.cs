@@ -12483,7 +12483,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"snapshot for alice timing trigger queue item jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in objects; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
+                $"snapshot for alice timing trigger queue item jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {JhinMoveResourceExpectedSourceCardNoLabel()} in objects; expected {JhinMoveResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -34521,7 +34521,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
+                $"authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {JhinMoveResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {JhinMoveResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156773,7 +156773,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
+                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {JhinMoveResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {JhinMoveResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156898,7 +156898,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
+                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {JhinMoveResourceExpectedSourceCardNoLabel()} in authoritative state object registry; expected {JhinMoveResourceExpectedSourceCardNoLabel()} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -200383,6 +200383,15 @@ public sealed class MatchRecoveryTests
     private static JsonElement RawDevSeedCommand(string scenarioId)
     {
         return JsonDocument.Parse($$"""{"cmdType":"DEV_SEED_SCENARIO","scenarioId":"{{scenarioId}}"}""").RootElement.Clone();
+    }
+
+    private static string JhinMoveResourceExpectedSourceCardNoLabel()
+    {
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
+            out var definition));
+
+        return string.Join(" or ", P4ActivatedAbilityCatalog.SourceCardNosForAbility(definition));
     }
 
     private sealed class FixedRecoveryStore(MatchRecoveryFrame? frame) : IMatchRecoveryStore

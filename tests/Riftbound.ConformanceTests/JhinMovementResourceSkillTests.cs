@@ -29,6 +29,17 @@ public sealed class JhinMovementResourceSkillTests
     }
 
     [Fact]
+    public void JhinMovementResourceSourceGroupIncludesAltArt()
+    {
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
+            out var ability));
+
+        Assert.Contains(P4ActivatedAbilityCatalog.JhinCardNo, P4ActivatedAbilityCatalog.SourceCardNosForAbility(ability));
+        Assert.Contains(P4ActivatedAbilityCatalog.JhinAltACardNo, P4ActivatedAbilityCatalog.SourceCardNosForAbility(ability));
+    }
+
+    [Fact]
     public void JhinMovementSourceIdentityUsesAbilitySourceCardGroup()
     {
         var repositoryRoot = RepositoryRoot();
@@ -107,6 +118,24 @@ public sealed class JhinMovementResourceSkillTests
         Assert.Equal([triggerChoice.Id], requiredOptionalCosts);
 
         AssertNoJhinResourceSkill(moved.Prompts["P2"]);
+    }
+
+    [Fact]
+    public async Task JhinAltMovementResourceSkillGainsManaAndPaymentOnlyPower()
+    {
+        var moved = await MoveJhinAsync(BuildJhinBaseState(P4ActivatedAbilityCatalog.JhinAltACardNo));
+        Assert.True(moved.Accepted, moved.ErrorMessage);
+
+        var trigger = Assert.Single(moved.State.TriggerQueue);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, trigger.EffectKind);
+        Assert.Equal(JhinObjectId, trigger.SourceObjectId);
+
+        var activated = await ActivateJhinAsync(moved.State, [JhinTriggerChoice(moved.State)]);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, activated.State.RunePools["P1"].Mana);
+        var temporaryResource = AssertSingleJhinTemporaryResource(activated.State);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, temporaryResource.RemainingPower);
     }
 
     [Fact]
@@ -755,7 +784,7 @@ public sealed class JhinMovementResourceSkillTests
         }
     }
 
-    private static MatchState BuildJhinBaseState()
+    private static MatchState BuildJhinBaseState(string cardNo = P4ActivatedAbilityCatalog.JhinCardNo)
     {
         return new MatchState(
             roomId: "jhin-movement-resource-skill-test",
@@ -789,7 +818,7 @@ public sealed class JhinMovementResourceSkillTests
             {
                 [JhinObjectId] = new(
                     JhinObjectId,
-                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    cardNo: cardNo,
                     power: 4,
                     tags: [CardObjectTags.UnitCard, "法盾", "游走"],
                     ownerId: "P1",

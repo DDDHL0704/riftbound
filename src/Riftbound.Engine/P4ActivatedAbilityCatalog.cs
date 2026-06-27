@@ -72,6 +72,7 @@ public static class P4ActivatedAbilityCatalog
     public const int DragonSoulSageGeneratedMana = 1;
 
     public const string JhinCardNo = "UNL-022/219";
+    public const string JhinAltACardNo = "UNL-022a/219";
     public const string JhinMoveResourceAbilityId = "JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER";
     public const string JhinMoveResourceAbilityEffectKind = "JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER";
     public const int JhinMoveResourceGeneratedMana = 1;
@@ -778,6 +779,8 @@ public static class P4ActivatedAbilityCatalog
                 ? [AzirCardNo, AzirAltCardNo]
             : string.Equals(definition.AbilityId, EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
                 ? [EzrealBlueSwiftCardNo, EzrealBlueSwiftAltCardNo, EzrealBlueSwiftPromoCardNo]
+            : string.Equals(definition.AbilityId, JhinMoveResourceAbilityId, StringComparison.Ordinal)
+                ? [JhinCardNo, JhinAltACardNo]
                 : [definition.SourceCardNo];
     }
 
