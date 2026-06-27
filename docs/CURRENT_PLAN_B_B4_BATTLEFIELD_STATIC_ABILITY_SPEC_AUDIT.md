@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 prevent unit-play official-deck rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B4 extra-standby official-deck rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -39,6 +39,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `CoreRuleEngine` spell/skill damage resolution now reads `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` branch, and uses `Amount` for the damage modifier.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` path through legal official Jhin vs Vex deck submission/opening, official `UNL-007/219` Punishment stack resolution, `DAMAGE_APPLIED.damage=4`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` `HIDE_CARD` battlefield destination validation now reads `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldExtraStandbyCardNo` / `BattlefieldExtraStandbyAltCardNo` branch.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` guard through legal official Poppy deck submission/opening without Bandle Tree, server-authored `HIDE_CARD` prompt destination filtering, rejected direct `HIDE_CARD` to `BATTLEFIELD:<non-Bandle battlefield>`, no-mutation state hash, score victory, and final-state action-log replay that includes the rejected command.
 - `CoreRuleEngine` battle-destroyed recall replacement now reads `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldDestroyedInBattleRecallCardNo` branch, and uses `Amount` for the mana payment.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` path through legal official Vex vs Rumble deck submission/opening, P2 `UNL-206/219` Blood Altar selection, real `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE`, 3-mana payment, replacement recall to base, score victory, and final-state action-log replay.
 - `CoreRuleEngine` battlefield-granted legend armament attach action now requires the player to control a battlefield whose `BehaviorSpec.StaticAbilities` includes `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`, instead of requiring `SFD·208/221` through `BattlefieldGrantLegendAttachArmamentCardNo` / `RequiredControlledBattlefieldCardNo`.
@@ -56,6 +57,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest extra-standby official-deck rejected-command replay focused validation: passed `1/1`;
+- latest BandleTree / BattlefieldExtraStandby / HideCard / Standby / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2506/2506`;
+- backend full conformance after the extra-standby replay increment: passed `8864/8864`;
 - latest prevent unit-play official-deck rejected-command replay focused validation: passed `1/1`;
 - latest prevent unit-play / PlayCard / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2689/2689`;
 - backend full conformance after the prevent unit-play replay increment: passed `8863/8863`;

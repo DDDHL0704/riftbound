@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 prevent unit-play rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B0 battlefield extra-standby rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -28,6 +28,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex initial state, the full Shadow `DECLARE_BATTLE` -> `ACTIVATE_ABILITY` -> stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Poppy standby initial state, the full `HIDE_CARD` -> `REVEAL_CARD` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Poppy / Bandle Tree initial state, the full `HIDE_CARD` to `BATTLEFIELD:<Bandle Tree>` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while the battlefield standby card remains face-down;
+- from a seated official Poppy initial state without Bandle Tree, a direct rejected `HIDE_CARD` to `BATTLEFIELD:<non-Bandle battlefield>` records `ErrorCodes.InvalidTarget`, no events, unchanged hand/rune/location state, then the same command stream continues through non-standby battle, score victory, and action-log replay to the same final state hash;
 - from a seated official Poppy / Garen / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGS·013/024` Garen's `BehaviorSpec.StaticAuras` projection gives `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
 - from a seated official Darius initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `SFD·236/221` Darius's `BehaviorSpec.StaticAuras` projection gives `SFD·006/221` Aggressive Dragonhound `staticPowerBonus=1`;
 - from a seated official Rumble initial state, an official `SFD·022/221` Long Sword is staged as friendly public field equipment, then the full `PLAY_CARD` / `MOVE_UNIT` staging -> friendly-equipment count-to-source static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `SFD·085/221` Ornn's `BehaviorSpec.StaticAuras` projection recomputes Ornn from printed 4 power to effective 5 power without adding a separate `staticPowerBonus`;
@@ -127,6 +128,8 @@ This battle-prompt replay slice also adds no runtime rule changes. It extends th
 This standby hide/reveal replay slice adds no runtime rule changes. It extends the seated-room action-log recovery check into explicit standby prompt coverage: a legal official Poppy deck hides official `OGN·135/298` Pakaa Cub through server-authored `HIDE_CARD` with `STANDBY_A`, verifies the `CARD_HIDDEN` payload does not expose `cardNo`, reveals the same object through `REVEAL_CARD` with `STANDBY_REVEAL_0`, then continues through the existing non-standby battle / score-victory route. The test driver now writes replayable raw payloads for `HIDE_CARD` and `REVEAL_CARD`.
 
 This battlefield extra-standby replay slice adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck whose battlefields include official `OGN·278/298` Bandle Tree. The driver uses the normal official opening seed path until the active standby player controls Bandle Tree and has official `OGN·135/298` Pakaa Cub in hand, submits server-authored `HIDE_CARD` with destination `BATTLEFIELD:<Bandle Tree>`, verifies `CARD_HIDDEN.destinationZone = BATTLEFIELD` without `cardNo`, keeps the hidden card face-down at that battlefield, then continues through non-standby battle and score-victory replay. This slice deliberately does not model battlefield standby reveal breadth.
+
+This battlefield extra-standby rejection replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy standby deck whose battlefields intentionally omit Bandle Tree. The driver uses the normal official opening seed path until the active standby player has official `OGN·135/298` Pakaa Cub in hand, confirms the server-authored `HIDE_CARD` prompt does not expose the selected `BATTLEFIELD:<non-Bandle battlefield>` destination, submits that direct command anyway, verifies `ErrorCodes.InvalidTarget`, the Bandle Tree control error message, no events, unchanged state hash, unchanged rune pool and unchanged hand location, then continues through non-standby battle and score-victory replay with the rejected command in the journal. This deliberately covers the command-side guard and replay behavior; it does not model battlefield standby reveal or complete extra-standby cleanup breadth.
 
 This same-battlefield static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `OGS·013/024` Garen and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, moves both friendly units to the same battlefield through server commands, verifies Garen projects `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` to the Envoy via `BehaviorSpec.StaticAuras`, declares battle with the Envoy, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score victory and action-log replay.
 
@@ -311,6 +314,8 @@ This prevent move-to-base increment additionally proves a legal official Vex dec
 
 This prevent unit-play increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven battlefield static restriction into server-authored `PLAY_CARD` destination filtering, reject a direct unit play to that battlefield before payment / stack mutation, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close complete play destination policy, complete timing-window breadth, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This extra-standby rejection increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` guard into server-authored `HIDE_CARD` destination filtering, reject a direct hand-written battlefield standby destination when the player does not control Bandle Tree, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close battlefield standby reveal / cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
 Open follow-up:
@@ -320,6 +325,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest extra-standby official-deck rejected-command replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTree"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest extra-standby / standby / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BandleTree|FullyQualifiedName~BattlefieldExtraStandby|FullyQualifiedName~HideCard|FullyQualifiedName~Standby|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2506, Failed: 0, Skipped: 0, Total: 2506
+```
+
+Latest extra-standby backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8864, Failed: 0, Skipped: 0, Total: 8864
+```
 
 Latest prevent unit-play official-deck rejected-command replay focused validation passed:
 

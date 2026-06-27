@@ -3779,6 +3779,31 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildBattlefieldExtraStandbyRejectedOfficialDeck(catalog);
+
+        var (initialState, journal, rejected, result, sourceObjectId, battlefieldObjectId) =
+            await DriveOfficialStandbyDecksToBattlefieldExtraStandbyRejectScoreVictoryForReplayAsync(
+                "b0-full-game-battlefield-extra-standby-reject-replay-room",
+                deck,
+                deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry =>
+            string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal)
+            && !entry.Accepted
+            && string.Equals(entry.ErrorMessage, "向战场待命需要控制对应的班德尔树战场。", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.False(rejected.Accepted);
+        Assert.Contains(sourceObjectId, rejected.State.PlayerZones[rejected.State.ActivePlayerId].Hand, StringComparer.Ordinal);
+        Assert.Contains(battlefieldObjectId, rejected.State.PlayerZones[rejected.State.ActivePlayerId].Battlefields, StringComparer.Ordinal);
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -6129,6 +6154,26 @@ public sealed class FullGameEndToEndTests
         Assert.DoesNotContain(destinationChoices, choice => string.Equals(choice.Id, battlefieldDestination, StringComparison.Ordinal));
     }
 
+    private static void AssertBattlefieldExtraStandbyRejected(
+        ResolutionResult beforeHide,
+        ResolutionResult result,
+        string playerId,
+        string sourceObjectId,
+        string battlefieldObjectId)
+    {
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("向战场待命需要控制对应的班德尔树战场。", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(beforeHide.State), MatchStateHasher.Hash(result.State));
+        Assert.Equal(beforeHide.State.RunePools[playerId], result.State.RunePools[playerId]);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones[playerId].Hand, StringComparer.Ordinal);
+        Assert.DoesNotContain(sourceObjectId, result.State.PlayerZones[playerId].Battlefields);
+        Assert.Equal("HAND", result.State.ObjectLocations[sourceObjectId].Zone);
+        Assert.Contains(battlefieldObjectId, result.State.PlayerZones[playerId].Battlefields, StringComparer.Ordinal);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldBattleDestroyedRecallResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -8338,6 +8383,58 @@ public sealed class FullGameEndToEndTests
             + string.Join(" | ", failures));
     }
 
+    private static async ValueTask<(
+        MatchState InitialState,
+        RecordingMatchJournal Journal,
+        ResolutionResult Rejected,
+        ResolutionResult Result,
+        string SourceObjectId,
+        string BattlefieldObjectId)> DriveOfficialStandbyDecksToBattlefieldExtraStandbyRejectScoreVictoryForReplayAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in BattlefieldExtraStandbyDriverSeeds())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            var journal = new RecordingMatchJournal();
+            try
+            {
+                var result = await DriveOfficialStandbyDecksToBattlefieldExtraStandbyRejectScoreVictoryAsync(
+                    initialState,
+                    journal,
+                    p1Deck,
+                    p2Deck);
+                return (
+                    initialState,
+                    journal,
+                    result.Rejected,
+                    result.Result,
+                    result.SourceObjectId,
+                    result.BattlefieldObjectId);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 standby driver", StringComparison.Ordinal))
+            {
+                if (failures.Count < 40)
+                {
+                    failures.Add($"{seed}: {ex.Message}");
+                }
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                if (failures.Count < 40)
+                {
+                    failures.Add($"{seed}: match ended before battlefield extra-standby rejection score path");
+                }
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 standby driver could not find a deterministic official-deck battlefield extra-standby rejection score path. "
+            + string.Join(" | ", failures));
+    }
+
     private static IEnumerable<int> BattlefieldExtraStandbyDriverSeeds()
     {
         foreach (var seed in StandbyDriverSeeds)
@@ -8353,6 +8450,85 @@ public sealed class FullGameEndToEndTests
                 yield return seed;
             }
         }
+    }
+
+    private static async ValueTask<(
+        ResolutionResult Rejected,
+        ResolutionResult Result,
+        string SourceObjectId,
+        string BattlefieldObjectId)> DriveOfficialStandbyDecksToBattlefieldExtraStandbyRejectScoreVictoryAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-standby-extra-reject-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-standby-extra-reject-submit-p2");
+        AssertAccepted(p1Submit);
+        AssertAccepted(p2Submit);
+
+        AssertAccepted(await session.ReadyAsync("P1", "b0-standby-extra-reject-ready-p1", RawCommand(CommandTypes.Ready), CancellationToken.None));
+        var ready = await session.ReadyAsync("P2", "b0-standby-extra-reject-ready-p2", RawCommand(CommandTypes.Ready), CancellationToken.None);
+        AssertAccepted(ready);
+        AssertNoHiddenZoneLeak(ready);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeMulligan = await session.SubmitAsync(
+            activePlayerId,
+            "b0-standby-extra-reject-mulligan-active",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(activeMulligan);
+        AssertNoHiddenZoneLeak(activeMulligan);
+
+        var current = await session.SubmitAsync(
+            secondPlayerId,
+            "b0-standby-extra-reject-mulligan-second",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+
+        var standbyPlayerId = current.State.ActivePlayerId;
+        current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-extra-reject-hide-tap");
+        var (rejected, sourceObjectId, battlefieldObjectId) = await SubmitRejectedBattlefieldExtraStandbyHideCardAsync(
+            session,
+            current,
+            standbyPlayerId,
+            "b0-standby-extra-reject-hide-card");
+        AssertBattlefieldExtraStandbyRejected(current, rejected, standbyPlayerId, sourceObjectId, battlefieldObjectId);
+
+        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-extra-reject-end-after-reject");
+        AssertNoHiddenZoneLeak(current);
+        var opponentId = current.State.ActivePlayerId;
+        current = await PreparePlayerBoardAsync(session, opponentId, current, "standby-extra-reject-opponent", playUnitToBattlefield: false);
+        current = await EndTurnAsync(session, opponentId, "b0-standby-extra-reject-end-opponent-setup");
+        AssertNoHiddenZoneLeak(current);
+        if (!string.Equals(current.State.ActivePlayerId, standbyPlayerId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("B0 standby driver expected standby player to regain the turn after opponent setup.");
+        }
+
+        current = await PreparePlayerBoardAsync(session, standbyPlayerId, current, "standby-extra-reject-owner", playUnitToBattlefield: true);
+        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-extra-reject-end-owner-setup");
+        AssertNoHiddenZoneLeak(current);
+        if (!string.Equals(current.State.ActivePlayerId, opponentId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("B0 standby driver expected opponent to regain the turn after standby owner setup.");
+        }
+
+        current = await MoveBaseUnitToOpponentBattlefieldAsync(session, opponentId, current);
+        current = await PassOpenSpellDuelAsync(session, current, "b0-standby-extra-reject-pass-focus");
+        Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+
+        var (_, _, battleResult) = await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, current);
+        var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-extra-reject-score");
+        return (rejected, result, sourceObjectId, battlefieldObjectId);
     }
 
     private static async ValueTask<(
@@ -8541,6 +8717,46 @@ public sealed class FullGameEndToEndTests
             RawCommand(command),
             CancellationToken.None);
         AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId, battlefieldObjectId);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId, string BattlefieldObjectId)> SubmitRejectedBattlefieldExtraStandbyHideCardAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.HideCard)
+            ?? throw new InvalidOperationException($"B0 standby driver could not find HIDE_CARD for {playerId}.");
+        var sourceObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide source.");
+        var cardNo = current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            ? cardObject.CardNo
+            : null;
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            throw new InvalidOperationException("B0 standby driver could not resolve the standby hide card number.");
+        }
+
+        var battlefieldObjectId = current.State.PlayerZones[playerId].Battlefields
+            .FirstOrDefault(objectId => current.State.CardObjects.TryGetValue(objectId, out var battlefieldObject)
+                && battlefieldObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)
+                && !string.Equals(battlefieldObject.CardNo, BandleTreeBattlefieldCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 standby driver could not find a non-Bandle Tree battlefield destination.");
+        var destination = $"BATTLEFIELD:{battlefieldObjectId}";
+        Assert.False(candidate.Destinations?.Any(choice => string.Equals(choice.Id, destination, StringComparison.Ordinal)) == true);
+
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
+            ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide optional cost.");
+        var command = new HideCardCommand(sourceObjectId, cardNo, destination, [optionalCost]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
         AssertNoHiddenZoneLeak(result);
         return (result, sourceObjectId, battlefieldObjectId);
     }
@@ -20214,6 +20430,11 @@ public sealed class FullGameEndToEndTests
         var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
         return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildBattlefieldExtraStandbyRejectedOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(catalog, BuildStandbyOfficialDeck(catalog));
     }
 
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
