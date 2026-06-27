@@ -14664,7 +14664,9 @@ internal static class ActionPromptBuilder
     private static bool CanPromptLuxSpellOnlyResourceSource(MatchState state, string playerId, string objectId)
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.CardNo, P4ActivatedAbilityCatalog.LuxCardNo, StringComparison.Ordinal)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted

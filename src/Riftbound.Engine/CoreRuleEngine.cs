@@ -15409,7 +15409,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || (!zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
                 && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
             || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !string.Equals(sourceState.CardNo, P4ActivatedAbilityCatalog.LuxCardNo, StringComparison.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
+                P4ActivatedAbilityCatalog.LuxResourceAbilityId,
+                sourceState.CardNo)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown
             || sourceState.IsExhausted

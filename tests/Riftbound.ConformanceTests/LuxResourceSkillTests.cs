@@ -36,6 +36,33 @@ public sealed class LuxResourceSkillTests
     }
 
     [Fact]
+    public void LuxSpellOnlySourceIdentityUsesAbilitySourceCardGroup()
+    {
+        var repositoryRoot = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            repositoryRoot,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain(
+            "sourceState.CardNo, P4ActivatedAbilityCatalog.LuxCardNo",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "cardObject.CardNo, P4ActivatedAbilityCatalog.LuxCardNo",
+            matchSessionSource,
+            StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void LuxSpellOnlyResourcePromptMakesShortManaSpellPlayable()
     {
         var state = BuildPlayState(mana: 0);
@@ -698,5 +725,22 @@ public sealed class LuxResourceSkillTests
             Entries.Add(entry);
             return ValueTask.CompletedTask;
         }
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }
