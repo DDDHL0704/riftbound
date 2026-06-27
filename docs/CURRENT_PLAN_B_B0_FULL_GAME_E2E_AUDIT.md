@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Forgotten Monument score-delay score-victory replay slice accepted; project remains **NOT READY**.
+Status: focused B0 winning-score increase score-victory replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -46,6 +46,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·284/298` Power Obelisk, then starts a focused first-turn replay state derived from that official opening; server-authored `END_TURN` advances to P2 first turn start, resolves parsed `BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, calls four runes for P2, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·290/298` Glory Arena, then starts a focused first-turn replay state derived from that official opening; server-authored `END_TURN` advances to P2 first turn start, resolves parsed `BATTLEFIELD_FIRST_TURN_GAIN_SCORE`, grants one score to P2, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `SFD·209/221` Forgotten Monument, then starts a focused first-turn replay state derived from that official opening with official `OGN·290/298` Glory Arena as the first-turn score source; server-authored `END_TURN` advances to P2 first turn start, resolves parsed `BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN`, prevents the first-turn score, and continues through score victory and action-log replay to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·276/298` winning-score increase battlefield, then starts a focused first-turn replay state derived from that official opening with P2 on seven score and official `OGN·290/298` Glory Arena as the first-turn score source; server-authored `END_TURN` advances to P2 first turn start, raises the effective winning score to nine, grants P2 its eighth score without a win, and continues through score victory at the raised threshold with action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `UNL-217/219` Hunting Grounds, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path assigns at least 3 overkill damage to the enemy unit, creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·291/298` Candlelit Sanctum, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed reveal/recycle trigger, reveals the top two controlled main-deck cards, recycles the parsed count to the bottom of that deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·212/221` Minefield, `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the conquest path reads the parsed mill trigger, moves the top two controlled main-deck cards to the graveyard, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -268,6 +269,54 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest winning-score increase score-victory focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~OfficialDecksResolveWinningScoreIncrease"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest winning-score increase FullGameEndToEnd validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result:
+
+```text
+Passed: 82, Failed: 0, Skipped: 0, Total: 82
+```
+
+Latest winning-score increase adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~WinningScore|FullyQualifiedName~BattlefieldStaticWinningScore|FullyQualifiedName~MindAndBalance|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2082, Failed: 0, Skipped: 0, Total: 2082
+```
+
+Latest winning-score increase backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8838, Failed: 0, Skipped: 0, Total: 8838
+```
 
 Latest Forgotten Monument score-delay score-victory focused validation passed:
 

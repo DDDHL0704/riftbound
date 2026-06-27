@@ -724,6 +724,41 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldWinningScoreIncreaseOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldWinningScoreIncreaseOpeningAsync(
+            "b0-full-game-winning-score-increase-replay-room",
+            p1Deck,
+            p2Deck);
+        var replayInitialState = BuildBattlefieldWinningScoreIncreaseFirstTurnReplayInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(replayInitialState);
+        Assert.Equal("P1", current.State.ActivePlayerId);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+
+        var delayed = await EndTurnAsync(
+            session,
+            "P1",
+            "b0-winning-score-increase-delay");
+        AssertBattlefieldWinningScoreIncreaseDelayedVictory(current, delayed);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            delayed,
+            "b0-winning-score-increase-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(replayInitialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+        var winEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(9, winEvent.Payload["winningScore"]);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameAppliesVaultsOfHeliaHeldUnitCostIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4092,6 +4127,37 @@ public sealed class FullGameEndToEndTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldWinningScoreIncreaseDelayedVictory(
+        ResolutionResult beforeTurnStart,
+        ResolutionResult result)
+    {
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        _ = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            WinningScoreIncreaseBattlefieldCardNo);
+        var scoreSourceObjectId = BattlefieldObjectIdForCardNo(
+            result.State,
+            "P1",
+            FirstTurnScoreBattlefieldCardNo);
+        Assert.Equal(7, beforeTurnStart.State.PlayerScores["P2"]);
+        Assert.Equal(8, result.State.PlayerScores["P2"]);
+        Assert.Null(result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.InProgress, result.State.Status);
+
+        var scoreEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal(8, scoreEvent.Payload["score"]);
+        Assert.Equal([scoreSourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(scoreEvent.Payload["sourceObjectIds"]));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(9, result.Snapshots["P1"].Timing["winningScore"]);
+        Assert.Equal(9, result.Snapshots["P2"].Timing["winningScore"]);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -7480,6 +7546,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             ForgottenMonumentBattlefieldCardNo,
             "Forgotten Monument");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldWinningScoreIncreaseOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            WinningScoreIncreaseBattlefieldCardNo,
+            "Winning Score Increase");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
@@ -15611,6 +15690,26 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldWinningScoreIncreaseOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo);
+        var selectedBattlefields = new List<string>
+        {
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnScoreBattlefieldCardNo,
+            BandleTreeBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldConquerSandSoldierOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -17755,6 +17854,118 @@ public sealed class FullGameEndToEndTests
         objectLocations[scoreSourceObjectId] = new ObjectLocationState("P1", "BATTLEFIELD");
 
         return replayState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
+    }
+
+    private static MatchState BuildBattlefieldWinningScoreIncreaseFirstTurnReplayInitialState(MatchState state)
+    {
+        var replayState = BuildBattlefieldFirstTurnReplayInitialState(
+            state,
+            WinningScoreIncreaseBattlefieldCardNo);
+        replayState = KeepOnlyFirstBattlefieldSource(
+            replayState,
+            WinningScoreIncreaseBattlefieldCardNo);
+        replayState = EnsureP1BattlefieldSource(
+            replayState,
+            FirstTurnScoreBattlefieldCardNo,
+            "B0-P1-BATTLEFIELD-GLORY-ARENA-WINNING-SCORE");
+
+        return replayState with
+        {
+            PlayerScores = replayState.Seats.Keys.ToDictionary(
+                playerId => playerId,
+                playerId => string.Equals(playerId, "P2", StringComparison.Ordinal) ? 7 : 0,
+                StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState KeepOnlyFirstBattlefieldSource(MatchState state, string battlefieldCardNo)
+    {
+        var matchingObjectIds = state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => (PlayerId: entry.Key, ObjectId: objectId)))
+            .Where(entry => state.CardObjects.TryGetValue(entry.ObjectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, battlefieldCardNo, StringComparison.Ordinal))
+            .ToArray();
+        if (matchingObjectIds.Length <= 1)
+        {
+            return state;
+        }
+
+        var extraObjectIdsByPlayer = matchingObjectIds
+            .Skip(1)
+            .GroupBy(entry => entry.PlayerId, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(entry => entry.ObjectId).ToArray(),
+                StringComparer.Ordinal);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var (playerId, extraObjectIds) in extraObjectIdsByPlayer)
+        {
+            var zones = playerZones[playerId];
+            playerZones[playerId] = zones with
+            {
+                Battlefields = zones.Battlefields
+                    .Where(objectId => !extraObjectIds.Contains(objectId, StringComparer.Ordinal))
+                    .ToArray(),
+                Base = zones.Base
+                    .Concat(extraObjectIds)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray()
+            };
+        }
+
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var (playerId, extraObjectIds) in extraObjectIdsByPlayer)
+        {
+            foreach (var objectId in extraObjectIds)
+            {
+                objectLocations[objectId] = new ObjectLocationState(playerId, "BASE");
+            }
+        }
+
+        return state with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations
+        };
+    }
+
+    private static MatchState EnsureP1BattlefieldSource(
+        MatchState state,
+        string battlefieldCardNo,
+        string fallbackObjectId)
+    {
+        if (state.PlayerZones["P1"].Battlefields.Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, battlefieldCardNo, StringComparison.Ordinal)))
+        {
+            return state;
+        }
+
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Battlefields = p1Zones.Battlefields
+                .Append(fallbackObjectId)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[fallbackObjectId] = new CardObjectState(
+            fallbackObjectId,
+            cardNo: battlefieldCardNo,
+            tags: ["CARD_TYPE:BATTLEFIELD"],
+            ownerId: "P1",
+            controllerId: "P1");
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[fallbackObjectId] = new ObjectLocationState("P1", "BATTLEFIELD");
+
+        return state with
         {
             PlayerZones = playerZones,
             CardObjects = cardObjects,

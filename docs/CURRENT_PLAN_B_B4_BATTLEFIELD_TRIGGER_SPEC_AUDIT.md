@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest score-delay Forgotten Monument B0 score-victory follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest winning-score increase B0 score-victory follow-up accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -74,6 +74,12 @@ The 2026-06-25 winning-score increase follow-up moves another implemented battle
 - `CoreRuleEngine.EffectiveWinningScore`, `MatchSession` snapshot/prompt effective-winning-score projections, and `MatchRecovery` spectator validation now find eligible battlefield sources through `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(...)` and read the score-threshold modifier from `BehaviorSpec.StaticAbilities`.
 - `MatchSession` battlefield-object recognition now uses the same static-ability query instead of the old `BattlefieldIncreaseWinningScoreCardNo` / `BattlefieldIncreaseWinningScoreAltCardNo` constants.
 - The old `BattlefieldIncreaseWinningScoreCardNo` / `BattlefieldIncreaseWinningScoreAltCardNo` / `IsBattlefieldIncreaseWinningScoreCardNo` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `55` total / `51` in `CoreRuleEngine`; Core battlefield helper count is `7`.
+
+The 2026-06-27 B0 follow-up adds official-deck score-victory action-log replay coverage for the same parsed winning-score route without changing runtime code:
+
+- legal Vex official decks submit and open through normal server prompts until P1 selects `OGN·276/298`;
+- the focused replay state is derived from that official opening, includes official `OGN·290/298` Glory Arena as the first-turn score source, starts P2 on seven score, then submits replayable `END_TURN`;
+- P2 first turn start projects `winningScore=9`, resolves `BATTLEFIELD_FIRST_TURN_GAIN_SCORE` to take P2 to eight without a win, then replays the resulting command log through score victory at `winningScore=9` to the same final state hash.
 
 The 2026-06-25 score-delay follow-up moves another implemented battlefield static rule away from engine card-number branching:
 
@@ -1078,6 +1084,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `81/81`;
 - adjacent ForgottenMonument / ScoreDelay / ScorePrevented / FirstTurnScore / BattlefieldHeldScore / BattleResponse / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery: passed `2140/2140`;
 - backend full conformance: passed `8837/8837`.
+
+2026-06-27 winning-score increase B0 score-victory follow-up validation:
+
+- focused `OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash`: passed `1/1`;
+- FullGameEndToEnd: passed `82/82`;
+- adjacent WinningScore / BattlefieldStaticWinningScore / MindAndBalance / FullGameEndToEnd / MatchRecovery: passed `2082/2082`;
+- backend full conformance: passed `8838/8838`.
 
 2026-06-25 turn-start destroy-draw follow-up validation:
 
