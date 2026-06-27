@@ -17,6 +17,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·208/221` has official text `如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit`, `P79BattlefieldStaticPreventMoveToBasePromptSkipsOpponentControlledSource`, `P79BattlefieldStaticPreventsUnitPlayToBattlefield`, `P79BattlefieldStaticPreventUnitPlaySkipsOpponentControlledSource`, `P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase`, and `P79BattlefieldStaticPreventPlayUnitsSeedRejectsAmbushToBattlefield` remain the runtime evidence for this narrow behavior.
+- `OfficialDeckMidgameRejectsBattlefieldPreventMoveToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` now proves the same move restriction through legal official Vex deck submission/opening, P1 `OGN·295/298` selection, an official `UNL-057/219` Wildclaw Beastmaster at that battlefield, server-authored `MOVE_UNIT` prompt metadata with no `BATTLEFIELD_TO_BASE` source requirement for that unit, rejected `MOVE_UNIT` with `ErrorCodes.InvalidTarget`, unchanged state hash, score victory, and final-state action-log replay that includes the rejected command.
 - Existing representative tests `P79BattlefieldStaticReducesEchoCost`, `P79BattlefieldStaticEchoCostReductionSkipsOpponentControlledSource`, `P79BattlefieldStaticEchoCostReductionPromptSkipsOpponentControlledSource`, and `P79BattlefieldStaticEchoCostReductionSeedPaysReducedEchoCost` remain the runtime evidence for the Echo cost-reduction behavior.
 - `OfficialDeckMidgameResolvesMaraiSpireEchoCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash` now proves the same Echo cost-reduction behavior through legal official Jhin deck submission/opening, P1 `SFD·211/221` Marai Spire selection, official `UNL-061/219` Center Stage with `ECHO`, `COST_PAID.battlefieldEchoCostReductionMana=1`, stack `effectRepeatCount=2`, score victory, and final-state action-log replay.
 - Existing representative tests `P79BattlefieldStaticReducesFirstEquipmentCost`, `P79BattlefieldStaticEquipmentCostReductionSkipsOpponentControlledSource`, `P79BattlefieldStaticEquipmentCostReductionPromptSkipsOpponentControlledSource`, and `P79BattlefieldStaticEquipmentCostReductionSeedPaysReducedEquipmentCost` remain the runtime evidence for the equipment cost-reduction behavior.
@@ -38,6 +39,7 @@ The new parser path turns the official static ability texts into structured `Sta
 The accepted `MOVE_UNIT` and `PLAY_CARD` paths preserve the same server-authoritative rejection behavior:
 
 - battlefield-to-base movement blocked by `BATTLEFIELD_PREVENT_MOVE_TO_BASE` still returns `ErrorCodes.InvalidTarget` and leaves zones unchanged;
+- The official-deck replay path now carries that same `BATTLEFIELD_PREVENT_MOVE_TO_BASE` route from server-authored prompt filtering through a replayable rejected `MOVE_UNIT`, no-mutated state hash, subsequent score victory, and final-state action-log replay.
 - unit play to the battlefield blocked by `BATTLEFIELD_PREVENT_UNIT_PLAY` still returns `ErrorCodes.InvalidTarget`, preserves hand/rune/stack state, and keeps prompt filtering authoritative.
 - Echo optional-cost reduction from `BATTLEFIELD_ECHO_COST_REDUCTION` still reduces the extra Echo mana by `Amount = 1`, exposes the reduced optional-cost candidate in server prompt metadata, records `battlefieldEchoCostReductionMana = 1` in `COST_PAID`, and skips sources not controlled by the battlefield owner.
 - The official-deck replay path now carries that same `BATTLEFIELD_ECHO_COST_REDUCTION` route from server-authored `PLAY_CARD` prompt through reduced Echo payment, `STACK_ITEM_ADDED.effectRepeatCount = 2`, repeated draw resolution, score victory, and final-state action-log replay.
@@ -55,10 +57,13 @@ The accepted `MOVE_UNIT` and `PLAY_CARD` paths preserve the same server-authorit
 
 ## Hidden Information Evidence
 
-No hidden-zone or opponent-hand projection logic was changed. The extra-standby path still emits `CARD_HIDDEN` without revealing opponent hidden zones, the battle-destroyed replacement and legend attach-armament paths move only public battlefield/base objects, and the representative GameHub tests still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
+No hidden-zone or opponent-hand projection logic was changed. The prevent move-to-base replay uses only public battlefield/base objects and asserts snapshot boundaries after the rejected command; the extra-standby path still emits `CARD_HIDDEN` without revealing opponent hidden zones, the battle-destroyed replacement and legend attach-armament paths move only public battlefield/base objects, and the representative GameHub tests still cover prompt/snapshot boundaries; MatchRecovery remained covered in adjacent validation.
 
 ## Validation
 
+- latest prevent move-to-base official-deck rejected-command replay focused validation: `1/1`;
+- latest prevent move-to-base / MoveUnit / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: `2517/2517`;
+- backend full conformance after the prevent move-to-base replay increment: `8862/8862`;
 - latest Blood Altar official-deck replay focused validation: `1/1`;
 - latest Blood Altar battle-destroyed recall / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: `2597/2597`;
 - backend full conformance after the Blood Altar replay increment: `8861/8861`;

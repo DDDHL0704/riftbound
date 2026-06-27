@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Blood Altar battle-destroyed recall replay accepted; project remains **NOT READY**.
+Status: focused B0 prevent move-to-base rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -48,6 +48,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex vs Rumble opening state, a verified legal official-deck opening selects P2 `UNL-206/219` Blood Altar / 鲜血祭坛, then a focused midgame `START_BATTLE` state keeps P1 official `UNL-057/219` Wildclaw Beastmaster attacking P2 official `OGN·096/298` Watchful Sentinel at that battlefield with exactly 3 P2 mana; the server-authored `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE` route resolves `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL`, spends P2's 3 mana, suppresses `UNIT_DESTROYED`, removes the defender's damage, exhausts it, recalls it to P2 base, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·295/298`, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` prompt metadata omits `BATTLEFIELD_TO_BASE` for that source, direct battlefield-to-base `MOVE_UNIT` is rejected with `ErrorCodes.InvalidTarget` and unchanged state hash, and the command stream including that rejected command continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Poppy vs Vex opening state, a verified legal official-deck opening selects P2 `UNL-216/219` Piltover Academy, then starts a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield; the held path resolves the parsed `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO` marker, and a derived P2 neutral-open next-spell window plays official `UNL-007/219` Punishment with the granted Echo optional cost, resolves the repeated spell stack, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-212/219` Frost Hold, then starts a focused midgame main phase with both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield; server-authored `END_TURN` advances to P2 turn start, resolves parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, applies one pre-scoring damage to both same-battlefield units, and continues through score victory and action-log replay to the same final state hash;
@@ -305,6 +306,8 @@ This Swift stack-priority increment additionally proves official `UNL-007/219` P
 
 This evidence-alignment increment records already-green B0 routes that were present in `FullGameEndToEndTests` but missing from this audit: Crimson Signet Treant conquest repeat; Idol Valley unit-play boon; Meteor Spring first-unit move-other; Ghost Bay returned-unit call-rune; Hidden Valley, Star Peak, Confetti Tree held triggers; Navori Arena, Unity Sanctum, Hallowed Tomb, Grand Plaza, Energy Hub, Reckoner Arena held triggers; and Fortified Position defend-grant-Steadfast. It changes documentation only, not runtime behavior or test code, and does not close complete battlefield FU breadth, complete official deck archetype breadth, or READY.
 
+This prevent move-to-base increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven battlefield static restriction into server-authored `MOVE_UNIT` prompt filtering, reject a direct battlefield-to-base `MOVE_UNIT` without mutation, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
 Open follow-up:
@@ -314,6 +317,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest prevent move-to-base official-deck rejected-command replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameRejectsBattlefieldPreventMoveToBase"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest prevent move-to-base adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~PreventMoveToBase|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2517, Failed: 0, Skipped: 0, Total: 2517
+```
+
+Latest prevent move-to-base backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8862, Failed: 0, Skipped: 0, Total: 8862
+```
 
 Latest Blood Altar battle-destroyed recall official-deck replay focused validation passed:
 

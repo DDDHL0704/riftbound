@@ -102,6 +102,8 @@ The Plunder Alley defend move-friendly-unit-to-base action-log replay regression
 
 The Rehearsal Hall held move-unit-to-base action-log replay regression proves a legal official deck opening can feed a focused held-battlefield movement route and still reach score victory. `OfficialDeckMidgameResolvesRehearsalHallHeldMoveUnitToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Jhin and Vex deck openings that selected official `UNL-207/219` Rehearsal Hall for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE`, moves the surviving defender from battlefield to P2 base through the parsed `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE` route, then continues through effective-controller turn-start battlefield scoring and score-victory action-log replay to the same final state hash. Runtime changed in `CoreRuleEngine.ApplyBattlefieldHeldScoresAtTurnStart` to score official battlefield objects by shared effective field controller rather than only explicit `ControllerId`.
 
+The prevent move-to-base rejected-command action-log replay regression proves a legal official deck opening can feed a focused battlefield movement restriction into the B0 score-victory path. `OfficialDeckMidgameRejectsBattlefieldPreventMoveToBaseAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·295/298`, then starts from a focused midgame movement state with P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `MOVE_UNIT` prompt metadata contains no `BATTLEFIELD_TO_BASE` source requirement for that unit; a direct battlefield-to-base `MOVE_UNIT` is rejected with `ErrorCodes.InvalidTarget`, emits no events, keeps the same state hash and battlefield location, then the same journal continues through score-victory action-log replay to the same final state hash including that rejected command. This slice changes only test / evidence coverage; it does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 The Back Alley Bar moved-unit power action-log replay regression now proves a legal official deck opening can feed the parsed movement trigger into the B0 score-victory path. `OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPowerAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `OGN·277/298` Back Alley Bar, then starts from a focused midgame movement state with P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield. The server-authored `MOVE_UNIT` route moves Wildclaw Beastmaster from battlefield to base, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `trigger=BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, applies the parsed until-end-of-turn power modifier ledger entry to the moved unit, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete same-turn movement policy, complete movement / control-zone edge cases, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 The Piltover Academy held-next-spell Echo action-log replay regression now proves a legal official deck opening can feed the parsed held marker into a later spell stack that reaches score victory. `OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash` records legal Poppy and Vex deck openings that selected official `UNL-216/219` Piltover Academy for P2, then starts from a focused midgame `START_BATTLE` state with P1 `OGN·096/298` Watchful Sentinel and P2 `UNL-034/219` Crimson Signet Treant at that battlefield. The server-authored `DECLARE_BATTLE` route emits `BATTLEFIELD_TRIGGER_RESOLVED`, stores `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2`, and replays the marker path. The derived P2 neutral-open next-spell window then submits official `UNL-007/219` Punishment with the granted Echo optional cost, pays 4 mana from base cost 2 plus Echo 2, consumes the marker, records repeat count 2, resolves the repeated spell stack, and continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close natural same-turn non-active spell access, Swift stack-response `PLAY_CARD` prompts, complete Echo optional prompt breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
@@ -177,6 +179,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest prevent move-to-base official-deck rejected-command replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameRejectsBattlefieldPreventMoveToBase"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest prevent move-to-base adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~PreventMoveToBase|FullyQualifiedName~MoveUnit|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2517, Failed: 0, Skipped: 0, Total: 2517
+```
+
+Latest prevent move-to-base backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8862, Failed: 0, Skipped: 0, Total: 8862
+```
 
 Latest Blood Altar battle-destroyed recall official-deck replay focused validation passed:
 
