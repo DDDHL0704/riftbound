@@ -80,6 +80,7 @@ public sealed class FullGameEndToEndTests
     private const string PiltoverAcademyBattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string VaultsOfHeliaBattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string DreamTreeBattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
+    private const string MaraiSpireBattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string WasteHallBattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string VoidGateBattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string MutationGardenBattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -101,6 +102,7 @@ public sealed class FullGameEndToEndTests
     private const string FortifiedPositionBattlefieldDefendGrantSteadfastCardNo = "OGN·279/298";
     private const string SavageStrengthSpellCardNo = "SFD·034/221";
     private const string PunishmentSpellCardNo = "UNL-007/219";
+    private const string CenterStageSpellCardNo = "UNL-061/219";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
     private const string ReconsiderSpellCardNo = "OGN·104/298";
     private const string LoyalCraftsmanCardNo = "OGN·211/298";
@@ -1484,6 +1486,45 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesMaraiSpireEchoCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldEchoCostReductionOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldEchoCostReductionOpeningAsync(
+            "b0-full-game-marai-spire-echo-cost-reduction-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldEchoCostReductionMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var spellPlayed = await SubmitBattlefieldEchoCostReductionSpellAsync(
+            session,
+            current,
+            "P1",
+            "b0-marai-spire-echo-cost-reduction");
+        AssertBattlefieldEchoCostReductionSpellPlayed(current, spellPlayed);
+
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-marai-spire-echo-cost-reduction-resolve");
+        AssertBattlefieldEchoCostReductionSpellResolved(current, spellResolved);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-marai-spire-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5612,6 +5653,72 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertBattlefieldEchoCostReductionSpellPlayed(
+        ResolutionResult beforeSpell,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            beforeSpell.State,
+            "P1",
+            MaraiSpireBattlefieldEchoCostReductionCardNo);
+        var spellObjectId = FindHandCardObjectByCardNo(
+            beforeSpell.State,
+            "P1",
+            CenterStageSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Marai Spire assertion could not locate Center Stage in P1 hand.");
+
+        Assert.Equal(new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), beforeSpell.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), result.State.RunePools["P1"]);
+        Assert.DoesNotContain(spellObjectId, result.State.PlayerZones["P1"].Hand);
+        var stackItem = Assert.Single(result.State.StackItems, item =>
+            string.Equals(item.ControllerId, "P1", StringComparison.Ordinal)
+            && string.Equals(item.CardNo, CenterStageSpellCardNo, StringComparison.Ordinal));
+        Assert.Equal(2, stackItem.EffectRepeatCount);
+        Assert.Equal([EchoOptionalCostNames.Echo], stackItem.OptionalCosts);
+
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costPaid.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("PLAY_CARD", costPaid.Payload["paymentWindow"]);
+        Assert.Equal("P1", costPaid.Payload["playerId"]);
+        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaid.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldEchoCostReductionMana"]);
+        Assert.Equal([EchoOptionalCostNames.Echo], Assert.IsType<string[]>(costPaid.Payload["optionalCosts"]));
+
+        var stackEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal(CenterStageSpellCardNo, stackEvent.Payload["cardNo"]);
+        Assert.Equal(2, stackEvent.Payload["effectRepeatCount"]);
+        Assert.Equal(battlefieldObjectId, BattlefieldObjectIdForCardNo(result.State, "P1", MaraiSpireBattlefieldEchoCostReductionCardNo));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldEchoCostReductionSpellResolved(
+        ResolutionResult beforeSpell,
+        ResolutionResult result)
+    {
+        var spellObjectId = FindHandCardObjectByCardNo(
+            beforeSpell.State,
+            "P1",
+            CenterStageSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Marai Spire assertion could not locate Center Stage in P1 hand.");
+
+        Assert.Empty(result.State.StackItems);
+        Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(
+            beforeSpell.State.PlayerZones["P1"].Hand.Count + 1,
+            result.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(
+            beforeSpell.State.PlayerZones["P1"].MainDeck.Count - 2,
+            result.State.PlayerZones["P1"].MainDeck.Count);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertBattlefieldHighCostSpellInsightResolved(
         ResolutionResult beforeSpell,
         ResolutionResult result)
@@ -9059,6 +9166,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             MutationGardenBattlefieldGrantUnitExperienceCardNo,
             "Mutation Garden");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldEchoCostReductionOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            MaraiSpireBattlefieldEchoCostReductionCardNo,
+            "Marai Spire");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldHighCostSpellInsightOpeningAsync(
@@ -13432,6 +13552,62 @@ public sealed class FullGameEndToEndTests
             sourceObjectId,
             BattlefieldUnitGainExperienceAbilityId,
             []);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldEchoCostReductionSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Marai Spire driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        _ = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            MaraiSpireBattlefieldEchoCostReductionCardNo);
+        var spellObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            CenterStageSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Marai Spire driver could not find Center Stage in P1 hand.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalOptionalCostIds = candidate.OptionalCosts?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(spellObjectId, legalSourceIds);
+        Assert.Contains(EchoOptionalCostNames.Echo, legalOptionalCostIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+        var echoChoice = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, EchoOptionalCostNames.Echo, StringComparison.Ordinal));
+        Assert.Equal("战场效果已减免 1 法力", echoChoice.Reason);
+
+        var command = new PlayCardCommand(
+            spellObjectId,
+            CenterStageSpellCardNo,
+            [],
+            OptionalCosts: [EchoOptionalCostNames.Echo]);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -18054,6 +18230,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldEchoCostReductionOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            JhinLegendCardNo,
+            JhinChampionCardNo,
+            [CenterStageSpellCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            MaraiSpireBattlefieldEchoCostReductionCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldHighCostSpellInsightOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -21424,6 +21621,28 @@ public sealed class FullGameEndToEndTests
                 .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldEchoCostReductionMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [CenterStageSpellCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        _ = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            MaraiSpireBattlefieldEchoCostReductionCardNo);
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1"
         };
     }
 

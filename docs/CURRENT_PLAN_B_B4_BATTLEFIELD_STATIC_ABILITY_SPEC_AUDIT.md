@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 Mutation Garden granted unit-experience official-deck replay accepted; project remains **NOT READY**.
+Status: focused B4 Marai Spire Echo cost-reduction official-deck replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -29,6 +29,7 @@ These slices move implemented battlefield static abilities away from engine card
   - `Kind = BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`
 - `CoreRuleEngine` move and play rejection paths now find eligible battlefield sources through `BattlefieldStaticAbilitySpecRules`.
 - `CoreRuleEngine` Echo optional-cost planning now reads `BATTLEFIELD_ECHO_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEchoCostReductionCardNo` branch.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_ECHO_COST_REDUCTION` path through legal official Jhin deck submission/opening, server-authored `ECHO` optional-cost prompt metadata, reduced cost payment, stack repeat count, two-card draw resolution, score victory, and final-state action-log replay.
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
 - `CoreRuleEngine` battlefield granted unit-experience activation now reads `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldGrantUnitExperienceCardNo` branch, and uses `Amount` for the experience event.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` path through legal official Vex deck submission/opening, server-authored `ACTIVATE_ABILITY`, source exhaustion, `EXPERIENCE_GAINED.totalExperience=1`, score victory, and final-state action-log replay.
@@ -50,6 +51,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Marai Spire official-deck replay focused validation: passed `1/1`;
+- latest Marai Spire Echo / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2208/2208`;
+- backend full conformance after the Marai Spire replay increment: passed `8858/8858`;
 - latest Mutation Garden official-deck replay focused validation: passed `1/1`;
 - latest Mutation Garden granted unit-experience / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2183/2183`;
 - backend full conformance after the Mutation Garden replay increment: passed `8857/8857`;
