@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-tryndamere-overkill-score-static",
-  "description": "OGN 034 Tryndamere enters as a hero unit while the overkill conquer score text is deferred.",
+  "description": "OGN 034 Tryndamere enters as a hero unit; the overkill conquer score text is covered by the B3 TriggerSpec runtime slice.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",

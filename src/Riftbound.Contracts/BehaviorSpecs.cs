@@ -122,6 +122,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
     public const string UnitConquestOverkillCreateDormantGold =
         "UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD";
+    public const string UnitConquestAttackOverkillGainScore =
+        "UNIT_CONQUEST_ATTACK_OVERKILL_GAIN_SCORE";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     public const string HandCardsDiscardedReadySourcePower =

@@ -23138,6 +23138,66 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (UnitConquestTriggerSpecRules.TryGetUnitConquestAttackOverkillGainScoreTrigger(
+                unitState.CardNo,
+                out var unitConquestOverkillScoreTrigger)
+            && string.Equals(activationReason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && unitConquestOverkillScoreTrigger.RequiredOverkillDamage is > 0
+            && assignedOverkillDamageToEnemyUnits >= unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value
+            && unitConquestOverkillScoreTrigger.ScoreAmount is > 0)
+        {
+            var winningScore = EffectiveWinningScore(playerZones, cardObjects);
+            var previousWinnerPlayerId = WinningPlayerId(nextPlayerScores, winningScore);
+            var mutablePlayerScores = playerZones.Keys.ToDictionary(
+                scorePlayerId => scorePlayerId,
+                scorePlayerId => nextPlayerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
+                StringComparer.Ordinal);
+            var scoreAmount = unitConquestOverkillScoreTrigger.ScoreAmount.Value;
+            mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score)
+                ? score + scoreAmount
+                : scoreAmount;
+            winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
+            AddUnitConquestEffectActivatedEvent(
+                events,
+                playerId,
+                unitObjectId,
+                unitState.CardNo,
+                unitConquestOverkillScoreTrigger.Kind,
+                battlefieldObjectId,
+                activationReason,
+                assignedOverkillDamageToEnemyUnits: assignedOverkillDamageToEnemyUnits,
+                requiredOverkillDamage: unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value);
+            events.Add(new GameEvent(
+                "SCORE_GAINED",
+                $"{unitObjectId} 的征服效果让 {playerId} 获得 {scoreAmount} 分",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["amount"] = scoreAmount,
+                    ["score"] = mutablePlayerScores[playerId],
+                    ["reason"] = unitConquestOverkillScoreTrigger.Kind,
+                    ["sourceObjectId"] = unitObjectId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
+                    ["requiredOverkillDamage"] = unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value
+                }));
+            if (winnerPlayerId is not null
+                && previousWinnerPlayerId is null)
+            {
+                events.Add(new GameEvent(
+                    "MATCH_WON",
+                    $"{winnerPlayerId} 达到获胜分数并获胜",
+                    new Dictionary<string, object?>
+                    {
+                        ["winnerPlayerId"] = winnerPlayerId,
+                        ["winningScore"] = winningScore
+                    }));
+            }
+
+            drawApplication = new DrawApplicationResult(mutablePlayerScores, winnerPlayerId, nextRngCursor);
+            return true;
+        }
+
         if (UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(unitState.CardNo, out var unitConquestGoldTrigger))
         {
             var tokenName = unitConquestGoldTrigger.CreatedTokenName ?? "金币";
@@ -23526,6 +23586,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool HasSupportedUnitConquestTriggerSpec(string? cardNo)
     {
         return UnitConquestTriggerSpecRules.TryGetUnitConquestOverkillCreateDormantGoldTrigger(cardNo, out _)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestAttackOverkillGainScoreTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)

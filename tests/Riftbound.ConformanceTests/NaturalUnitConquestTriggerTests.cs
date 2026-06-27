@@ -10,6 +10,7 @@ public sealed class NaturalUnitConquestTriggerTests
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
     private const string TreantObjectId = "P1-NATURAL-CONQUEST-TREANT";
     private const string YetiObjectId = "P1-NATURAL-CONQUEST-YETI";
+    private const string TryndamereObjectId = "P1-NATURAL-CONQUEST-TRYNDAMERE";
     private const string DefenderObjectId = "P2-NATURAL-CONQUEST-DEFENDER";
     private const string DrawObjectId = "P1-NATURAL-CONQUEST-DRAW";
 
@@ -136,6 +137,54 @@ public sealed class NaturalUnitConquestTriggerTests
             Assert.Contains("金币", tokenState.Tags);
             Assert.Contains("反应", tokenState.Tags);
         });
+    }
+
+    [Fact]
+    public async Task TryndamereGainsScoreAfterAttackOverkillNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestTryndamereState(),
+            new PlayerIntent("intent-natural-unit-conquest-tryndamere-overkill-score", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [TryndamereObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TryndamereObjectId, StringComparison.Ordinal));
+        Assert.Equal(7, Assert.IsType<int>(conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]));
+
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TryndamereObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestAttackOverkillGainScore, conquestTrigger.Payload["effectId"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
+        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldObjectId"]);
+        Assert.Equal(7, conquestTrigger.Payload["assignedOverkillDamageToEnemyUnits"]);
+        Assert.Equal(5, conquestTrigger.Payload["requiredOverkillDamage"]);
+
+        var scoreEvents = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, scoreEvents.Length);
+        var tryndamereScore = Assert.Single(scoreEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestAttackOverkillGainScore, StringComparison.Ordinal));
+        Assert.Equal(1, tryndamereScore.Payload["amount"]);
+        Assert.Equal(8, tryndamereScore.Payload["score"]);
+        Assert.Equal(TryndamereObjectId, tryndamereScore.Payload["sourceObjectId"]);
+
+        Assert.Equal(8, result.State.PlayerScores["P1"]);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.Equal("P1", result.State.WinnerPlayerId);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["winnerPlayerId"] as string, "P1", StringComparison.Ordinal));
     }
 
     private static MatchState BuildNaturalConquestState()
@@ -286,6 +335,61 @@ public sealed class NaturalUnitConquestTriggerTests
             {
                 [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
                 [YetiObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
+    private static MatchState BuildNaturalConquestTryndamereState()
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new(
+                BattlefieldId,
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [TryndamereObjectId] = Unit(TryndamereObjectId, "P1", 8, "OGN·034/298"),
+            [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
+        };
+
+        return new MatchState(
+            "natural-unit-conquest-tryndamere-overkill-score-trigger-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldId, TryndamereObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 6,
+                ["P2"] = 0
+            },
+            cardObjects: cardObjects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [TryndamereObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
                 [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
             },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);

@@ -2531,6 +2531,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitConquestAttackOverkillGainScoreTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var tryndamere = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·034/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            tryndamere.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestAttackOverkillGainScore, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestAttackOverkillGainScore, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(5, trigger.RequiredOverkillDamage);
+        Assert.Equal(1, trigger.ScoreAmount);
+        Assert.Contains("当我通过进攻征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("不低于5点的过量伤害", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("你获得的分数+1", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest attack-overkill gain-score trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

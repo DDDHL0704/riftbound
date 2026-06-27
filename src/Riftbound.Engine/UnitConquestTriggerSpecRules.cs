@@ -40,6 +40,14 @@ internal static class UnitConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetUnitConquestAttackOverkillGainScoreTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitConquestAttackOverkillGainScore,
+            out trigger);
+    }
+
     public static bool TryGetUnitConquestGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

@@ -787,6 +787,22 @@ public static class TriggerParser
                 CreatedTokenKeywords: ["反应"]);
         }
 
+        var unitConquestAttackOverkillGainScoreMatch = Regex.Match(
+            segment,
+            @"当我通过进攻征服一处战场时，如果你给敌方单位造成过不低于([0-9一两二三四五六七八九十]+)点的过量伤害，则你获得的分数\+([0-9一两二三四五六七八九十]+)。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestAttackOverkillGainScoreMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestAttackOverkillGainScore,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest attack-overkill gain-score trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                RequiredOverkillDamage: ParseChineseNumber(unitConquestAttackOverkillGainScoreMatch.Groups[1].Value),
+                ScoreAmount: ParseChineseNumber(unitConquestAttackOverkillGainScoreMatch.Groups[2].Value));
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
