@@ -61,6 +61,7 @@ public sealed class FullGameEndToEndTests
     private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
     private const string FirstTurnScoreBattlefieldCardNo = "OGN·290/298";
     private const string PreventMoveToBaseBattlefieldCardNo = "OGN·295/298";
+    private const string PreventUnitPlayBattlefieldCardNo = "SFD·216/221";
     private const string FrostHoldBattlefieldTurnStartDamageCardNo = "UNL-212/219";
     private const string DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo = "UNL-209/219";
     private const string ImperialShrineBattlefieldConquerSandSoldierCardNo = "SFD·207/221";
@@ -1671,6 +1672,42 @@ public sealed class FullGameEndToEndTests
             string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal)
             && !entry.Accepted
             && string.Equals(entry.ErrorMessage, "该战场效果禁止单位从此战场移动回基地。", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameRejectsBattlefieldPreventUnitPlayAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldPreventUnitPlayOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldPreventUnitPlayOpeningAsync(
+            "b0-full-game-battlefield-prevent-unit-play-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldPreventUnitPlayMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var rejected = await SubmitBattlefieldPreventUnitPlayAsync(
+            session,
+            current,
+            "P1",
+            "b0-prevent-unit-play-reject");
+        AssertBattlefieldPreventUnitPlayRejected(current, rejected);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            rejected,
+            "b0-prevent-unit-play-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry =>
+            string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal)
+            && !entry.Accepted
+            && string.Equals(entry.ErrorMessage, "战场效果禁止将单位打出到该战场。", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -6046,6 +6083,52 @@ public sealed class FullGameEndToEndTests
             && string.Equals(requirement["mode"] as string, "BATTLEFIELD_TO_BASE", StringComparison.Ordinal));
     }
 
+    private static void AssertBattlefieldPreventUnitPlayRejected(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            beforePlay.State,
+            "P1",
+            PreventUnitPlayBattlefieldCardNo);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 prevent-unit-play assertion could not locate Wildclaw Beastmaster before play.");
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("战场效果禁止将单位打出到该战场。", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(beforePlay.State), MatchStateHasher.Hash(result.State));
+        Assert.Equal(beforePlay.State.RunePools["P1"], result.State.RunePools["P1"]);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal("HAND", result.State.ObjectLocations[sourceObjectId].Zone);
+        Assert.Contains(battlefieldObjectId, result.State.PlayerZones["P1"].Battlefields);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldPreventUnitPlayPromptFiltered(
+        ResolutionResult current,
+        string playerId,
+        string sourceObjectId,
+        string battlefieldDestination)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 prevent-unit-play driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["destinationChoices"])
+            .ToArray();
+        Assert.DoesNotContain(destinationChoices, choice => string.Equals(choice.Id, battlefieldDestination, StringComparison.Ordinal));
+    }
+
     private static void AssertBattlefieldBattleDestroyedRecallResolved(
         ResolutionResult beforeBattle,
         ResolutionResult result)
@@ -9597,6 +9680,19 @@ public sealed class FullGameEndToEndTests
             p2Deck,
             PreventMoveToBaseBattlefieldCardNo,
             "prevent move-to-base battlefield");
+    }
+
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldPreventUnitPlayOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            PreventUnitPlayBattlefieldCardNo,
+            "prevent unit-play battlefield");
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldGrantUnitExperienceOpeningAsync(
@@ -14285,6 +14381,41 @@ public sealed class FullGameEndToEndTests
 
         AssertBattlefieldPreventMoveToBasePromptFiltered(current, playerId, sourceObjectId);
         var command = new MoveUnitCommand(sourceObjectId, "BATTLEFIELD", "BASE", []);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        Assert.False(result.Accepted);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldPreventUnitPlayAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            current.State,
+            playerId,
+            PreventUnitPlayBattlefieldCardNo);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 prevent-unit-play driver could not find Wildclaw Beastmaster in P1 hand.");
+        var battlefieldDestination = $"BATTLEFIELD:{battlefieldObjectId}";
+
+        AssertBattlefieldPreventUnitPlayPromptFiltered(current, playerId, sourceObjectId, battlefieldDestination);
+        var command = new PlayCardCommand(
+            sourceObjectId,
+            WildclawBeastmasterCardNo,
+            [],
+            Destination: battlefieldDestination);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -19038,6 +19169,27 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldPreventUnitPlayOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [WildclawBeastmasterCardNo]);
+        var selectedBattlefields = new List<string>
+        {
+            PreventUnitPlayBattlefieldCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
     private static OfficialDecklist BuildBattlefieldHighCostSpellInsightOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -22728,6 +22880,44 @@ public sealed class FullGameEndToEndTests
             TurnPlayerId = "P1",
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildBattlefieldPreventUnitPlayMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [WildclawBeastmasterCardNo],
+            new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        _ = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            PreventUnitPlayBattlefieldCardNo);
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 prevent-unit-play setup could not find Wildclaw Beastmaster in P1 hand.");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
             CardObjects = cardObjects
         };
     }

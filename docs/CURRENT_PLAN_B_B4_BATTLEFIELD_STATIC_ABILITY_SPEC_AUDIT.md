@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 prevent move-to-base official-deck rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B4 prevent unit-play official-deck rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -29,6 +29,7 @@ These slices move implemented battlefield static abilities away from engine card
   - `Kind = BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`
 - `CoreRuleEngine` move and play rejection paths now find eligible battlefield sources through `BattlefieldStaticAbilitySpecRules`.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_PREVENT_MOVE_TO_BASE` path through legal official Vex deck submission/opening, P1 `OGN·295/298` selection, server-authored `MOVE_UNIT` prompt filtering, rejected battlefield-to-base `MOVE_UNIT`, no-mutation state hash, score victory, and final-state action-log replay that includes the rejected command.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_PREVENT_UNIT_PLAY` path through legal official Vex deck submission/opening, P1 `SFD·216/221` selection, server-authored `PLAY_CARD` prompt destination filtering, rejected battlefield-destination `PLAY_CARD`, no-mutation state hash, score victory, and final-state action-log replay that includes the rejected command.
 - `CoreRuleEngine` Echo optional-cost planning now reads `BATTLEFIELD_ECHO_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEchoCostReductionCardNo` branch.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_ECHO_COST_REDUCTION` path through legal official Jhin deck submission/opening, server-authored `ECHO` optional-cost prompt metadata, reduced cost payment, stack repeat count, two-card draw resolution, score victory, and final-state action-log replay.
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
@@ -55,6 +56,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest prevent unit-play official-deck rejected-command replay focused validation: passed `1/1`;
+- latest prevent unit-play / PlayCard / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2689/2689`;
+- backend full conformance after the prevent unit-play replay increment: passed `8863/8863`;
 - latest prevent move-to-base official-deck rejected-command replay focused validation: passed `1/1`;
 - latest prevent move-to-base / MoveUnit / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2517/2517`;
 - backend full conformance after the prevent move-to-base replay increment: passed `8862/8862`;
