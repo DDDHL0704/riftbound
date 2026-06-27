@@ -32,6 +32,8 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 - score-based `END_TURN` advancement to `MATCH_WON`
 - `SURRENDER`
 
+The Hub official-opening play-card smoke (`OfficialDeckCanPlayPromptLegalCardAfterOpeningResourcesThroughHub`) proves the public Hub path can take legal official decks through submission, ready, mulligan, prompt-selected rune tap / recycle resources, a prompt-authored `PLAY_CARD`, priority handoff, stack resolution, and both-player opponent-hand redaction without using a development seed. It selects source, target, destination and required payment choices from server prompt metadata instead of hard-coding a card number.
+
 The new engine regression proves the spell-duel close handoff chooses the battlefield task player when the turn player is the mover. This is the natural path that previous fixture-style tests did not cover.
 
 The no-legal battle regression proves the next natural blocker is consumed by shared engine state rather than single-card logic. After spell duel closes, `CoreRuleEngine` checks the existing server-authored `DECLARE_BATTLE` requirements for the `START_BATTLE` task player. When no ready face-up attacker / defender declaration exists, the engine emits `BATTLE_SKIPPED`, records `BATTLEFIELD_BATTLE_SKIPPED:*` until end of turn, clears the blocking battlefield task family from state / snapshot projection, and returns to neutral open main timing.
@@ -220,6 +222,54 @@ Result:
 
 ```text
 Passed: 8765, Failed: 0, Skipped: 0, Total: 8765
+```
+
+Latest Hub official-opening play-card focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckCanPlayPromptLegalCardAfterOpeningResourcesThroughHub" --nologo
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest `OfficialDeck` adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeck" --nologo
+```
+
+Result:
+
+```text
+Passed: 66, Failed: 0, Skipped: 0, Total: 66
+```
+
+Latest Hub / recovery adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result:
+
+```text
+Passed: 2212, Failed: 0, Skipped: 0, Total: 2212
+```
+
+Latest backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result:
+
+```text
+Passed: 8824, Failed: 0, Skipped: 0, Total: 8824
 ```
 
 Focused validation:
@@ -827,3 +877,5 @@ The current Ravenbloom increment additionally proves one BehaviorSpec-driven bat
 The current Ravenbloom non-spell increment additionally proves the BehaviorSpec-driven battlefield-defended miss branch through controlled main-deck top-card reveal, non-spell detection, recycling the revealed card to the bottom of the defending player's main deck, score-victory replay, and hidden-info guarded full-game helpers. Complete reveal / recycle hidden-info breadth, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
 The current Plunder Alley increment additionally proves one BehaviorSpec-driven battlefield-defended move-friendly-unit-to-base route through legal official Jhin vs Vex deck submission/opening, parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, server-authored defender target submission via `battlefieldTargetObjectIds`, movement of the selected surviving friendly defender to its owner's base, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, and complete official deck archetype breadth remain open.
+
+The current Hub official-opening play-card smoke additionally proves the public Hub path can reach and resolve a real prompt-authored `PLAY_CARD` after official deck opening resources. It does not by itself prove battle, score victory, all deck archetypes, all response windows, or complete card-effect breadth; those remain covered only by focused `FullGameEndToEndTests` representatives and remain open overall.

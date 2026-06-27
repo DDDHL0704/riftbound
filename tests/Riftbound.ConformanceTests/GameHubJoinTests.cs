@@ -1940,6 +1940,86 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task OfficialDeckCanPlayPromptLegalCardAfterOpeningResourcesThroughHub()
+    {
+        const string roomId = "official-hub-real-deck-play-card-smoke";
+        var opening = await StartOfficialDeckGameThroughResourceRecycleAsync(roomId);
+        var playPrompt = PromptFor(opening.Clients, opening.ActivePlayerId);
+        Assert.True(playPrompt.Actionable);
+        var playCandidate = Assert.Single(
+            playPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+
+        var sourceRequirement = FirstPromptPlayableSourceRequirement(playCandidate);
+        var sourceObjectId = Assert.IsType<string>(sourceRequirement["sourceObjectId"]);
+        var cardNo = Assert.IsType<string>(sourceRequirement["cardNo"]);
+        var targetObjectIds = TargetObjectIdsForRequirement(sourceRequirement);
+        var optionalCosts = RequiredPaymentChoiceIdsForRequirement(sourceRequirement);
+        var mode = sourceRequirement.TryGetValue("mode", out var rawMode)
+            ? rawMode as string ?? string.Empty
+            : string.Empty;
+        var destination = DestinationForPlayRequirement(playCandidate, sourceRequirement);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(
+                playClients,
+                new RecordingGroupManager(),
+                ConnectionFor(opening.ActivePlayerId),
+                opening.Registry)
+            .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-legal-card", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId,
+                cardNo,
+                targetObjectIds,
+                mode,
+                optionalCosts,
+                destination
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        AssertOfficialSnapshotKeepsOpponentHandHidden(
+            SnapshotFor(playClients, opening.ActivePlayerId),
+            opening.ActivePlayerId,
+            opening.SecondPlayerId);
+        AssertOfficialSnapshotKeepsOpponentHandHidden(
+            SnapshotFor(playClients, opening.SecondPlayerId),
+            opening.SecondPlayerId,
+            opening.ActivePlayerId);
+
+        var passActiveClients = new RecordingHubClients();
+        await CreateHub(
+                passActiveClients,
+                new RecordingGroupManager(),
+                ConnectionFor(opening.ActivePlayerId),
+                opening.Registry)
+            .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-active-pass", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
+        Assert.Empty(passActiveClients.CallerClient.Errors);
+        var secondPrompt = PromptFor(passActiveClients, opening.SecondPlayerId);
+        Assert.True(secondPrompt.Actionable);
+        Assert.Contains("PASS_PRIORITY", secondPrompt.Actions);
+
+        var passSecondClients = new RecordingHubClients();
+        await CreateHub(
+                passSecondClients,
+                new RecordingGroupManager(),
+                ConnectionFor(opening.SecondPlayerId),
+                opening.Registry)
+            .SubmitIntent(roomId, opening.SecondPlayerId, "official-real-deck-play-second-pass", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
+        Assert.Empty(passSecondClients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passSecondClients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        var resolvedSnapshot = SnapshotFor(passSecondClients, opening.ActivePlayerId);
+        Assert.Empty(resolvedSnapshot.Stack);
+        AssertOfficialSnapshotKeepsOpponentHandHidden(resolvedSnapshot, opening.ActivePlayerId, opening.SecondPlayerId);
+    }
+
+    [Fact]
     public async Task SubmitDeckDuplicateClientIntentReorderedRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         const string roomId = "official-hub-submit-deck-reordered-raw-idempotency";
@@ -16438,6 +16518,292 @@ public sealed class GameHubJoinTests
             cmdType = "MULLIGAN",
             handObjectIds
         });
+    }
+
+    private sealed record OfficialOpeningState(
+        InMemoryMatchSessionRegistry Registry,
+        string ActivePlayerId,
+        string SecondPlayerId,
+        RecordingHubClients Clients);
+
+    private static async Task<OfficialOpeningState> StartOfficialDeckGameThroughResourceRecycleAsync(string roomId)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var p1SubmitClients = new RecordingHubClients();
+        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", $"{roomId}-submit-deck-p1", SubmitDeckJson(p1Deck));
+        Assert.Empty(p1SubmitClients.CallerClient.Errors);
+
+        var p2SubmitClients = new RecordingHubClients();
+        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", $"{roomId}-submit-deck-p2", SubmitDeckJson(p2Deck));
+        Assert.Empty(p2SubmitClients.CallerClient.Errors);
+
+        var p1ReadyClients = new RecordingHubClients();
+        await CreateHub(p1ReadyClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready(roomId, "P1", $"{roomId}-ready-p1");
+        Assert.Empty(p1ReadyClients.CallerClient.Errors);
+
+        var readyClients = new RecordingHubClients();
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready(roomId, "P2", $"{roomId}-ready-p2");
+        Assert.Empty(readyClients.CallerClient.Errors);
+
+        var startSnapshot = SnapshotFor(readyClients, "P1");
+        var activePlayerId = startSnapshot.ActivePlayerId;
+        var secondPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
+        AssertOfficialSnapshotKeepsOpponentHandHidden(activeSnapshot, activePlayerId, secondPlayerId);
+        var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
+        Assert.Equal(4, activeHand.Count);
+
+        var activeMulliganClients = new RecordingHubClients();
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+            .SubmitIntent(roomId, activePlayerId, $"{roomId}-mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
+        Assert.Empty(activeMulliganClients.CallerClient.Errors);
+
+        var secondMulliganClients = new RecordingHubClients();
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), ConnectionFor(secondPlayerId), registry)
+            .SubmitIntent(roomId, secondPlayerId, $"{roomId}-mulligan-second", MulliganJson([]));
+        Assert.Empty(secondMulliganClients.CallerClient.Errors);
+        var mainSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
+        Assert.Equal(MatchPhases.Main, Assert.IsType<string>(mainSnapshot.Timing["phase"]));
+        AssertOfficialSnapshotKeepsOpponentHandHidden(mainSnapshot, activePlayerId, secondPlayerId);
+
+        var mainPrompt = PromptFor(secondMulliganClients, activePlayerId);
+        var tapRuneCandidate = Assert.Single(
+            mainPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        var tapRuneSources = tapRuneCandidate.Sources ?? [];
+        Assert.NotEmpty(tapRuneSources);
+        var runeSourceId = tapRuneSources.First().Id;
+
+        var tapRuneClients = new RecordingHubClients();
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+            .SubmitIntent(roomId, activePlayerId, $"{roomId}-tap-rune-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "TAP_RUNE",
+                sourceObjectId = runeSourceId
+            }));
+        Assert.Empty(tapRuneClients.CallerClient.Errors);
+
+        var recycleRuneClients = new RecordingHubClients();
+        await CreateHub(recycleRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+            .SubmitIntent(roomId, activePlayerId, $"{roomId}-recycle-rune-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "RECYCLE_RUNE",
+                sourceObjectId = runeSourceId
+            }));
+        Assert.Empty(recycleRuneClients.CallerClient.Errors);
+        var recycleSnapshot = SnapshotFor(recycleRuneClients, activePlayerId);
+        AssertOfficialSnapshotKeepsOpponentHandHidden(recycleSnapshot, activePlayerId, secondPlayerId);
+
+        return new OfficialOpeningState(registry, activePlayerId, secondPlayerId, recycleRuneClients);
+    }
+
+    private static string ConnectionFor(string playerId)
+    {
+        return string.Equals(playerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2";
+    }
+
+    private static IReadOnlyDictionary<string, object?> FirstPromptPlayableSourceRequirement(ActionPromptCandidateDto playCandidate)
+    {
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        Assert.NotEmpty(sourceRequirements);
+        var playableRequirement = sourceRequirements.FirstOrDefault(RequirementHasMinimumTargetChoices);
+        Assert.NotNull(playableRequirement);
+        return playableRequirement!;
+    }
+
+    private static bool RequirementHasMinimumTargetChoices(IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        var minTargetCount = IntValue(sourceRequirement, "minTargetCount");
+        if (minTargetCount <= 0)
+        {
+            return true;
+        }
+
+        if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawChoicesByIndex)
+            || rawChoicesByIndex is not IReadOnlyDictionary<string, object?> choicesByIndex)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < minTargetCount; index++)
+        {
+            if (!choicesByIndex.TryGetValue(index.ToString(System.Globalization.CultureInfo.InvariantCulture), out var rawChoices)
+                || rawChoices is not IEnumerable<ActionPromptChoiceDto> choices
+                || !choices.Any())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string[] TargetObjectIdsForRequirement(IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        var minTargetCount = IntValue(sourceRequirement, "minTargetCount");
+        if (minTargetCount <= 0)
+        {
+            return [];
+        }
+
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var targetObjectIds = new List<string>();
+        for (var index = 0; index < minTargetCount; index++)
+        {
+            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                    choicesByIndex[index.ToString(System.Globalization.CultureInfo.InvariantCulture)])
+                .ToArray();
+            Assert.NotEmpty(choices);
+            targetObjectIds.Add(choices[0].Id);
+        }
+
+        return targetObjectIds.ToArray();
+    }
+
+    private static string[] RequiredPaymentChoiceIdsForRequirement(IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        if (!sourceRequirement.TryGetValue("optionalCostChoices", out var rawOptionalCostChoices))
+        {
+            return [];
+        }
+
+        if (rawOptionalCostChoices is null)
+        {
+            return [];
+        }
+
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawOptionalCostChoices)
+            .ToArray();
+        var paymentChoiceIds = new List<string>();
+        foreach (var traitCost in PowerCostByTraitForRequirement(sourceRequirement))
+        {
+            var typedChoiceId = $"SPEND_POWER:{traitCost.Key}:{traitCost.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+            if (optionalCostChoices.Any(choice => string.Equals(choice.Id, typedChoiceId, StringComparison.Ordinal)))
+            {
+                paymentChoiceIds.Add(typedChoiceId);
+            }
+        }
+
+        var genericPowerCost = IntValue(sourceRequirement, "powerCost");
+        if (genericPowerCost > 0)
+        {
+            var genericChoiceId = $"SPEND_POWER:{genericPowerCost.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+            if (optionalCostChoices.Any(choice => string.Equals(choice.Id, genericChoiceId, StringComparison.Ordinal)))
+            {
+                paymentChoiceIds.Add(genericChoiceId);
+            }
+        }
+
+        if (paymentChoiceIds.Count == 0
+            && (genericPowerCost > 0 || PowerCostByTraitForRequirement(sourceRequirement).Count > 0))
+        {
+            var spendPowerChoice = optionalCostChoices.FirstOrDefault(choice =>
+                choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
+            Assert.NotNull(spendPowerChoice);
+            paymentChoiceIds.Add(spendPowerChoice!.Id);
+        }
+
+        return paymentChoiceIds.ToArray();
+    }
+
+    private static string DestinationForPlayRequirement(
+        ActionPromptCandidateDto playCandidate,
+        IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        var requirementChoices = DestinationChoicesForRequirement(sourceRequirement);
+        if (requirementChoices.Length > 0)
+        {
+            return requirementChoices.FirstOrDefault(choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal))?.Id
+                ?? requirementChoices[0].Id;
+        }
+
+        var candidateChoices = playCandidate.Destinations?.ToArray() ?? [];
+        if (candidateChoices.Length > 0)
+        {
+            return candidateChoices.FirstOrDefault(choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal))?.Id
+                ?? candidateChoices[0].Id;
+        }
+
+        return string.Empty;
+    }
+
+    private static ActionPromptChoiceDto[] DestinationChoicesForRequirement(
+        IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        if (!sourceRequirement.TryGetValue("destinationChoices", out var rawDestinationChoices))
+        {
+            return [];
+        }
+
+        if (rawDestinationChoices is null)
+        {
+            return [];
+        }
+
+        return Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawDestinationChoices).ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> PowerCostByTraitForRequirement(
+        IReadOnlyDictionary<string, object?> sourceRequirement)
+    {
+        if (!sourceRequirement.TryGetValue("powerCostByTrait", out var rawPowerCostByTrait)
+            || rawPowerCostByTrait is null)
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        if (rawPowerCostByTrait is IReadOnlyDictionary<string, int> powerCostByTrait)
+        {
+            return powerCostByTrait;
+        }
+
+        if (rawPowerCostByTrait is IReadOnlyDictionary<string, object?> objectPowerCostByTrait)
+        {
+            return objectPowerCostByTrait.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value is int value ? value : Convert.ToInt32(entry.Value, System.Globalization.CultureInfo.InvariantCulture),
+                StringComparer.Ordinal);
+        }
+
+        return new Dictionary<string, int>(StringComparer.Ordinal);
+    }
+
+    private static int IntValue(IReadOnlyDictionary<string, object?> sourceRequirement, string key)
+    {
+        if (!sourceRequirement.TryGetValue(key, out var rawValue) || rawValue is null)
+        {
+            return 0;
+        }
+
+        return rawValue is int value ? value : Convert.ToInt32(rawValue, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static void AssertOfficialSnapshotKeepsOpponentHandHidden(
+        SnapshotDto snapshot,
+        string viewerPlayerId,
+        string opponentPlayerId)
+    {
+        var viewerZones = ZoneView(PlayerView(snapshot, viewerPlayerId));
+        Assert.NotEmpty(StringList(viewerZones["hand"]));
+        var opponentZones = ZoneView(PlayerView(snapshot, opponentPlayerId));
+        Assert.Empty(StringList(opponentZones["hand"]));
+        Assert.True(Assert.IsType<int>(opponentZones["handHidden"]) >= 0);
     }
 
     private static OfficialDecklist BuildValidDeck(OfficialCardCatalog catalog)
