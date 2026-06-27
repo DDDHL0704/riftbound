@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 battlefield extra-standby rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B0 Poro Forge rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -46,6 +46,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Jhin opening state, a verified legal official-deck opening selects P1 `SFD·211/221` Marai Spire / 玛莱尖塔, then a focused midgame state keeps official `UNL-061/219` Center Stage in P1 hand with only 3 mana; the server-authored `PLAY_CARD` prompt exposes `ECHO` with the battlefield reduction reason, the command pays base 2 plus reduced Echo 1, records `battlefieldEchoCostReductionMana = 1`, creates a stack item with `effectRepeatCount = 2`, resolves to draw two cards, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening selects P1 `SFD·213/221` Ornn's Forge / 奥恩的锻炉, then a focused midgame state keeps official `SFD·022/221` Long Sword in P1 hand, official `SFD·006/221` Aggressive Dragonhound in P1 base, and only 1 mana; the server-authored `PLAY_CARD` prompt exposes `minimumManaCost = 1` and `battlefieldEquipmentCostReductionMana = 1`, the command pays the reduced first-equipment cost, records `PLAYED_EQUIPMENT_THIS_TURN:P1`, resolves Long Sword onto the controlled unit, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening selects P1 `SFD·208/221` Poro Forge / 魄罗熔炉, then a focused midgame state keeps official `SFD·181/221` Rumble legend ready, official `SFD·006/221` Aggressive Dragonhound in P1 base, and official `SFD·022/221` Long Sword in P1 base as a controlled `武装`; the server-authored `LEGEND_ACT` prompt exposes `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD` plus indexed controlled-unit / armament target choices, the command exhausts the legend, emits `BATTLEFIELD_TRIGGER_RESOLVED.trigger = BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT`, attaches Long Sword to the controlled unit, and the command stream continues through score victory and action-log replay to the same final state hash;
+- from a seated official Rumble opening state without Poro Forge, a focused midgame state keeps the same ready Rumble legend, controlled unit and controlled armament; the server-authored `LEGEND_ACT` prompt does not expose `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD`, a direct `LEGEND_ACT` for that battlefield-granted ability is rejected without exhausting the legend or attaching the armament, and the command stream including that rejected command continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex vs Rumble opening state, a verified legal official-deck opening selects P2 `UNL-206/219` Blood Altar / 鲜血祭坛, then a focused midgame `START_BATTLE` state keeps P1 official `UNL-057/219` Wildclaw Beastmaster attacking P2 official `OGN·096/298` Watchful Sentinel at that battlefield with exactly 3 P2 mana; the server-authored `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE` route resolves `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL`, spends P2's 3 mana, suppresses `UNIT_DESTROYED`, removes the defender's damage, exhausts it, recalls it to P2 base, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
@@ -316,6 +317,8 @@ This prevent unit-play increment additionally proves a legal official Vex deck o
 
 This extra-standby rejection increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` guard into server-authored `HIDE_CARD` destination filtering, reject a direct hand-written battlefield standby destination when the player does not control Bandle Tree, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close battlefield standby reveal / cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
+This Poro Forge rejection increment additionally proves a legal official Rumble deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` guard into server-authored `LEGEND_ACT` prompt filtering, reject a direct battlefield-granted legend action when the player does not control Poro Forge, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close full activated ability modeling for granted abilities, complete armament attachment lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
 Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions are 0 across `src/Riftbound.Engine`, `src/Riftbound.Contracts`, `src/Riftbound.CardCatalog` and `tests/Riftbound.ConformanceTests`; the broader residual `IsSourceCardNoForAbility` occurrence is the P4 activated ability catalog source mapping and call sites, not a newly introduced card-specific engine branch. Coverage-matrix unsupported functional-unit count was not changed by this B0/B4 slice.
 
 Open follow-up:
@@ -325,6 +328,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Poro Forge official-deck rejected-command replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameRejectsPoroForgeLegendAttachArmamentWithoutControlledForge"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Poro Forge / LegendAct / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~PoroForge|FullyQualifiedName~LegendAttachArmament|FullyQualifiedName~LegendAct|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2486, Failed: 0, Skipped: 0, Total: 2486
+```
+
+Latest Poro Forge rejected-command backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8865, Failed: 0, Skipped: 0, Total: 8865
+```
 
 Latest extra-standby official-deck rejected-command replay focused validation passed:
 

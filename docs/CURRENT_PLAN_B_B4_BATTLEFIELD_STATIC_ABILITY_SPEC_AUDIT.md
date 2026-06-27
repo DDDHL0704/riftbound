@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 extra-standby official-deck rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B4 Poro Forge official-deck rejected-command replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -44,6 +44,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` path through legal official Vex vs Rumble deck submission/opening, P2 `UNL-206/219` Blood Altar selection, real `DECLARE_BATTLE` / `ASSIGN_COMBAT_DAMAGE`, 3-mana payment, replacement recall to base, score victory, and final-state action-log replay.
 - `CoreRuleEngine` battlefield-granted legend armament attach action now requires the player to control a battlefield whose `BehaviorSpec.StaticAbilities` includes `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`, instead of requiring `SFD·208/221` through `BattlefieldGrantLegendAttachArmamentCardNo` / `RequiredControlledBattlefieldCardNo`.
 - `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` path through legal official Rumble deck submission/opening, server-authored `LEGEND_ACT` prompt metadata, legend exhaustion, armament attachment, score victory, and final-state action-log replay.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` guard through legal official Rumble deck submission/opening without Poro Forge, server-authored `LEGEND_ACT` prompt filtering, rejected direct `LEGEND_ACT`, no-mutation state hash, score victory, and final-state action-log replay that includes the rejected command.
 - `MatchSession` prompt filtering, Echo/equipment cost metadata, and battlefield-object recognition use the same static ability spec queries instead of the old `BattlefieldPreventMoveToBaseCardNo` / `BattlefieldPreventUnitPlayCardNo` / `BattlefieldEchoCostReductionCardNo` / `BattlefieldEquipmentCostReductionCardNo` constants.
 - `MatchSession` granted unit-experience prompt filtering and battlefield-object recognition use the same static ability spec query instead of the old `BattlefieldGrantUnitExperienceCardNo` constant.
 - `MatchSession` battlefield-object recognition uses the same static ability spec query instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` constant.
@@ -57,6 +58,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Poro Forge official-deck rejected-command replay focused validation: passed `1/1`;
+- latest PoroForge / LegendAttachArmament / LegendAct / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2486/2486`;
+- backend full conformance after the Poro Forge rejected-command replay increment: passed `8865/8865`;
 - latest extra-standby official-deck rejected-command replay focused validation: passed `1/1`;
 - latest BandleTree / BattlefieldExtraStandby / HideCard / Standby / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2506/2506`;
 - backend full conformance after the extra-standby replay increment: passed `8864/8864`;

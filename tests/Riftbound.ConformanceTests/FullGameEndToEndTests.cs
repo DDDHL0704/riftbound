@@ -1608,6 +1608,45 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameRejectsPoroForgeLegendAttachArmamentWithoutControlledForgeAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldLegendAttachArmamentRejectedOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var initialOpeningState = BuildSeatedInitialState(
+            "b0-full-game-poro-forge-legend-attach-armament-reject-replay-room",
+            LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            initialOpeningState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldLegendAttachArmamentRejectedMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var rejected = await SubmitBattlefieldLegendAttachArmamentRejectedAsync(
+            session,
+            current,
+            "P1",
+            "b0-poro-forge-legend-attach-armament-reject");
+        AssertBattlefieldLegendAttachArmamentRejected(current, rejected);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            rejected,
+            "b0-poro-forge-reject-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry =>
+            string.Equals(entry.CommandType, CommandTypes.LegendAct, StringComparison.Ordinal)
+            && !entry.Accepted
+            && string.Equals(entry.ErrorMessage, "该传奇没有服务端已开放的对应传奇行动。", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesBloodAltarBattleDestroyedRecallAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -6057,6 +6096,34 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(targetObjectId, attachedEvent.Payload["unitObjectId"]);
         Assert.Equal(equipmentObjectId, attachedEvent.Payload["equipmentObjectId"]);
         Assert.Equal(targetObjectId, attachedEvent.Payload["attachedToObjectId"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldLegendAttachArmamentRejected(
+        ResolutionResult beforeAttach,
+        ResolutionResult result)
+    {
+        var legendObjectId = Assert.Single(beforeAttach.State.PlayerZones["P1"].LegendZone);
+        var targetObjectId = FindBaseUnitByCardNo(
+            beforeAttach.State,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge rejected assertion could not locate Aggressive Dragonhound in P1 base.");
+        var equipmentObjectId = FindBaseArmamentByCardNo(
+            beforeAttach.State,
+            "P1",
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge rejected assertion could not locate Long Sword armament in P1 base.");
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("该传奇没有服务端已开放的对应传奇行动。", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(beforeAttach.State), MatchStateHasher.Hash(result.State));
+        Assert.False(result.State.CardObjects[legendObjectId].IsExhausted);
+        Assert.Contains(targetObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(equipmentObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Null(result.State.CardObjects[equipmentObjectId].AttachedToObjectId);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -14515,6 +14582,55 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldLegendAttachArmamentRejectedAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var legendObjectId = Assert.Single(current.State.PlayerZones[playerId].LegendZone);
+        var targetObjectId = FindBaseUnitByCardNo(
+            current.State,
+            playerId,
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge rejected driver could not find Aggressive Dragonhound in P1 base.");
+        var equipmentObjectId = FindBaseArmamentByCardNo(
+            current.State,
+            playerId,
+            LongSwordEquipmentCardNo)
+            ?? throw new InvalidOperationException("B0 Poro Forge rejected driver could not find Long Sword armament in P1 base.");
+
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.LegendAct);
+        if (candidate is not null)
+        {
+            var legalModeIds = candidate.Modes?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+                ?? [];
+            Assert.DoesNotContain(BattlefieldGrantedLegendAttachArmamentAbilityId, legalModeIds);
+            var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+            if (metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements))
+            {
+                var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(rawSourceRequirements);
+                Assert.DoesNotContain(sourceRequirements, requirement =>
+                    string.Equals(requirement["sourceObjectId"] as string, legendObjectId, StringComparison.Ordinal)
+                    && string.Equals(requirement["abilityId"] as string, BattlefieldGrantedLegendAttachArmamentAbilityId, StringComparison.Ordinal));
+            }
+        }
+
+        var command = new LegendActCommand(
+            legendObjectId,
+            BattlefieldGrantedLegendAttachArmamentAbilityId,
+            [targetObjectId, equipmentObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldBattleDestroyedRecallDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -19332,6 +19448,17 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldLegendAttachArmamentRejectedOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo]));
+    }
+
     private static OfficialDecklist BuildBattlefieldBattleDestroyedRecallAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -22873,6 +23000,18 @@ public sealed class FullGameEndToEndTests
 
     private static MatchState BuildBattlefieldLegendAttachArmamentMidgameInitialState(MatchState state)
     {
+        return BuildBattlefieldLegendAttachArmamentMidgameInitialState(state, requirePoroForge: true);
+    }
+
+    private static MatchState BuildBattlefieldLegendAttachArmamentRejectedMidgameInitialState(MatchState state)
+    {
+        return BuildBattlefieldLegendAttachArmamentMidgameInitialState(state, requirePoroForge: false);
+    }
+
+    private static MatchState BuildBattlefieldLegendAttachArmamentMidgameInitialState(
+        MatchState state,
+        bool requirePoroForge)
+    {
         var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
             state,
             new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
@@ -22881,10 +23020,14 @@ public sealed class FullGameEndToEndTests
                     [AggressiveDragonhoundCardNo, LongSwordEquipmentCardNo],
                     new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
-        _ = BattlefieldObjectIdForCardNo(
-            midgameState,
-            "P1",
-            PoroForgeBattlefieldLegendAttachArmamentCardNo);
+        if (requirePoroForge)
+        {
+            _ = BattlefieldObjectIdForCardNo(
+                midgameState,
+                "P1",
+                PoroForgeBattlefieldLegendAttachArmamentCardNo);
+        }
+
         var targetObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
