@@ -532,7 +532,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
-    private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
@@ -575,8 +574,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LeonaLegendIdentityId = "LEGEND_IDENTITY_LEONA";
     private const string SivirLegendIdentityId = "LEGEND_IDENTITY_SIVIR";
     private const string JhinLegendIdentityId = "LEGEND_IDENTITY_JHIN";
-    private const string JhinBanishedHighCostSpellMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
-    private const int JhinHighCostSpellManaThreshold = 4;
+    private const string LegendHighCostSpellBanishedMarker = "LEGEND_HIGH_COST_SPELL_BANISHED";
     private const string ViLegendCardNo = "UNL-187/219";
     private const string ViLegendIdentityId = "LEGEND_IDENTITY_VI";
     private const int ViLegendOverkillThreshold = 3;
@@ -617,7 +615,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PoroHerderBoonDrawSourceEffectKind = "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
-    private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
@@ -29661,7 +29658,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return [];
     }
 
-    private static JhinHighCostSpellTriggerResult ResolveJhinHighCostSpellTrigger(
+    private static LegendHighCostSpellBanishCompletionTriggerResult ResolveLegendHighCostSpellBanishCompletionTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -29670,18 +29667,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         long rngCursor)
     {
-        if (behavior.ManaCost < JhinHighCostSpellManaThreshold
-            || !ControllerHasJhinLegend(playerZones, cardObjects, stackItem.ControllerId)
+        if (!TryGetLegendHighCostSpellBanishCompletionTriggerSource(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                out var triggerSource)
+            || behavior.ManaCost < triggerSource.Trigger.MinimumPaidMana.GetValueOrDefault()
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
             || !playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
-            return new JhinHighCostSpellTriggerResult(false, [], playerScores, null, rngCursor);
+            return new LegendHighCostSpellBanishCompletionTriggerResult(false, [], playerScores, null, rngCursor);
         }
 
+        var trackedSpellCount = triggerSource.Trigger.BanishCount.GetValueOrDefault();
+        var runeCallCount = triggerSource.Trigger.RuneCallCount.GetValueOrDefault();
+        var drawCount = triggerSource.Trigger.DrawCount.GetValueOrDefault();
         var events = new List<GameEvent>();
         var trackedTags = sourceState.Tags
-            .Concat([JhinBanishedHighCostSpellMarker])
+            .Concat([LegendHighCostSpellBanishedMarker])
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
@@ -29701,22 +29705,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = stackItem.ControllerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["cardNo"] = stackItem.CardNo,
-                ["trigger"] = "HIGH_COST_SPELL_BANISHED"
+                ["trigger"] = "HIGH_COST_SPELL_BANISHED",
+                ["legendSourceObjectId"] = triggerSource.SourceObjectId,
+                ["legendCardNo"] = triggerSource.SourceCardNo,
+                ["minimumPaidMana"] = triggerSource.Trigger.MinimumPaidMana,
+                ["banishCount"] = trackedSpellCount
             }));
 
         var trackedSpellObjectIds = controllerZones.Banished
             .Where(objectId => cardObjects.TryGetValue(objectId, out var spellState)
-                && spellState.Tags.Contains(JhinBanishedHighCostSpellMarker, StringComparer.Ordinal))
+                && spellState.Tags.Contains(LegendHighCostSpellBanishedMarker, StringComparer.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
-        if (trackedSpellObjectIds.Length < JhinCompletionSpellCount)
+        if (trackedSpellObjectIds.Length < trackedSpellCount)
         {
-            return new JhinHighCostSpellTriggerResult(true, events, playerScores, null, rngCursor);
+            return new LegendHighCostSpellBanishCompletionTriggerResult(true, events, playerScores, null, rngCursor);
         }
 
         var completedSpellObjectIds = trackedSpellObjectIds
-            .Take(JhinCompletionSpellCount)
+            .Take(trackedSpellCount)
             .ToArray();
         controllerZones = playerZones[stackItem.ControllerId];
         playerZones[stackItem.ControllerId] = controllerZones with
@@ -29739,7 +29747,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects[objectId] = completedState with
             {
                 Tags = completedState.Tags
-                    .Where(tag => !string.Equals(tag, JhinBanishedHighCostSpellMarker, StringComparison.Ordinal))
+                    .Where(tag => !string.Equals(tag, LegendHighCostSpellBanishedMarker, StringComparison.Ordinal))
                     .ToArray()
             };
         }
@@ -29753,13 +29761,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["cardNo"] = stackItem.CardNo,
                 ["trigger"] = "FOUR_HIGH_COST_SPELLS_COMPLETED",
-                ["spellObjectIds"] = completedSpellObjectIds
+                ["legendSourceObjectId"] = triggerSource.SourceObjectId,
+                ["legendCardNo"] = triggerSource.SourceCardNo,
+                ["spellObjectIds"] = completedSpellObjectIds,
+                ["banishCount"] = trackedSpellCount,
+                ["runeCallCount"] = runeCallCount,
+                ["drawCount"] = drawCount
             }));
         var runeCallResult = CallRunes(
             playerZones,
             cardObjects,
             stackItem.ControllerId,
-            JhinCompletionSpellCount);
+            runeCallCount);
         events.Add(new GameEvent(
             "RUNES_CALLED",
             $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
@@ -29776,15 +29789,60 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             playerScores,
             stackItem.ControllerId,
-            1,
+            drawCount,
             rngCursor,
             events);
-        return new JhinHighCostSpellTriggerResult(
+        return new LegendHighCostSpellBanishCompletionTriggerResult(
             true,
             events,
             drawApplication.PlayerScores,
             drawApplication.WinnerPlayerId,
             drawApplication.RngCursor);
+    }
+
+    private static bool TryGetLegendHighCostSpellBanishCompletionTriggerSource(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out LegendHighCostSpellBanishCompletionTriggerSource source)
+    {
+        source = default!;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var legendState)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
+                || !SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger(
+                    legendState.CardNo,
+                    out var trigger)
+                || !IsLegendHighCostSpellBanishCompletionTriggerSpec(trigger))
+            {
+                continue;
+            }
+
+            source = new LegendHighCostSpellBanishCompletionTriggerSource(
+                objectId,
+                legendState.CardNo ?? string.Empty,
+                trigger);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsLegendHighCostSpellBanishCompletionTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellBanishCompletion, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.BanishCount.GetValueOrDefault() > 0
+            && trigger.RuneCallCount.GetValueOrDefault() > 0
+            && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
@@ -33056,11 +33114,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+            var effectKind = triggerSpec.Kind;
             var triggerBehavior = new CardBehaviorDefinition(
                 sourceState.CardNo ?? string.Empty,
                 "法术打出触发",
                 0,
-                RavenbloomStudentSpellPowerEffectKind,
+                effectKind,
                 0,
                 0,
                 PowerModifierAmount: powerDelta);
@@ -33068,7 +33127,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItemId: $"{sourceObjectId}:spell-played-power",
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
-                effectKind: RavenbloomStudentSpellPowerEffectKind,
+                effectKind: effectKind,
                 cardNo: sourceState.CardNo);
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
@@ -33076,8 +33135,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["trigger"] = RavenbloomStudentSpellPowerEffectKind,
+                    ["trigger"] = effectKind,
                     ["triggerSourceObjectId"] = sourceObjectId,
+                    ["triggerSourceCardNo"] = sourceState.CardNo,
                     ["playedCardNo"] = stackItem.CardNo,
                     ["playedSourceObjectId"] = stackItem.SourceObjectId,
                     ["powerDelta"] = powerDelta
@@ -36831,7 +36891,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             officialLastBreathTriggers.Add(trigger);
         }
 
-        var jhinTrigger = ResolveJhinHighCostSpellTrigger(
+        var legendHighCostSpellBanishCompletionTrigger = ResolveLegendHighCostSpellBanishCompletionTrigger(
             state,
             playerZones,
             cardObjects,
@@ -36839,14 +36899,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             stackItem,
             behavior,
             rngCursor);
-        events.AddRange(jhinTrigger.Events);
-        playerScores = jhinTrigger.PlayerScores;
-        winnerPlayerId = jhinTrigger.WinnerPlayerId ?? winnerPlayerId;
-        rngCursor = jhinTrigger.RngCursor;
+        events.AddRange(legendHighCostSpellBanishCompletionTrigger.Events);
+        playerScores = legendHighCostSpellBanishCompletionTrigger.PlayerScores;
+        winnerPlayerId = legendHighCostSpellBanishCompletionTrigger.WinnerPlayerId ?? winnerPlayerId;
+        rngCursor = legendHighCostSpellBanishCompletionTrigger.RngCursor;
 
         if (!behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
-            && !jhinTrigger.HandledSourceMovement
+            && !legendHighCostSpellBanishCompletionTrigger.HandledSourceMovement
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
             if (behavior.BanishesSourceOnResolution)
@@ -45509,7 +45569,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record RuneCallResult(
         IReadOnlyList<string> CalledRuneObjectIds);
 
-    private sealed record JhinHighCostSpellTriggerResult(
+    private sealed record LegendHighCostSpellBanishCompletionTriggerSource(
+        string SourceObjectId,
+        string SourceCardNo,
+        TriggerSpec Trigger);
+
+    private sealed record LegendHighCostSpellBanishCompletionTriggerResult(
         bool HandledSourceMovement,
         IReadOnlyList<GameEvent> Events,
         IReadOnlyDictionary<string, int> PlayerScores,

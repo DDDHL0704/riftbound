@@ -71,6 +71,7 @@ export type BehaviorSpec = {
     discardCount?: number | null;
     discardSourceZone?: string | null;
     discardDestinationZone?: string | null;
+    banishCount?: number | null;
     manaCost?: number | null;
     powerCost?: number | null;
     boonCount?: number | null;

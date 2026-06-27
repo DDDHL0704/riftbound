@@ -141,7 +141,7 @@
         "kind": "TRIGGER_RESOLVED",
         "payload": {
           "playerId": "P1",
-          "trigger": "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1",
+          "trigger": "UNIT_SPELL_PLAYED_POWER_MODIFIER",
           "triggerSourceObjectId": "P1-UNIT-RAVENBLOOM-STUDENT",
           "playedCardNo": "UNL-031/219",
           "playedSourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",

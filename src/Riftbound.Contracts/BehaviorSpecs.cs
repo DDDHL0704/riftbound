@@ -154,6 +154,8 @@ public static class TriggerKinds
         "UNIT_HIGH_COST_SPELL_POWER_MODIFIER";
     public const string LegendHighCostSpellDrawOne =
         "LEGEND_HIGH_COST_SPELL_DRAW_ONE";
+    public const string LegendHighCostSpellBanishCompletion =
+        "LEGEND_HIGH_COST_SPELL_BANISH_COMPLETION";
     public const string UnitFriendlyDestroyedGainExperience =
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
@@ -429,6 +431,7 @@ public sealed record TriggerSpec(
     int? DiscardCount = null,
     string? DiscardSourceZone = null,
     string? DiscardDestinationZone = null,
+    int? BanishCount = null,
     int? ManaCost = null,
     int? PowerCost = null,
     int? BoonCount = null,

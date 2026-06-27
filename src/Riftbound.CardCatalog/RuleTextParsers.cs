@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Riftbound.Contracts;
 
@@ -362,6 +363,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathCreateBaseUnitTrigger);
         }
 
+        var hasLegendHighCostSpellBanishCompletionTrigger =
+            TryParseLegendHighCostSpellBanishCompletion(text, out var legendHighCostSpellBanishCompletionTrigger);
+        if (hasLegendHighCostSpellBanishCompletionTrigger)
+        {
+            triggers.Add(legendHighCostSpellBanishCompletionTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -382,10 +390,39 @@ public static class TriggerParser
                 || !segment.Contains("友方装备变为活跃状态", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldDefendRevealSpellTrigger
                 || !segment.Contains("当你防守此处时，展示你主牌堆顶部", StringComparison.Ordinal))
+            .Where(segment => !hasLegendHighCostSpellBanishCompletionTrigger
+                || !segment.Contains("当你打出一个法术时，如果消耗了不低于", StringComparison.Ordinal)
+                || !segment.Contains("则你可以选择将该法术放逐", StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 
         return triggers.ToArray();
+    }
+
+    private static bool TryParseLegendHighCostSpellBanishCompletion(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"当你打出一个法术时，如果消耗了不低于\{\{(\d+)\}\}法力，则你可以选择将该法术放逐。?如果以此方法放逐了(.+)张法术牌，则将这些法术牌放入各自的废牌堆，召出(.+)枚符文，并抽一张牌",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.LegendHighCostSpellBanishCompletion,
+            TriggerTimings.BattlefieldSpellPlayed,
+            match.Value,
+            "Legend high-cost spell banish completion trigger parsed for spell-play trigger routing; execution keeps the current representative auto-resolution while optional prompt breadth remains residual.",
+            TargetScope: TriggerTargetScopes.SourceLegend,
+            MinimumPaidMana: int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture),
+            BanishCount: ParseChineseNumber(match.Groups[2].Value),
+            RuneCallCount: ParseChineseNumber(match.Groups[3].Value),
+            DrawCount: 1,
+            Optional: true);
+        return true;
     }
 
     private static bool TryParseUnitLastBreathDrawOne(string text, out TriggerSpec trigger)
@@ -1602,6 +1639,26 @@ public static class TriggerParser
                 "Legend high-cost spell draw trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
                 MinimumPaidMana: legendMinimumPaidMana,
                 DrawCount: 1);
+        }
+
+        var legendHighCostSpellBanishCompletionMatch = Regex.Match(
+            segment,
+            @"当你打出一个法术时，如果消耗了不低于\{\{(\d+)\}\}法力，则你可以选择将该法术放逐。如果以此方法放逐了(.+)张法术牌，则将这些法术牌放入各自的废牌堆，召出(.+)枚符文，并抽一张牌",
+            RegexOptions.CultureInvariant);
+        if (legendHighCostSpellBanishCompletionMatch.Success
+            && int.TryParse(legendHighCostSpellBanishCompletionMatch.Groups[1].Value, out var legendBanishMinimumPaidMana))
+        {
+            return new TriggerSpec(
+                TriggerKinds.LegendHighCostSpellBanishCompletion,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Legend high-cost spell banish completion trigger parsed for spell-play trigger routing; execution keeps the current representative auto-resolution while optional prompt breadth remains residual.",
+                TargetScope: TriggerTargetScopes.SourceLegend,
+                MinimumPaidMana: legendBanishMinimumPaidMana,
+                BanishCount: ParseChineseNumber(legendHighCostSpellBanishCompletionMatch.Groups[2].Value),
+                RuneCallCount: ParseChineseNumber(legendHighCostSpellBanishCompletionMatch.Groups[3].Value),
+                DrawCount: 1,
+                Optional: true);
         }
 
         var movedUnitPowerMatch = Regex.Match(

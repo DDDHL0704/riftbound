@@ -32,6 +32,14 @@ internal static class SpellPlayedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLegendHighCostSpellBanishCompletionTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.LegendHighCostSpellBanishCompletion,
+            out trigger);
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

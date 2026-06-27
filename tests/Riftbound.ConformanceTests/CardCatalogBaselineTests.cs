@@ -1880,6 +1880,39 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesLegendHighCostSpellBanishCompletionTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        AssertLegendHighCostSpellBanishCompletion("UNL-181/219");
+        AssertLegendHighCostSpellBanishCompletion("UNL-226/219");
+        AssertLegendHighCostSpellBanishCompletion("UNL-226*/219");
+
+        void AssertLegendHighCostSpellBanishCompletion(string cardNo)
+        {
+            var spec = Assert.Single(specs, candidate => string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal));
+            var trigger = Assert.Single(
+                spec.Triggers,
+                candidate => string.Equals(candidate.Kind, TriggerKinds.LegendHighCostSpellBanishCompletion, StringComparison.Ordinal));
+            Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+            Assert.Equal(TriggerTargetScopes.SourceLegend, trigger.TargetScope);
+            Assert.Equal(4, trigger.MinimumPaidMana);
+            Assert.Equal(4, trigger.BanishCount);
+            Assert.Equal(4, trigger.RuneCallCount);
+            Assert.Equal(1, trigger.DrawCount);
+            Assert.True(trigger.Optional);
+            Assert.Contains("当你打出一个法术时，如果消耗了不低于{{4}}法力", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("放逐了四张法术牌", trigger.Text, StringComparison.Ordinal);
+            Assert.Contains("召出四枚符文，并抽一张牌", trigger.Text, StringComparison.Ordinal);
+            Assert.Equal(
+                "Legend high-cost spell banish completion trigger parsed for spell-play trigger routing; execution keeps the current representative auto-resolution while optional prompt breadth remains residual.",
+                trigger.Reason);
+        }
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldPlayUnitBoonTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4224,6 +4257,23 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void HighCostSpellTriggersDoNotUseJhinSpecificResolver()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResolveJhinHighCostSpellTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JhinHighCostSpellManaThreshold", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JhinCompletionSpellCount", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("JhinBanishedHighCostSpellMarker", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SpellPlayedPowerTriggersDoNotUseRavenbloomSpecificResolver()
     {
         var coreRuleEnginePath = Path.Combine(
@@ -4234,6 +4284,8 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResolveRavenbloomStudentSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RavenbloomStudentSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 

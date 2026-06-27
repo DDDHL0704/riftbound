@@ -26425,7 +26425,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, evt =>
             string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && evt.Payload.TryGetValue("trigger", out var trigger)
-            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+            && string.Equals(trigger as string, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal));
     }
 
     [Theory]
@@ -26451,7 +26451,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, evt =>
             string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && evt.Payload.TryGetValue("trigger", out var trigger)
-            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal)
+            && string.Equals(trigger as string, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal)
             && evt.Payload.TryGetValue("triggerSourceObjectId", out var triggerSourceObjectId)
             && string.Equals(triggerSourceObjectId as string, "P1-UNIT-DIANA", StringComparison.Ordinal)
             && evt.Payload.TryGetValue("powerDelta", out var powerDelta)
@@ -26484,7 +26484,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(result.Events, evt =>
             string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && evt.Payload.TryGetValue("trigger", out var trigger)
-            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+            && string.Equals(trigger as string, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, evt =>
             string.Equals(evt.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
             && string.Equals(evt.Payload["targetObjectId"] as string, "P1-UNIT-RAVENBLOOM-STUDENT", StringComparison.Ordinal));
@@ -35774,14 +35774,17 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
     }
 
-    [Fact]
-    public async Task P79LegendTriggerJhinCompletesFourthBanishedHighCostSpell()
+    [Theory]
+    [InlineData("UNL-181/219", "P1-LEGEND-JHIN")]
+    [InlineData("UNL-226/219", "P1-LEGEND-JHIN-ALT")]
+    [InlineData("UNL-226*/219", "P1-LEGEND-JHIN-PREMIUM")]
+    public async Task P79LegendTriggerJhinCompletesFourthBanishedHighCostSpell(string sourceCardNo, string sourceObjectId)
     {
-        var state = JhinHighCostSpellCompletionState("UNL-181/219", "P1-LEGEND-JHIN");
+        var state = JhinHighCostSpellCompletionState(sourceCardNo, sourceObjectId);
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p7-9-jhin-play-ruination", "P1", "PLAY_CARD"),
+            new PlayerIntent($"intent-p7-9-jhin-{sourceCardNo}-play-ruination", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-JHIN-RUINATION", "UNL-180/219", []),
             CancellationToken.None);
 
@@ -70962,7 +70965,7 @@ public sealed class ConformanceFixtureRunnerTests
 
     private static MatchState JhinHighCostSpellCompletionState(string sourceCardNo, string sourceObjectId)
     {
-        const string jhinMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
+        const string highCostSpellBanishedMarker = "LEGEND_HIGH_COST_SPELL_BANISHED";
         var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 9);
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         playerZones["P1"] = playerZones["P1"] with
@@ -70995,7 +70998,7 @@ public sealed class ConformanceFixtureRunnerTests
             cardObjects[objectId] = new(
                 objectId,
                 cardNo: "UNL-017/219",
-                tags: [CardObjectTags.SpellCard, jhinMarker],
+                tags: [CardObjectTags.SpellCard, highCostSpellBanishedMarker],
                 ownerId: "P1",
                 controllerId: "P1");
         }
