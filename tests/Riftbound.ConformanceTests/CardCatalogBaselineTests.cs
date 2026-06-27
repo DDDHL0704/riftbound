@@ -2503,6 +2503,34 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitConquestOverkillCreateDormantGoldTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var yetiBrawler = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-018/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            yetiBrawler.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestOverkillCreateDormantGold, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestOverkillCreateDormantGold, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(3, trigger.RequiredOverkillDamage);
+        Assert.Equal(2, trigger.CreatedTokenCount);
+        Assert.Equal("金币", trigger.CreatedTokenName);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.True(trigger.CreatedTokenExhausted);
+        Assert.Equal(["反应"], trigger.CreatedTokenKeywords);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("不低于3点的过量伤害", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出两个休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest overkill create-dormant-Gold trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

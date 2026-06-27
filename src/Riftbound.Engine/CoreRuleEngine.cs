@@ -17497,6 +17497,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     battlefieldId,
                     survivingConquerAttackerObjectIds,
+                    assignedOverkillDamageToEnemyUnits,
                     rngCursor,
                     naturalUnitConquestEvents,
                     out var naturalUnitConquestDrawApplication,
@@ -22943,6 +22944,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             battlefieldId,
             triggerSpec.Kind,
             unitObjectIds,
+            0,
             rngCursor,
             events,
             out drawApplication,
@@ -22958,6 +22960,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string battlefieldId,
         IReadOnlyList<string> conqueringUnitObjectIds,
+        int assignedOverkillDamageToEnemyUnits,
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
@@ -22992,6 +22995,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             battlefieldId,
             "BATTLEFIELD_CONQUERED",
             unitObjectIds,
+            assignedOverkillDamageToEnemyUnits,
             rngCursor,
             events,
             out drawApplication,
@@ -23009,6 +23013,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldPositionObjectId,
         string activationReason,
         IReadOnlyList<string> unitObjectIds,
+        int assignedOverkillDamageToEnemyUnits,
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
@@ -23045,6 +23050,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldObjectId,
                     activationReason,
                     unitObjectId,
+                    assignedOverkillDamageToEnemyUnits,
                     nextRngCursor,
                     events,
                     out var unitDrawApplication,
@@ -23074,6 +23080,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldObjectId,
         string activationReason,
         string unitObjectId,
+        int assignedOverkillDamageToEnemyUnits,
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
@@ -23089,6 +23096,48 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextPlayerScores = playerScores;
         string? winnerPlayerId = null;
         var nextRngCursor = rngCursor;
+        if (UnitConquestTriggerSpecRules.TryGetUnitConquestOverkillCreateDormantGoldTrigger(
+                unitState.CardNo,
+                out var unitConquestOverkillGoldTrigger)
+            && string.Equals(activationReason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && unitConquestOverkillGoldTrigger.RequiredOverkillDamage is > 0
+            && assignedOverkillDamageToEnemyUnits >= unitConquestOverkillGoldTrigger.RequiredOverkillDamage.Value)
+        {
+            var tokenName = unitConquestOverkillGoldTrigger.CreatedTokenName ?? "金币";
+            var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
+                .Concat(unitConquestOverkillGoldTrigger.CreatedTokenKeywords ?? [])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            var tokenCount = Math.Max(1, unitConquestOverkillGoldTrigger.CreatedTokenCount.GetValueOrDefault(1));
+            var tokenIsExhausted = unitConquestOverkillGoldTrigger.CreatedTokenExhausted.GetValueOrDefault(true);
+            AddUnitConquestEffectActivatedEvent(
+                events,
+                playerId,
+                unitObjectId,
+                unitState.CardNo,
+                unitConquestOverkillGoldTrigger.Kind,
+                battlefieldObjectId,
+                activationReason,
+                assignedOverkillDamageToEnemyUnits: assignedOverkillDamageToEnemyUnits,
+                requiredOverkillDamage: unitConquestOverkillGoldTrigger.RequiredOverkillDamage.Value);
+            for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+            {
+                CreateLegendEquipmentToken(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    unitObjectId,
+                    unitConquestOverkillGoldTrigger.Kind,
+                    tokenName,
+                    tokenTags,
+                    tokenIsExhausted,
+                    events);
+            }
+
+            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+            return true;
+        }
+
         if (UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(unitState.CardNo, out var unitConquestGoldTrigger))
         {
             var tokenName = unitConquestGoldTrigger.CreatedTokenName ?? "金币";
@@ -23424,7 +23473,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         string effectId,
         string battlefieldObjectId,
         string reason,
-        string? targetObjectId = null)
+        string? targetObjectId = null,
+        int? assignedOverkillDamageToEnemyUnits = null,
+        int? requiredOverkillDamage = null)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -23439,6 +23490,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!string.IsNullOrWhiteSpace(targetObjectId))
         {
             payload["targetObjectId"] = targetObjectId;
+        }
+
+        if (assignedOverkillDamageToEnemyUnits.HasValue)
+        {
+            payload["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits.Value;
+        }
+
+        if (requiredOverkillDamage.HasValue)
+        {
+            payload["requiredOverkillDamage"] = requiredOverkillDamage.Value;
         }
 
         events.Add(new GameEvent(
@@ -23464,7 +23525,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasSupportedUnitConquestTriggerSpec(string? cardNo)
     {
-        return UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
+        return UnitConquestTriggerSpecRules.TryGetUnitConquestOverkillCreateDormantGoldTrigger(cardNo, out _)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)

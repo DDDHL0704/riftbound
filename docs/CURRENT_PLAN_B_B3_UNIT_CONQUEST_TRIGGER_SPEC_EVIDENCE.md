@@ -1,6 +1,6 @@
 # Plan B / B3 Unit Conquest Trigger Spec Evidence
 
-Date: 2026-06-26
+Date: 2026-06-27
 
 Project status: **NOT READY**.
 
@@ -11,6 +11,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·155/298` 奇亚娜 has official text `{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当我征服一处战场时，抽一张牌或召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-222/219` 坏坏魄罗 has official text `当我征服一处战场时，打出一个休眠的“金币”装备指示物。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·069/221` 坏坏魄罗 has the same official text.
+- `data/official/card-catalog.zh-CN.json`: `UNL-018/219` 雪人斗士 has official text `当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则打出两个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）`
 - `data/official/card-catalog.zh-CN.json`: `SFD·232/221` 瑟提 has official text `当我被打出时、或当我征服一处战场时，给予我增益。（如果我未拥有增益，则获得一个{{S}}+1增益。）\n消耗我的增益：让我本回合内{{S}}+4。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·232*/221`, `OGN·164/298`, and `OGN·164a/298` 瑟提 have the same unit conquest self-boon text.
 - `data/official/card-catalog.zh-CN.json`: `SFD·113/221` 卢锡安 has official text `{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n每回合首次，当我征服一处战场时，让我变为活跃状态。`
@@ -29,6 +30,7 @@ Project status: **NOT READY**.
 - `BehaviorSpecCatalogParsesUnitConquestDrawOneOrCallRuneTrigger` verifies that 奇亚娜's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RuneCallCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(UNL-222/219)` verifies that 坏坏魄罗's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_CREATE_DORMANT_GOLD`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount = 1`, `CreatedTokenName = 金币`, `CreatedTokenDestination = OWNER_BASE`, `CreatedTokenExhausted = true`, and `CreatedTokenKeywords = [反应]`.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(SFD·069/221)` verifies the same shape for the SFD print.
+- `BehaviorSpecCatalogParsesUnitConquestOverkillCreateDormantGoldTrigger` verifies that 雪人斗士's official overkill text parses to `TriggerSpec.Kind = UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `RequiredOverkillDamage = 3`, `CreatedTokenCount = 2`, `CreatedTokenName = 金币`, `CreatedTokenDestination = OWNER_BASE`, `CreatedTokenExhausted = true`, and `CreatedTokenKeywords = [反应]`.
 - `BehaviorSpecCatalogParsesUnitConquestGrantSelfBoonTrigger` verifies that the four 瑟提 prints parse their official conquest self-boon text to `TriggerSpec.Kind = UNIT_CONQUEST_GRANT_SELF_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `BoonCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestReadySelfOnceTrigger` verifies that the two 卢锡安 prints parse their official conquest ready-self text to `TriggerSpec.Kind = UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `OncePerTurn = true`.
 - `BehaviorSpecCatalogParsesUnitConquestGrantFriendlyBoonTrigger` verifies that the two 绯红印记树怪 prints parse their official conquest friendly-boon text to `TriggerSpec.Kind = UNIT_CONQUEST_GRANT_FRIENDLY_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = CONTROLLED_UNIT_ON_FIELD`, and `BoonCount = 1`.
@@ -48,6 +50,7 @@ Project status: **NOT READY**.
 
 - `NaturalUnitConquestTriggerTests.KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·039/298` 卡莎 emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_DRAW_ONE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - `NaturalUnitConquestTriggerTests.CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-029/219` 绯红印记树怪 uses its same-battlefield `UNIT_CONQUEST_ADDITIONAL_ACTIVATION` source to activate `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` twice with reason `BATTLEFIELD_CONQUERED`, while the second boon event records `alreadyHadBoon = true` and does not stack another power increase.
+- `NaturalUnitConquestTriggerTests.YetiBrawlerCreatesTwoDormantGoldAfterOverkillNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-018/219` 雪人斗士 with 5 assigned overkill damage emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, and creates two exhausted Gold equipment tokens in the controller's base.
 - `FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash` verifies an official-deck midgame state produced from the normal submit/ready/mulligan/no-legal-battle opening can still play `UNL-029/219` 绯红印记树怪 through `PLAY_CARD`, move it with `MOVE_UNIT`, stage a defender, resolve a natural `DECLARE_BATTLE` conquest, emit two `UNIT_CONQUEST_EFFECT_ACTIVATED` / `BOON_GRANTED` events for the TriggerSpec repeat path, continue to score victory, and replay the post-midgame action log to the same final state hash.
 - `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` verifies the 清算人竞技场 representative still activates 卡莎's conquest draw effect, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - The same `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` representative verifies the 坏坏魄罗 dormant-Gold effect still emits `UNIT_CONQUEST_EFFECT_ACTIVATED` with `UNIT_CONQUEST_CREATE_DORMANT_GOLD`, creates an exhausted equipment token, and moves that token to the controller's base.
@@ -63,11 +66,12 @@ Project status: **NOT READY**.
 
 ## Validation
 
+- Focused 雪人斗士 overkill TriggerSpec parser + natural conquest runtime representatives: `2/2` passing.
 - Focused natural unit conquest additional-activation + 清算人竞技场 non-repeat representatives: `5/5` passing.
 - Focused official-deck midgame Treant conquest repeat replay representative: `1/1` passing.
 - Adjacent `FullGameEndToEnd` / `NaturalUnitConquestTrigger` / `UnitConquest` / `MatchRecovery` representatives: `2034/2034` passing.
-- Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2469/2469` passing.
-- Backend full conformance: `8607/8607` passing.
+- Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2474/2474` passing.
+- Backend full conformance: `8782/8782` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk

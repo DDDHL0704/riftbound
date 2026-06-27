@@ -1,8 +1,8 @@
 # Plan B / B3 Unit Conquest Trigger Spec Audit
 
-Date: 2026-06-26
+Date: 2026-06-27
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, and official-deck midgame Treant replay slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, and official-deck midgame Treant replay slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -38,6 +38,19 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `CreatedTokenKeywords = [反应]`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 坏坏魄罗's representative dormant-Gold effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(...)`, and reads the emitted effect id, token name, token count, exhausted state, and token tags from `BehaviorSpec.Triggers`.
 - The old `BadPoroUnitConquestGoldCardNo` / `IsBadPoroUnitConquestGoldCardNo` branch is removed.
+- `UNL-018/219` 雪人斗士 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则打出两个休眠的“金币”装备指示物。`
+- `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = SOURCE_UNIT`
+  - `RequiredOverkillDamage = 3`
+  - `CreatedTokenCount = 2`
+  - `CreatedTokenName = 金币`
+  - `CreatedTokenDestination = OWNER_BASE`
+  - `CreatedTokenExhausted = true`
+  - `CreatedTokenKeywords = [反应]`
+- `CoreRuleEngine` now passes the battle-assigned overkill count from natural `DECLARE_BATTLE` conquest into the shared unit-conquest TriggerSpec resolver. 雪人斗士's representative only resolves on natural `BATTLEFIELD_CONQUERED` when `assignedOverkillDamageToEnemyUnits >= RequiredOverkillDamage`, then creates two exhausted Gold equipment tokens from `BehaviorSpec.Triggers`.
+- No `UNL-018/219` card-number branch was added.
 - `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 瑟提 official text from `data/official/card-catalog.zh-CN.json`: `当我被打出时、或当我征服一处战场时，给予我增益。`
 - `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
   - `Kind = UNIT_CONQUEST_GRANT_SELF_BOON`
@@ -93,7 +106,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
 
 ## Non-Goals
 
-- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds the first natural battle-conquest representative route, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` representative.
+- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds natural battle-conquest representative routes including overkill-gated Gold creation, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` representative.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, the full official opening-to-5-cost Treant window, B0 full-game readiness, or project READY.
 

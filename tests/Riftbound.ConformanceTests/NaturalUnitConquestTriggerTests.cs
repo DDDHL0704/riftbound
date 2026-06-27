@@ -9,6 +9,7 @@ public sealed class NaturalUnitConquestTriggerTests
     private const string BattlefieldId = "P1-NATURAL-UNIT-CONQUEST-BATTLEFIELD";
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
     private const string TreantObjectId = "P1-NATURAL-CONQUEST-TREANT";
+    private const string YetiObjectId = "P1-NATURAL-CONQUEST-YETI";
     private const string DefenderObjectId = "P2-NATURAL-CONQUEST-DEFENDER";
     private const string DrawObjectId = "P1-NATURAL-CONQUEST-DRAW";
 
@@ -86,6 +87,55 @@ public sealed class NaturalUnitConquestTriggerTests
         var treant = result.State.CardObjects[TreantObjectId];
         Assert.Equal(5, treant.Power);
         Assert.Contains(CardObjectTags.Boon, treant.Tags);
+    }
+
+    [Fact]
+    public async Task YetiBrawlerCreatesTwoDormantGoldAfterOverkillNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestYetiState(),
+            new PlayerIntent("intent-natural-unit-conquest-yeti-overkill-gold", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [YetiObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, YetiObjectId, StringComparison.Ordinal));
+        Assert.Equal(5, Assert.IsType<int>(conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]));
+
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, YetiObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestOverkillCreateDormantGold, conquestTrigger.Payload["effectId"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
+        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldObjectId"]);
+
+        var tokenEvents = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, YetiObjectId, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestOverkillCreateDormantGold, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, tokenEvents.Length);
+
+        var tokenObjectIds = tokenEvents
+            .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["tokenObjectId"]))
+            .ToArray();
+        Assert.Equal(tokenObjectIds, tokenObjectIds.Distinct(StringComparer.Ordinal).ToArray());
+        Assert.All(tokenObjectIds, tokenObjectId =>
+        {
+            Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
+            var tokenState = result.State.CardObjects[tokenObjectId];
+            Assert.True(tokenState.IsExhausted);
+            Assert.Contains(CardObjectTags.EquipmentCard, tokenState.Tags);
+            Assert.Contains("金币", tokenState.Tags);
+            Assert.Contains("反应", tokenState.Tags);
+        });
     }
 
     private static MatchState BuildNaturalConquestState()
@@ -186,6 +236,56 @@ public sealed class NaturalUnitConquestTriggerTests
             {
                 [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
                 [TreantObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
+    private static MatchState BuildNaturalConquestYetiState()
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new(
+                BattlefieldId,
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [YetiObjectId] = Unit(YetiObjectId, "P1", 6, "UNL-018/219"),
+            [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
+        };
+
+        return new MatchState(
+            "natural-unit-conquest-yeti-overkill-trigger-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldId, YetiObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            cardObjects: cardObjects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [YetiObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
                 [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
             },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
