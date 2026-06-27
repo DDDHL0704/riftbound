@@ -32,7 +32,7 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 - score-based `END_TURN` advancement to `MATCH_WON`
 - `SURRENDER`
 
-The Hub official-opening play-card surrender-win smoke (`OfficialDeckCanPlayPromptLegalCardAndReachSurrenderWinThroughHub`) proves the public Hub path can take legal official decks through submission, ready, mulligan, prompt-selected rune tap / recycle resources, a prompt-authored `PLAY_CARD`, priority handoff, stack resolution, next-turn handoff, surrender `MATCH_WON`, and both-player opponent-hand redaction without using a development seed. It selects source, target, destination and required payment choices from server prompt metadata instead of hard-coding a card number.
+The Hub official-opening play-card surrender-win action-log replay smoke (`OfficialDeckCanPlayPromptLegalCardReachSurrenderWinAndReplayThroughHub`) proves the public Hub path can take legal official decks through submission, ready, mulligan, prompt-selected rune tap / recycle resources, a prompt-authored `PLAY_CARD`, priority handoff, stack resolution, next-turn handoff, surrender `MATCH_WON`, both-player opponent-hand redaction, and `MatchActionLogReplayer` final-state hash recovery without using a development seed. It selects source, target, destination and required payment choices from server prompt metadata instead of hard-coding a card number.
 
 The new engine regression proves the spell-duel close handoff chooses the battlefield task player when the turn player is the mover. This is the natural path that previous fixture-style tests did not cover.
 
@@ -224,10 +224,10 @@ Result:
 Passed: 8765, Failed: 0, Skipped: 0, Total: 8765
 ```
 
-Latest Hub official-opening play-card surrender-win focused validation passed:
+Latest Hub official-opening play-card surrender-win action-log replay focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckCanPlayPromptLegalCardAndReachSurrenderWinThroughHub" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckCanPlayPromptLegalCardReachSurrenderWinAndReplayThroughHub" --nologo
 ```
 
 Result:
@@ -878,4 +878,4 @@ The current Ravenbloom non-spell increment additionally proves the BehaviorSpec-
 
 The current Plunder Alley increment additionally proves one BehaviorSpec-driven battlefield-defended move-friendly-unit-to-base route through legal official Jhin vs Vex deck submission/opening, parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, server-authored defender target submission via `battlefieldTargetObjectIds`, movement of the selected surviving friendly defender to its owner's base, score-victory replay, and hidden-info guarded full-game helpers. Complete optional yes/no trigger prompts, complete movement / control-zone edge cases, complete battlefield FUs, and complete official deck archetype breadth remain open.
 
-The current Hub official-opening play-card surrender-win smoke additionally proves the public Hub path can reach and resolve a real prompt-authored `PLAY_CARD` after official deck opening resources, advance the turn, and emit a terminal surrender `MATCH_WON`. It does not by itself prove battle, score victory, all deck archetypes, all response windows, or complete card-effect breadth; those remain covered only by focused `FullGameEndToEndTests` representatives and remain open overall.
+The current Hub official-opening play-card surrender-win action-log replay smoke additionally proves the public Hub path can reach and resolve a real prompt-authored `PLAY_CARD` after official deck opening resources, advance the turn, emit a terminal surrender `MATCH_WON`, and replay the recorded command stream to the same final state hash. It does not by itself prove battle, score victory, all deck archetypes, all response windows, or complete card-effect breadth; those remain covered only by focused `FullGameEndToEndTests` representatives and remain open overall.

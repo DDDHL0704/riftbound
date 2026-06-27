@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 
-Status: focused B0 Hub official-opening play-card surrender-win smoke accepted; project remains **NOT READY**.
+Status: focused B0 Hub official-opening play-card surrender-win action-log replay smoke accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -11,7 +11,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - both players submit an official deck through `SubmitDeckAsync`;
 - both players ready and consume mulligan prompts;
 - the server advances into main phase;
-- the Hub opening smoke now selects a server-authored `PLAY_CARD` source / target / destination / payment shape from `ActionPromptCandidateDto.Metadata.sourceRequirements`, submits it after prompt-selected rune tap / recycle resources, observes `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, passes priority for both players, resolves the stack, advances to the next player with `END_TURN`, accepts that player's `SURRENDER`, emits `MATCH_WON`, and checks both player snapshots keep the opponent hand hidden;
+- the Hub opening smoke now selects a server-authored `PLAY_CARD` source / target / destination / payment shape from `ActionPromptCandidateDto.Metadata.sourceRequirements`, submits it after prompt-selected rune tap / recycle resources, observes `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, passes priority for both players, resolves the stack, advances to the next player with `END_TURN`, accepts that player's `SURRENDER`, emits `MATCH_WON`, checks both player snapshots keep the opponent hand hidden, and replays the recorded Hub command stream to the same final state hash;
 - both players use server prompts to tap runes and play units;
 - a live unit moves from base to the opponent battlefield;
 - the resulting contested battlefield opens and closes spell duel focus through `PASS_FOCUS`;
@@ -65,7 +65,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 
 This accepted-step hidden snapshot guard slice adds no runtime rule changes. It tightens the B0 test harness by moving `AssertNoHiddenZoneLeak` into `FullGameEndToEndTests.AssertAccepted`, so accepted `SUBMIT_DECK`, `READY`, `MULLIGAN`, `TAP_RUNE`, `PLAY_CARD`, `MOVE_UNIT`, `DECLARE_BATTLE`, `ACTIVATE_ABILITY`, `ASSIGN_COMBAT_DAMAGE`, `PASS_PRIORITY`, `PASS_FOCUS`, `END_TURN`, `HIDE_CARD`, `REVEAL_CARD` and `SURRENDER` results covered by the shared helper all reject opponent hidden-zone object id leakage immediately.
 
-This Hub official-opening play-card surrender-win smoke adds no runtime rule changes. It tightens `GameHubJoinTests` coverage by proving a legal official deck pair can move through Hub submission / ready / mulligan / rune resource prompts into a prompt-authored `PLAY_CARD`, stack priority handoff, stack resolution, next-turn handoff, surrender `MATCH_WON`, and basic opponent-hand redaction without a development seed.
+This Hub official-opening play-card surrender-win action-log replay smoke adds no runtime rule changes. It tightens `GameHubJoinTests` coverage by proving a legal official deck pair can move through Hub submission / ready / mulligan / rune resource prompts into a prompt-authored `PLAY_CARD`, stack priority handoff, stack resolution, next-turn handoff, surrender `MATCH_WON`, basic opponent-hand redaction, and `MatchActionLogReplayer` final-state hash recovery without a development seed.
 
 The first B0 runtime fix was narrow: when spell duel closes into an existing `START_BATTLE` task, the engine promotes `ActivePlayerId` to the task player (`CleanupTaskState.PlayerId`) instead of always keeping the turn player. This preserves the existing battlefield-owner declaration model and fixes natural games where the mover is not the battle-task player.
 
@@ -910,10 +910,10 @@ Result:
 Passed: 8765, Failed: 0, Skipped: 0, Total: 8765
 ```
 
-Latest Hub official-opening play-card surrender-win focused validation passed:
+Latest Hub official-opening play-card surrender-win action-log replay focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckCanPlayPromptLegalCardAndReachSurrenderWinThroughHub" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckCanPlayPromptLegalCardReachSurrenderWinAndReplayThroughHub" --nologo
 ```
 
 Result:

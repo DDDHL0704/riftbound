@@ -1940,10 +1940,11 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
-    public async Task OfficialDeckCanPlayPromptLegalCardAndReachSurrenderWinThroughHub()
+    public async Task OfficialDeckCanPlayPromptLegalCardReachSurrenderWinAndReplayThroughHub()
     {
         const string roomId = "official-hub-real-deck-play-card-smoke";
-        var opening = await StartOfficialDeckGameThroughResourceRecycleAsync(roomId);
+        var journal = new RecordingMatchJournal();
+        var opening = await StartOfficialDeckGameThroughResourceRecycleAsync(roomId, journal);
         var playPrompt = PromptFor(opening.Clients, opening.ActivePlayerId);
         Assert.True(playPrompt.Actionable);
         var playCandidate = Assert.Single(
@@ -2059,6 +2060,25 @@ public sealed class GameHubJoinTests
         var surrenderSnapshot = SnapshotFor(surrenderClients, opening.ActivePlayerId);
         Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(surrenderSnapshot.Timing["roomStatus"]));
         Assert.Equal(opening.ActivePlayerId, Assert.IsType<string>(surrenderSnapshot.Timing["winnerPlayerId"]));
+
+        var finalState = journal.Entries.Last().AuthoritativeState;
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            opening.ReplayInitialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            finalState,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(finalState), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Ready, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Surrender, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -16566,14 +16586,24 @@ public sealed class GameHubJoinTests
         InMemoryMatchSessionRegistry Registry,
         string ActivePlayerId,
         string SecondPlayerId,
-        RecordingHubClients Clients);
+        RecordingHubClients Clients,
+        MatchState ReplayInitialState);
 
-    private static async Task<OfficialOpeningState> StartOfficialDeckGameThroughResourceRecycleAsync(string roomId)
+    private static async Task<OfficialOpeningState> StartOfficialDeckGameThroughResourceRecycleAsync(
+        string roomId,
+        IMatchJournal? journal = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var replayInitialState = MatchReplayInitialStateBuilder.FromSeats(
+            roomId,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            });
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal ?? NoopMatchJournal.Instance);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
@@ -16648,7 +16678,40 @@ public sealed class GameHubJoinTests
         var recycleSnapshot = SnapshotFor(recycleRuneClients, activePlayerId);
         AssertOfficialSnapshotKeepsOpponentHandHidden(recycleSnapshot, activePlayerId, secondPlayerId);
 
-        return new OfficialOpeningState(registry, activePlayerId, secondPlayerId, recycleRuneClients);
+        return new OfficialOpeningState(registry, activePlayerId, secondPlayerId, recycleRuneClients, replayInitialState);
+    }
+
+    private static RecoveredCommand ToRecoveredCommand(MatchJournalEntry entry)
+    {
+        return new RecoveredCommand(
+            entry.PlayerId,
+            entry.ClientIntentId,
+            entry.CommandType,
+            entry.RawCommand?.Clone(),
+            entry.StartedTick,
+            entry.CompletedTick,
+            entry.StartedEventSequence,
+            entry.CompletedEventSequence,
+            entry.Accepted,
+            entry.ErrorMessage);
+    }
+
+    private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)
+    {
+        var recoveredEvents = new List<RecoveredEvent>();
+        foreach (var entry in entries)
+        {
+            for (var index = 0; index < entry.Events.Count; index++)
+            {
+                recoveredEvents.Add(new RecoveredEvent(
+                    entry.StartedEventSequence + index + 1,
+                    entry.CompletedTick,
+                    index,
+                    entry.Events[index]));
+            }
+        }
+
+        return recoveredEvents;
     }
 
     private static string ConnectionFor(string playerId)
