@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield static ability spec slices accepted; project remains **NOT READY**.
+Status: focused B4 Void Gate target spell/skill damage bonus official-deck replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -32,6 +32,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
 - `CoreRuleEngine` battlefield granted unit-experience activation now reads `BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldGrantUnitExperienceCardNo` branch, and uses `Amount` for the experience event.
 - `CoreRuleEngine` spell/skill damage resolution now reads `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` branch, and uses `Amount` for the damage modifier.
+- `FullGameEndToEndTests` now carries the same `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` path through legal official Jhin vs Vex deck submission/opening, official `UNL-007/219` Punishment stack resolution, `DAMAGE_APPLIED.damage=4`, score victory, and final-state action-log replay.
 - `CoreRuleEngine` `HIDE_CARD` battlefield destination validation now reads `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldExtraStandbyCardNo` / `BattlefieldExtraStandbyAltCardNo` branch.
 - `CoreRuleEngine` battle-destroyed recall replacement now reads `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldDestroyedInBattleRecallCardNo` branch, and uses `Amount` for the mana payment.
 - `CoreRuleEngine` battlefield-granted legend armament attach action now requires the player to control a battlefield whose `BehaviorSpec.StaticAbilities` includes `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`, instead of requiring `SFD·208/221` through `BattlefieldGrantLegendAttachArmamentCardNo` / `RequiredControlledBattlefieldCardNo`.
@@ -48,6 +49,9 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
+- latest Void Gate official-deck replay focused validation: passed `1/1`;
+- latest Void Gate target-damage / FullGameEndToEnd / MatchRecovery adjacent validation: passed `2086/2086`;
+- backend full conformance after the Void Gate replay increment: passed `8856/8856`;
 - latest focused behavior-spec/source guard/Poro Forge legend attach runtime representatives: passed `8/8`;
 - CardCatalog baseline: passed `172/172`;
 - MatchRecovery: passed `1989/1989`;

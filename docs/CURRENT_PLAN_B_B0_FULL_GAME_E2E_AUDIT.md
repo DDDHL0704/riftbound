@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Wind Hill battlefield all-units RULE_TEXT keyword replay accepted; project remains **NOT READY**.
+Status: focused B0 Void Gate target spell/skill damage bonus replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -40,6 +40,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·297/298` Wind Hill / 疾风山丘, then server prompts play and move `UNL-057/219` Wildclaw Beastmaster to Wind Hill, project `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` / `游走` from the battlefield source without adding printed tags, submit a server-authored precise `MOVE_UNIT` from `BATTLEFIELD:<Wind Hill>` to a second official P1 battlefield with optional cost `ROAM`, and continue through score victory and action-log replay to the same final state hash;
+- from a seated official Jhin vs Vex opening state, a verified legal official-deck opening selects P2 `OGN·296/298` Void Gate / 虚空之门, then a focused midgame state keeps P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `PLAY_CARD` prompt lets P1 cast official `UNL-007/219` Punishment at that public battlefield target, the stack resolves through `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` for 4 total damage, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·207/221` Imperial Shrine, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost, returns the controlled attacker to hand, creates a ready 2-power Sand Soldier token at that battlefield, the decline branch closes without cost, return, or token creation, the returned hand object's id is redacted from opponent battle metadata snapshots, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·210/221` Hall of Legends, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, sufficient available mana, and an exhausted P1 legend; the conquest path opens `TRIGGER_PAYMENT`, the pay branch pays the parsed cost and readies the controlled legend, the decline branch closes without cost and leaves that legend exhausted, and both command streams replay through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·277/298` Back Alley Bar, then starts a focused midgame movement state with `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `MOVE_UNIT` path moves that unit to base, resolves the parsed `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` until-end-of-turn ledger entry, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -152,6 +153,8 @@ This battlefield all-units static-aura replay slice also adds no runtime rule ch
 
 This battlefield all-units static-keyword replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Vex deck whose battlefield set includes official `OGN·297/298` Wind Hill / 疾风山丘. The driver probes deterministic official-opening seeds until P1's randomly selected battlefield is Wind Hill, stages `UNL-057/219` Wildclaw Beastmaster to Wind Hill through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies the battlefield projects `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` with granted `游走` to the unit via `BehaviorSpec.StaticAuras`, submits the server-authored precise battlefield `MOVE_UNIT` with optional cost `ROAM` to a second official P1 battlefield object, then continues through score victory and action-log replay. This deliberately covers the official-deck dynamic movement route for one battlefield-source all-units RULE_TEXT keyword representative; broader battlefield RULE_TEXT keyword official-deck breadth remains open.
 
+This Void Gate target spell/skill damage bonus replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to legal official Jhin and Vex decks whose battlefield set includes official `OGN·296/298` Void Gate / 虚空之门 for P2. The driver probes deterministic official-opening seeds until P2's randomly selected battlefield is Void Gate, stages `UNL-057/219` Wildclaw Beastmaster at that public battlefield, submits server-authored official `UNL-007/219` Punishment from P1 against that public target, resolves the stack, observes `DAMAGE_APPLIED.damage=4` from the parsed `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` static ability, then continues through score victory and action-log replay. This deliberately covers one official-deck spell-stack route for a B4 battlefield static ability; complete spell/skill damage modifier timing edges, multi-target damage breadth, replacement ordering, full B4, and READY remain open.
+
 This source same-location static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `SFD·159/221` Reliable Siege Dog and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, stages both friendly units and an opposing defender through server commands, verifies Reliable Siege Dog projects `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` to itself via `BehaviorSpec.StaticAuras` only while another friendly unit is at the same public location, declares battle with Reliable Siege Dog, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for one same-location source-threshold static-aura representative; broader same-location / count-to-source official-deck breadth remains open.
 
 This same-battlefield boon count-to-source static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `OGN·240/298` Sett, `OGN·136/298` Arena Rookie and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, stages Demacia Envoy to a battlefield, plays Arena Rookie through the server-authored targeted `PLAY_CARD` prompt to grant `{{增益}}` to Demacia Envoy, moves Sett to the same battlefield, verifies Sett projects `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER` to itself via `BehaviorSpec.StaticAuras` with Demacia Envoy as the same-battlefield boon participant, declares battle with Sett, observes `DAMAGE_APPLIED` with `basePower=5`, `staticPowerBonus=1`, `combatPower=6`, and `damage=6`, then continues through score victory and action-log replay. This deliberately covers the official-deck real-damage route for one same-battlefield filtered count-to-source static-aura representative; broader count-to-source official-deck breadth remains open.
@@ -197,6 +200,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash`.
@@ -303,6 +307,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Void Gate target spell/skill damage bonus official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Void Gate target spell/skill damage bonus adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BattlefieldTargetDamageBonus|FullyQualifiedName~VoidGate|FullyQualifiedName~TargetSpellSkillDamage|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2086, Failed: 0, Skipped: 0, Total: 2086
+```
+
+Latest Void Gate target spell/skill damage bonus backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8856, Failed: 0, Skipped: 0, Total: 8856
+```
 
 Latest Wind Hill battlefield all-units RULE_TEXT Roam official-deck replay focused validation passed:
 
