@@ -161,7 +161,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
-    private const string OgnFioraCardNo = "OGN·232/298";
     private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
@@ -40332,7 +40331,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 + appliedPowerDelta,
             UntilEndOfTurnPowerModifiers = powerModifierLedger
         };
-        nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
+        nextTargetState = ApplyPowerThresholdSelfKeywordStaticAbilities(nextTargetState);
         powerEvent = new GameEvent(
             "POWER_MODIFIED_UNTIL_END_OF_TURN",
             $"{behavior.DisplayName}临时修正战力",
@@ -40467,7 +40466,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
         };
-        nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
+        nextTargetState = ApplyPowerThresholdSelfKeywordStaticAbilities(nextTargetState);
         var nextBoonEvents = new List<GameEvent>
         {
             new(
@@ -40550,10 +40549,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static CardObjectState ApplyOgnFioraPowerfulKeywordTags(CardObjectState state)
+    private static CardObjectState ApplyPowerThresholdSelfKeywordStaticAbilities(CardObjectState state)
     {
-        if (!string.Equals(state.CardNo, OgnFioraCardNo, StringComparison.Ordinal)
-            || state.Power < PowerfulUnitPowerThreshold)
+        if (!CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility(state.CardNo, out var ability)
+            || state.Power < ability.RequiredPowerThreshold.GetValueOrDefault())
         {
             return state;
         }
@@ -40561,7 +40560,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state with
         {
             Tags = state.Tags
-                .Concat([CardObjectTags.Spellshield, CardCombatKeywordNames.Roam, CardCombatKeywordNames.Steadfast])
+                .Concat(ability.GrantedKeywords ?? [])
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()

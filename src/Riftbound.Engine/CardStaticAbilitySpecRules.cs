@@ -21,6 +21,16 @@ internal static class CardStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetUnitPowerfulSelfKeywordsAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+                cardNo,
+                StaticAbilityKinds.UnitPowerfulSelfKeywords,
+                out ability)
+            && ability.RequiredPowerThreshold is > 0
+            && ability.GrantedKeywords is { Count: > 0 };
+    }
+
     public static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;

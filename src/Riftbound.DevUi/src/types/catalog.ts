@@ -115,7 +115,15 @@ export type BehaviorSpec = {
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;
-  staticAbilities: Array<{ kind: string; text: string; status: string; reason: string }>;
+  staticAbilities: Array<{
+    kind: string;
+    text: string;
+    status: string;
+    reason: string;
+    amount?: number | null;
+    requiredPowerThreshold?: number | null;
+    grantedKeywords?: string[] | null;
+  }>;
   staticAuras: StaticAuraSpec[];
   effects: Array<{ templateId: string; phrase: string; status: string; reason: string }>;
   templateIds: string[];

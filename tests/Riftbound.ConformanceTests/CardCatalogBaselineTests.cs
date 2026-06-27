@@ -3430,6 +3430,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitPowerfulSelfKeywordStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var fiora = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·232/298", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            fiora.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.UnitPowerfulSelfKeywords, StringComparison.Ordinal));
+
+        Assert.Equal(StaticAbilityKinds.UnitPowerfulSelfKeywords, ability.Kind);
+        Assert.Equal(5, ability.RequiredPowerThreshold);
+        Assert.Equal(
+            [CardObjectTags.Spellshield, CardCombatKeywordNames.Roam, CardCombatKeywordNames.Steadfast],
+            ability.GrantedKeywords);
+        Assert.Contains("如果我变为{{强力}}单位", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("{{法盾}}", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("{{游走}}", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("{{坚守}}", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldScoreDelayStaticAbility()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3607,6 +3631,21 @@ public sealed class CardCatalogBaselineTests
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
         Assert.DoesNotContain("P4ActivatedAbilityCatalog.CardCannotBecomeActive", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitPowerfulSelfKeywordStaticDoesNotUseCoreCardNumberBranch()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("OgnFioraCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ApplyOgnFioraPowerfulKeywordTags", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

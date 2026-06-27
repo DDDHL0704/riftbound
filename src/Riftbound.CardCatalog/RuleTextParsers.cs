@@ -1938,6 +1938,8 @@ public static class ActivatedAbilityParser
 
 public static class StaticAbilityParser
 {
+    private const int PowerfulUnitPowerThreshold = 5;
+
     public static IReadOnlyList<StaticAbilitySpec> Parse(
         string text,
         IReadOnlyList<KeywordSpec> keywords)
@@ -1963,6 +1965,29 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
                 continue;
+            }
+
+            var unitPowerfulSelfKeywordsMatch = Regex.Match(
+                segment,
+                @"如果我变为\{\{强力\}\}单位，则我获得(?<keywords>.+?)(?:。?（战力达到(?<threshold>[0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",
+                RegexOptions.CultureInvariant);
+            if (unitPowerfulSelfKeywordsMatch.Success)
+            {
+                var grantedKeywords = ParseGrantedKeywords(unitPowerfulSelfKeywordsMatch.Groups["keywords"].Value);
+                if (grantedKeywords.Count > 0)
+                {
+                    var threshold = unitPowerfulSelfKeywordsMatch.Groups["threshold"].Success
+                        ? ParseChineseNumber(unitPowerfulSelfKeywordsMatch.Groups["threshold"].Value)
+                        : PowerfulUnitPowerThreshold;
+                    staticSpecs.Add(new StaticAbilitySpec(
+                        StaticAbilityKinds.UnitPowerfulSelfKeywords,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Unit powerful-threshold self keyword static ability parsed for spec-driven keyword grant routing.",
+                        RequiredPowerThreshold: threshold,
+                        GrantedKeywords: grantedKeywords));
+                    continue;
+                }
             }
 
             var battlefieldEchoCostReductionMatch = Regex.Match(
@@ -2129,6 +2154,15 @@ public static class StaticAbilityParser
         return staticSpecs
             .GroupBy(spec => $"{spec.Kind}\n{spec.Text}", StringComparer.Ordinal)
             .Select(group => group.First())
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ParseGrantedKeywords(string raw)
+    {
+        return Regex.Matches(raw, @"\{\{([^}]+)\}\}", RegexOptions.CultureInvariant)
+            .Select(match => match.Groups[1].Value.Trim())
+            .Where(keyword => !string.IsNullOrWhiteSpace(keyword))
+            .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
 

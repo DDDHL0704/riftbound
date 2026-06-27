@@ -276,6 +276,7 @@ public static class TriggerCardFilters
 public static class StaticAbilityKinds
 {
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
+    public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
     public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
     public const string BattlefieldEchoCostReduction = "BATTLEFIELD_ECHO_COST_REDUCTION";
@@ -507,7 +508,9 @@ public sealed record StaticAbilitySpec(
     string Text,
     string Status,
     string Reason,
-    int Amount = 0);
+    int Amount = 0,
+    int? RequiredPowerThreshold = null,
+    IReadOnlyList<string>? GrantedKeywords = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
