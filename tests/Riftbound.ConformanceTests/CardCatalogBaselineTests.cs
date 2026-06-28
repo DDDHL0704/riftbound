@@ -5620,7 +5620,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5633,7 +5636,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = CardDamageConditionKinds.None,
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5646,7 +5652,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5659,7 +5668,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = "HAND"
+                ReturnDestinationZone = "HAND",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5672,7 +5684,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "BASE",
                 IgnoreCosts = true,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5685,7 +5700,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5698,7 +5716,10 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = "",
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
             },
             new
             {
@@ -5711,7 +5732,26 @@ public sealed class CardCatalogBaselineTests
                 ConditionKind = CardPowerModifierConditionKinds.TargetIsAttacking,
                 PlayDestinationZone = "",
                 IgnoreCosts = false,
-                ReturnDestinationZone = ""
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = ""
+            },
+            new
+            {
+                CardNo = "OGN·156/298",
+                TemplateId = BehaviorTemplateIds.Recycle,
+                Kind = BehaviorTemplatePrimitiveKinds.RecycleTarget,
+                Amount = 0,
+                TargetScope = CardTargetScopes.OpponentHandCard,
+                StatusEffectId = "",
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false,
+                ReturnDestinationZone = "",
+                RecycleSourceZone = TriggerZones.Hand,
+                RecycleDestinationZone = TriggerZones.MainDeck,
+                TargetForbiddenTag = CardObjectTags.UnitCard
             }
         };
 
@@ -5736,13 +5776,15 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(candidate.PlayDestinationZone, primitive.PlayDestinationZone);
             Assert.Equal(candidate.IgnoreCosts, primitive.IgnoreCosts);
             Assert.Equal(candidate.ReturnDestinationZone, primitive.ReturnDestinationZone);
+            Assert.Equal(candidate.RecycleSourceZone, primitive.RecycleSourceZone);
+            Assert.Equal(candidate.RecycleDestinationZone, primitive.RecycleDestinationZone);
+            Assert.Equal(candidate.TargetForbiddenTag, primitive.TargetForbiddenTag);
             Assert.Equal(BehaviorImplementationStatuses.Implemented, plan.DelegationPlan.Status);
         }
 
         var delegatedCandidates = new[]
         {
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
-            new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle },
             new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
         };
         foreach (var candidate in delegatedCandidates)
@@ -5975,6 +6017,40 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(BehaviorTemplatePrimitiveKinds.GrantBoon, primitive.Kind);
         Assert.Equal(1, primitive.Amount);
         Assert.Equal(CardTargetScopes.FriendlyUnit, primitive.TargetScope);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryCovertSabotageRecyclePrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var covertSabotage = specs.Single(spec => string.Equals(spec.CardNo, "OGN·156/298", StringComparison.Ordinal));
+
+        var recycle = Assert.Single(covertSabotage.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Recycle, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.OpponentHandCard, recycle.TargetScope);
+        Assert.True(recycle.RecyclesTarget);
+        Assert.Equal(TriggerZones.Hand, recycle.RecycleSourceZone);
+        Assert.Equal(TriggerZones.MainDeck, recycle.RecycleDestinationZone);
+        Assert.Equal(CardObjectTags.UnitCard, recycle.TargetForbiddenTag);
+        Assert.Contains("展示手牌", recycle.Phrase, StringComparison.Ordinal);
+        Assert.Contains("非单位卡牌", recycle.Phrase, StringComparison.Ordinal);
+        Assert.Contains("回收", recycle.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            covertSabotage,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-COVERT-SABOTAGE", "OGN·156/298", ["P2-HAND-SPELL-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Recycle, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.RecycleTarget, primitive.Kind);
+        Assert.Equal(0, primitive.Amount);
+        Assert.Equal(CardTargetScopes.OpponentHandCard, primitive.TargetScope);
+        Assert.Equal(TriggerZones.Hand, primitive.RecycleSourceZone);
+        Assert.Equal(TriggerZones.MainDeck, primitive.RecycleDestinationZone);
+        Assert.Equal(CardObjectTags.UnitCard, primitive.TargetForbiddenTag);
         Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
     }
 

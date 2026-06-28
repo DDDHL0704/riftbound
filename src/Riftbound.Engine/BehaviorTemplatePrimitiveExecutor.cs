@@ -19,6 +19,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string GrantBoon = "grant-boon";
     public const string ApplyStatusEffect = "apply-status-effect";
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
+    public const string RecycleTarget = "recycle-target";
 }
 
 public sealed record BehaviorTemplatePrimitive(
@@ -31,6 +32,9 @@ public sealed record BehaviorTemplatePrimitive(
     string PlayDestinationZone = "",
     bool IgnoreCosts = false,
     string ReturnDestinationZone = "",
+    string RecycleSourceZone = "",
+    string RecycleDestinationZone = "",
+    string TargetForbiddenTag = "",
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -184,6 +188,15 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 behavior.TargetScope,
                 ConditionKind: behavior.PowerModifierConditionKind,
                 Reason: "Until-end-of-turn power modifier is supplied by the existing P2 CardBehaviorDefinition."),
+            BehaviorTemplateIds.Recycle when behavior.RecyclesTargets => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Recycle,
+                BehaviorTemplatePrimitiveKinds.RecycleTarget,
+                0,
+                behavior.TargetScope,
+                RecycleSourceZone: TriggerZones.Hand,
+                RecycleDestinationZone: TriggerZones.MainDeck,
+                TargetForbiddenTag: behavior.TargetForbiddenTag,
+                Reason: "Recycle target scope and filter are supplied by the existing P2 CardBehaviorDefinition."),
             _ => null
         };
     }
@@ -255,6 +268,16 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 effect.TargetScope ?? string.Empty,
                 ConditionKind: effect.ConditionKind ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Recycle when effect.RecyclesTarget is true
+                && !string.IsNullOrWhiteSpace(effect.RecycleDestinationZone) => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.Recycle,
+                    BehaviorTemplatePrimitiveKinds.RecycleTarget,
+                    0,
+                    effect.TargetScope ?? string.Empty,
+                    RecycleSourceZone: effect.RecycleSourceZone ?? string.Empty,
+                    RecycleDestinationZone: effect.RecycleDestinationZone,
+                    TargetForbiddenTag: effect.TargetForbiddenTag ?? string.Empty,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             _ => null
         };
     }

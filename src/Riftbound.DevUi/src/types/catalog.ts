@@ -147,6 +147,10 @@ export type BehaviorSpec = {
     powerModifierAmount?: number | null;
     statusEffectId?: string | null;
     conditionKind?: string | null;
+    recyclesTarget?: boolean | null;
+    recycleSourceZone?: string | null;
+    recycleDestinationZone?: string | null;
+    targetForbiddenTag?: string | null;
   }>;
   templateIds: string[];
   implementedEffectKind?: string | null;

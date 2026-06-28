@@ -3121,6 +3121,14 @@ public static class EffectPhraseParser
                     && phrase.Contains("手牌", StringComparison.Ordinal),
                 ReturnDestinationZone = ResolveReturnDestinationZone(phrase)
             },
+            BehaviorTemplateIds.Recycle => spec with
+            {
+                TargetScope = ResolveRecycleTargetScope(phrase),
+                RecyclesTarget = phrase.Contains("回收", StringComparison.Ordinal),
+                RecycleSourceZone = ResolveRecycleSourceZone(phrase),
+                RecycleDestinationZone = ResolveRecycleDestinationZone(phrase),
+                TargetForbiddenTag = ResolveTargetForbiddenTag(phrase)
+            },
             BehaviorTemplateIds.Boon => spec with
             {
                 TargetScope = ResolveUnitTargetScope(phrase),
@@ -3216,6 +3224,43 @@ public static class EffectPhraseParser
     {
         return phrase.Contains("手牌", StringComparison.Ordinal)
             ? "HAND"
+            : null;
+    }
+
+    private static string? ResolveRecycleSourceZone(string phrase)
+    {
+        return phrase.Contains("手牌", StringComparison.Ordinal)
+            ? TriggerZones.Hand
+            : null;
+    }
+
+    private static string? ResolveRecycleDestinationZone(string phrase)
+    {
+        return phrase.Contains("回收", StringComparison.Ordinal)
+            ? TriggerZones.MainDeck
+            : null;
+    }
+
+    private static string? ResolveRecycleTargetScope(string phrase)
+    {
+        if (phrase.Contains("对手", StringComparison.Ordinal)
+            && phrase.Contains("手牌", StringComparison.Ordinal))
+        {
+            return "OPPONENT_HAND_CARD";
+        }
+
+        if (phrase.Contains("手牌", StringComparison.Ordinal))
+        {
+            return "ANY_HAND_CARD";
+        }
+
+        return ResolveUnitTargetScope(phrase);
+    }
+
+    private static string? ResolveTargetForbiddenTag(string phrase)
+    {
+        return phrase.Contains("非单位", StringComparison.Ordinal)
+            ? "CARD_TYPE:UNIT"
             : null;
     }
 

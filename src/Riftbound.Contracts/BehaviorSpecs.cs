@@ -571,4 +571,8 @@ public sealed record EffectPhraseSpec(
     int? DrawCount = null,
     int? PowerModifierAmount = null,
     string? StatusEffectId = null,
-    string? ConditionKind = null);
+    string? ConditionKind = null,
+    bool? RecyclesTarget = null,
+    string? RecycleSourceZone = null,
+    string? RecycleDestinationZone = null,
+    string? TargetForbiddenTag = null);
