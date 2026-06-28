@@ -202,6 +202,64 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("[LilliaLegendCardNo, \"UNL-230/219\", \"UNL-230*/219\"]", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog()
+    {
+        Assert.Equal(
+            ["OGN·253/298", "OGN·302/298", "OGN·302*/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.DariusLegendAbilityId));
+        Assert.Equal(
+            ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.DianaLegendAbilityId));
+        Assert.Equal(
+            ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KaisaLegendAbilityId));
+        Assert.Equal(
+            ["SFD·189/221", "SFD·244/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OrnnLegendAbilityId));
+        Assert.Equal(
+            ["SFD·199/221", "SFD·248/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.EzrealLegendAbilityId));
+        Assert.Equal(
+            ["SFD·195/221", "SFD·195a/221·P", "SFD·246/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.IreliaLegendAbilityId));
+        Assert.Equal(
+            ["OGN·263/298", "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TeemoLegendAbilityId));
+        Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.TeemoLegendAbilityId,
+            "OGN·307*/298"));
+        Assert.False(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.DianaLegendAbilityId,
+            "SFD·199/221"));
+
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("[DariusOriginLegendCardNo, \"OGN·302/298\", \"OGN·302*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"UNL-197/219\", \"UNL-234/219\", \"UNL-234*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"OGN·247/298\", \"OGN·299/298\", \"OGN·299*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"SFD·189/221\", \"SFD·244/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"SFD·199/221\", \"SFD·248/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[IreliaLegendCardNo, \"SFD·195a/221·P\", \"SFD·246/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[TeemoOriginLegendCardNo, \"OGN·263a/298\", \"OGN·307/298\", \"OGN·307*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[DariusOriginLegendCardNo, \"OGN·302/298\", \"OGN·302*/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"UNL-197/219\", \"UNL-234/219\", \"UNL-234*/219\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"OGN·247/298\", \"OGN·299/298\", \"OGN·299*/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"SFD·189/221\", \"SFD·244/221\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"SFD·199/221\", \"SFD·248/221\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[IreliaLegendCardNo, \"SFD·195a/221·P\", \"SFD·246/221\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[TeemoOriginLegendCardNo, \"OGN·263a/298\", \"OGN·307/298\", \"OGN·307*/298\"]", matchSessionSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

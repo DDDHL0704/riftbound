@@ -9,6 +9,10 @@
 
 新增 `LegendActionAbilityCatalog`，先把 `LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT` 与 `LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE` 的 source-card groups 收为共享 source rows。`CoreRuleEngine.TryGetLegendAbility` 与 `MatchSession.ImplementedLegendActionAbilities` 现在都调用 `LegendActionAbilityCatalog.SourceCardNosForAbility(...)`，不再分别维护 Azir / Lillia 来源卡号列表。新增 `LegendActionSourceIdentityGuardTests.AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog` 覆盖 source groups、正反例和 Core/MatchSession 源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Azir / Lillia / LegendAct / LegendAction / SandSoldier / Faerie representatives 168/168；LegendAction / LegendAct / Azir / Lillia / SandSoldier / Faerie / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2766/2766；backend full 8870/8870。项目仍 **NOT READY**。
 
+## 2026-06-28 Reaction / Dynamic Source-Group Supplement
+
+`LegendActionAbilityCatalog` 继续收进 Darius / Diana / Kai'Sa / Ornn / Ezreal / Irelia / Teemo 七组 legend-action source-card rows。`CoreRuleEngine.TryGetLegendAbility` 与 `MatchSession.ImplementedLegendActionAbilities` 现在均通过 `LegendActionAbilityCatalog.SourceCardNosForAbility(...)` 读取这些 rows，不再分别维护同一组来源卡号数组。新增 `LegendActionSourceIdentityGuardTests.ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog`，覆盖七组 source rows、正反例，以及 Core/MatchSession 不再出现旧数组的源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / LegendAct / LegendAction representatives 264/264；LegendAction / LegendAct / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2826/2826；backend full 8871/8871。项目仍 **NOT READY**。
+
 ## 1. Scope
 
 Changed:

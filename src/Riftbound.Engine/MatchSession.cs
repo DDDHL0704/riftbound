@@ -6702,16 +6702,13 @@ internal static class ActionPromptBuilder
     private const string JaxSpiritforgedLegendCardNo = "SFD·193/221";
     private const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
     private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
-    private const string DariusOriginLegendCardNo = "OGN·253/298";
-    private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
-    private const string DianaLegendAbilityId = "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA";
-    private const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
-    private const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
-    private const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
-    private const string IreliaLegendCardNo = "SFD·195/221";
-    private const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
-    private const string TeemoOriginLegendCardNo = "OGN·263/298";
-    private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
+    private const string DariusLegendAbilityId = LegendActionAbilityCatalog.DariusLegendAbilityId;
+    private const string DianaLegendAbilityId = LegendActionAbilityCatalog.DianaLegendAbilityId;
+    private const string KaisaLegendAbilityId = LegendActionAbilityCatalog.KaisaLegendAbilityId;
+    private const string OrnnLegendAbilityId = LegendActionAbilityCatalog.OrnnLegendAbilityId;
+    private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
+    private const string IreliaLegendAbilityId = LegendActionAbilityCatalog.IreliaLegendAbilityId;
+    private const string TeemoLegendAbilityId = LegendActionAbilityCatalog.TeemoLegendAbilityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
@@ -9999,7 +9996,7 @@ internal static class ActionPromptBuilder
                 RequiredControlledBattlefieldStaticAbilityKind: StaticAbilityKinds.BattlefieldGrantLegendAttachArmament),
             new(
                 DariusLegendAbilityId,
-                [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(DariusLegendAbilityId),
                 "诺克萨斯之手传奇鼓舞技能",
                 0,
                 0,
@@ -10011,7 +10008,7 @@ internal static class ActionPromptBuilder
                 ManaGainAmount: 1),
             new(
                 DianaLegendAbilityId,
-                ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(DianaLegendAbilityId),
                 "皎月女神传奇法术对决法力技能",
                 0,
                 0,
@@ -10023,7 +10020,7 @@ internal static class ActionPromptBuilder
                 TimingKind: LegendActionTimingKinds.SpellDuelFocus),
             new(
                 KaisaLegendAbilityId,
-                ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(KaisaLegendAbilityId),
                 "虚空之女传奇法术反应符能技能",
                 0,
                 0,
@@ -10036,7 +10033,7 @@ internal static class ActionPromptBuilder
                 RequiresPendingSpellStackItem: true),
             new(
                 OrnnLegendAbilityId,
-                ["SFD·189/221", "SFD·244/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(OrnnLegendAbilityId),
                 "山隐之焰传奇装备反应符能技能",
                 0,
                 0,
@@ -10049,7 +10046,7 @@ internal static class ActionPromptBuilder
                 RequiresPendingEquipmentStackItem: true),
             new(
                 EzrealLegendAbilityId,
-                ["SFD·199/221", "SFD·248/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
                 "探险家传奇反应抽牌技能",
                 0,
                 0,
@@ -10061,7 +10058,7 @@ internal static class ActionPromptBuilder
                 RequiresEzrealEnemyTargetsThisTurn: true),
             new(
                 IreliaLegendAbilityId,
-                [IreliaLegendCardNo, "SFD·195a/221·P", "SFD·246/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(IreliaLegendAbilityId),
                 "刀锋舞者传奇反应重置技能",
                 1,
                 0,
@@ -10073,7 +10070,7 @@ internal static class ActionPromptBuilder
                 RequiresPendingFriendlyUnitTarget: true),
             new(
                 TeemoLegendAbilityId,
-                [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(TeemoLegendAbilityId),
                 "迅捷斥候传奇召回技能",
                 1,
                 0,
