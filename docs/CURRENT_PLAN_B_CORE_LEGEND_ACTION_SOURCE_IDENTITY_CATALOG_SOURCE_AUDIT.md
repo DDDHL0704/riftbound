@@ -5,6 +5,10 @@
 
 本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中已经存在于 `TryGetLegendAbility` source 表的传奇来源识别从独立 `Is*LegendCardNo` helper 改为通用 `LegendCardHasAbility(cardNo, abilityId)` 查询。该切片已覆盖 Azir / Ezreal / Teemo / Irelia legend-action source identity 的重复 cardNo 分支，不改变传奇技能费用、时序、目标、待命布置、响应窗口或完整传奇结算语义。
 
+## 2026-06-28 Azir / Lillia Source-Group Supplement
+
+新增 `LegendActionAbilityCatalog`，先把 `LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT` 与 `LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE` 的 source-card groups 收为共享 source rows。`CoreRuleEngine.TryGetLegendAbility` 与 `MatchSession.ImplementedLegendActionAbilities` 现在都调用 `LegendActionAbilityCatalog.SourceCardNosForAbility(...)`，不再分别维护 Azir / Lillia 来源卡号列表。新增 `LegendActionSourceIdentityGuardTests.AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog` 覆盖 source groups、正反例和 Core/MatchSession 源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Azir / Lillia / LegendAct / LegendAction / SandSoldier / Faerie representatives 168/168；LegendAction / LegendAct / Azir / Lillia / SandSoldier / Faerie / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2766/2766；backend full 8870/8870。项目仍 **NOT READY**。
+
 ## 1. Scope
 
 Changed:

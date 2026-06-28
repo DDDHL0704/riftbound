@@ -122,14 +122,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     private const int TeemoLegendManaCost = 1;
     private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
-    private const string AzirSpiritforgedLegendCardNo = "SFD·197/221";
-    private const string AzirLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT";
     private const int AzirLegendManaCost = 1;
     private const string AzirLegendManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
     private const string JinxLegendIdentityId = "LEGEND_IDENTITY_JINX";
-    private const string LilliaLegendCardNo = "UNL-189/219";
-    private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
+    private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string AscendedBelieverConditionalSourceEffectKind = "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string SlySalamanderConditionalSourceEffectKind = "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT";
@@ -12333,9 +12330,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand,
                 RequiresOwnedTeemoUnitTarget: true),
-            AzirLegendAbilityId => new LegendAbilityDefinition(
-                AzirLegendAbilityId,
-                [AzirSpiritforgedLegendCardNo, "SFD·247/221"],
+            LegendActionAbilityCatalog.AzirLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.AzirLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AzirLegendAbilityId),
                 "沙漠皇帝传奇沙兵技能",
                 AzirLegendManaCost,
                 0,
@@ -12346,7 +12343,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresPlayedArmamentThisTurn: true),
             LilliaLegendAbilityId => new LegendAbilityDefinition(
                 LilliaLegendAbilityId,
-                [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LilliaLegendAbilityId),
                 "莉莉娅传奇精灵技能",
                 LilliaLegendBaseManaCost,
                 0,
@@ -12590,7 +12587,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.LegendZone.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId));
+                && LegendCardHasAbility(legendState.CardNo, LegendActionAbilityCatalog.AzirLegendAbilityId));
     }
 
     private static bool ControllerHasRengarLegend(MatchState state, string playerId)

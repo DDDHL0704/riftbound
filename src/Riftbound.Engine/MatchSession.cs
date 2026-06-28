@@ -6712,10 +6712,7 @@ internal static class ActionPromptBuilder
     private const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
     private const string TeemoOriginLegendCardNo = "OGN·263/298";
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
-    private const string AzirSpiritforgedLegendCardNo = "SFD·197/221";
-    private const string AzirLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT";
-    private const string LilliaLegendCardNo = "UNL-189/219";
-    private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
+    private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string PlayedSpellThisTurnEffectPrefix = "PLAYED_SPELL_THIS_TURN:";
@@ -10086,8 +10083,8 @@ internal static class ActionPromptBuilder
                 "RETURN_OWNED_TEEMO_UNIT_TO_HAND",
                 RequiresOwnedTeemoUnitTarget: true),
             new(
-                AzirLegendAbilityId,
-                [AzirSpiritforgedLegendCardNo, "SFD·247/221"],
+                LegendActionAbilityCatalog.AzirLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AzirLegendAbilityId),
                 "沙漠皇帝传奇沙兵技能",
                 1,
                 0,
@@ -10098,7 +10095,7 @@ internal static class ActionPromptBuilder
                 RequiresPlayedArmamentThisTurn: true),
             new(
                 LilliaLegendAbilityId,
-                [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LilliaLegendAbilityId),
                 "莉莉娅传奇精灵技能",
                 LilliaLegendBaseManaCost,
                 0,
@@ -10490,7 +10487,7 @@ internal static class ActionPromptBuilder
             EzrealLegendAbilityId => "反应横置：抽 1 张",
             IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
             TeemoLegendAbilityId => "支付 1 并横置：召回己方提莫单位",
-            AzirLegendAbilityId => "支付 1 并横置：打出黄沙士兵",
+            LegendActionAbilityCatalog.AzirLegendAbilityId => "支付 1 并横置：打出黄沙士兵",
             LilliaLegendAbilityId => "动态支付并横置：打出精灵",
             _ => ability.DisplayName
         };

@@ -5,6 +5,14 @@
 
 This file records the concrete evidence for removing duplicated Core legend-action source card-number helpers and routing those checks through the existing `TryGetLegendAbility` source table.
 
+## 2026-06-28 Azir / Lillia Source-Group Evidence
+
+- `LegendActionAbilityCatalog` exposes shared source-card groups for Azir's Sand Soldier legend action and Lillia's Faerie legend action.
+- `CoreRuleEngine.TryGetLegendAbility` and `MatchSession.ImplementedLegendActionAbilities` both read those two source groups through `LegendActionAbilityCatalog.SourceCardNosForAbility(...)`.
+- `CoreRuleEngine.ControllerHasAzirLegend` uses `LegendActionAbilityCatalog.AzirLegendAbilityId`.
+- `LegendActionSourceIdentityGuardTests.AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog` covers the expected source-card rows, positive/negative matching, and source guards that block reintroducing duplicated Azir / Lillia source-card arrays in Core or MatchSession.
+- Validation passed: focused guard 1/1; LegendActionSourceIdentity / Azir / Lillia / LegendAct / LegendAction / SandSoldier / Faerie representatives 168/168; LegendAction / LegendAct / Azir / Lillia / SandSoldier / Faerie / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2766/2766; backend full 8870/8870.
+
 ## 1. Runtime Evidence
 
 - `CoreRuleEngine.ControllerHasAzirLegend` now calls `LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId)`.

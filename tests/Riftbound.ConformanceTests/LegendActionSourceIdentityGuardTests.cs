@@ -1,3 +1,4 @@
+using Riftbound.Engine;
 using Xunit;
 
 namespace Riftbound.ConformanceTests;
@@ -159,6 +160,46 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.Contains("LuxIntroLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog()
+    {
+        Assert.Equal(
+            ["SFD·197/221", "SFD·247/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AzirLegendAbilityId));
+        Assert.Equal(
+            ["UNL-189/219", "UNL-230/219", "UNL-230*/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.LilliaLegendAbilityId));
+        Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.AzirLegendAbilityId,
+            "SFD·197/221"));
+        Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.LilliaLegendAbilityId,
+            "UNL-230*/219"));
+        Assert.False(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.AzirLegendAbilityId,
+            "UNL-189/219"));
+
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("private const string AzirSpiritforgedLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string LilliaLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[AzirSpiritforgedLegendCardNo, \"SFD·247/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LilliaLegendCardNo, \"UNL-230/219\", \"UNL-230*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string AzirSpiritforgedLegendCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string LilliaLegendCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[AzirSpiritforgedLegendCardNo, \"SFD·247/221\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LilliaLegendCardNo, \"UNL-230/219\", \"UNL-230*/219\"]", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()
