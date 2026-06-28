@@ -31,6 +31,8 @@ public sealed class FullGameEndToEndTests
     private const string CrimsonSignetTreantCardNo = "UNL-029/219";
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string AggressiveDragonhoundCardNo = "SFD·006/221";
+    private const string LegionRearguardCardNo = "OGN·010/298";
+    private const string MoltenDrakeCardNo = "OGN·011/298";
     private const string LongSwordEquipmentCardNo = "SFD·022/221";
     private const string OrnnFriendlyEquipmentStaticAuraCardNo = "SFD·085/221";
     private const string BaronNashorOtherFriendlyStaticAuraCardNo = "UNL-147/219";
@@ -2009,6 +2011,42 @@ public sealed class FullGameEndToEndTests
             session,
             played,
             "b0-dunehorn-beast-low-hand-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildMoltenDrakeOtherFriendlyActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-molten-drake-other-friendly-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildMoltenDrakeOtherFriendlyActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            LegionRearguardCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-molten-drake-other-friendly-active-entry");
+        AssertMoltenDrakeOtherFriendlyActiveEntryResolved(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-molten-drake-other-friendly-active-entry-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -6693,6 +6731,46 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
         Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
         Assert.Equal(DunehornBeastCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertMoltenDrakeOtherFriendlyActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var moltenObjectId = FindBaseUnitByCardNo(
+            beforePlay.State,
+            "P1",
+            MoltenDrakeCardNo)
+            ?? throw new InvalidOperationException("B0 Molten Drake active-entry assertion could not locate source Molten Drake in P1 base.");
+        var legionObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            LegionRearguardCardNo)
+            ?? throw new InvalidOperationException("B0 Molten Drake active-entry assertion could not locate Legion Rearguard in P1 hand.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Contains(moltenObjectId, beforePlay.State.PlayerZones["P1"].Base);
+        Assert.False(beforePlay.State.CardObjects[moltenObjectId].IsFaceDown);
+        Assert.Contains(legionObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.Contains(legionObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[legionObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[legionObjectId].IsExhausted);
+        Assert.Contains(moltenObjectId, result.State.PlayerZones["P1"].Base);
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, legionObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, legionObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "军团后卫", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(StaticAbilityKinds.OtherFriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(moltenObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(MoltenDrakeCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -19755,6 +19833,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildMoltenDrakeOtherFriendlyActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    MoltenDrakeCardNo,
+                    LegionRearguardCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildBattlefieldHeldCallRuneAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -23936,6 +24028,75 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildMoltenDrakeOtherFriendlyActiveEntryMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [
+                MoltenDrakeCardNo,
+                LegionRearguardCardNo
+            ],
+            new RunePool(mana: 2, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var moltenObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            MoltenDrakeCardNo)
+            ?? throw new InvalidOperationException("B0 Molten Drake active-entry setup could not find Molten Drake in P1 hand.");
+        var legionObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            LegionRearguardCardNo)
+            ?? throw new InvalidOperationException("B0 Molten Drake active-entry setup could not find Legion Rearguard in P1 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, moltenObjectId, StringComparison.Ordinal)).ToArray(),
+            Base = p1Zones.Base
+                .Where(objectId => !string.Equals(objectId, moltenObjectId, StringComparison.Ordinal))
+                .Concat([moltenObjectId])
+                .ToArray()
+        };
+        Assert.Contains(legionObjectId, playerZones["P1"].Hand);
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[moltenObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[legionObjectId] = new ObjectLocationState("P1", "HAND");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[moltenObjectId] = cardObjects[moltenObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[moltenObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[legionObjectId] = cardObjects[legionObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[legionObjectId]),
             OwnerId = "P1",
             ControllerId = "P1"
         };

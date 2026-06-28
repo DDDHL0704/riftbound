@@ -56,7 +56,6 @@ Implemented for `SFD·027/221` 穿沙角兽:
 ## Not Closed
 
 - Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
-- This slice does not add legal official-deck score-victory replay coverage for 熔浆巨龙.
 - This slice does not add legal official-deck score-victory replay coverage for Master Yi level 11 active-entry.
 - This slice does not close P0 full objective or READY.
 
@@ -69,6 +68,14 @@ Focused red/green:
 ```
 
 Result: initially failed 2/3 before implementation; after implementation 3/3 passed.
+
+Molten Drake other-friendly active-entry B0 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry"
+```
+
+Result: 1/1 passed.
 
 Renata token filtered active-entry focused red/green:
 
@@ -126,6 +133,14 @@ Latest Dunehorn low-hand active-entry replay / hidden-info adjacent:
 
 Result: 2100/2100 passed.
 
+Latest Molten Drake active-entry replay / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~LegionRearguardHasteReadyEntry|FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result: 2103/2103 passed.
+
 Hidden-info / continuous-effect recovery guard:
 
 ```bash
@@ -172,7 +187,7 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later B0 official-deck replay follow-up passed 8882/8882.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883.
 
 DevUi catalog type build after adding active-entry static ability fields:
 

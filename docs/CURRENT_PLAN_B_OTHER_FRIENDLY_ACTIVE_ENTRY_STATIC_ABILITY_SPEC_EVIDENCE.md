@@ -18,6 +18,7 @@ Other-friendly unit active-entry runtime:
 - The active-entry check is shared by `PlaySourceUnitToBase` and `PlaySourceUnitToBattlefield`, so future cards with this parsed shape do not require engine card-number branches.
 - `tests/Riftbound.ConformanceTests/MoltenDrakeOtherFriendlyActiveEntryTests.cs` proves an unpaid-haste `OGN·010/298` 军团后卫 that would normally enter exhausted instead enters ready while friendly public 熔浆巨龙 is on base.
 - The same test file proves a face-down / standby 熔浆巨龙 source does not grant active entry and does not emit static-entry metadata.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Jhin deck opening can feed Molten Drake other-friendly active-entry into B0 score victory: P1 keeps public face-up `OGN·011/298` 熔浆巨龙 in base, plays official `OGN·010/298` 军团后卫 to a P1 battlefield without paying `HASTE_READY`, receives `OTHER_FRIENDLY_UNITS_ENTER_READY` entry metadata from Molten Drake, and replays the same action log to final score victory without hidden-zone leaks.
 
 Filtered token active-entry BehaviorSpec / catalog:
 
@@ -72,6 +73,8 @@ Low-hand source-unit active-entry runtime:
 - Focused pre-implementation red: `BehaviorSpecCatalogParsesOtherFriendlyUnitsEnterReadyStaticAbility` had no matching static ability and `MoltenDrakeMakesOtherFriendlyUnpaidHasteUnitEnterReadyFromStaticAbilitySpec` observed the target still exhausted.
 - Focused post-implementation: 3/3 passed.
 - Adjacent CardCatalogBaseline / HasteReady / MatchRecovery regression: 2306/2306 passed.
+- Molten Drake other-friendly active-entry B0 official-deck replay focused: 1/1 passed.
+- Molten Drake active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2103/2103 passed.
 - Renata filtered token pre-implementation red: `RenataTokenActiveEntryStaticAbilityTests` failed at compile because `FRIENDLY_FILTERED_UNITS_ENTER_READY` / `TargetFilter` did not exist.
 - Renata filtered token focused post-implementation after unit-token support: 3/3 passed.
 - Renata / Molten / token factory adjacent regression: 335/335 passed.
@@ -90,11 +93,11 @@ Low-hand source-unit active-entry runtime:
 - Dunehorn low-hand active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2100/2100 passed.
 - Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
 - Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
+- Backend full after the Molten Drake other-friendly active-entry B0 official-deck replay follow-up: 8883/8883 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed
 
-- Official-deck score-victory replay coverage for 熔浆巨龙 remains open.
 - Official-deck score-victory replay coverage for Master Yi level 11 active-entry remains open.
 - Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.
