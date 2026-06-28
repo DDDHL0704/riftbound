@@ -2634,7 +2634,7 @@
 开发影响：
 - `BattlefieldState` 不能只做 snapshot 投影，必须连接到权威 board task。
 - 失控待命移除、控制权冻结/释放、征服/据守得分和战场触发必须统一进任务状态机。
-- 2026-06-28 B0 增量：`ActionPromptFiltersRevealCardSourcesByWindowAndFaceDownStandby` 与 `P4RevealCardCommandRevealsStandbyCardAtBattlefield` 验证开放主阶段 `REVEAL_CARD` 可从精确 `ObjectLocations` 指向受控公开战场牌的战场待命区来源翻开，服务端公开源专属 `BATTLEFIELD:<battlefieldObjectId>` 目的地并保留对象战场位置；战场待命反应入栈回原战场、失控/非法待命 cleanup 仍未关闭。
+- 2026-06-28 B0 增量：`ActionPromptFiltersRevealCardSourcesByWindowAndFaceDownStandby` 与 `P4RevealCardCommandRevealsStandbyCardAtBattlefield` 验证开放主阶段 `REVEAL_CARD` 可从精确 `ObjectLocations` 指向受控公开战场牌的战场待命区来源翻开，服务端公开源专属 `BATTLEFIELD:<battlefieldObjectId>` 目的地并保留对象战场位置；`P4RevealCardCommandPlaysBattlefieldStandbyReactionToStackAndReturnsToBattlefield` 覆盖战场待命反应入栈并回原战场；`StandbyOfficialDecksBattlefieldExtraStandbyCleanupAfterControlLossScoreVictoryActionLogReplaysToFinalStateHash` 从官方 Poppy / Bandle Tree opening 派生中盘，覆盖战场失控后 `BATTLEFIELD_STANDBY_REMOVED` 将官方 Pakaa Cub face-up 移入 owner graveyard 并继续 action-log replay。完整失控/非法待命 cleanup breadth 仍未关闭。
 - 当前对象位置和小写 objectId 修复只是前置条件，不等于该 P0 已完成。
 
 阶段 3B 使用方式：
@@ -3102,6 +3102,13 @@
 - 本批加强 `FullGameEndToEndTests.OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex vs Lillia deck opening 派生中盘，覆盖 `OGN·180/298` 逝水如镜赋予 P2 同战场 `OGN·096/298` Watchful Sentinel `瞬息`，同时 P2 控制 official `UNL-090/219` 乐芙兰位于同一战场；P2 下个 turn-start `END_TURN` journal entry 不触发该目标的 `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START`，再继续 score victory 与 action-log replay。既有 `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` 仍覆盖同一官方法术的战场单位目标 `UNIT_DESTROYED` 清理代表；`OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` 覆盖装备目标 `EQUIPMENT_DESTROYED` 清理代表。
 - 验证：focused Flowing Time Mirror LeBlanc suppressed cleanup B0 replay 1/1 passed；adjacent LeBlanc / Ephemeral / FlowingTimeMirror / FullGameEndToEnd / MatchRecovery 2132/2132 passed；backend full 8887/8887 passed.
 - 该证据关闭逝水如镜 unit/equipment cleanup 与 LeBlanc suppression B0 representatives；不关闭全部 ephemeral token/equipment lifecycle edges、P0 full objective 或最终 READY audit。
+
+## Plan B B0 Battlefield Extra-Standby Lost-Control Cleanup Replay Evidence
+
+- 证据入口：`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`。
+- 本批新增 `FullGameEndToEndTests.StandbyOfficialDecksBattlefieldExtraStandbyCleanupAfterControlLossScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Poppy / Bandle Tree opening 派生中盘，覆盖官方 `OGN·135/298` Pakaa Cub 作为 P1 face-down battlefield standby，P2 官方 `UNL-057/219` Wildclaw Beastmaster 征服 Bandle Tree，控制权从 P1 变为 P2 后 `BATTLEFIELD_STANDBY_REMOVED` 将 Pakaa Cub face-up 移入 P1 graveyard，再继续 score victory 与 action-log replay。
+- 验证：focused battlefield extra-standby cleanup B0 replay 1/1 passed；adjacent StandbyOfficialDecks / Standby / RevealCard / FullGameEndToEnd / MatchRecovery 2241/2241 passed；backend full 8891/8891 passed。
+- 该证据只关闭一个官方 opening 派生的 lost-control battlefield-standby cleanup representative；不关闭完整失控/非法待命 cleanup breadth、所有 standby replacement-cost branches、所有 standby card effects、P0 full objective 或最终 READY audit。
 
 ## 7. 索引维护规则
 

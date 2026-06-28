@@ -4064,6 +4064,86 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task StandbyOfficialDecksBattlefieldExtraStandbyCleanupAfterControlLossScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBattlefieldExtraStandbyCleanupOwnerOfficialDeck(catalog);
+        var p2Deck = BuildBattlefieldExtraStandbyCleanupOpponentOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToBattlefieldExtraStandbyCleanupOpeningAsync(
+            "b0-full-game-battlefield-extra-standby-cleanup-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBattlefieldExtraStandbyCleanupMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        var standbyObjectId = initialState.PlayerZones["P1"].Battlefields
+            .Single(objectId => initialState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, PakaaCubCardNo, StringComparison.Ordinal));
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P2"].Actions);
+
+        var declared = await SubmitBattlefieldExtraStandbyCleanupDeclareBattleAsync(
+            session,
+            current,
+            "P2",
+            "b0-battlefield-extra-standby-cleanup-declare");
+        var responsePassed = await PassOpenBattleResponseAsync(
+            session,
+            declared,
+            "b0-battlefield-extra-standby-cleanup-response");
+        var assigned = await ResolveOpenBattleDamageAssignmentsAsync(
+            session,
+            responsePassed,
+            "b0-battlefield-extra-standby-cleanup-assign");
+        var battleResult = await PassOpenBattleResponseAsync(
+            session,
+            assigned,
+            "b0-battlefield-extra-standby-cleanup-response-after-assignment");
+        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
+            battleResult.State,
+            "P1",
+            BandleTreeBattlefieldCardNo);
+
+        Assert.Equal("P2", battleResult.State.CardObjects[battlefieldObjectId].ControllerId);
+        Assert.Contains(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["previousControllerId"] as string, "P1", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.DoesNotContain(standbyObjectId, battleResult.State.PlayerZones["P1"].Battlefields, StringComparer.Ordinal);
+        Assert.Contains(standbyObjectId, battleResult.State.PlayerZones["P1"].Graveyard, StringComparer.Ordinal);
+        Assert.False(battleResult.State.CardObjects[standbyObjectId].IsFaceDown);
+        Assert.Equal("P1", battleResult.State.CardObjects[standbyObjectId].ControllerId);
+        Assert.Equal("GRAVEYARD", battleResult.State.ObjectLocations[standbyObjectId].Zone);
+
+        var cleanupEvent = Assert.Single(
+            battleResult.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal));
+        Assert.Equal(battlefieldObjectId, Assert.IsType<string>(cleanupEvent.Payload["battlefieldObjectId"]));
+        Assert.Equal("P2", Assert.IsType<string>(cleanupEvent.Payload["controllerId"]));
+        Assert.Equal([standbyObjectId], Assert.IsType<object[]>(cleanupEvent.Payload["removedObjectIds"]));
+        var removedCards = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(cleanupEvent.Payload["removedCards"]);
+        var removedCard = Assert.Single(removedCards);
+        Assert.Equal(standbyObjectId, Assert.IsType<string>(removedCard["objectId"]));
+        Assert.Equal("P1", Assert.IsType<string>(removedCard["ownerPlayerId"]));
+        Assert.Equal("P1", Assert.IsType<string>(removedCard["previousControllerId"]));
+        Assert.Equal("GRAVEYARD", Assert.IsType<string>(removedCard["destinationZone"]));
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-battlefield-extra-standby-cleanup-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -10092,6 +10172,19 @@ public sealed class FullGameEndToEndTests
             "Winning Score Increase");
     }
 
+    private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToBattlefieldExtraStandbyCleanupOpeningAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        return await DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
+            roomId,
+            p1Deck,
+            p2Deck,
+            BandleTreeBattlefieldCardNo,
+            "Bandle Tree standby cleanup");
+    }
+
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToSelectedP1BattlefieldOpeningAsync(
         string roomId,
         OfficialDecklist p1Deck,
@@ -13665,6 +13758,61 @@ public sealed class FullGameEndToEndTests
             }),
             CancellationToken.None);
         AssertAccepted(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitBattlefieldExtraStandbyCleanupDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string attackingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
+        var defendingPlayerId = OpponentOf(current.State, attackingPlayerId);
+        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 standby cleanup driver could not find DECLARE_BATTLE for {attackingPlayerId}: {DescribeState(current.State)}");
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            current.State,
+            defendingPlayerId,
+            BandleTreeBattlefieldCardNo);
+        var attackerObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            attackingPlayerId,
+            WildclawBeastmasterCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 standby cleanup driver could not find a ready Wildclaw Beastmaster attacker.");
+        var defenderObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            defendingPlayerId,
+            DemaciaEnvoyCardNo,
+            battlefieldId,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 standby cleanup driver could not find a ready Demacia Envoy defender.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(attackerObjectId, legalSourceIds);
+        Assert.Contains(defenderObjectId, legalTargetIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var result = await session.SubmitAsync(
+            attackingPlayerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
         return result;
     }
 
@@ -21305,6 +21453,43 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildBattlefieldExtraStandbyCleanupOwnerOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            PoppyLegendCardNo,
+            PoppyChampionCardNo,
+            [
+                PakaaCubCardNo,
+                PakaaCubCardNo,
+                PakaaCubCardNo,
+                DemaciaEnvoyCardNo
+            ]);
+        var selectedBattlefields = new List<string>
+        {
+            BandleTreeBattlefieldCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
+    }
+
+    private static OfficialDecklist BuildBattlefieldExtraStandbyCleanupOpponentOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [WildclawBeastmasterCardNo]));
+    }
+
     private static OfficialDecklist BuildBattlefieldExtraStandbyRejectedOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(catalog, BuildStandbyOfficialDeck(catalog));
@@ -23976,6 +24161,185 @@ public sealed class FullGameEndToEndTests
         {
             ActivePlayerId = "P1",
             TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildBattlefieldExtraStandbyCleanupMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [PakaaCubCardNo, DemaciaEnvoyCardNo],
+                    RunePool.Empty),
+                ["P2"] = (
+                    [WildclawBeastmasterCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForCardNo(
+            midgameState,
+            "P1",
+            BandleTreeBattlefieldCardNo);
+        var standbyObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            PakaaCubCardNo)
+            ?? throw new InvalidOperationException("B0 standby cleanup setup could not find Pakaa Cub in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            DemaciaEnvoyCardNo)
+            ?? throw new InvalidOperationException("B0 standby cleanup setup could not find Demacia Envoy in P1 hand.");
+        var attackerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WildclawBeastmasterCardNo)
+            ?? throw new InvalidOperationException("B0 standby cleanup setup could not find Wildclaw Beastmaster in P2 hand.");
+        var setupObjectIds = new HashSet<string>(StringComparer.Ordinal)
+        {
+            battlefieldId,
+            standbyObjectId,
+            defenderObjectId,
+            attackerObjectId
+        };
+        var existingBattlefieldOccupantObjectIds = midgameState.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal)
+                && !setupObjectIds.Contains(entry.Key))
+            .Select(entry => entry.Key)
+            .ToArray();
+        var existingOccupantsByOwner = existingBattlefieldOccupantObjectIds
+            .GroupBy(
+                objectId => midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+                    && !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                    ? cardObject.OwnerId
+                    : midgameState.ObjectLocations[objectId].PlayerId,
+                StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, standbyObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Battlefields = p1Zones.Battlefields
+                .Where(objectId => !existingBattlefieldOccupantObjectIds.Contains(objectId, StringComparer.Ordinal))
+                .Concat([defenderObjectId, standbyObjectId])
+                .ToArray(),
+            Graveyard = p1Zones.Graveyard
+                .Concat(existingOccupantsByOwner.GetValueOrDefault("P1") ?? [])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, attackerObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields
+                .Where(objectId => !existingBattlefieldOccupantObjectIds.Contains(objectId, StringComparer.Ordinal))
+                .Concat([attackerObjectId])
+                .ToArray(),
+            Graveyard = p2Zones.Graveyard
+                .Concat(existingOccupantsByOwner.GetValueOrDefault("P2") ?? [])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in existingBattlefieldOccupantObjectIds)
+        {
+            var ownerPlayerId = midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                ? cardObject.OwnerId
+                : objectLocations[objectId].PlayerId;
+            objectLocations[objectId] = new ObjectLocationState(ownerPlayerId, "GRAVEYARD");
+        }
+        objectLocations[defenderObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[standbyObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[attackerObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in existingBattlefieldOccupantObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject))
+            {
+                continue;
+            }
+
+            var ownerPlayerId = !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                ? cardObject.OwnerId
+                : objectLocations[objectId].PlayerId;
+            cardObjects[objectId] = cardObject with
+            {
+                Damage = 0,
+                IsExhausted = false,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                ControllerId = ownerPlayerId
+            };
+        }
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with
+        {
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[standbyObjectId] = cardObjects[standbyObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = true,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[standbyObjectId])
+                .Concat([CardObjectTags.UnitCard, CardObjectTags.Standby])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray(),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P2",
+            TurnPlayerId = "P2",
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             CardObjects = cardObjects,

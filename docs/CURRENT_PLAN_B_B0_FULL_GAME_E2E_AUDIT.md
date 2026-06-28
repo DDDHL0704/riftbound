@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 same-turn skipped-battle reopen and LeBlanc suppressed-ephemeral cleanup replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 battlefield extra-standby lost-control cleanup replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -30,6 +30,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy standby initial state, the full `HIDE_CARD` -> `REVEAL_CARD` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Poppy / Bandle Tree initial state, the full `HIDE_CARD` to `BATTLEFIELD:<Bandle Tree>` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while the battlefield standby card remains face-down;
 - from a seated official Poppy initial state without Bandle Tree, a direct rejected `HIDE_CARD` to `BATTLEFIELD:<non-Bandle battlefield>` records `ErrorCodes.InvalidTarget`, no events, unchanged hand/rune/location state, then the same command stream continues through non-standby battle, score victory, and action-log replay to the same final state hash;
+- from a seated official Poppy / Bandle Tree opening state, a focused midgame route places official `OGN·135/298` Pakaa Cub face-down at Bandle Tree, has P2 conquer that battlefield with official `UNL-057/219` Wildclaw Beastmaster against official `UNL-092/219` Demacia Envoy, observes `BATTLEFIELD_CONTROL_RESOLVED` from P1 to P2 plus `BATTLEFIELD_STANDBY_REMOVED`, moves Pakaa Cub face-up to P1 graveyard, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a focused midgame play state with public face-up P1 `OGN·011/298` Molten Drake in base and official `OGN·010/298` Legion Rearguard in hand; playing Legion Rearguard to a P1 battlefield without `HASTE_READY` resolves `OTHER_FRIENDLY_UNITS_ENTER_READY`, emits Molten Drake source entry metadata, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Master Yi level opening state, a verified legal official-deck opening feeds a focused midgame play state with `UNL-191/219` in P1's legend zone, P1 at 11 experience, and official `UNL-092/219` Demacia Envoy in hand; playing Demacia Envoy to a P1 battlefield without `HASTE_READY` resolves `FRIENDLY_UNITS_ENTER_READY`, emits Master Yi legend source entry metadata, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a focused midgame play state with official `OGN·183/298` Card Trick in P1 hand and controlled top-three main-deck targets; the server-authored `PLAY_CARD` prompt exposes exactly those top-three target object ids to the owner, resolving the spell draws the selected card and recycles the other two to the bottom of the main deck, opponent snapshots redact the private-zone stack target as `HIDDEN`, then the command stream continues through score victory and action-log replay to the same final state hash;
@@ -145,6 +146,8 @@ This battlefield extra-standby rejection replay slice also adds no runtime rule 
 This battlefield standby reveal increment adds one shared runtime rule change. `REVEAL_CARD` prompt construction and `CoreRuleEngine.ResolveRevealCard` now accept a face-down standby object located in the controller's `Battlefields` zone when its precise `ObjectLocations` entry points at a controlled public battlefield card. The server exposes a source-specific `BATTLEFIELD:<battlefieldObjectId>` destination, flips the object face-up in place during the open main-phase `STANDBY_REVEAL` path, preserves the precise battlefield location, and keeps the stack empty. The focused regressions cover prompt source/destination metadata and command resolution for official standby cards; this increment covers the open main-phase reveal path only.
 
 This battlefield standby reaction increment adds the next shared runtime rule change. In a closed main-phase priority window with a pending stack item, `REVEAL_CARD` prompt construction now exposes controlled face-down battlefield standby sources alongside base standby sources, with immediate destination `STACK`. `CoreRuleEngine.ResolveRevealCard` accepts either base or battlefield standby sources for `STANDBY_REACTION`; when the source came from a battlefield standby area it removes that object from `PlayerZones.Battlefields` while on the stack, stores `BATTLEFIELD:<battlefieldObjectId>` on the new `StackItemState.Destination`, and the existing stack-resolution play-unit path returns the source to that precise battlefield as `UNIT_PLAYED_TO_BATTLEFIELD`. Focused regressions cover prompt source metadata, stack item destination, on-stack location, double-pass stack resolution, and precise battlefield return. This increment still does not close illegal/lost-control standby cleanup breadth, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
+
+This battlefield extra-standby lost-control cleanup replay slice adds no runtime rule changes. It extends the seated official Poppy / Bandle Tree evidence from successful battlefield hide and battlefield standby reaction into the cleanup family: the focused state is derived from a legal official opening, keeps Pakaa Cub face-down at Bandle Tree, then lets P2's Wildclaw Beastmaster conquer the battlefield from P1's Demacia Envoy. The route observes `BATTLEFIELD_CONQUERED`, `BATTLEFIELD_CONTROL_RESOLVED` with P1 -> P2, and `BATTLEFIELD_STANDBY_REMOVED` moving Pakaa Cub to P1 graveyard face-up before the same journal continues through score victory and final-state replay. This closes one representative lost-control battlefield-standby cleanup route; complete illegal/lost-control cleanup breadth, all standby replacement-cost branches, all standby card effects, complete B0, and READY remain open.
 
 This same-battlefield static-aura replay slice also adds no runtime rule changes. It extends the seated-room action-log recovery check to a legal official Poppy deck containing official `OGS·013/024` Garen and `UNL-092/219` Demacia Envoy. The driver uses the normal official opening seed path, moves both friendly units to the same battlefield through server commands, verifies Garen projects `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` to the Envoy via `BehaviorSpec.StaticAuras`, declares battle with the Envoy, observes `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score victory and action-log replay.
 
@@ -2682,4 +2685,40 @@ Result:
 
 ```text
 Passed: 8854, Failed: 0, Skipped: 0, Total: 8854
+```
+
+Latest battlefield extra-standby lost-control cleanup replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~StandbyOfficialDecksBattlefieldExtraStandbyCleanupAfterControlLossScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest battlefield extra-standby lost-control cleanup adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~StandbyOfficialDecks|FullyQualifiedName~Standby|FullyQualifiedName~RevealCard|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2241, Failed: 0, Skipped: 0, Total: 2241
+```
+
+Latest backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8891, Failed: 0, Skipped: 0, Total: 8891
 ```
