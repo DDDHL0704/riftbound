@@ -10,6 +10,7 @@ public sealed class StandbyDefendTeemoTests
     private const string AttackerObjectId = "P1-TEEMO-DEFEND-ATTACKER";
     private const string SecondEnemyTargetObjectId = "P1-TEEMO-DEFEND-SECOND-ENEMY";
     private const string TeemoObjectId = "P2-TEEMO-FACE-UP-DEFENDER";
+    private const string SecondDefenderObjectId = "P2-TEEMO-FACE-UP-SECOND-DEFENDER";
 
     public static TheoryData<string> TeemoCards()
     {
@@ -49,6 +50,41 @@ public sealed class StandbyDefendTeemoTests
         Assert.Equal(
             [AttackerObjectId, SecondEnemyTargetObjectId],
             battlefieldTargetChoicesByIndex["0"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
+    }
+
+    [Fact]
+    public void DeclareBattlePromptMetadataMultiplexesBattlefieldSteadfastAndTeemoDefendTriggerTargets()
+    {
+        var session = new MatchSession(
+            BuildState(
+                "OGN·121/298",
+                includeSecondEnemyTarget: true,
+                includeSecondDefender: true,
+                battlefieldCardNo: "OGN·279/298",
+                battlefieldControllerId: "P2"),
+            new CoreRuleEngine(),
+            NoopMatchJournal.Instance);
+
+        var prompt = session.PromptFor("P1");
+
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minBattlefieldTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxBattlefieldTargetCount"]));
+        var battlefieldTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["battlefieldTargetChoicesByIndex"]);
+        Assert.Equal(
+            [TeemoObjectId, SecondDefenderObjectId],
+            battlefieldTargetChoicesByIndex["0"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
+        Assert.Equal(
+            [AttackerObjectId, SecondEnemyTargetObjectId],
+            battlefieldTargetChoicesByIndex["1"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
     }
 
     [Theory]
@@ -113,7 +149,55 @@ public sealed class StandbyDefendTeemoTests
             && Equals(gameEvent.Payload["count"], 5));
     }
 
-    private static MatchState BuildState(string teemoCardNo, bool includeSecondEnemyTarget = false)
+    [Fact]
+    public async Task FaceUpTeemoDefendTriggerMultiplexesBattlefieldSteadfastAndDamageTargets()
+    {
+        var engine = new CoreRuleEngine();
+        var result = await engine.ResolveAsync(
+            BuildState(
+                "OGN·121/298",
+                includeSecondEnemyTarget: true,
+                includeSecondDefender: true,
+                battlefieldCardNo: "OGN·279/298",
+                battlefieldControllerId: "P2"),
+            new PlayerIntent("intent-teemo-face-up-defend-trigger-multiplexed-targets", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [TeemoObjectId, SecondDefenderObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"],
+                BattlefieldTargetObjectIds: [TeemoObjectId, SecondEnemyTargetObjectId]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["trigger"], TriggerKinds.BattlefieldDefendGrantSteadfast)
+            && Equals(gameEvent.Payload["targetObjectId"], TeemoObjectId)
+            && Equals(gameEvent.Payload["keyword"], CardCombatKeywordNames.Steadfast)
+            && Equals(gameEvent.Payload["keywordBonus"], 2));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
+            && Equals(gameEvent.Payload["targetObjectId"], SecondEnemyTargetObjectId)
+            && Equals(gameEvent.Payload["damage"], 2));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && PayloadEquals(gameEvent, "combatRole", "DEFENDER")
+            && PayloadEquals(gameEvent, "sourceObjectId", TeemoObjectId)
+            && PayloadEquals(gameEvent, "keyword", CardCombatKeywordNames.Steadfast)
+            && PayloadEquals(gameEvent, "keywordBonus", 2));
+    }
+
+    private static bool PayloadEquals(GameEvent gameEvent, string key, object? expected)
+    {
+        return gameEvent.Payload.TryGetValue(key, out var actual)
+            && Equals(actual, expected);
+    }
+
+    private static MatchState BuildState(
+        string teemoCardNo,
+        bool includeSecondEnemyTarget = false,
+        bool includeSecondDefender = false,
+        string battlefieldCardNo = "OGN·278/298",
+        string battlefieldControllerId = "P1")
     {
         var topFive = TopFiveMainDeckCards();
         return new MatchState(
@@ -140,31 +224,76 @@ public sealed class StandbyDefendTeemoTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = includeSecondEnemyTarget
-                        ? [BattlefieldObjectId, AttackerObjectId, SecondEnemyTargetObjectId]
-                        : [BattlefieldObjectId, AttackerObjectId]
+                    Battlefields = P1BattlefieldObjects(battlefieldControllerId, includeSecondEnemyTarget)
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = [TeemoObjectId],
+                    Battlefields = P2BattlefieldObjects(battlefieldControllerId, includeSecondDefender),
                     MainDeck = [.. topFive, "P2-MAIN-BOTTOM"]
                 }
             },
-            cardObjects: BuildCardObjects(teemoCardNo, includeSecondEnemyTarget),
+            cardObjects: BuildCardObjects(
+                teemoCardNo,
+                includeSecondEnemyTarget,
+                includeSecondDefender,
+                battlefieldCardNo,
+                battlefieldControllerId),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
-            objectLocations: BuildObjectLocations(includeSecondEnemyTarget));
+            objectLocations: BuildObjectLocations(
+                includeSecondEnemyTarget,
+                includeSecondDefender,
+                battlefieldControllerId));
     }
 
-    private static Dictionary<string, CardObjectState> BuildCardObjects(string teemoCardNo, bool includeSecondEnemyTarget)
+    private static string[] P1BattlefieldObjects(string battlefieldControllerId, bool includeSecondEnemyTarget)
+    {
+        var objectIds = new List<string>();
+        if (string.Equals(battlefieldControllerId, "P1", StringComparison.Ordinal))
+        {
+            objectIds.Add(BattlefieldObjectId);
+        }
+
+        objectIds.Add(AttackerObjectId);
+        if (includeSecondEnemyTarget)
+        {
+            objectIds.Add(SecondEnemyTargetObjectId);
+        }
+
+        return objectIds.ToArray();
+    }
+
+    private static string[] P2BattlefieldObjects(string battlefieldControllerId, bool includeSecondDefender)
+    {
+        var objectIds = new List<string>();
+        if (string.Equals(battlefieldControllerId, "P2", StringComparison.Ordinal))
+        {
+            objectIds.Add(BattlefieldObjectId);
+        }
+
+        objectIds.Add(TeemoObjectId);
+        if (includeSecondDefender)
+        {
+            objectIds.Add(SecondDefenderObjectId);
+        }
+
+        return objectIds.ToArray();
+    }
+
+    private static Dictionary<string, CardObjectState> BuildCardObjects(
+        string teemoCardNo,
+        bool includeSecondEnemyTarget,
+        bool includeSecondDefender,
+        string battlefieldCardNo,
+        string battlefieldControllerId)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
             [BattlefieldObjectId] = new(
                 BattlefieldObjectId,
-                cardNo: "OGN·278/298",
+                cardNo: battlefieldCardNo,
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                ownerId: "P1",
-                controllerId: "P1"),
+                ownerId: battlefieldControllerId,
+                controllerId: battlefieldControllerId),
             [AttackerObjectId] = Unit(AttackerObjectId, "P1", "UNL-057/219", 7),
             [TeemoObjectId] = Unit(TeemoObjectId, "P2", teemoCardNo, 2, ["约德尔人"]),
             ["P2-MAIN-STANDBY-001"] = Unit("P2-MAIN-STANDBY-001", "P2", "OGN·121/298", 2, [CardObjectTags.Standby]),
@@ -183,21 +312,32 @@ public sealed class StandbyDefendTeemoTests
         {
             cardObjects[SecondEnemyTargetObjectId] = Unit(SecondEnemyTargetObjectId, "P1", "UNL-092/219", 3);
         }
+        if (includeSecondDefender)
+        {
+            cardObjects[SecondDefenderObjectId] = Unit(SecondDefenderObjectId, "P2", "SFD·125/221", 3, [CardCombatKeywordNames.Bulwark]);
+        }
 
         return cardObjects;
     }
 
-    private static Dictionary<string, ObjectLocationState> BuildObjectLocations(bool includeSecondEnemyTarget)
+    private static Dictionary<string, ObjectLocationState> BuildObjectLocations(
+        bool includeSecondEnemyTarget,
+        bool includeSecondDefender,
+        string battlefieldControllerId)
     {
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
-            [BattlefieldObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
+            [BattlefieldObjectId] = new(battlefieldControllerId, "BATTLEFIELD", BattlefieldObjectId),
             [AttackerObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
             [TeemoObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
         };
         if (includeSecondEnemyTarget)
         {
             objectLocations[SecondEnemyTargetObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId);
+        }
+        if (includeSecondDefender)
+        {
+            objectLocations[SecondDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
         }
 
         return objectLocations;

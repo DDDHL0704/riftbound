@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14023,12 +14024,23 @@ internal static class ActionPromptBuilder
                     state,
                     activeBattlefieldObjectId,
                     attacker.ObjectId);
-                var battlefieldTargetChoicesByIndex = DeclareBattleDefendTriggerTargetChoicesByIndex(
+                var defenderObjectIds = defenderCandidates.Select(candidate => candidate.ObjectId).ToArray();
+                var defendingPlayerId = DeclareBattleDefendingPlayerId(state, defenderObjectIds);
+                var battlefieldDefendEffectTargetChoicesByIndex = DeclareBattleBattlefieldDefendEffectTargetChoicesByIndex(
+                    state,
+                    defendingPlayerId,
+                    triggerBattlefieldObjectId,
+                    defenderObjectIds);
+                var defendTriggerTargetChoicesByIndex = DeclareBattleDefendTriggerTargetChoicesByIndex(
                     state,
                     playerId,
                     triggerBattlefieldObjectId,
-                    defenderCandidates.Select(candidate => candidate.ObjectId).ToArray());
-                var maxBattlefieldTargetCount = battlefieldTargetChoicesByIndex.Count > 0 ? 1 : 0;
+                    defenderObjectIds);
+                var battlefieldTargetChoicesByIndex = MergeDeclareBattlefieldTargetChoicesByIndex(
+                    battlefieldDefendEffectTargetChoicesByIndex,
+                    defendTriggerTargetChoicesByIndex);
+                var minBattlefieldTargetCount = battlefieldTargetChoicesByIndex.Count;
+                var maxBattlefieldTargetCount = battlefieldTargetChoicesByIndex.Count;
 
                 var paymentResourceChoices = DeclareBattleHeldScorePaymentResourceChoices(state, battlefieldChoices);
                 var paymentResourcePowerByChoice = DeclareBattleHeldScorePaymentResourcePowerByChoice(
@@ -14047,9 +14059,11 @@ internal static class ActionPromptBuilder
                     maxDefenderCount,
                     maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
                     targetChoicesByIndex,
+                    minBattlefieldTargetCount,
                     maxBattlefieldTargetCount,
-                    maxBattlefieldTargetCount,
-                    maxBattlefieldTargetCount > 0 ? CardTargetScopes.EnemyUnitAtSourceBattlefield : string.Empty,
+                    battlefieldDefendEffectTargetChoicesByIndex.Count == 0 && defendTriggerTargetChoicesByIndex.Count == 1
+                        ? CardTargetScopes.EnemyUnitAtSourceBattlefield
+                        : string.Empty,
                     battlefieldTargetChoicesByIndex,
                     battlefieldChoices,
                     DeclareBattleRequiredOptionalCostChoices()
@@ -14069,6 +14083,33 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
+    private static string DeclareBattleDefendingPlayerId(MatchState state, IReadOnlyList<string> defenderObjectIds)
+    {
+        foreach (var defenderObjectId in defenderObjectIds)
+        {
+            if (state.CardObjects.TryGetValue(defenderObjectId, out var defenderState))
+            {
+                if (!string.IsNullOrWhiteSpace(defenderState.ControllerId))
+                {
+                    return defenderState.ControllerId;
+                }
+
+                if (!string.IsNullOrWhiteSpace(defenderState.OwnerId))
+                {
+                    return defenderState.OwnerId;
+                }
+            }
+
+            if (state.ObjectLocations.TryGetValue(defenderObjectId, out var location)
+                && !string.IsNullOrWhiteSpace(location.PlayerId))
+            {
+                return location.PlayerId;
+            }
+        }
+
+        return string.Empty;
+    }
+
     private static string DeclareBattleTriggerBattlefieldObjectId(
         MatchState state,
         string activeBattlefieldObjectId,
@@ -14083,6 +14124,50 @@ internal static class ActionPromptBuilder
             && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
             ? location.BattlefieldObjectId ?? string.Empty
             : string.Empty;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleBattlefieldDefendEffectTargetChoicesByIndex(
+        MatchState state,
+        string defendingPlayerId,
+        string battlefieldObjectId,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        if (string.IsNullOrWhiteSpace(defendingPlayerId)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+            || !IsPromptBattlefieldCardObject(battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !IsDeclareBattlePromptDefendGrantSteadfastTrigger(trigger))
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        var choices = defenderObjectIds
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var defenderState)
+                && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defendingPlayerId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId => ObjectChoice(state, objectId, "战场防守效果防守单位"))
+            .ToArray();
+
+        return choices.Length == 0
+            ? new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+    }
+
+    private static bool IsDeclareBattlePromptDefendGrantSteadfastTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
+            && trigger.KeywordBonus.GetValueOrDefault() > 0;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex(
@@ -14126,6 +14211,29 @@ internal static class ActionPromptBuilder
             && behavior.DefendTriggerMainDeckLookCount > 0
             && !string.IsNullOrWhiteSpace(behavior.DefendTriggerCountedTag)
             && behavior.DefendTriggerDamagePerCountedCard > 0;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> MergeDeclareBattlefieldTargetChoicesByIndex(
+        params IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>[] choiceGroups)
+    {
+        var merged = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        var index = 0;
+        foreach (var choiceGroup in choiceGroups)
+        {
+            foreach (var choices in choiceGroup
+                .OrderBy(entry => int.TryParse(entry.Key, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+                    ? parsed
+                    : int.MaxValue)
+                .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+                .Select(entry => entry.Value)
+                .Where(choices => choices.Count > 0))
+            {
+                merged[index.ToString(CultureInfo.InvariantCulture)] = choices;
+                index++;
+            }
+        }
+
+        return merged;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScorePaymentResourceChoices(

@@ -17116,6 +17116,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 defenderBattlefieldTargetObjectIds,
                 defenderObjectIds,
+                hasUnitDefendTriggerTargetChoice,
                 out var battlefieldDefenderMoveObjectId,
                 out var battlefieldDefenderMoveObjectSourceId,
                 out var battlefieldDefenderMoveCardNo,
@@ -17123,9 +17124,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return battlefieldDefenderMoveRejection;
         }
-        if (string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId)
-            && string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId)
-            && !TryResolveUnitDefendTriggerTargetChoice(
+        if (!TryResolveUnitDefendTriggerTargetChoice(
                 state,
                 playerZones,
                 cardObjects,
@@ -23894,13 +23893,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         battlefieldCardNo = battlefieldState.CardNo;
         grantedKeyword = steadfastTrigger!.GrantedKeyword;
         keywordBonus = steadfastTrigger.KeywordBonus.GetValueOrDefault();
-        var selectedTargetObjectId = requestedTargetObjectIds.Count == 0 && defenderObjectIds.Count == 1
+        var requestedDefenderTargetObjectIds = requestedTargetObjectIds
+            .Where(requestedTargetObjectId => defenderObjectIds.Contains(requestedTargetObjectId, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var selectedTargetObjectId = requestedDefenderTargetObjectIds.Length == 0 && defenderObjectIds.Count == 1
             ? defenderObjectIds[0]
-            : requestedTargetObjectIds.Count == 1
-                ? requestedTargetObjectIds[0]
+            : requestedDefenderTargetObjectIds.Length == 1
+                ? requestedDefenderTargetObjectIds[0]
                 : string.Empty;
-        if (string.IsNullOrWhiteSpace(selectedTargetObjectId)
-            || !defenderObjectIds.Contains(selectedTargetObjectId, StringComparer.Ordinal))
+        if (requestedTargetObjectIds.Count != requestedDefenderTargetObjectIds.Length
+            && !allowUnitDefendTriggerTargets)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "该战场效果需要且只能选择 1 个防守单位。",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(selectedTargetObjectId))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -23971,6 +23983,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldId,
         IReadOnlyList<string>? battlefieldTargetObjectIds,
         IReadOnlyList<string> defenderObjectIds,
+        bool allowUnitDefendTriggerTargets,
         out string? targetObjectId,
         out string battlefieldObjectId,
         out string? battlefieldCardNo,
@@ -23994,13 +24007,27 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         battlefieldCardNo = battlefieldState.CardNo;
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        if (requestedTargetObjectIds.Count == 0)
+        var requestedDefenderTargetObjectIds = requestedTargetObjectIds
+            .Where(requestedTargetObjectId => defenderObjectIds.Contains(requestedTargetObjectId, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (requestedDefenderTargetObjectIds.Length == 0)
         {
+            if (requestedTargetObjectIds.Count > 0 && !allowUnitDefendTriggerTargets)
+            {
+                rejection = RejectWithCorePrompts(
+                    state,
+                    "该战场效果最多选择 1 个防守单位。",
+                    ErrorCodes.InvalidTarget);
+                return false;
+            }
+
             return true;
         }
 
-        if (requestedTargetObjectIds.Count != 1
-            || !defenderObjectIds.Contains(requestedTargetObjectIds[0], StringComparer.Ordinal))
+        if (requestedDefenderTargetObjectIds.Length != 1
+            || (requestedTargetObjectIds.Count != requestedDefenderTargetObjectIds.Length
+                && !allowUnitDefendTriggerTargets))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -24009,7 +24036,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        targetObjectId = requestedTargetObjectIds[0];
+        targetObjectId = requestedDefenderTargetObjectIds[0];
         return true;
     }
 
@@ -42573,7 +42600,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             defendingPlayerId,
             battlefieldId);
-        if (requestedTargetObjectIds.Count == 0)
+        var legalTargetObjectIdSet = legalTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+        var requestedLegalTargetObjectIds = requestedTargetObjectIds
+            .Where(targetObjectId => legalTargetObjectIdSet.Contains(targetObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var unsupportedTargetObjectIds = requestedTargetObjectIds
+            .Where(targetObjectId => !legalTargetObjectIdSet.Contains(targetObjectId)
+                && !defenderObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (unsupportedTargetObjectIds.Length > 0
+            || requestedLegalTargetObjectIds.Length > 1)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "该防守触发目标必须是同战场敌方单位。",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (requestedLegalTargetObjectIds.Length == 0)
         {
             if (legalTargetObjectIds.Length <= 1)
             {
@@ -42583,16 +42630,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             rejection = RejectWithCorePrompts(
                 state,
                 "该防守触发需要选择 1 个同战场敌方单位。",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
-        if (requestedTargetObjectIds.Count != 1
-            || !legalTargetObjectIds.Contains(requestedTargetObjectIds[0], StringComparer.Ordinal))
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "该防守触发目标必须是同战场敌方单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
