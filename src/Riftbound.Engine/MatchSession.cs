@@ -1568,6 +1568,111 @@ public sealed record MatchState
             .Count() > 1;
     }
 
+    internal static MatchState ClearStaleBattlefieldBattleSkippedMarkers(
+        MatchState state,
+        MatchState? previousState)
+    {
+        if (previousState is null)
+        {
+            return state;
+        }
+
+        var staleBattlefieldObjectIds = state.BattlefieldStates.Values
+            .Where(battlefield => HasBattlefieldBattleSkipped(state, battlefield.BattlefieldObjectId)
+                && HasBattlefieldBattleSkipped(previousState, battlefield.BattlefieldObjectId)
+                && (!previousState.BattlefieldStates.TryGetValue(battlefield.BattlefieldObjectId, out var previousBattlefield)
+                    || !BattlefieldHasLegalReadyCombatantsForBattleTask(previousState, previousBattlefield))
+                && BattlefieldHasLegalReadyCombatantsForBattleTask(state, battlefield))
+            .Select(battlefield => battlefield.BattlefieldObjectId)
+            .ToHashSet(StringComparer.Ordinal);
+        if (staleBattlefieldObjectIds.Count == 0)
+        {
+            return state;
+        }
+
+        return state with
+        {
+            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects
+                .Where(effectId => !effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal)
+                    || !staleBattlefieldObjectIds.Contains(effectId[BattlefieldTaskMarkers.BattleSkippedPrefix.Length..]))
+                .ToArray()
+        };
+    }
+
+    private static bool BattlefieldHasLegalReadyCombatantsForBattleTask(MatchState state, BattlefieldState battlefield)
+    {
+        var battleTaskPlayerId = battlefield.ZonePlayerId?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(battleTaskPlayerId))
+        {
+            return false;
+        }
+
+        var hasReadyAttacker = battlefield.OccupantObjectIds.Any(objectId =>
+            IsReadyFaceUpBattlefieldUnitControlledBy(
+                state,
+                objectId,
+                battlefield.BattlefieldObjectId,
+                battleTaskPlayerId));
+        if (!hasReadyAttacker)
+        {
+            return false;
+        }
+
+        return battlefield.OccupantObjectIds.Any(objectId =>
+            IsReadyFaceUpBattlefieldUnitNotControlledBy(
+                state,
+                objectId,
+                battlefield.BattlefieldObjectId,
+                battleTaskPlayerId));
+    }
+
+    private static bool IsReadyFaceUpBattlefieldUnitControlledBy(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId,
+        string controllerId)
+    {
+        return IsReadyFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
+            && string.Equals(EffectiveFieldControllerId(state, objectId, cardObject), controllerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsReadyFaceUpBattlefieldUnitNotControlledBy(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId,
+        string controllerId)
+    {
+        return IsReadyFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
+            && !string.Equals(EffectiveFieldControllerId(state, objectId, cardObject), controllerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsReadyFaceUpBattlefieldUnitAtBattlefield(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId,
+        out CardObjectState cardObject)
+    {
+        cardObject = default!;
+        if (!state.CardObjects.TryGetValue(objectId, out var knownCardObject)
+            || string.IsNullOrWhiteSpace(knownCardObject.CardNo)
+            || knownCardObject.IsFaceDown
+            || knownCardObject.IsExhausted
+            || knownCardObject.IsAttacking
+            || knownCardObject.IsDefending
+            || knownCardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !knownCardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out _)
+            || !state.ObjectLocations.TryGetValue(objectId, out var location)
+            || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        cardObject = knownCardObject;
+        return true;
+    }
+
     private static string EffectiveFieldControllerId(
         MatchState state,
         string objectId,

@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 LeBlanc suppressed-ephemeral cleanup replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 same-turn skipped-battle reopen and LeBlanc suppressed-ephemeral cleanup replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -17,6 +17,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - the resulting contested battlefield opens and closes spell duel focus through `PASS_FOCUS`;
 - if the resulting `START_BATTLE` task has no legal ready attackers / defenders, the engine records `BATTLE_SKIPPED` and clears the blocking battlefield task family for that battlefield for the rest of the turn;
 - later turn starts reopen the still-contested battlefield task after the end-of-turn skip marker expires;
+- same-turn state changes that transition a skipped battlefield from no legal ready combatants to legal ready combatants clear the stale `BATTLEFIELD_BATTLE_SKIPPED:*` marker and reopen the `START_BATTLE` task before turn end;
 - once both official-deck combatants have naturally readied across turns, the server exposes `DECLARE_BATTLE` and accepts the first server-authored battle declaration candidate;
 - the real official-deck path emits `BATTLE_DECLARED` and `BATTLE_CLOSED`;
 - after real battle close, repeated server `END_TURN` prompts drive battlefield scoring until score-based `MATCH_WON`;
@@ -118,6 +119,8 @@ The first B0 runtime fix was narrow: when spell duel closes into an existing `ST
 This slice narrows the next exposed B0 blocker: after spell duel closes, the engine now asks the existing server-authored `DECLARE_BATTLE` legality model whether the `START_BATTLE` task player has any legal declaration. If not, it writes a `BATTLEFIELD_BATTLE_SKIPPED:*` end-of-turn marker, emits `BATTLE_SKIPPED` with participant metadata, suppresses repeated pending-task / battlefield-task projection for that battlefield, and returns to the turn player in open main timing.
 
 This turn-start slice narrows the follow-up B0 blocker: after turn-start ready / draw / score effects complete, `ResolveTurnStart` now advances still-contested battlefield tasks through the same shared `AdvancePendingBattlefieldTasksAfterStateChange` path used by movement and battle cleanup. The full-game probe proves no-legal skipped battlefields reopen on later turns and can reach real `DECLARE_BATTLE` / `BATTLE_CLOSED` once both sides' units are ready.
+
+This same-turn reopen slice narrows the remaining skipped-battle policy blocker. `AdvancePendingBattlefieldTasksAfterStateChange` now receives the pre-change state and clears `BATTLEFIELD_BATTLE_SKIPPED:*` only when the same battlefield already had the marker before the command and its legal ready attacker / defender availability changes from false to true. The focused regression pays official `HASTE_READY` for `OGN·010/298` Legion Rearguard, plays it directly to the skipped contested battlefield, verifies the shared battlefield unit-entry Haste branch leaves it ready, removes the stale skip marker, and exposes the battle-task player's `DECLARE_BATTLE` prompt in the same turn. Static midgame fixtures that already had legal combatants plus a scaffold skip marker remain suppressed until a real false-to-true state change occurs.
 
 This score-victory slice narrows the next B0 blocker. When a non-turn-player `START_BATTLE` task resolves and no further battlefield task opens, `AdvancePendingBattlefieldTasksAfterStateChange` now restores `ActivePlayerId` to `TurnPlayerId` for ordinary open main timing so the next server-authored `END_TURN` prompt is accepted by the same authority check that produced it. `BuildTurnStartEvents` also avoids adding a second `MATCH_WON` when pre-rune-call battlefield scoring already emitted the win event.
 
@@ -342,11 +345,58 @@ Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions 
 
 Open follow-up:
 
-- evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
 - broaden standby-heavy coverage beyond the Teemo stack-reaction representative into targeted standby reactions, battlefield standby reveal / cleanup branches, and non-ready-base cleanup branches.
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest same-turn skipped-battle reopen focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~SameTurnBattleSkippedMarkerIsClearedAfterHasteUnitEntersBattlefieldReady"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest same-turn skipped-battle reopen adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~BoardTaskQueueFoundation|FullyQualifiedName~FullGameEndToEnd"
+```
+
+Result:
+
+```text
+Passed: 127, Failed: 0, Skipped: 0, Total: 127
+```
+
+Latest same-turn skipped-battle reopen Haste / battlefield / recovery representative validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Battlefield|FullyQualifiedName~BattleTask|FullyQualifiedName~Haste|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2825, Failed: 0, Skipped: 0, Total: 2825
+```
+
+Latest same-turn skipped-battle reopen backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8888, Failed: 0, Skipped: 0, Total: 8888
+```
 
 Latest Flowing Time Mirror / LeBlanc suppressed-cleanup focused validation passed:
 

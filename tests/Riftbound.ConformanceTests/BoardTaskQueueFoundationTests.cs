@@ -801,6 +801,128 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
+    public async Task SameTurnBattleSkippedMarkerIsClearedAfterHasteUnitEntersBattlefieldReady()
+    {
+        var baseState = SpellDuelReadyToCloseState();
+        const string hasteUnitObjectId = "P1-HASTE-REARGUARD";
+        const string hasteUnitCardNo = "OGN·010/298";
+        var p1Zones = baseState.PlayerZones["P1"];
+        var cardObjects = baseState.CardObjects.ToDictionary(
+            entry => entry.Key,
+            entry => string.Equals(entry.Key, "P1-CONTEST-ATTACKER", StringComparison.Ordinal)
+                ? entry.Value with { IsExhausted = true }
+                : entry.Value,
+            StringComparer.Ordinal);
+        cardObjects[hasteUnitObjectId] = new CardObjectState(
+            hasteUnitObjectId,
+            cardNo: hasteUnitCardNo,
+            ownerId: "P1",
+            controllerId: "P1");
+        var objectLocations = baseState.ObjectLocations.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        objectLocations[hasteUnitObjectId] = new ObjectLocationState("P1", "HAND");
+
+        var state = baseState with
+        {
+            ActivePlayerId = "P1",
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            TimingState = TimingStates.NeutralOpen,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new RunePool(3, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = baseState.PlayerZones.ToDictionary(
+                entry => entry.Key,
+                entry => string.Equals(entry.Key, "P1", StringComparison.Ordinal)
+                    ? p1Zones with { Hand = [hasteUnitObjectId] }
+                    : entry.Value,
+                StringComparer.Ordinal),
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            UntilEndOfTurnEffects =
+            [
+                BattlefieldTaskMarkers.SpellDuelCompleted("BF-CONTEST"),
+                BattlefieldTaskMarkers.BattleSkipped("BF-CONTEST")
+            ]
+        };
+        var engine = new CoreRuleEngine();
+        var session = new MatchSession(state, engine, new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        Assert.True(state.BattlefieldStates["BF-CONTEST"].Contested);
+        Assert.True(state.CardObjects["P1-CONTEST-ATTACKER"].IsExhausted);
+        Assert.False(state.CardObjects["P2-CONTEST-DEFENDER"].IsExhausted);
+        Assert.Equal("IDLE", state.PendingTaskQueue.Phase);
+        Assert.Empty(state.BattlefieldTasks);
+        Assert.Contains(BattlefieldTaskMarkers.BattleSkipped("BF-CONTEST"), state.UntilEndOfTurnEffects);
+        Assert.Equal(PromptTypes.MainAction, session.PromptFor("P1").View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, session.PromptFor("P1").Actions);
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-board-task-play-haste-unit-to-stale-skipped-battlefield", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                hasteUnitObjectId,
+                hasteUnitCardNo,
+                [],
+                OptionalCosts: [HasteOptionalCostNames.HasteReady],
+                Destination: "BATTLEFIELD:BF-CONTEST"),
+            CancellationToken.None);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        var stackItem = Assert.Single(played.State.StackItems);
+        Assert.Equal(hasteUnitObjectId, stackItem.SourceObjectId);
+        Assert.Equal("BATTLEFIELD:BF-CONTEST", stackItem.Destination);
+        Assert.Equal([HasteOptionalCostNames.HasteReady], stackItem.OptionalCosts);
+
+        var p1Pass = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-board-task-play-haste-unit-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+
+        var resolved = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-board-task-play-haste-unit-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        Assert.Empty(resolved.State.StackItems);
+        Assert.Contains(hasteUnitObjectId, resolved.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(hasteUnitObjectId, resolved.State.PlayerZones["P1"].Hand);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-CONTEST"), resolved.State.ObjectLocations[hasteUnitObjectId]);
+        Assert.False(resolved.State.CardObjects[hasteUnitObjectId].IsExhausted);
+        Assert.Contains(
+            resolved.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+                && Equals(gameEvent.Payload["hasteReadyOptionalCostPaid"], true)
+                && Equals(gameEvent.Payload["isExhausted"], false));
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-CONTEST"), resolved.State.UntilEndOfTurnEffects);
+        Assert.DoesNotContain(BattlefieldTaskMarkers.BattleSkipped("BF-CONTEST"), resolved.State.UntilEndOfTurnEffects);
+        Assert.Equal("BATTLE_TASKS", resolved.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-CONTEST", resolved.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Contains(
+            resolved.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-CONTEST", StringComparison.Ordinal));
+        Assert.Equal(
+            ["START_SPELL_DUEL", "START_BATTLE"],
+            resolved.State.BattlefieldTasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(PromptTypes.BattleDeclaration, resolved.Prompts["P1"].View?.Type);
+        Assert.Contains(CommandTypes.DeclareBattle, resolved.Prompts["P1"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], resolved.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks()
     {
         const string originBattlefieldObjectId = "P1-Origin-MiXeD-BF";

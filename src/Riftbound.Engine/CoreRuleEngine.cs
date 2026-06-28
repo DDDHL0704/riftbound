@@ -1094,7 +1094,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveBattlefieldConquerPowerfulDrawTriggerPayment(
@@ -1204,7 +1204,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveBattlefieldConquerReadyLegendTriggerPayment(
@@ -1313,7 +1313,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveBattlefieldConquerSandSoldierTriggerPayment(
@@ -1504,7 +1504,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveUnitConquestPayReturnSelfToHandTriggerPayment(
@@ -1599,7 +1599,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveIcevaleArcherAttackTriggerPayment(
@@ -1714,7 +1714,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveJaxWeaponAttachTriggerPayment(
@@ -1807,7 +1807,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveSfdFioraPowerfulReadyTriggerPayment(
@@ -1999,7 +1999,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PendingPayment = null,
             TemporaryPaymentResources = nextTemporaryPaymentResources
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult ResolveTriggerPaymentDecline(
@@ -2020,15 +2020,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             Tick = state.Tick + 1,
             PendingPayment = null
         };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, events, intent.PlayerId);
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
     private static ResolutionResult BuildAcceptedResolutionAfterPaymentWindowClosed(
         MatchState state,
+        MatchState previousState,
         IReadOnlyList<GameEvent> events,
         string playerId)
     {
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(state, playerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(state, playerId, previousState);
         var nextState = taskAdvance.State;
         var finalEvents = events.Concat(taskAdvance.Events).ToArray();
         return new ResolutionResult(
@@ -3969,7 +3970,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.DestroyedUnitOwnerIdsThisTurn,
                 lethalCleanup.DestroyedUnitOwnerIds)
         };
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, attackingPlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, attackingPlayerId, state);
         nextState = taskAdvance.State;
         combatEvents.AddRange(taskAdvance.Events);
 
@@ -16224,7 +16225,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.AddRange(lethalCleanup.Events);
 
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
@@ -16525,7 +16526,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.AddRange(lethalCleanup.Events);
 
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
@@ -16731,7 +16732,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.AddRange(lethalCleanup.Events);
 
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
@@ -16982,7 +16983,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.AddRange(lethalCleanup.Events);
 
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
@@ -18519,7 +18520,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
         };
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         combatEvents.AddRange(taskAdvance.Events);
         var events = new List<GameEvent>
@@ -27774,7 +27775,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(
                 nextState,
-                pendingBattlefieldTaskCausePlayerId);
+                pendingBattlefieldTaskCausePlayerId,
+                state);
             nextState = taskAdvance.State;
             events.AddRange(taskAdvance.Events);
         }
@@ -28035,7 +28037,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     && string.Equals(task.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)));
             if (shouldAdvanceNextBattlefieldTask)
             {
-                var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+                var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
                 nextState = taskAdvance.State;
                 events.AddRange(taskAdvance.Events);
             }
@@ -28053,7 +28055,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     nextState = battleSkip.State;
                     events.AddRange(battleSkip.Events);
 
-                    var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+                    var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
                     nextState = taskAdvance.State;
                     events.AddRange(taskAdvance.Events);
                 }
@@ -28302,7 +28304,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static (MatchState State, IReadOnlyList<GameEvent> Events) AdvancePendingBattlefieldTasksAfterStateChange(
         MatchState state,
-        string? causingPlayerId)
+        string? causingPlayerId,
+        MatchState? previousState = null)
     {
         if (string.IsNullOrWhiteSpace(causingPlayerId)
             || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
@@ -28316,6 +28319,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return (state, []);
         }
+
+        state = MatchState.ClearStaleBattlefieldBattleSkippedMarkers(state, previousState);
 
         if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask)
         {
@@ -28332,7 +28337,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var battleSkip = SkipStartBattleTaskWithNoLegalCombatants(state, activeStartBattleTask);
-            var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(battleSkip.State, causingPlayerId);
+            var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(battleSkip.State, causingPlayerId, state);
             return (
                 taskAdvance.State,
                 battleSkip.Events.Concat(taskAdvance.Events).ToArray());
@@ -28924,7 +28929,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             UntilEndOfTurnEffects = scoredUntilEndOfTurnEffects
         };
 
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, turnPlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, turnPlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
@@ -41114,6 +41119,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
         unitPower += friendlyEquipmentPowerBonus;
+
+        var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
+            behavior,
+            stackItem.OptionalCosts);
+        var exhaustsForUnpaidHasteReady = HasHasteReadyEntryCost(behavior) && !hasteReadyOptionalCostPaid;
         var entersReadyFromSourceUnitStaticAbility =
             TryGetSourceUnitEnterReadyStaticAbility(
                 behavior,
@@ -41149,7 +41159,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsExhausted = entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
                 ? false
-                : existingState.IsExhausted || behavior.SourceUnitIsExhausted,
+                : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
@@ -41176,6 +41186,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 unitState,
+                hasteReadyOptionalCostPaid,
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
@@ -41299,6 +41310,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         CardBehaviorDefinition behavior,
         CardObjectState unitState,
+        bool hasteReadyOptionalCostPaid,
         int friendlyEquipmentPowerBonus,
         StaticAbilitySpec? entryStaticAbility = null,
         string? entryStaticAbilitySourceObjectId = null,
@@ -41318,6 +41330,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (unitState.IsExhausted)
         {
             payload["isExhausted"] = true;
+        }
+
+        if (hasteReadyOptionalCostPaid)
+        {
+            payload["isExhausted"] = unitState.IsExhausted;
+            payload["hasteReadyOptionalCostPaid"] = true;
         }
 
         if (friendlyEquipmentPowerBonus > 0)
