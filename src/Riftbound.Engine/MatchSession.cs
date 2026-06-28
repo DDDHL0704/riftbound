@@ -14137,10 +14137,7 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(
-                battlefieldState.CardNo,
-                out var trigger)
-            || !IsDeclareBattlePromptDefendGrantSteadfastTrigger(trigger))
+            || !HasDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(battlefieldState.CardNo))
         {
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
@@ -14162,12 +14159,29 @@ internal static class ActionPromptBuilder
             };
     }
 
+    private static bool HasDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(string? cardNo)
+    {
+        return (BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(cardNo, out var steadfastTrigger)
+                && IsDeclareBattlePromptDefendGrantSteadfastTrigger(steadfastTrigger))
+            || (BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out var moveToBaseTrigger)
+                && IsDeclareBattlePromptDefendMoveToBaseTrigger(moveToBaseTrigger));
+    }
+
     private static bool IsDeclareBattlePromptDefendGrantSteadfastTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
             && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
             && trigger.KeywordBonus.GetValueOrDefault() > 0;
+    }
+
+    private static bool IsDeclareBattlePromptDefendMoveToBaseTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.MoveCount.GetValueOrDefault() == 1
+            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
+            && trigger.Optional == true;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex(
