@@ -11,6 +11,12 @@
 
 验证：focused guard / Tempered / Jax / Armed Assaulter representative 62/62；EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2506/2506；backend full 8867/8867。
 
+## 2026-06-28 Follow-up: Sentinel Adept Runtime Constant Removed
+
+`CoreRuleEngine` and `MatchSession` no longer retain the migrated `SentinelAdeptCardNo` constant. The Sentinel Adept Tempered source boundary remains expressed only by `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` row `SFD·008/221` with `EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach`, consumed through `HasTemperedOptionalAttachRepresentativeBoundary(...)` in Core and ActionPromptBuilder.
+
+Validation passed for this follow-up: focused equipment boundary guard 3/3; EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2509/2509. This follow-up removes dead runtime source data only; it does not expand legal Tempered cards, full attach lifecycle breadth, copy-text effects, LayerEngine, frontend final validation, full official, or READY.
+
 ## 1. Scope
 
 Changed:

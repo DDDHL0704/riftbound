@@ -6505,7 +6505,6 @@ internal static class ActionPromptBuilder
     private const string StandbyReactionModeLabel = "作为反应打出";
     private const string StandbyReactionDestination = "STACK";
     private const int BaseWinningScore = 8;
-    private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
     private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";

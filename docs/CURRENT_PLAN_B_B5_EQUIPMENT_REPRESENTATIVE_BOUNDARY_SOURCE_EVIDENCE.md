@@ -16,6 +16,15 @@ This file records concrete evidence for removing duplicated equipment representa
 - Validation passed: focused guard / Tempered / Jax / Armed Assaulter representative 62/62; EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2506/2506; backend full 8867/8867.
 - Non-closure: this does not expand legal equipment choices beyond the existing Spinning Axe representative row, and it does not close full Tempered official breadth, owner/controller breadth, attach lifecycle breadth, copy-text effects, LayerEngine, frontend final validation, full official, or READY.
 
+## 2026-06-28 Follow-up Evidence: Sentinel Adept Source Boundary Constant Cleanup
+
+- `CoreRuleEngine` and `MatchSession` no longer define `SentinelAdeptCardNo`.
+- Sentinel Adept remains covered by `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` row `SFD·008/221` / `EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach`.
+- Core and ActionPromptBuilder continue to consume that source row through `HasTemperedOptionalAttachRepresentativeBoundary(...)`.
+- `EquipmentKeywordRepresentativeBoundaryGuardTests.TemperedOptionalAttachSourceBoundaryDoesNotUseRuntimeSentinelAdeptCardNumberConstant` blocks reintroducing `SentinelAdeptCardNo` in `CoreRuleEngine` or `MatchSession`.
+- Validation passed for this follow-up: focused equipment boundary guard 3/3; EquipmentKeyword / TemperedEquipment / JaxTempered / ArmedAssaulterHasteTempered / AgileEquipment / AssembleEquipment / Akshan / MatchRecovery / CardCatalogBaseline adjacent 2509/2509.
+- Non-closure: this removes dead runtime source data only; it does not expand legal Tempered cards, full attach lifecycle breadth, copy-text effects, LayerEngine, frontend final validation, full official, or READY.
+
 ## 1. Runtime Evidence
 
 - `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` now defines `CardEquipmentRepresentativeBoundary` rows keyed by `EquipmentRepresentativeBoundaryKinds`.

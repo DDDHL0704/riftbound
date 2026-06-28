@@ -54,6 +54,24 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
         Assert.DoesNotContain("SpinningAxeCardNo", File.ReadAllText(matchSessionPath), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void TemperedOptionalAttachSourceBoundaryDoesNotUseRuntimeSentinelAdeptCardNumberConstant()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+
+        Assert.DoesNotContain("SentinelAdeptCardNo", File.ReadAllText(coreRuleEnginePath), StringComparison.Ordinal);
+        Assert.DoesNotContain("SentinelAdeptCardNo", File.ReadAllText(matchSessionPath), StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
