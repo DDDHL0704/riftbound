@@ -4851,11 +4851,7 @@ public sealed record ResolutionResult(
             ["sourceVisibility"] = hiddenSource ? "HIDDEN" : "VISIBLE",
             ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
             ["cardNo"] = hiddenSource ? "HIDDEN" : item.CardNo,
-            ["targetObjectIds"] = item.TargetObjectIds
-                .Select(targetObjectId => IsHiddenBattlefieldStandbyForViewer(state, targetObjectId, viewerPlayerId)
-                    ? "HIDDEN"
-                    : targetObjectId)
-                .ToArray(),
+            ["targetObjectIds"] = VisibleObjectIdsForViewer(state, item.TargetObjectIds, viewerPlayerId),
             ["damageAmount"] = item.DamageAmount
         };
         if (!string.IsNullOrWhiteSpace(item.Destination))

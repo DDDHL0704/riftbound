@@ -112,6 +112,7 @@ public sealed class FullGameEndToEndTests
     private const string CenterStageSpellCardNo = "UNL-061/219";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
     private const string ReconsiderSpellCardNo = "OGN·104/298";
+    private const string CardTrickSpellCardNo = "OGN·183/298";
     private const string LoyalCraftsmanCardNo = "OGN·211/298";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo = "OGN·294/298";
@@ -1790,6 +1791,49 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildCardTrickOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-card-trick-draw-recycle-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildCardTrickDrawRecycleMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var beforeMainDeck = current.State.PlayerZones["P1"].MainDeck.ToArray();
+        Assert.True(beforeMainDeck.Length >= 3);
+        var targetObjectId = beforeMainDeck[0];
+        var spellPlayed = await SubmitCardTrickDrawRecycleSpellAsync(
+            session,
+            current,
+            "P1",
+            targetObjectId,
+            "b0-card-trick-draw-recycle");
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-card-trick-draw-recycle-resolve");
+        AssertCardTrickDrawRecycleResolved(current, spellPlayed, spellResolved, targetObjectId);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-card-trick-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -15021,6 +15065,102 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitCardTrickDrawRecycleSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string targetObjectId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Card Trick driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var spellObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            CardTrickSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Card Trick driver could not find Card Trick in P1 hand.");
+        var expectedTargetIds = current.State.PlayerZones[playerId].MainDeck.Take(3).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains(targetObjectId, expectedTargetIds);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(spellObjectId, legalSourceIds);
+        Assert.True(
+            expectedTargetIds.SetEquals(legalTargetIds),
+            $"Expected Card Trick target choices {string.Join(", ", expectedTargetIds)} but got {string.Join(", ", legalTargetIds)}.");
+
+        var command = new PlayCardCommand(
+            spellObjectId,
+            CardTrickSpellCardNo,
+            [targetObjectId]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static void AssertCardTrickDrawRecycleResolved(
+        ResolutionResult beforeSpell,
+        ResolutionResult spellPlayed,
+        ResolutionResult result,
+        string selectedObjectId)
+    {
+        var spellObjectId = FindHandCardObjectByCardNo(
+            beforeSpell.State,
+            "P1",
+            CardTrickSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Card Trick assertion could not locate Card Trick in P1 hand.");
+        var beforeTopThree = beforeSpell.State.PlayerZones["P1"].MainDeck.Take(3).ToArray();
+        Assert.Equal(3, beforeTopThree.Length);
+        Assert.Contains(selectedObjectId, beforeTopThree);
+        var unselectedTopCards = beforeTopThree
+            .Where(objectId => !string.Equals(objectId, selectedObjectId, StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.Contains(spellPlayed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["paymentWindow"] as string, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.Contains(spellPlayed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, CardTrickSpellCardNo, StringComparison.Ordinal)
+            && Assert.IsType<string[]>(gameEvent.Payload["targetObjectIds"]).Contains(selectedObjectId, StringComparer.Ordinal));
+
+        var drawEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", drawEvent.Payload["playerId"]);
+        Assert.Equal(1, drawEvent.Payload["count"]);
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
+        Assert.Equal(2, recycleEvent.Payload["count"]);
+        var recycledCardIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]);
+        Assert.Equal(unselectedTopCards.Order(StringComparer.Ordinal), recycledCardIds.Order(StringComparer.Ordinal));
+
+        Assert.Contains(selectedObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(selectedObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(spellObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(spellObjectId, result.State.StackItems.Select(item => item.SourceObjectId));
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal(
+            beforeSpell.State.PlayerZones["P1"].MainDeck.Skip(3).Concat(recycledCardIds).ToArray(),
+            result.State.PlayerZones["P1"].MainDeck);
+        AssertNoHiddenZoneLeak(spellPlayed);
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static string BattlefieldHighCostSpellInsightTargetObjectId(MatchState state)
     {
         var battlefieldId = BattlefieldObjectIdForCardNo(
@@ -19791,6 +19931,17 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
+    private static OfficialDecklist BuildCardTrickOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                VexLegendCardNo,
+                VexChampionCardNo,
+                [CardTrickSpellCardNo]));
+    }
+
     private static OfficialDecklist BuildBattlefieldPlayUnitBoonOfficialDeck(OfficialCardCatalog catalog)
     {
         var deck = BuildLowCurveOfficialDeck(
@@ -20983,6 +21134,9 @@ public sealed class FullGameEndToEndTests
         foreach (var viewerId in result.State.Seats.Keys)
         {
             var snapshotJson = JsonSerializer.Serialize(result.Snapshots[viewerId]);
+            using var snapshotDocument = JsonDocument.Parse(snapshotJson);
+            var exposedStringValues = new HashSet<string>(StringComparer.Ordinal);
+            CollectJsonStringValues(snapshotDocument.RootElement, exposedStringValues);
             foreach (var (playerId, zones) in result.State.PlayerZones)
             {
                 if (string.Equals(playerId, viewerId, StringComparison.Ordinal))
@@ -20992,9 +21146,38 @@ public sealed class FullGameEndToEndTests
 
                 foreach (var objectId in zones.Hand.Concat(zones.MainDeck).Concat(zones.RuneDeck))
                 {
-                    Assert.DoesNotContain(objectId, snapshotJson, StringComparison.Ordinal);
+                    Assert.DoesNotContain(objectId, exposedStringValues);
                 }
             }
+        }
+    }
+
+    private static void CollectJsonStringValues(JsonElement element, HashSet<string> values)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.String:
+                var value = element.GetString();
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    values.Add(value);
+                }
+
+                break;
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    CollectJsonStringValues(property.Value, values);
+                }
+
+                break;
+            case JsonValueKind.Array:
+                foreach (var item in element.EnumerateArray())
+                {
+                    CollectJsonStringValues(item, values);
+                }
+
+                break;
         }
     }
 
@@ -23210,6 +23393,21 @@ public sealed class FullGameEndToEndTests
             "P1",
             MaraiSpireBattlefieldEchoCostReductionCardNo);
 
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1"
+        };
+    }
+
+    private static MatchState BuildCardTrickDrawRecycleMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [CardTrickSpellCardNo],
+            new RunePool(mana: 1, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        Assert.True(midgameState.PlayerZones["P1"].MainDeck.Count >= 3);
         return midgameState with
         {
             ActivePlayerId = "P1",

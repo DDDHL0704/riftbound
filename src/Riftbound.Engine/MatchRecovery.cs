@@ -29340,7 +29340,7 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSpectatorSnapshotStackKeyedAuthoritativeValues(
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
-                authoritativeState.StackItems,
+                authoritativeState,
                 errors);
 
             if (spectatorReplayFrame.SpectatorSnapshot.Stack.Count != authoritativeState.StackItems.Count)
@@ -29406,9 +29406,7 @@ public static class MatchRecoveryValidator
             var spectatorStackTargetObjectIds = ExtractStackItemStringListValues(
                 spectatorReplayFrame.SpectatorSnapshot,
                 "targetObjectIds");
-            var authoritativeStackTargetObjectIds = authoritativeState.StackItems
-                .Select(item => item.TargetObjectIds)
-                .ToArray();
+            var authoritativeStackTargetObjectIds = VisibleStackTargetObjectIdsForSpectator(authoritativeState);
             if (!StringListCollectionsEqual(spectatorStackTargetObjectIds, authoritativeStackTargetObjectIds))
             {
                 errors.Add("spectator replay frame snapshot stack target object ids disagree with authoritative state stack target object ids");
@@ -33165,11 +33163,11 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpectatorSnapshotStackKeyedAuthoritativeValues(
         IReadOnlyList<object?> stackItems,
-        IReadOnlyList<StackItemState> authoritativeStackItems,
+        MatchState authoritativeState,
         List<string> errors)
     {
         var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);
-        foreach (var authoritativeStackItem in authoritativeStackItems)
+        foreach (var authoritativeStackItem in authoritativeState.StackItems)
         {
             if (string.IsNullOrWhiteSpace(authoritativeStackItem.StackItemId))
             {
@@ -33230,7 +33228,7 @@ public static class MatchRecoveryValidator
                 stackItem,
                 "targetObjectIds",
                 "target object ids",
-                authoritativeStackItem.TargetObjectIds,
+                VisibleObjectIdsForSpectator(authoritativeState, authoritativeStackItem.TargetObjectIds),
                 normalizedStackItemId,
                 errors);
             ValidateSpectatorSnapshotStackKeyedRequiredIntValue(
@@ -34674,6 +34672,47 @@ public static class MatchRecoveryValidator
         }
 
         return true;
+    }
+
+    private static IReadOnlyList<IReadOnlyList<string>> VisibleStackTargetObjectIdsForSpectator(MatchState state)
+    {
+        return state.StackItems
+            .Select(item => VisibleObjectIdsForSpectator(state, item.TargetObjectIds))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> VisibleObjectIdsForSpectator(
+        MatchState state,
+        IEnumerable<string> objectIds)
+    {
+        return objectIds
+            .Select(objectId => IsHiddenObjectIdForSpectator(state, objectId) ? "HIDDEN" : objectId)
+            .ToArray();
+    }
+
+    private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return false;
+        }
+
+        foreach (var zones in state.PlayerZones.Values)
+        {
+            if (zones.Hand.Contains(objectId, StringComparer.Ordinal)
+                || zones.MainDeck.Contains(objectId, StringComparer.Ordinal)
+                || zones.RuneDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsFaceDown
+            && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId);
     }
 
     private static bool StringDictionariesEqual(

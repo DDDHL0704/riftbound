@@ -1336,7 +1336,7 @@
 | `p2-preflight-play-disposal-order-recycle-opponent-graveyard` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《处置命令》选择对手废牌堆中最多三张牌，并让其拥有者回收；多张回收到主牌堆底部时使用可回放随机顺序。 |
 | `p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card` | `RULE_AUDITED` | `CATALOG` OGN·156/298；`CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《暗中破坏》选择对手手牌中的非单位牌，并让该牌拥有者回收；对手手牌单位牌目标由直接测试覆盖拒绝。P4.60 将该路径作为 `recycle` template skeleton 的 safe delegation 代表。 |
 | `p2-preflight-play-predictive-offensive-draw-one-recycle-other` | `RULE_AUDITED` | `CATALOG` SFD·122/221；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p58-p59 rule 416 | 已验证官方法术《预判攻势》不支付回响时，选择己方主牌堆顶部两张中的一张加入手牌，并将另一张回收到主牌堆底部；顶部两张以外目标由直接测试覆盖拒绝。 |
-| `p2-preflight-play-card-trick-draw-one-recycle-rest` | `RULE_AUDITED` | `CATALOG` OGN·183/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p58-p59 rule 416 | 已验证官方法术《卡牌骗术》选择己方主牌堆顶部三张中的一张加入手牌，并将其余两张回收到主牌堆底部；顶部三张以外目标由直接测试覆盖拒绝。 |
+| `p2-preflight-play-card-trick-draw-one-recycle-rest` | `RULE_AUDITED` | `CATALOG` OGN·183/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p58-p59 rule 416 | 已验证官方法术《卡牌骗术》选择己方主牌堆顶部三张中的一张加入手牌，并将其余两张回收到主牌堆底部；顶部三张以外目标由直接测试覆盖拒绝。 2026-06-28 Plan B B0 补充从合法官方 Vex deck opening 派生整局 replay，覆盖 server-authored top-three target prompt、draw/recycle、score victory、action-log replay 与 private-zone stack-target redaction。 |
 | `p2-preflight-play-dragon-tiger-draw-unit-recycle-rest` | `RULE_AUDITED` | `CATALOG` UNL-032/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p58-p59 rule 416 | 已验证官方法术《龙虎双雄》不支付回响时，选择己方主牌堆顶部三张中带 `CARD_TYPE:UNIT` 对象标签的一张单位牌加入手牌，并将其余两张回收到主牌堆底部；非单位目标和顶部三张以外目标由直接测试覆盖拒绝。 |
 | `p2-preflight-play-dragon-tiger-no-unit-selection-recycle-all` | `RULE_AUDITED` | `CATALOG` UNL-032/219；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《龙虎双雄》不支付回响且不选择单位牌时，不抽牌并回收已查看的主牌堆顶部三张牌。 |
 | `p2-preflight-play-reinforcements-no-selection-recycle-top-five` | `RULE_AUDITED` | `CATALOG` OGN·062/298；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《增援》不选择单位牌时，不抽牌并回收已查看的主牌堆顶部五张牌；从牌堆打出单位并减费 5 的分支暂缓。 |
@@ -3080,6 +3080,14 @@
 - 本批新增 `FullGameEndToEndTests.OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex vs Rumble deck opening 派生中盘，覆盖 `OGN·282/298` 希拉娜修道院 parsed `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`，消耗官方 `UNL-057/219` 野爪兽王身上的增益、战力 -1、抽一张受控主牌堆牌，再走 score victory 与 action-log replay 到相同 final state hash。
 - 验证：focused Shirana Monastery B0 replay 1/1 passed；FullGameEndToEnd 88/88 passed；adjacent ConsumeBoon / Boon / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery 2255/2255 passed；backend full 8852/8852 passed。
 - 该证据只关闭希拉娜修道院 consume-boon draw 的 B0 整局代表 replay；不关闭可选 yes/no prompt、完整 boon target-choice / replacement breadth、完整 B4 battlefield-effect family 或最终 READY audit。
+
+## Plan B B0 Card Trick Draw/Recycle Replay Evidence
+
+- 证据入口：`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`。
+- 本批新增 `FullGameEndToEndTests.OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex deck opening 派生中盘，覆盖 `OGN·183/298` 卡牌骗术的 server-authored `PLAY_CARD` top-three main-deck target prompt、selected-card draw、unselected-card recycle-to-bottom、score victory 与 action-log replay。
+- 共享运行时修正：`MatchSession` stack snapshot `targetObjectIds` 通过 viewer visibility path 投影，非 viewer hand / main deck / rune deck / hidden standby target redacts to `HIDDEN`；`MatchRecovery` spectator stack comparison now expects the same redacted target projection；B0 hidden-info guard 改为 exact JSON string values，避免相似 object id 前缀误判。
+- 验证：focused Card Trick B0 replay 1/1 passed；adjacent CardTrick / FullGameEndToEnd / MatchRecovery 2096/2096 passed；backend full 8885/8885 passed。
+- 该证据只关闭 Card Trick B0 整局代表 replay 和 private-zone stack-target redaction；不关闭完整 main-deck look/recycle breadth、完整 hidden-information matrix、完整 spell target breadth、P0 full objective 或最终 READY audit。
 
 ## 7. 索引维护规则
 
