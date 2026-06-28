@@ -26564,6 +26564,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             : command.Destination.Trim();
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var standbyReactionBattlefieldObjectId = ResolveStandbyReactionBattlefieldContext(
+            state,
+            zones,
+            intent.PlayerId,
+            command.SourceObjectId,
+            sourceBattlefieldObjectId);
         var paysStandbyRevealCost = optionalCosts.Count == 1
             && string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal);
         var revealsInBase = sourceInBase
@@ -26584,7 +26590,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 behavior,
                 command.SourceObjectId,
-                sourceBattlefieldObjectId,
+                standbyReactionBattlefieldObjectId,
                 targetObjectIds)
             && paysStandbyRevealCost;
         if (!revealsInBase && !revealsAtBattlefield && !playsReactionToStack)
@@ -26608,10 +26614,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (playsReactionToStack
-            && (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                || !string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                || state.StackItems.Count == 0
-                || !string.Equals(state.PriorityPlayerId, intent.PlayerId, StringComparison.Ordinal)))
+            && !IsStandbyReactionPriorityWindow(state, intent.PlayerId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -26833,6 +26836,40 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         battlefieldObjectId = location.BattlefieldObjectId;
         return true;
+    }
+
+    private static bool IsStandbyReactionPriorityWindow(MatchState state, string playerId)
+    {
+        return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && state.StackItems.Count > 0
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
+            && (string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal));
+    }
+
+    private static string ResolveStandbyReactionBattlefieldContext(
+        MatchState state,
+        PlayerZones zones,
+        string playerId,
+        string sourceObjectId,
+        string sourceBattlefieldObjectId)
+    {
+        if (!string.IsNullOrWhiteSpace(sourceBattlefieldObjectId))
+        {
+            return sourceBattlefieldObjectId;
+        }
+
+        if (!zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+            || !IsStandbyReactionPriorityWindow(state, playerId)
+            || !string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            || !state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
+            || string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+        {
+            return string.Empty;
+        }
+
+        return state.SpellDuelState.BattlefieldObjectId;
     }
 
     private static bool HasValidStandbyReactionTargets(
@@ -42424,7 +42461,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string preventionEffectId,
         long rngCursor)
     {
-        if (!TryParseBattlefieldDestination(stackItem.Destination, out var sourceBattlefieldObjectId)
+        if (!TryResolveStandbyReactionDamageBattlefieldContext(state, stackItem, out var sourceBattlefieldObjectId)
             || !playerZones.TryGetValue(stackItem.ControllerId, out var zones))
         {
             return new RecycleResult([], rngCursor);
@@ -42499,6 +42536,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             rngCursor);
         events.AddRange(recycleResult.Events);
         return new RecycleResult([], recycleResult.RngCursor);
+    }
+
+    private static bool TryResolveStandbyReactionDamageBattlefieldContext(
+        MatchState state,
+        StackItemState stackItem,
+        out string sourceBattlefieldObjectId)
+    {
+        if (TryParseBattlefieldDestination(stackItem.Destination, out sourceBattlefieldObjectId))
+        {
+            return true;
+        }
+
+        if (string.Equals(stackItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+        {
+            sourceBattlefieldObjectId = state.SpellDuelState.BattlefieldObjectId;
+            return true;
+        }
+
+        sourceBattlefieldObjectId = string.Empty;
+        return false;
     }
 
     private static bool IsStandbyReactionResolvedTargetInScope(

@@ -6003,6 +6003,144 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptRevealCardMetadataExposesBaseStandbyReactionTargetsFromSpellDuelContext()
+    {
+        const string battlefieldObjectId = "P1-SPELL-DUEL-BATTLEFIELD";
+        const string sourceObjectId = "P1-FACE-DOWN-BASE-TEEMO";
+        var state = new MatchState(
+            "prompt-reveal-card-base-spell-duel-target-room",
+            23,
+            4,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelClosed,
+            priorityPlayerId: "P1",
+            passedPriorityPlayerIds: ["P2"],
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId],
+                    Battlefields = [battlefieldObjectId, "P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT"],
+                    Battlefields =
+                    [
+                        "P2-SAME-BATTLEFIELD-UNIT",
+                        "P2-BATTLEFIELD-OTHER",
+                        "P2-OTHER-BATTLEFIELD-UNIT"
+                    ]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    isFaceDown: true,
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"] = new(
+                    "P1-FRIENDLY-SAME-BATTLEFIELD-UNIT",
+                    cardNo: "UNL-092/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SAME-BATTLEFIELD-UNIT"] = new(
+                    "P2-SAME-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BASE-UNIT"] = new(
+                    "P2-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-OTHER"] = new(
+                    "P2-BATTLEFIELD-OTHER",
+                    cardNo: "OGN·279/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-OTHER-BATTLEFIELD-UNIT"] = new(
+                    "P2-OTHER-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-0-SPELL-DUEL",
+                    "P2",
+                    "P2-SPELL-DUEL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [],
+                    timingContext: TimingStates.SpellDuelOpen)
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
+                ["P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"] = new("P1", "BATTLEFIELD", battlefieldObjectId),
+                ["P2-SAME-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", battlefieldObjectId),
+                ["P2-BATTLEFIELD-OTHER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER"),
+                ["P2-OTHER-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var revealCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
+
+        Assert.True(revealCandidate.Enabled);
+        Assert.Equal([sourceObjectId], (revealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], (revealCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(revealCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        Assert.Equal(sourceObjectId, Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("STANDBY_REACTION", Assert.IsType<string>(sourceRequirement["mode"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal("ENEMY_UNIT_AT_SOURCE_BATTLEFIELD", Assert.IsType<string>(sourceRequirement["targetScope"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptExposesPlayableReactionCardsDuringStackPriority()
     {
         var state = new MatchState(

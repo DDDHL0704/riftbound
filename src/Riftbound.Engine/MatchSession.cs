@@ -9206,7 +9206,7 @@ internal static class ActionPromptBuilder
                 behavior.StandbyReactionTargetScope,
                 CardTargetScopes.EnemyUnitAtSourceBattlefield,
                 StringComparison.Ordinal)
-            || !TryResolveBattlefieldStandbyRevealDestination(state, playerId, sourceObjectId, out var battlefieldObjectId))
+            || !TryResolveStandbyReactionBattlefieldContext(state, playerId, sourceObjectId, out var battlefieldObjectId))
         {
             return [];
         }
@@ -9235,9 +9235,11 @@ internal static class ActionPromptBuilder
     private static bool CanRevealStandbyReactionToStack(MatchState state, string playerId)
     {
         return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
             && state.StackItems.Count > 0
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
+            && (string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal));
     }
 
     private static bool IsImplementedStandbyRevealSource(MatchState state, string playerId, string objectId)
@@ -9275,6 +9277,32 @@ internal static class ActionPromptBuilder
         }
 
         battlefieldObjectId = location.BattlefieldObjectId;
+        return true;
+    }
+
+    private static bool TryResolveStandbyReactionBattlefieldContext(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        out string battlefieldObjectId)
+    {
+        if (TryResolveBattlefieldStandbyRevealDestination(state, playerId, sourceObjectId, out battlefieldObjectId))
+        {
+            return true;
+        }
+
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+            || !CanRevealStandbyReactionToStack(state, playerId)
+            || !string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            || !state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
+            || string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+        {
+            battlefieldObjectId = string.Empty;
+            return false;
+        }
+
+        battlefieldObjectId = state.SpellDuelState.BattlefieldObjectId;
         return true;
     }
 
