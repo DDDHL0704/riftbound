@@ -17124,6 +17124,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return battlefieldDefenderMoveRejection;
         }
+        var battlefieldEffectTargetObjectIds = new[] { battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId }
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId!)
+            .ToArray();
         if (!TryResolveUnitDefendTriggerTargetChoice(
                 state,
                 playerZones,
@@ -17131,6 +17135,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingPlayerId ?? string.Empty,
                 battlefieldId,
                 defenderObjectIds,
+                battlefieldEffectTargetObjectIds,
                 defenderBattlefieldTargetObjectIds,
                 out var unitDefendTriggerRejection))
         {
@@ -24007,17 +24012,30 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         battlefieldCardNo = battlefieldState.CardNo;
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        var requestedDefenderTargetObjectIds = requestedTargetObjectIds
-            .Where(requestedTargetObjectId => defenderObjectIds.Contains(requestedTargetObjectId, StringComparer.Ordinal))
+        var resolvedBattlefieldObjectId = battlefieldObjectId;
+        var legalTargetObjectIds = playerZones.TryGetValue(defendingPlayerId, out var defenderZones)
+            ? defenderZones.Battlefields
+                .Where(candidateObjectId => IsFriendlyUnitAtBattlefieldTriggerSource(
+                    playerZones,
+                    state.CardObjects,
+                    state.ObjectLocations,
+                    defendingPlayerId,
+                    candidateObjectId,
+                    resolvedBattlefieldObjectId))
+                .ToArray()
+            : [];
+        var legalTargetObjectIdSet = legalTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+        var requestedFriendlyTargetObjectIds = requestedTargetObjectIds
+            .Where(requestedTargetObjectId => legalTargetObjectIdSet.Contains(requestedTargetObjectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        if (requestedDefenderTargetObjectIds.Length == 0)
+        if (requestedFriendlyTargetObjectIds.Length == 0)
         {
             if (requestedTargetObjectIds.Count > 0 && !allowUnitDefendTriggerTargets)
             {
                 rejection = RejectWithCorePrompts(
                     state,
-                    "该战场效果最多选择 1 个防守单位。",
+                    "该战场效果最多选择 1 个此战场友方单位。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
@@ -24025,18 +24043,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (requestedDefenderTargetObjectIds.Length != 1
-            || (requestedTargetObjectIds.Count != requestedDefenderTargetObjectIds.Length
+        if (requestedFriendlyTargetObjectIds.Length != 1
+            || (requestedTargetObjectIds.Count != requestedFriendlyTargetObjectIds.Length
                 && !allowUnitDefendTriggerTargets))
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "该战场效果最多选择 1 个防守单位。",
+                "该战场效果最多选择 1 个此战场友方单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
 
-        targetObjectId = requestedDefenderTargetObjectIds[0];
+        targetObjectId = requestedFriendlyTargetObjectIds[0];
         return true;
     }
 
@@ -42579,6 +42597,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string defendingPlayerId,
         string battlefieldId,
         IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyList<string> allowedBattlefieldEffectTargetObjectIds,
         IReadOnlyList<string>? battlefieldTargetObjectIds,
         out ResolutionResult rejection)
     {
@@ -42607,7 +42626,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
         var unsupportedTargetObjectIds = requestedTargetObjectIds
             .Where(targetObjectId => !legalTargetObjectIdSet.Contains(targetObjectId)
-                && !defenderObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
+                && !defenderObjectIds.Contains(targetObjectId, StringComparer.Ordinal)
+                && !allowedBattlefieldEffectTargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         if (unsupportedTargetObjectIds.Length > 0

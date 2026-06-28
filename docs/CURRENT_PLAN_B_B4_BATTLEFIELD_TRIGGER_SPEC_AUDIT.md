@@ -45,12 +45,13 @@ The 2026-06-25 defend move-friendly-unit-to-base follow-up moves another impleme
 - `CoreRuleEngine.TryResolveBattlefieldDefenderMoveToBaseChoice` and `TryResolveBattlefieldDefenderMoveToBaseTrigger` now find eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(...)` and validate the parsed timing / target scope / movement shape before accepting battlefield targets or resolving the move.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldDefendMoveFriendlyUnitToBaseCardNo` constant; the dev seed keeps only the catalog card number literal for scenario construction.
 - The old `BattlefieldDefendMoveFriendlyUnitToBaseCardNo` / `IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `52` total / `49` in `CoreRuleEngine`; Core battlefield helper count is `5`.
+- The 2026-06-28 target-scope follow-up corrects the representative target set from declared defenders to the parsed `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD` scope: `DECLARE_BATTLE` prompt metadata now derives battlefield-effect target slots from generic `TriggerSpec` timing/target scope, and Core accepts an exhausted non-defending same-battlefield friendly unit as the Plunder move target while a separate Teemo defend trigger consumes the enemy target.
 
 The 2026-06-27 B0 follow-up adds official-deck action-log replay coverage for the same parsed Plunder Alley route without changing runtime code:
 
 - legal Jhin vs Vex official decks submit and open through normal server prompts until P2 selects `OGN·285/298` Plunder Alley;
-- the focused midgame replay stages official `OGN·096/298` Watchful Sentinel and `UNL-057/219` Wildclaw Beastmaster at that battlefield, then submits the surviving defender through `battlefieldTargetObjectIds`;
-- the engine emits parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` resolution plus `UNIT_MOVED_TO_BASE`, moves the selected P2 defender to P2 base, and replays the resulting command log through score victory to the same final state hash.
+- the focused midgame replay stages official `OGN·096/298` Watchful Sentinel and `UNL-057/219` Wildclaw Beastmaster at that battlefield, then submits the same-battlefield friendly-unit target through `battlefieldTargetObjectIds`;
+- the engine emits parsed `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` resolution plus `UNIT_MOVED_TO_BASE`, moves the selected P2 friendly unit to P2 base, and replays the resulting command log through score victory to the same final state hash.
 
 The 2026-06-25 held pay-power score follow-up moves another implemented battlefield held trigger away from engine card-number branching:
 

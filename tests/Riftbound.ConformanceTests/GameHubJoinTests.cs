@@ -9706,7 +9706,7 @@ public sealed class GameHubJoinTests
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
         var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
-        Assert.Equal("该战场效果最多选择 1 个防守单位。", invalidTargetPayload.Message);
+        Assert.Equal("该战场效果最多选择 1 个此战场友方单位。", invalidTargetPayload.Message);
         Assert.DoesNotContain("Plunder Ship Alley", invalidTargetPayload.Message, StringComparison.Ordinal);
         Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
 

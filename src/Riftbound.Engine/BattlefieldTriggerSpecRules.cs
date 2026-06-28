@@ -320,20 +320,23 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static IReadOnlyList<TriggerSpec> TriggersForCard(string? cardNo)
+    {
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            return [];
+        }
+
+        return TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers)
+            ? triggers
+            : [];
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;
-        if (string.IsNullOrWhiteSpace(cardNo))
-        {
-            return false;
-        }
-
-        if (!TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers))
-        {
-            return false;
-        }
-
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = TriggersForCard(cardNo)
+            .FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
         if (match is null)
         {
             return false;

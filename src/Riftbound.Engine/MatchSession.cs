@@ -14137,15 +14137,17 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || !HasDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(battlefieldState.CardNo))
+            || !TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger(battlefieldState.CardNo, out var trigger))
         {
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
 
-        var choices = defenderObjectIds
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var defenderState)
-                && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defendingPlayerId))
+        var choices = DeclareBattleBattlefieldDefendEffectTargetObjectIds(
+                state,
+                defendingPlayerId,
+                battlefieldObjectId,
+                defenderObjectIds,
+                trigger.TargetScope ?? string.Empty)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId => ObjectChoice(state, objectId, "战场防守效果防守单位"))
@@ -14159,29 +14161,47 @@ internal static class ActionPromptBuilder
             };
     }
 
-    private static bool HasDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(string? cardNo)
+    private static bool TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger(string? cardNo, out TriggerSpec trigger)
     {
-        return (BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(cardNo, out var steadfastTrigger)
-                && IsDeclareBattlePromptDefendGrantSteadfastTrigger(steadfastTrigger))
-            || (BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out var moveToBaseTrigger)
-                && IsDeclareBattlePromptDefendMoveToBaseTrigger(moveToBaseTrigger));
+        trigger = BattlefieldTriggerSpecRules.TriggersForCard(cardNo)
+            .FirstOrDefault(IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger)!;
+        return trigger is not null;
     }
 
-    private static bool IsDeclareBattlePromptDefendGrantSteadfastTrigger(TriggerSpec trigger)
+    private static bool IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
-            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
-            && trigger.KeywordBonus.GetValueOrDefault() > 0;
+            && (string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
+                || string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal));
     }
 
-    private static bool IsDeclareBattlePromptDefendMoveToBaseTrigger(TriggerSpec trigger)
+    private static IEnumerable<string> DeclareBattleBattlefieldDefendEffectTargetObjectIds(
+        MatchState state,
+        string defendingPlayerId,
+        string battlefieldObjectId,
+        IReadOnlyList<string> defenderObjectIds,
+        string targetScope)
     {
-        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
-            && trigger.MoveCount.GetValueOrDefault() == 1
-            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
-            && trigger.Optional == true;
+        if (string.Equals(targetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal))
+        {
+            return defenderObjectIds
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var defenderState)
+                    && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defendingPlayerId));
+        }
+
+        if (string.Equals(targetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal))
+        {
+            return state.ObjectLocations
+                .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                    && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+                .Select(entry => entry.Key)
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
+                    && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(objectState, defendingPlayerId));
+        }
+
+        return [];
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex(

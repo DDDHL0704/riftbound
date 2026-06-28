@@ -11,6 +11,7 @@ public sealed class StandbyDefendTeemoTests
     private const string SecondEnemyTargetObjectId = "P1-TEEMO-DEFEND-SECOND-ENEMY";
     private const string TeemoObjectId = "P2-TEEMO-FACE-UP-DEFENDER";
     private const string SecondDefenderObjectId = "P2-TEEMO-FACE-UP-SECOND-DEFENDER";
+    private const string ExhaustedFriendlyUnitObjectId = "P2-TEEMO-FACE-UP-EXHAUSTED-FRIENDLY";
 
     public static TheoryData<string> TeemoCards()
     {
@@ -116,6 +117,41 @@ public sealed class StandbyDefendTeemoTests
             sourceRequirement["battlefieldTargetChoicesByIndex"]);
         Assert.Equal(
             [TeemoObjectId, SecondDefenderObjectId],
+            battlefieldTargetChoicesByIndex["0"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
+        Assert.Equal(
+            [AttackerObjectId, SecondEnemyTargetObjectId],
+            battlefieldTargetChoicesByIndex["1"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
+    }
+
+    [Fact]
+    public void DeclareBattlePromptMetadataUsesPlunderFriendlyUnitScopeBeyondDefenders()
+    {
+        var session = new MatchSession(
+            BuildState(
+                "OGN·121/298",
+                includeSecondEnemyTarget: true,
+                battlefieldCardNo: "OGN·285/298",
+                battlefieldControllerId: "P2",
+                includeExhaustedFriendlyUnit: true),
+            new CoreRuleEngine(),
+            NoopMatchJournal.Instance);
+
+        var prompt = session.PromptFor("P1");
+
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minBattlefieldTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxBattlefieldTargetCount"]));
+        var battlefieldTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["battlefieldTargetChoicesByIndex"]);
+        Assert.Equal(
+            [TeemoObjectId, ExhaustedFriendlyUnitObjectId],
             battlefieldTargetChoicesByIndex["0"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
         Assert.Equal(
             [AttackerObjectId, SecondEnemyTargetObjectId],
@@ -257,6 +293,60 @@ public sealed class StandbyDefendTeemoTests
         Assert.DoesNotContain(TeemoObjectId, result.State.PlayerZones["P2"].Battlefields);
     }
 
+    [Fact]
+    public async Task FaceUpTeemoDefendTriggerLetsPlunderMoveFriendlyUnitBeyondDefenders()
+    {
+        var engine = new CoreRuleEngine();
+        var result = await engine.ResolveAsync(
+            BuildState(
+                "OGN·121/298",
+                includeSecondEnemyTarget: true,
+                battlefieldCardNo: "OGN·285/298",
+                battlefieldControllerId: "P2",
+                includeExhaustedFriendlyUnit: true,
+                attackerPower: 1),
+            new PlayerIntent("intent-teemo-face-up-defend-trigger-multiplexed-plunder-friendly-unit", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [TeemoObjectId],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"],
+                BattlefieldTargetObjectIds: [ExhaustedFriendlyUnitObjectId, SecondEnemyTargetObjectId]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["trigger"], TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase)
+            && Equals(gameEvent.Payload["targetObjectId"], ExhaustedFriendlyUnitObjectId));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["targetObjectId"], ExhaustedFriendlyUnitObjectId)
+            && Equals(gameEvent.Payload["destinationZone"], "BASE"));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
+            && Equals(gameEvent.Payload["targetObjectId"], SecondEnemyTargetObjectId)
+            && Equals(gameEvent.Payload["damage"], 2));
+        Assert.Contains(ExhaustedFriendlyUnitObjectId, result.State.PlayerZones["P2"].Base);
+        Assert.Contains(TeemoObjectId, result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public void DeclareBattlePromptBattlefieldDefendEffectTargetsUseGenericTriggerSpecs()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var promptHelper = matchSessionSource[
+            matchSessionSource.IndexOf("private static bool TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger", StringComparison.Ordinal)..];
+        promptHelper = promptHelper[..promptHelper.IndexOf("private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex", StringComparison.Ordinal)];
+
+        Assert.Contains("BattlefieldTriggerSpecRules.TriggersForCard", promptHelper, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetBattlefieldDefendGrantSteadfastTrigger", promptHelper, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger", promptHelper, StringComparison.Ordinal);
+    }
+
     private static bool PayloadEquals(GameEvent gameEvent, string key, object? expected)
     {
         return gameEvent.Payload.TryGetValue(key, out var actual)
@@ -269,7 +359,8 @@ public sealed class StandbyDefendTeemoTests
         bool includeSecondDefender = false,
         string battlefieldCardNo = "OGN·278/298",
         string battlefieldControllerId = "P1",
-        int attackerPower = 7)
+        int attackerPower = 7,
+        bool includeExhaustedFriendlyUnit = false)
     {
         var topFive = TopFiveMainDeckCards();
         return new MatchState(
@@ -300,7 +391,10 @@ public sealed class StandbyDefendTeemoTests
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = P2BattlefieldObjects(battlefieldControllerId, includeSecondDefender),
+                    Battlefields = P2BattlefieldObjects(
+                        battlefieldControllerId,
+                        includeSecondDefender,
+                        includeExhaustedFriendlyUnit),
                     MainDeck = [.. topFive, "P2-MAIN-BOTTOM"]
                 }
             },
@@ -310,12 +404,14 @@ public sealed class StandbyDefendTeemoTests
                 includeSecondDefender,
                 battlefieldCardNo,
                 battlefieldControllerId,
-                attackerPower),
+                attackerPower,
+                includeExhaustedFriendlyUnit),
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId)],
             objectLocations: BuildObjectLocations(
                 includeSecondEnemyTarget,
                 includeSecondDefender,
-                battlefieldControllerId));
+                battlefieldControllerId,
+                includeExhaustedFriendlyUnit));
     }
 
     private static string[] P1BattlefieldObjects(string battlefieldControllerId, bool includeSecondEnemyTarget)
@@ -335,7 +431,10 @@ public sealed class StandbyDefendTeemoTests
         return objectIds.ToArray();
     }
 
-    private static string[] P2BattlefieldObjects(string battlefieldControllerId, bool includeSecondDefender)
+    private static string[] P2BattlefieldObjects(
+        string battlefieldControllerId,
+        bool includeSecondDefender,
+        bool includeExhaustedFriendlyUnit)
     {
         var objectIds = new List<string>();
         if (string.Equals(battlefieldControllerId, "P2", StringComparison.Ordinal))
@@ -348,6 +447,10 @@ public sealed class StandbyDefendTeemoTests
         {
             objectIds.Add(SecondDefenderObjectId);
         }
+        if (includeExhaustedFriendlyUnit)
+        {
+            objectIds.Add(ExhaustedFriendlyUnitObjectId);
+        }
 
         return objectIds.ToArray();
     }
@@ -358,7 +461,8 @@ public sealed class StandbyDefendTeemoTests
         bool includeSecondDefender,
         string battlefieldCardNo,
         string battlefieldControllerId,
-        int attackerPower)
+        int attackerPower,
+        bool includeExhaustedFriendlyUnit)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -390,6 +494,15 @@ public sealed class StandbyDefendTeemoTests
         {
             cardObjects[SecondDefenderObjectId] = Unit(SecondDefenderObjectId, "P2", "SFD·125/221", 3, [CardCombatKeywordNames.Bulwark]);
         }
+        if (includeExhaustedFriendlyUnit)
+        {
+            cardObjects[ExhaustedFriendlyUnitObjectId] = Unit(
+                ExhaustedFriendlyUnitObjectId,
+                "P2",
+                "SFD·125/221",
+                3,
+                isExhausted: true);
+        }
 
         return cardObjects;
     }
@@ -397,7 +510,8 @@ public sealed class StandbyDefendTeemoTests
     private static Dictionary<string, ObjectLocationState> BuildObjectLocations(
         bool includeSecondEnemyTarget,
         bool includeSecondDefender,
-        string battlefieldControllerId)
+        string battlefieldControllerId,
+        bool includeExhaustedFriendlyUnit)
     {
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
@@ -412,6 +526,10 @@ public sealed class StandbyDefendTeemoTests
         if (includeSecondDefender)
         {
             objectLocations[SecondDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
+        }
+        if (includeExhaustedFriendlyUnit)
+        {
+            objectLocations[ExhaustedFriendlyUnitObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
         }
 
         return objectLocations;
@@ -434,7 +552,8 @@ public sealed class StandbyDefendTeemoTests
         string playerId,
         string cardNo,
         int power,
-        IReadOnlyList<string>? extraTags = null)
+        IReadOnlyList<string>? extraTags = null,
+        bool isExhausted = false)
     {
         return new CardObjectState(
             objectId,
@@ -442,6 +561,24 @@ public sealed class StandbyDefendTeemoTests
             power: power,
             tags: [.. new[] { CardObjectTags.UnitCard }.Concat(extraTags ?? [])],
             ownerId: playerId,
-            controllerId: playerId);
+            controllerId: playerId,
+            isExhausted: isExhausted);
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }
