@@ -17086,6 +17086,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var defenderBattlefieldTargetObjectIds = string.IsNullOrWhiteSpace(icevaleArcherAttackTargetObjectId)
             ? command.BattlefieldTargetObjectIds
             : [];
+        var hasUnitDefendTriggerTargetChoice = HasUnitDefendMainDeckCountedDamageTrigger(
+            state,
+            cardObjects,
+            defendingPlayerId ?? string.Empty,
+            battlefieldId,
+            defenderObjectIds);
         if (!TryResolveBattlefieldDefenderSteadfastChoice(
                 state,
                 playerZones,
@@ -17093,6 +17099,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 defenderBattlefieldTargetObjectIds,
                 defenderObjectIds,
+                hasUnitDefendTriggerTargetChoice,
                 out var battlefieldSteadfastObjectId,
                 out var battlefieldSteadfastObjectSourceId,
                 out var battlefieldSteadfastCardNo,
@@ -17115,6 +17122,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var battlefieldDefenderMoveRejection))
         {
             return battlefieldDefenderMoveRejection;
+        }
+        if (string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId)
+            && string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId)
+            && !TryResolveUnitDefendTriggerTargetChoice(
+                state,
+                playerZones,
+                cardObjects,
+                defendingPlayerId ?? string.Empty,
+                battlefieldId,
+                defenderObjectIds,
+                defenderBattlefieldTargetObjectIds,
+                out var unitDefendTriggerRejection))
+        {
+            return unitDefendTriggerRejection;
         }
 
         var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 };
@@ -17269,7 +17290,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             defendingPlayerId ?? string.Empty,
             battlefieldId,
             defenderObjectIds,
-            command.BattlefieldTargetObjectIds,
+            defenderBattlefieldTargetObjectIds,
             damageTriggeredDestroyTargetObjectIds,
             rngCursor);
         rngCursor = unitDefendTrigger.RngCursor;
@@ -23819,6 +23840,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldId,
         IReadOnlyList<string>? battlefieldTargetObjectIds,
         IReadOnlyList<string> defenderObjectIds,
+        bool allowUnitDefendTriggerTargets,
         out string? targetObjectId,
         out string battlefieldObjectId,
         out string? battlefieldCardNo,
@@ -23855,7 +23877,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
         if (!isSteadfastBattlefield)
         {
-            if (requestedTargetObjectIds.Count > 0 && !isMoveToBaseBattlefield)
+            if (requestedTargetObjectIds.Count > 0
+                && !isMoveToBaseBattlefield
+                && !allowUnitDefendTriggerTargets)
             {
                 rejection = RejectWithCorePrompts(
                     state,
@@ -42499,6 +42523,83 @@ public sealed class CoreRuleEngine : IRuleEngine
             && behavior.DefendTriggerDamagePerCountedCard > 0;
     }
 
+    private static bool HasUnitDefendMainDeckCountedDamageTrigger(
+        MatchState state,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string defendingPlayerId,
+        string battlefieldId,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        return !string.IsNullOrWhiteSpace(defendingPlayerId)
+            && !string.IsNullOrWhiteSpace(battlefieldId)
+            && defenderObjectIds.Any(defenderObjectId =>
+                cardObjects.TryGetValue(defenderObjectId, out var defenderState)
+                && !defenderState.IsFaceDown
+                && !string.IsNullOrWhiteSpace(defenderState.CardNo)
+                && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defendingPlayerId)
+                && state.ObjectLocations.TryGetValue(defenderObjectId, out var location)
+                && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal)
+                && CardBehaviorRegistry.TryGetByCardNo(defenderState.CardNo, out var behavior)
+                && ShouldResolveDefendTriggerMainDeckCountedDamage(behavior));
+    }
+
+    private static bool TryResolveUnitDefendTriggerTargetChoice(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string defendingPlayerId,
+        string battlefieldId,
+        IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyList<string>? battlefieldTargetObjectIds,
+        out ResolutionResult rejection)
+    {
+        rejection = default!;
+        if (!HasUnitDefendMainDeckCountedDamageTrigger(
+                state,
+                cardObjects,
+                defendingPlayerId,
+                battlefieldId,
+                defenderObjectIds))
+        {
+            return true;
+        }
+
+        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
+        var legalTargetObjectIds = ResolveDefendTriggerLegalDamageTargetObjectIds(
+            state,
+            playerZones,
+            cardObjects,
+            defendingPlayerId,
+            battlefieldId);
+        if (requestedTargetObjectIds.Count == 0)
+        {
+            if (legalTargetObjectIds.Length <= 1)
+            {
+                return true;
+            }
+
+            rejection = RejectWithCorePrompts(
+                state,
+                "该防守触发需要选择 1 个同战场敌方单位。",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (requestedTargetObjectIds.Count != 1
+            || !legalTargetObjectIds.Contains(requestedTargetObjectIds[0], StringComparer.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "该防守触发目标必须是同战场敌方单位。",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        return true;
+    }
+
     private static RecycleResult ResolveUnitDefendMainDeckCountedDamageTriggers(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -42631,16 +42732,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
-        var legalTargetObjectIds = cardObjects.Keys
-            .Where(targetObjectId => IsStandbyReactionResolvedTargetInScope(
-                state,
-                playerZones,
-                cardObjects,
-                defendingPlayerId,
-                battlefieldId,
-                targetObjectId))
-            .OrderBy(targetObjectId => targetObjectId, StringComparer.Ordinal)
-            .ToArray();
+        var legalTargetObjectIds = ResolveDefendTriggerLegalDamageTargetObjectIds(
+            state,
+            playerZones,
+            cardObjects,
+            defendingPlayerId,
+            battlefieldId);
         var legalTargetObjectIdSet = legalTargetObjectIds.ToHashSet(StringComparer.Ordinal);
         var requestedLegalTargetObjectIds = requestedTargetObjectIds
             .Where(targetObjectId => legalTargetObjectIdSet.Contains(targetObjectId))
@@ -42655,6 +42752,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         return legalTargetObjectIds.Length == 1
             ? legalTargetObjectIds
             : [];
+    }
+
+    private static string[] ResolveDefendTriggerLegalDamageTargetObjectIds(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string defendingPlayerId,
+        string battlefieldId)
+    {
+        return cardObjects.Keys
+            .Where(targetObjectId => IsStandbyReactionResolvedTargetInScope(
+                state,
+                playerZones,
+                cardObjects,
+                defendingPlayerId,
+                battlefieldId,
+                targetObjectId))
+            .OrderBy(targetObjectId => targetObjectId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static RecycleResult ResolveStandbyReactionMainDeckCountedDamage(

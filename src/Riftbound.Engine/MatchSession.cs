@@ -6746,6 +6746,10 @@ internal static class ActionPromptBuilder
         int MaxDefenderCount,
         string DefenderCountLabel,
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
+        int MinBattlefieldTargetCount,
+        int MaxBattlefieldTargetCount,
+        string BattlefieldTargetScope,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> BattlefieldTargetChoicesByIndex,
         IReadOnlyList<ActionPromptChoiceDto> BattlefieldChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
@@ -14015,6 +14019,16 @@ internal static class ActionPromptBuilder
                 {
                     targetChoicesByIndex["1"] = secondDefenderChoices;
                 }
+                var triggerBattlefieldObjectId = DeclareBattleTriggerBattlefieldObjectId(
+                    state,
+                    activeBattlefieldObjectId,
+                    attacker.ObjectId);
+                var battlefieldTargetChoicesByIndex = DeclareBattleDefendTriggerTargetChoicesByIndex(
+                    state,
+                    playerId,
+                    triggerBattlefieldObjectId,
+                    defenderCandidates.Select(candidate => candidate.ObjectId).ToArray());
+                var maxBattlefieldTargetCount = battlefieldTargetChoicesByIndex.Count > 0 ? 1 : 0;
 
                 var paymentResourceChoices = DeclareBattleHeldScorePaymentResourceChoices(state, battlefieldChoices);
                 var paymentResourcePowerByChoice = DeclareBattleHeldScorePaymentResourcePowerByChoice(
@@ -14033,6 +14047,10 @@ internal static class ActionPromptBuilder
                     maxDefenderCount,
                     maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
                     targetChoicesByIndex,
+                    maxBattlefieldTargetCount,
+                    maxBattlefieldTargetCount,
+                    maxBattlefieldTargetCount > 0 ? CardTargetScopes.EnemyUnitAtSourceBattlefield : string.Empty,
+                    battlefieldTargetChoicesByIndex,
                     battlefieldChoices,
                     DeclareBattleRequiredOptionalCostChoices()
                         .Concat(DeclareBattleBrushReplacementChoices(state))
@@ -14049,6 +14067,65 @@ internal static class ActionPromptBuilder
                     null);
             })
             .ToArray();
+    }
+
+    private static string DeclareBattleTriggerBattlefieldObjectId(
+        MatchState state,
+        string activeBattlefieldObjectId,
+        string attackerObjectId)
+    {
+        if (!string.IsNullOrWhiteSpace(activeBattlefieldObjectId))
+        {
+            return activeBattlefieldObjectId;
+        }
+
+        return state.ObjectLocations.TryGetValue(attackerObjectId, out var location)
+            && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            ? location.BattlefieldObjectId ?? string.Empty
+            : string.Empty;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex(
+        MatchState state,
+        string playerId,
+        string battlefieldObjectId,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !defenderObjectIds.Any(defenderObjectId => IsDefendTriggerMainDeckCountedDamageSource(state, defenderObjectId)))
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        var choices = state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Where(objectId => IsPromptControlledBattlefieldObject(state, playerId, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId => ObjectChoice(state, objectId, "防守触发同战场敌方单位"))
+            .ToArray();
+
+        return choices.Length == 0
+            ? new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+    }
+
+    private static bool IsDefendTriggerMainDeckCountedDamageSource(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+            && behavior.DefendTriggerMaxTargetCount > 0
+            && behavior.DefendTriggerMainDeckLookCount > 0
+            && !string.IsNullOrWhiteSpace(behavior.DefendTriggerCountedTag)
+            && behavior.DefendTriggerDamagePerCountedCard > 0;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScorePaymentResourceChoices(
@@ -16214,6 +16291,10 @@ internal static class ActionPromptBuilder
             ["maxDefenderCount"] = requirement.MaxDefenderCount,
             ["defenderCountLabel"] = requirement.DefenderCountLabel,
             ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
+            ["minBattlefieldTargetCount"] = requirement.MinBattlefieldTargetCount,
+            ["maxBattlefieldTargetCount"] = requirement.MaxBattlefieldTargetCount,
+            ["battlefieldTargetScope"] = requirement.BattlefieldTargetScope,
+            ["battlefieldTargetChoicesByIndex"] = requirement.BattlefieldTargetChoicesByIndex,
             ["battlefieldChoices"] = requirement.BattlefieldChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
             ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
