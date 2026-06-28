@@ -65,6 +65,7 @@ Low-hand source-unit active-entry runtime:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `MaxControllerHandCount` against the controller's hand count after the played card has left hand.
 - `tests/Riftbound.ConformanceTests/DunehornLowHandActiveEntryStaticAbilityTests.cs` proves Dunehorn Beast enters ready when the controller has two cards in hand after play and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves three cards in hand after play does not satisfy the parsed requirement and leaves the pre-exhausted source unit exhausted with no entry-static metadata.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Jhin deck opening can feed Dunehorn Beast low-hand active-entry into B0 score victory: P1 plays `SFD·027/221` from a three-card hand, the post-play two-card hand satisfies `SOURCE_UNIT_ENTER_READY`, `UNIT_PLAYED_TO_BATTLEFIELD` emits self source metadata, and the same action log replays to the final score-victory state hash without hidden-zone leaks.
 
 ## Validation Evidence
 
@@ -85,13 +86,15 @@ Low-hand source-unit active-entry runtime:
 - Dunehorn low-hand active-entry pre-implementation red: `DunehornLowHandActiveEntryStaticAbilityTests` failed at compile because `SOURCE_UNIT_ENTER_READY` / `MaxControllerHandCount` did not exist.
 - Dunehorn low-hand active-entry focused post-implementation: 3/3 passed.
 - Dunehorn / active-entry / MatchRecovery adjacent regression: 2297/2297 passed.
-- Backend full after this slice: 8881/8881 passed.
+- Dunehorn low-hand active-entry B0 official-deck replay focused: 1/1 passed.
+- Dunehorn low-hand active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2100/2100 passed.
+- Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
+- Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed
 
 - Official-deck score-victory replay coverage for 熔浆巨龙 remains open.
 - Official-deck score-victory replay coverage for Master Yi level 11 active-entry remains open.
-- Official-deck score-victory replay coverage for Dunehorn Beast low-hand active-entry remains open.
 - Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.

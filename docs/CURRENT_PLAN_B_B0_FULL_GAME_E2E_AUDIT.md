@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Poro Forge rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B0 Dunehorn Beast low-hand active-entry replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -73,6 +73,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 `UNL-207/219` Rehearsal Hall, P1 `OGN·096/298` Watchful Sentinel, and P2 `UNL-057/219` Wildclaw Beastmaster defender at that battlefield; the held path resolves `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE`, moves the surviving defender to its owner's base, then uses effective-controller turn-start battlefield scoring to continue through score victory and action-log replay to the same final state hash;
 - from a seated official Poppy opening state, a verified legal official-deck opening selects P1 `UNL-219/219` Vaults of Helia, then starts a focused midgame main phase with the parsed `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1` marker active; P1 plays official `OGN·211/298` Loyal Craftsman through the server-authored `PLAY_CARD` prompt, the prompt metadata and `COST_PAID` event record base mana `3`, minimum/paid mana `4`, and `battlefieldHeldUnitCostIncreaseMana=1`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel; the defender survives, the unit-source `UNIT_BATTLEFIELD_HELD_DRAW` trigger draws two controlled main-deck cards for P2, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Jhin opening state, a verified legal official-deck opening feeds a focused midgame play state with P1 official `SFD·027/221` Dunehorn Beast plus two other cards in hand; playing Dunehorn Beast to a P1 battlefield leaves two cards in hand, resolves `SOURCE_UNIT_ENTER_READY`, emits self source entry metadata, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from the same seated official Vex / Treasure Pile opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, creates no Gold token, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -305,7 +306,9 @@ This Plunder Alley increment additionally proves a legal official Jhin vs Vex de
 
 This Vaults of Helia increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven held-battlefield non-token unit cost increase into a later server-authored `PLAY_CARD` prompt, charge an official non-token unit `+1` mana through prompt source requirements and `COST_PAID`, then continue through score victory and action-log replay. It still does not close complex multi-modifier payment stacking, token/non-token breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
-This Dunehorn Beast increment additionally proves a legal official Jhin deck opening can carry the BehaviorSpec-driven unit battlefield-held draw trigger through a real `DECLARE_BATTLE`, draw two controlled main-deck cards from the surviving held unit source, then continue through score victory and action-log replay. The low-hand active-entry sentence is now covered by the active-entry StaticAbilitySpec audit. This B0 slice still does not close complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+This Dunehorn Beast held-draw increment additionally proves a legal official Jhin deck opening can carry the BehaviorSpec-driven unit battlefield-held draw trigger through a real `DECLARE_BATTLE`, draw two controlled main-deck cards from the surviving held unit source, then continue through score victory and action-log replay. The low-hand active-entry sentence has separate StaticAbilitySpec coverage and now also has a B0 official-deck replay below. This B0 slice still does not close complete unit-held trigger breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
+
+This Dunehorn Beast low-hand active-entry increment additionally proves a legal official Jhin deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route. The focused state keeps P1 `SFD·027/221` Dunehorn Beast in hand with exactly two other cards; after the server-authored `PLAY_CARD` to a P1 battlefield, the controller has two cards remaining, Dunehorn Beast enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
@@ -328,6 +331,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Dunehorn Beast low-hand active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Dunehorn Beast low-hand active-entry replay / active-entry / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastUnitHeldDraw|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result:
+
+```text
+Passed: 2100, Failed: 0, Skipped: 0, Total: 2100
+```
+
+Latest Dunehorn Beast low-hand active-entry backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8882, Failed: 0, Skipped: 0, Total: 8882
+```
 
 Latest Poro Forge official-deck rejected-command replay focused validation passed:
 

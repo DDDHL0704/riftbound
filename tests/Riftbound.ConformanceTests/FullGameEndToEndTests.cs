@@ -1981,6 +1981,42 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildDunehornBeastLowHandActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-dunehorn-beast-low-hand-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildDunehornBeastLowHandActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            DunehornBeastCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-dunehorn-beast-low-hand-active-entry");
+        AssertDunehornBeastLowHandActiveEntryResolved(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-dunehorn-beast-low-hand-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesStarPeakHeldCallRuneAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -6623,6 +6659,40 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
         Assert.Contains(attackerObjectId, beforeBattle.State.PlayerZones["P1"].Battlefields);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertDunehornBeastLowHandActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            DunehornBeastCardNo)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast active-entry assertion could not locate source Dunehorn in P1 hand.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Equal(3, beforePlay.State.PlayerZones["P1"].Hand.Count);
+        Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(2, result.State.PlayerZones["P1"].Hand.Count);
+        Assert.DoesNotContain(sourceObjectId, result.State.PlayerZones["P1"].Hand);
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "穿沙角兽", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(DunehornBeastCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -19670,6 +19740,21 @@ public sealed class FullGameEndToEndTests
                 [DunehornBeastCardNo]));
     }
 
+    private static OfficialDecklist BuildDunehornBeastLowHandActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    DunehornBeastCardNo,
+                    WatchfulSentinelCardNo,
+                    WatchfulSentinelCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildBattlefieldHeldCallRuneAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -23796,6 +23881,70 @@ public sealed class FullGameEndToEndTests
                 .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
+        };
+    }
+
+    private static MatchState BuildDunehornBeastLowHandActiveEntryMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [
+                DunehornBeastCardNo,
+                WatchfulSentinelCardNo,
+                WatchfulSentinelCardNo
+            ],
+            new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            DunehornBeastCardNo)
+            ?? throw new InvalidOperationException("B0 Dunehorn Beast active-entry setup could not find Dunehorn Beast in P1 hand.");
+        var fillerHandObjectIds = midgameState.PlayerZones["P1"].Hand
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal))
+            .Take(2)
+            .ToArray();
+        Assert.Equal(2, fillerHandObjectIds.Length);
+
+        var keptHandObjectIds = new[] { sourceObjectId }
+            .Concat(fillerHandObjectIds)
+            .ToArray();
+        var movedHiddenHandObjectIds = midgameState.PlayerZones["P1"].Hand
+            .Where(objectId => !keptHandObjectIds.Contains(objectId, StringComparer.Ordinal))
+            .ToArray();
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = keptHandObjectIds,
+            MainDeck = p1Zones.MainDeck.Concat(movedHiddenHandObjectIds).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in movedHiddenHandObjectIds)
+        {
+            objectLocations[objectId] = new ObjectLocationState("P1", "MAIN_DECK");
+        }
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects
         };
     }
 
