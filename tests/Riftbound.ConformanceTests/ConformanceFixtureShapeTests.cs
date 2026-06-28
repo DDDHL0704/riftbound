@@ -5851,9 +5851,24 @@ public sealed class ConformanceFixtureShapeTests
             reactionPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
         Assert.True(reactionRevealCandidate.Enabled);
-        Assert.Equal(["P1-FACE-DOWN-STANDBY"], (reactionRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
+            (reactionRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         Assert.Equal(["STANDBY_REACTION"], (reactionRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
         Assert.Equal(["STACK"], (reactionRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        var reactionMetadata = Assert.IsType<Dictionary<string, object?>>(reactionRevealCandidate.Metadata);
+        var reactionRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            reactionMetadata["sourceRequirements"]).ToArray();
+        Assert.Equal(
+            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
+            reactionRequirements.Select(requirement => Assert.IsType<string>(requirement["sourceObjectId"])).ToArray());
+        Assert.All(
+            reactionRequirements,
+            requirement => Assert.Equal(
+                ["STACK"],
+                Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["destinationChoices"])
+                    .Select(destination => destination.Id)
+                    .ToArray()));
 
         var opponentPrompt = ResolutionResult.BuildPrompts(reactionState)["P2"];
         Assert.Equal(["WAIT", "SURRENDER"], opponentPrompt.Actions);

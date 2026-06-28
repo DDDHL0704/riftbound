@@ -9085,6 +9085,24 @@ internal static class ActionPromptBuilder
                     "支付 0 作为反应打出",
                     requirements);
             }
+
+            foreach (var objectId in zones.Battlefields.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
+            {
+                if (!TryResolveBattlefieldStandbyRevealDestination(state, playerId, objectId, out _))
+                {
+                    continue;
+                }
+
+                AddRevealCardSourceRequirement(
+                    state,
+                    objectId,
+                    StandbyReactionMode,
+                    StandbyReactionModeLabel,
+                    StandbyReactionDestination,
+                    "结算链",
+                    "支付 0 作为战场待命反应打出",
+                    requirements);
+            }
         }
 
         return requirements;

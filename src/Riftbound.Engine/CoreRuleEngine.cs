@@ -26576,7 +26576,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(destination, battlefieldRevealDestination, StringComparison.Ordinal)
             && targetObjectIds.Count == 0
             && paysStandbyRevealCost;
-        var playsReactionToStack = sourceInBase
+        var playsReactionToStack = (sourceInBase || sourceInBattlefield)
             && string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
             && string.Equals(destination, StandbyReactionDestination, StringComparison.Ordinal)
             && targetObjectIds.Count == 0
@@ -26679,7 +26679,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             var reactionPlayerZones = NormalizeZonesForSeats(state);
             reactionPlayerZones[intent.PlayerId] = zones with
             {
-                Base = RemoveFromZone(zones.Base, command.SourceObjectId)
+                Base = sourceInBase
+                    ? RemoveFromZone(zones.Base, command.SourceObjectId)
+                    : zones.Base,
+                Battlefields = sourceInBattlefield
+                    ? RemoveFromZone(zones.Battlefields, command.SourceObjectId)
+                    : zones.Battlefields
             };
             playerZones = reactionPlayerZones;
             stackItem = new StackItemState(
@@ -26693,6 +26698,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 1,
                 optionalCosts,
                 playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
+                destination: sourceInBattlefield ? battlefieldRevealDestination : null,
                 timingContext: StackTimingContextForNewStackItem(state));
         }
 
