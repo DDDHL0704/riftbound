@@ -29,6 +29,7 @@ Implemented in this slice:
   - `OGN·065/298` 睿智长者：如果自身拥有增益，则自身 `{{S}}+1`。
   - `OGN·297/298` 疾风山丘：此处的单位获得 `{{游走}}`。
   - `UNL-210/219` 禁忌荒地：如果防守此处的单位落单，则该单位 `{{S}}-2`。
+  - `UNL-041/219` 艾蕾，头号拥趸：如果自身位于战场上，同战场其他友方单位获得 `{{法盾}}`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
   - `UNL-195/219` 翠神：parenthetical reminder text describes the Brush battlefield token and must not be treated as a legend-source `STATIC_AURA`.
@@ -47,6 +48,7 @@ Implemented in this slice:
 - `MatchRecovery` now validates source-object combat static-aura `powerDelta` as the fixed BehaviorSpec power delta rather than multiplying by the participant object count.
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
 - `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `ActionPromptBuilder.HasMoveUnitPromptRoamPermission` now grant `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走` instead of the old `BattlefieldStaticRoamCardNo` branch.
+- `CoreRuleEngine.ResolveSpellshieldTargetTaxMana` and `ActionPromptBuilder.FriendlyFilteredUnitsGrantedSpellshieldTax` now apply same-battlefield other-friendly `RULE_TEXT` keyword auras with `GrantedKeyword=法盾` from `BehaviorSpec.StaticAuras`.
 - Battlefield keyword aura hidden-boundary guard: battlefield keyword sources that are face-down no longer project `BATTLEFIELD_*_UNITS_KEYWORD` RULE_TEXT effects, grant combat keyword bonuses, or provide static Roam prompt / movement permission.
 - `MatchSession` now projects battlefield isolated-defender RULE_TEXT keyword modifiers from `BehaviorSpec.StaticAuras` when the active battle has exactly one public defender at the source battlefield; the projection path has no card-number branch.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·181/221` Rumble legend's friendly-mechanical Steadfast RULE_TEXT aura in a legal official Rumble deck midgame route: after legal official deck submission/opening is verified, a focused `START_BATTLE` state stages an official `SFD·026/221` Rumble mechanical defender and `OGN·096/298` Watchful Sentinel at the same P1 battlefield, the legend-source `FRIENDLY_FILTERED_UNITS_KEYWORD` route grants the defender `坚守`, defender damage records `keywordBonus=1`, and the action log replays through score victory to the same final state hash.
@@ -86,6 +88,7 @@ This slice does not claim full B1 completion:
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
 - Garen and Darius same-battlefield other-friendly, Ornn friendly-equipment count-to-source, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1/B2 breadth can be claimed.
+- Aerie Head Fan same-battlefield other-friendly `法盾` now has focused catalog/projection/tax representatives, but it does not yet have a legal official-deck score-victory replay representative.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, additional RULE_TEXT keyword grants / modifiers, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text is now tracked by `docs/CURRENT_PLAN_B_OTHER_FRIENDLY_ACTIVE_ENTRY_STATIC_ABILITY_SPEC_AUDIT.md`; it remains outside this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -114,11 +117,36 @@ This slice does not claim full B1 completion:
 - `OGN·065/298`: `如果我拥有增益，则我额外获得{{S}}+1。`
 - `OGN·297/298`: `此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）`
 - `UNL-210/219`: `如果防守此处的单位落单，则该单位{{S}}-2。`
+- `UNL-041/219`: `如果我位于战场上，则你此处的其他单位获得{{法盾}}。`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
 ## Validation
+
+Latest Aerie Head Fan same-battlefield Spellshield RULE_TEXT focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefieldStaticSpellshieldAura|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives" --no-restore --nologo
+```
+
+Result: 5/5 passed.
+
+Latest Aerie Head Fan same-battlefield Spellshield RULE_TEXT adjacent / hidden-info check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefieldStaticSpellshieldAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~SpellshieldTax|FullyQualifiedName~StaticAura|FullyQualifiedName~MatchRecovery" --no-restore --nologo
+```
+
+Result: 2100/2100 passed.
+
+Latest backend full after Aerie Head Fan same-battlefield Spellshield RULE_TEXT evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8929/8929 passed.
 
 Focused:
 

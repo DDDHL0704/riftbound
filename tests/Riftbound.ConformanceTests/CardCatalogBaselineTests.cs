@@ -1501,6 +1501,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("此处的其他友方单位获得{{坚守}}", taricAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, taricAura.Status);
 
+        var aerieHeadFan = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-041/219", StringComparison.Ordinal));
+        var aerieHeadFanAura = Assert.Single(aerieHeadFan.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword, aerieHeadFanAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, aerieHeadFanAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", aerieHeadFanAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits, aerieHeadFanAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits, aerieHeadFanAura.ParticipantScope);
+        Assert.Equal(0, aerieHeadFanAura.PowerDeltaPerParticipant);
+        Assert.Equal(CardResourceKeywordNames.Spellshield, aerieHeadFanAura.GrantedKeyword);
+        Assert.Contains("你此处的其他单位获得{{法盾}}", aerieHeadFanAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, aerieHeadFanAura.Status);
+
         foreach (var cardNo in new[] { "UNL-147/219", "UNL-147a/219", "UNL-238/219" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

@@ -2668,29 +2668,30 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var conditionalSameBattlefieldOtherFriendlyKeywordMatch = Regex.Match(
+                segment,
+                @"如果我位于战场上，则你此处的其他单位获得(?<grants>[^。（]+)",
+                RegexOptions.CultureInvariant);
+            if (conditionalSameBattlefieldOtherFriendlyKeywordMatch.Success
+                && TryAddSameBattlefieldOtherFriendlyUnitsKeywordAuras(
+                    auras,
+                    segment,
+                    conditionalSameBattlefieldOtherFriendlyKeywordMatch.Groups["grants"].Value))
+            {
+                continue;
+            }
+
             var sameBattlefieldOtherFriendlyKeywordMatch = Regex.Match(
                 segment,
-                @"此处的其他友方单位获得\{\{([^}]+)\}\}(?!\+)",
+                @"此处的其他友方单位获得(?<grants>[^。（]+)",
                 RegexOptions.CultureInvariant);
-            if (sameBattlefieldOtherFriendlyKeywordMatch.Success)
+            if (sameBattlefieldOtherFriendlyKeywordMatch.Success
+                && TryAddSameBattlefieldOtherFriendlyUnitsKeywordAuras(
+                    auras,
+                    segment,
+                    sameBattlefieldOtherFriendlyKeywordMatch.Groups["grants"].Value))
             {
-                var grantedKeyword = sameBattlefieldOtherFriendlyKeywordMatch.Groups[1].Value.Trim();
-                if (!string.IsNullOrWhiteSpace(grantedKeyword)
-                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
-                {
-                    auras.Add(new StaticAuraSpec(
-                        StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword,
-                        RuleTextLayer,
-                        "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
-                        StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
-                        StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
-                        0,
-                        segment,
-                        BehaviorImplementationStatuses.Unimplemented,
-                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
-                        GrantedKeyword: grantedKeyword));
-                    continue;
-                }
+                continue;
             }
 
             var sameBattlefieldOtherFriendlyPowerMatch = Regex.Match(
@@ -2929,6 +2930,41 @@ public static class StaticAuraParser
                 BehaviorImplementationStatuses.Unimplemented,
                 "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                 targetFilter,
+                GrantedKeyword: grantedKeyword));
+            added = true;
+        }
+
+        return added;
+    }
+
+    private static bool TryAddSameBattlefieldOtherFriendlyUnitsKeywordAuras(
+        List<StaticAuraSpec> auras,
+        string segment,
+        string grantsText)
+    {
+        var added = false;
+        foreach (Match keywordMatch in Regex.Matches(
+            grantsText,
+            @"\{\{([^}]+)\}\}(?!\+)",
+            RegexOptions.CultureInvariant))
+        {
+            var grantedKeyword = keywordMatch.Groups[1].Value.Trim();
+            if (string.IsNullOrWhiteSpace(grantedKeyword)
+                || string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            auras.Add(new StaticAuraSpec(
+                StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword,
+                RuleTextLayer,
+                "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
+                StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                0,
+                segment,
+                BehaviorImplementationStatuses.Unimplemented,
+                "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                 GrantedKeyword: grantedKeyword));
             added = true;
         }

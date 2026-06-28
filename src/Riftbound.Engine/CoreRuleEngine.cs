@@ -20338,6 +20338,43 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var amount = 0;
+        if (state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+            && string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId))
+        {
+            var battlefieldObjectId = objectLocation.BattlefieldObjectId;
+            foreach (var entry in state.ObjectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                var sourceObjectId = entry.Key;
+                if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                    || !string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                    || !string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                    || !IsObjectOnField(playerZones, sourceObjectId)
+                    || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                    || sourceState.IsFaceDown
+                    || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    || !string.Equals(
+                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                        controllerId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword))
+                {
+                    if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                        || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                    {
+                        continue;
+                    }
+
+                    amount = Math.Max(amount, GrantedResourceKeywordAmount(aura, resourceKeyword));
+                }
+            }
+        }
+
         foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)

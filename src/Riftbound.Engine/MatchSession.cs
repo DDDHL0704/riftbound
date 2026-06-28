@@ -17292,6 +17292,10 @@ internal static class ActionPromptBuilder
         }
 
         var tax = 0;
+        var targetBattlefieldObjectId = state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+            && string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            ? objectLocation.BattlefieldObjectId
+            : null;
         foreach (var sourceObjectId in PromptPublicStaticAuraSourceObjectIds(state))
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
@@ -17323,6 +17327,29 @@ internal static class ActionPromptBuilder
             {
                 if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
                     || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                {
+                    continue;
+                }
+
+                tax = Math.Max(
+                    tax,
+                    CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
+            }
+
+            if (string.IsNullOrWhiteSpace(targetBattlefieldObjectId)
+                || string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+                || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || !string.Equals(sourceLocation.BattlefieldObjectId, targetBattlefieldObjectId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                     || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
                 {
                     continue;
