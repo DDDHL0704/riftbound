@@ -560,6 +560,7 @@ public sealed record EffectPhraseSpec(
     string Reason,
     string? TargetScope = null,
     int? DamageAmount = null,
+    bool? DestroysTarget = null,
     int? DrawCount = null,
     int? PowerModifierAmount = null,
     string? StatusEffectId = null,

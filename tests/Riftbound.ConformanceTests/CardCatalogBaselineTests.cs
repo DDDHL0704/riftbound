@@ -5811,6 +5811,32 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryVengeanceDestroyPrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var vengeance = specs.Single(spec => string.Equals(spec.CardNo, "OGN·229/298", StringComparison.Ordinal));
+
+        var destroy = Assert.Single(vengeance.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Destroy, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.AnyUnit, destroy.TargetScope);
+        Assert.True(destroy.DestroysTarget);
+        Assert.Contains("摧毁一名单位", destroy.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            vengeance,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-VENGEANCE", "OGN·229/298", ["P2-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Destroy, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.DestroyTarget, primitive.Kind);
+        Assert.Equal(0, primitive.Amount);
+        Assert.Equal(CardTargetScopes.AnyUnit, primitive.TargetScope);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

@@ -177,6 +177,12 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 effect.TargetScope ?? string.Empty,
                 ConditionKind: effect.ConditionKind ?? CardDamageConditionKinds.None,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Destroy when effect.DestroysTarget is true => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Destroy,
+                BehaviorTemplatePrimitiveKinds.DestroyTarget,
+                0,
+                effect.TargetScope ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Draw,
                 BehaviorTemplatePrimitiveKinds.DrawCards,

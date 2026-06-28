@@ -3079,6 +3079,11 @@ public static class EffectPhraseParser
                 DamageAmount = ParseDamageAmount(phrase),
                 ConditionKind = BehaviorEffectConditionKinds.None
             },
+            BehaviorTemplateIds.Destroy => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase),
+                DestroysTarget = phrase.Contains("摧毁", StringComparison.Ordinal)
+            },
             BehaviorTemplateIds.Draw => spec with
             {
                 DrawCount = ParseDrawCount(phrase),
