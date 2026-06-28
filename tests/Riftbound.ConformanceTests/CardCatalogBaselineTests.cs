@@ -591,7 +591,7 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Move, 123, 123, 0, 0, 102, 102, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 63, 0, 0, 51, 51, 0);
         AssertFamily(report, BehaviorTemplateIds.Banish, 11, 11, 0, 0, 9, 9, 0);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 292, 0, 0, 230, 230, 0);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 249, 249, 0, 0, 198, 198, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 4, 4, 0, 0, 4, 4, 0);
         Assert.All(report.Families, family =>
@@ -5676,6 +5676,19 @@ public sealed class CardCatalogBaselineTests
             },
             new
             {
+                CardNo = "OGN·053/298",
+                TemplateId = BehaviorTemplateIds.Boon,
+                Kind = BehaviorTemplatePrimitiveKinds.GrantBoon,
+                Amount = 1,
+                TargetScope = CardTargetScopes.FriendlyUnit,
+                StatusEffectId = "",
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false,
+                ReturnDestinationZone = ""
+            },
+            new
+            {
                 CardNo = "OGN·050/298",
                 TemplateId = BehaviorTemplateIds.Stun,
                 Kind = BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
@@ -5730,7 +5743,6 @@ public sealed class CardCatalogBaselineTests
         {
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
             new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle },
-            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon },
             new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
         };
         foreach (var candidate in delegatedCandidates)
@@ -5934,6 +5946,35 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(0, primitive.Amount);
         Assert.Equal(CardTargetScopes.BattlefieldUnit, primitive.TargetScope);
         Assert.Equal("HAND", primitive.ReturnDestinationZone);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarrySecretArtMercyBoonPrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var secretArtMercy = specs.Single(spec => string.Equals(spec.CardNo, "OGN·053/298", StringComparison.Ordinal));
+
+        var boon = Assert.Single(secretArtMercy.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Boon, StringComparison.Ordinal));
+        Assert.DoesNotContain(secretArtMercy.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.TempMight, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.FriendlyUnit, boon.TargetScope);
+        Assert.True(boon.GrantsBoon);
+        Assert.Equal(1, boon.BoonPowerBonusAmount);
+        Assert.Contains("给予一名友方单位增益", boon.Phrase, StringComparison.Ordinal);
+        Assert.Contains("{{S}}+1增益", secretArtMercy.OfficialText, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            secretArtMercy,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-SECRET-ART-MERCY", "OGN·053/298", ["P1-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Boon, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.GrantBoon, primitive.Kind);
+        Assert.Equal(1, primitive.Amount);
+        Assert.Equal(CardTargetScopes.FriendlyUnit, primitive.TargetScope);
         Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
     }
 

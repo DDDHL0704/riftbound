@@ -16,6 +16,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string DestroyTarget = "destroy-target";
     public const string BanishThenPlayTarget = "banish-then-play-target";
     public const string ReturnTargetToHand = "return-target-to-hand";
+    public const string GrantBoon = "grant-boon";
     public const string ApplyStatusEffect = "apply-status-effect";
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
 }
@@ -163,6 +164,12 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 behavior.TargetScope,
                 ReturnDestinationZone: "HAND",
                 Reason: "Return destination is supplied by the existing P2 CardBehaviorDefinition."),
+            BehaviorTemplateIds.Boon when behavior.GrantsBoon => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Boon,
+                BehaviorTemplatePrimitiveKinds.GrantBoon,
+                1,
+                behavior.TargetScope,
+                Reason: "Boon target scope is supplied by the existing P2 CardBehaviorDefinition."),
             BehaviorTemplateIds.Stun when !string.IsNullOrWhiteSpace(behavior.StatusEffectId) => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Stun,
                 BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
@@ -220,6 +227,12 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                     effect.TargetScope ?? string.Empty,
                     ReturnDestinationZone: effect.ReturnDestinationZone,
                     Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Boon when effect.GrantsBoon is true => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Boon,
+                BehaviorTemplatePrimitiveKinds.GrantBoon,
+                effect.BoonPowerBonusAmount ?? 0,
+                effect.TargetScope ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Draw,
                 BehaviorTemplatePrimitiveKinds.DrawCards,

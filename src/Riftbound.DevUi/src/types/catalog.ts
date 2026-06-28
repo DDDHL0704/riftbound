@@ -141,6 +141,8 @@ export type BehaviorSpec = {
     ignoreCosts?: boolean | null;
     returnsTargetToHand?: boolean | null;
     returnDestinationZone?: string | null;
+    grantsBoon?: boolean | null;
+    boonPowerBonusAmount?: number | null;
     drawCount?: number | null;
     powerModifierAmount?: number | null;
     statusEffectId?: string | null;

@@ -2993,7 +2993,7 @@ public static class EffectPhraseParser
         AddIf(templateIds, text, BehaviorTemplateIds.Recycle, "回收");
         AddIf(templateIds, text, BehaviorTemplateIds.Banish, "放逐");
         AddIf(templateIds, text, BehaviorTemplateIds.Stun, "眩晕");
-        AddIf(templateIds, text, BehaviorTemplateIds.TempMight, "{{S}}+", "{{S}}-", "战力");
+        AddTempMightIf(templateIds, text);
         AddIf(templateIds, text, BehaviorTemplateIds.Boon, "增益");
         AddIf(templateIds, text, BehaviorTemplateIds.GainExperience, "经验");
         AddIf(templateIds, text, BehaviorTemplateIds.Assemble, "装配", "百炼");
@@ -3012,6 +3012,29 @@ public static class EffectPhraseParser
         if (needles.Any(needle => (text ?? string.Empty).Contains(needle, StringComparison.Ordinal)))
         {
             templateIds.Add(templateId);
+        }
+    }
+
+    private static void AddTempMightIf(List<string> templateIds, string text)
+    {
+        foreach (var segment in TargetParser.SplitRulesText(text ?? string.Empty))
+        {
+            var hasPowerMarker = segment.Contains("{{S}}+", StringComparison.Ordinal)
+                || segment.Contains("{{S}}-", StringComparison.Ordinal)
+                || segment.Contains("战力", StringComparison.Ordinal);
+            if (!hasPowerMarker)
+            {
+                continue;
+            }
+
+            if (segment.Contains("增益", StringComparison.Ordinal)
+                && !segment.Contains("战力", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            templateIds.Add(BehaviorTemplateIds.TempMight);
+            return;
         }
     }
 
@@ -3097,6 +3120,13 @@ public static class EffectPhraseParser
                 ReturnsTargetToHand = phrase.Contains("返回", StringComparison.Ordinal)
                     && phrase.Contains("手牌", StringComparison.Ordinal),
                 ReturnDestinationZone = ResolveReturnDestinationZone(phrase)
+            },
+            BehaviorTemplateIds.Boon => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase),
+                GrantsBoon = phrase.Contains("给予", StringComparison.Ordinal)
+                    && phrase.Contains("增益", StringComparison.Ordinal),
+                BoonPowerBonusAmount = ParsePowerModifierAmount(phrase) ?? ParsePowerModifierAmount(text)
             },
             BehaviorTemplateIds.Draw => spec with
             {
