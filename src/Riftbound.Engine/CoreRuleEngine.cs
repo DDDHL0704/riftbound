@@ -121,24 +121,15 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
-    private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
-    private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
+    private const int EclipseVanguardStunTriggerPowerModifier = 1;
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
-    private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
-        EclipseVanguardCardNo,
-        "星蚀先锋",
-        0,
-        EclipseVanguardStunTriggerEffectKind,
-        0,
-        0,
-        PowerModifierAmount: 1);
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
@@ -29388,6 +29379,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
+        if (!CardBehaviorRegistry.TryGetByEffectKind(EclipseVanguardStunTriggerSourceEffectKind, out var sourceBehavior))
+        {
+            return [];
+        }
+
+        var triggerBehavior = sourceBehavior with
+        {
+            ManaCost = 0,
+            EffectKind = EclipseVanguardStunTriggerEffectKind,
+            PowerModifierAmount = EclipseVanguardStunTriggerPowerModifier
+        };
+
         var events = new List<GameEvent>();
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
@@ -29404,7 +29407,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     controllerId: stackItem.ControllerId,
                     sourceObjectId: sourceObjectId,
                     effectKind: EclipseVanguardStunTriggerEffectKind,
-                    cardNo: sourceState.CardNo ?? EclipseVanguardCardNo);
+                    cardNo: sourceState.CardNo ?? triggerBehavior.CardNo);
                 events.Add(new GameEvent(
                     "TRIGGER_RESOLVED",
                     $"{stackItem.ControllerId} 的星蚀先锋因眩晕敌方单位而触发",
@@ -29419,11 +29422,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["triggeredByStackItemId"] = stackItem.StackItemId,
                         ["triggeredBySourceObjectId"] = stackItem.SourceObjectId,
                         ["stunnedEnemyObjectId"] = stunnedEnemyObjectId,
-                        ["powerDelta"] = EclipseVanguardStunTriggerBehavior.PowerModifierAmount
+                        ["powerDelta"] = triggerBehavior.PowerModifierAmount
                     }));
                 var readiedState = ApplyReadyState(
                     sourceState,
-                    EclipseVanguardStunTriggerBehavior,
+                    triggerBehavior,
                     triggerStackItem,
                     sourceObjectId,
                     out var readyEvent);
@@ -29433,10 +29436,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
                 cardObjects[sourceObjectId] = ApplyPowerModifier(
                     readiedState,
-                    EclipseVanguardStunTriggerBehavior,
+                    triggerBehavior,
                     triggerStackItem,
                     sourceObjectId,
-                    EclipseVanguardStunTriggerBehavior.PowerModifierAmount,
+                    triggerBehavior.PowerModifierAmount,
                     out var powerEvent);
                 events.Add(powerEvent);
             }

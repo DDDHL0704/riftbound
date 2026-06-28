@@ -5,6 +5,15 @@
 
 This file records concrete evidence for removing direct source card-number checks from the current stack/card-play trigger representatives for Eclipse Vanguard, Ravenbloom Student, OGS Lux, and Arena Service Crew.
 
+## 2026-06-28 Follow-up Evidence
+
+- `CoreRuleEngine` no longer defines `EclipseVanguardCardNo`, `ArenaServiceCrewCardNo`, or a local `EclipseVanguardStunTriggerBehavior`.
+- `ResolveEclipseVanguardStunTriggers(...)` now calls `CardBehaviorRegistry.TryGetByEffectKind(ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT, ...)` and derives the resolution-time `ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1` ready/+1 behavior from the registered source row.
+- The Eclipse trigger stack item now falls back to the registry source row cardNo if the matched source object lacks a cardNo, instead of falling back to a Core-owned representative constant.
+- `TriggerSourceIdentityGuardTests.CoreRuleEngineTriggerSourceSelectionUsesCatalogEffectKindIdentity` now blocks reintroducing those dead Core source constants or the local Eclipse trigger behavior row.
+
+Validation passed for this follow-up: `TriggerSourceIdentityGuardTests` 23/23; `P79EclipseVanguard|P79ArenaServiceCrew` 6/6; `MatchRecovery` 1989/1989; backend full conformance 8873/8873.
+
 ## Runtime Evidence
 
 - `CoreRuleEngine.IsControlledFaceUpFieldUnitWithEffectKind(...)` is the shared source predicate for this slice.
@@ -17,7 +26,7 @@ This file records concrete evidence for removing direct source card-number check
 - `ResolveRavenbloomStudentSpellPlayedTriggers(...)` now uses source effect kind `RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT`.
 - `ResolveOgsLuxHighCostSpellPlayedTriggers(...)` now uses source effect kind `OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT`.
 - `ResolveArenaServiceCrewEquipmentPlayedTriggers(...)` now uses source effect kind `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT`.
-- Trigger stack items now use the actual matched source object's `CardNo` with a conservative fallback to the existing representative constant.
+- Trigger stack items now use the actual matched source object's `CardNo`; the Eclipse Vanguard ready/+1 trigger falls back to the registered source behavior row instead of a Core-owned representative constant.
 
 ## Test Evidence
 
@@ -30,7 +39,7 @@ Coverage:
 
 - `CardBehaviorRegistryIdentifiesStackTriggerSourceUnitsByEffectKind` accepts the four registered source rows used by this slice.
 - `CardBehaviorRegistryRejectsNonMatchingStackTriggerSourceUnits` rejects cross-effect source identity matches.
-- `CoreRuleEngineTriggerSourceSelectionUsesCatalogEffectKindIdentity` blocks reintroducing direct `sourceState.CardNo` comparisons for the four source constants and verifies the shared helper consumes `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`.
+- `CoreRuleEngineTriggerSourceSelectionUsesCatalogEffectKindIdentity` blocks reintroducing direct `sourceState.CardNo` comparisons for the four source constants, blocks dead Eclipse/Arena Core source constants, and verifies the shared helper consumes `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`.
 - `CoreRuleEngineSkipsRavenbloomStudentSpellTriggerWhenSourceIsStandby` proves a standby Ravenbloom Student does not receive the spell-played power modifier.
 - `P79EclipseVanguardSkipsTriggerWhenSourceIsStandby` proves a standby Eclipse Vanguard does not ready or gain power after its controller stuns an enemy unit.
 - `P79ArenaServiceCrewSkipsEquipmentTriggerWhenSourceIsStandby` proves a standby Arena Service Crew does not ready when its controller plays equipment.

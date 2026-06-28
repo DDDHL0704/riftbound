@@ -5,6 +5,12 @@
 
 本文件记录 Plan B 小切片：把 Eclipse Vanguard、Ravenbloom Student、OGS Lux、Arena Service Crew 这组 stack/card-play 代表触发的来源单位身份，从 `CoreRuleEngine` 里的直接 `sourceState.CardNo` 分支迁移到 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`。该切片只收窄 trigger source identity 硬编码，并补齐 standby 来源不触发的隐藏边界；不关闭完整 TriggerSpec、完整 `ORDER_TRIGGERS`、APNAP ordering、完整 high-cost spell / equipment trigger breadth 或 READY。
 
+## 2026-06-28 Follow-up: Eclipse/Arena Dead Source Rows Removed
+
+`CoreRuleEngine` no longer retains the migrated `EclipseVanguardCardNo` or `ArenaServiceCrewCardNo` constants, and no longer owns a local `EclipseVanguardStunTriggerBehavior` row. `ResolveEclipseVanguardStunTriggers(...)` now reads the registered `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT` source row via `CardBehaviorRegistry.TryGetByEffectKind(...)`, derives the resolution-time ready/+1 trigger behavior from that row, and uses the matched source object's cardNo with fallback to the registry source row rather than a Core-owned representative constant.
+
+Validation passed for this follow-up: source identity guard 23/23; Eclipse Vanguard / Arena Service Crew representative trigger paths 6/6; MatchRecovery hidden-info/recovery boundary 1989/1989; backend full conformance 8873/8873. This follow-up remains source-row cleanup only; it does not close full TriggerSpec, complete `ORDER_TRIGGERS`, APNAP ordering, high-cost spell/equipment trigger breadth, P0 full objective, or READY.
+
 ## Scope
 
 Changed:
