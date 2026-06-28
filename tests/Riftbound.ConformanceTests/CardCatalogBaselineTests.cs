@@ -5783,6 +5783,34 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryIncinerateDamagePrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var incinerate = specs.Single(spec => string.Equals(spec.CardNo, "OGS·003/024", StringComparison.Ordinal));
+
+        var damage = Assert.Single(incinerate.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Damage, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.BattlefieldUnit, damage.TargetScope);
+        Assert.Equal(2, damage.DamageAmount);
+        Assert.Equal(CardDamageConditionKinds.None, damage.ConditionKind);
+        Assert.Contains("造成2点伤害", damage.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            incinerate,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-INCINERATE", "OGS·003/024", ["P2-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Damage, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.DealDamage, primitive.Kind);
+        Assert.Equal(2, primitive.Amount);
+        Assert.Equal(CardTargetScopes.BattlefieldUnit, primitive.TargetScope);
+        Assert.Equal(CardDamageConditionKinds.None, primitive.ConditionKind);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

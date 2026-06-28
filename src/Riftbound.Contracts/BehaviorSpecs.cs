@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class BehaviorEffectConditionKinds
 {
+    public const string None = "NONE";
     public const string PlayedFromHand = "PLAYED_FROM_HAND";
 }
 
@@ -558,6 +559,7 @@ public sealed record EffectPhraseSpec(
     string Status,
     string Reason,
     string? TargetScope = null,
+    int? DamageAmount = null,
     int? DrawCount = null,
     int? PowerModifierAmount = null,
     string? StatusEffectId = null,

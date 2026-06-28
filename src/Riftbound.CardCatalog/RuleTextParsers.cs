@@ -3073,6 +3073,12 @@ public static class EffectPhraseParser
 
         return templateId switch
         {
+            BehaviorTemplateIds.Damage => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase),
+                DamageAmount = ParseDamageAmount(phrase),
+                ConditionKind = BehaviorEffectConditionKinds.None
+            },
             BehaviorTemplateIds.Draw => spec with
             {
                 DrawCount = ParseDrawCount(phrase),
@@ -3095,6 +3101,20 @@ public static class EffectPhraseParser
             },
             _ => spec
         };
+    }
+
+    private static int? ParseDamageAmount(string phrase)
+    {
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"造成(?<amount>[一二两三四五六七八九十\d]+)点伤害",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return ParseSmallChineseNumber(match.Groups["amount"].Value);
     }
 
     private static int? ParseDrawCount(string phrase)
@@ -3169,6 +3189,13 @@ public static class EffectPhraseParser
         if (phrase.Contains("敌方单位", StringComparison.Ordinal))
         {
             return "ENEMY_UNIT";
+        }
+
+        if (phrase.Contains("战场单位", StringComparison.Ordinal)
+            || phrase.Contains("战场上的", StringComparison.Ordinal)
+            || phrase.Contains("战场上", StringComparison.Ordinal))
+        {
+            return "BATTLEFIELD_UNIT";
         }
 
         if (phrase.Contains("进攻单位", StringComparison.Ordinal)

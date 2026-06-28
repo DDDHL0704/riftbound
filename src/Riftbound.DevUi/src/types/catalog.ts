@@ -134,6 +134,7 @@ export type BehaviorSpec = {
     status: string;
     reason: string;
     targetScope?: string | null;
+    damageAmount?: number | null;
     drawCount?: number | null;
     powerModifierAmount?: number | null;
     statusEffectId?: string | null;

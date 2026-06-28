@@ -170,6 +170,13 @@ public sealed class BehaviorTemplatePrimitiveExecutor
 
         return effect.TemplateId switch
         {
+            BehaviorTemplateIds.Damage when effect.DamageAmount is > 0 => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Damage,
+                BehaviorTemplatePrimitiveKinds.DealDamage,
+                effect.DamageAmount.Value,
+                effect.TargetScope ?? string.Empty,
+                ConditionKind: effect.ConditionKind ?? CardDamageConditionKinds.None,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Draw,
                 BehaviorTemplatePrimitiveKinds.DrawCards,
