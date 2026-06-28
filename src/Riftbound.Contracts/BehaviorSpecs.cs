@@ -41,6 +41,11 @@ public static class BehaviorEffectConditionKinds
     public const string PlayedFromHand = "PLAYED_FROM_HAND";
 }
 
+public static class BehaviorEffectFormulaKinds
+{
+    public const string FriendlyFieldUnitCount = "FRIENDLY_FIELD_UNIT_COUNT";
+}
+
 public static class TriggerKinds
 {
     public const string BattlefieldUnitMovedAwayPowerModifier =
@@ -580,6 +585,8 @@ public sealed record EffectPhraseSpec(
     int? MoveCount = null,
     string? MoveDestination = null,
     int? ExperienceCount = null,
+    string? ExperienceCountFormula = null,
+    int? ExperienceCountMultiplier = null,
     bool? GainsControl = null,
     string? ControlDestinationZone = null,
     bool? ReadiesTarget = null,

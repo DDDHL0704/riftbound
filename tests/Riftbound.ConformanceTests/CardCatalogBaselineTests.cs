@@ -5828,8 +5828,7 @@ public sealed class CardCatalogBaselineTests
 
         var delegatedCandidates = new[]
         {
-            new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
-            new { CardNo = "UNL-157/219", TemplateId = BehaviorTemplateIds.GainExperience }
+            new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move }
         };
         foreach (var candidate in delegatedCandidates)
         {
@@ -6166,12 +6165,22 @@ public sealed class CardCatalogBaselineTests
             sternSergeant.Effects,
             effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.GainExperience, StringComparison.Ordinal));
         Assert.Null(dynamicExperience.ExperienceCount);
+        Assert.Equal(BehaviorEffectFormulaKinds.FriendlyFieldUnitCount, dynamicExperience.ExperienceCountFormula);
+        Assert.Equal(1, dynamicExperience.ExperienceCountMultiplier);
         Assert.Contains("每有一名友方单位", dynamicExperience.Phrase, StringComparison.Ordinal);
 
         var dynamicPlan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
             sternSergeant,
             new BehaviorTemplateExecutionContext("P1", "P1-UNIT-STERN-SERGEANT", "UNL-157/219", []));
-        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.DelegatedToP2, dynamicPlan.Status);
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, dynamicPlan.Status);
+        var dynamicPrimitive = Assert.Single(dynamicPlan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.GainExperience, dynamicPrimitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.GainExperience, dynamicPrimitive.Kind);
+        Assert.Equal(0, dynamicPrimitive.Amount);
+        Assert.Equal(BehaviorEffectFormulaKinds.FriendlyFieldUnitCount, dynamicPrimitive.AmountFormula);
+        Assert.Equal(1, dynamicPrimitive.AmountMultiplier);
+        Assert.True(string.IsNullOrWhiteSpace(dynamicPrimitive.TargetScope));
+        Assert.Contains("BehaviorSpec.Effects", dynamicPrimitive.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

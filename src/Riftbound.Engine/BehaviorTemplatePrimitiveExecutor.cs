@@ -45,6 +45,8 @@ public sealed record BehaviorTemplatePrimitive(
     string ControlDuration = "",
     string ControlReturnDestinationZone = "",
     bool? ControlReturnCountsAsMove = null,
+    string AmountFormula = "",
+    int AmountMultiplier = 0,
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -304,6 +306,16 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 effect.TargetScope ?? string.Empty,
                 ConditionKind: effect.ConditionKind ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.GainExperience when !string.IsNullOrWhiteSpace(effect.ExperienceCountFormula)
+                && effect.ExperienceCountMultiplier is > 0 => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.GainExperience,
+                    BehaviorTemplatePrimitiveKinds.GainExperience,
+                    0,
+                    effect.TargetScope ?? string.Empty,
+                    ConditionKind: effect.ConditionKind ?? string.Empty,
+                    AmountFormula: effect.ExperienceCountFormula,
+                    AmountMultiplier: effect.ExperienceCountMultiplier.Value,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Control when effect.GainsControl is true
                 && !string.IsNullOrWhiteSpace(effect.TargetScope)
                 && !string.IsNullOrWhiteSpace(effect.ControlDestinationZone) => new BehaviorTemplatePrimitive(

@@ -3169,7 +3169,9 @@ public static class EffectPhraseParser
             },
             BehaviorTemplateIds.GainExperience => spec with
             {
-                ExperienceCount = ParseExperienceCount(phrase)
+                ExperienceCount = ParseExperienceCount(phrase),
+                ExperienceCountFormula = ResolveExperienceCountFormula(phrase),
+                ExperienceCountMultiplier = ParseExperienceCountMultiplier(phrase)
             },
             BehaviorTemplateIds.Control => spec with
             {
@@ -3206,6 +3208,32 @@ public static class EffectPhraseParser
     {
         if (phrase.Contains("每有", StringComparison.Ordinal)
             || phrase.Contains("每当", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"获得(?<count>[一二两三四五六七八九十\d]+)经验",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return ParseSmallChineseNumber(match.Groups["count"].Value);
+    }
+
+    private static string? ResolveExperienceCountFormula(string phrase)
+    {
+        return phrase.Contains("场上每有一名友方单位", StringComparison.Ordinal)
+            ? BehaviorEffectFormulaKinds.FriendlyFieldUnitCount
+            : null;
+    }
+
+    private static int? ParseExperienceCountMultiplier(string phrase)
+    {
+        if (ResolveExperienceCountFormula(phrase) is null)
         {
             return null;
         }

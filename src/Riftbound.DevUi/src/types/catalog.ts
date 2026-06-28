@@ -155,6 +155,8 @@ export type BehaviorSpec = {
     moveCount?: number | null;
     moveDestination?: string | null;
     experienceCount?: number | null;
+    experienceCountFormula?: string | null;
+    experienceCountMultiplier?: number | null;
     gainsControl?: boolean | null;
     controlDestinationZone?: string | null;
     readiesTarget?: boolean | null;
