@@ -171,6 +171,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string RagingDrakeNextSpellCostSourceEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
+    private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
+    private const int DragonCallerUnitCostReductionMana = 2;
+    private const int DragonCallerMinimumUnitManaCost = 1;
     private const string PoroHerderBoonDrawSourceEffectKind = "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -15888,6 +15891,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
+    private static bool HasDelimitedTag(string values, string tag)
+    {
+        return !string.IsNullOrWhiteSpace(values)
+            && values
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Contains(tag, StringComparer.Ordinal);
+    }
+
     private static string EffectiveFieldControllerId(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
@@ -27494,11 +27505,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             intent.PlayerId,
             behavior);
-        var nextSpellCostReductionMana = ResolveRagingDrakeNextSpellCostReductionMana(
+        var dragonUnitCostReductionMana = ResolveDragonCallerUnitCostReductionMana(
             state,
             intent.PlayerId,
             behavior,
             costReductionMana + optionalCostManaReduction + battlefieldEquipmentCostReductionMana);
+        var nextSpellCostReductionMana = ResolveRagingDrakeNextSpellCostReductionMana(
+            state,
+            intent.PlayerId,
+            behavior,
+            costReductionMana
+                + optionalCostManaReduction
+                + battlefieldEquipmentCostReductionMana
+                + dragonUnitCostReductionMana);
         var battlefieldSpellCostReductionMana = ResolveBattlefieldSpellCostReductionMana(
             state,
             intent.PlayerId,
@@ -27506,6 +27525,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             costReductionMana
                 + optionalCostManaReduction
                 + battlefieldEquipmentCostReductionMana
+                + dragonUnitCostReductionMana
                 + nextSpellCostReductionMana);
         var battlefieldHeldUnitCostIncreaseMana = ResolveBattlefieldHeldUnitCostIncreaseMana(
             state,
@@ -27521,6 +27541,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 - costReductionMana
                 - optionalCostManaReduction
                 - battlefieldEquipmentCostReductionMana
+                - dragonUnitCostReductionMana
                 - nextSpellCostReductionMana
                 - battlefieldSpellCostReductionMana)
             + extraManaCost
@@ -27588,6 +27609,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 optionalCostManaReduction,
                 battlefieldEchoCostReductionMana,
                 battlefieldEquipmentCostReductionMana,
+                dragonUnitCostReductionMana,
                 nextSpellCostReductionMana,
                 battlefieldSpellCostReductionMana,
                 battlefieldHeldUnitCostIncreaseMana,
@@ -27667,6 +27689,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana,
+            dragonUnitCostReductionMana,
             nextSpellCostReductionMana,
             battlefieldSpellCostReductionMana,
             battlefieldHeldUnitCostIncreaseMana,
@@ -27696,6 +27719,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             plan.OptionalCostManaReduction,
             plan.BattlefieldEchoCostReductionMana,
             plan.BattlefieldEquipmentCostReductionMana,
+            plan.DragonUnitCostReductionMana,
             plan.NextSpellCostReductionMana,
             plan.BattlefieldSpellCostReductionMana,
             plan.BattlefieldHeldUnitCostIncreaseMana,
@@ -27714,6 +27738,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int optionalCostManaReduction,
         int battlefieldEchoCostReductionMana,
         int battlefieldEquipmentCostReductionMana,
+        int dragonUnitCostReductionMana,
         int nextSpellCostReductionMana,
         int battlefieldSpellCostReductionMana,
         int battlefieldHeldUnitCostIncreaseMana,
@@ -27732,6 +27757,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ["optionalCostManaReduction"] = optionalCostManaReduction,
             ["battlefieldEchoCostReductionMana"] = battlefieldEchoCostReductionMana,
             ["battlefieldEquipmentCostReductionMana"] = battlefieldEquipmentCostReductionMana,
+            ["dragonUnitCostReductionMana"] = dragonUnitCostReductionMana,
             ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
             ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
             ["battlefieldHeldUnitCostIncreaseMana"] = battlefieldHeldUnitCostIncreaseMana,
@@ -33332,6 +33358,53 @@ public sealed class CoreRuleEngine : IRuleEngine
         return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out var ability)
             ? Math.Max(0, ability.Amount)
             : 0;
+    }
+
+    private static int ResolveDragonCallerUnitCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsDragonUnitPlayBehavior(behavior)
+            || behavior.ManaCost <= DragonCallerMinimumUnitManaCost)
+        {
+            return 0;
+        }
+
+        var sourceCount = DragonCallerCostStaticSourceCount(state, playerId);
+        if (sourceCount == 0)
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return baseManaAfterExistingReductions > DragonCallerMinimumUnitManaCost
+            ? Math.Min(
+                sourceCount * DragonCallerUnitCostReductionMana,
+                baseManaAfterExistingReductions - DragonCallerMinimumUnitManaCost)
+            : 0;
+    }
+
+    private static int DragonCallerCostStaticSourceCount(MatchState state, string playerId)
+    {
+        return state.PlayerZones.Values
+            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
+                    cardObject.CardNo,
+                    DragonCallerCostStaticSourceEffectKind));
+    }
+
+    private static bool IsDragonUnitPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && HasDelimitedTag(behavior.SourceUnitTags, "龙");
     }
 
     private static int ResolveRagingDrakeNextSpellCostReductionMana(
@@ -47224,6 +47297,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,
         int BattlefieldEquipmentCostReductionMana,
+        int DragonUnitCostReductionMana,
         int NextSpellCostReductionMana,
         int BattlefieldSpellCostReductionMana,
         int BattlefieldHeldUnitCostIncreaseMana,

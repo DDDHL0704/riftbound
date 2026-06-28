@@ -51,3 +51,7 @@ Chrome smoke is not required for this candidate unless frontend or browser-scrip
 ## Remaining Blockers
 
 Payment-cost blocker closure remains partially open. `B/D_ENGINE_SUPPORT`, `A_CONFORMANCE_AUTOMATED_TEST_EVIDENCE`, `E_CARD_MATRIX_FAQ_REVIEW`, P0-005, P0-004 adjacency audit-sensitive, P1, Dragon Caller automated evidence disposition, Dragon-unit cost-reduction static path, full official PaymentEngine matrix closure, formal 18-step E2E, card matrix readiness, and READY all remain open.
+
+## 2026-06-28 Runtime Follow-Up
+
+The later Plan B Dragon Caller cost-static runtime slice closes the Dragon-unit cost-reduction static path for this representative while leaving complete PaymentEngine / PAY_COST breadth, FAQ review, full official matrix readiness, and READY open. See `docs/CURRENT_PLAN_B_DRAGON_CALLER_COST_STATIC_AUDIT.md` and `docs/CURRENT_PLAN_B_DRAGON_CALLER_COST_STATIC_EVIDENCE.md`.

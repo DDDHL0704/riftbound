@@ -31,6 +31,10 @@ It is a matrix, evidence and audit sync only. It does not change runtime, fronte
 
 This candidate does not close Dragon Caller automated evidence disposition, Dragon-unit cost-reduction static path, complete PaymentEngine / PAY_COST matrix, full official matrix, formal 18-step E2E, or READY.
 
+## 2026-06-28 Runtime Follow-Up
+
+The later Plan B Dragon Caller cost-static runtime slice closes the Dragon-unit cost-reduction static path for this representative without changing this historical matrix candidate's recorded counts. See `docs/CURRENT_PLAN_B_DRAGON_CALLER_COST_STATIC_AUDIT.md` and `docs/CURRENT_PLAN_B_DRAGON_CALLER_COST_STATIC_EVIDENCE.md`.
+
 ## Validation Results
 
 - `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json` passed.

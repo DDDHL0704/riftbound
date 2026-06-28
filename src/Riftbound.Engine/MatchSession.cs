@@ -6617,6 +6617,9 @@ internal static class ActionPromptBuilder
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
+    private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
+    private const int DragonCallerUnitCostReductionMana = 2;
+    private const int DragonCallerMinimumUnitManaCost = 1;
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
@@ -12465,6 +12468,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId = null)
     {
         var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId);
+        reduction += PromptDragonCallerUnitCostReductionMana(state, playerId, behavior, reduction);
         reduction += PromptNextSpellCostReductionMana(state, playerId, behavior, reduction);
         reduction += PromptBattlefieldSpellCostReductionMana(
             state,
@@ -14989,6 +14993,53 @@ internal static class ActionPromptBuilder
             : 0;
     }
 
+    private static int PromptDragonCallerUnitCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsPromptDragonUnitPlayBehavior(behavior)
+            || behavior.ManaCost <= DragonCallerMinimumUnitManaCost)
+        {
+            return 0;
+        }
+
+        var sourceCount = PromptDragonCallerCostStaticSourceCount(state, playerId);
+        if (sourceCount == 0)
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return baseManaAfterExistingReductions > DragonCallerMinimumUnitManaCost
+            ? Math.Min(
+                sourceCount * DragonCallerUnitCostReductionMana,
+                baseManaAfterExistingReductions - DragonCallerMinimumUnitManaCost)
+            : 0;
+    }
+
+    private static int PromptDragonCallerCostStaticSourceCount(MatchState state, string playerId)
+    {
+        return state.PlayerZones.Values
+            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
+                    cardObject.CardNo,
+                    DragonCallerCostStaticSourceEffectKind));
+    }
+
+    private static bool IsPromptDragonUnitPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            && HasDelimitedTag(behavior.SourceUnitTags, "龙");
+    }
+
     private static int PromptNextSpellCostReductionMana(
         MatchState state,
         string playerId,
@@ -16902,16 +16953,23 @@ internal static class ActionPromptBuilder
             playerId,
             behavior,
             sourceObjectId);
-        var nextSpellCostReductionMana = PromptNextSpellCostReductionMana(
+        var dragonUnitCostReductionMana = PromptDragonCallerUnitCostReductionMana(
             state,
             playerId,
             behavior,
             baseManaReductionBeforeBattlefieldSpellCost);
+        var nextSpellCostReductionMana = PromptNextSpellCostReductionMana(
+            state,
+            playerId,
+            behavior,
+            baseManaReductionBeforeBattlefieldSpellCost + dragonUnitCostReductionMana);
         var battlefieldSpellCostReductionMana = PromptBattlefieldSpellCostReductionMana(
             state,
             playerId,
             behavior,
-            baseManaReductionBeforeBattlefieldSpellCost + nextSpellCostReductionMana);
+            baseManaReductionBeforeBattlefieldSpellCost
+                + dragonUnitCostReductionMana
+                + nextSpellCostReductionMana);
         var minimumManaCost = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
         var luxSpellOnlyGeneratedMana = PromptLuxSpellOnlyGeneratedMana(
             state,
@@ -16930,6 +16988,7 @@ internal static class ActionPromptBuilder
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = minimumManaCost,
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
+            ["dragonUnitCostReductionMana"] = dragonUnitCostReductionMana,
             ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
             ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
             ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
