@@ -131,7 +131,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
-    private const string FaerieTokenCardNo = "UNL·T07";
     private const string AscendedBelieverConditionalSourceEffectKind = "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string SlySalamanderConditionalSourceEffectKind = "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT";
     private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
@@ -157,7 +156,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         PowerModifierAmount: 1);
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
-    private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string RumbleLegendIdentityId = "LEGEND_IDENTITY_RUMBLE";
     private const string LucianLegendCardNo = "SFD·183/221";
@@ -208,8 +206,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
-    private const string ZaunMinionTokenCardNo = "OGN·273/298";
-    private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const string SettLegendIdentityId = "LEGEND_IDENTITY_SETT";
     private const int SettLegendManaCost = 1;
@@ -13267,13 +13263,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(FaerieTokenCardNo, out var definition)
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.FaerieTokenCardNo, out var definition)
             ? definition.CreateObject(tokenObjectId, playerId, playerId)
             : new CardObjectState(
                 tokenObjectId,
                 power: 3,
                 tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "仙灵"],
-                cardNo: FaerieTokenCardNo,
+                cardNo: P6TokenFactoryCatalog.FaerieTokenCardNo,
                 ownerId: playerId,
                 controllerId: playerId);
         tokenState = ApplyUnitTokenEntryStaticAbility(
@@ -13328,13 +13324,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(SandSoldierTokenCardNo, out var definition)
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.SandSoldierTokenCardNo, out var definition)
             ? definition.CreateObject(tokenObjectId, playerId, playerId)
             : new CardObjectState(
                 tokenObjectId,
                 power: 2,
                 tags: [CardObjectTags.UnitCard, CardObjectTags.SandSoldier],
-                cardNo: SandSoldierTokenCardNo,
+                cardNo: P6TokenFactoryCatalog.SandSoldierTokenCardNo,
                 ownerId: playerId,
                 controllerId: playerId);
         var tokenTags = ApplyAzirSandSoldierTemperedTags(
@@ -26093,7 +26089,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(WarhawkTokenCardNo, out var tokenDefinition))
+            || !P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.WarhawkTokenCardNo, out var tokenDefinition))
         {
             return;
         }
@@ -38492,7 +38488,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(ZaunMinionTokenCardNo, out var tokenDefinition))
+            || !P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ZaunMinionTokenCardNo, out var tokenDefinition))
         {
             return;
         }

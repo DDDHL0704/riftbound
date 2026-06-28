@@ -361,6 +361,36 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("string.Equals(originalState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void P6UnitTokenCreationIdentityRoutesThroughTokenFactoryCatalog()
+    {
+        var namedUnitTokenCardNos = new[]
+        {
+            P6TokenFactoryCatalog.WarhawkTokenCardNo,
+            P6TokenFactoryCatalog.FaerieTokenCardNo,
+            P6TokenFactoryCatalog.SandSoldierTokenCardNo,
+            P6TokenFactoryCatalog.ZaunMinionTokenCardNo
+        };
+        Assert.Equal(P6TokenFactoryCatalog.WarhawkTokenCardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo);
+        Assert.All(namedUnitTokenCardNos, cardNo =>
+        {
+            Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var definition));
+            Assert.Equal(cardNo, definition.CardNo);
+            Assert.Contains(CardObjectTags.UnitCard, definition.Tags);
+        });
+
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+
+        Assert.DoesNotContain("private const string WarhawkTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string FaerieTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string SandSoldierTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string ZaunMinionTokenCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("UNL·T02")]
     [InlineData("UNL·T06")]

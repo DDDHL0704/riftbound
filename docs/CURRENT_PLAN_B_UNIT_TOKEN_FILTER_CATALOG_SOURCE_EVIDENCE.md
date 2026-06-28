@@ -5,6 +5,15 @@
 
 This file records the concrete evidence for moving static-aura `UNIT_TOKEN` target filtering from a local `StaticAuraSpecRules` card-number helper to the token factory catalog domain.
 
+## 2026-06-28 Unit-Token Creation Identity Evidence
+
+- `P6TokenFactoryCatalog` exposes named constants for Warhawk, Faerie, Sand Soldier, and Zaun minion token identities.
+- `P4ActivatedAbilityCatalog.WarhawkTokenCardNo` is now an alias of `P6TokenFactoryCatalog.WarhawkTokenCardNo`.
+- `CoreRuleEngine` no longer defines local `WarhawkTokenCardNo`, `FaerieTokenCardNo`, `SandSoldierTokenCardNo`, or `ZaunMinionTokenCardNo` constants.
+- Lillia Faerie, Azir Sand Soldier, Warhawk, and Viktor destroyed-non-minion Zaun minion token creation paths resolve token definitions through `P6TokenFactoryCatalog`.
+- `CardCatalogBaselineTests.P6UnitTokenCreationIdentityRoutesThroughTokenFactoryCatalog` covers the named constants, P4 alias parity, catalog definition membership, and source guard against reintroducing Core-local token cardNo constants.
+- Validation passed: focused guard 1/1; P6TokenFactory / Warhawk / Faerie / SandSoldier / ViktorDestroyedNonMinion / FluftPoro / Azir / Lillia / Ivern / HuntingGrounds / ImperialShrine representatives 175/175; CardCatalogBaseline / TokenFactory / Token / Warhawk / Faerie / SandSoldier / Minion / ViktorDestroyedNonMinion / FullGameEndToEnd / MatchRecovery adjacent 2504/2504; backend full 8869/8869.
+
 ## 1. Runtime Evidence
 
 - `P6TokenFactoryCatalog.IsUnitTokenFactory(cardNo)` was added as the shared token factory category helper.

@@ -145,7 +145,7 @@ public static class P4ActivatedAbilityCatalog
     public const string FluftPoroCardNo = "UNL-160/219";
     public const string FluftPoroWarhawkAbilityId = "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS";
     public const string FluftPoroWarhawkAbilityEffectKind = "FLUFT_PORO_ACTIVATED_CREATE_TWO_WARHAWKS";
-    public const string WarhawkTokenCardNo = "UNL·T02";
+    public const string WarhawkTokenCardNo = P6TokenFactoryCatalog.WarhawkTokenCardNo;
     public const int FluftPoroWarhawkTokenCount = 2;
 
     public const string ShadowCardNo = "UNL-194/219";

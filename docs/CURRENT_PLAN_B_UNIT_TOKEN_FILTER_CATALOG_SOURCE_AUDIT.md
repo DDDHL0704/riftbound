@@ -5,6 +5,10 @@
 
 本文件记录 Plan B 小切片：把 static aura `UNIT_TOKEN` 目标过滤中的“单位指示物”身份判断从 `StaticAuraSpecRules` 本地 `IsUnitTokenCardNo` helper 改为 `P6TokenFactoryCatalog` 的 token factory 领域分类查询。该切片只收窄 static aura target-filter 的 token category 来源，不关闭完整 token taxonomy、完整 Soul Shepherd / token-aura official breadth、完整 P6 token factory domain 或 READY。
 
+## 2026-06-28 Unit-Token Creation Identity Supplement
+
+`P6TokenFactoryCatalog` 现在也承载代表性 unit-token creation identity：`WarhawkTokenCardNo`、`FaerieTokenCardNo`、`SandSoldierTokenCardNo`、`ZaunMinionTokenCardNo`。`CoreRuleEngine` 删除对应本地 token cardNo 常量，Lillia / Azir / Warhawk / Viktor non-minion-create-minion token 创建路径通过 P6 catalog token definitions 取身份、power 与 tags；`P4ActivatedAbilityCatalog.WarhawkTokenCardNo` 保留为 P6 alias，以维持既有 Fluft Poro payload/测试契约。新增 `CardCatalogBaselineTests.P6UnitTokenCreationIdentityRoutesThroughTokenFactoryCatalog` 锁住 constants、alias parity、catalog membership 与 source guard。Validation passed: focused guard 1/1；P6TokenFactory / Warhawk / Faerie / SandSoldier / ViktorDestroyedNonMinion / FluftPoro / Azir / Lillia / Ivern / HuntingGrounds / ImperialShrine representatives 175/175；CardCatalogBaseline / TokenFactory / Token / Warhawk / Faerie / SandSoldier / Minion / ViktorDestroyedNonMinion / FullGameEndToEnd / MatchRecovery adjacent 2504/2504；backend full 8869/8869。项目仍 **NOT READY**。
+
 ## 1. Scope
 
 Changed:
