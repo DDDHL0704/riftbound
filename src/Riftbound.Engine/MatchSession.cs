@@ -9234,12 +9234,17 @@ internal static class ActionPromptBuilder
 
     private static bool CanRevealStandbyReactionToStack(MatchState state, string playerId)
     {
-        return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && state.StackItems.Count > 0
-            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
-            && (string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal));
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || !string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return state.StackItems.Count > 0
+            ? string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            : HasOpenBattleResponsePriority(state);
     }
 
     private static bool IsImplementedStandbyRevealSource(MatchState state, string playerId, string objectId)
@@ -9293,17 +9298,29 @@ internal static class ActionPromptBuilder
 
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
-            || !CanRevealStandbyReactionToStack(state, playerId)
-            || !string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
-            || !state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
-            || string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+            || !CanRevealStandbyReactionToStack(state, playerId))
         {
             battlefieldObjectId = string.Empty;
             return false;
         }
 
-        battlefieldObjectId = state.SpellDuelState.BattlefieldObjectId;
-        return true;
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            && state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
+            && !string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+        {
+            battlefieldObjectId = state.SpellDuelState.BattlefieldObjectId;
+            return true;
+        }
+
+        if (HasOpenBattleResponsePriority(state)
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId))
+        {
+            battlefieldObjectId = state.BattleState.BattlefieldObjectId;
+            return true;
+        }
+
+        battlefieldObjectId = string.Empty;
+        return false;
     }
 
     private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(

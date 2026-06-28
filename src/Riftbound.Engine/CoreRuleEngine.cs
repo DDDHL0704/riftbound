@@ -17146,7 +17146,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = []
             };
             var responseActions = ActionPromptBuilder.StackPriorityActions(responseState, priorityPlayerId);
-            if (responseActions.Contains(CommandTypes.ActivateAbility, StringComparer.Ordinal))
+            if (responseActions.Any(action => !string.Equals(action, CommandTypes.PassPriority, StringComparison.Ordinal)))
             {
                 var responseEvents = new List<GameEvent>
                 {
@@ -26840,12 +26840,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsStandbyReactionPriorityWindow(MatchState state, string playerId)
     {
-        return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && state.StackItems.Count > 0
-            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
-            && (string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal));
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || !string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return state.StackItems.Count > 0
+            ? string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            : IsOpenBattleResponsePriorityWindow(state);
     }
 
     private static string ResolveStandbyReactionBattlefieldContext(
@@ -26861,15 +26866,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
-            || !IsStandbyReactionPriorityWindow(state, playerId)
-            || !string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
-            || !state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
-            || string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+            || !IsStandbyReactionPriorityWindow(state, playerId))
         {
             return string.Empty;
         }
 
-        return state.SpellDuelState.BattlefieldObjectId;
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal)
+            && state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal))
+            && !string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
+        {
+            return state.SpellDuelState.BattlefieldObjectId;
+        }
+
+        return IsOpenBattleResponsePriorityWindow(state)
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId)
+            ? state.BattleState.BattlefieldObjectId
+            : string.Empty;
     }
 
     private static bool HasValidStandbyReactionTargets(
@@ -42552,6 +42564,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.IsNullOrWhiteSpace(state.SpellDuelState.BattlefieldObjectId))
         {
             sourceBattlefieldObjectId = state.SpellDuelState.BattlefieldObjectId;
+            return true;
+        }
+
+        if (string.Equals(stackItem.TimingContext, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && state.BattleState.IsActive
+            && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId))
+        {
+            sourceBattlefieldObjectId = state.BattleState.BattlefieldObjectId;
             return true;
         }
 
