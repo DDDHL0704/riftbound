@@ -455,6 +455,7 @@ public static class BehaviorSpecCatalogBuilder
         BehaviorTemplateIds.Stun,
         BehaviorTemplateIds.TempMight,
         BehaviorTemplateIds.Boon,
+        BehaviorTemplateIds.GainExperience,
         BehaviorTemplateIds.Control
     };
 

@@ -578,4 +578,5 @@ public sealed record EffectPhraseSpec(
     string? TargetForbiddenTag = null,
     bool? MovesTarget = null,
     int? MoveCount = null,
-    string? MoveDestination = null);
+    string? MoveDestination = null,
+    int? ExperienceCount = null);

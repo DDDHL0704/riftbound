@@ -3060,6 +3060,13 @@ public static class EffectPhraseParser
 
     private static string FirstPhraseForTemplate(string text, string templateId)
     {
+        if (string.Equals(templateId, BehaviorTemplateIds.GainExperience, StringComparison.Ordinal))
+        {
+            return TargetParser.SplitRulesText(text)
+                .FirstOrDefault(segment => IsGainExperiencePhrase(segment))
+                ?? string.Empty;
+        }
+
         string[] needles = templateId switch
         {
             BehaviorTemplateIds.Draw => ["抽"],
@@ -3083,6 +3090,16 @@ public static class EffectPhraseParser
         return TargetParser.SplitRulesText(text)
             .FirstOrDefault(segment => needles.Any(needle => segment.Contains(needle, StringComparison.Ordinal)))
             ?? string.Empty;
+    }
+
+    private static bool IsGainExperiencePhrase(string phrase)
+    {
+        return Regex.IsMatch(
+                phrase,
+                @"获得[0-9一两二三四五六七八九十]+经验",
+                RegexOptions.CultureInvariant)
+            && !phrase.Contains("{{狩猎}}", StringComparison.Ordinal)
+            && !phrase.Contains("征服或据守", StringComparison.Ordinal);
     }
 
     private static EffectPhraseSpec BuildEffectPhrase(string text, string templateId)
@@ -3150,6 +3167,10 @@ public static class EffectPhraseParser
                     ? BehaviorEffectConditionKinds.PlayedFromHand
                     : null
             },
+            BehaviorTemplateIds.GainExperience => spec with
+            {
+                ExperienceCount = ParseExperienceCount(phrase)
+            },
             BehaviorTemplateIds.Stun => spec with
             {
                 TargetScope = ResolveUnitTargetScope(phrase),
@@ -3165,6 +3186,26 @@ public static class EffectPhraseParser
             },
             _ => spec
         };
+    }
+
+    private static int? ParseExperienceCount(string phrase)
+    {
+        if (phrase.Contains("每有", StringComparison.Ordinal)
+            || phrase.Contains("每当", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"获得(?<count>[一二两三四五六七八九十\d]+)经验",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return ParseSmallChineseNumber(match.Groups["count"].Value);
     }
 
     private static int? ParseDamageAmount(string phrase)

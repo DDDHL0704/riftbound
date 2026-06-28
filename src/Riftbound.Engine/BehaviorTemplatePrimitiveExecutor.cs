@@ -21,6 +21,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string ApplyStatusEffect = "apply-status-effect";
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
     public const string RecycleTarget = "recycle-target";
+    public const string GainExperience = "gain-experience";
 }
 
 public sealed record BehaviorTemplatePrimitive(
@@ -289,6 +290,13 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                     RecycleDestinationZone: effect.RecycleDestinationZone,
                     TargetForbiddenTag: effect.TargetForbiddenTag ?? string.Empty,
                     Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.GainExperience when effect.ExperienceCount is > 0 => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.GainExperience,
+                BehaviorTemplatePrimitiveKinds.GainExperience,
+                effect.ExperienceCount.Value,
+                effect.TargetScope ?? string.Empty,
+                ConditionKind: effect.ConditionKind ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             _ => null
         };
     }

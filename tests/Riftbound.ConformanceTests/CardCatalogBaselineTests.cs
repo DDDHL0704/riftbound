@@ -5778,6 +5778,23 @@ public sealed class CardCatalogBaselineTests
                 RecycleDestinationZone = TriggerZones.MainDeck,
                 TargetForbiddenTag = CardObjectTags.UnitCard,
                 MoveDestination = ""
+            },
+            new
+            {
+                CardNo = "UNL-092/219",
+                TemplateId = BehaviorTemplateIds.GainExperience,
+                Kind = BehaviorTemplatePrimitiveKinds.GainExperience,
+                Amount = 1,
+                TargetScope = "",
+                StatusEffectId = "",
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false,
+                ReturnDestinationZone = "",
+                RecycleSourceZone = "",
+                RecycleDestinationZone = "",
+                TargetForbiddenTag = "",
+                MoveDestination = ""
             }
         };
 
@@ -5812,6 +5829,7 @@ public sealed class CardCatalogBaselineTests
         var delegatedCandidates = new[]
         {
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
+            new { CardNo = "UNL-157/219", TemplateId = BehaviorTemplateIds.GainExperience },
             new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
         };
         foreach (var candidate in delegatedCandidates)
@@ -6108,6 +6126,53 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(CardTargetScopes.BattlefieldUnit, primitive.TargetScope);
         Assert.Equal(TriggerMoveDestinations.OwnerBase, primitive.MoveDestination);
         Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryGainExperiencePrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var springMessenger = specs.Single(spec => string.Equals(spec.CardNo, "UNL-034/219", StringComparison.Ordinal));
+
+        var experience = Assert.Single(
+            springMessenger.Effects,
+            effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.GainExperience, StringComparison.Ordinal));
+        Assert.Equal(2, experience.ExperienceCount);
+        Assert.Contains("获得2经验", experience.Phrase, StringComparison.Ordinal);
+        Assert.DoesNotContain("狩猎", experience.Phrase, StringComparison.Ordinal);
+
+        var demaciaEnvoy = specs.Single(spec => string.Equals(spec.CardNo, "UNL-092/219", StringComparison.Ordinal));
+        var demaciaExperience = Assert.Single(
+            demaciaEnvoy.Effects,
+            effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.GainExperience, StringComparison.Ordinal));
+        Assert.Equal(1, demaciaExperience.ExperienceCount);
+        Assert.Contains("获得1经验", demaciaExperience.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            demaciaEnvoy,
+            new BehaviorTemplateExecutionContext("P1", "P1-UNIT-DEMACIA-ENVOY", "UNL-092/219", []));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.GainExperience, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.GainExperience, primitive.Kind);
+        Assert.Equal(1, primitive.Amount);
+        Assert.True(string.IsNullOrWhiteSpace(primitive.TargetScope));
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+
+        var sternSergeant = specs.Single(spec => string.Equals(spec.CardNo, "UNL-157/219", StringComparison.Ordinal));
+        var dynamicExperience = Assert.Single(
+            sternSergeant.Effects,
+            effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.GainExperience, StringComparison.Ordinal));
+        Assert.Null(dynamicExperience.ExperienceCount);
+        Assert.Contains("每有一名友方单位", dynamicExperience.Phrase, StringComparison.Ordinal);
+
+        var dynamicPlan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            sternSergeant,
+            new BehaviorTemplateExecutionContext("P1", "P1-UNIT-STERN-SERGEANT", "UNL-157/219", []));
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.DelegatedToP2, dynamicPlan.Status);
     }
 
     [Fact]

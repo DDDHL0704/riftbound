@@ -154,6 +154,7 @@ export type BehaviorSpec = {
     movesTarget?: boolean | null;
     moveCount?: number | null;
     moveDestination?: string | null;
+    experienceCount?: number | null;
   }>;
   templateIds: string[];
   implementedEffectKind?: string | null;
