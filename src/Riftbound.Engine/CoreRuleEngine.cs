@@ -113,8 +113,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
     private const int AzirLegendManaCost = 1;
     private const string AzirLegendManaCostToken = "SPEND_MANA:1";
-    private const string JinxLegendCardNo = "FND-251/298";
-    private const string JinxLegendIdentityId = "LEGEND_IDENTITY_JINX";
+    private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string AscendedBelieverConditionalSourceEffectKind = "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT";
@@ -142,58 +141,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         PowerModifierAmount: 1);
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
-    private const string RumbleLegendCardNo = "SFD·181/221";
-    private const string RumbleLegendIdentityId = "LEGEND_IDENTITY_RUMBLE";
-    private const string LucianLegendCardNo = "SFD·183/221";
-    private const string MasterYiLevelLegendCardNo = "UNL-191/219";
+    private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const int MasterYiLevelReadyThreshold = 11;
-    private const string AhriLegendCardNo = "OGN·255/298";
-    private const string DravenLegendCardNo = "SFD·185/221";
-    private const string AhriLegendIdentityId = "LEGEND_IDENTITY_AHRI";
-    private const string LucianLegendIdentityId = "LEGEND_IDENTITY_LUCIAN";
-    private const string MasterYiLevelLegendIdentityId = "LEGEND_IDENTITY_MASTER_YI_LEVEL";
-    private const string DravenLegendIdentityId = "LEGEND_IDENTITY_DRAVEN";
-    private const string GarenIntroLegendCardNo = "OGS·023/024";
-    private const string GarenIntroLegendIdentityId = "LEGEND_IDENTITY_GAREN_INTRO";
-    private const string LuxIntroLegendCardNo = "OGS·021/024";
-    private const string LuxIntroLegendIdentityId = "LEGEND_IDENTITY_LUX_INTRO";
-    private const string AnnieIntroLegendCardNo = "OGS·017/024";
-    private const string AnnieLegendIdentityId = "LEGEND_IDENTITY_ANNIE";
-    private const string VolibearFoundationLegendCardNo = "FND-249/298";
-    private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
-    private const string PowerfulUnitRuneLegendIdentityId = "LEGEND_IDENTITY_POWERFUL_UNIT_RUNE";
+    private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
+    private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
+    private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
+    private const string DravenLegendIdentityId = LegendIdentityCatalog.DravenLegendIdentityId;
+    private const string GarenIntroLegendIdentityId = LegendIdentityCatalog.GarenIntroLegendIdentityId;
+    private const string LuxIntroLegendIdentityId = LegendIdentityCatalog.LuxIntroLegendIdentityId;
+    private const string AnnieLegendIdentityId = LegendIdentityCatalog.AnnieLegendIdentityId;
+    private const string PowerfulUnitRuneLegendIdentityId = LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId;
     private const int PowerfulUnitPowerThreshold = 5;
-    private const string RengarLegendCardNo = "UNL-183/219";
-    private const string LeonaOriginLegendCardNo = "OGN·261/298";
-    private const string SivirSpiritforgedLegendCardNo = "SFD·203/221";
-    private const string JhinLegendCardNo = "UNL-181/219";
-    private const string RengarLegendIdentityId = "LEGEND_IDENTITY_RENGAR";
-    private const string LeonaLegendIdentityId = "LEGEND_IDENTITY_LEONA";
-    private const string SivirLegendIdentityId = "LEGEND_IDENTITY_SIVIR";
-    private const string JhinLegendIdentityId = "LEGEND_IDENTITY_JHIN";
+    private const string RengarLegendIdentityId = LegendIdentityCatalog.RengarLegendIdentityId;
+    private const string LeonaLegendIdentityId = LegendIdentityCatalog.LeonaLegendIdentityId;
+    private const string SivirLegendIdentityId = LegendIdentityCatalog.SivirLegendIdentityId;
+    private const string JhinLegendIdentityId = LegendIdentityCatalog.JhinLegendIdentityId;
     private const string LegendHighCostSpellBanishedMarker = "LEGEND_HIGH_COST_SPELL_BANISHED";
-    private const string ViLegendCardNo = "UNL-187/219";
-    private const string ViLegendIdentityId = "LEGEND_IDENTITY_VI";
+    private const string ViLegendIdentityId = LegendIdentityCatalog.ViLegendIdentityId;
     private const int ViLegendOverkillThreshold = 3;
-    private const string VexLegendCardNo = "UNL-193/219";
-    private const string RenataLegendCardNo = "SFD·201/221";
-    private const string VexLegendIdentityId = "LEGEND_IDENTITY_VEX";
-    private const string RenataLegendIdentityId = "LEGEND_IDENTITY_RENATA";
+    private const string VexLegendIdentityId = LegendIdentityCatalog.VexLegendIdentityId;
+    private const string RenataLegendIdentityId = LegendIdentityCatalog.RenataLegendIdentityId;
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag;
-    private const string LeblancLegendCardNo = "UNL-199/219";
-    private const string LeblancLegendIdentityId = "LEGEND_IDENTITY_LEBLANC";
+    private const string LeblancLegendIdentityId = LegendIdentityCatalog.LeblancLegendIdentityId;
     private const string LeblancEphemeralStaticSourceEffectKind = "LEBLANC_PLAY_KEYWORD_UNIT";
     private const string LeblancEphemeralStaticAltSourceEffectKind = "LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT";
-    private const string ReksaiLegendCardNo = "SFD·187/221";
-    private const string IvernLegendCardNo = "UNL-195/219";
-    private const string ReksaiLegendIdentityId = "LEGEND_IDENTITY_REKSAI";
-    private const string IvernLegendIdentityId = "LEGEND_IDENTITY_IVERN";
+    private const string ReksaiLegendIdentityId = LegendIdentityCatalog.ReksaiLegendIdentityId;
+    private const string IvernLegendIdentityId = LegendIdentityCatalog.IvernLegendIdentityId;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
-    private const string SettLegendCardNo = "OGN·269/298";
-    private const string SettLegendIdentityId = "LEGEND_IDENTITY_SETT";
+    private const string SettLegendIdentityId = LegendIdentityCatalog.SettLegendIdentityId;
     private const int SettLegendManaCost = 1;
     private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string IcevaleArcherAttackPaymentSourceEffectKind = "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT";
@@ -12358,82 +12336,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         string identityId,
         out LegendIdentityDefinition identity)
     {
-        identity = identityId switch
+        var sourceCardNos = LegendIdentityCatalog.SourceCardNosForIdentity(identityId);
+        if (sourceCardNos.Count == 0)
         {
-            AhriLegendIdentityId => new LegendIdentityDefinition(
-                AhriLegendIdentityId,
-                [AhriLegendCardNo, "OGN·303/298", "OGN·303*/298"]),
-            LucianLegendIdentityId => new LegendIdentityDefinition(
-                LucianLegendIdentityId,
-                [LucianLegendCardNo, "SFD·241/221"]),
-            MasterYiLevelLegendIdentityId => new LegendIdentityDefinition(
-                MasterYiLevelLegendIdentityId,
-                [MasterYiLevelLegendCardNo, "UNL-231/219", "UNL-231*/219"]),
-            DravenLegendIdentityId => new LegendIdentityDefinition(
-                DravenLegendIdentityId,
-                [DravenLegendCardNo, "SFD·242/221"]),
-            GarenIntroLegendIdentityId => new LegendIdentityDefinition(
-                GarenIntroLegendIdentityId,
-                [GarenIntroLegendCardNo]),
-            LuxIntroLegendIdentityId => new LegendIdentityDefinition(
-                LuxIntroLegendIdentityId,
-                [LuxIntroLegendCardNo]),
-            AnnieLegendIdentityId => new LegendIdentityDefinition(
-                AnnieLegendIdentityId,
-                [AnnieIntroLegendCardNo]),
-            JinxLegendIdentityId => new LegendIdentityDefinition(
-                JinxLegendIdentityId,
-                [JinxLegendCardNo, "OGN·251/298", "OGN·301/298", "OGN·301*/298"]),
-            RumbleLegendIdentityId => new LegendIdentityDefinition(
-                RumbleLegendIdentityId,
-                [RumbleLegendCardNo, "SFD·240/221"]),
-            PowerfulUnitRuneLegendIdentityId => new LegendIdentityDefinition(
-                PowerfulUnitRuneLegendIdentityId,
-                [
-                    VolibearFoundationLegendCardNo,
-                    "OGN·249/298",
-                    "OGN·300/298",
-                    "OGN·300*/298",
-                    FioraSpiritforgedLegendCardNo,
-                    "SFD·251/221"
-                ]),
-            SettLegendIdentityId => new LegendIdentityDefinition(
-                SettLegendIdentityId,
-                [SettLegendCardNo, "OGN·310/298", "OGN·310*/298"]),
-            ViLegendIdentityId => new LegendIdentityDefinition(
-                ViLegendIdentityId,
-                [ViLegendCardNo, "UNL-229/219", "UNL-229*/219"]),
-            VexLegendIdentityId => new LegendIdentityDefinition(
-                VexLegendIdentityId,
-                [VexLegendCardNo, "UNL-232/219", "UNL-232*/219"]),
-            RenataLegendIdentityId => new LegendIdentityDefinition(
-                RenataLegendIdentityId,
-                [RenataLegendCardNo, "SFD·249/221"]),
-            ReksaiLegendIdentityId => new LegendIdentityDefinition(
-                ReksaiLegendIdentityId,
-                [ReksaiLegendCardNo, "SFD·243/221"]),
-            IvernLegendIdentityId => new LegendIdentityDefinition(
-                IvernLegendIdentityId,
-                [IvernLegendCardNo, "UNL-233/219", "UNL-233*/219"]),
-            LeblancLegendIdentityId => new LegendIdentityDefinition(
-                LeblancLegendIdentityId,
-                [LeblancLegendCardNo, "UNL-235/219", "UNL-235*/219"]),
-            RengarLegendIdentityId => new LegendIdentityDefinition(
-                RengarLegendIdentityId,
-                [RengarLegendCardNo, "UNL-227/219", "UNL-227*/219"]),
-            LeonaLegendIdentityId => new LegendIdentityDefinition(
-                LeonaLegendIdentityId,
-                [LeonaOriginLegendCardNo, "OGN·306/298", "OGN·306*/298"]),
-            SivirLegendIdentityId => new LegendIdentityDefinition(
-                SivirLegendIdentityId,
-                [SivirSpiritforgedLegendCardNo, "SFD·250/221"]),
-            JhinLegendIdentityId => new LegendIdentityDefinition(
-                JhinLegendIdentityId,
-                [JhinLegendCardNo, "UNL-226/219", "UNL-226*/219"]),
-            _ => default!
-        };
+            identity = default!;
+            return false;
+        }
 
-        return identity is not null;
+        identity = new LegendIdentityDefinition(identityId.Trim(), sourceCardNos);
+        return true;
     }
 
     private static bool LegendCardHasIdentity(string? cardNo, string identityId)
@@ -12617,7 +12528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         out string legendCardNo)
     {
         legendObjectId = string.Empty;
-        legendCardNo = RengarLegendCardNo;
+        legendCardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(RengarLegendIdentityId);
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -12633,7 +12544,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             legendObjectId = objectId;
-            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? RengarLegendCardNo : legendState.CardNo;
+            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo)
+                ? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(RengarLegendIdentityId)
+                : legendState.CardNo;
             return true;
         }
 
@@ -12648,7 +12561,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         out string legendCardNo)
     {
         legendObjectId = string.Empty;
-        legendCardNo = LeonaOriginLegendCardNo;
+        legendCardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(LeonaLegendIdentityId);
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -12664,7 +12577,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             legendObjectId = objectId;
-            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? LeonaOriginLegendCardNo : legendState.CardNo;
+            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo)
+                ? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(LeonaLegendIdentityId)
+                : legendState.CardNo;
             return true;
         }
 
@@ -20834,7 +20749,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         out string cardNo)
     {
-        cardNo = DravenLegendCardNo;
+        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(DravenLegendIdentityId);
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -20845,7 +20760,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (cardObjects.TryGetValue(legendObjectId, out var legendState)
                 && LegendCardHasIdentity(legendState.CardNo, DravenLegendIdentityId))
             {
-                cardNo = legendState.CardNo ?? DravenLegendCardNo;
+                cardNo = legendState.CardNo
+                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(DravenLegendIdentityId);
                 return true;
             }
         }
@@ -20859,7 +20775,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         out string cardNo)
     {
-        cardNo = GarenIntroLegendCardNo;
+        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -20870,7 +20786,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (cardObjects.TryGetValue(legendObjectId, out var legendState)
                 && LegendCardHasIdentity(legendState.CardNo, GarenIntroLegendIdentityId))
             {
-                cardNo = legendState.CardNo ?? GarenIntroLegendCardNo;
+                cardNo = legendState.CardNo
+                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
                 return true;
             }
         }
@@ -29099,7 +29016,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         out string cardNo)
     {
-        cardNo = JinxLegendCardNo;
+        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(JinxLegendIdentityId);
         if (!playerZones.TryGetValue(playerId, out var zones)
             || zones.Hand.Count >= 2)
         {
@@ -29111,7 +29028,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (cardObjects.TryGetValue(objectId, out var legendState)
                 && LegendCardHasIdentity(legendState.CardNo, JinxLegendIdentityId))
             {
-                cardNo = legendState.CardNo ?? JinxLegendCardNo;
+                cardNo = legendState.CardNo
+                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(JinxLegendIdentityId);
                 return true;
             }
         }

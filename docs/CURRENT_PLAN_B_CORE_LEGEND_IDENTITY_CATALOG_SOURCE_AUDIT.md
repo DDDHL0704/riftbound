@@ -5,6 +5,10 @@
 
 本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中 Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi level / Draven / Garen intro / Lux intro / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / powerful-unit-rune / Annie 传奇来源身份识别从独立 card-number 分支或直接 cardNo 比较改为统一 `LegendCardHasIdentity(cardNo, identityId)` 查询。该切片只迁移来源身份表，不改变触发窗口、目标选择、费用、横置/重置状态、战斗结算、事件 payload 或快照语义。
 
+## 2026-06-28 Source-Table Extraction Supplement
+
+新增 `LegendIdentityCatalog`，把 Ahri / Lucian / Master Yi level / Draven / Garen intro / Lux intro / Annie / Jinx / Rumble / powerful-unit-rune / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rengar / Leona / Sivir / Jhin identity source-card rows 从 `CoreRuleEngine.TryGetLegendIdentity` 迁出。`CoreRuleEngine.TryGetLegendIdentity` 现在通过 `LegendIdentityCatalog.SourceCardNosForIdentity(...)` 构造本地定义；Rengar / Leona / Draven / Garen / Jinx fallback event payload 的 primary legend cardNo 也通过 `LegendIdentityCatalog.PrimarySourceCardNoForIdentity(...)` 读取。新增 `LegendActionSourceIdentityGuardTests.CoreLegendIdentitySourceRowsUseSharedCatalog` 覆盖 exact source rows、primary fallback、正反例和 Core 不再出现旧 source arrays 的源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Rengar / Leona / Sivir / Jhin / Ahri / Lucian / MasterYi / Draven / Garen / Lux / Sett / ViLegend / Vex / Renata / Reksai / Ivern / Leblanc / Rumble / Jinx / Volibear / Fiora / Annie / PowerfulUnit / RuneLegend representatives 446/446；same set plus FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2954/2954；backend full 8873/8873。项目仍 **NOT READY**。
+
 ## 1. Scope
 
 Changed:
@@ -148,7 +152,7 @@ Result: 8584/8584 passed before the Annie follow-up; 8766/8766 passed after the 
 
 ## 4. Residual Risks
 
-- `TryGetLegendIdentity` still lives inside `CoreRuleEngine`; the complete long-term catalog extraction remains open.
+- `TryGetLegendIdentity` still lives inside `CoreRuleEngine` as a small adapter that constructs `LegendIdentityDefinition` from `LegendIdentityCatalog`; broader legend identity data modeling remains open.
 - This does not broaden official Rengar / Leona / Sivir / Jhin / Ahri / Lucian / Master Yi / Draven / Garen intro / Lux intro / Sett / Vi / Vex / Renata / Rek'Sai / Ivern / LeBlanc / Rumble / Jinx / Volibear / Fiora / Annie behavior beyond already implemented representative paths.
-- This does not move the full `TryGetLegendIdentity` source table out of `CoreRuleEngine`.
+- This does not migrate every legend identity effect family to BehaviorSpec data; it only moves source-card identity rows and primary fallback cardNo defaults to the shared catalog.
 - Project remains **NOT READY**.

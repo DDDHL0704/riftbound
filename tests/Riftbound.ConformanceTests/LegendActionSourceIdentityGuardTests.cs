@@ -163,6 +163,109 @@ public sealed class LegendActionSourceIdentityGuardTests
     }
 
     [Fact]
+    public void CoreLegendIdentitySourceRowsUseSharedCatalog()
+    {
+        Assert.Equal(
+            ["OGN·255/298", "OGN·303/298", "OGN·303*/298"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.AhriLegendIdentityId));
+        Assert.Equal(
+            ["SFD·183/221", "SFD·241/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.LucianLegendIdentityId));
+        Assert.Equal(
+            ["UNL-191/219", "UNL-231/219", "UNL-231*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.MasterYiLevelLegendIdentityId));
+        Assert.Equal(
+            ["SFD·185/221", "SFD·242/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.DravenLegendIdentityId));
+        Assert.Equal(
+            ["OGS·023/024"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.GarenIntroLegendIdentityId));
+        Assert.Equal(
+            ["OGS·021/024"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.LuxIntroLegendIdentityId));
+        Assert.Equal(
+            ["OGS·017/024"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.AnnieLegendIdentityId));
+        Assert.Equal(
+            ["FND-251/298", "OGN·251/298", "OGN·301/298", "OGN·301*/298"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.JinxLegendIdentityId));
+        Assert.Equal(
+            ["SFD·181/221", "SFD·240/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.RumbleLegendIdentityId));
+        Assert.Equal(
+            ["FND-249/298", "OGN·249/298", "OGN·300/298", "OGN·300*/298", "SFD·205/221", "SFD·251/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId));
+        Assert.Equal(
+            ["OGN·269/298", "OGN·310/298", "OGN·310*/298"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.SettLegendIdentityId));
+        Assert.Equal(
+            ["UNL-187/219", "UNL-229/219", "UNL-229*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.ViLegendIdentityId));
+        Assert.Equal(
+            ["UNL-193/219", "UNL-232/219", "UNL-232*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.VexLegendIdentityId));
+        Assert.Equal(
+            ["SFD·201/221", "SFD·249/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.RenataLegendIdentityId));
+        Assert.Equal(
+            ["SFD·187/221", "SFD·243/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.ReksaiLegendIdentityId));
+        Assert.Equal(
+            ["UNL-195/219", "UNL-233/219", "UNL-233*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.IvernLegendIdentityId));
+        Assert.Equal(
+            ["UNL-199/219", "UNL-235/219", "UNL-235*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.LeblancLegendIdentityId));
+        Assert.Equal(
+            ["UNL-183/219", "UNL-227/219", "UNL-227*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.RengarLegendIdentityId));
+        Assert.Equal(
+            ["OGN·261/298", "OGN·306/298", "OGN·306*/298"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.LeonaLegendIdentityId));
+        Assert.Equal(
+            ["SFD·203/221", "SFD·250/221"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.SivirLegendIdentityId));
+        Assert.Equal(
+            ["UNL-181/219", "UNL-226/219", "UNL-226*/219"],
+            LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.JhinLegendIdentityId));
+        Assert.Equal("UNL-183/219", LegendIdentityCatalog.PrimarySourceCardNoForIdentity(LegendIdentityCatalog.RengarLegendIdentityId));
+        Assert.True(LegendIdentityCatalog.IsSourceCardNoForIdentity(
+            LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId,
+            "SFD·251/221"));
+        Assert.False(LegendIdentityCatalog.IsSourceCardNoForIdentity(
+            LegendIdentityCatalog.JhinLegendIdentityId,
+            "SFD·181/221"));
+
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+
+        Assert.Contains("LegendIdentityCatalog.SourceCardNosForIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[AhriLegendCardNo, \"OGN·303/298\", \"OGN·303*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LucianLegendCardNo, \"SFD·241/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[MasterYiLevelLegendCardNo, \"UNL-231/219\", \"UNL-231*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[DravenLegendCardNo, \"SFD·242/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[GarenIntroLegendCardNo]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LuxIntroLegendCardNo]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[AnnieIntroLegendCardNo]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[JinxLegendCardNo, \"OGN·251/298\", \"OGN·301/298\", \"OGN·301*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[RumbleLegendCardNo, \"SFD·240/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[SettLegendCardNo, \"OGN·310/298\", \"OGN·310*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[ViLegendCardNo, \"UNL-229/219\", \"UNL-229*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[VexLegendCardNo, \"UNL-232/219\", \"UNL-232*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[RenataLegendCardNo, \"SFD·249/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[ReksaiLegendCardNo, \"SFD·243/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[IvernLegendCardNo, \"UNL-233/219\", \"UNL-233*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LeblancLegendCardNo, \"UNL-235/219\", \"UNL-235*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[RengarLegendCardNo, \"UNL-227/219\", \"UNL-227*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LeonaOriginLegendCardNo, \"OGN·306/298\", \"OGN·306*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[SivirSpiritforgedLegendCardNo, \"SFD·250/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[JhinLegendCardNo, \"UNL-226/219\", \"UNL-226*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog()
     {
         Assert.Equal(
