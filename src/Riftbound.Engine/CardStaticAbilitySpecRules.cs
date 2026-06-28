@@ -39,6 +39,14 @@ internal static class CardStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.FriendlyUnitsEnterReady,
+            out ability);
+    }
+
     public static bool TryGetFriendlyFilteredUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(

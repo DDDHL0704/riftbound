@@ -1,6 +1,6 @@
 # Plan B Active-Entry Static Ability Spec Evidence
 
-更新时间：2026-06-27
+更新时间：2026-06-28
 
 ## Evidence Summary
 
@@ -37,6 +37,21 @@ Filtered token active-entry runtime:
 - Gold equipment token fixtures now expect official token identity payloads / states: `tokenCardNo=SFD·T03`, tags `[CARD_TYPE:EQUIPMENT, 反应, 金币]`, owner/controller, and exhausted state unless a valid entry-static ability changes it.
 - Adjacent token fixtures prove existing Azir, Viktor, battlefield held, Mechanical Trickster, Ironclad Vanguard, and Warhawk token routes still preserve token creation behavior.
 
+Level-gated friendly unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilityKinds.FriendlyUnitsEnterReady` and `StaticAbilitySpec.RequiredPlayerExperience`.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `{{等级11>}} 你的单位以活跃状态进场。` into `FRIENDLY_UNITS_ENTER_READY` with `RequiredPlayerExperience=11`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `requiredPlayerExperience` on `staticAbilities` for the shared catalog payload shape.
+- `tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs` verifies `UNL-191/219`, `UNL-231/219`, and `UNL-231*/219` expose that spec through `BehaviorSpec.StaticAbilities`.
+
+Level-gated friendly unit active-entry runtime:
+
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetFriendlyUnitsEnterReadyAbility`.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes played unit entry through `StaticAbilitySpec.Kind=FRIENDLY_UNITS_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller.
+- `CoreRuleEngine` now scans controlled public legend-zone sources for this generic friendly-unit active-entry static ability, so Master Yi level 11 no longer needs `ControllerHasMasterYiLevelLegend`, `MasterYiLevelReadyThreshold`, or an `entersActiveFromMasterYiLevel` branch.
+- `tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs` proves Master Yi level 11 makes an unpaid-haste `OGN·010/298` 军团后卫 enter ready at 11 experience and emits `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` with legend source object/card metadata.
+- The same test proves 10 experience does not satisfy the parsed requirement and leaves the unpaid-haste unit exhausted with no entry-static metadata.
+
 ## Validation Evidence
 
 - Focused pre-implementation red: `BehaviorSpecCatalogParsesOtherFriendlyUnitsEnterReadyStaticAbility` had no matching static ability and `MoltenDrakeMakesOtherFriendlyUnpaidHasteUnitEnterReadyFromStaticAbilitySpec` observed the target still exhausted.
@@ -49,10 +64,16 @@ Filtered token active-entry runtime:
 - Renata equipment-token focused post-implementation: 5/5 passed.
 - Gold / trigger adjacent regression: 190/190 passed.
 - Conformance fixture runner after Gold token identity sync: 3108/3108 passed.
-- Backend full after this slice: 8846/8846 passed.
+- Master Yi level-gated active-entry pre-implementation red: `MasterYiLevelActiveEntryStaticAbilityTests` failed at compile because `FRIENDLY_UNITS_ENTER_READY` / `RequiredPlayerExperience` did not exist.
+- Master Yi level-gated active-entry focused post-implementation: 4/4 passed.
+- Master Yi / Molten / Renata / CardCatalogBaseline adjacent regression: 307/307 passed.
+- MatchRecovery hidden-info / continuous-effect guard regression: 1984/1984 passed.
+- Backend full after this slice: 8878/8878 passed.
+- DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`: passed.
 
 ## Remaining Evidence Needed
 
 - Official-deck score-victory replay coverage for 熔浆巨龙 remains open.
-- Broader active-entry static ability families remain open: low-hand active entry, level-gated active entry, battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
+- Official-deck score-victory replay coverage for Master Yi level 11 active-entry remains open.
+- Broader active-entry static ability families remain open: low-hand active entry, battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.

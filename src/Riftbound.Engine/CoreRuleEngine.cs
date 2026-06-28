@@ -132,7 +132,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
-    private const int MasterYiLevelReadyThreshold = 11;
     private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
     private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
@@ -20636,21 +20635,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool ControllerHasMasterYiLevelLegend(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        IReadOnlyDictionary<string, int> playerExperience,
-        int experienceThreshold)
-    {
-        return playerExperience.TryGetValue(playerId, out var experience)
-            && experience >= experienceThreshold
-            && playerZones.TryGetValue(playerId, out var zones)
-            && zones.LegendZone.Any(legendObjectId =>
-                cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, MasterYiLevelLegendIdentityId));
-    }
-
     private static GameEvent BuildBattleNoResultEvent(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -40719,6 +40703,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         string enteringObjectId,
         string? enteringCardNo,
+        IReadOnlyDictionary<string, int>? playerExperience,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -40730,6 +40715,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             enteringObjectId,
             enteringCardNo,
             enteringIsUnit: true,
+            playerExperience: playerExperience,
             out sourceObjectId,
             out sourceState,
             out ability);
@@ -40742,6 +40728,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string enteringObjectId,
         string? enteringCardNo,
         bool enteringIsUnit,
+        IReadOnlyDictionary<string, int>? playerExperience,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -40781,7 +40768,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (!TryGetEntryReadyStaticAbility(
                     candidateState.CardNo,
                     enteringCardNo,
-                    enteringIsUnit,
+                    enteringIsUnit: enteringIsUnit,
+                    sourceIsUnit: true,
+                    playerExperience: playerExperience,
+                    controllerId: controllerId,
                     out var candidateAbility))
             {
                 continue;
@@ -40793,6 +40783,47 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (enteringIsUnit
+            && playerZones.TryGetValue(controllerId, out var controllerZones))
+        {
+            foreach (var legendObjectId in controllerZones.LegendZone
+                         .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                         .Distinct(StringComparer.Ordinal)
+                         .OrderBy(objectId => objectId, StringComparer.Ordinal))
+            {
+                if (string.Equals(legendObjectId, enteringObjectId, StringComparison.Ordinal)
+                    || !cardObjects.TryGetValue(legendObjectId, out var legendState)
+                    || legendState.IsFaceDown
+                    || legendState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                {
+                    continue;
+                }
+
+                var legendControllerId = !string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    ? legendState.ControllerId
+                    : !string.IsNullOrWhiteSpace(legendState.OwnerId)
+                        ? legendState.OwnerId
+                        : controllerId;
+                if (!string.Equals(legendControllerId, controllerId, StringComparison.Ordinal)
+                    || !TryGetEntryReadyStaticAbility(
+                        legendState.CardNo,
+                        enteringCardNo,
+                        enteringIsUnit: enteringIsUnit,
+                        sourceIsUnit: false,
+                        playerExperience: playerExperience,
+                        controllerId: controllerId,
+                        out var legendAbility))
+                {
+                    continue;
+                }
+
+                sourceObjectId = legendObjectId;
+                sourceState = legendState;
+                ability = legendAbility;
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -40800,15 +40831,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? sourceCardNo,
         string? enteringCardNo,
         bool enteringIsUnit,
+        bool sourceIsUnit,
+        IReadOnlyDictionary<string, int>? playerExperience,
+        string controllerId,
         out StaticAbilitySpec ability)
     {
         if (enteringIsUnit
+            && CardStaticAbilitySpecRules.TryGetFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability)
+            && StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
+        {
+            return true;
+        }
+
+        if (enteringIsUnit
+            && sourceIsUnit
             && CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability))
         {
             return true;
         }
 
-        if (CardStaticAbilitySpecRules.TryGetFriendlyFilteredUnitsEnterReadyAbility(sourceCardNo, out ability)
+        if (sourceIsUnit
+            && CardStaticAbilitySpecRules.TryGetFriendlyFilteredUnitsEnterReadyAbility(sourceCardNo, out ability)
             && StaticAbilityTargetMatchesFilter(ability.TargetFilter, enteringCardNo))
         {
             return true;
@@ -40816,6 +40859,22 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         ability = default!;
         return false;
+    }
+
+    private static bool StaticAbilityControllerRequirementsSatisfied(
+        StaticAbilitySpec ability,
+        IReadOnlyDictionary<string, int>? playerExperience,
+        string controllerId)
+    {
+        if (ability.RequiredPlayerExperience.HasValue
+            && (playerExperience is null
+                || !playerExperience.TryGetValue(controllerId, out var experience)
+                || experience < ability.RequiredPlayerExperience.Value))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool StaticAbilityTargetMatchesFilter(string? targetFilter, string? enteringCardNo)
@@ -40881,12 +40940,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem.ControllerId,
             playerExperience);
-        var entersActiveFromMasterYiLevel = ControllerHasMasterYiLevelLegend(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            playerExperience,
-            MasterYiLevelReadyThreshold);
         if (levelApplies)
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
@@ -40908,14 +40961,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 behavior.CardNo,
+                playerExperience,
                 out var entryStaticAbilitySourceObjectId,
                 out var entryStaticAbilitySourceState,
                 out var entryStaticAbility);
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = entersActiveFromMasterYiLevel
-                || entersReadyFromOtherFriendlyStaticAbility
+            IsExhausted = entersReadyFromOtherFriendlyStaticAbility
                 || crescentGuardReadyOptionalCostPaid
                     ? false
                     : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
@@ -41004,12 +41057,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem.ControllerId,
             playerExperience);
-        var entersActiveFromMasterYiLevel = ControllerHasMasterYiLevelLegend(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            playerExperience,
-            MasterYiLevelReadyThreshold);
         if (levelApplies)
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
@@ -41023,6 +41070,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 behavior.CardNo,
+                playerExperience,
                 out var entryStaticAbilitySourceObjectId,
                 out var entryStaticAbilitySourceState,
                 out var entryStaticAbility);
@@ -41030,8 +41078,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = entersActiveFromMasterYiLevel
-                || entersReadyFromOtherFriendlyStaticAbility
+            IsExhausted = entersReadyFromOtherFriendlyStaticAbility
                 ? false
                 : existingState.IsExhausted || behavior.SourceUnitIsExhausted,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
@@ -41108,6 +41155,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             tokenObjectId,
             tokenState.CardNo,
             enteringIsUnit,
+            playerExperience: null,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
             out entryStaticAbility);

@@ -286,6 +286,7 @@ public static class StaticAbilityKinds
 {
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
+    public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";
     public const string OtherFriendlyUnitsEnterReady = "OTHER_FRIENDLY_UNITS_ENTER_READY";
     public const string FriendlyFilteredUnitsEnterReady = "FRIENDLY_FILTERED_UNITS_ENTER_READY";
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
@@ -523,7 +524,8 @@ public sealed record StaticAbilitySpec(
     int Amount = 0,
     int? RequiredPowerThreshold = null,
     IReadOnlyList<string>? GrantedKeywords = null,
-    string? TargetFilter = null);
+    string? TargetFilter = null,
+    int? RequiredPlayerExperience = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

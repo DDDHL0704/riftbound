@@ -2105,6 +2105,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var friendlyLevelUnitsEnterReadyMatch = Regex.Match(
+                segment,
+                @"\{\{等级(\d+)>\}\}\s*你的单位以活跃状态进场。?$",
+                RegexOptions.CultureInvariant);
+            if (friendlyLevelUnitsEnterReadyMatch.Success
+                && int.TryParse(friendlyLevelUnitsEnterReadyMatch.Groups[1].Value, out var requiredPlayerExperience))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.FriendlyUnitsEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Level-gated friendly unit active-entry static ability parsed for spec-driven unit-entry routing.",
+                    RequiredPlayerExperience: requiredPlayerExperience));
+                continue;
+            }
+
             if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
                 || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
             {
