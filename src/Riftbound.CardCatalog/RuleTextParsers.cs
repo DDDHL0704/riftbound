@@ -3096,6 +3096,13 @@ public static class EffectPhraseParser
 
         return templateId switch
         {
+            BehaviorTemplateIds.Move => spec with
+            {
+                TargetScope = ResolveMoveTargetScope(phrase),
+                MovesTarget = phrase.Contains("移动", StringComparison.Ordinal),
+                MoveCount = ParseMoveCount(phrase),
+                MoveDestination = ResolveMoveDestination(phrase)
+            },
             BehaviorTemplateIds.Damage => spec with
             {
                 TargetScope = ResolveUnitTargetScope(phrase),
@@ -3239,6 +3246,67 @@ public static class EffectPhraseParser
         return phrase.Contains("回收", StringComparison.Ordinal)
             ? TriggerZones.MainDeck
             : null;
+    }
+
+    private static int? ParseMoveCount(string phrase)
+    {
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"(?<count>[一二两三四五六七八九十\d]+)名",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return ParseSmallChineseNumber(match.Groups["count"].Value);
+    }
+
+    private static string? ResolveMoveDestination(string phrase)
+    {
+        return phrase.Contains("所属的基地", StringComparison.Ordinal)
+            || phrase.Contains("移动到基地", StringComparison.Ordinal)
+            || phrase.Contains("移动至基地", StringComparison.Ordinal)
+                ? TriggerMoveDestinations.OwnerBase
+                : null;
+    }
+
+    private static string? ResolveMoveTargetScope(string phrase)
+    {
+        if (!phrase.Contains("单位", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var referencesBattlefield = phrase.Contains("战场", StringComparison.Ordinal);
+        if (phrase.Contains("友方单位", StringComparison.Ordinal)
+            && referencesBattlefield)
+        {
+            return "FRIENDLY_BATTLEFIELD_UNIT";
+        }
+
+        if (phrase.Contains("敌方单位", StringComparison.Ordinal)
+            && referencesBattlefield)
+        {
+            return "ENEMY_BATTLEFIELD_UNIT";
+        }
+
+        if (referencesBattlefield)
+        {
+            return "BATTLEFIELD_UNIT";
+        }
+
+        if (phrase.Contains("友方单位", StringComparison.Ordinal))
+        {
+            return "FRIENDLY_UNIT";
+        }
+
+        if (phrase.Contains("敌方单位", StringComparison.Ordinal))
+        {
+            return "ENEMY_UNIT";
+        }
+
+        return "ANY_UNIT";
     }
 
     private static string? ResolveRecycleTargetScope(string phrase)

@@ -14,6 +14,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string DrawCards = "draw-cards";
     public const string DealDamage = "deal-damage";
     public const string DestroyTarget = "destroy-target";
+    public const string MoveTarget = "move-target";
     public const string BanishThenPlayTarget = "banish-then-play-target";
     public const string ReturnTargetToHand = "return-target-to-hand";
     public const string GrantBoon = "grant-boon";
@@ -35,6 +36,7 @@ public sealed record BehaviorTemplatePrimitive(
     string RecycleSourceZone = "",
     string RecycleDestinationZone = "",
     string TargetForbiddenTag = "",
+    string MoveDestination = "",
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -223,6 +225,15 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 0,
                 effect.TargetScope ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Move when effect.MovesTarget is true
+                && effect.MoveCount is > 0
+                && !string.IsNullOrWhiteSpace(effect.MoveDestination) => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.Move,
+                    BehaviorTemplatePrimitiveKinds.MoveTarget,
+                    effect.MoveCount.Value,
+                    effect.TargetScope ?? string.Empty,
+                    MoveDestination: effect.MoveDestination,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Banish when effect.BanishesTarget is true
                 && !string.IsNullOrWhiteSpace(effect.PlayDestinationZone) => new BehaviorTemplatePrimitive(
                     BehaviorTemplateIds.Banish,

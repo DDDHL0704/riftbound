@@ -575,4 +575,7 @@ public sealed record EffectPhraseSpec(
     bool? RecyclesTarget = null,
     string? RecycleSourceZone = null,
     string? RecycleDestinationZone = null,
-    string? TargetForbiddenTag = null);
+    string? TargetForbiddenTag = null,
+    bool? MovesTarget = null,
+    int? MoveCount = null,
+    string? MoveDestination = null);

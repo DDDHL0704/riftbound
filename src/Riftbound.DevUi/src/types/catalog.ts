@@ -151,6 +151,9 @@ export type BehaviorSpec = {
     recycleSourceZone?: string | null;
     recycleDestinationZone?: string | null;
     targetForbiddenTag?: string | null;
+    movesTarget?: boolean | null;
+    moveCount?: number | null;
+    moveDestination?: string | null;
   }>;
   templateIds: string[];
   implementedEffectKind?: string | null;
