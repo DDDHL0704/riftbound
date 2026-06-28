@@ -5829,8 +5829,7 @@ public sealed class CardCatalogBaselineTests
         var delegatedCandidates = new[]
         {
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
-            new { CardNo = "UNL-157/219", TemplateId = BehaviorTemplateIds.GainExperience },
-            new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
+            new { CardNo = "UNL-157/219", TemplateId = BehaviorTemplateIds.GainExperience }
         };
         foreach (var candidate in delegatedCandidates)
         {
@@ -7317,6 +7316,45 @@ public sealed class CardCatalogBaselineTests
         var takenForARide = specs.Single(spec => string.Equals(spec.CardNo, "OGN·203/298", StringComparison.Ordinal));
         Assert.Contains(BehaviorTemplateIds.Control, takenForARide.TemplateIds);
         Assert.Contains(BehaviorTemplateIds.Recall, takenForARide.TemplateIds);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryHostileTakeoverControlPrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var hostileTakeover = specs.Single(spec => string.Equals(spec.CardNo, "SFD·202/221", StringComparison.Ordinal));
+
+        var control = Assert.Single(
+            hostileTakeover.Effects,
+            effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Control, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.EnemyBattlefieldUnit, control.TargetScope);
+        Assert.True(control.GainsControl);
+        Assert.Equal("BATTLEFIELD", control.ControlDestinationZone);
+        Assert.True(control.ReadiesTarget);
+        Assert.Equal("UNTIL_END_OF_TURN", control.ControlDuration);
+        Assert.Equal("BASE", control.ControlReturnDestinationZone);
+        Assert.False(control.ControlReturnCountsAsMove);
+        Assert.Contains("获得战场上一名敌方单位的控制权", control.Phrase, StringComparison.Ordinal);
+        Assert.Contains("回合结束时", hostileTakeover.OfficialText, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            hostileTakeover,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-HOSTILE-TAKEOVER", "SFD·202/221", ["P2-BATTLEFIELD-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Control, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.GainControlTarget, primitive.Kind);
+        Assert.Equal(CardTargetScopes.EnemyBattlefieldUnit, primitive.TargetScope);
+        Assert.Equal("BATTLEFIELD", primitive.ControlDestinationZone);
+        Assert.True(primitive.ReadiesTarget);
+        Assert.False(primitive.ExhaustsControlledTarget);
+        Assert.Equal("UNTIL_END_OF_TURN", primitive.ControlDuration);
+        Assert.Equal("BASE", primitive.ControlReturnDestinationZone);
+        Assert.False(primitive.ControlReturnCountsAsMove);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

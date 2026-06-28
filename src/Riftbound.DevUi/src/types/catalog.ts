@@ -155,6 +155,13 @@ export type BehaviorSpec = {
     moveCount?: number | null;
     moveDestination?: string | null;
     experienceCount?: number | null;
+    gainsControl?: boolean | null;
+    controlDestinationZone?: string | null;
+    readiesTarget?: boolean | null;
+    exhaustsControlledTarget?: boolean | null;
+    controlDuration?: string | null;
+    controlReturnDestinationZone?: string | null;
+    controlReturnCountsAsMove?: boolean | null;
   }>;
   templateIds: string[];
   implementedEffectKind?: string | null;

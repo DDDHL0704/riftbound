@@ -579,4 +579,11 @@ public sealed record EffectPhraseSpec(
     bool? MovesTarget = null,
     int? MoveCount = null,
     string? MoveDestination = null,
-    int? ExperienceCount = null);
+    int? ExperienceCount = null,
+    bool? GainsControl = null,
+    string? ControlDestinationZone = null,
+    bool? ReadiesTarget = null,
+    bool? ExhaustsControlledTarget = null,
+    string? ControlDuration = null,
+    string? ControlReturnDestinationZone = null,
+    bool? ControlReturnCountsAsMove = null);

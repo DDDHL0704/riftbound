@@ -3171,6 +3171,20 @@ public static class EffectPhraseParser
             {
                 ExperienceCount = ParseExperienceCount(phrase)
             },
+            BehaviorTemplateIds.Control => spec with
+            {
+                TargetScope = ResolveControlTargetScope(phrase),
+                GainsControl = phrase.Contains("获得", StringComparison.Ordinal)
+                    && phrase.Contains("控制权", StringComparison.Ordinal),
+                ControlDestinationZone = ResolveControlDestinationZone(text, phrase),
+                ReadiesTarget = phrase.Contains("活跃状态", StringComparison.Ordinal)
+                    || text.Contains("活跃状态", StringComparison.Ordinal),
+                ExhaustsControlledTarget = phrase.Contains("休眠状态", StringComparison.Ordinal)
+                    || text.Contains("休眠状态", StringComparison.Ordinal),
+                ControlDuration = ResolveControlDuration(text),
+                ControlReturnDestinationZone = ResolveControlReturnDestinationZone(text),
+                ControlReturnCountsAsMove = ResolveControlReturnCountsAsMove(text)
+            },
             BehaviorTemplateIds.Stun => spec with
             {
                 TargetScope = ResolveUnitTargetScope(phrase),
@@ -3206,6 +3220,74 @@ public static class EffectPhraseParser
         }
 
         return ParseSmallChineseNumber(match.Groups["count"].Value);
+    }
+
+    private static string? ResolveControlTargetScope(string phrase)
+    {
+        if (string.IsNullOrWhiteSpace(phrase)
+            || !phrase.Contains("单位", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (phrase.Contains("敌方", StringComparison.Ordinal)
+            && phrase.Contains("战场", StringComparison.Ordinal))
+        {
+            return "ENEMY_BATTLEFIELD_UNIT";
+        }
+
+        return ResolveUnitTargetScope(phrase);
+    }
+
+    private static string? ResolveControlDestinationZone(string text, string phrase)
+    {
+        if (phrase.Contains("召回", StringComparison.Ordinal)
+            || phrase.Contains("基地", StringComparison.Ordinal))
+        {
+            return "BASE";
+        }
+
+        if (phrase.Contains("战场", StringComparison.Ordinal))
+        {
+            return "BATTLEFIELD";
+        }
+
+        if (text.Contains("获得战场上一名", StringComparison.Ordinal)
+            || text.Contains("获得战场上的", StringComparison.Ordinal))
+        {
+            return "BATTLEFIELD";
+        }
+
+        return null;
+    }
+
+    private static string? ResolveControlDuration(string text)
+    {
+        return text.Contains("回合结束时", StringComparison.Ordinal)
+            && (text.Contains("失去", StringComparison.Ordinal)
+                || text.Contains("取回", StringComparison.Ordinal))
+            ? "UNTIL_END_OF_TURN"
+            : null;
+    }
+
+    private static string? ResolveControlReturnDestinationZone(string text)
+    {
+        return text.Contains("回合结束时", StringComparison.Ordinal)
+            && (text.Contains("召回", StringComparison.Ordinal)
+                || text.Contains("送回基地", StringComparison.Ordinal))
+            ? "BASE"
+            : null;
+    }
+
+    private static bool? ResolveControlReturnCountsAsMove(string text)
+    {
+        if (text.Contains("不算作移动", StringComparison.Ordinal)
+            || text.Contains("不被视为移动", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return null;
     }
 
     private static int? ParseDamageAmount(string phrase)

@@ -22,6 +22,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
     public const string RecycleTarget = "recycle-target";
     public const string GainExperience = "gain-experience";
+    public const string GainControlTarget = "gain-control-target";
 }
 
 public sealed record BehaviorTemplatePrimitive(
@@ -38,6 +39,12 @@ public sealed record BehaviorTemplatePrimitive(
     string RecycleDestinationZone = "",
     string TargetForbiddenTag = "",
     string MoveDestination = "",
+    string ControlDestinationZone = "",
+    bool ReadiesTarget = false,
+    bool ExhaustsControlledTarget = false,
+    string ControlDuration = "",
+    string ControlReturnDestinationZone = "",
+    bool? ControlReturnCountsAsMove = null,
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -86,7 +93,7 @@ public sealed class BehaviorTemplatePrimitiveExecutor
             var primitive = BuildPrimitive(step.TemplateId, spec, delegation.DelegatedBehavior);
             if (primitive is null)
             {
-                if (IsParsedReminderOnlyTemplate(step.TemplateId, delegation.DelegatedBehavior))
+                if (IsParsedReminderOnlyTemplate(step.TemplateId, spec, delegation.DelegatedBehavior))
                 {
                     continue;
                 }
@@ -297,16 +304,45 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 effect.TargetScope ?? string.Empty,
                 ConditionKind: effect.ConditionKind ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Control when effect.GainsControl is true
+                && !string.IsNullOrWhiteSpace(effect.TargetScope)
+                && !string.IsNullOrWhiteSpace(effect.ControlDestinationZone) => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.Control,
+                    BehaviorTemplatePrimitiveKinds.GainControlTarget,
+                    0,
+                    effect.TargetScope,
+                    ControlDestinationZone: effect.ControlDestinationZone,
+                    ReadiesTarget: effect.ReadiesTarget is true,
+                    ExhaustsControlledTarget: effect.ExhaustsControlledTarget is true,
+                    ControlDuration: effect.ControlDuration ?? string.Empty,
+                    ControlReturnDestinationZone: effect.ControlReturnDestinationZone ?? string.Empty,
+                    ControlReturnCountsAsMove: effect.ControlReturnCountsAsMove,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             _ => null
         };
     }
 
     private static bool IsParsedReminderOnlyTemplate(
         string templateId,
+        BehaviorSpec spec,
         CardBehaviorDefinition behavior)
     {
-        return string.Equals(templateId, BehaviorTemplateIds.Damage, StringComparison.Ordinal)
-            && behavior.DamageAmount == 0
-            && string.Equals(behavior.StatusEffectId, "STUNNED", StringComparison.Ordinal);
+        return (string.Equals(templateId, BehaviorTemplateIds.Damage, StringComparison.Ordinal)
+                && behavior.DamageAmount == 0
+                && string.Equals(behavior.StatusEffectId, "STUNNED", StringComparison.Ordinal))
+            || IsCoveredByControlEndTurnReturn(templateId, spec);
+    }
+
+    private static bool IsCoveredByControlEndTurnReturn(string templateId, BehaviorSpec spec)
+    {
+        if (!string.Equals(templateId, BehaviorTemplateIds.Recall, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return spec.Effects.Any(effect =>
+            string.Equals(effect.TemplateId, BehaviorTemplateIds.Control, StringComparison.Ordinal)
+            && string.Equals(effect.ControlDuration, "UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(effect.ControlReturnDestinationZone));
     }
 }
