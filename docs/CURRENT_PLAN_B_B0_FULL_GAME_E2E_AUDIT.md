@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Flowing Time Mirror equipment cleanup replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 LeBlanc suppressed-ephemeral cleanup replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -34,6 +34,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a focused midgame play state with official `OGN·183/298` Card Trick in P1 hand and controlled top-three main-deck targets; the server-authored `PLAY_CARD` prompt exposes exactly those top-three target object ids to the owner, resolving the spell draws the selected card and recycles the other two to the bottom of the main deck, opponent snapshots redact the private-zone stack target as `HIDDEN`, then the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a focused midgame play state at official `UNL-211/219` Lost Library; P1 casts official `OGN·180/298` Flowing Time Mirror at P2's same-battlefield `OGN·096/298` Watchful Sentinel, the battlefield high-cost spell insight trigger recycles P1's top main-deck card, the spell gives the target `瞬息`, P2's next turn-start `END_TURN` journal entry destroys that target with `reason=EPHEMERAL_TURN_START` before the score-victory route continues to the same action-log replay final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a focused midgame play state at official `UNL-211/219` Lost Library; P1 casts official `OGN·180/298` Flowing Time Mirror at P2's official `SFD·022/221` Long Sword equipment in base, the server-authored `PLAY_CARD` prompt exposes that public equipment as a legal target, the battlefield high-cost spell insight trigger recycles P1's top main-deck card, the spell gives the equipment `瞬息`, P2's next turn-start `END_TURN` journal entry destroys that equipment with `reason=EPHEMERAL_TURN_START` before the score-victory route continues to the same action-log replay final state hash;
+- from a seated official Vex vs Lillia opening state, a verified legal official-deck opening feeds a focused midgame play state at official `UNL-211/219` Lost Library; P1 casts official `OGN·180/298` Flowing Time Mirror at P2's same-battlefield `OGN·096/298` Watchful Sentinel while P2 controls official `UNL-090/219` LeBlanc at that battlefield, the spell gives Watchful Sentinel `瞬息`, P1's `END_TURN` advances into P2 turn start without emitting `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START` for that target, and the command stream continues through score victory to the same action-log replay final state hash;
 - from a seated official Poppy / Garen / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGS·013/024` Garen's `BehaviorSpec.StaticAuras` projection gives `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
 - from a seated official Darius initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `SFD·236/221` Darius's `BehaviorSpec.StaticAuras` projection gives `SFD·006/221` Aggressive Dragonhound `staticPowerBonus=1`;
 - from a seated official Rumble initial state, an official `SFD·022/221` Long Sword is staged as friendly public field equipment, then the full `PLAY_CARD` / `MOVE_UNIT` staging -> friendly-equipment count-to-source static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `SFD·085/221` Ornn's `BehaviorSpec.StaticAuras` projection recomputes Ornn from printed 4 power to effective 5 power without adding a separate `staticPowerBonus`;
@@ -321,7 +322,9 @@ This Master Yi level active-entry increment additionally proves a legal official
 
 This Card Trick draw/recycle increment adds one shared hidden-information runtime fix. It extends the seated-room official-deck action-log recovery check to a legal Vex deck containing official `OGN·183/298` Card Trick. The driver verifies a legal official opening first, starts a focused midgame with Card Trick in P1 hand and at least three P1 main-deck cards, submits the server-authored `PLAY_CARD` targeting one of the top-three main-deck objects, resolves the stack, asserts the selected card moves to P1 hand and the unselected top cards are recycled to the bottom of P1's main deck, then continues through score victory and action-log replay. `MatchSession` now projects stack `targetObjectIds` through the existing viewer visibility redaction path instead of only hiding battlefield standby targets, so non-viewer private hand / main-deck / rune-deck stack targets appear as `HIDDEN`; `MatchRecovery` compares spectator stack target ids against that same hidden spectator projection. It still does not close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
-This Flowing Time Mirror equipment-cleanup increment adds no runtime rule changes. It extends the Lost Library official-deck B0 replay family by asserting official `OGN·180/298` can legally target official `SFD·022/221` Long Sword as public field equipment, gives that equipment `瞬息`, and carries it to the controller's next turn start before the score-victory route continues. The journal now proves the `END_TURN` command for P2's turn start emits `EQUIPMENT_DESTROYED` with `targetObjectId` equal to the Flowing Time Mirror equipment target, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, `destinationZone=GRAVEYARD`, and `reason=EPHEMERAL_TURN_START`; the final state keeps that object in P2 graveyard and out of base / battlefield. Together with the existing unit-target replay, this closes the official Flowing Time Mirror unit/equipment B0 cleanup representatives, but not LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
+This Flowing Time Mirror equipment-cleanup increment adds no runtime rule changes. It extends the Lost Library official-deck B0 replay family by asserting official `OGN·180/298` can legally target official `SFD·022/221` Long Sword as public field equipment, gives that equipment `瞬息`, and carries it to the controller's next turn start before the score-victory route continues. The journal now proves the `END_TURN` command for P2's turn start emits `EQUIPMENT_DESTROYED` with `targetObjectId` equal to the Flowing Time Mirror equipment target, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, `destinationZone=GRAVEYARD`, and `reason=EPHEMERAL_TURN_START`; the final state keeps that object in P2 graveyard and out of base / battlefield. Together with the existing unit-target replay, this closes the official Flowing Time Mirror unit/equipment B0 cleanup representatives, but not all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
+
+This LeBlanc suppressed-ephemeral cleanup increment also adds no runtime rule changes. It extends the same Lost Library official-deck replay family to legal official Vex vs Lillia decks containing `OGN·180/298` Flowing Time Mirror, `UNL-090/219` LeBlanc, and `OGN·096/298` Watchful Sentinel. The driver starts from an official opening-derived midgame state with LeBlanc and Watchful Sentinel on the same battlefield, verifies Flowing Time Mirror gives Watchful Sentinel `瞬息`, advances through P2's turn-start cleanup, and proves no `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START` is emitted for that protected target while the target remains on the battlefield. The command stream then continues through score victory and action-log replay. This closes the LeBlanc suppression B0 representative, but not complete ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
 
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
@@ -345,10 +348,10 @@ Open follow-up:
 
 ## Validation
 
-Latest Flowing Time Mirror equipment-cleanup focused validation passed:
+Latest Flowing Time Mirror / LeBlanc suppressed-cleanup focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanup"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanup"
 ```
 
 Result:
@@ -357,19 +360,19 @@ Result:
 Passed: 1, Failed: 0, Skipped: 0, Total: 1
 ```
 
-Latest Flowing Time Mirror / Ephemeral / Equipment adjacent validation passed:
+Latest Flowing Time Mirror / LeBlanc / Ephemeral adjacent validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~FlowingTimeMirror|FullyQualifiedName~Ephemeral|FullyQualifiedName~Equipment|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Leblanc|FullyQualifiedName~LeBlanc|FullyQualifiedName~Ephemeral|FullyQualifiedName~FlowingTimeMirror|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
 ```
 
 Result:
 
 ```text
-Passed: 2600, Failed: 0, Skipped: 0, Total: 2600
+Passed: 2132, Failed: 0, Skipped: 0, Total: 2132
 ```
 
-Latest Flowing Time Mirror equipment-cleanup backend full validation passed:
+Latest Flowing Time Mirror / LeBlanc suppressed-cleanup backend full validation passed:
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
@@ -378,7 +381,7 @@ Latest Flowing Time Mirror equipment-cleanup backend full validation passed:
 Result:
 
 ```text
-Passed: 8886, Failed: 0, Skipped: 0, Total: 8886
+Passed: 8887, Failed: 0, Skipped: 0, Total: 8887
 ```
 
 Latest Card Trick draw/recycle official-deck replay focused validation passed:
