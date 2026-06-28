@@ -1354,7 +1354,7 @@
 | `p2-preflight-play-deadly-flourish-enemy-unit-damage` | `RULE_AUDITED` | `CATALOG` UNL-073/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《致命华彩》选择一名敌方单位并造成 3 点非致命伤害；P4.111 已补友方目标拒绝 fixture，本回合摧毁后的休眠“金币”装备指示物触发暂缓。 |
 | `p4-play-deadly-flourish-friendly-target-rejected` | `RULE_AUDITED` | `CATALOG` UNL-073/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《致命华彩》选择友方单位时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不伤害目标、不创建结算链。 |
 | `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral` | `RULE_AUDITED` | `CATALOG` OGN·180/298；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《逝水如镜》选择一名战场单位并给予 `瞬息` 对象标签；基地单位目标由直接测试拒绝。 2026-06-28 Plan B B0 补充官方 deck replay 证明该单位在其控制者下个开始阶段以 `EPHEMERAL_TURN_START` 摧毁并进入废牌堆。 |
-| `p2-preflight-play-flowing-time-mirror-equipment-ephemeral` | `RULE_AUDITED` | `CATALOG` OGN·180/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《逝水如镜》选择一件装备并给予 `瞬息` 对象标签。 |
+| `p2-preflight-play-flowing-time-mirror-equipment-ephemeral` | `RULE_AUDITED` | `CATALOG` OGN·180/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《逝水如镜》选择一件装备并给予 `瞬息` 对象标签；2026-06-28 Plan B B0 已补 official-deck replay，证明装备目标会在其控制者下个开始阶段以 `EPHEMERAL_TURN_START` 触发 `EQUIPMENT_DESTROYED` 并进入废牌堆。 |
 | `p2-preflight-play-ashes-to-ashes-equipment-ephemeral` | `RULE_AUDITED` | `CATALOG` UNL-070/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《化为灰烬》选择一件场上装备并给予 `瞬息` 对象标签；单位目标由直接测试拒绝，开始阶段摧毁瞬息对象暂缓。 |
 | `p2-preflight-play-sigil-burst-destroy-equipment-draw` | `RULE_AUDITED` | `CATALOG` SFD·005/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《印爆术》选择一件场上装备并摧毁，然后让该装备控制者抽 2 张牌；单位目标由直接测试拒绝，装备摧毁不会写入本回合单位摧毁记忆。 |
 | `p2-preflight-play-emergency-recall-return-equipment` | `RULE_AUDITED` | `CATALOG` SFD·135/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方法术《紧急召回》选择一件场上装备并让其返回拥有者手牌；P4.136 已补单位目标拒绝 fixture，返回手牌后移除公开对象状态。 |
@@ -3092,9 +3092,9 @@
 ## Plan B B0 Flowing Time Mirror Ephemeral Cleanup Replay Evidence
 
 - 证据入口：`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`。
-- 本批加强 `FullGameEndToEndTests.OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex deck opening 派生中盘，覆盖 `OGN·180/298` 逝水如镜赋予 P2 同战场单位 `瞬息` 后，在 P2 下个 turn-start `END_TURN` journal entry 中触发 `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START`、进入 P2 graveyard、再继续 score victory 与 action-log replay。
-- 验证：focused Lost Library / Flowing Time Mirror cleanup B0 replay 1/1 passed；adjacent LostLibrary / FlowingTimeMirror / Ephemeral / FullGameEndToEnd / MatchRecovery 2125/2125 passed；backend full 8885/8885 passed。
-- 该证据只关闭逝水如镜 unit-target B0 cleanup representative；不关闭 equipment-target cleanup breadth、LeBlanc suppression breadth、全部 ephemeral token/equipment lifecycle edges、P0 full objective 或最终 READY audit。
+- 本批加强 `FullGameEndToEndTests.OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash`，从合法官方 Vex vs Rumble deck opening 派生中盘，覆盖 `OGN·180/298` 逝水如镜赋予 P2 official `SFD·022/221` 长剑装备 `瞬息` 后，在 P2 下个 turn-start `END_TURN` journal entry 中触发 `EQUIPMENT_DESTROYED.reason=EPHEMERAL_TURN_START`、进入 P2 graveyard、再继续 score victory 与 action-log replay；既有 `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` 仍覆盖同一官方法术的战场单位目标 `UNIT_DESTROYED` 清理代表。
+- 验证：focused Flowing Time Mirror equipment cleanup B0 replay 1/1 passed；adjacent FlowingTimeMirror / Ephemeral / Equipment / FullGameEndToEnd / MatchRecovery 2600/2600 passed；backend full 8886/8886 passed。
+- 该证据关闭逝水如镜 unit/equipment B0 cleanup representatives；不关闭 LeBlanc suppression breadth、全部 ephemeral token/equipment lifecycle edges、P0 full objective 或最终 READY audit。
 
 ## 7. 索引维护规则
 

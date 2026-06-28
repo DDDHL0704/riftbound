@@ -137,7 +137,7 @@ The Master Yi level active-entry action-log replay regression proves a legal off
 
 The Card Trick draw/recycle action-log replay regression proves a legal official Vex deck opening can feed official `OGN·183/298` Card Trick into the B0 score-victory route and expose a real private-zone stack-target redaction issue. `OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening, then starts from a focused midgame play state with Card Trick in P1 hand and controlled top-three main-deck objects. The server-authored `PLAY_CARD` prompt exposes exactly those top-three target choices to P1, the stack resolves by moving the selected card to P1 hand and recycling the unselected top cards to the bottom of P1's main deck, and the command stream continues through score-victory action-log replay to the same final state hash. The shared runtime change is hidden-information scoped: `MatchSession` now projects stack `targetObjectIds` through viewer visibility redaction for hand / main-deck / rune-deck / hidden-standby targets, and `MatchRecovery` validates spectator stack target ids against the same redacted projection. This slice does not add a runtime card-number branch or close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
-The Flowing Time Mirror ephemeral-cleanup action-log replay regression proves the existing legal Lost Library B0 route also carries official `OGN·180/298` through the shared `瞬息` start-of-turn lifecycle. `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` now records the Flowing Time Mirror target before play, verifies the spell gives P2's same-battlefield `OGN·096/298` Watchful Sentinel the `瞬息` tag, then continues through `END_TURN` until P2's turn start. The match journal must contain exactly one `UNIT_DESTROYED` event for that target from an `END_TURN` command with `reason=EPHEMERAL_TURN_START`, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, and `destinationZone=GRAVEYARD`; the score-victory final state keeps the object in P2 graveyard and out of P2 base / battlefield. This slice changes only test / evidence coverage; it does not add runtime behavior or close equipment-target cleanup breadth, LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
+The Flowing Time Mirror ephemeral-cleanup action-log replay regressions prove the existing legal Lost Library B0 route also carries official `OGN·180/298` through the shared `瞬息` start-of-turn lifecycle for both printed target shapes. `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` records the unit target before play, verifies the spell gives P2's same-battlefield `OGN·096/298` Watchful Sentinel the `瞬息` tag, then continues through `END_TURN` until P2's turn start. The match journal must contain exactly one `UNIT_DESTROYED` event for that unit target from an `END_TURN` command with `reason=EPHEMERAL_TURN_START`, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, and `destinationZone=GRAVEYARD`. `OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` records the equipment target route from a legal official Vex vs Rumble opening, verifies server prompt legality for official `SFD·022/221` Long Sword as public equipment, resolves `OBJECT_TAG_ADDED(tag=瞬息)`, then proves P2's next turn-start `END_TURN` emits exactly one `EQUIPMENT_DESTROYED` with `reason=EPHEMERAL_TURN_START` and moves the equipment to P2 graveyard. This slice changes only test / evidence coverage; it does not add runtime behavior or close LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
 
 The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
 
@@ -197,10 +197,10 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 
 ## Validation
 
-Latest Flowing Time Mirror / Lost Library ephemeral-cleanup focused validation passed:
+Latest Flowing Time Mirror equipment-cleanup focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsight"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanup"
 ```
 
 Result:
@@ -209,19 +209,19 @@ Result:
 Passed: 1, Failed: 0, Skipped: 0, Total: 1
 ```
 
-Latest Flowing Time Mirror / Lost Library / Ephemeral adjacent validation passed:
+Latest Flowing Time Mirror / Ephemeral / Equipment adjacent validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~LostLibrary|FullyQualifiedName~FlowingTimeMirror|FullyQualifiedName~Ephemeral|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~FlowingTimeMirror|FullyQualifiedName~Ephemeral|FullyQualifiedName~Equipment|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
 ```
 
 Result:
 
 ```text
-Passed: 2125, Failed: 0, Skipped: 0, Total: 2125
+Passed: 2600, Failed: 0, Skipped: 0, Total: 2600
 ```
 
-Latest Flowing Time Mirror ephemeral-cleanup backend full validation passed:
+Latest Flowing Time Mirror equipment-cleanup backend full validation passed:
 
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
@@ -230,7 +230,7 @@ Latest Flowing Time Mirror ephemeral-cleanup backend full validation passed:
 Result:
 
 ```text
-Passed: 8885, Failed: 0, Skipped: 0, Total: 8885
+Passed: 8886, Failed: 0, Skipped: 0, Total: 8886
 ```
 
 Latest Card Trick draw/recycle official-deck replay focused validation passed:
@@ -2333,7 +2333,7 @@ The current Master Yi level active-entry increment additionally proves one Behav
 
 The current Card Trick draw/recycle increment additionally proves one official spell route through legal official Vex deck submission/opening, top-three controlled main-deck target choices, selected-card draw, unselected-card recycle-to-bottom, score-victory replay, exact-value hidden-info guarded full-game helpers, and spectator/private-zone stack-target redaction. Complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, and READY are still open.
 
-The current Flowing Time Mirror ephemeral-cleanup increment additionally proves one official spell-granted `瞬息` lifecycle route through legal official Vex deck submission/opening, official `OGN·180/298` target selection against a same-battlefield unit, shared high-cost spell insight recycle, stack resolution, P2 turn-start `EPHEMERAL_TURN_START` destruction, final graveyard placement, score-victory replay, and hidden-info guarded full-game helpers. Equipment-target cleanup breadth, LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, and READY are still open.
+The current Flowing Time Mirror equipment-cleanup increment additionally proves the official spell-granted `瞬息` lifecycle route through legal official Vex vs Rumble deck submission/opening, official `OGN·180/298` target selection against official `SFD·022/221` public equipment, shared high-cost spell insight recycle, stack resolution, P2 turn-start `EPHEMERAL_TURN_START` `EQUIPMENT_DESTROYED`, final graveyard placement, score-victory replay, and hidden-info guarded full-game helpers. Together with the existing unit-target replay, the Flowing Time Mirror unit/equipment B0 cleanup representatives are covered. LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, and READY are still open.
 
 The current evidence-alignment increment records already-green B0 routes that were present in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` but missing from this evidence file. Those routes cover `UNL-029/219` Crimson Signet Treant conquest repeat; `UNL-218/219` Idol Valley unit-play boon; `UNL-215/219` Meteor Spring first-unit move-other; `UNL-214/219` Ghost Bay returned-unit call-rune; `OGN·280/298` Hidden Valley held draw; `OGN·288/298` Star Peak held call-rune; `SFD·219/221` Confetti Tree held each-player call-rune; `OGN·283/298` Navori Arena held grant-boon; `OGN·275/298` Unity Sanctum held create-Minion; `OGN·281/298` Hallowed Tomb held return-hero; `OGN·293/298` Grand Plaza held seven-units win; `SFD·214/221` Energy Hub held pay-power score; `OGN·286/298` Reckoner Arena held activate-unit-conquest; and `OGN·279/298` Fortified Position defend-grant-Steadfast. Each route starts from legal official deck submission/opening or a verified opening-derived midgame state, uses server-authored prompts / commands, runs through score victory or direct match win as appropriate, and replays through `MatchActionLogReplayer` to the same final state hash with hidden-info guarded B0 helpers. This is a documentation-only evidence repair and does not close complete battlefield FU breadth, complete optional prompt breadth, complete official deck archetype breadth, or READY.
 
