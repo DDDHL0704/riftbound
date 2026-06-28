@@ -3082,10 +3082,16 @@ public static class EffectPhraseParser
             },
             BehaviorTemplateIds.Stun => spec with
             {
-                TargetScope = ResolveStunTargetScope(phrase),
+                TargetScope = ResolveUnitTargetScope(phrase),
                 StatusEffectId = phrase.Contains("眩晕", StringComparison.Ordinal)
                     ? "STUNNED"
                     : null
+            },
+            BehaviorTemplateIds.TempMight => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase) ?? ResolveUnitTargetScope(text),
+                PowerModifierAmount = ParsePowerModifierAmount(phrase),
+                ConditionKind = ResolvePowerModifierConditionKind(phrase)
             },
             _ => spec
         };
@@ -3105,12 +3111,54 @@ public static class EffectPhraseParser
         return ParseSmallChineseNumber(match.Groups["count"].Value);
     }
 
-    private static string? ResolveStunTargetScope(string phrase)
+    private static int? ParsePowerModifierAmount(string phrase)
     {
-        if (string.IsNullOrWhiteSpace(phrase)
-            || !phrase.Contains("眩晕", StringComparison.Ordinal))
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"\{\{S\}\}(?<sign>[+-])(?<amount>\d+)",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
         {
             return null;
+        }
+
+        var amount = int.Parse(match.Groups["amount"].Value, CultureInfo.InvariantCulture);
+        return string.Equals(match.Groups["sign"].Value, "-", StringComparison.Ordinal)
+            ? -amount
+            : amount;
+    }
+
+    private static string? ResolvePowerModifierConditionKind(string phrase)
+    {
+        if (phrase.Contains("进攻方", StringComparison.Ordinal))
+        {
+            return "TARGET_IS_ATTACKING";
+        }
+
+        if (phrase.Contains("防守方", StringComparison.Ordinal))
+        {
+            return "TARGET_IS_DEFENDING";
+        }
+
+        return null;
+    }
+
+    private static string? ResolveUnitTargetScope(string phrase)
+    {
+        if (string.IsNullOrWhiteSpace(phrase)
+            || !phrase.Contains("单位", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (phrase.Contains("友方战场单位", StringComparison.Ordinal))
+        {
+            return "FRIENDLY_BATTLEFIELD_UNIT";
+        }
+
+        if (phrase.Contains("友方单位", StringComparison.Ordinal))
+        {
+            return "FRIENDLY_UNIT";
         }
 
         if (phrase.Contains("敌方战场单位", StringComparison.Ordinal))
@@ -3123,15 +3171,13 @@ public static class EffectPhraseParser
             return "ENEMY_UNIT";
         }
 
-        if (phrase.Contains("进攻", StringComparison.Ordinal)
-            && phrase.Contains("单位", StringComparison.Ordinal))
+        if (phrase.Contains("进攻单位", StringComparison.Ordinal)
+            || phrase.Contains("攻击单位", StringComparison.Ordinal))
         {
             return "ATTACKING_UNIT";
         }
 
-        return phrase.Contains("单位", StringComparison.Ordinal)
-            ? "ANY_UNIT"
-            : null;
+        return "ANY_UNIT";
     }
 
     private static int? ParseSmallChineseNumber(string raw)

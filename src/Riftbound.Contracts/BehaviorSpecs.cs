@@ -559,5 +559,6 @@ public sealed record EffectPhraseSpec(
     string Reason,
     string? TargetScope = null,
     int? DrawCount = null,
+    int? PowerModifierAmount = null,
     string? StatusEffectId = null,
     string? ConditionKind = null);

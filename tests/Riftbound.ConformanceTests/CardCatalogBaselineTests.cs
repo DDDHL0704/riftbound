@@ -5755,6 +5755,34 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryCleaveTempMightPrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var cleave = specs.Single(spec => string.Equals(spec.CardNo, "OGN·004/298", StringComparison.Ordinal));
+
+        var tempMight = Assert.Single(cleave.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.TempMight, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.AnyUnit, tempMight.TargetScope);
+        Assert.Equal(3, tempMight.PowerModifierAmount);
+        Assert.Equal(CardPowerModifierConditionKinds.TargetIsAttacking, tempMight.ConditionKind);
+        Assert.Contains("{{S}}+3", tempMight.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            cleave,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-CLEAVE", "OGN·004/298", ["P1-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.TempMight, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.ModifyPowerUntilEndOfTurn, primitive.Kind);
+        Assert.Equal(3, primitive.Amount);
+        Assert.Equal(CardTargetScopes.AnyUnit, primitive.TargetScope);
+        Assert.Equal(CardPowerModifierConditionKinds.TargetIsAttacking, primitive.ConditionKind);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

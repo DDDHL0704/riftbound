@@ -185,6 +185,13 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 StatusEffectId: effect.StatusEffectId,
                 ConditionKind: effect.ConditionKind ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.TempMight when effect.PowerModifierAmount is not null and not 0 => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.TempMight,
+                BehaviorTemplatePrimitiveKinds.ModifyPowerUntilEndOfTurn,
+                effect.PowerModifierAmount.Value,
+                effect.TargetScope ?? string.Empty,
+                ConditionKind: effect.ConditionKind ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             _ => null
         };
     }
