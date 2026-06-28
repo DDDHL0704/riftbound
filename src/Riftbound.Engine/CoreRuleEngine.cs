@@ -26944,6 +26944,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(targetLocation.BattlefieldObjectId, sourceBattlefieldObjectId, StringComparison.Ordinal);
         }
 
+        if (string.Equals(
+                behavior.StandbyReactionTargetScope,
+                CardTargetScopes.FriendlyUnit,
+                StringComparison.Ordinal))
+        {
+            return IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
+                && IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
+                && IsTargetTagAllowed(state, targetObjectId, behavior)
+                && IsTargetPowerAllowed(state, targetObjectId, behavior)
+                && (!behavior.SwapsSourceWithFirstTargetLocation
+                    || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, sourceObjectId, targetObjectId));
+        }
+
         return false;
     }
 
@@ -34776,6 +34789,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
         StackItemState[]? updatedStackItems = null;
         PendingPaymentState? pendingPayment = null;
+        IReadOnlyDictionary<string, ObjectLocationState>? resolvedObjectLocations = null;
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -36401,16 +36415,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.SwapsSourceWithFirstTargetLocation
             && stackItem.TargetObjectIds.Count >= 1
-            && TrySwapTargetLocations(
+            && TrySwapTargetLocationsWithPreciseObjectLocations(
                 playerZones,
                 cardObjects,
+                state.ObjectLocations,
                 stackItem.SourceObjectId,
                 stackItem.TargetObjectIds[0],
                 out var sourceDestinationPlayerId,
                 out var sourceDestinationZone,
                 out var targetDestinationPlayerId,
-                out var targetDestinationZone))
+                out var targetDestinationZone,
+                out var sourceSwapObjectLocations))
         {
+            resolvedObjectLocations = sourceSwapObjectLocations;
             events.Add(new GameEvent(
                 "UNIT_LOCATIONS_SWAPPED",
                 $"{behavior.DisplayName}交换自身与目标单位位置",
@@ -37453,6 +37470,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             extraTurnPlayerId,
             triggerQueue,
             rngCursor,
+            ObjectLocations: resolvedObjectLocations,
             PendingPayment: pendingPayment);
     }
 
@@ -43880,6 +43898,46 @@ public sealed class CoreRuleEngine : IRuleEngine
         firstDestinationZone = secondLocation.Zone;
         secondDestinationPlayerId = firstLocation.PlayerId;
         secondDestinationZone = firstLocation.Zone;
+        return true;
+    }
+
+    private static bool TrySwapTargetLocationsWithPreciseObjectLocations(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> currentObjectLocations,
+        string firstObjectId,
+        string secondObjectId,
+        out string firstDestinationPlayerId,
+        out string firstDestinationZone,
+        out string secondDestinationPlayerId,
+        out string secondDestinationZone,
+        out IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
+    {
+        firstDestinationPlayerId = string.Empty;
+        firstDestinationZone = string.Empty;
+        secondDestinationPlayerId = string.Empty;
+        secondDestinationZone = string.Empty;
+        objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
+
+        if (!TryGetPreciseFieldLocation(playerZones, currentObjectLocations, firstObjectId, out var firstOriginLocation)
+            || !TryGetPreciseFieldLocation(playerZones, currentObjectLocations, secondObjectId, out var secondOriginLocation)
+            || !TrySwapTargetLocations(
+                playerZones,
+                cardObjects,
+                firstObjectId,
+                secondObjectId,
+                out firstDestinationPlayerId,
+                out firstDestinationZone,
+                out secondDestinationPlayerId,
+                out secondDestinationZone))
+        {
+            return false;
+        }
+
+        var nextObjectLocations = ReconcileObjectLocations(currentObjectLocations, playerZones);
+        nextObjectLocations[firstObjectId] = secondOriginLocation;
+        nextObjectLocations[secondObjectId] = firstOriginLocation;
+        objectLocations = nextObjectLocations;
         return true;
     }
 

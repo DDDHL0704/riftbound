@@ -9202,11 +9202,38 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         CardBehaviorDefinition behavior)
     {
-        if (!string.Equals(
+        if (string.Equals(
                 behavior.StandbyReactionTargetScope,
                 CardTargetScopes.EnemyUnitAtSourceBattlefield,
-                StringComparison.Ordinal)
-            || !TryResolveStandbyReactionBattlefieldContext(state, playerId, sourceObjectId, out var battlefieldObjectId))
+                StringComparison.Ordinal))
+        {
+            return RevealCardStandbyReactionEnemyUnitAtSourceBattlefieldTargetChoices(
+                state,
+                playerId,
+                sourceObjectId);
+        }
+
+        if (string.Equals(
+                behavior.StandbyReactionTargetScope,
+                CardTargetScopes.FriendlyUnit,
+                StringComparison.Ordinal))
+        {
+            return RevealCardStandbyReactionFriendlyUnitTargetChoices(
+                state,
+                playerId,
+                sourceObjectId,
+                behavior);
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> RevealCardStandbyReactionEnemyUnitAtSourceBattlefieldTargetChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!TryResolveStandbyReactionBattlefieldContext(state, playerId, sourceObjectId, out var battlefieldObjectId))
         {
             return [];
         }
@@ -9222,6 +9249,46 @@ internal static class ActionPromptBuilder
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId => ObjectChoice(state, objectId, "同一战场敌方单位"))
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> RevealCardStandbyReactionFriendlyUnitTargetChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior)
+    {
+        return PublicBoardObjects(state)
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+                && IsPromptControlledFieldObject(state, playerId, objectId)
+                && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
+                && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
+                && IsPromptTargetPowerAllowed(state, objectId, behavior)
+                && (!behavior.SwapsSourceWithFirstTargetLocation
+                    || PromptCanSwapSourceWithTargetLocation(state, sourceObjectId, objectId)))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId => ObjectChoice(state, objectId, "友方单位"))
+            .ToArray();
+    }
+
+    private static bool PromptCanSwapSourceWithTargetLocation(
+        MatchState state,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, sourceObjectId, out var sourceLocation)
+            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectId, out var targetLocation)
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        return (!string.Equals(sourceLocation.PlayerId, targetLocation.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(sourceLocation.Zone, targetLocation.Zone, StringComparison.Ordinal))
+            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, sourceLocation.PlayerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId);
     }
 
     private static bool CanRevealStandbyInBase(MatchState state, string playerId)

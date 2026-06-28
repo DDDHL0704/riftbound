@@ -4266,7 +4266,9 @@ public static class CardBehaviorRegistry
             SwapsSourceWithFirstTargetLocation: true,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "待命"),
+            SourceUnitTags: "待命",
+            StandbyReactionMaxTargetCount: 1,
+            StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit),
         new(
             "OGN·202/298",
             "金克丝",

@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 base standby reaction spell-duel and battle-response battlefield-context evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context and Tide Caller standby-reaction swap evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
