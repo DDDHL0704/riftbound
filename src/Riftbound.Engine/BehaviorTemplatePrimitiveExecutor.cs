@@ -14,6 +14,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string DrawCards = "draw-cards";
     public const string DealDamage = "deal-damage";
     public const string DestroyTarget = "destroy-target";
+    public const string BanishThenPlayTarget = "banish-then-play-target";
     public const string ApplyStatusEffect = "apply-status-effect";
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
 }
@@ -25,6 +26,8 @@ public sealed record BehaviorTemplatePrimitive(
     string TargetScope,
     string StatusEffectId = "",
     string ConditionKind = "",
+    string PlayDestinationZone = "",
+    bool IgnoreCosts = false,
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -143,6 +146,14 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 0,
                 behavior.TargetScope,
                 Reason: "Destroy target scope is supplied by the existing P2 CardBehaviorDefinition."),
+            BehaviorTemplateIds.Banish when behavior.BanishesTargetThenPlaysToBase => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Banish,
+                BehaviorTemplatePrimitiveKinds.BanishThenPlayTarget,
+                0,
+                behavior.TargetScope,
+                PlayDestinationZone: "BASE",
+                IgnoreCosts: true,
+                Reason: "Banish/play destination is supplied by the existing P2 CardBehaviorDefinition."),
             BehaviorTemplateIds.Stun when !string.IsNullOrWhiteSpace(behavior.StatusEffectId) => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Stun,
                 BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
@@ -183,6 +194,15 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 0,
                 effect.TargetScope ?? string.Empty,
                 Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Banish when effect.BanishesTarget is true
+                && !string.IsNullOrWhiteSpace(effect.PlayDestinationZone) => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.Banish,
+                    BehaviorTemplatePrimitiveKinds.BanishThenPlayTarget,
+                    0,
+                    effect.TargetScope ?? string.Empty,
+                    PlayDestinationZone: effect.PlayDestinationZone,
+                    IgnoreCosts: effect.IgnoreCosts is true,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Draw,
                 BehaviorTemplatePrimitiveKinds.DrawCards,

@@ -5617,7 +5617,9 @@ public sealed class CardCatalogBaselineTests
                 Amount = 3,
                 TargetScope = "",
                 StatusEffectId = "",
-                ConditionKind = ""
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false
             },
             new
             {
@@ -5627,7 +5629,9 @@ public sealed class CardCatalogBaselineTests
                 Amount = 2,
                 TargetScope = CardTargetScopes.BattlefieldUnit,
                 StatusEffectId = "",
-                ConditionKind = CardDamageConditionKinds.None
+                ConditionKind = CardDamageConditionKinds.None,
+                PlayDestinationZone = "",
+                IgnoreCosts = false
             },
             new
             {
@@ -5637,7 +5641,21 @@ public sealed class CardCatalogBaselineTests
                 Amount = 0,
                 TargetScope = CardTargetScopes.AnyUnit,
                 StatusEffectId = "",
-                ConditionKind = ""
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false
+            },
+            new
+            {
+                CardNo = "OGN·102/298",
+                TemplateId = BehaviorTemplateIds.Banish,
+                Kind = BehaviorTemplatePrimitiveKinds.BanishThenPlayTarget,
+                Amount = 0,
+                TargetScope = CardTargetScopes.FriendlyUnit,
+                StatusEffectId = "",
+                ConditionKind = "",
+                PlayDestinationZone = "BASE",
+                IgnoreCosts = true
             },
             new
             {
@@ -5647,7 +5665,9 @@ public sealed class CardCatalogBaselineTests
                 Amount = 0,
                 TargetScope = CardTargetScopes.AnyUnit,
                 StatusEffectId = "STUNNED",
-                ConditionKind = ""
+                ConditionKind = "",
+                PlayDestinationZone = "",
+                IgnoreCosts = false
             },
             new
             {
@@ -5657,7 +5677,9 @@ public sealed class CardCatalogBaselineTests
                 Amount = 3,
                 TargetScope = CardTargetScopes.AnyUnit,
                 StatusEffectId = "",
-                ConditionKind = CardPowerModifierConditionKinds.TargetIsAttacking
+                ConditionKind = CardPowerModifierConditionKinds.TargetIsAttacking,
+                PlayDestinationZone = "",
+                IgnoreCosts = false
             }
         };
 
@@ -5679,6 +5701,8 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(candidate.TargetScope, primitive.TargetScope);
             Assert.Equal(candidate.StatusEffectId, primitive.StatusEffectId);
             Assert.Equal(candidate.ConditionKind, primitive.ConditionKind);
+            Assert.Equal(candidate.PlayDestinationZone, primitive.PlayDestinationZone);
+            Assert.Equal(candidate.IgnoreCosts, primitive.IgnoreCosts);
             Assert.Equal(BehaviorImplementationStatuses.Implemented, plan.DelegationPlan.Status);
         }
 
@@ -5687,7 +5711,6 @@ public sealed class CardCatalogBaselineTests
             new { CardNo = "OGN·188/298", TemplateId = BehaviorTemplateIds.Recall },
             new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
             new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle },
-            new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish },
             new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon },
             new { CardNo = "SFD·202/221", TemplateId = BehaviorTemplateIds.Control }
         };
@@ -5833,6 +5856,37 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(BehaviorTemplatePrimitiveKinds.DestroyTarget, primitive.Kind);
         Assert.Equal(0, primitive.Amount);
         Assert.Equal(CardTargetScopes.AnyUnit, primitive.TargetScope);
+        Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryPortalpalRescueBanishPlayBasePrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var portalpalRescue = specs.Single(spec => string.Equals(spec.CardNo, "OGN·102/298", StringComparison.Ordinal));
+
+        var banish = Assert.Single(portalpalRescue.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Banish, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.FriendlyUnit, banish.TargetScope);
+        Assert.True(banish.BanishesTarget);
+        Assert.Equal("BASE", banish.PlayDestinationZone);
+        Assert.True(banish.IgnoreCosts);
+        Assert.Contains("放逐一名友方单位", banish.Phrase, StringComparison.Ordinal);
+        Assert.Contains("无视费用", banish.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            portalpalRescue,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-PORTALPAL-RESCUE", "OGN·102/298", ["P1-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        var primitive = Assert.Single(plan.Primitives);
+        Assert.Equal(BehaviorTemplateIds.Banish, primitive.TemplateId);
+        Assert.Equal(BehaviorTemplatePrimitiveKinds.BanishThenPlayTarget, primitive.Kind);
+        Assert.Equal(0, primitive.Amount);
+        Assert.Equal(CardTargetScopes.FriendlyUnit, primitive.TargetScope);
+        Assert.Equal("BASE", primitive.PlayDestinationZone);
+        Assert.True(primitive.IgnoreCosts);
         Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
     }
 

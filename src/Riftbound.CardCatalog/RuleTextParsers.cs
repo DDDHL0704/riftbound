@@ -3084,6 +3084,13 @@ public static class EffectPhraseParser
                 TargetScope = ResolveUnitTargetScope(phrase),
                 DestroysTarget = phrase.Contains("摧毁", StringComparison.Ordinal)
             },
+            BehaviorTemplateIds.Banish => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase),
+                BanishesTarget = phrase.Contains("放逐", StringComparison.Ordinal),
+                PlayDestinationZone = ResolvePlayDestinationZone(phrase),
+                IgnoreCosts = phrase.Contains("无视费用", StringComparison.Ordinal)
+            },
             BehaviorTemplateIds.Draw => spec with
             {
                 DrawCount = ParseDrawCount(phrase),
@@ -3163,6 +3170,21 @@ public static class EffectPhraseParser
         if (phrase.Contains("防守方", StringComparison.Ordinal))
         {
             return "TARGET_IS_DEFENDING";
+        }
+
+        return null;
+    }
+
+    private static string? ResolvePlayDestinationZone(string phrase)
+    {
+        if (phrase.Contains("基地", StringComparison.Ordinal))
+        {
+            return "BASE";
+        }
+
+        if (phrase.Contains("战场", StringComparison.Ordinal))
+        {
+            return "BATTLEFIELD";
         }
 
         return null;
