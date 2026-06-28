@@ -182,6 +182,12 @@ public sealed record CardBehaviorDefinition(
     int TargetEffectAdditionalManaCost = 0,
     int TargetEffectAdditionalPowerCost = 0,
     string TargetEffectAdditionalPowerTrait = "",
+    int StandbyReactionMaxTargetCount = 0,
+    string StandbyReactionTargetScope = "",
+    int StandbyReactionMainDeckLookCount = 0,
+    string StandbyReactionCountedTag = "",
+    int StandbyReactionDamagePerCountedCard = 0,
+    bool StandbyReactionRecyclesLookedMainDeckCards = false,
     bool ExhaustsTarget = false);
 
 public static class CardDamageConditionKinds
@@ -215,6 +221,7 @@ public static class CardTargetScopes
     public const string AttackingUnit = "ATTACKING_UNIT";
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
+    public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnit = "ENEMY_UNIT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
@@ -4551,7 +4558,13 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "待命|约德尔人"),
+            SourceUnitTags: "待命|约德尔人",
+            StandbyReactionMaxTargetCount: 1,
+            StandbyReactionTargetScope: CardTargetScopes.EnemyUnitAtSourceBattlefield,
+            StandbyReactionMainDeckLookCount: 5,
+            StandbyReactionCountedTag: CardObjectTags.Standby,
+            StandbyReactionDamagePerCountedCard: 1,
+            StandbyReactionRecyclesLookedMainDeckCards: true),
         new(
             "OGN·121a/298",
             "提莫",
@@ -4561,7 +4574,13 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "待命|约德尔人"),
+            SourceUnitTags: "待命|约德尔人",
+            StandbyReactionMaxTargetCount: 1,
+            StandbyReactionTargetScope: CardTargetScopes.EnemyUnitAtSourceBattlefield,
+            StandbyReactionMainDeckLookCount: 5,
+            StandbyReactionCountedTag: CardObjectTags.Standby,
+            StandbyReactionDamagePerCountedCard: 1,
+            StandbyReactionRecyclesLookedMainDeckCards: true),
         new(
             "OGN·139/298",
             "云丛的希思莉亚",

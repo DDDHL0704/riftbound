@@ -26579,7 +26579,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playsReactionToStack = (sourceInBase || sourceInBattlefield)
             && string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
             && string.Equals(destination, StandbyReactionDestination, StringComparison.Ordinal)
-            && targetObjectIds.Count == 0
+            && HasValidStandbyReactionTargets(
+                state,
+                intent.PlayerId,
+                behavior,
+                command.SourceObjectId,
+                sourceBattlefieldObjectId,
+                targetObjectIds)
             && paysStandbyRevealCost;
         if (!revealsInBase && !revealsAtBattlefield && !playsReactionToStack)
         {
@@ -26693,7 +26699,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 command.SourceObjectId,
                 behavior.EffectKind,
                 command.CardNo,
-                [],
+                targetObjectIds,
                 behavior.DamageAmount,
                 1,
                 optionalCosts,
@@ -26827,6 +26833,69 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         battlefieldObjectId = location.BattlefieldObjectId;
         return true;
+    }
+
+    private static bool HasValidStandbyReactionTargets(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string sourceObjectId,
+        string sourceBattlefieldObjectId,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        var maxTargetCount = Math.Max(0, behavior.StandbyReactionMaxTargetCount);
+        if (maxTargetCount == 0)
+        {
+            return targetObjectIds.Count == 0;
+        }
+
+        if (targetObjectIds.Count > maxTargetCount
+            || targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
+        {
+            return false;
+        }
+
+        if (targetObjectIds.Count == 0)
+        {
+            return true;
+        }
+
+        return targetObjectIds.All(targetObjectId => IsStandbyReactionTargetObjectInScope(
+            state,
+            playerId,
+            behavior,
+            sourceObjectId,
+            sourceBattlefieldObjectId,
+            targetObjectId));
+    }
+
+    private static bool IsStandbyReactionTargetObjectInScope(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string sourceObjectId,
+        string sourceBattlefieldObjectId,
+        string targetObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(targetObjectId)
+            || string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                behavior.StandbyReactionTargetScope,
+                CardTargetScopes.EnemyUnitAtSourceBattlefield,
+                StringComparison.Ordinal))
+        {
+            return !string.IsNullOrWhiteSpace(sourceBattlefieldObjectId)
+                && IsEnemyBattlefieldUnitObject(state, playerId, targetObjectId)
+                && state.ObjectLocations.TryGetValue(targetObjectId, out var targetLocation)
+                && string.Equals(targetLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(targetLocation.BattlefieldObjectId, sourceBattlefieldObjectId, StringComparison.Ordinal);
+        }
+
+        return false;
     }
 
     private static CardBehaviorDefinition ApplyStaticGrantedPredictLifecycleDefault(
@@ -32277,9 +32346,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 1;
         }
 
+        if (IsStandbyReactionStackItem(behavior, stackItem))
+        {
+            return Math.Max(0, behavior.StandbyReactionMaxTargetCount);
+        }
+
         return behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
             ? stackItem.TargetObjectIds.Count
             : behavior.RequiredTargetCount;
+    }
+
+    private static bool IsStandbyReactionStackItem(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem)
+    {
+        return behavior.StandbyReactionMaxTargetCount > 0
+            && stackItem.OptionalCosts.Contains(StandbyRevealOptionalCost, StringComparer.Ordinal);
     }
 
     private static bool TryBuildOptionalCostPlan(
@@ -34835,6 +34917,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 cardObjects,
                 events);
+        }
+
+        if (ShouldResolveStandbyReactionMainDeckCountedDamage(behavior, stackItem))
+        {
+            var standbyReactionResult = ResolveStandbyReactionMainDeckCountedDamage(
+                state,
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events,
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamageFromThisStackItem,
+                PreventSpellAndSkillDamageThisTurnEffectId,
+                rngCursor);
+            rngCursor = standbyReactionResult.RngCursor;
         }
 
         if (behavior.GainExperienceOnPlay > 0)
@@ -42301,6 +42399,172 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         cardObjects[targetObjectId] = targetState;
         return true;
+    }
+
+    private static bool ShouldResolveStandbyReactionMainDeckCountedDamage(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem)
+    {
+        return IsStandbyReactionStackItem(behavior, stackItem)
+            && stackItem.TargetObjectIds.Count > 0
+            && behavior.StandbyReactionMainDeckLookCount > 0
+            && !string.IsNullOrWhiteSpace(behavior.StandbyReactionCountedTag)
+            && behavior.StandbyReactionDamagePerCountedCard > 0;
+    }
+
+    private static RecycleResult ResolveStandbyReactionMainDeckCountedDamage(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events,
+        ISet<string> damageTriggeredDestroyTargetObjectIds,
+        bool preventDamage,
+        string preventionEffectId,
+        long rngCursor)
+    {
+        if (!TryParseBattlefieldDestination(stackItem.Destination, out var sourceBattlefieldObjectId)
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return new RecycleResult([], rngCursor);
+        }
+
+        var viewedCardIds = zones.MainDeck
+            .Take(behavior.StandbyReactionMainDeckLookCount)
+            .ToArray();
+        if (viewedCardIds.Length == 0)
+        {
+            return new RecycleResult([], rngCursor);
+        }
+
+        var countedCardIds = viewedCardIds
+            .Where(cardId => CardObjectHasTag(cardObjects, cardId, behavior.StandbyReactionCountedTag))
+            .ToArray();
+        var damageAmount = countedCardIds.Length * behavior.StandbyReactionDamagePerCountedCard;
+        events.Add(new GameEvent(
+            "MAIN_DECK_CARDS_REVEALED",
+            $"{behavior.DisplayName}展示主牌堆顶部 {viewedCardIds.Length} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardIds"] = viewedCardIds,
+                ["count"] = viewedCardIds.Length,
+                ["countedCardIds"] = countedCardIds,
+                ["countedTag"] = behavior.StandbyReactionCountedTag,
+                ["damageAmount"] = damageAmount
+            }));
+
+        if (damageAmount > 0)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!IsStandbyReactionResolvedTargetInScope(
+                        state,
+                        playerZones,
+                        cardObjects,
+                        stackItem.ControllerId,
+                        sourceBattlefieldObjectId,
+                        targetObjectId))
+                {
+                    continue;
+                }
+
+                var damageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    targetObjectId,
+                    damageAmount,
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamage,
+                    preventionEffectId);
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
+                    BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
+            }
+        }
+
+        if (!behavior.StandbyReactionRecyclesLookedMainDeckCards)
+        {
+            return new RecycleResult([], rngCursor);
+        }
+
+        var recycleResult = RecycleLookedMainDeckCards(
+            state,
+            playerZones,
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
+            viewedCardIds,
+            rngCursor);
+        events.AddRange(recycleResult.Events);
+        return new RecycleResult([], recycleResult.RngCursor);
+    }
+
+    private static bool IsStandbyReactionResolvedTargetInScope(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string sourceBattlefieldObjectId,
+        string targetObjectId)
+    {
+        var targetLocation = FindFieldObjectLocation(playerZones, targetObjectId);
+        return targetLocation is not null
+            && string.Equals(targetLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.Equals(targetLocation.Value.PlayerId, controllerId, StringComparison.Ordinal)
+            && IsFieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId)
+            && state.ObjectLocations.TryGetValue(targetObjectId, out var preciseLocation)
+            && string.Equals(preciseLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(preciseLocation.BattlefieldObjectId, sourceBattlefieldObjectId, StringComparison.Ordinal);
+    }
+
+    private static RecycleResult RecycleLookedMainDeckCards(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        IReadOnlyList<string> viewedCardIds,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (viewedCardIds.Count == 0
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var viewedCardIdSet = viewedCardIds.ToHashSet(StringComparer.Ordinal);
+        var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
+            viewedCardIds,
+            state.Seed,
+            rngCursor,
+            sourceObjectId);
+        if (viewedCardIds.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck
+                .Where(cardId => !viewedCardIdSet.Contains(cardId))
+                .Concat(randomizedRecycledCardIds)
+                .ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = randomizedRecycledCardIds,
+                ["count"] = randomizedRecycledCardIds.Count
+            }));
+
+        return new RecycleResult(events, rngCursor);
     }
 
     private static IReadOnlyList<string> MainDeckTargetObjectIds(

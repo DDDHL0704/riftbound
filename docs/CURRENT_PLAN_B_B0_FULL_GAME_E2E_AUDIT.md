@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 battlefield extra-standby lost-control cleanup replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 battlefield-source standby reaction target-damage evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -146,6 +146,8 @@ This battlefield extra-standby rejection replay slice also adds no runtime rule 
 This battlefield standby reveal increment adds one shared runtime rule change. `REVEAL_CARD` prompt construction and `CoreRuleEngine.ResolveRevealCard` now accept a face-down standby object located in the controller's `Battlefields` zone when its precise `ObjectLocations` entry points at a controlled public battlefield card. The server exposes a source-specific `BATTLEFIELD:<battlefieldObjectId>` destination, flips the object face-up in place during the open main-phase `STANDBY_REVEAL` path, preserves the precise battlefield location, and keeps the stack empty. The focused regressions cover prompt source/destination metadata and command resolution for official standby cards; this increment covers the open main-phase reveal path only.
 
 This battlefield standby reaction increment adds the next shared runtime rule change. In a closed main-phase priority window with a pending stack item, `REVEAL_CARD` prompt construction now exposes controlled face-down battlefield standby sources alongside base standby sources, with immediate destination `STACK`. `CoreRuleEngine.ResolveRevealCard` accepts either base or battlefield standby sources for `STANDBY_REACTION`; when the source came from a battlefield standby area it removes that object from `PlayerZones.Battlefields` while on the stack, stores `BATTLEFIELD:<battlefieldObjectId>` on the new `StackItemState.Destination`, and the existing stack-resolution play-unit path returns the source to that precise battlefield as `UNIT_PLAYED_TO_BATTLEFIELD`. Focused regressions cover prompt source metadata, stack item destination, on-stack location, double-pass stack resolution, and precise battlefield return. This increment still does not close illegal/lost-control standby cleanup breadth, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
+
+This battlefield-source standby reaction target-damage increment adds a shared runtime rule change for official `OGN·121/298` / `OGN·121a/298` Teemo's unambiguous "this battlefield" route. `CardBehaviorDefinition` now carries standby-reaction target count, target scope, main-deck look count, counted tag, per-card damage and recycle behavior; `REVEAL_CARD` prompt metadata exposes only same-battlefield enemy unit choices for a face-down battlefield standby source. Stack resolution reveals the controller's top five main-deck cards, counts cards tagged `待命`, deals that count as damage to still-legal same-battlefield enemy unit targets, then recycles the looked cards to the bottom of the main deck. Focused regressions cover prompt target metadata, target persistence on the stack, dynamic damage amount, recycle events, and precise battlefield return. This increment still does not close base standby reaction current-battlefield context, defend-trigger timing, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
 
 This battlefield extra-standby lost-control cleanup replay slice adds no runtime rule changes. It extends the seated official Poppy / Bandle Tree evidence from successful battlefield hide and battlefield standby reaction into the cleanup family: the focused state is derived from a legal official opening, keeps Pakaa Cub face-down at Bandle Tree, then lets P2's Wildclaw Beastmaster conquer the battlefield from P1's Demacia Envoy. The route observes `BATTLEFIELD_CONQUERED`, `BATTLEFIELD_CONTROL_RESOLVED` with P1 -> P2, and `BATTLEFIELD_STANDBY_REMOVED` moving Pakaa Cub to P1 graveyard face-up before the same journal continues through score victory and final-state replay. This closes one representative lost-control battlefield-standby cleanup route; complete illegal/lost-control cleanup breadth, all standby replacement-cost branches, all standby card effects, complete B0, and READY remain open.
 
@@ -344,9 +346,9 @@ This prevent move-to-base increment additionally proves a legal official Vex dec
 
 This prevent unit-play increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven battlefield static restriction into server-authored `PLAY_CARD` destination filtering, reject a direct unit play to that battlefield before payment / stack mutation, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close complete play destination policy, complete timing-window breadth, complete battlefield lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
-This extra-standby rejection increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` guard into server-authored `HIDE_CARD` destination filtering, reject a direct hand-written battlefield standby destination when the player does not control Bandle Tree, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close battlefield standby reaction / cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
+This extra-standby rejection increment additionally proves a legal official Poppy deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` guard into server-authored `HIDE_CARD` destination filtering, reject a direct hand-written battlefield standby destination when the player does not control Bandle Tree, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close base standby reaction current-battlefield context, defend-trigger timing, remaining battlefield standby cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
-This battlefield standby reveal increment additionally proves the shared standby reveal prompt and resolver no longer assume all revealable standby sources live in base. It still does not close battlefield standby reaction-to-stack return semantics, illegal/lost-control standby cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
+This battlefield standby reveal increment additionally proves the shared standby reveal prompt and resolver no longer assume all revealable standby sources live in base. The follow-up battlefield-source Teemo target-damage increment additionally proves the same source-location context can drive same-battlefield target choice, top-five main-deck reveal/count, damage, and recycle through stack resolution. It still does not close base standby reaction current-battlefield context, defend-trigger timing, illegal/lost-control standby cleanup breadth, all standby replacement costs, complete hidden-information matrix, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
 This Poro Forge rejection increment additionally proves a legal official Rumble deck opening can carry the BehaviorSpec-driven `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT` guard into server-authored `LEGEND_ACT` prompt filtering, reject a direct battlefield-granted legend action when the player does not control Poro Forge, journal and replay that rejected command, then continue through score victory and final-state replay. It still does not close full activated ability modeling for granted abilities, complete armament attachment lifecycle breadth, complete battlefield FUs, complete official deck archetype breadth, or READY.
 
@@ -354,10 +356,58 @@ Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions 
 
 Open follow-up:
 
-- broaden standby-heavy coverage beyond the Teemo stack-reaction representative into targeted standby reactions, battlefield standby reaction / cleanup branches, and non-ready-base cleanup branches.
+- broaden standby-heavy coverage beyond the battlefield-source Teemo targeted stack-reaction representative into base-reaction current-battlefield context, defend-trigger timing, other standby reactions, remaining battlefield standby cleanup branches, and non-ready-base cleanup branches.
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest battlefield-source standby reaction target-damage focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~P4RevealCardCommandBattlefieldStandbyReactionTargetDamageCountsTopFiveStandbyCards|FullyQualifiedName~ActionPromptRevealCardMetadataExposesBattlefieldStandbyReactionTargets|FullyQualifiedName~P4StandbyTargetContextGuardsCoverBaseRevealAndBaseReactionBranches|FullyQualifiedName~P4RevealCardCommandRejectsBaseReactionTargetWithoutSourceBattlefieldContext|FullyQualifiedName~P4RevealCardCommandRejectsBaseRevealTargetsWithoutSourceBattlefieldContext"
+```
+
+Result:
+
+```text
+Passed: 6, Failed: 0, Skipped: 0, Total: 6
+```
+
+Latest battlefield-source standby reaction target-damage adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RevealCard|FullyQualifiedName~StandbyReaction|FullyQualifiedName~ActionPrompt"
+```
+
+Result:
+
+```text
+Passed: 131, Failed: 0, Skipped: 0, Total: 131
+```
+
+Latest battlefield-source standby reaction target-damage hidden-info / recovery adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~RevealCard|FullyQualifiedName~StandbyReaction|FullyQualifiedName~ActionPrompt|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2120, Failed: 0, Skipped: 0, Total: 2120
+```
+
+Latest battlefield-source standby reaction target-damage backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8893, Failed: 0, Skipped: 0, Total: 8893
+```
 
 Latest battlefield standby reveal focused validation passed:
 

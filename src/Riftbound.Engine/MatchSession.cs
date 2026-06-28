@@ -6653,6 +6653,10 @@ internal static class ActionPromptBuilder
         string ModeLabel,
         IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
+        int MinTargetCount,
+        int MaxTargetCount,
+        string TargetScope,
         IReadOnlyList<string> RequiredOptionalCosts,
         bool Composable,
         string? UnsupportedReason);
@@ -9044,6 +9048,7 @@ internal static class ActionPromptBuilder
             {
                 AddRevealCardSourceRequirement(
                     state,
+                    playerId,
                     objectId,
                     StandbyRevealMode,
                     StandbyRevealModeLabel,
@@ -9062,6 +9067,7 @@ internal static class ActionPromptBuilder
 
                 AddRevealCardSourceRequirement(
                     state,
+                    playerId,
                     objectId,
                     StandbyRevealMode,
                     StandbyRevealModeLabel,
@@ -9077,6 +9083,7 @@ internal static class ActionPromptBuilder
             {
                 AddRevealCardSourceRequirement(
                     state,
+                    playerId,
                     objectId,
                     StandbyReactionMode,
                     StandbyReactionModeLabel,
@@ -9095,6 +9102,7 @@ internal static class ActionPromptBuilder
 
                 AddRevealCardSourceRequirement(
                     state,
+                    playerId,
                     objectId,
                     StandbyReactionMode,
                     StandbyReactionModeLabel,
@@ -9110,6 +9118,7 @@ internal static class ActionPromptBuilder
 
     private static void AddRevealCardSourceRequirement(
         MatchState state,
+        string playerId,
         string objectId,
         string mode,
         string modeLabel,
@@ -9125,6 +9134,15 @@ internal static class ActionPromptBuilder
             return;
         }
 
+        var maxTargetCount = RevealCardMaxTargetCountForMode(behavior, mode);
+        var targetScope = maxTargetCount > 0 ? behavior.StandbyReactionTargetScope : string.Empty;
+        var targetChoicesByIndex = RevealCardTargetChoicesByIndex(
+            state,
+            playerId,
+            objectId,
+            behavior,
+            mode,
+            maxTargetCount);
         requirements.Add(new RevealCardPromptRequirement(
             objectId,
             behavior.CardNo,
@@ -9133,9 +9151,77 @@ internal static class ActionPromptBuilder
             modeLabel,
             [new ActionPromptChoiceDto(destination, destinationLabel, "服务端待命翻开目的地")],
             [new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)],
+            targetChoicesByIndex,
+            0,
+            maxTargetCount,
+            targetScope,
             [StandbyRevealOptionalCost],
             true,
             null));
+    }
+
+    private static int RevealCardMaxTargetCountForMode(
+        CardBehaviorDefinition behavior,
+        string mode)
+    {
+        return string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
+            ? Math.Max(0, behavior.StandbyReactionMaxTargetCount)
+            : 0;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> RevealCardTargetChoicesByIndex(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior,
+        string mode,
+        int maxTargetCount)
+    {
+        if (maxTargetCount <= 0
+            || !string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal))
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        var choicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        for (var targetIndex = 0; targetIndex < maxTargetCount; targetIndex++)
+        {
+            choicesByIndex[targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture)] = RevealCardStandbyReactionTargetChoices(
+                state,
+                playerId,
+                sourceObjectId,
+                behavior);
+        }
+
+        return choicesByIndex;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> RevealCardStandbyReactionTargetChoices(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!string.Equals(
+                behavior.StandbyReactionTargetScope,
+                CardTargetScopes.EnemyUnitAtSourceBattlefield,
+                StringComparison.Ordinal)
+            || !TryResolveBattlefieldStandbyRevealDestination(state, playerId, sourceObjectId, out var battlefieldObjectId))
+        {
+            return [];
+        }
+
+        return state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+                && !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && IsPromptEnemyBattlefieldObject(state, playerId, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId => ObjectChoice(state, objectId, "同一战场敌方单位"))
+            .ToArray();
     }
 
     private static bool CanRevealStandbyInBase(MatchState state, string playerId)
@@ -13362,6 +13448,12 @@ internal static class ActionPromptBuilder
                 .GroupBy(choice => choice.Id, StringComparer.Ordinal)
                 .Select(group => group.First())
                 .ToArray(),
+            "REVEAL_CARD" => RevealCardSourceRequirements(state, playerId)
+                .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
+                .SelectMany(choices => choices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
+                .ToArray(),
             "DECLARE_BATTLE" => DeclareBattleSourceRequirements(state, playerId)
                 .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
                 .SelectMany(choices => choices)
@@ -15913,6 +16005,10 @@ internal static class ActionPromptBuilder
             ["modeLabel"] = requirement.ModeLabel,
             ["destinationChoices"] = requirement.DestinationChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
+            ["minTargetCount"] = requirement.MinTargetCount,
+            ["maxTargetCount"] = requirement.MaxTargetCount,
+            ["targetScope"] = requirement.TargetScope,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason

@@ -52739,7 +52739,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandRejectsTargetsUntilStandbyDamageExists()
+    public async Task P4RevealCardCommandRejectsBaseRevealTargetsWithoutSourceBattlefieldContext()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -52797,7 +52797,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandTargetRejectionFixture()
+    public async Task P4RevealCardCommandBaseRevealTargetContextGuardFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-target-rejected.fixture.json"),
@@ -53775,7 +53775,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandRejectsReactionTargetsUntilStandbyDamageExists()
+    public async Task P4RevealCardCommandRejectsBaseReactionTargetWithoutSourceBattlefieldContext()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -53845,7 +53845,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandReactionTargetRejectionFixture()
+    public async Task P4RevealCardCommandBaseReactionTargetContextGuardFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-reaction-target-rejected.fixture.json"),
@@ -53876,7 +53876,7 @@ public sealed class ConformanceFixtureRunnerTests
         "p4-reveal-card-standby-reaction-target-rejected",
         "P4.324",
         "STACK-0-P2-SPELL-PROBE")]
-    public async Task P4StandbyTargetDamageDeferredFixturesCoverRevealAndReactionBranches(
+    public async Task P4StandbyTargetContextGuardsCoverBaseRevealAndBaseReactionBranches(
         string fixtureFileName,
         string expectedFixtureId,
         string expectedAuditMarker,
@@ -54151,6 +54151,167 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(p2PassResult.State.CardObjects[sourceObjectId].IsFaceDown);
         Assert.Equal("OGN·121/298", p2PassResult.State.CardObjects[sourceObjectId].CardNo);
         Assert.Equal(["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_PLAYED_TO_BATTLEFIELD"], p2PassResult.Events.Select(evt => evt.Kind));
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandBattlefieldStandbyReactionTargetDamageCountsTopFiveStandbyCards()
+    {
+        const string battlefieldObjectId = "P1-BATTLEFIELD-BANDLE-TREE";
+        const string sourceObjectId = "P1-FACEDOWN-BATTLEFIELD-OGN-TEEMO";
+        const string targetObjectId = "P2-SAME-BATTLEFIELD-UNIT";
+        string[] topFive =
+        [
+            "P1-MAIN-STANDBY-001",
+            "P1-MAIN-NON-STANDBY-001",
+            "P1-MAIN-STANDBY-002",
+            "P1-MAIN-NON-STANDBY-002",
+            "P1-MAIN-STANDBY-003"
+        ];
+        var state = PunishmentState(mana: 0) with
+        {
+            Seed = 260330121,
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = [.. topFive, "P1-MAIN-BOTTOM"],
+                    Battlefields = [battlefieldObjectId, sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [targetObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    isFaceDown: true,
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [targetObjectId] = new(
+                    targetObjectId,
+                    cardNo: "SFD·125/221",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-MAIN-STANDBY-001"] = new(
+                    "P1-MAIN-STANDBY-001",
+                    cardNo: "OGN·121/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-STANDBY-002"] = new(
+                    "P1-MAIN-STANDBY-002",
+                    cardNo: "OGN·199/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-STANDBY-003"] = new(
+                    "P1-MAIN-STANDBY-003",
+                    cardNo: "OGN·121a/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-NON-STANDBY-001"] = new(
+                    "P1-MAIN-NON-STANDBY-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-NON-STANDBY-002"] = new(
+                    "P1-MAIN-NON-STANDBY-002",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-BOTTOM"] = new(
+                    "P1-MAIN-BOTTOM",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
+                [sourceObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
+                [targetObjectId] = new("P2", "BATTLEFIELD", battlefieldObjectId)
+            }
+        };
+
+        var engine = new CoreRuleEngine();
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-battlefield-reaction-target-stack", "P1", CommandTypes.RevealCard),
+            new RevealCardCommand(
+                sourceObjectId,
+                "OGN·121/298",
+                [targetObjectId],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal([battlefieldObjectId], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.State.CardObjects[targetObjectId].Damage);
+
+        var standbyStackItem = result.State.StackItems[1];
+        Assert.Equal([targetObjectId], standbyStackItem.TargetObjectIds);
+        Assert.Equal(0, standbyStackItem.DamageAmount);
+        Assert.Equal($"BATTLEFIELD:{battlefieldObjectId}", standbyStackItem.Destination);
+
+        var p1PassResult = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p4-reveal-card-battlefield-reaction-target-stack-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1PassResult.Accepted, p1PassResult.ErrorMessage);
+
+        var p2PassResult = await engine.ResolveAsync(
+            p1PassResult.State,
+            new PlayerIntent("intent-p4-reveal-card-battlefield-reaction-target-stack-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2PassResult.Accepted, p2PassResult.ErrorMessage);
+        Assert.Equal(3, p2PassResult.State.CardObjects[targetObjectId].Damage);
+        Assert.Equal([battlefieldObjectId, sourceObjectId], p2PassResult.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1-MAIN-BOTTOM", p2PassResult.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal(
+            topFive.OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray(),
+            p2PassResult.State.PlayerZones["P1"].MainDeck.Skip(1).OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray());
+        Assert.Contains(p2PassResult.Events, evt => string.Equals(evt.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && Equals(evt.Payload["targetObjectId"], targetObjectId)
+            && Equals(evt.Payload["damage"], 3));
+        Assert.Contains(p2PassResult.Events, evt => string.Equals(evt.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && Equals(evt.Payload["sourceObjectId"], sourceObjectId)
+            && Equals(evt.Payload["count"], 5));
     }
 
     [Fact]

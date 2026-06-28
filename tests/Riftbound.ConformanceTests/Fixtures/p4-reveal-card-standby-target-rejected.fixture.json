@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-reveal-card-standby-target-rejected",
-  "description": "P4 rejects Standby reveal with targets until the target damage branch is implemented.",
+  "description": "P4 rejects base Standby reveal with targets when the source has no battlefield context.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,12 +12,12 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·121/298 提莫",
-      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。本 fixture 只覆盖 P4 当前 REVEAL_CARD 显露入口在目标伤害分支尚未接入时显式拒绝带目标命令。"
+      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。本 fixture 只覆盖基地正面朝下待命来源携带目标的开放显露 guard：来源没有“此战场”上下文，因此仍显式拒绝。战场待命来源的同战场目标伤害另由 direct regression 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "P4.321 锁定待命显露目标分支边界：当前只允许无目标基地显露/无目标反应入栈；拒绝时不翻开对象、不伤害目标、不创建结算链。"
+      "note": "P4.321 锁定基地待命显露目标上下文边界：base 来源没有可解析的“此战场”，拒绝时不翻开对象、不伤害目标、不创建结算链。"
     }
   ],
   "roomId": "p4-reveal-card-standby-target-rejected-room",
