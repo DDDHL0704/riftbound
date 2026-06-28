@@ -5693,6 +5693,10 @@ public sealed class ConformanceFixtureShapeTests
                         "P1-FACE-DOWN-OPPONENT-CONTROLLED",
                         "P1-FACE-UP-STANDBY",
                         "P1-FACE-DOWN-NON-STANDBY"
+                    ],
+                    Battlefields = [
+                        "P1-BATTLEFIELD-BANDLE-TREE",
+                        "P1-FACE-DOWN-BATTLEFIELD-STANDBY"
                     ]
                 },
                 ["P2"] = PlayerZones.Empty
@@ -5737,7 +5741,26 @@ public sealed class ConformanceFixtureShapeTests
                     cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
+                    "P1-BATTLEFIELD-BANDLE-TREE",
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACE-DOWN-BATTLEFIELD-STANDBY"] = new(
+                    "P1-FACE-DOWN-BATTLEFIELD-STANDBY",
+                    isFaceDown: true,
+                    power: 1,
+                    cardNo: "OGN·197/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
                     controllerId: "P1")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BANDLE-TREE"),
+                ["P1-FACE-DOWN-BATTLEFIELD-STANDBY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BANDLE-TREE")
             });
 
         var openPrompt = ResolutionResult.BuildPrompts(openState)["P1"];
@@ -5746,14 +5769,25 @@ public sealed class ConformanceFixtureShapeTests
             candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
         Assert.True(openRevealCandidate.Enabled);
         Assert.Equal("翻开待命", openRevealCandidate.Label);
-        Assert.Equal(["P1-FACE-DOWN-STANDBY"], (openRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
+            (openRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         Assert.Equal(["STANDBY_REVEAL"], (openRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
-        Assert.Equal(["BASE"], (openRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        Assert.Equal(
+            ["BASE", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            (openRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
         Assert.Equal(["STANDBY_REVEAL_0"], (openRevealCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
 
         var openMetadata = Assert.IsType<Dictionary<string, object?>>(openRevealCandidate.Metadata);
-        var openRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            openMetadata["sourceRequirements"]));
+        var openRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            openMetadata["sourceRequirements"]).ToArray();
+        Assert.Equal(2, openRequirements.Length);
+        var openRequirement = Assert.Single(
+            openRequirements,
+            requirement => string.Equals(
+                requirement["sourceObjectId"] as string,
+                "P1-FACE-DOWN-STANDBY",
+                StringComparison.Ordinal));
         Assert.Equal("P1-FACE-DOWN-STANDBY", Assert.IsType<string>(openRequirement["sourceObjectId"]));
         Assert.Equal("OGN·197/298", Assert.IsType<string>(openRequirement["cardNo"]));
         Assert.Equal("STANDBY_REVEAL", Assert.IsType<string>(openRequirement["mode"]));
@@ -5772,6 +5806,19 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(
             ["STANDBY_REVEAL_0"],
             Assert.IsAssignableFrom<IEnumerable<string>>(openRequirement["requiredOptionalCosts"]).ToArray());
+        var battlefieldRequirement = Assert.Single(
+            openRequirements,
+            requirement => string.Equals(
+                requirement["sourceObjectId"] as string,
+                "P1-FACE-DOWN-BATTLEFIELD-STANDBY",
+                StringComparison.Ordinal));
+        Assert.Equal("OGN·197/298", Assert.IsType<string>(battlefieldRequirement["cardNo"]));
+        Assert.Equal("STANDBY_REVEAL", Assert.IsType<string>(battlefieldRequirement["mode"]));
+        Assert.Equal(
+            ["BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(battlefieldRequirement["destinationChoices"])
+                .Select(destination => destination.Id)
+                .ToArray());
 
         var closedWithoutStackState = openState with
         {

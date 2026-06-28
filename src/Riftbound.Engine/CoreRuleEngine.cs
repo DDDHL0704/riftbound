@@ -26530,32 +26530,58 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
-        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones))
         {
             return RejectWithCorePrompts(
                 state,
-                "待命翻开只能选择自己基地中的待命牌。",
+                "待命翻开只能选择自己的待命牌。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var sourceInBase = zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal);
+        var sourceInBattlefield = TryResolveBattlefieldStandbyRevealDestination(
+            state,
+            zones,
+            intent.PlayerId,
+            command.SourceObjectId,
+            out var sourceBattlefieldObjectId);
+        if (!sourceInBase && !sourceInBattlefield)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "待命翻开只能选择自己基地或战场待命区中的待命牌。",
                 ErrorCodes.InvalidTarget);
         }
 
         var mode = string.IsNullOrWhiteSpace(command.Mode) ? StandbyRevealMode : command.Mode.Trim();
+        var battlefieldRevealDestination = sourceInBattlefield
+            ? $"BATTLEFIELD:{sourceBattlefieldObjectId}"
+            : string.Empty;
         var destination = string.IsNullOrWhiteSpace(command.Destination)
-            ? StandbyRevealDestination
+            ? sourceInBattlefield && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
+                ? battlefieldRevealDestination
+                : StandbyRevealDestination
             : command.Destination.Trim();
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
         var paysStandbyRevealCost = optionalCosts.Count == 1
             && string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal);
-        var revealsInBase = string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
+        var revealsInBase = sourceInBase
+            && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
             && string.Equals(destination, StandbyRevealDestination, StringComparison.Ordinal)
             && targetObjectIds.Count == 0
             && paysStandbyRevealCost;
-        var playsReactionToStack = string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
+        var revealsAtBattlefield = sourceInBattlefield
+            && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
+            && string.Equals(destination, battlefieldRevealDestination, StringComparison.Ordinal)
+            && targetObjectIds.Count == 0
+            && paysStandbyRevealCost;
+        var playsReactionToStack = sourceInBase
+            && string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
             && string.Equals(destination, StandbyReactionDestination, StringComparison.Ordinal)
             && targetObjectIds.Count == 0
             && paysStandbyRevealCost;
-        if (!revealsInBase && !playsReactionToStack)
+        if (!revealsInBase && !revealsAtBattlefield && !playsReactionToStack)
         {
             return RejectWithCorePrompts(
                 state,
@@ -26563,7 +26589,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
-        if (revealsInBase
+        if ((revealsInBase || revealsAtBattlefield)
             && (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
                 || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
                 || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -26771,6 +26797,30 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool TryResolveBattlefieldStandbyRevealDestination(
+        MatchState state,
+        PlayerZones zones,
+        string playerId,
+        string sourceObjectId,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        if (!zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            || !state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            || !zones.Battlefields.Contains(location.BattlefieldObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(location.BattlefieldObjectId, out var battlefieldObject)
+            || !battlefieldObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldObject, playerId))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = location.BattlefieldObjectId;
+        return true;
     }
 
     private static CardBehaviorDefinition ApplyStaticGrantedPredictLifecycleDefault(

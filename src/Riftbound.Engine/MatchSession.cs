@@ -9037,43 +9037,87 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        var mode = canPlayReaction ? StandbyReactionMode : StandbyRevealMode;
-        var modeLabel = canPlayReaction ? StandbyReactionModeLabel : StandbyRevealModeLabel;
-        var destination = canPlayReaction ? StandbyReactionDestination : StandbyRevealDestination;
-        var destinationLabel = canPlayReaction ? "结算链" : "基地";
-        var optionalCostLabel = canPlayReaction ? "支付 0 作为反应打出" : "支付 0 翻开待命";
-        var destinationChoices = new[]
-        {
-            new ActionPromptChoiceDto(destination, destinationLabel, "服务端待命翻开目的地")
-        };
-        var optionalCostChoices = new[]
-        {
-            new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)
-        };
         var requirements = new List<RevealCardPromptRequirement>();
-        foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
+        if (canRevealInBase)
         {
-            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-                || string.IsNullOrWhiteSpace(cardObject.CardNo)
-                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
+            foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
             {
-                continue;
+                AddRevealCardSourceRequirement(
+                    state,
+                    objectId,
+                    StandbyRevealMode,
+                    StandbyRevealModeLabel,
+                    StandbyRevealDestination,
+                    "基地",
+                    "支付 0 翻开待命",
+                    requirements);
             }
 
-            requirements.Add(new RevealCardPromptRequirement(
-                objectId,
-                behavior.CardNo,
-                behavior.DisplayName,
-                mode,
-                modeLabel,
-                destinationChoices,
-                optionalCostChoices,
-                [StandbyRevealOptionalCost],
-                true,
-                null));
+            foreach (var objectId in zones.Battlefields.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
+            {
+                if (!TryResolveBattlefieldStandbyRevealDestination(state, playerId, objectId, out var battlefieldObjectId))
+                {
+                    continue;
+                }
+
+                AddRevealCardSourceRequirement(
+                    state,
+                    objectId,
+                    StandbyRevealMode,
+                    StandbyRevealModeLabel,
+                    $"BATTLEFIELD:{battlefieldObjectId}",
+                    "当前战场",
+                    "支付 0 翻开战场待命",
+                    requirements);
+            }
+        }
+        else if (canPlayReaction)
+        {
+            foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
+            {
+                AddRevealCardSourceRequirement(
+                    state,
+                    objectId,
+                    StandbyReactionMode,
+                    StandbyReactionModeLabel,
+                    StandbyReactionDestination,
+                    "结算链",
+                    "支付 0 作为反应打出",
+                    requirements);
+            }
         }
 
         return requirements;
+    }
+
+    private static void AddRevealCardSourceRequirement(
+        MatchState state,
+        string objectId,
+        string mode,
+        string modeLabel,
+        string destination,
+        string destinationLabel,
+        string optionalCostLabel,
+        List<RevealCardPromptRequirement> requirements)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
+        {
+            return;
+        }
+
+        requirements.Add(new RevealCardPromptRequirement(
+            objectId,
+            behavior.CardNo,
+            behavior.DisplayName,
+            mode,
+            modeLabel,
+            [new ActionPromptChoiceDto(destination, destinationLabel, "服务端待命翻开目的地")],
+            [new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)],
+            [StandbyRevealOptionalCost],
+            true,
+            null));
     }
 
     private static bool CanRevealStandbyInBase(MatchState state, string playerId)
@@ -9105,6 +9149,29 @@ internal static class ActionPromptBuilder
 
         return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);
+    }
+
+    private static bool TryResolveBattlefieldStandbyRevealDestination(
+        MatchState state,
+        string playerId,
+        string objectId,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        if (!state.ObjectLocations.TryGetValue(objectId, out var location)
+            || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(location.BattlefieldObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(location.BattlefieldObjectId, out var battlefieldObject)
+            || !battlefieldObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldObject, playerId))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = location.BattlefieldObjectId;
+        return true;
     }
 
     private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(

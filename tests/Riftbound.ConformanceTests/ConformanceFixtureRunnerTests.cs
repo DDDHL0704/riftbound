@@ -51726,6 +51726,82 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandRevealsStandbyCardAtBattlefield()
+    {
+        const string battlefieldObjectId = "P1-BATTLEFIELD-BANDLE-TREE";
+        const string sourceObjectId = "P1-FACEDOWN-BATTLEFIELD-OGN-TEEMO";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    isFaceDown: true,
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
+                [sourceObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-battlefield", "P1", CommandTypes.RevealCard),
+            new RevealCardCommand(
+                sourceObjectId,
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REVEAL",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: $"BATTLEFIELD:{battlefieldObjectId}"),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal([battlefieldObjectId, sourceObjectId], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+        var sourceLocation = result.State.ObjectLocations[sourceObjectId];
+        Assert.Equal("BATTLEFIELD", sourceLocation.Zone);
+        Assert.Equal(battlefieldObjectId, sourceLocation.BattlefieldObjectId);
+
+        var revealedCard = result.State.CardObjects[sourceObjectId];
+        Assert.False(revealedCard.IsFaceDown);
+        Assert.Equal(2, revealedCard.Power);
+        Assert.Equal(2, revealedCard.ManaCost);
+        Assert.Equal("OGN·121/298", revealedCard.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], revealedCard.Tags);
+
+        var revealEvent = Assert.Single(result.Events);
+        Assert.Equal("CARD_REVEALED", revealEvent.Kind);
+        Assert.Equal("OGN·121/298", revealEvent.Payload["cardNo"]);
+        Assert.Equal("STANDBY_REVEAL", revealEvent.Payload["mode"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldObjectId}", revealEvent.Payload["destination"]);
+        Assert.False(Assert.IsType<bool>(revealEvent.Payload["isFaceDown"]));
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandRejectsAcceptedBaseReplayWithoutMutation()
     {
         const string sourceObjectId = "P1-FACEDOWN-OGN-TEEMO";
@@ -52543,7 +52619,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("待命翻开只能选择自己基地中的待命牌。", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择自己基地或战场待命区中的待命牌。", result.ErrorMessage);
         Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
@@ -53484,7 +53560,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("待命翻开只能选择自己基地中的待命牌。", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择自己基地或战场待命区中的待命牌。", result.ErrorMessage);
         Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
