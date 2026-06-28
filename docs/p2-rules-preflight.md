@@ -435,7 +435,7 @@
 - `p2-preflight-play-guerrilla-warfare-return-standby-graveyard.fixture.json` 已验证《游击战》选择己方废牌堆最多两张带 `待命` 对象标签的牌，结算时将这些目标移回手牌，并在 P4.72 结算后授予 `FREE_STANDBY_HIDE:{playerId}` 本回合免费待命暗置权限；P4.102 已补非待命目标拒绝 fixture，待命翻开反应/触发仍暂缓。
 - `p2-preflight-play-call-of-the-shadows-give-ephemeral-draw.fixture.json` 已验证《暗影的召唤》选择未拥有 `瞬息` 标签的友方单位，结算时给予该单位 `瞬息` 对象标签并抽 2 张牌；已有 `瞬息` 目标由直接拒绝测试覆盖，开始阶段摧毁瞬息单位暂缓到关键词清理模型。
 - `p2-preflight-play-deadly-flourish-enemy-unit-damage.fixture.json` 已验证《致命华彩》选择一名敌方单位并造成 3 点非致命伤害；P4.111 以 `p4-play-deadly-flourish-friendly-target-rejected.fixture.json` 覆盖友方单位目标拒绝，本回合摧毁后的休眠“金币”装备指示物触发暂缓到装备指示物和延迟触发模型。
-- `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral.fixture.json` 与 `p2-preflight-play-flowing-time-mirror-equipment-ephemeral.fixture.json` 已验证《逝水如镜》选择一名战场单位或一件装备并给予 `瞬息` 对象标签；基地单位目标由直接拒绝测试覆盖，下个回合开始阶段摧毁瞬息对象暂缓到关键词清理模型。
+- `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral.fixture.json` 与 `p2-preflight-play-flowing-time-mirror-equipment-ephemeral.fixture.json` 已验证《逝水如镜》选择一名战场单位或一件装备并给予 `瞬息` 对象标签；基地单位目标由直接拒绝测试覆盖。2026-06-28 Plan B B0 已用 Lost Library official-deck replay 覆盖战场单位目标在其控制者下个开始阶段以 `EPHEMERAL_TURN_START` 摧毁；装备目标开始阶段清理仍待覆盖。
 - `p2-preflight-play-ashes-to-ashes-equipment-ephemeral.fixture.json` 已验证《化为灰烬》选择一件场上装备并给予 `瞬息` 对象标签；单位目标由直接拒绝测试覆盖，开始阶段摧毁瞬息对象暂缓到关键词清理模型。
 - `p2-preflight-play-sigil-burst-destroy-equipment-draw.fixture.json` 已验证《印爆术》选择一件场上装备并摧毁，然后让该装备控制者抽 2 张牌；单位目标由直接拒绝测试覆盖，装备摧毁不会写入本回合单位摧毁记忆。
 - `p2-preflight-play-back-against-wall-double-power-ephemeral.fixture.json` 已验证《背水一战》选择一名友方单位，使其本回合内按当前战力翻倍并获得 `瞬息` 对象标签；敌方单位目标由直接拒绝测试覆盖，迅捷时机和下个回合开始阶段摧毁瞬息单位暂缓。
@@ -780,7 +780,7 @@ P1 的 `TURN_ENDED`、`TURN_BEGAN`、`RUNE_CHANNELLED`、`CARD_DRAWN` 仍保留�
 | `p2-preflight-play-guerrilla-warfare-return-standby-graveyard` | P1 打出官方专属法术《游击战》，选择己方废牌堆两张待命牌 | 支付 2 点费用，选择 0-2 张己方废牌堆中带 `待命` 标签的牌；双方让过后将所选牌返回手牌，并授予本回合 `FREE_STANDBY_HIDE:{playerId}` 免费待命暗置权限。P4.102 已补非待命目标拒绝 fixture，待命翻开反应/触发仍暂缓。 | `CATALOG` OGN·264/298; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356; p92-p105 keyword rules 800+ |
 | `p2-preflight-play-call-of-the-shadows-give-ephemeral-draw` | P1 打出官方法术《暗影的召唤》，选择友方非瞬息单位 | 支付 2 点费用，目标必须是未带 `瞬息` 标签的友方单位；双方让过后给予该单位 `瞬息` 对象标签并抽 2 张牌。已有 `瞬息` 目标由直接拒绝测试覆盖，开始阶段摧毁瞬息单位暂缓。 | `CATALOG` UNL-165/219; `CORE-260330` p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+ |
 | `p2-preflight-play-deadly-flourish-enemy-unit-damage` | P1 打出官方法术《致命华彩》，选择敌方单位 | 支付 4 点费用，目标必须是一名敌方单位；双方让过后造成 3 点非致命伤害。P4.111 已补友方单位目标拒绝 fixture，本回合摧毁后的休眠“金币”装备指示物触发暂缓。 | `CATALOG` UNL-073/219; `CORE-260330` p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356; p62-p63 rule 428 |
-| `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral` | P1 打出官方法术《逝水如镜》，选择战场单位 | 支付 4 点费用，目标必须是一名战场单位；双方让过后给予该单位 `瞬息` 对象标签。基地单位目标由直接拒绝测试覆盖，下个回合开始阶段摧毁瞬息对象暂缓。 | `CATALOG` OGN·180/298; `CORE-260330` p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+ |
+| `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral` | P1 打出官方法术《逝水如镜》，选择战场单位 | 支付 4 点费用，目标必须是一名战场单位；双方让过后给予该单位 `瞬息` 对象标签。基地单位目标由直接拒绝测试覆盖；2026-06-28 Plan B B0 已补 official-deck replay 证明该单位会在其控制者下个开始阶段以 `EPHEMERAL_TURN_START` 摧毁并进入废牌堆。 | `CATALOG` OGN·180/298; `CORE-260330` p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+ |
 | `p2-preflight-play-flowing-time-mirror-equipment-ephemeral` | P1 打出官方法术《逝水如镜》，选择一件装备 | 支付 4 点费用，目标必须是场上或基地中带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；双方让过后给予该装备 `瞬息` 对象标签。 | `CATALOG` OGN·180/298; `CORE-260330` p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+ |
 | `p2-preflight-play-ashes-to-ashes-equipment-ephemeral` | P1 打出官方法术《化为灰烬》，选择一件装备 | 支付 2 点费用，目标必须是场上或基地中带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；双方让过后给予该装备 `瞬息` 对象标签。单位目标由直接拒绝测试覆盖，开始阶段摧毁瞬息对象暂缓。 | `CATALOG` UNL-070/219; `CORE-260330` p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+ |
 | `p2-preflight-play-sigil-burst-destroy-equipment-draw` | P1 打出官方法术《印爆术》，选择一件装备 | 支付 1 点费用，目标必须是场上或基地中带 `CARD_TYPE:EQUIPMENT` 标签的装备对象；双方让过后摧毁该装备并让其控制者抽 2 张牌。单位目标由直接拒绝测试覆盖，装备摧毁不会写入本回合单位摧毁记忆。 | `CATALOG` SFD·005/221; `CORE-260330` p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p62-p63 rule 428 |
@@ -1835,7 +1835,7 @@ P1 的 `TURN_ENDED`、`TURN_BEGAN`、`RUNE_CHANNELLED`、`CARD_DRAWN` 仍保留�
 171. 已完成：迁移《游击战》最多两张己方废牌堆待命牌返回手牌的基础路径，补通用目标 required tag 校验和 `待命` 标签；P4.72 已补结算后授予 `FREE_STANDBY_HIDE:{playerId}` 本回合免费待命暗置权限，P4.102 已补非待命目标拒绝 fixture，待命翻开反应/触发仍暂缓。
 172. 已完成：迁移《暗影的召唤》让友方非瞬息单位获得 `瞬息` 标签后抽 2 张牌的基础路径，补持久对象 tag 添加事件和已有瞬息目标拒绝测试；开始阶段摧毁瞬息单位暂缓到关键词清理模型。
 173. 已完成：迁移《致命华彩》对一名敌方单位造成 3 点非致命伤害的基础路径，复用敌方单位目标范围和伤害原语，并补友方目标拒绝测试；本回合摧毁后的休眠“金币”装备指示物触发暂缓到装备指示物和延迟触发模型。
-174. 已完成：迁移《逝水如镜》让一名战场单位获得 `瞬息` 标签的基础路径，复用战场单位目标范围和对象 tag 添加事件，并补基地单位目标拒绝测试；装备目标已在第 185 项补齐，下个回合开始阶段摧毁瞬息对象暂缓。
+174. 已完成：迁移《逝水如镜》让一名战场单位获得 `瞬息` 标签的基础路径，复用战场单位目标范围和对象 tag 添加事件，并补基地单位目标拒绝测试；装备目标已在第 185 项补齐，2026-06-28 Plan B B0 已补战场单位目标下个开始阶段 `EPHEMERAL_TURN_START` 摧毁 official-deck replay。
 175. 已完成：迁移《背水一战》让一名友方单位本回合内按当前战力翻倍并获得 `瞬息` 标签的基础路径，补目标当前战力动态战力修正原语和敌方单位目标拒绝测试；迅捷时机和下个回合开始阶段摧毁瞬息单位暂缓。
 176. 已完成：迁移《痛苦之酬》战场单位 3 点伤害并打出休眠“金币”装备指示物到基地的基础路径，补最小装备指示物对象标签原语和基地单位目标拒绝测试；待命时机和金币资源技能暂缓。
 177. 已完成：迁移《化为灰烬》让一件装备获得 `瞬息` 标签的基础路径，补最小 `EQUIPMENT` 目标范围和单位目标拒绝测试；开始阶段摧毁瞬息对象暂缓。

@@ -1787,6 +1787,7 @@ public sealed class FullGameEndToEndTests
             session,
             spellResolved,
             "b0-lost-library-score");
+        AssertFlowingTimeMirrorEphemeralTurnStartCleanup(journal, targetObjectId, result);
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -6506,6 +6507,33 @@ public sealed class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["cardNo"] as string, FlowingTimeMirrorSpellCardNo, StringComparison.Ordinal)
             && Assert.IsType<string[]>(gameEvent.Payload["targetObjectIds"]).Contains(targetObjectId, StringComparer.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertFlowingTimeMirrorEphemeralTurnStartCleanup(
+        RecordingMatchJournal journal,
+        string targetObjectId,
+        ResolutionResult result)
+    {
+        var cleanup = Assert.Single(
+            journal.Entries.SelectMany(entry => entry.Events.Select(gameEvent => (entry, gameEvent))),
+            entryEvent =>
+                string.Equals(entryEvent.gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && string.Equals(entryEvent.gameEvent.Payload["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal)
+                && string.Equals(entryEvent.gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal));
+        Assert.Equal(CommandTypes.EndTurn, cleanup.entry.CommandType);
+        Assert.Equal("P2", cleanup.gameEvent.Payload["ownerPlayerId"]);
+        Assert.Equal("P2", cleanup.gameEvent.Payload["destroyedByPlayerId"]);
+        Assert.Equal("GRAVEYARD", cleanup.gameEvent.Payload["destinationZone"]);
+
+        Assert.Contains(targetObjectId, result.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(targetObjectId, result.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain(targetObjectId, result.State.PlayerZones["P2"].Battlefields);
+        if (result.State.ObjectLocations.TryGetValue(targetObjectId, out var location))
+        {
+            Assert.Equal("GRAVEYARD", location.Zone);
+        }
+
         AssertNoHiddenZoneLeak(result);
     }
 

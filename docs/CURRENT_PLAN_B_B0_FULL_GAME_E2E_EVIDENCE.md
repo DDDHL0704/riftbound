@@ -137,6 +137,8 @@ The Master Yi level active-entry action-log replay regression proves a legal off
 
 The Card Trick draw/recycle action-log replay regression proves a legal official Vex deck opening can feed official `OGN·183/298` Card Trick into the B0 score-victory route and expose a real private-zone stack-target redaction issue. `OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening, then starts from a focused midgame play state with Card Trick in P1 hand and controlled top-three main-deck objects. The server-authored `PLAY_CARD` prompt exposes exactly those top-three target choices to P1, the stack resolves by moving the selected card to P1 hand and recycling the unselected top cards to the bottom of P1's main deck, and the command stream continues through score-victory action-log replay to the same final state hash. The shared runtime change is hidden-information scoped: `MatchSession` now projects stack `targetObjectIds` through viewer visibility redaction for hand / main-deck / rune-deck / hidden-standby targets, and `MatchRecovery` validates spectator stack target ids against the same redacted projection. This slice does not add a runtime card-number branch or close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
+The Flowing Time Mirror ephemeral-cleanup action-log replay regression proves the existing legal Lost Library B0 route also carries official `OGN·180/298` through the shared `瞬息` start-of-turn lifecycle. `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` now records the Flowing Time Mirror target before play, verifies the spell gives P2's same-battlefield `OGN·096/298` Watchful Sentinel the `瞬息` tag, then continues through `END_TURN` until P2's turn start. The match journal must contain exactly one `UNIT_DESTROYED` event for that target from an `END_TURN` command with `reason=EPHEMERAL_TURN_START`, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, and `destinationZone=GRAVEYARD`; the score-victory final state keeps the object in P2 graveyard and out of P2 base / battlefield. This slice changes only test / evidence coverage; it does not add runtime behavior or close equipment-target cleanup breadth, LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
+
 The Forbidden Wasteland battlefield isolated-defender RULE_TEXT keyword-modifier action-log replay regression proves a legal official deck opening can feed a battlefield-source keyword modifier from `BehaviorSpec.StaticAuras`. `OfficialDeckMidgameAppliesBattlefieldIsolatedDefenderKeywordModifierAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex and Rumble deck openings, probes until P2 selects official `UNL-210/219` Forbidden Wasteland, then starts the replay from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster and `UNL-090/219` LeBlanc at that P2 battlefield. The projected `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` RULE_TEXT route grants the only defender `坚守` with `keywordBonus=-2`, real defender damage records `basePower=4`, `combatPower=2`, and `damage=2`, and the score-victory action log replays to the same final state hash. `BattlefieldIsolatedDefenderKeywordModifierProjectionTests` separately proves the continuous effect projects for exactly one public defender and does not project when two defenders share the battlefield.
 
 The source-lone-battle static-aura action-log replay regression proves a legal official deck can carry Waterbender's battle-conditional source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Lillia decks containing `OGN·055/298` Waterbender and `OGN·096/298` Watchful Sentinel, follows the normal official opening seed path, stages both units through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, submits a server-authorized `DECLARE_BATTLE` with Waterbender as the only attacker, verifies the projected `SOURCE_LONE_BATTLE_POWER` effect targets Waterbender itself, observes Waterbender's real `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=2`, `combatPower=4`, and `damage=4`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-lone-battle static-aura breadth, complete official deck archetype breadth, or READY.
@@ -194,6 +196,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` checks exact JSON string values in each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids without prefix false positives between similar object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. The Card Trick regression adds stack-target coverage: private-zone target ids in stack snapshots are redacted through the same viewer visibility path and spectator recovery now expects `HIDDEN` for those targets. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Flowing Time Mirror / Lost Library ephemeral-cleanup focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsight"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Flowing Time Mirror / Lost Library / Ephemeral adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~LostLibrary|FullyQualifiedName~FlowingTimeMirror|FullyQualifiedName~Ephemeral|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2125, Failed: 0, Skipped: 0, Total: 2125
+```
+
+Latest Flowing Time Mirror ephemeral-cleanup backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8885, Failed: 0, Skipped: 0, Total: 8885
+```
 
 Latest Card Trick draw/recycle official-deck replay focused validation passed:
 
@@ -2294,6 +2332,8 @@ The current Molten Drake other-friendly active-entry increment additionally prov
 The current Master Yi level active-entry increment additionally proves one BehaviorSpec-driven level-gated friendly-units active-entry route through legal official Master Yi deck submission/opening, parsed `FRIENDLY_UNITS_ENTER_READY`, P1 11-experience requirement satisfaction, public legend-zone source identity, unpaid `HASTE_READY` Demacia Envoy entering active on a P1 battlefield, source entry metadata, score-victory replay, and hidden-info guarded full-game helpers. Complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, and READY are still open.
 
 The current Card Trick draw/recycle increment additionally proves one official spell route through legal official Vex deck submission/opening, top-three controlled main-deck target choices, selected-card draw, unselected-card recycle-to-bottom, score-victory replay, exact-value hidden-info guarded full-game helpers, and spectator/private-zone stack-target redaction. Complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, and READY are still open.
+
+The current Flowing Time Mirror ephemeral-cleanup increment additionally proves one official spell-granted `瞬息` lifecycle route through legal official Vex deck submission/opening, official `OGN·180/298` target selection against a same-battlefield unit, shared high-cost spell insight recycle, stack resolution, P2 turn-start `EPHEMERAL_TURN_START` destruction, final graveyard placement, score-victory replay, and hidden-info guarded full-game helpers. Equipment-target cleanup breadth, LeBlanc suppression breadth, all ephemeral token/equipment lifecycle edges, P0 full objective, and READY are still open.
 
 The current evidence-alignment increment records already-green B0 routes that were present in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` but missing from this evidence file. Those routes cover `UNL-029/219` Crimson Signet Treant conquest repeat; `UNL-218/219` Idol Valley unit-play boon; `UNL-215/219` Meteor Spring first-unit move-other; `UNL-214/219` Ghost Bay returned-unit call-rune; `OGN·280/298` Hidden Valley held draw; `OGN·288/298` Star Peak held call-rune; `SFD·219/221` Confetti Tree held each-player call-rune; `OGN·283/298` Navori Arena held grant-boon; `OGN·275/298` Unity Sanctum held create-Minion; `OGN·281/298` Hallowed Tomb held return-hero; `OGN·293/298` Grand Plaza held seven-units win; `SFD·214/221` Energy Hub held pay-power score; `OGN·286/298` Reckoner Arena held activate-unit-conquest; and `OGN·279/298` Fortified Position defend-grant-Steadfast. Each route starts from legal official deck submission/opening or a verified opening-derived midgame state, uses server-authored prompts / commands, runs through score victory or direct match win as appropriate, and replays through `MatchActionLogReplayer` to the same final state hash with hidden-info guarded B0 helpers. This is a documentation-only evidence repair and does not close complete battlefield FU breadth, complete optional prompt breadth, complete official deck archetype breadth, or READY.
 
