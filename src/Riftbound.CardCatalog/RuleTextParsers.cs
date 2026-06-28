@@ -3091,6 +3091,13 @@ public static class EffectPhraseParser
                 PlayDestinationZone = ResolvePlayDestinationZone(phrase),
                 IgnoreCosts = phrase.Contains("无视费用", StringComparison.Ordinal)
             },
+            BehaviorTemplateIds.Recall => spec with
+            {
+                TargetScope = ResolveUnitTargetScope(phrase),
+                ReturnsTargetToHand = phrase.Contains("返回", StringComparison.Ordinal)
+                    && phrase.Contains("手牌", StringComparison.Ordinal),
+                ReturnDestinationZone = ResolveReturnDestinationZone(phrase)
+            },
             BehaviorTemplateIds.Draw => spec with
             {
                 DrawCount = ParseDrawCount(phrase),
@@ -3173,6 +3180,13 @@ public static class EffectPhraseParser
         }
 
         return null;
+    }
+
+    private static string? ResolveReturnDestinationZone(string phrase)
+    {
+        return phrase.Contains("手牌", StringComparison.Ordinal)
+            ? "HAND"
+            : null;
     }
 
     private static string? ResolvePlayDestinationZone(string phrase)

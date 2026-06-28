@@ -139,6 +139,8 @@ export type BehaviorSpec = {
     banishesTarget?: boolean | null;
     playDestinationZone?: string | null;
     ignoreCosts?: boolean | null;
+    returnsTargetToHand?: boolean | null;
+    returnDestinationZone?: string | null;
     drawCount?: number | null;
     powerModifierAmount?: number | null;
     statusEffectId?: string | null;

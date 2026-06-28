@@ -564,6 +564,8 @@ public sealed record EffectPhraseSpec(
     bool? BanishesTarget = null,
     string? PlayDestinationZone = null,
     bool? IgnoreCosts = null,
+    bool? ReturnsTargetToHand = null,
+    string? ReturnDestinationZone = null,
     int? DrawCount = null,
     int? PowerModifierAmount = null,
     string? StatusEffectId = null,

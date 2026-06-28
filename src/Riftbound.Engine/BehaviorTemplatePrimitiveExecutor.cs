@@ -15,6 +15,7 @@ public static class BehaviorTemplatePrimitiveKinds
     public const string DealDamage = "deal-damage";
     public const string DestroyTarget = "destroy-target";
     public const string BanishThenPlayTarget = "banish-then-play-target";
+    public const string ReturnTargetToHand = "return-target-to-hand";
     public const string ApplyStatusEffect = "apply-status-effect";
     public const string ModifyPowerUntilEndOfTurn = "modify-power-until-end-of-turn";
 }
@@ -28,6 +29,7 @@ public sealed record BehaviorTemplatePrimitive(
     string ConditionKind = "",
     string PlayDestinationZone = "",
     bool IgnoreCosts = false,
+    string ReturnDestinationZone = "",
     string Reason = "");
 
 public sealed record BehaviorTemplatePrimitivePlan(
@@ -154,6 +156,13 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 PlayDestinationZone: "BASE",
                 IgnoreCosts: true,
                 Reason: "Banish/play destination is supplied by the existing P2 CardBehaviorDefinition."),
+            BehaviorTemplateIds.Recall when behavior.ReturnsTargetToHand => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Recall,
+                BehaviorTemplatePrimitiveKinds.ReturnTargetToHand,
+                0,
+                behavior.TargetScope,
+                ReturnDestinationZone: "HAND",
+                Reason: "Return destination is supplied by the existing P2 CardBehaviorDefinition."),
             BehaviorTemplateIds.Stun when !string.IsNullOrWhiteSpace(behavior.StatusEffectId) => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Stun,
                 BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
@@ -202,6 +211,14 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                     effect.TargetScope ?? string.Empty,
                     PlayDestinationZone: effect.PlayDestinationZone,
                     IgnoreCosts: effect.IgnoreCosts is true,
+                    Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Recall when effect.ReturnsTargetToHand is true
+                && !string.IsNullOrWhiteSpace(effect.ReturnDestinationZone) => new BehaviorTemplatePrimitive(
+                    BehaviorTemplateIds.Recall,
+                    BehaviorTemplatePrimitiveKinds.ReturnTargetToHand,
+                    0,
+                    effect.TargetScope ?? string.Empty,
+                    ReturnDestinationZone: effect.ReturnDestinationZone,
                     Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Draw,
