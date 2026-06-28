@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 Molten Drake other-friendly active-entry replay accepted; project remains **NOT READY**.
+Status: focused B0 Master Yi level active-entry replay accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -30,6 +30,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Poppy / Bandle Tree initial state, the full `HIDE_CARD` to `BATTLEFIELD:<Bandle Tree>` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while the battlefield standby card remains face-down;
 - from a seated official Poppy initial state without Bandle Tree, a direct rejected `HIDE_CARD` to `BATTLEFIELD:<non-Bandle battlefield>` records `ErrorCodes.InvalidTarget`, no events, unchanged hand/rune/location state, then the same command stream continues through non-standby battle, score victory, and action-log replay to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a focused midgame play state with public face-up P1 `OGN·011/298` Molten Drake in base and official `OGN·010/298` Legion Rearguard in hand; playing Legion Rearguard to a P1 battlefield without `HASTE_READY` resolves `OTHER_FRIENDLY_UNITS_ENTER_READY`, emits Molten Drake source entry metadata, then continues through score victory and action-log replay to the same final state hash;
+- from a seated official Master Yi level opening state, a verified legal official-deck opening feeds a focused midgame play state with `UNL-191/219` in P1's legend zone, P1 at 11 experience, and official `UNL-092/219` Demacia Envoy in hand; playing Demacia Envoy to a P1 battlefield without `HASTE_READY` resolves `FRIENDLY_UNITS_ENTER_READY`, emits Master Yi legend source entry metadata, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Poppy / Garen / Demacia Envoy initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `OGS·013/024` Garen's `BehaviorSpec.StaticAuras` projection gives `UNL-092/219` Demacia Envoy `staticPowerBonus=1`;
 - from a seated official Darius initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> same-battlefield static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash while `SFD·236/221` Darius's `BehaviorSpec.StaticAuras` projection gives `SFD·006/221` Aggressive Dragonhound `staticPowerBonus=1`;
 - from a seated official Rumble initial state, an official `SFD·022/221` Long Sword is staged as friendly public field equipment, then the full `PLAY_CARD` / `MOVE_UNIT` staging -> friendly-equipment count-to-source static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while `SFD·085/221` Ornn's `BehaviorSpec.StaticAuras` projection recomputes Ornn from printed 4 power to effective 5 power without adding a separate `staticPowerBonus`;
@@ -313,6 +314,8 @@ This Dunehorn Beast low-hand active-entry increment additionally proves a legal 
 
 This Molten Drake other-friendly active-entry increment additionally proves a legal official Jhin deck opening can carry `OTHER_FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps public face-up P1 `OGN·011/298` Molten Drake in base and official `OGN·010/298` Legion Rearguard in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Legion Rearguard enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=OTHER_FRIENDLY_UNITS_ENTER_READY` plus Molten Drake source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+This Master Yi level active-entry increment additionally proves a legal official Master Yi level deck opening can carry `FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps P1 at 11 experience with `UNL-191/219` in the legend zone and official `UNL-092/219` Demacia Envoy in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Demacia Envoy enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` plus Master Yi legend source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 This Swift stack-priority increment additionally proves official `UNL-007/219` Punishment can be offered and accepted from a `STACK_PRIORITY` prompt when the pending stack item is part of a `SPELL_DUEL_OPEN` context, while `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` keeps ordinary priority Swift rejected. It still does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
 This evidence-alignment increment records already-green B0 routes that were present in `FullGameEndToEndTests` but missing from this audit: Crimson Signet Treant conquest repeat; Idol Valley unit-play boon; Meteor Spring first-unit move-other; Ghost Bay returned-unit call-rune; Hidden Valley, Star Peak, Confetti Tree held triggers; Navori Arena, Unity Sanctum, Hallowed Tomb, Grand Plaza, Energy Hub, Reckoner Arena held triggers; and Fortified Position defend-grant-Steadfast. It changes documentation only, not runtime behavior or test code, and does not close complete battlefield FU breadth, complete official deck archetype breadth, or READY.
@@ -334,6 +337,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Master Yi level active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Master Yi level active-entry replay / active-entry / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~LegionRearguardHasteReadyEntry|FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result:
+
+```text
+Passed: 2104, Failed: 0, Skipped: 0, Total: 2104
+```
+
+Latest Master Yi level active-entry backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8884, Failed: 0, Skipped: 0, Total: 8884
+```
 
 Latest Molten Drake other-friendly active-entry official-deck replay focused validation passed:
 

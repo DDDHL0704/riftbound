@@ -56,7 +56,6 @@ Implemented for `SFD·027/221` 穿沙角兽:
 ## Not Closed
 
 - Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
-- This slice does not add legal official-deck score-victory replay coverage for Master Yi level 11 active-entry.
 - This slice does not close P0 full objective or READY.
 
 ## Validation
@@ -92,6 +91,14 @@ Master Yi level-gated active-entry focused red/green:
 ```
 
 Result: initially failed at compile because `FRIENDLY_UNITS_ENTER_READY` / `RequiredPlayerExperience` did not exist; after implementation 4/4 passed.
+
+Master Yi level-gated active-entry B0 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry"
+```
+
+Result: 1/1 passed.
 
 SFD Dunehorn Beast low-hand active-entry focused red/green:
 
@@ -141,6 +148,14 @@ Latest Molten Drake active-entry replay / hidden-info adjacent:
 
 Result: 2103/2103 passed.
 
+Latest Master Yi level active-entry replay / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~LegionRearguardHasteReadyEntry|FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result: 2104/2104 passed.
+
 Hidden-info / continuous-effect recovery guard:
 
 ```bash
@@ -187,7 +202,7 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884.
 
 DevUi catalog type build after adding active-entry static ability fields:
 

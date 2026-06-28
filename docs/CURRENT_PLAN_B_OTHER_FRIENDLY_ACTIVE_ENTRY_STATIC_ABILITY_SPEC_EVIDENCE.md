@@ -52,6 +52,7 @@ Level-gated friendly unit active-entry runtime:
 - `CoreRuleEngine` now scans controlled public legend-zone sources for this generic friendly-unit active-entry static ability, so Master Yi level 11 no longer needs `ControllerHasMasterYiLevelLegend`, `MasterYiLevelReadyThreshold`, or an `entersActiveFromMasterYiLevel` branch.
 - `tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs` proves Master Yi level 11 makes an unpaid-haste `OGN·010/298` 军团后卫 enter ready at 11 experience and emits `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` with legend source object/card metadata.
 - The same test proves 10 experience does not satisfy the parsed requirement and leaves the unpaid-haste unit exhausted with no entry-static metadata.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Master Yi level deck opening can feed level 11 `FRIENDLY_UNITS_ENTER_READY` into B0 score victory: P1 has `UNL-191/219` in the legend zone and 11 experience, plays official `UNL-092/219` 德玛西亚使节 to a P1 battlefield without `HASTE_READY`, receives legend-source entry metadata from Master Yi, and replays the same action log to final score victory without hidden-zone leaks.
 
 Low-hand source-unit active-entry BehaviorSpec / catalog:
 
@@ -86,6 +87,8 @@ Low-hand source-unit active-entry runtime:
 - Master Yi level-gated active-entry focused post-implementation: 4/4 passed.
 - Master Yi / Molten / Renata / CardCatalogBaseline adjacent regression: 307/307 passed.
 - MatchRecovery hidden-info / continuous-effect guard regression: 1984/1984 passed.
+- Master Yi level-gated active-entry B0 official-deck replay focused: 1/1 passed.
+- Master Yi level active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2104/2104 passed.
 - Dunehorn low-hand active-entry pre-implementation red: `DunehornLowHandActiveEntryStaticAbilityTests` failed at compile because `SOURCE_UNIT_ENTER_READY` / `MaxControllerHandCount` did not exist.
 - Dunehorn low-hand active-entry focused post-implementation: 3/3 passed.
 - Dunehorn / active-entry / MatchRecovery adjacent regression: 2297/2297 passed.
@@ -94,10 +97,10 @@ Low-hand source-unit active-entry runtime:
 - Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
 - Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
 - Backend full after the Molten Drake other-friendly active-entry B0 official-deck replay follow-up: 8883/8883 passed.
+- Backend full after the Master Yi level active-entry B0 official-deck replay follow-up: 8884/8884 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed
 
-- Official-deck score-victory replay coverage for Master Yi level 11 active-entry remains open.
 - Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.
