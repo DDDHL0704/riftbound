@@ -70,7 +70,7 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                     delegation);
             }
 
-            var primitive = BuildPrimitive(step.TemplateId, delegation.DelegatedBehavior);
+            var primitive = BuildPrimitive(step.TemplateId, spec, delegation.DelegatedBehavior);
             if (primitive is null)
             {
                 if (IsParsedReminderOnlyTemplate(step.TemplateId, delegation.DelegatedBehavior))
@@ -109,8 +109,19 @@ public sealed class BehaviorTemplatePrimitiveExecutor
 
     private static BehaviorTemplatePrimitive? BuildPrimitive(
         string templateId,
+        BehaviorSpec spec,
         CardBehaviorDefinition behavior)
     {
+        var effect = spec.Effects.FirstOrDefault(candidate => string.Equals(
+            candidate.TemplateId,
+            templateId,
+            StringComparison.Ordinal));
+        var specPrimitive = BuildPrimitiveFromEffect(effect);
+        if (specPrimitive is not null)
+        {
+            return specPrimitive;
+        }
+
         return templateId switch
         {
             BehaviorTemplateIds.Draw when behavior.DrawCount > 0 => new BehaviorTemplatePrimitive(
@@ -146,6 +157,34 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 behavior.TargetScope,
                 ConditionKind: behavior.PowerModifierConditionKind,
                 Reason: "Until-end-of-turn power modifier is supplied by the existing P2 CardBehaviorDefinition."),
+            _ => null
+        };
+    }
+
+    private static BehaviorTemplatePrimitive? BuildPrimitiveFromEffect(EffectPhraseSpec? effect)
+    {
+        if (effect is null)
+        {
+            return null;
+        }
+
+        return effect.TemplateId switch
+        {
+            BehaviorTemplateIds.Draw when effect.DrawCount is > 0 => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Draw,
+                BehaviorTemplatePrimitiveKinds.DrawCards,
+                effect.DrawCount.Value,
+                effect.TargetScope ?? string.Empty,
+                ConditionKind: effect.ConditionKind ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
+            BehaviorTemplateIds.Stun when !string.IsNullOrWhiteSpace(effect.StatusEffectId) => new BehaviorTemplatePrimitive(
+                BehaviorTemplateIds.Stun,
+                BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
+                0,
+                effect.TargetScope ?? string.Empty,
+                StatusEffectId: effect.StatusEffectId,
+                ConditionKind: effect.ConditionKind ?? string.Empty,
+                Reason: "Primitive metadata is supplied by BehaviorSpec.Effects parsed from official text."),
             _ => null
         };
     }

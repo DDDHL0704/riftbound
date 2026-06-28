@@ -128,7 +128,16 @@ export type BehaviorSpec = {
     maxControllerHandCount?: number | null;
   }>;
   staticAuras: StaticAuraSpec[];
-  effects: Array<{ templateId: string; phrase: string; status: string; reason: string }>;
+  effects: Array<{
+    templateId: string;
+    phrase: string;
+    status: string;
+    reason: string;
+    targetScope?: string | null;
+    drawCount?: number | null;
+    statusEffectId?: string | null;
+    conditionKind?: string | null;
+  }>;
   templateIds: string[];
   implementedEffectKind?: string | null;
   implementedByCardNo?: string | null;

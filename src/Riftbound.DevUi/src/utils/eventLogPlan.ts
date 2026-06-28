@@ -95,6 +95,7 @@ const eventKindLabels: Record<string, string> = {
   CARD_PLAYED: "打出卡牌",
   CARD_RETURNED_TO_HAND: "卡牌回手",
   CARD_REVEALED: "翻开待命",
+  MAIN_DECK_CARDS_REVEALED: "展示主牌堆",
   CLEANUP_REPEATED: "清理循环",
   COMBAT_DAMAGE_ASSIGNED: "战斗伤害分配",
   COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED: "提交战斗伤害分配",

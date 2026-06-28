@@ -35,6 +35,11 @@ public static class BehaviorTemplateIds
     public const string Control = "control";
 }
 
+public static class BehaviorEffectConditionKinds
+{
+    public const string PlayedFromHand = "PLAYED_FROM_HAND";
+}
+
 public static class TriggerKinds
 {
     public const string BattlefieldUnitMovedAwayPowerModifier =
@@ -551,4 +556,8 @@ public sealed record EffectPhraseSpec(
     string TemplateId,
     string Phrase,
     string Status,
-    string Reason);
+    string Reason,
+    string? TargetScope = null,
+    int? DrawCount = null,
+    string? StatusEffectId = null,
+    string? ConditionKind = null);

@@ -2978,11 +2978,7 @@ public static class EffectPhraseParser
     public static IReadOnlyList<EffectPhraseSpec> Parse(string text)
     {
         return ParseTemplateIds(text)
-            .Select(templateId => new EffectPhraseSpec(
-                templateId,
-                FirstPhraseForTemplate(text, templateId),
-                BehaviorImplementationStatuses.Unimplemented,
-                "Template parser candidate; execution is skeleton-only until explicitly mapped."))
+            .Select(templateId => BuildEffectPhrase(text, templateId))
             .ToArray();
     }
 
@@ -3064,5 +3060,101 @@ public static class EffectPhraseParser
         return TargetParser.SplitRulesText(text)
             .FirstOrDefault(segment => needles.Any(needle => segment.Contains(needle, StringComparison.Ordinal)))
             ?? string.Empty;
+    }
+
+    private static EffectPhraseSpec BuildEffectPhrase(string text, string templateId)
+    {
+        var phrase = FirstPhraseForTemplate(text, templateId);
+        var spec = new EffectPhraseSpec(
+            templateId,
+            phrase,
+            BehaviorImplementationStatuses.Unimplemented,
+            "Template parser candidate; execution is skeleton-only until explicitly mapped.");
+
+        return templateId switch
+        {
+            BehaviorTemplateIds.Draw => spec with
+            {
+                DrawCount = ParseDrawCount(phrase),
+                ConditionKind = phrase.Contains("从手牌中打出此牌", StringComparison.Ordinal)
+                    ? BehaviorEffectConditionKinds.PlayedFromHand
+                    : null
+            },
+            BehaviorTemplateIds.Stun => spec with
+            {
+                TargetScope = ResolveStunTargetScope(phrase),
+                StatusEffectId = phrase.Contains("眩晕", StringComparison.Ordinal)
+                    ? "STUNNED"
+                    : null
+            },
+            _ => spec
+        };
+    }
+
+    private static int? ParseDrawCount(string phrase)
+    {
+        var match = Regex.Match(
+            phrase ?? string.Empty,
+            @"抽(?<count>[一二两三四五六七八九十\d]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return ParseSmallChineseNumber(match.Groups["count"].Value);
+    }
+
+    private static string? ResolveStunTargetScope(string phrase)
+    {
+        if (string.IsNullOrWhiteSpace(phrase)
+            || !phrase.Contains("眩晕", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (phrase.Contains("敌方战场单位", StringComparison.Ordinal))
+        {
+            return "ENEMY_BATTLEFIELD_UNIT";
+        }
+
+        if (phrase.Contains("敌方单位", StringComparison.Ordinal))
+        {
+            return "ENEMY_UNIT";
+        }
+
+        if (phrase.Contains("进攻", StringComparison.Ordinal)
+            && phrase.Contains("单位", StringComparison.Ordinal))
+        {
+            return "ATTACKING_UNIT";
+        }
+
+        return phrase.Contains("单位", StringComparison.Ordinal)
+            ? "ANY_UNIT"
+            : null;
+    }
+
+    private static int? ParseSmallChineseNumber(string raw)
+    {
+        if (int.TryParse(raw, out var value))
+        {
+            return value;
+        }
+
+        return raw switch
+        {
+            "一" => 1,
+            "两" => 2,
+            "二" => 2,
+            "三" => 3,
+            "四" => 4,
+            "五" => 5,
+            "六" => 6,
+            "七" => 7,
+            "八" => 8,
+            "九" => 9,
+            "十" => 10,
+            _ => null
+        };
     }
 }

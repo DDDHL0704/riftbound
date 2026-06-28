@@ -5708,6 +5708,53 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecEffectPhrasesCarryStayAwayStunDrawPrimitiveMetadata()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var stayAway = specs.Single(spec => string.Equals(spec.CardNo, "UNL-042/219", StringComparison.Ordinal));
+
+        var stun = Assert.Single(stayAway.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Stun, StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.AnyUnit, stun.TargetScope);
+        Assert.Equal("STUNNED", stun.StatusEffectId);
+        Assert.Null(stun.DrawCount);
+        Assert.Null(stun.ConditionKind);
+        Assert.Contains("{{眩晕}}一名单位", stun.Phrase, StringComparison.Ordinal);
+
+        var draw = Assert.Single(stayAway.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Draw, StringComparison.Ordinal));
+        Assert.Equal(1, draw.DrawCount);
+        Assert.Equal(BehaviorEffectConditionKinds.PlayedFromHand, draw.ConditionKind);
+        Assert.True(string.IsNullOrWhiteSpace(draw.TargetScope));
+        Assert.True(string.IsNullOrWhiteSpace(draw.StatusEffectId));
+        Assert.Contains("从手牌中打出此牌，则抽一张牌", draw.Phrase, StringComparison.Ordinal);
+
+        var plan = new BehaviorTemplatePrimitiveExecutor().BuildPrimitivePlan(
+            stayAway,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-STAY-AWAY", "UNL-042/219", ["P2-UNIT-001"]));
+
+        Assert.Equal(BehaviorTemplatePrimitivePlanStatuses.Ready, plan.Status);
+        Assert.Collection(
+            plan.Primitives.OrderBy(primitive => primitive.TemplateId, StringComparer.Ordinal),
+            primitive =>
+            {
+                Assert.Equal(BehaviorTemplateIds.Draw, primitive.TemplateId);
+                Assert.Equal(BehaviorTemplatePrimitiveKinds.DrawCards, primitive.Kind);
+                Assert.Equal(1, primitive.Amount);
+                Assert.Equal(BehaviorEffectConditionKinds.PlayedFromHand, primitive.ConditionKind);
+                Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+            },
+            primitive =>
+            {
+                Assert.Equal(BehaviorTemplateIds.Stun, primitive.TemplateId);
+                Assert.Equal(BehaviorTemplatePrimitiveKinds.ApplyStatusEffect, primitive.Kind);
+                Assert.Equal(CardTargetScopes.AnyUnit, primitive.TargetScope);
+                Assert.Equal("STUNNED", primitive.StatusEffectId);
+                Assert.Contains("BehaviorSpec.Effects", primitive.Reason, StringComparison.Ordinal);
+            });
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
