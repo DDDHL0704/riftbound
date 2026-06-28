@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context and Tide Caller standby-reaction swap evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, and SFD Teemo shared standby-reaction metadata evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -148,6 +148,8 @@ This battlefield standby reveal increment adds one shared runtime rule change. `
 This battlefield standby reaction increment adds the next shared runtime rule change. In a closed main-phase priority window with a pending stack item, `REVEAL_CARD` prompt construction now exposes controlled face-down battlefield standby sources alongside base standby sources, with immediate destination `STACK`. `CoreRuleEngine.ResolveRevealCard` accepts either base or battlefield standby sources for `STANDBY_REACTION`; when the source came from a battlefield standby area it removes that object from `PlayerZones.Battlefields` while on the stack, stores `BATTLEFIELD:<battlefieldObjectId>` on the new `StackItemState.Destination`, and the existing stack-resolution play-unit path returns the source to that precise battlefield as `UNIT_PLAYED_TO_BATTLEFIELD`. Focused regressions cover prompt source metadata, stack item destination, on-stack location, double-pass stack resolution, and precise battlefield return. This increment still does not close illegal/lost-control standby cleanup breadth, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
 
 This battlefield-source standby reaction target-damage increment adds a shared runtime rule change for official `OGN·121/298` / `OGN·121a/298` Teemo's unambiguous "this battlefield" route. `CardBehaviorDefinition` now carries standby-reaction target count, target scope, main-deck look count, counted tag, per-card damage and recycle behavior; `REVEAL_CARD` prompt metadata exposes only same-battlefield enemy unit choices for a face-down battlefield standby source. Stack resolution reveals the controller's top five main-deck cards, counts cards tagged `待命`, deals that count as damage to still-legal same-battlefield enemy unit targets, then recycles the looked cards to the bottom of the main deck. Focused regressions cover prompt target metadata, target persistence on the stack, dynamic damage amount, recycle events, and precise battlefield return. This increment still does not close base standby reaction current-battlefield context, defend-trigger timing, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
+
+This SFD Teemo follow-up adds no new engine branch. It extends the same `CardBehaviorDefinition` standby-reaction metadata to official `SFD·230/221` and `SFD·230*/221`, whose official text matches the already covered Teemo target-damage route. New focused regressions prove both SFD card numbers expose `ENEMY_UNIT_AT_SOURCE_BATTLEFIELD` prompt metadata, reject offsite enemies from the target choices, enter the stack as `STANDBY_REACTION`, return to the precise source battlefield, reveal the top five main-deck cards, count cards tagged `待命`, damage the selected same-battlefield enemy unit, and recycle the looked cards through the shared resolver. This closes only this shared SFD Teemo metadata breadth; defend-trigger timing, non-active base contexts, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, and READY remain open.
 
 This base standby reaction spell-duel context increment extends the same shared target-damage machinery to a base face-down standby source when the stack item being responded to belongs to an active spell duel. `REVEAL_CARD` prompt construction now treats `TimingStates.SpellDuelClosed` stack-priority windows as valid standby-reaction windows and resolves `ENEMY_UNIT_AT_SOURCE_BATTLEFIELD` from `SpellDuelState.BattlefieldObjectId` when the source itself is in base. `CoreRuleEngine.ResolveRevealCard` accepts the same command shape, keeps the stack item destination empty so the unit still resolves back to base, but uses the inherited `SpellDuelOpen` timing context to reveal/count/recycle and damage only enemy units at that spell-duel battlefield. Focused regressions cover prompt target metadata and stack resolution for base Teemo in a spell-duel stack. This increment still does not close defend-trigger timing, non-spell-duel base contexts without a battlefield, complete standby replacement-cost breadth, full standby card-family breadth, complete B0, or READY.
 
@@ -358,10 +360,46 @@ Current §6 helper count after this slice: `bool Is*CardNo(` helper definitions 
 
 Open follow-up:
 
-- broaden standby-heavy coverage beyond the battlefield-source and base/spell-duel Teemo targeted stack-reaction representatives into defend-trigger timing, non-spell-duel base contexts without a battlefield, other standby reactions, remaining battlefield standby cleanup branches, and non-ready-base cleanup branches.
+- broaden standby-heavy coverage beyond the OGN/SFD battlefield-source and base/spell-duel Teemo targeted stack-reaction representatives into defend-trigger timing, non-spell-duel base contexts without a battlefield, other standby reactions, remaining battlefield standby cleanup branches, and non-ready-base cleanup branches.
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest SFD Teemo shared standby-reaction metadata focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~StandbyReactionSfdTeemo"
+```
+
+Result:
+
+```text
+Passed: 4, Failed: 0, Skipped: 0, Total: 4
+```
+
+Latest SFD Teemo shared standby-reaction metadata adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~StandbyReactionSfdTeemo|FullyQualifiedName~StandbyReaction|FullyQualifiedName~RevealCard|FullyQualifiedName~ActionPrompt|FullyQualifiedName~Teemo|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2158, Failed: 0, Skipped: 0, Total: 2158
+```
+
+Latest SFD Teemo shared standby-reaction metadata backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 8903, Failed: 0, Skipped: 0, Total: 8903
+```
 
 Latest battlefield-source standby reaction target-damage focused validation passed:
 
