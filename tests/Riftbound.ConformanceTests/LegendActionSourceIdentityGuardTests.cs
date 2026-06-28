@@ -260,6 +260,75 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("[TeemoOriginLegendCardNo, \"OGN·263a/298\", \"OGN·307/298\", \"OGN·307*/298\"]", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void MainLegendActionSourceGroupsUseSharedCatalog()
+    {
+        Assert.Equal(
+            ["FND-259/298", "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.YasuoLegendAbilityId));
+        Assert.Equal(
+            ["OGN·257/298", "OGN·304*/298", "OGN·304/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.LeeSinLegendAbilityId));
+        Assert.Equal(
+            ["UNL-203/219", "UNL-237*/219", "UNL-237/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.PoppyLegendAbilityId));
+        Assert.Equal(
+            ["FND-265/298", "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ViktorLegendAbilityId));
+        Assert.Equal(
+            ["OGN·267/298", "OGN·309/298", "OGN·309*/298"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MissFortuneLegendAbilityId));
+        Assert.Equal(
+            ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KhazixLegendBoonAbilityId));
+        Assert.Equal(
+            ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KhazixLegendMoveAbilityId));
+        Assert.Equal(
+            ["UNL-185/219", "UNL-228/219", "UNL-228*/219"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.PykeLegendAbilityId));
+        Assert.Equal(
+            ["SFD·193/221", "SFD·245/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JaxLegendAttachAbilityId));
+        Assert.Equal(
+            ["SFD·193/221", "SFD·245/221"],
+            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JaxLegendReattachAbilityId));
+        Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.KhazixLegendMoveAbilityId,
+            "UNL-236*/219"));
+        Assert.False(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
+            LegendActionAbilityCatalog.PykeLegendAbilityId,
+            "SFD·245/221"));
+
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("[YasuoLegendCardNo, \"OGN·259/298\", \"OGN·305*/298\", \"OGN·305/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LeeSinLegendCardNo, \"OGN·304*/298\", \"OGN·304/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"UNL-203/219\", \"UNL-237*/219\", PoppyLegendCardNo]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[ViktorLegendCardNo, \"OGN·265/298\", \"OGN·308*/298\", \"OGN·308/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[MissFortuneLegendCardNo, \"OGN·309/298\", \"OGN·309*/298\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[KhazixLegendCardNo, \"UNL-236/219\", \"UNL-236*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[PykeLegendCardNo, \"UNL-228/219\", \"UNL-228*/219\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[JaxSpiritforgedLegendCardNo, \"SFD·245/221\"]", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[YasuoLegendCardNo, \"OGN·259/298\", \"OGN·305*/298\", \"OGN·305/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LeeSinLegendCardNo, \"OGN·304*/298\", \"OGN·304/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"UNL-203/219\", \"UNL-237*/219\", PoppyLegendCardNo]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[ViktorLegendCardNo, \"OGN·265/298\", \"OGN·308*/298\", \"OGN·308/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[MissFortuneLegendCardNo, \"OGN·309/298\", \"OGN·309*/298\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[KhazixLegendCardNo, \"UNL-236/219\", \"UNL-236*/219\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[PykeLegendCardNo, \"UNL-228/219\", \"UNL-228*/219\"]", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[JaxSpiritforgedLegendCardNo, \"SFD·245/221\"]", matchSessionSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

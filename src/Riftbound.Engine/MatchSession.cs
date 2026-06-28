@@ -6684,24 +6684,16 @@ internal static class ActionPromptBuilder
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
-    private const string YasuoLegendCardNo = "FND-259/298";
-    private const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
-    private const string LeeSinLegendCardNo = "OGN·257/298";
-    private const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
-    private const string PoppyLegendCardNo = "UNL-237/219";
-    private const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
-    private const string ViktorLegendCardNo = "FND-265/298";
-    private const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
-    private const string MissFortuneLegendCardNo = "OGN·267/298";
-    private const string MissFortuneLegendAbilityId = "LEGEND_EXHAUST_GRANT_ROAM";
-    private const string KhazixLegendCardNo = "UNL-201/219";
-    private const string KhazixLegendBoonAbilityId = "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON";
-    private const string KhazixLegendMoveAbilityId = "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE";
-    private const string PykeLegendCardNo = "UNL-185/219";
-    private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
-    private const string JaxSpiritforgedLegendCardNo = "SFD·193/221";
-    private const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
-    private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
+    private const string YasuoLegendAbilityId = LegendActionAbilityCatalog.YasuoLegendAbilityId;
+    private const string LeeSinLegendAbilityId = LegendActionAbilityCatalog.LeeSinLegendAbilityId;
+    private const string PoppyLegendAbilityId = LegendActionAbilityCatalog.PoppyLegendAbilityId;
+    private const string ViktorLegendAbilityId = LegendActionAbilityCatalog.ViktorLegendAbilityId;
+    private const string MissFortuneLegendAbilityId = LegendActionAbilityCatalog.MissFortuneLegendAbilityId;
+    private const string KhazixLegendBoonAbilityId = LegendActionAbilityCatalog.KhazixLegendBoonAbilityId;
+    private const string KhazixLegendMoveAbilityId = LegendActionAbilityCatalog.KhazixLegendMoveAbilityId;
+    private const string PykeLegendAbilityId = LegendActionAbilityCatalog.PykeLegendAbilityId;
+    private const string JaxLegendAttachAbilityId = LegendActionAbilityCatalog.JaxLegendAttachAbilityId;
+    private const string JaxLegendReattachAbilityId = LegendActionAbilityCatalog.JaxLegendReattachAbilityId;
     private const string DariusLegendAbilityId = LegendActionAbilityCatalog.DariusLegendAbilityId;
     private const string DianaLegendAbilityId = LegendActionAbilityCatalog.DianaLegendAbilityId;
     private const string KaisaLegendAbilityId = LegendActionAbilityCatalog.KaisaLegendAbilityId;
@@ -9876,7 +9868,7 @@ internal static class ActionPromptBuilder
         return [
             new(
                 YasuoLegendAbilityId,
-                [YasuoLegendCardNo, "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(YasuoLegendAbilityId),
                 "亚索传奇移动技能",
                 2,
                 0,
@@ -9886,7 +9878,7 @@ internal static class ActionPromptBuilder
                 "MOVE_FRIENDLY_UNIT"),
             new(
                 LeeSinLegendAbilityId,
-                [LeeSinLegendCardNo, "OGN·304*/298", "OGN·304/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LeeSinLegendAbilityId),
                 "李青传奇增益技能",
                 1,
                 0,
@@ -9896,7 +9888,7 @@ internal static class ActionPromptBuilder
                 "GRANT_BOON"),
             new(
                 PoppyLegendAbilityId,
-                ["UNL-203/219", "UNL-237*/219", PoppyLegendCardNo],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(PoppyLegendAbilityId),
                 "波比传奇抽牌技能",
                 0,
                 3,
@@ -9906,7 +9898,7 @@ internal static class ActionPromptBuilder
                 "DRAW_ONE"),
             new(
                 ViktorLegendAbilityId,
-                [ViktorLegendCardNo, "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(ViktorLegendAbilityId),
                 "维克托传奇随从技能",
                 1,
                 0,
@@ -9916,7 +9908,7 @@ internal static class ActionPromptBuilder
                 "CREATE_MINION"),
             new(
                 MissFortuneLegendAbilityId,
-                [MissFortuneLegendCardNo, "OGN·309/298", "OGN·309*/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(MissFortuneLegendAbilityId),
                 "赏金猎人传奇游走技能",
                 0,
                 0,
@@ -9926,7 +9918,7 @@ internal static class ActionPromptBuilder
                 "GRANT_ROAM"),
             new(
                 KhazixLegendBoonAbilityId,
-                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendBoonAbilityId),
                 "卡兹克传奇增益技能",
                 0,
                 1,
@@ -9936,7 +9928,7 @@ internal static class ActionPromptBuilder
                 "GRANT_BOON"),
             new(
                 KhazixLegendMoveAbilityId,
-                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendMoveAbilityId),
                 "卡兹克传奇休眠单位移动技能",
                 0,
                 2,
@@ -9948,7 +9940,7 @@ internal static class ActionPromptBuilder
                 RequiresExhaustedTarget: true),
             new(
                 PykeLegendAbilityId,
-                [PykeLegendCardNo, "UNL-228/219", "UNL-228*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(PykeLegendAbilityId),
                 "派克传奇召回金币技能",
                 1,
                 0,
@@ -9959,7 +9951,7 @@ internal static class ActionPromptBuilder
                 RequiresBattlefieldTarget: true),
             new(
                 JaxLegendAttachAbilityId,
-                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(JaxLegendAttachAbilityId),
                 "武器大师传奇贴附技能",
                 1,
                 0,
@@ -9971,7 +9963,7 @@ internal static class ActionPromptBuilder
                 RequiresUnattachedArmamentSecondTarget: true),
             new(
                 JaxLegendReattachAbilityId,
-                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(JaxLegendReattachAbilityId),
                 "武器大师传奇重贴附技能",
                 0,
                 0,

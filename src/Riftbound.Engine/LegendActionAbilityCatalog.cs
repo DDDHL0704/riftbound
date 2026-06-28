@@ -2,6 +2,16 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
+    public const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
+    public const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
+    public const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
+    public const string MissFortuneLegendAbilityId = "LEGEND_EXHAUST_GRANT_ROAM";
+    public const string KhazixLegendBoonAbilityId = "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON";
+    public const string KhazixLegendMoveAbilityId = "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE";
+    public const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
+    public const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
+    public const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
     public const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
     public const string DianaLegendAbilityId = "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA";
     public const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
@@ -15,6 +25,16 @@ public static class LegendActionAbilityCatalog
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> SourceCardNosByAbilityId =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
         {
+            [YasuoLegendAbilityId] = ["FND-259/298", "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+            [LeeSinLegendAbilityId] = ["OGN·257/298", "OGN·304*/298", "OGN·304/298"],
+            [PoppyLegendAbilityId] = ["UNL-203/219", "UNL-237*/219", "UNL-237/219"],
+            [ViktorLegendAbilityId] = ["FND-265/298", "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+            [MissFortuneLegendAbilityId] = ["OGN·267/298", "OGN·309/298", "OGN·309*/298"],
+            [KhazixLegendBoonAbilityId] = ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
+            [KhazixLegendMoveAbilityId] = ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
+            [PykeLegendAbilityId] = ["UNL-185/219", "UNL-228/219", "UNL-228*/219"],
+            [JaxLegendAttachAbilityId] = ["SFD·193/221", "SFD·245/221"],
+            [JaxLegendReattachAbilityId] = ["SFD·193/221", "SFD·245/221"],
             [DariusLegendAbilityId] = ["OGN·253/298", "OGN·302/298", "OGN·302*/298"],
             [DianaLegendAbilityId] = ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
             [KaisaLegendAbilityId] = ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],

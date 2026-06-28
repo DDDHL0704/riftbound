@@ -13,6 +13,10 @@
 
 `LegendActionAbilityCatalog` 继续收进 Darius / Diana / Kai'Sa / Ornn / Ezreal / Irelia / Teemo 七组 legend-action source-card rows。`CoreRuleEngine.TryGetLegendAbility` 与 `MatchSession.ImplementedLegendActionAbilities` 现在均通过 `LegendActionAbilityCatalog.SourceCardNosForAbility(...)` 读取这些 rows，不再分别维护同一组来源卡号数组。新增 `LegendActionSourceIdentityGuardTests.ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog`，覆盖七组 source rows、正反例，以及 Core/MatchSession 不再出现旧数组的源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / LegendAct / LegendAction representatives 264/264；LegendAction / LegendAct / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2826/2826；backend full 8871/8871。项目仍 **NOT READY**。
 
+## 2026-06-28 Main Legend Source-Group Supplement
+
+`LegendActionAbilityCatalog` 继续收进 Yasuo / Lee Sin / Poppy / Viktor / Miss Fortune / Kha'Zix / Pyke / Jax 的 main-open legend-action source-card rows；Kha'Zix 和 Jax 的成对 ability ids 共用各自 source-card group。`CoreRuleEngine.TryGetLegendAbility` 与 `MatchSession.ImplementedLegendActionAbilities` 现在均通过 `LegendActionAbilityCatalog.SourceCardNosForAbility(...)` 读取这些 rows，不再分别维护同一组来源卡号数组。新增 `LegendActionSourceIdentityGuardTests.MainLegendActionSourceGroupsUseSharedCatalog`，覆盖十个 ability ids 的 exact source rows、正反例，以及 Core/MatchSession 不再出现旧数组的源码守卫。Validation passed: focused guard 1/1；LegendActionSourceIdentity / Yasuo / LeeSin / Poppy / Viktor / MissFortune / Khazix / Pyke / Jax / LegendAct / LegendAction representatives 178/178；LegendAction / LegendAct / Yasuo / LeeSin / Poppy / Viktor / MissFortune / Khazix / Pyke / Jax / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2765/2765；backend full 8872/8872。项目仍 **NOT READY**。
+
 ## 1. Scope
 
 Changed:

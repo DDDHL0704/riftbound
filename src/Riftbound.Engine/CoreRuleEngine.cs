@@ -67,38 +67,30 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
     private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
     private const string SpendManaOptionalCostPrefix = "SPEND_MANA:";
-    private const string YasuoLegendCardNo = "FND-259/298";
-    private const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
+    private const string YasuoLegendAbilityId = LegendActionAbilityCatalog.YasuoLegendAbilityId;
     private const int YasuoLegendManaCost = 2;
     private const string YasuoLegendManaCostToken = "SPEND_MANA:2";
-    private const string LeeSinLegendCardNo = "OGN·257/298";
-    private const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
+    private const string LeeSinLegendAbilityId = LegendActionAbilityCatalog.LeeSinLegendAbilityId;
     private const int LeeSinLegendManaCost = 1;
     private const string LeeSinLegendManaCostToken = "SPEND_MANA:1";
-    private const string PoppyLegendCardNo = "UNL-237/219";
-    private const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
+    private const string PoppyLegendAbilityId = LegendActionAbilityCatalog.PoppyLegendAbilityId;
     private const int PoppyLegendExperienceCost = 3;
     private const string PoppyLegendExperienceCostToken = "SPEND_EXPERIENCE:3";
-    private const string ViktorLegendCardNo = "FND-265/298";
-    private const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
+    private const string ViktorLegendAbilityId = LegendActionAbilityCatalog.ViktorLegendAbilityId;
     private const int ViktorLegendManaCost = 1;
     private const string ViktorLegendManaCostToken = "SPEND_MANA:1";
-    private const string MissFortuneLegendCardNo = "OGN·267/298";
-    private const string MissFortuneLegendAbilityId = "LEGEND_EXHAUST_GRANT_ROAM";
-    private const string KhazixLegendCardNo = "UNL-201/219";
-    private const string KhazixLegendBoonAbilityId = "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON";
+    private const string MissFortuneLegendAbilityId = LegendActionAbilityCatalog.MissFortuneLegendAbilityId;
+    private const string KhazixLegendBoonAbilityId = LegendActionAbilityCatalog.KhazixLegendBoonAbilityId;
     private const int KhazixLegendBoonExperienceCost = 1;
     private const string KhazixLegendBoonExperienceCostToken = "SPEND_EXPERIENCE:1";
-    private const string KhazixLegendMoveAbilityId = "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE";
+    private const string KhazixLegendMoveAbilityId = LegendActionAbilityCatalog.KhazixLegendMoveAbilityId;
     private const int KhazixLegendMoveExperienceCost = 2;
     private const string KhazixLegendMoveExperienceCostToken = "SPEND_EXPERIENCE:2";
-    private const string PykeLegendCardNo = "UNL-185/219";
-    private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
+    private const string PykeLegendAbilityId = LegendActionAbilityCatalog.PykeLegendAbilityId;
     private const int PykeLegendManaCost = 1;
     private const string PykeLegendManaCostToken = "SPEND_MANA:1";
-    private const string JaxSpiritforgedLegendCardNo = "SFD·193/221";
-    private const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
-    private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
+    private const string JaxLegendAttachAbilityId = LegendActionAbilityCatalog.JaxLegendAttachAbilityId;
+    private const string JaxLegendReattachAbilityId = LegendActionAbilityCatalog.JaxLegendReattachAbilityId;
     private const int JaxLegendAttachManaCost = 1;
     private const string JaxLegendAttachManaCostToken = "SPEND_MANA:1";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -12124,7 +12116,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             YasuoLegendAbilityId => new LegendAbilityDefinition(
                 YasuoLegendAbilityId,
-                [YasuoLegendCardNo, "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(YasuoLegendAbilityId),
                 "亚索传奇移动技能",
                 YasuoLegendManaCost,
                 0,
@@ -12134,7 +12126,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.MoveFriendlyUnit),
             LeeSinLegendAbilityId => new LegendAbilityDefinition(
                 LeeSinLegendAbilityId,
-                [LeeSinLegendCardNo, "OGN·304*/298", "OGN·304/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LeeSinLegendAbilityId),
                 "李青传奇增益技能",
                 LeeSinLegendManaCost,
                 0,
@@ -12144,7 +12136,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.GrantBoon),
             PoppyLegendAbilityId => new LegendAbilityDefinition(
                 PoppyLegendAbilityId,
-                ["UNL-203/219", "UNL-237*/219", PoppyLegendCardNo],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(PoppyLegendAbilityId),
                 "波比传奇抽牌技能",
                 0,
                 PoppyLegendExperienceCost,
@@ -12154,7 +12146,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.DrawOne),
             ViktorLegendAbilityId => new LegendAbilityDefinition(
                 ViktorLegendAbilityId,
-                [ViktorLegendCardNo, "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(ViktorLegendAbilityId),
                 "维克托传奇随从技能",
                 ViktorLegendManaCost,
                 0,
@@ -12164,7 +12156,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.CreateMinion),
             MissFortuneLegendAbilityId => new LegendAbilityDefinition(
                 MissFortuneLegendAbilityId,
-                [MissFortuneLegendCardNo, "OGN·309/298", "OGN·309*/298"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(MissFortuneLegendAbilityId),
                 "赏金猎人传奇游走技能",
                 0,
                 0,
@@ -12174,7 +12166,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.GrantRoam),
             KhazixLegendBoonAbilityId => new LegendAbilityDefinition(
                 KhazixLegendBoonAbilityId,
-                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendBoonAbilityId),
                 "卡兹克传奇增益技能",
                 0,
                 KhazixLegendBoonExperienceCost,
@@ -12184,7 +12176,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.GrantBoon),
             KhazixLegendMoveAbilityId => new LegendAbilityDefinition(
                 KhazixLegendMoveAbilityId,
-                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendMoveAbilityId),
                 "卡兹克传奇休眠单位移动技能",
                 0,
                 KhazixLegendMoveExperienceCost,
@@ -12196,7 +12188,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresExhaustedTarget: true),
             PykeLegendAbilityId => new LegendAbilityDefinition(
                 PykeLegendAbilityId,
-                [PykeLegendCardNo, "UNL-228/219", "UNL-228*/219"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(PykeLegendAbilityId),
                 "派克传奇召回金币技能",
                 PykeLegendManaCost,
                 0,
@@ -12207,7 +12199,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresBattlefieldTarget: true),
             JaxLegendAttachAbilityId => new LegendAbilityDefinition(
                 JaxLegendAttachAbilityId,
-                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(JaxLegendAttachAbilityId),
                 "武器大师传奇贴附技能",
                 JaxLegendAttachManaCost,
                 0,
@@ -12219,7 +12211,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresUnattachedArmamentSecondTarget: true),
             JaxLegendReattachAbilityId => new LegendAbilityDefinition(
                 JaxLegendReattachAbilityId,
-                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                LegendActionAbilityCatalog.SourceCardNosForAbility(JaxLegendReattachAbilityId),
                 "武器大师传奇重贴附技能",
                 0,
                 0,

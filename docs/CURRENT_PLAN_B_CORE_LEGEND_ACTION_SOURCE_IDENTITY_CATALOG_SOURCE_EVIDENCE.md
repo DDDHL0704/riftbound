@@ -20,6 +20,14 @@ This file records the concrete evidence for removing duplicated Core legend-acti
 - `LegendActionSourceIdentityGuardTests.ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog` covers exact source-card rows, positive/negative matching, and source guards that block reintroducing duplicated Darius / Diana / Kai'Sa / Ornn / Ezreal / Irelia / Teemo source-card arrays in Core or MatchSession.
 - Validation passed: focused guard 1/1; LegendActionSourceIdentity / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / LegendAct / LegendAction representatives 264/264; LegendAction / LegendAct / Darius / Diana / Kaisa / Ornn / Ezreal / Irelia / Teemo / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2826/2826; backend full 8871/8871.
 
+## 2026-06-28 Main Legend Source-Group Evidence
+
+- `LegendActionAbilityCatalog` exposes shared source-card groups for Yasuo, Lee Sin, Poppy, Viktor, Miss Fortune, Kha'Zix, Pyke, and Jax legend actions.
+- Kha'Zix boon/move ability ids and Jax attach/reattach ability ids intentionally share their respective source-card groups through separate catalog rows.
+- `CoreRuleEngine.TryGetLegendAbility` and `MatchSession.ImplementedLegendActionAbilities` both read those source groups through `LegendActionAbilityCatalog.SourceCardNosForAbility(...)`.
+- `LegendActionSourceIdentityGuardTests.MainLegendActionSourceGroupsUseSharedCatalog` covers exact source-card rows, positive/negative matching, and source guards that block reintroducing duplicated main legend-action source-card arrays in Core or MatchSession.
+- Validation passed: focused guard 1/1; LegendActionSourceIdentity / Yasuo / LeeSin / Poppy / Viktor / MissFortune / Khazix / Pyke / Jax / LegendAct / LegendAction representatives 178/178; LegendAction / LegendAct / Yasuo / LeeSin / Poppy / Viktor / MissFortune / Khazix / Pyke / Jax / FullGameEndToEnd / GameHubJoin / CardCatalogBaseline / MatchRecovery adjacent 2765/2765; backend full 8872/8872.
+
 ## 1. Runtime Evidence
 
 - `CoreRuleEngine.ControllerHasAzirLegend` now calls `LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId)`.
