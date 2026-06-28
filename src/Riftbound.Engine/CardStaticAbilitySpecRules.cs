@@ -31,6 +31,15 @@ internal static class CardStaticAbilitySpecRules
             && ability.GrantedKeywords is { Count: > 0 };
     }
 
+    public static bool TryGetSourceUnitEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+                cardNo,
+                StaticAbilityKinds.SourceUnitEnterReady,
+                out ability)
+            && ability.MaxControllerHandCount is >= 0;
+    }
+
     public static bool TryGetOtherFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(

@@ -52,6 +52,20 @@ Level-gated friendly unit active-entry runtime:
 - `tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs` proves Master Yi level 11 makes an unpaid-haste `OGN·010/298` 军团后卫 enter ready at 11 experience and emits `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` with legend source object/card metadata.
 - The same test proves 10 experience does not satisfy the parsed requirement and leaves the unpaid-haste unit exhausted with no entry-static metadata.
 
+Low-hand source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilityKinds.SourceUnitEnterReady` and `StaticAbilitySpec.MaxControllerHandCount`.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `如果你的手牌不超过两张，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `MaxControllerHandCount=2`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `maxControllerHandCount` on `staticAbilities` for the shared catalog payload shape.
+- `tests/Riftbound.ConformanceTests/DunehornLowHandActiveEntryStaticAbilityTests.cs` verifies `SFD·027/221` exposes that spec through `BehaviorSpec.StaticAbilities`.
+
+Low-hand source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility`.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `MaxControllerHandCount` against the controller's hand count after the played card has left hand.
+- `tests/Riftbound.ConformanceTests/DunehornLowHandActiveEntryStaticAbilityTests.cs` proves Dunehorn Beast enters ready when the controller has two cards in hand after play and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves three cards in hand after play does not satisfy the parsed requirement and leaves the pre-exhausted source unit exhausted with no entry-static metadata.
+
 ## Validation Evidence
 
 - Focused pre-implementation red: `BehaviorSpecCatalogParsesOtherFriendlyUnitsEnterReadyStaticAbility` had no matching static ability and `MoltenDrakeMakesOtherFriendlyUnpaidHasteUnitEnterReadyFromStaticAbilitySpec` observed the target still exhausted.
@@ -68,12 +82,16 @@ Level-gated friendly unit active-entry runtime:
 - Master Yi level-gated active-entry focused post-implementation: 4/4 passed.
 - Master Yi / Molten / Renata / CardCatalogBaseline adjacent regression: 307/307 passed.
 - MatchRecovery hidden-info / continuous-effect guard regression: 1984/1984 passed.
-- Backend full after this slice: 8878/8878 passed.
-- DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`: passed.
+- Dunehorn low-hand active-entry pre-implementation red: `DunehornLowHandActiveEntryStaticAbilityTests` failed at compile because `SOURCE_UNIT_ENTER_READY` / `MaxControllerHandCount` did not exist.
+- Dunehorn low-hand active-entry focused post-implementation: 3/3 passed.
+- Dunehorn / active-entry / MatchRecovery adjacent regression: 2297/2297 passed.
+- Backend full after this slice: 8881/8881 passed.
+- DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed
 
 - Official-deck score-victory replay coverage for 熔浆巨龙 remains open.
 - Official-deck score-victory replay coverage for Master Yi level 11 active-entry remains open.
-- Broader active-entry static ability families remain open: low-hand active entry, battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
+- Official-deck score-victory replay coverage for Dunehorn Beast low-hand active-entry remains open.
+- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
 - Project remains NOT READY.

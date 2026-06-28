@@ -35,20 +35,30 @@ Implemented for `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师:
 - The active-entry source scan can use controlled public legend-zone sources for this generic friendly-unit entry ability, without a Master Yi card-number / legend-identity branch.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata when this static ability controls the entry state.
 
+Implemented for `SFD·027/221` 穿沙角兽:
+
+- `StaticAbilityKinds.SourceUnitEnterReady = SOURCE_UNIT_ENTER_READY`.
+- `StaticAbilitySpec.MaxControllerHandCount` can now carry source-unit active-entry hand-count requirements; Dunehorn Beast parses `如果你的手牌不超过两张，则我以活跃状态进场。` with `MaxControllerHandCount=2`.
+- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` exposes the parsed spec to engine runtime.
+- `CoreRuleEngine` source-unit entry resolution now checks this generic static ability against the controller's hand count after the played card has left hand.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this static ability controls the entry state.
+
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
 - `OGN·011/298` 熔浆巨龙: `当我在场上时，其他友方单位以活跃状态进场。`
 - `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克: `你的指示物以活跃状态进场。`
 - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师: `{{等级11>}} 你的单位以活跃状态进场。`
+- `SFD·027/221` 穿沙角兽: `如果你的手牌不超过两张，则我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
 ## Not Closed
 
-- Full active-entry family breadth remains open: low-hand entry, turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
+- Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
 - This slice does not add legal official-deck score-victory replay coverage for 熔浆巨龙.
 - This slice does not add legal official-deck score-victory replay coverage for Master Yi level 11 active-entry.
+- This slice does not add legal official-deck score-victory replay coverage for Dunehorn Beast low-hand active-entry.
 - This slice does not close P0 full objective or READY.
 
 ## Validation
@@ -77,6 +87,14 @@ Master Yi level-gated active-entry focused red/green:
 
 Result: initially failed at compile because `FRIENDLY_UNITS_ENTER_READY` / `RequiredPlayerExperience` did not exist; after implementation 4/4 passed.
 
+SFD Dunehorn Beast low-hand active-entry focused red/green:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility"
+```
+
+Result: initially failed at compile because `SOURCE_UNIT_ENTER_READY` / `MaxControllerHandCount` did not exist; after implementation 3/3 passed.
+
 Master Yi / active-entry adjacent:
 
 ```bash
@@ -84,6 +102,14 @@ Master Yi / active-entry adjacent:
 ```
 
 Result: 307/307 passed.
+
+Latest Dunehorn / active-entry / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~UnitBattlefieldHeldDraw|FullyQualifiedName~Dunehorn|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result: 2297/2297 passed.
 
 Hidden-info / continuous-effect recovery guard:
 
@@ -131,9 +157,9 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8878/8878 passed after the Master Yi level-gated active-entry follow-up slice.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry follow-up slice.
 
-DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`:
+DevUi catalog type build after adding active-entry static ability fields:
 
 ```bash
 export PATH="/Users/dinghaolin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/opt/homebrew/bin:/Users/dinghaolin/.nvm/versions/node/v20.20.1/bin:/usr/bin:/bin:/usr/sbin:/sbin"

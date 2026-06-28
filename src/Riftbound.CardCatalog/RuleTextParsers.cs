@@ -2121,6 +2121,21 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var sourceUnitMaxHandEnterReadyMatch = Regex.Match(
+                segment,
+                @"如果你的手牌不超过(?<max>[0-9一两二三四五六七八九十]+)张，则我以活跃状态进场。?$",
+                RegexOptions.CultureInvariant);
+            if (sourceUnitMaxHandEnterReadyMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for spec-driven unit-entry routing.",
+                    MaxControllerHandCount: ParseChineseNumber(sourceUnitMaxHandEnterReadyMatch.Groups["max"].Value)));
+                continue;
+            }
+
             if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
                 || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
             {

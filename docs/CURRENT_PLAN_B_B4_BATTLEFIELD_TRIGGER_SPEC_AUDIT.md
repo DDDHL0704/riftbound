@@ -323,7 +323,7 @@ The 2026-06-27 unit battlefield-held draw follow-up moves the implemented Duneho
   - `DrawCount = 2`
 - `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` now recognizes surviving held units through `UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(...)` and reads the draw count from `BehaviorSpec.Triggers`.
 - The old `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind` card-number branch is removed. The emitted runtime event uses the parsed trigger kind for both `trigger` and `effectKind`.
-- This slice only closes the unit battlefield-held draw path. The separate low-hand active entry condition remains open.
+- This slice only closes the unit battlefield-held draw path. The separate low-hand active entry condition is now tracked and covered by `docs/CURRENT_PLAN_B_OTHER_FRIENDLY_ACTIVE_ENTRY_STATIC_ABILITY_SPEC_AUDIT.md`.
 
 The 2026-06-27 B0 follow-up adds official-deck action-log replay coverage for the same parsed Dunehorn Beast route without changing runtime code:
 

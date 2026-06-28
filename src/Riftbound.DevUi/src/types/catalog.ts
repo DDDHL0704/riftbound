@@ -125,6 +125,7 @@ export type BehaviorSpec = {
     grantedKeywords?: string[] | null;
     targetFilter?: string | null;
     requiredPlayerExperience?: number | null;
+    maxControllerHandCount?: number | null;
   }>;
   staticAuras: StaticAuraSpec[];
   effects: Array<{ templateId: string; phrase: string; status: string; reason: string }>;
