@@ -2,7 +2,7 @@
 
 Date: 2026-06-29
 
-Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, and Prescient Mech static-granted Predict official-deck replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Prescient Mech static-granted Predict official-deck replay, and preconstructed catalog score-victory replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -24,6 +24,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - the score-victory result has a single `MATCH_WON` event and winner score satisfies the emitted `winningScore`;
 - from an already battle-closed official low-curve state, a `MatchJournal`-recorded post-battle score-victory `END_TURN` command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official low-curve initial state, the full mirrored Jhin, distinct Jhin-vs-Rumble, and standby-heavy Jhin-vs-Poppy `SUBMIT_DECK` -> `READY` -> `MULLIGAN` -> gameplay -> `DECLARE_BATTLE` -> score-victory command streams replay through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
+- from `PreconstructedDeckCatalog.Build(...)`, the shippable `jhin-lowcurve` and `rumble-lowcurve` decklists drive the same full `SUBMIT_DECK` -> `READY` -> `MULLIGAN` -> gameplay -> `DECLARE_BATTLE` -> score-victory action-log replay route to the same final state hash and recovered event payload hash;
 - from a seated official Lillia initial state, the full multi-defender `DECLARE_BATTLE` -> `ASSIGN_COMBAT_DAMAGE` command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Lillia / Taric / LeBlanc / Wildclaw Beastmaster initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> reversed defender declaration -> server-authored `ASSIGN_COMBAT_DAMAGE` command stream replays through `MatchActionLogReplayer` to the same final state hash while Taric's printed `壁垒` orders him before LeBlanc's `后排`;
 - from a seated official Vex initial state, the full Shadow `DECLARE_BATTLE` -> `ACTIVATE_ABILITY` -> stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
@@ -217,6 +218,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash`.

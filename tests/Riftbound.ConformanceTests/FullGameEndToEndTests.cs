@@ -268,6 +268,23 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var preconstructedDecks = PreconstructedDeckCatalog.Build(catalog);
+        var p1Deck = preconstructedDecks.Single(deck => string.Equals(deck.Id, "jhin-lowcurve", StringComparison.Ordinal));
+        var p2Deck = preconstructedDecks.Single(deck => string.Equals(deck.Id, "rumble-lowcurve", StringComparison.Ordinal));
+        Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
+        Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
+
+        await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+            "b0-full-game-preconstructed-catalog-replay-room",
+            "b0-full-preconstructed-catalog-replay-score",
+            p1Deck.Decklist,
+            p2Deck.Decklist);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
