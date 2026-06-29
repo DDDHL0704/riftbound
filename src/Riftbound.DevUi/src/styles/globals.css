@@ -12418,6 +12418,21 @@ button.card-face:hover {
 .match-guidance-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+
+.match-guidance-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.match-guidance-chip-group {
+  display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }

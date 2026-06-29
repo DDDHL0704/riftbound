@@ -581,6 +581,23 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       });
     }
   }, [controller, submitTableCommand]);
+  // Surface the no-composition turn actions (end turn / pass) as primary buttons in the guidance
+  // banner, but only on your turn and only when the server actually offers them.
+  const guidancePrimaryActions = useMemo(() => {
+    if (matchGuidancePlan.turnState !== "yours") {
+      return [];
+    }
+
+    return topbarQuickActionPlan.entries
+      .filter((entry) => (entry.id === "endTurn" || entry.id === "pass") && entry.state !== "missing")
+      .map((entry) => ({ id: entry.id, label: entry.label, disabled: entry.disabled }));
+  }, [matchGuidancePlan.turnState, topbarQuickActionPlan.entries]);
+  const runGuidancePrimaryAction = useCallback((id: string) => {
+    const entry = topbarQuickActionPlan.entries.find((candidate) => candidate.id === id);
+    if (entry) {
+      runTopbarQuickAction(entry);
+    }
+  }, [runTopbarQuickAction, topbarQuickActionPlan.entries]);
   const sidePanelDirectory = useMemo(() => buildWireSidePanelDirectoryPlan(WIRE_TABLE_LAYOUT.sidePanel.slots), []);
   const sidePanelOrchestration = useMemo(() => buildWireSidePanelOrchestrationPlan({
     connectionStatus: tableConnectionStatus,
@@ -999,7 +1016,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </div>
       </header>
 
-      <MatchGuidanceBanner plan={matchGuidancePlan} />
+      <MatchGuidanceBanner
+        onRunPrimaryAction={runGuidancePrimaryAction}
+        plan={matchGuidancePlan}
+        primaryActions={guidancePrimaryActions}
+      />
 
       <MatchRecoverySurface plan={matchRecoverySurfacePlan} />
 

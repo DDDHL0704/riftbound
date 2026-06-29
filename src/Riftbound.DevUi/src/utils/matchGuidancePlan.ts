@@ -16,6 +16,9 @@ export type MatchGuidancePlan = {
 // Actions that are always present but are not a useful "you can do this now" suggestion.
 const HIDDEN_ACTIONS = new Set(["WAIT", "SURRENDER"]);
 
+// One-click actions surfaced as primary buttons in the banner, so they are not repeated as chips.
+const PRIMARY_BUTTON_ACTIONS = new Set(["END_TURN", "PASS", "PASS_PRIORITY", "PASS_FOCUS"]);
+
 export function buildMatchGuidancePlan({
   connectionStatus,
   prompt,
@@ -55,7 +58,11 @@ export function buildMatchGuidancePlan({
       turnState: "yours",
       headline: "轮到你了",
       detail: prompt.reason?.trim() || "请从下方的服务端候选中选择你的行动。",
-      youCanLabels: dedupe(prompt.actions.filter((action) => !HIDDEN_ACTIONS.has(action)).map(actionLabel)),
+      youCanLabels: dedupe(
+        prompt.actions
+          .filter((action) => !HIDDEN_ACTIONS.has(action) && !PRIMARY_BUTTON_ACTIONS.has(action))
+          .map(actionLabel)
+      ),
       tone: "good"
     };
   }

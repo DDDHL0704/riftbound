@@ -43,7 +43,8 @@ assert.equal(yours.turnState, "yours");
 assert.equal(yours.headline, "轮到你了");
 assert.equal(yours.detail, "当前玩家普通开环行动");
 assert.equal(yours.tone, "good");
-assert.deepEqual(yours.youCanLabels, ["打出卡牌", "横置符文", "结束回合"]);
+// END_TURN / SURRENDER / WAIT are not chips: end-turn is a primary button, the others are noise.
+assert.deepEqual(yours.youCanLabels, ["打出卡牌", "横置符文"]);
 
 const opponent = buildMatchGuidancePlan({
   connectionStatus: "connected",

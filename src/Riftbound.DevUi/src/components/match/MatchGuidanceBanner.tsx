@@ -1,5 +1,12 @@
+import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import type { MatchGuidancePlan, MatchGuidanceTone } from "../../utils/matchGuidancePlan";
+
+export type MatchGuidancePrimaryAction = {
+  id: string;
+  label: string;
+  disabled: boolean;
+};
 
 const TONE_PILL: Record<MatchGuidanceTone, "good" | "warn" | "neutral" | "bad"> = {
   good: "good",
@@ -15,7 +22,16 @@ const TURN_STATE_PILL_LABEL: Record<MatchGuidancePlan["turnState"], string> = {
   over: "已结束"
 };
 
-export function MatchGuidanceBanner({ plan }: { plan: MatchGuidancePlan }) {
+export function MatchGuidanceBanner({
+  plan,
+  primaryActions = [],
+  onRunPrimaryAction
+}: {
+  plan: MatchGuidancePlan;
+  primaryActions?: MatchGuidancePrimaryAction[];
+  onRunPrimaryAction?: (id: string) => void;
+}) {
+  const hasActionsRow = primaryActions.length > 0 || plan.youCanLabels.length > 0;
   return (
     <section
       aria-label="对局向导"
@@ -31,16 +47,35 @@ export function MatchGuidanceBanner({ plan }: { plan: MatchGuidancePlan }) {
         </div>
         <p className="match-guidance-detail">{plan.detail}</p>
       </div>
-      {plan.youCanLabels.length > 0 && (
+      {hasActionsRow && (
         <div className="match-guidance-actions" data-match-guidance-actions>
-          <span className="match-guidance-actions-label">你可以：</span>
-          <div className="match-guidance-chips">
-            {plan.youCanLabels.map((label) => (
-              <span className="match-guidance-chip" data-match-guidance-chip={label} key={label}>
-                {label}
-              </span>
-            ))}
-          </div>
+          {primaryActions.length > 0 && (
+            <div className="match-guidance-primary" data-match-guidance-primary>
+              {primaryActions.map((action) => (
+                <Button
+                  data-match-guidance-primary-action={action.id}
+                  disabled={action.disabled}
+                  key={action.id}
+                  onClick={() => onRunPrimaryAction?.(action.id)}
+                  variant="primary"
+                >
+                  {action.label}
+                </Button>
+              ))}
+            </div>
+          )}
+          {plan.youCanLabels.length > 0 && (
+            <div className="match-guidance-chip-group">
+              <span className="match-guidance-actions-label">你可以：</span>
+              <div className="match-guidance-chips">
+                {plan.youCanLabels.map((label) => (
+                  <span className="match-guidance-chip" data-match-guidance-chip={label} key={label}>
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
