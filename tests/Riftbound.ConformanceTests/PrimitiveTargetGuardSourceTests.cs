@@ -45,7 +45,9 @@ public sealed class PrimitiveTargetGuardSourceTests
         "IsIsolateTargetAllowed",
         "IsVengeanceTargetAllowed",
         "IsHostileTakeoverTargetAllowed",
-        "IsSwitcherooTargetAllowed"
+        "IsSwitcherooTargetAllowed",
+        "IsSpiritFireTargetAllowed",
+        "IsPromptSpiritFireTargetAllowed"
     ];
 
     private static readonly string[] RepresentativeTargetGuardEffectKinds =
@@ -58,7 +60,8 @@ public sealed class PrimitiveTargetGuardSourceTests
         "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW",
         "VENGEANCE_DESTROY_UNIT",
         "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT",
-        "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS"
+        "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS",
+        "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4"
     ];
 
     private static string RepositoryRoot()

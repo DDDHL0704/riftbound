@@ -12972,8 +12972,7 @@ internal static class ActionPromptBuilder
 
         return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex)
-                && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
-                && IsPromptSpiritFireTargetAllowed(state, behavior, objectId))
+                && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
@@ -13116,14 +13115,13 @@ internal static class ActionPromptBuilder
         for (var targetIndex = 0; targetIndex < targetObjectIds.Count; targetIndex++)
         {
             var targetScope = PromptTargetScopeForBehavior(behavior);
-            if (!IsPromptTargetObjectInScope(
+                if (!IsPromptTargetObjectInScope(
                     state,
                     playerId,
                     targetObjectIds[targetIndex],
                     targetScope,
                     targetIndex)
-                || !IsPromptPlayCardTargetAllowed(state, playerId, behavior, targetObjectIds[targetIndex], targetIndex)
-                || !IsPromptSpiritFireTargetAllowed(state, behavior, targetObjectIds[targetIndex]))
+                || !IsPromptPlayCardTargetAllowed(state, playerId, behavior, targetObjectIds[targetIndex], targetIndex))
             {
                 return false;
             }
@@ -13476,23 +13474,6 @@ internal static class ActionPromptBuilder
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
                 && targetState.Power > 0
                 && targetState.Power <= maxTargetPower);
-    }
-
-    private static bool IsPromptSpiritFireTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        return IsPromptBattlefieldObject(state, objectId)
-            && IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
-            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId);
     }
 
     private static bool IsPromptControlledFieldObject(MatchState state, string playerId, string objectId)
