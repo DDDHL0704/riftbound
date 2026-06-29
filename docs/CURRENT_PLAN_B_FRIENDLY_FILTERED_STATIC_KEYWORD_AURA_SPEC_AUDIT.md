@@ -1,6 +1,6 @@
 # Plan B Friendly-Filtered Static Keyword Aura Spec Audit
 
-更新时间：2026-06-26
+更新时间：2026-06-29
 
 ## Scope
 
@@ -36,6 +36,7 @@ Runtime evidence now covers:
 - `SFD·071/221` dynamic Spellshield contributes one mana of enemy spell target tax in both prompt legality and Core payment.
 - `FullGameEndToEndTests.OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash` now carries the same `SFD·071/221` multiple-keyword projection through legal official Rumble deck submission/opening, focused midgame battle declaration, score victory, and action-log replay; the friendly mechanical target has no printed `法盾` / `游走` tags.
 - `SFD·065/221` parses and projects static-granted `预知` as RULE_TEXT; when the public source already grants `预知` to a later-played matching friendly mechanical unit, prompts and Core stack resolution now reuse the shared top-1 optional main-deck recycle path.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` now carries that `SFD·065/221` static-granted `预知` route through legal official Rumble deck submission/opening, server-authored `PLAY_CARD`, top main-deck recycle, score victory, and final-state action-log replay.
 - Printed/source-tag `预知` permanents now receive a generic lifecycle default in `CardBehaviorRegistry`: if no explicit look/target model exists, the shared engine path exposes only the controller's top main-deck card as an optional recycle target. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 - Face-down source and target guards: a face-down friendly-filtered keyword source is not projected and grants no combat keyword bonus, and a face-down matching friendly target is not emitted as a RULE_TEXT continuous-effect target.
 
@@ -122,6 +123,22 @@ Static-granted Predict lifecycle focused:
 ```
 
 Result: 2/2 passed.
+
+Prescient Mech static-granted Predict official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrescientMechStaticGrantedPredict"
+```
+
+Result: 2/2 passed.
+
+Prescient Mech static-granted Predict official-deck replay adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrescientMechStaticGrantedPredict|FullyQualifiedName~StaticGrantedPredict|FullyQualifiedName~Predict|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticKeyword|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result: 2144/2144 passed.
 
 Source-tag Predict adjacent:
 
@@ -226,3 +243,11 @@ Result: 2195/2195 passed.
 ```
 
 Result: 8735/8735 passed.
+
+2026-06-29 backend full after Prescient Mech static-granted Predict official-deck replay:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8942/8942 passed.

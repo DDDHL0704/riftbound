@@ -44,6 +44,8 @@ public sealed class FullGameEndToEndTests
     private const string PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo = "UNL-076/219";
     private const string SoulShepherdFriendlyTokenStaticAuraCardNo = "UNL-077/219";
     private const string RumbleFriendlyMechanicalStaticAuraCardNo = "SFD·089/221";
+    private const string PrescientMechStaticGrantedPredictCardNo = "SFD·065/221";
+    private const string ProgressGloryMechanicalUnitCardNo = "SFD·075/221";
     private const string SpeedingMechFriendlyMechanicalStaticKeywordCardNo = "SFD·071/221";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
@@ -3356,6 +3358,43 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildPrescientMechStaticGrantedPredictOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, LilliaLegendCardNo, LilliaChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-prescient-mech-static-granted-predict-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildPrescientMechStaticGrantedPredictMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        AssertPrescientMechStaticGrantedPredictPrompt(current);
+        var recycledObjectId = current.State.PlayerZones["P1"].MainDeck.First();
+        var played = await SubmitPrescientMechStaticGrantedPredictProgressGloryAsync(
+            session,
+            current,
+            "P1",
+            "b0-prescient-mech-static-granted-predict");
+        AssertPrescientMechStaticGrantedPredictResolved(current, played, recycledObjectId);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-prescient-mech-static-granted-predict-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -8257,6 +8296,97 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertPrescientMechStaticGrantedPredictPrompt(ResolutionResult result)
+    {
+        var state = result.State;
+        var sourceObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            PrescientMechStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech prompt assertion could not find Prescient Mech source.");
+        var targetObjectId = FindHandCardObjectByCardNo(
+            state,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech prompt assertion could not find Progress Glory in hand.");
+        var topMainDeckObjectId = state.PlayerZones["P1"].MainDeck.First();
+
+        Assert.Contains("机械", state.CardObjects[sourceObjectId].Tags);
+        Assert.Contains("机械", state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardLifecycleKeywordNames.Predict, state.CardObjects[targetObjectId].Tags);
+
+        var playCandidate = EnabledCandidate(result.Prompts["P1"], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Prescient Mech prompt assertion could not find PLAY_CARD: {DescribeState(state)}");
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, targetObjectId, StringComparison.Ordinal));
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal([topMainDeckObjectId], firstTargetChoiceIds);
+    }
+
+    private static void AssertPrescientMechStaticGrantedPredictResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        string recycledObjectId)
+    {
+        var state = result.State;
+        var sourceObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            PrescientMechStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech resolved assertion could not find Prescient Mech source.");
+        var targetObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech resolved assertion could not find Progress Glory in base.");
+
+        Assert.Equal(beforePlay.State.PlayerZones["P1"].MainDeck.First(), recycledObjectId);
+        Assert.Equal(
+            beforePlay.State.PlayerZones["P1"].MainDeck.Skip(1).Concat([recycledObjectId]).ToArray(),
+            state.PlayerZones["P1"].MainDeck);
+        Assert.Equal(new RunePool(0, 0), state.RunePools["P1"]);
+        Assert.Empty(state.StackItems);
+        Assert.Contains("机械", state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardLifecycleKeywordNames.Predict, state.CardObjects[targetObjectId].Tags);
+
+        var ruleTextAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal)
+            && effect.EffectId.EndsWith($":{CardLifecycleKeywordNames.Predict}", StringComparison.Ordinal));
+        Assert.Equal(
+            $"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{targetObjectId}:{CardLifecycleKeywordNames.Predict}",
+            ruleTextAura.EffectId);
+        Assert.Equal("OBJECT", ruleTextAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", ruleTextAura.Duration);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
+        Assert.Equal(1, recycleEvent.Payload["count"]);
+        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -13377,6 +13507,38 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(play);
         AssertNoHiddenZoneLeak(play);
         return await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitPrescientMechStaticGrantedPredictProgressGloryAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentPrefix)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var result = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentPrefix}-tap");
+        var sourceObjectId = FindHandCardObjectByCardNo(result.State, playerId, ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech driver could not find Progress Glory in hand.");
+        var recycledObjectId = result.State.PlayerZones[playerId].MainDeck.FirstOrDefault()
+            ?? throw new InvalidOperationException("B0 Prescient Mech driver could not find a friendly top main-deck card.");
+        var playCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Prescient Mech driver could not find PLAY_CARD for {playerId}: {DescribeState(result.State)}");
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, sourceObjectId, StringComparison.Ordinal));
+
+        var command = new PlayCardCommand(
+            sourceObjectId,
+            ProgressGloryMechanicalUnitCardNo,
+            [recycledObjectId],
+            Destination: "BASE");
+        var played = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-play",
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(played);
+        AssertNoHiddenZoneLeak(played);
+        return await ResolveStackPassPassAsync(session, played, $"{intentPrefix}-resolve");
     }
 
     private static async ValueTask<ResolutionResult> DriveBaseUnitToBattlefieldWhenReadyAsync(
@@ -21511,6 +21673,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildPrescientMechStaticGrantedPredictOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [
+                    PrescientMechStaticGrantedPredictCardNo,
+                    ProgressGloryMechanicalUnitCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -27473,6 +27649,70 @@ public sealed class FullGameEndToEndTests
                 .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(destinationBattlefieldId)])
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
+        };
+    }
+
+    private static MatchState BuildPrescientMechStaticGrantedPredictMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [PrescientMechStaticGrantedPredictCardNo, ProgressGloryMechanicalUnitCardNo],
+            new RunePool(mana: 4, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var prescientObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            PrescientMechStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech setup could not find Prescient Mech in P1 hand.");
+        var progressGloryObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Prescient Mech setup could not find Progress Glory in P1 hand.");
+        Assert.NotEmpty(midgameState.PlayerZones["P1"].MainDeck);
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, prescientObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Base = p1Zones.Base.Concat([prescientObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[prescientObjectId] = new ObjectLocationState("P1", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[prescientObjectId] = cardObjects[prescientObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[prescientObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[progressGloryObjectId] = cardObjects[progressGloryObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[progressGloryObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects
         };
     }
 

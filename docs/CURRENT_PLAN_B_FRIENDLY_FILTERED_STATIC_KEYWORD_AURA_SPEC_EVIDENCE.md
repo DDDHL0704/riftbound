@@ -1,6 +1,6 @@
 # Plan B Friendly-Filtered Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-26
+更新时间：2026-06-29
 
 ## Evidence Summary
 
@@ -20,6 +20,7 @@ Implemented evidence:
 - Official-deck replay now also covers `SFD·071/221` Speeding Mech projecting both `法盾` and `游走` RULE_TEXT effects to an official `SFD·026/221` friendly mechanical unit in a legal Rumble deck route; the target has no printed Spellshield/Roam tags, then the focused battle / score-victory action-log replay reaches the same final state hash.
 - Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 - Static-granted `预知` from `FRIENDLY_FILTERED_UNITS_KEYWORD` now feeds the same lifecycle default when a public source already grants `预知` to a later-played matching friendly unit. `SFD·065/221` Prescient Mech plus `SFD·075/221` Progress Glory is the representative prompt and Core stack-resolution fixture.
+- Official-deck replay now carries that same static-granted `预知` route through legal Rumble deck submission/opening, a focused midgame with `SFD·065/221` Prescient Mech in base and `SFD·075/221` Progress Glory in hand, server-authored `PLAY_CARD` targeting the controller's top main-deck card, `CARDS_RECYCLED`, score victory, and final-state action-log replay.
 - Hidden-boundary guards now cover `FRIENDLY_FILTERED_UNITS_KEYWORD`: face-down public-field sources do not project RULE_TEXT effects or grant combat keyword bonuses, and face-down matching friendly targets are excluded from continuous-effect target projection.
 
 ## Covered Cards
@@ -65,6 +66,9 @@ Implemented evidence:
   - Verifies public-field `SFD·065/221` grants `预知` to a later-played friendly mechanical hand unit and exposes only the controller's top main-deck card as an optional prompt target.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysStaticGrantedPredictSourceUnitRecycleTopCard`
   - Adds `p2-preflight-play-progress-glory-static-granted-predict-recycle.fixture.json` as a static-granted `预知` representative that plays a non-printed-Predict mechanical unit, resolves it to base, and recycles the selected top main-deck card.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`
+  - Verifies a legal official Rumble deck opening can feed a focused midgame route where public `SFD·065/221` grants `预知` to a later-played official `SFD·075/221` mechanical unit.
+  - Verifies the server-authored `PLAY_CARD` prompt exposes only the controller's top main-deck card as the optional recycle target, the target unit has no printed `预知` tag, the resulting RULE_TEXT effect is `FRIENDLY_FILTERED_UNITS_KEYWORD`, `CARDS_RECYCLED` moves that top card to the bottom, and score-victory action-log replay reaches the same final state hash.
 - `ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantDoesNotProjectFromFaceDownSource`
   - Verifies a face-down Rumble hero source does not project `FRIENDLY_FILTERED_UNITS_KEYWORD` RULE_TEXT effects and does not grant Assault combat keyword bonus even when authoritative test state still carries card number and tags.
 - `ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantDoesNotProjectToFaceDownTarget`
@@ -77,7 +81,9 @@ Implemented evidence:
 - Adjacent FriendlyFiltered / StaticAura / StaticKeyword / Roam / Spellshield: 313/313 passed.
 - Focused source-tag Predict lifecycle slice: 8/8 passed.
 - Focused static-granted Predict lifecycle slice: 2/2 passed.
+- Focused Prescient Mech static-granted Predict official-deck replay slice: 2/2 passed.
 - Adjacent Predict / Gemstone / Lifecycle: 112/112 passed.
+- Adjacent PrescientMech / StaticGrantedPredict / Predict / FriendlyFiltered / StaticKeyword / FullGameEndToEnd / MatchRecovery: 2144/2144 passed.
 - Focused hidden-boundary slice: 2/2 passed.
 - Adjacent FriendlyFiltered / StaticKeyword / StaticAura / Roam / Spellshield / Hidden / FaceDown / MatchRecovery: 2238/2238 passed.
 - Focused Rumble legend official-deck replay slice: 1/1 passed.
@@ -92,6 +98,7 @@ Implemented evidence:
 - Backend full after hidden-boundary guard: 8617/8617 passed.
 - Backend full after Rumble legend official-deck replay: 8734/8734 passed.
 - Backend full after Speeding Mech official-deck replay: 8735/8735 passed.
+- Backend full after Prescient Mech static-granted Predict official-deck replay: 8942/8942 passed.
 
 ## Residuals
 

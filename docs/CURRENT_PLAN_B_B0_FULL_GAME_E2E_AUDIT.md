@@ -1,8 +1,8 @@
 # Plan B / B0 Full-Game E2E Audit
 
-Date: 2026-06-28
+Date: 2026-06-29
 
-Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, and face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, and Prescient Mech static-granted Predict official-deck replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -48,6 +48,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Rumble / SFD·089 Rumble / Watchful Sentinel opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·089/221` Rumble and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; the friendly-mechanical static-aura `DECLARE_BATTLE` -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash while Rumble's `BehaviorSpec.StaticAuras` / `FRIENDLY_FILTERED_UNITS_POWER` tag-filter route gives Rumble itself `staticPowerBonus=1`;
 - from a seated official Lillia / Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `OGN·096/298` Watchful Sentinel and a second official `SFD·026/221` Rumble unit at the same P1 battlefield; P2's `SFD·181/221` Rumble legend projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `坚守` to the friendly mechanical defender, defender damage records `basePower=4`, `keyword=坚守`, `keywordBonus=1`, `combatPower=5`, and `damage=5`, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Rumble opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·071/221` Speeding Mech in P1 base, a second official `SFD·026/221` Rumble unit and opposing `OGN·096/298` Watchful Sentinel at the same P1 battlefield; Speeding Mech projects `FRIENDLY_FILTERED_UNITS_KEYWORD` / `法盾` and `游走` to the friendly mechanical unit without adding printed tags, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
+- from a seated official Rumble opening state, a verified legal official-deck opening feeds a focused midgame main-phase state with `SFD·065/221` Prescient Mech in P1 base, official `SFD·075/221` Progress Glory in P1 hand, and a controlled main-deck top card; the server-authored `PLAY_CARD` prompt exposes only that top card as the optional static-granted `预知` recycle target, Progress Glory has no printed `预知` tag, `FRIENDLY_FILTERED_UNITS_KEYWORD` / `预知` projects after resolution, `CARDS_RECYCLED` moves the selected card to the bottom of P1's main deck, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `OGN·297/298` Wind Hill / 疾风山丘, then server prompts play and move `UNL-057/219` Wildclaw Beastmaster to Wind Hill, project `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` / `游走` from the battlefield source without adding printed tags, submit a server-authored precise `MOVE_UNIT` from `BATTLEFIELD:<Wind Hill>` to a second official P1 battlefield with optional cost `ROAM`, and continue through score victory and action-log replay to the same final state hash;
 - from a seated official Jhin vs Vex opening state, a verified legal official-deck opening selects P2 `OGN·296/298` Void Gate / 虚空之门, then a focused midgame state keeps P2 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `PLAY_CARD` prompt lets P1 cast official `UNL-007/219` Punishment at that public battlefield target, the stack resolves through `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` for 4 total damage, and the command stream continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening selects P1 `UNL-213/219` Mutation Garden / 蜕变花园, then a focused midgame state keeps P1 `UNL-057/219` Wildclaw Beastmaster at that battlefield; the server-authored `ACTIVATE_ABILITY` prompt exposes `BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE`, the command exhausts that unit, emits `BATTLEFIELD_TRIGGER_RESOLVED.amount = 1` and `EXPERIENCE_GAINED.totalExperience = 1`, and the command stream continues through score victory and action-log replay to the same final state hash;
@@ -2861,4 +2862,40 @@ Result:
 
 ```text
 Passed: 8891, Failed: 0, Skipped: 0, Total: 8891
+```
+
+Latest Prescient Mech static-granted Predict official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrescientMechStaticGrantedPredict"
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Prescient Mech static-granted Predict adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrescientMechStaticGrantedPredict|FullyQualifiedName~StaticGrantedPredict|FullyQualifiedName~Predict|FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticKeyword|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2144, Failed: 0, Skipped: 0, Total: 2144
+```
+
+Latest backend full validation after Prescient Mech static-granted Predict official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 8942, Failed: 0, Skipped: 0, Total: 8942
 ```
