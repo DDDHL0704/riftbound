@@ -6571,10 +6571,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
     {
-        return behavior.AppliesPowerModifierToSourceUnit
-            && behavior.PowerModifierAmount != 0
-            && behavior.EffectKind.Contains("TEEMO", StringComparison.Ordinal)
-            && behavior.EffectKind.Contains("PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal);
+        return behavior.PlaysSourceToBaseAsUnit
+            && behavior.AppliesPowerModifierToSourceUnit
+            && behavior.PowerModifierAmount != 0;
     }
 
     private static TriggerQueueItemState BuildOnPlayTriggerQueueItem(
