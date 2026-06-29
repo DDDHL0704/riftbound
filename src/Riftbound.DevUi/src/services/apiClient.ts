@@ -1,4 +1,5 @@
 import { BehaviorSpec, KeywordCoverageReport } from "../types/catalog";
+import { PublicMatchDto } from "../types/protocol";
 
 export type HealthResponse = {
   status: string;
@@ -35,6 +36,10 @@ export class ApiClient {
 
   async preconstructedDecks(signal?: AbortSignal): Promise<PreconstructedDeck[]> {
     return this.get<PreconstructedDeck[]>("/decks/preconstructed", signal);
+  }
+
+  async publicMatches(signal?: AbortSignal): Promise<PublicMatchDto[]> {
+    return this.get<PublicMatchDto[]>("/matches", signal);
   }
 
   private async get<T>(path: string, signal?: AbortSignal): Promise<T> {

@@ -22,6 +22,30 @@ export type AuthResultDto = {
   handle: string;
 };
 
+export type MatchmakingStatusDto = {
+  state: "QUEUED" | "MATCHED" | "CANCELLED" | "IDLE" | "REJECTED" | (string & {});
+  playerId: string;
+  roomId?: string | null;
+  opponentPlayerId?: string | null;
+  playerSession?: PlayerSessionDto | null;
+  errorCode?: string | null;
+  message?: string | null;
+};
+
+export type PublicMatchDto = {
+  roomId: string;
+  hostPlayerId: string;
+  seatCount: number;
+  capacity: number;
+  status: "WAITING" | (string & {});
+  createdAt: string;
+};
+
+export type CreatePublicMatchResultDto = {
+  match: PublicMatchDto;
+  playerSession: PlayerSessionDto;
+};
+
 export type ErrorDto = {
   code: string;
   message: string;

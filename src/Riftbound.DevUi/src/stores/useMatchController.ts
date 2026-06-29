@@ -56,7 +56,7 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
 
   const rememberSession = useCallback(
     (session: PlayerSessionDto) => {
-      localStorage.setItem(sessionKey(roomId, session.playerId), JSON.stringify(session));
+      rememberPlayerSession(roomId, session);
     },
     [roomId]
   );
@@ -390,6 +390,10 @@ function submitErrorMessage(error: unknown): string {
 
 function sessionKey(roomId: string, playerId: string): string {
   return `riftbound.session.${roomId}.${playerId}`;
+}
+
+export function rememberPlayerSession(roomId: string, session: PlayerSessionDto): void {
+  localStorage.setItem(sessionKey(roomId, session.playerId), JSON.stringify(session));
 }
 
 function forgetSession(roomId: string, playerId: string): void {

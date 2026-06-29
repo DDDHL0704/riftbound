@@ -260,6 +260,7 @@ h3 {
 .coverage-strip,
 .audit-banner,
 .lobby-form,
+.lobby-discovery-panel,
 .room-actions,
 .room-log-panel,
 .deck-summary,
@@ -285,6 +286,7 @@ h3 {
 .coverage-strip,
 .audit-banner,
 .lobby-form,
+.lobby-discovery-panel,
 .room-actions,
 .room-log-panel,
 .deck-summary,
@@ -393,6 +395,88 @@ h3 {
 .lobby-form,
 .settings-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lobby-content-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(340px, 1.1fr);
+  gap: 16px;
+}
+
+.lobby-discovery-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.lobby-discovery-header,
+.public-match-list-header,
+.lobby-action-row,
+.public-match-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lobby-discovery-header,
+.public-match-list-header {
+  justify-content: space-between;
+}
+
+.lobby-discovery-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.lobby-status-line,
+.lobby-error-line,
+.public-match-list-header small,
+.public-match-meta {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.lobby-status-line,
+.lobby-error-line {
+  margin: 0;
+}
+
+.lobby-error-line {
+  color: var(--accent-red);
+}
+
+.lobby-action-row {
+  flex-wrap: wrap;
+}
+
+.public-match-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.public-match-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 72px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(9, 15, 23, 0.22);
+}
+
+.public-match-row strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.public-match-meta {
+  flex-wrap: wrap;
+  font-size: 12px;
 }
 
 .filter-bar label,
@@ -5447,6 +5531,18 @@ button.card-face:hover {
 }
 
 @media (max-width: 900px) {
+  .lobby-content-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .public-match-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .public-match-row .button {
+    justify-self: start;
+  }
+
   .room-workflow-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -5674,6 +5770,7 @@ button.card-face:hover {
 .coverage-strip,
 .audit-banner,
 .lobby-form,
+.lobby-discovery-panel,
 .room-actions,
 .room-log-panel,
 .deck-summary,
@@ -5759,6 +5856,7 @@ button.card-face:hover {
 .app-frame:not(.app-frame-match) .coverage-strip,
 .app-frame:not(.app-frame-match) .audit-banner,
 .app-frame:not(.app-frame-match) .lobby-form,
+.app-frame:not(.app-frame-match) .lobby-discovery-panel,
 .app-frame:not(.app-frame-match) .match-command-row,
 .app-frame:not(.app-frame-match) .room-actions,
 .app-frame:not(.app-frame-match) .room-log-panel,
@@ -5780,6 +5878,11 @@ button.card-face:hover {
 .app-frame:not(.app-frame-match) .page-header::before,
 .app-frame:not(.app-frame-match) .command-center::before {
   display: none;
+}
+
+.app-frame:not(.app-frame-match) .public-match-row {
+  border-color: #0b0b0b;
+  background: #ffffff;
 }
 
 .app-frame:not(.app-frame-match) .brand-mark svg,

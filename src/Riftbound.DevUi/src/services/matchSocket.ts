@@ -3,10 +3,13 @@ import {
   ActionPromptDto,
   AuthResultDto,
   CommandReceiptDto,
+  CreatePublicMatchResultDto,
   ErrorDto,
   GameCommand,
   GameEvent,
+  MatchmakingStatusDto,
   PlayerSessionDto,
+  PublicMatchDto,
   SnapshotDto,
   WsServerMessage
 } from "../types/protocol";
@@ -17,6 +20,7 @@ type MatchSocketHandlers = {
   onSnapshot: (message: WsServerMessage<SnapshotDto>) => void;
   onPrompt: (message: WsServerMessage<ActionPromptDto>) => void;
   onEvents: (message: WsServerMessage<GameEvent[]>) => void;
+  onMatchmaking?: (message: WsServerMessage<MatchmakingStatusDto>) => void;
   onError: (message: WsServerMessage<ErrorDto>) => void;
   onStatus: (status: "connecting" | "connected" | "reconnecting" | "disconnected" | "error") => void;
 };
@@ -55,6 +59,9 @@ export class MatchSocket {
     connection.on("Snapshot", this.handlers.onSnapshot);
     connection.on("Prompt", this.handlers.onPrompt);
     connection.on("Events", this.handlers.onEvents);
+    connection.on("Matchmaking", (message: WsServerMessage<MatchmakingStatusDto>) => {
+      this.handlers.onMatchmaking?.(message);
+    });
     connection.on("Error", (message: WsServerMessage<ErrorDto>) => {
       this.pendingJoin?.reject(message.payload);
       this.pendingJoin = undefined;
@@ -85,6 +92,22 @@ export class MatchSocket {
 
   async requestSnapshot(roomId: string, playerId: string): Promise<void> {
     await this.invoke("RequestSnapshot", roomId, playerId);
+  }
+
+  async enqueueMatchmaking(playerId: string): Promise<MatchmakingStatusDto> {
+    return await this.invoke<MatchmakingStatusDto>("EnqueueMatchmaking", playerId);
+  }
+
+  async cancelMatchmaking(playerId: string): Promise<MatchmakingStatusDto> {
+    return await this.invoke<MatchmakingStatusDto>("CancelMatchmaking", playerId);
+  }
+
+  async createPublicMatch(playerId: string): Promise<CreatePublicMatchResultDto | null> {
+    return await this.invoke<CreatePublicMatchResultDto | null>("CreatePublicMatch", playerId);
+  }
+
+  async listPublicMatches(): Promise<PublicMatchDto[]> {
+    return await this.invoke<PublicMatchDto[]>("ListPublicMatches");
   }
 
   async ready(roomId: string, playerId: string, clientIntentId: string): Promise<CommandReceiptDto> {
