@@ -7,13 +7,37 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var devUiOrigins = builder.Configuration
-    .GetSection("Riftbound:DevUiOrigins")
-    .Get<string[]>()
-    ?? DevUiCorsPolicy.DefaultOrigins;
+var useJsonConsoleLogging = builder.Configuration.GetValue("Riftbound:Logging:JsonConsole", !builder.Environment.IsDevelopment());
+builder.Logging.ClearProviders();
+if (useJsonConsoleLogging)
+{
+    builder.Logging.AddJsonConsole(options =>
+    {
+        options.JsonWriterOptions = new JsonWriterOptions { Indented = false };
+    });
+}
+else
+{
+    builder.Logging.AddSimpleConsole(options =>
+    {
+        options.SingleLine = true;
+        options.TimestampFormat = "HH:mm:ss ";
+    });
+}
+
+builder.Logging.Configure(options =>
+{
+    options.ActivityTrackingOptions =
+        ActivityTrackingOptions.TraceId
+        | ActivityTrackingOptions.SpanId
+        | ActivityTrackingOptions.ParentId;
+});
+
+var devUiOrigins = RiftboundOperationalStatus.ResolveDevUiOrigins(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -23,7 +47,18 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSignalR().AddJsonProtocol(options =>
+var signalR = builder.Services.AddSignalR();
+var redisBackplaneConnectionString = RiftboundOperationalStatus.ResolveRedisBackplaneConnectionString(builder.Configuration);
+if (!string.IsNullOrWhiteSpace(redisBackplaneConnectionString))
+{
+    var channelPrefix = RiftboundOperationalStatus.ResolveRedisChannelPrefix(builder.Configuration);
+    signalR.AddStackExchangeRedis(redisBackplaneConnectionString, options =>
+    {
+        options.Configuration.ChannelPrefix = RedisChannel.Literal(channelPrefix);
+    });
+}
+
+signalR.AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -59,13 +94,18 @@ if (devUiDistProvider is not null)
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapGet("/health", () => Results.Ok(new
+app.MapGet("/health", (IConfiguration configuration, IHostEnvironment environment) => Results.Ok(
+    RiftboundOperationalStatus.Build(configuration, environment)));
+
+app.MapGet("/metrics", (IConfiguration configuration, IHostEnvironment environment) =>
 {
-    status = "ok",
-    service = "riftbound-dotnet",
-    role = "migration-skeleton",
-    dotnet = Environment.Version.ToString()
-}));
+    var status = RiftboundOperationalStatus.Build(configuration, environment);
+    return status.MetricsEnabled
+        ? Results.Text(
+            RiftboundOperationalStatus.ToPrometheus(status),
+            "text/plain; version=0.0.4; charset=utf-8")
+        : Results.NotFound();
+});
 
 app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
 {

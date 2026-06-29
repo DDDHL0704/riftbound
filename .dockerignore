@@ -1,0 +1,13 @@
+.git
+.DS_Store
+**/bin
+**/obj
+**/.vs
+**/.vscode
+src/Riftbound.DevUi/node_modules
+src/Riftbound.DevUi/dist
+src/Riftbound.DevUi/artifacts
+src/Riftbound.DevUi/tsconfig.tsbuildinfo
+tests/**/TestResults
+*.pdf
+《符文战场》*.md

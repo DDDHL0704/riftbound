@@ -9,6 +9,10 @@
     <ProjectReference Include="../Riftbound.Persistence/Riftbound.Persistence.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="3.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="10.0.9" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="../Riftbound.DevUi/dist/**/*" Link="wwwroot/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
