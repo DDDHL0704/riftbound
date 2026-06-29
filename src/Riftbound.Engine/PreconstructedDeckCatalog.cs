@@ -1,0 +1,151 @@
+using Riftbound.CardCatalog;
+
+namespace Riftbound.Engine;
+
+/// <summary>
+/// A named, server-validated preconstructed decklist players can submit without
+/// hand-building a deck. Each deck is built from the official catalog using only
+/// implemented low-curve units so a human match resolves through supported rules.
+/// </summary>
+public sealed record PreconstructedDeck(
+    string Id,
+    string Name,
+    string Description,
+    OfficialDecklist Decklist);
+
+/// <summary>
+/// Builds the shippable set of preconstructed decks. The card lists are derived from
+/// the official catalog (not hard-coded card numbers) and each result is checked with
+/// <see cref="OfficialDeckValidator"/> so an illegal definition fails fast rather than
+/// reaching a player.
+/// </summary>
+public static class PreconstructedDeckCatalog
+{
+    private const int MaxManaCostForLowCurveUnit = 2;
+
+    private static readonly IReadOnlyList<PreconstructedDeckDefinition> Definitions =
+    [
+        new("jhin-lowcurve", "影焰枪手 · 烬", "低费单位起手，正面稳健铺场。", "UNL-181/219", "UNL-022/219"),
+        new("rumble-lowcurve", "机械狂潮 · 兰博", "机械单位压制，节奏明快。", "SFD·181/221", "SFD·026/221"),
+        new("lillia-lowcurve", "梦境编织 · 莉莉娅", "灵动单位群进，灵活应对。", "UNL-189/219", "UNL-082/219")
+    ];
+
+    public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)
+    {
+        ArgumentNullException.ThrowIfNull(catalog);
+
+        var cardsByNo = catalog.Cards
+            .Where(card => !string.IsNullOrWhiteSpace(card.CardNo))
+            .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
+
+        var decks = new List<PreconstructedDeck>(Definitions.Count);
+        foreach (var definition in Definitions)
+        {
+            var decklist = BuildLowCurveDeck(catalog, cardsByNo, definition.LegendCardNo, definition.ChampionCardNo);
+            var validation = OfficialDeckValidator.Validate(decklist, catalog);
+            if (!validation.IsValid)
+            {
+                throw new InvalidOperationException(
+                    $"Preconstructed deck '{definition.Id}' is not legal: {string.Join("; ", validation.Errors)}");
+            }
+
+            decks.Add(new PreconstructedDeck(definition.Id, definition.Name, definition.Description, decklist));
+        }
+
+        return decks;
+    }
+
+    private static OfficialDecklist BuildLowCurveDeck(
+        OfficialCardCatalog catalog,
+        IReadOnlyDictionary<string, OfficialCard> cardsByNo,
+        string legendCardNo,
+        string championCardNo)
+    {
+        var legend = cardsByNo[legendCardNo];
+        var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
+        var champion = cardsByNo[championCardNo];
+
+        var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
+            .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
+            .Where(behavior => behavior.RequiredTargetCount == 0 && behavior.MinTargetCount <= 0)
+            .Where(behavior => string.IsNullOrWhiteSpace(behavior.Mode))
+            .Where(behavior => behavior.ManaCost <= MaxManaCostForLowCurveUnit)
+            .Select(behavior => behavior.CardNo)
+            .Distinct(StringComparer.Ordinal)
+            .Where(cardsByNo.ContainsKey)
+            .Select(cardNo => cardsByNo[cardNo])
+            .Where(card => IsMainDeckCandidate(card, allowedColors))
+            .OrderBy(card => card.Energy ?? 0)
+            .ThenBy(card => card.CardNo, StringComparer.Ordinal)
+            .ToArray();
+
+        var mainDeck = new List<string> { championCardNo };
+        var nameCounts = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [champion.CardName] = 1
+        };
+
+        foreach (var card in implementedLowCurveUnits)
+        {
+            while (mainDeck.Count < OfficialDeckValidator.MinimumMainDeckCount
+                && (!nameCounts.TryGetValue(card.CardName, out var count)
+                    || count < OfficialDeckValidator.DefaultMaxCopiesByName))
+            {
+                mainDeck.Add(card.CardNo);
+                nameCounts[card.CardName] = nameCounts.TryGetValue(card.CardName, out var current) ? current + 1 : 1;
+            }
+
+            if (mainDeck.Count >= OfficialDeckValidator.MinimumMainDeckCount)
+            {
+                break;
+            }
+        }
+
+        if (mainDeck.Count < OfficialDeckValidator.MinimumMainDeckCount)
+        {
+            throw new InvalidOperationException(
+                $"Unable to fill a legal {OfficialDeckValidator.MinimumMainDeckCount}-card main deck for legend {legendCardNo}.");
+        }
+
+        var runeDeck = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+            .Where(card => TraitsAllowed(card, allowedColors))
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .Select(card => card.CardNo)
+            .Take(OfficialDeckValidator.RuneDeckCount)
+            .ToArray();
+
+        var battlefields = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
+            .GroupBy(card => card.CardName, StringComparer.Ordinal)
+            .Select(group => group.OrderBy(card => card.CardNo, StringComparer.Ordinal).First())
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .Take(OfficialDeckValidator.BattlefieldCount)
+            .Select(card => card.CardNo)
+            .ToArray();
+
+        return new OfficialDecklist(legendCardNo, championCardNo, mainDeck, runeDeck, battlefields);
+    }
+
+    private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardCategoryName is "单位" or "英雄单位"
+            && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+            && card.CardGroupLimit != 1
+            && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
+            && TraitsAllowed(card, allowedColors);
+    }
+
+    private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardColorList.All(color => string.Equals(color, "colorless", StringComparison.Ordinal)
+            || allowedColors.Contains(color));
+    }
+
+    private sealed record PreconstructedDeckDefinition(
+        string Id,
+        string Name,
+        string Description,
+        string LegendCardNo,
+        string ChampionCardNo);
+}
