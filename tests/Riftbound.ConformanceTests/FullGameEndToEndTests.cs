@@ -280,18 +280,19 @@ public sealed class FullGameEndToEndTests
         };
         Assert.Equal(replayDecks.Length, replayDecks.Select(deck => deck.Id).Distinct(StringComparer.Ordinal).Count());
 
-        for (var i = 0; i < replayDecks.Length; i++)
+        foreach (var p1Deck in replayDecks)
         {
-            var p1Deck = replayDecks[i];
-            var p2Deck = replayDecks[(i + 1) % replayDecks.Length];
-            Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
-            Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
+            foreach (var p2Deck in replayDecks.Where(deck => !string.Equals(deck.Id, p1Deck.Id, StringComparison.Ordinal)))
+            {
+                Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
+                Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
 
-            await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
-                $"b0-full-game-preconstructed-catalog-replay-room-{p1Deck.Id}-vs-{p2Deck.Id}",
-                $"b0-full-preconstructed-catalog-replay-score-{p1Deck.Id}-vs-{p2Deck.Id}",
-                p1Deck.Decklist,
-                p2Deck.Decklist);
+                await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+                    $"b0-full-game-preconstructed-catalog-replay-room-{p1Deck.Id}-vs-{p2Deck.Id}",
+                    $"b0-full-preconstructed-catalog-replay-score-{p1Deck.Id}-vs-{p2Deck.Id}",
+                    p1Deck.Decklist,
+                    p2Deck.Decklist);
+            }
         }
     }
 
