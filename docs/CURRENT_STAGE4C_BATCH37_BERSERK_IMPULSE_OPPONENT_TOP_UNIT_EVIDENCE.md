@@ -2,7 +2,7 @@
 
 日期：2026-05-10
 
-本文件记录阶段 4C-37 的规则证据索引。证据只支持 Berserk Impulse / 暴怒冲动 representative opponent top main-deck unit target guard baseline，不支持 full-official 断言。
+本文件记录阶段 4C-37 的规则证据索引。证据只支持 Berserk Impulse / 暴怒冲动 representative opponent top main-deck unit target guard baseline，不支持 full-official 断言。2026-06-29 Plan B follow-up 已将该 guard 从 effect-kind 分支迁到共享 top-main-deck public-unit primitive guard。
 
 ## Identity
 
@@ -36,13 +36,19 @@
 | `BerserkImpulseDirtyResolutionDoesNotMoveInvalidTopDeckTarget` | top changed, non-unit, face-down, or wrong-controller dirty stack targets do not move and do not emit `UNIT_PLAYED_TO_BASE` |
 | `p2-preflight-play-berserk-impulse-play-opponent-top-unit` | legacy representative stack fixture for opponent top unit played to P1 base |
 
+Implementation evidence：
+
+- Current core code evidence: `src/Riftbound.Engine/CoreRuleEngine.cs` no longer applies an `IsBerserkImpulseTargetAllowed` / `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` target branch during `PLAY_CARD` validation.
+- Shared guard evidence: `PlaysOpponentTopMainDeckUnitToBase` plus `TargetScope: OpponentMainDeckTopCard` now routes through `RequiresPublicUnitMainDeckPrimitiveTarget` / `IsPublicUnitMainDeckPrimitiveTargetAllowed`, which requires the chosen private-zone top card to have public unit identity before payment or stack mutation.
+- Resolution guard remains shared with the same public-unit identity check in `TryPlayOpponentTopMainDeckUnitToBase`, so dirty stack targets that stop being top-deck public units still do not move.
+
 Validation results：
 
-- Focused backend：17/17 passed。
-- D did not rerun tests。
-- Backend full：not recorded for this D docs pass。
-- Frontend build：not recorded for this D docs pass。
-- Chrome smoke：not recorded for this D docs pass。
+- 2026-06-29 red/green source guard：`PrimitiveTargetGuardSourceTests` first failed on `IsBerserkImpulseTargetAllowed`.
+- Focused backend：`/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrimitiveTargetGuardSourceTests|FullyQualifiedName~BerserkImpulseGuardTests"` passed 16/16。
+- Adjacent backend：`/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~PrimitiveTargetGuardSourceTests|FullyQualifiedName~BerserkImpulse|FullyQualifiedName~MainDeck|FullyQualifiedName~PlayCard|FullyQualifiedName~MatchRecovery"` passed 2269/2269。
+- Full backend validation after this follow-up：`/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo` passed 9023/9023。
+- Frontend build / Chrome smoke：not rerun because this follow-up did not touch DevUi / browser surface。
 
 ## Coverage Boundary
 

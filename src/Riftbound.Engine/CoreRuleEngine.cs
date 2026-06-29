@@ -27295,7 +27295,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
                 || !IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, targetObjectId)
-                || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
+                || !IsPublicUnitMainDeckPrimitiveTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -31709,17 +31709,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Count == 0;
     }
 
-    private static bool IsBerserkImpulseTargetAllowed(
+    private static bool IsPublicUnitMainDeckPrimitiveTargetAllowed(
         MatchState state,
         CardBehaviorDefinition behavior,
         string objectId)
     {
-        if (!string.Equals(behavior.EffectKind, "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT", StringComparison.Ordinal))
+        if (!RequiresPublicUnitMainDeckPrimitiveTarget(behavior))
         {
             return true;
         }
 
         return IsPublicUnitCardObject(state.CardObjects, objectId);
+    }
+
+    private static bool RequiresPublicUnitMainDeckPrimitiveTarget(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysOpponentTopMainDeckUnitToBase
+            && string.Equals(
+                PlayCardTargetScopeForBehavior(behavior),
+                CardTargetScopes.OpponentMainDeckTopCard,
+                StringComparison.Ordinal);
     }
 
     private static bool IsTargetManaCostAllowed(

@@ -2,7 +2,7 @@
 
 日期：2026-05-10
 
-结论：**4C-37 representative baseline documented；项目仍 NOT READY。**
+结论：**4C-37 representative baseline documented；2026-06-29 Plan B shared top-main-deck unit target guard follow-up accepted；项目仍 NOT READY。**
 
 本批只关闭 Berserk Impulse / 暴怒冲动 `OGN·025/298` / cardId `31231` / `FU-b05eda44ce` / `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` 的极窄 opponent top main-deck unit target guard 代表切片。它不升级 full-official，不覆盖 1009/811 全量卡牌，不替代正式 18-step E2E。
 
@@ -18,6 +18,7 @@
 - invalid target guard 覆盖 friendly top unit、opponent second main-deck unit、top spell / equipment / rune、face-down top unit、private hand / base / battlefield unit。
 - invalid target 失败保持 no tick / no events / no payment / no hand movement / no deck movement / no stack item / no unit played / no leak。
 - dirty resolution guard 覆盖 top changed、non-unit、face-down、wrong controller / ownership target no move and no `UNIT_PLAYED_TO_BASE`。
+- 2026-06-29 Plan B follow-up：`PLAY_CARD` validation 不再按 `BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT` effect kind 分支；`CoreRuleEngine` 改由 `PlaysOpponentTopMainDeckUnitToBase` + `OpponentMainDeckTopCard` target scope 推导共享 public-unit main-deck primitive guard。
 - 本批不新增 protocol / frontend shape。
 
 未完成：
@@ -49,9 +50,11 @@
 
 ## Validation
 
-- Focused backend：17/17 passed。
-- D did not rerun tests。
-- Backend full / frontend build / Chrome smoke are not recorded for this D docs pass.
+- 2026-06-29 red/green source guard：`PrimitiveTargetGuardSourceTests` 先失败在 `IsBerserkImpulseTargetAllowed`。
+- Focused backend：`PrimitiveTargetGuardSourceTests|BerserkImpulseGuardTests` 16/16 passed。
+- Adjacent backend：`PrimitiveTargetGuardSourceTests|BerserkImpulse|MainDeck|PlayCard|MatchRecovery` 2269/2269 passed。
+- Backend full conformance after this follow-up：9023/9023 passed。
+- Frontend build / Chrome smoke 未跑；本 follow-up 未改 DevUi / browser surface。
 
 ## P0 / P1
 

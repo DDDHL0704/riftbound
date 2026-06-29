@@ -6,7 +6,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class PrimitiveTargetGuardSourceTests
 {
     [Fact]
-    public void PlayCardTargetGuardsUseSharedVisibleFieldUnitPrimitiveRules()
+    public void PlayCardTargetGuardsUseSharedBehaviorPrimitiveRules()
     {
         var repositoryRoot = RepositoryRoot();
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
@@ -33,6 +33,7 @@ public sealed class PrimitiveTargetGuardSourceTests
 
         Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("RequiresPublicUnitMainDeckPrimitiveTarget", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     private static readonly string[] RepresentativeTargetGuardMethodNames =
@@ -48,7 +49,8 @@ public sealed class PrimitiveTargetGuardSourceTests
         "IsSwitcherooTargetAllowed",
         "IsSpiritFireTargetAllowed",
         "IsPromptSpiritFireTargetAllowed",
-        "IsZenithBladeTargetAllowed"
+        "IsZenithBladeTargetAllowed",
+        "IsBerserkImpulseTargetAllowed"
     ];
 
     private static readonly string[] RepresentativeTargetGuardEffectKinds =
@@ -63,7 +65,8 @@ public sealed class PrimitiveTargetGuardSourceTests
         "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT",
         "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS",
         "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-        "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE"
+        "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE",
+        "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT"
     ];
 
     private static string RepositoryRoot()
