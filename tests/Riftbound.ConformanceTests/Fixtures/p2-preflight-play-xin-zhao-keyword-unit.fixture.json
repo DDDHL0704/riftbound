@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·176/221 赵信",
-      "note": "官方卡面：费用 3；英雄单位；战力 4；壁垒；若基地中有不少于两名其他单位则以活跃状态进场。当前 fixture 覆盖普通主阶段打出后成为基地单位对象，并记录关键词标签；壁垒承伤顺序和条件活跃进场路径暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 4；壁垒；若基地中有不少于两名其他单位则以活跃状态进场。当前 fixture 覆盖普通主阶段打出后成为基地单位对象，并记录关键词标签；基地中有不少于两名其他公开己方单位时活跃进场已由 SOURCE_UNIT_ENTER_READY / RequiredOtherControllerBaseUnitCount 通用 StaticAbilitySpec 覆盖，壁垒承伤顺序仍未覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

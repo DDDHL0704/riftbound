@@ -41371,6 +41371,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (ability.RequiredOtherControllerBaseUnitCount is > 0
+            && CountOtherControllerPublicBaseUnits(
+                playerZones,
+                cardObjects,
+                controllerId,
+                sourceObjectId) < ability.RequiredOtherControllerBaseUnitCount.Value)
+        {
+            return false;
+        }
+
         if (ability.RequiredOpponentControlledBattlefieldCount is > 0
             && CountOpponentControlledPublicBattlefieldCards(playerZones, cardObjects, controllerId)
                 < ability.RequiredOpponentControlledBattlefieldCount.Value)
@@ -41417,6 +41427,39 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     count++;
                 }
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountOtherControllerPublicBaseUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string sourceObjectId)
+    {
+        if (!playerZones.TryGetValue(controllerId, out var zones))
+        {
+            return 0;
+        }
+
+        var count = 0;
+        foreach (var objectId in zones.Base.Distinct(StringComparer.Ordinal))
+        {
+            if (string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+                || !cardObjects.TryGetValue(objectId, out var candidate)
+                || candidate.IsFaceDown
+                || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                || string.Equals(candidate.ControllerId, controllerId, StringComparison.Ordinal))
+            {
+                count++;
             }
         }
 

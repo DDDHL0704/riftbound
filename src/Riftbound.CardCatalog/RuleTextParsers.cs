@@ -2167,6 +2167,21 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var sourceUnitOtherControllerBaseUnitCountEnterReadyMatch = Regex.Match(
+                segment,
+                @"如果你的基地中有不少于(?<min>[0-9一两二三四五六七八九十]+)名其他单位，则我以活跃状态进场。?$",
+                RegexOptions.CultureInvariant);
+            if (sourceUnitOtherControllerBaseUnitCountEnterReadyMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for spec-driven controller base unit-count requirements.",
+                    RequiredOtherControllerBaseUnitCount: ParseChineseNumber(sourceUnitOtherControllerBaseUnitCountEnterReadyMatch.Groups["min"].Value)));
+                continue;
+            }
+
             if (Regex.IsMatch(
                     segment,
                     @"^如果本回合内有单位被摧毁，则我以活跃状态进场。?$",

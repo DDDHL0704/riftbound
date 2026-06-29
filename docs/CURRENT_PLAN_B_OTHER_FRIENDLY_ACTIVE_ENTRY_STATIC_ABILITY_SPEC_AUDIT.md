@@ -84,6 +84,14 @@ Implemented for `UNL-008/219` 莽林巨象:
 - The condition is owner-agnostic, matching the official text: either player's destroyed unit owner id satisfies it.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this unit-destroyed-this-turn source-unit static ability controls the entry state.
 
+Implemented for `SFD·176/221` 赵信:
+
+- `StaticAbilitySpec.RequiredOtherControllerBaseUnitCount` can now carry source-unit active-entry requirements that count other units in the controller's base.
+- `RuleTextParsers.StaticAbilityParser` parses `如果你的基地中有不少于两名其他单位，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOtherControllerBaseUnitCount=2`.
+- `CoreRuleEngine` checks controller base-zone objects in the shared source-unit entry requirement gate, excluding the entering source object.
+- The count only includes public, face-up, non-standby unit objects controlled by the entering unit's controller.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controller-base unit-count source-unit static ability controls the entry state.
+
 Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
 
 - `RuleTextParsers.StaticAbilityParser` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` without requirement fields.
@@ -105,6 +113,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 - `SFD·071/221` 疾驰机械: `如果你控制着其他“机械”单位，则我以活跃状态进场。`
 - `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩: `如果对手已控制任意战场，则我以活跃状态进场。`
 - `UNL-008/219` 莽林巨象: `如果本回合内有单位被摧毁，则我以活跃状态进场。`
+- `SFD·176/221` 赵信: `如果你的基地中有不少于两名其他单位，则我以活跃状态进场。`
 - `SFD·006/221` 好斗的龙犬: `我以活跃状态进场。`
 - `OGS·016/024` 先锋扈从: `我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
@@ -355,7 +364,7 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884; the later Flameclaw level-gated source-unit active-entry + source-object static-power B0 replay follow-up passed 8971/8971.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884; the later Flameclaw level-gated source-unit active-entry + source-object static-power B0 replay follow-up passed 8971/8971; the later Xin Zhao controller-base unit-count source-unit active-entry StaticAbilitySpec follow-up passed 9015/9015.
 
 DevUi catalog type build after adding active-entry static ability fields:
 
