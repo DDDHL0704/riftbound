@@ -33,11 +33,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string ArmedAssaulterHasteTemperedSourceEffectKind = "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE";
-    private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
-    private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
-    private const string AkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
-    private const string AkshanOrangeExtraEquipmentStealReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
-    private const int AkshanStealEquipmentOrangePowerCost = 2;
+    private const string SourceStealEnemyEquipmentMarkerPrefix = "SOURCE_STOLEN_EQUIPMENT_BY:";
+    private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
+    private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
+    private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
     private const string EmberMonkStandbyTriggerSourceEffectKind = "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT";
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
@@ -5354,7 +5353,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
                 }));
 
-        ReturnAkshanStolenEquipmentForMissingSources(playerZones, cardObjects, events);
+        ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         nextState = nextState with
         {
@@ -27976,7 +27975,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     .ToArray();
             }
 
-            ReturnAkshanStolenEquipmentForMissingSources(
+            ReturnSourceStolenEquipmentForMissingSources(
                 resolvedPlayerZones,
                 resolvedCardObjects,
                 postStackCleanupEvents);
@@ -32438,14 +32437,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (TryBuildAkshanStealEquipmentOptionalCost(
+        if (TryBuildSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
                 normalizedOptionalCosts,
                 behavior,
-                out var akshanExtraPowerCostByTrait))
+                out var sourceStealEnemyEquipmentExtraPowerCostByTrait))
         {
-            extraPowerCostByTrait = akshanExtraPowerCostByTrait;
+            extraPowerCostByTrait = sourceStealEnemyEquipmentExtraPowerCostByTrait;
             return true;
         }
 
@@ -32734,7 +32733,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectId);
     }
 
-    private static bool TryBuildAkshanStealEquipmentOptionalCost(
+    private static bool TryBuildSourceStealEnemyEquipmentOptionalCost(
         MatchState state,
         string playerId,
         IReadOnlyList<string> normalizedOptionalCosts,
@@ -32742,10 +32741,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
     {
         extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
+        if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
+            || string.IsNullOrWhiteSpace(requiredTrait)
             || normalizedOptionalCosts.Count != 1
-            || !TryParseAkshanStealEquipmentOptionalCost(
+            || !TryParseSourceStealEnemyEquipmentOptionalCost(
                 normalizedOptionalCosts[0],
+                behavior,
                 out var equipmentObjectId)
             || !IsLegalAkshanStealEquipmentChoice(state, playerId, equipmentObjectId))
         {
@@ -32754,7 +32756,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
         {
-            [RuneTrait.Orange] = AkshanStealEquipmentOrangePowerCost
+            [requiredTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
         };
         return true;
     }
@@ -32824,15 +32826,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
-    private static bool TryParseAkshanStealEquipmentOptionalCost(string optionalCost, out string equipmentObjectId)
+    private static bool TryParseSourceStealEnemyEquipmentOptionalCost(
+        string optionalCost,
+        CardBehaviorDefinition behavior,
+        out string equipmentObjectId)
     {
         equipmentObjectId = string.Empty;
-        if (!optionalCost.StartsWith(AkshanStealEquipmentOptionalCostPrefix, StringComparison.Ordinal))
+        var optionalCostPrefix = behavior.SourceStealEnemyEquipmentOptionalCostPrefix.Trim();
+        if (string.IsNullOrWhiteSpace(optionalCostPrefix)
+            || !optionalCost.StartsWith(optionalCostPrefix, StringComparison.Ordinal))
         {
             return false;
         }
 
-        equipmentObjectId = optionalCost[AkshanStealEquipmentOptionalCostPrefix.Length..].Trim();
+        equipmentObjectId = optionalCost[optionalCostPrefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
@@ -34376,10 +34383,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind, StringComparison.Ordinal);
     }
 
-    private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
+    private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
     {
+        var powerTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind, StringComparison.Ordinal);
+            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0
+            && !string.IsNullOrWhiteSpace(powerTrait)
+            && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
     }
 
     private static bool IsLegalTemperedOptionalAttachChoice(
@@ -34867,7 +34877,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 pendingPayment = temperedPendingPayment;
             }
 
-            TryResolveAkshanOrangeExtraEquipmentSteal(
+            TryResolveSourceStealEnemyEquipment(
                 playerZones,
                 cardObjects,
                 behavior,
@@ -37467,7 +37477,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
-        ReturnAkshanStolenEquipmentForMissingSources(playerZones, cardObjects, events);
+        ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         return new StackResolutionResult(
             playerZones,
             cardObjects,
@@ -40660,15 +40670,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryResolveAkshanOrangeExtraEquipmentSteal(
+    private static bool TryResolveSourceStealEnemyEquipment(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         List<GameEvent> events)
     {
-        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
-            || !TryGetAkshanStealEquipmentObjectId(stackItem.OptionalCosts, out var equipmentObjectId)
+        if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
+            || !TryGetSourceStealEnemyEquipmentObjectId(behavior, stackItem.OptionalCosts, out var equipmentObjectId)
             || !playerZones.TryGetValue(stackItem.ControllerId, out var zones)
             || !zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var akshanState)
@@ -40702,18 +40712,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? equipmentLocation.PlayerId
             : equipmentState.OwnerId;
         var isWeapon = equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal);
+        var reason = SourceStealEnemyEquipmentReason(behavior);
         var nextEquipmentState = equipmentState with
         {
             OwnerId = ownerId,
             ControllerId = stackItem.ControllerId,
             AttachedToObjectId = isWeapon ? stackItem.SourceObjectId : null,
-            Tags = AddAkshanStolenEquipmentMarker(equipmentState.Tags, stackItem.SourceObjectId)
+            Tags = AddSourceStolenEquipmentMarker(equipmentState.Tags, stackItem.SourceObjectId, reason)
         };
         cardObjects[equipmentObjectId] = nextEquipmentState;
 
         events.Add(new GameEvent(
             "EQUIPMENT_CONTROL_CHANGED",
-            $"{stackItem.ControllerId} 的阿克尚夺取敌方装备",
+            $"{stackItem.ControllerId} 的{behavior.DisplayName}夺取敌方装备",
             new Dictionary<string, object?>
             {
                 ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -40725,7 +40736,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["originZone"] = equipmentLocation.Zone,
                 ["destinationZone"] = MoveUnitBaseZone,
                 ["attachedToObjectId"] = nextEquipmentState.AttachedToObjectId,
-                ["reason"] = AkshanOrangeExtraEquipmentStealReason,
+                ["reason"] = reason,
                 ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
             }));
 
@@ -40733,7 +40744,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             events.Add(new GameEvent(
                 "EQUIPMENT_ATTACHED",
-                $"{stackItem.ControllerId} 的阿克尚贴附夺取的武装",
+                $"{stackItem.ControllerId} 的{behavior.DisplayName}贴附夺取的武装",
                 new Dictionary<string, object?>
                 {
                     ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -40744,7 +40755,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["controllerId"] = stackItem.ControllerId,
                     ["ownerId"] = ownerId,
                     ["attachedToObjectId"] = stackItem.SourceObjectId,
-                    ["reason"] = AkshanOrangeExtraEquipmentStealReason,
+                    ["reason"] = reason,
                     ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
                 }));
         }
@@ -40752,12 +40763,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryGetAkshanStealEquipmentObjectId(
+    private static bool TryGetSourceStealEnemyEquipmentObjectId(
+        CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts,
         out string equipmentObjectId)
     {
         var equipmentObjectIds = optionalCosts
-            .Select(optionalCost => TryParseAkshanStealEquipmentOptionalCost(optionalCost, out var parsedEquipmentObjectId)
+            .Select(optionalCost => TryParseSourceStealEnemyEquipmentOptionalCost(
+                    optionalCost,
+                    behavior,
+                    out var parsedEquipmentObjectId)
                 ? parsedEquipmentObjectId
                 : string.Empty)
             .Where(parsedEquipmentObjectId => !string.IsNullOrWhiteSpace(parsedEquipmentObjectId))
@@ -40767,53 +40782,88 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
-    private static IReadOnlyList<string> AddAkshanStolenEquipmentMarker(
-        IReadOnlyList<string> tags,
-        string sourceObjectId)
+    private static string SourceStealEnemyEquipmentReason(CardBehaviorDefinition behavior)
     {
-        var marker = $"{AkshanStolenEquipmentMarkerPrefix}{sourceObjectId}";
+        return string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentReason)
+            ? SourceStealEnemyEquipmentDefaultReason
+            : behavior.SourceStealEnemyEquipmentReason.Trim();
+    }
+
+    private static IReadOnlyList<string> AddSourceStolenEquipmentMarker(
+        IReadOnlyList<string> tags,
+        string sourceObjectId,
+        string reason)
+    {
+        var marker = $"{SourceStealEnemyEquipmentMarkerPrefix}{sourceObjectId}::{reason}";
         return tags
-            .Where(tag => !tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
+            .Where(tag => !tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal)
+                && !tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
             .Concat([marker])
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
     }
 
-    private static IReadOnlyList<string> RemoveAkshanStolenEquipmentMarkers(IReadOnlyList<string> tags)
+    private static IReadOnlyList<string> RemoveSourceStolenEquipmentMarkers(IReadOnlyList<string> tags)
     {
         return tags
-            .Where(tag => !tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
+            .Where(tag => !tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal)
+                && !tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
     }
 
-    private static bool TryReadAkshanStolenEquipmentSourceObjectId(
+    private static bool TryReadSourceStolenEquipmentMarker(
         CardObjectState equipmentState,
-        out string sourceObjectId)
+        out string sourceObjectId,
+        out string reason)
     {
+        sourceObjectId = string.Empty;
+        reason = string.Empty;
         var marker = equipmentState.Tags
-            .FirstOrDefault(tag => tag.StartsWith(AkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal));
-        sourceObjectId = string.IsNullOrWhiteSpace(marker)
-            ? string.Empty
-            : marker[AkshanStolenEquipmentMarkerPrefix.Length..].Trim();
+            .FirstOrDefault(tag => tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal));
+        if (!string.IsNullOrWhiteSpace(marker))
+        {
+            var markerBody = marker[SourceStealEnemyEquipmentMarkerPrefix.Length..].Trim();
+            var separatorIndex = markerBody.IndexOf("::", StringComparison.Ordinal);
+            sourceObjectId = separatorIndex < 0
+                ? markerBody
+                : markerBody[..separatorIndex].Trim();
+            reason = separatorIndex < 0
+                ? SourceStealEnemyEquipmentDefaultReason
+                : markerBody[(separatorIndex + 2)..].Trim();
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                reason = SourceStealEnemyEquipmentDefaultReason;
+            }
+        }
+        else
+        {
+            var legacyMarker = equipmentState.Tags
+                .FirstOrDefault(tag => tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal));
+            sourceObjectId = string.IsNullOrWhiteSpace(legacyMarker)
+                ? string.Empty
+                : legacyMarker[LegacyAkshanStolenEquipmentMarkerPrefix.Length..].Trim();
+            reason = LegacyAkshanStealEnemyEquipmentReason;
+        }
+
         return !string.IsNullOrWhiteSpace(sourceObjectId);
     }
 
-    private static void ReturnAkshanStolenEquipmentForMissingSources(
+    private static void ReturnSourceStolenEquipmentForMissingSources(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         List<GameEvent> events)
     {
         foreach (var equipmentObjectId in cardObjects
-            .Where(entry => TryReadAkshanStolenEquipmentSourceObjectId(entry.Value, out _))
+            .Where(entry => TryReadSourceStolenEquipmentMarker(entry.Value, out _, out _))
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray())
         {
             if (!cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-                || !TryReadAkshanStolenEquipmentSourceObjectId(equipmentState, out var sourceObjectId))
+                || !TryReadSourceStolenEquipmentMarker(equipmentState, out var sourceObjectId, out var reason))
             {
                 continue;
             }
@@ -40830,7 +40880,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects[equipmentObjectId] = equipmentState with
                 {
                     AttachedToObjectId = null,
-                    Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+                    Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
                 };
                 continue;
             }
@@ -40841,7 +40891,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects[equipmentObjectId] = equipmentState with
                 {
                     AttachedToObjectId = null,
-                    Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+                    Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
                 };
                 continue;
             }
@@ -40861,7 +40911,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ControllerId = ownerId,
                 AttachedToObjectId = null,
-                Tags = RemoveAkshanStolenEquipmentMarkers(equipmentState.Tags)
+                Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
             };
             events.Add(new GameEvent(
                 "EQUIPMENT_CONTROL_RETURNED",
@@ -40877,7 +40927,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["originZone"] = location.Value.Zone,
                     ["destinationZone"] = MoveUnitBaseZone,
                     ["attachedToObjectId"] = null,
-                    ["reason"] = AkshanOrangeExtraEquipmentStealReason
+                    ["reason"] = reason
                 }));
         }
     }

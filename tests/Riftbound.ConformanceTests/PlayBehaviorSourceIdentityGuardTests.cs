@@ -162,7 +162,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
-    public void OptionalCostRepresentativeSourcesUseCatalogEffectKind()
+    public void OptionalCostRepresentativeSourcesUseBehaviorFieldsWhereAvailable()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -180,20 +180,20 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("akshanState.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("ArmedAssaulterHasteTemperedSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AkshanOrangeExtraEquipmentStealSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains(
             "string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind",
             coreRuleEngineSource,
             StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind",
-            matchSessionSource,
-            StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

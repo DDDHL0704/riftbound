@@ -198,7 +198,11 @@ public sealed record CardBehaviorDefinition(
     int SourceReadyAdditionalPowerCost = 0,
     string SourceReadyAdditionalPowerTrait = "",
     string SourceReadyConditionKind = CardSourceReadyConditionKinds.None,
-    string SourceReadyOptionalCostPayloadKey = "");
+    string SourceReadyOptionalCostPayloadKey = "",
+    int SourceStealEnemyEquipmentAdditionalPowerCost = 0,
+    string SourceStealEnemyEquipmentAdditionalPowerTrait = "",
+    string SourceStealEnemyEquipmentOptionalCostPrefix = "",
+    string SourceStealEnemyEquipmentReason = "");
 
 public static class CardDamageConditionKinds
 {
@@ -3928,7 +3932,11 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "哨兵|百炼"),
+            SourceUnitTags: "哨兵|百炼",
+            SourceStealEnemyEquipmentAdditionalPowerCost: 2,
+            SourceStealEnemyEquipmentAdditionalPowerTrait: RuneTrait.Orange,
+            SourceStealEnemyEquipmentOptionalCostPrefix: "AKSHAN_STEAL_EQUIPMENT:",
+            SourceStealEnemyEquipmentReason: "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL"),
         new(
             "SFD·119/221",
             "贾克斯",

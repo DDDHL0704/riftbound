@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for removing direct Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan card-number checks from current play-behavior representatives. The 2026-06-27 follow-up covers the Akshan orange-extra equipment-steal stack resolution source revalidation path. The 2026-06-29 follow-up further moves Crescent Guard's ready optional-cost selector from the catalog effect id to source-ready behavior fields.
+This file records concrete evidence for removing direct Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan card-number checks from current play-behavior representatives. The 2026-06-27 follow-up covers the Akshan orange-extra equipment-steal stack resolution source revalidation path. The 2026-06-29 follow-up further moves Crescent Guard's ready optional-cost selector and Akshan's orange-extra enemy-equipment steal selector from catalog effect ids to behavior fields.
 
 ## Runtime Evidence
 
@@ -26,9 +26,9 @@ This file records concrete evidence for removing direct Raging Drake, Poro Herde
 - The Rampaging Soul branch still requires `PlayerDiscardedHandCardThisTurn` before granting assault and roam.
 - `CoreRuleEngine` now validates the Armed Assaulter haste / tempered optional-cost representative source branch through `behavior.EffectKind` using `ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE`.
 - The Armed Assaulter branch still requires a source unit and still defers the haste / tempered choice legality to the existing optional-cost and equipment-choice checks.
-- `CoreRuleEngine` and `MatchSession` now validate the Akshan orange-extra optional-cost representative source branch through `behavior.EffectKind` using `AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT`.
-- `CoreRuleEngine.TryResolveAkshanOrangeExtraEquipmentSteal` now validates the post-entry source object against the current stack `behavior.CardNo` row instead of a direct `AkshanCardNo` constant.
-- The Akshan branch still requires legal enemy equipment, available orange power, and the post-entry source object identity check before moving / controlling the selected equipment.
+- `CoreRuleEngine` and `MatchSession` now validate the Akshan orange-extra optional-cost representative source branch through `SourceStealEnemyEquipmentAdditionalPowerCost`, `SourceStealEnemyEquipmentAdditionalPowerTrait`, and `SourceStealEnemyEquipmentOptionalCostPrefix`.
+- `CoreRuleEngine.TryResolveSourceStealEnemyEquipment` now validates the post-entry source object against the current stack `behavior.CardNo` row and source steal behavior fields instead of a direct `AkshanCardNo` constant or runtime Akshan effect id.
+- The Akshan branch still requires legal enemy equipment, available orange power, and the post-entry source object identity check before moving / controlling the selected equipment; the legacy event reason is supplied by `SourceStealEnemyEquipmentReason`.
 - The previous `RagingDrakeCardNo`, `PoroHerderCardNo`, `BalancedDiscipleCardNo`, `CrescentGuardCardNo`, `AscendedBelieverCardNo`, `SlySalamanderCardNo`, `RampagingSoulCardNo`, `ArmedAssaulterCardNo`, and direct Akshan `behavior.CardNo` source comparisons were deleted from the relevant engine source paths.
 - The previous Core `AkshanCardNo` constant and direct `akshanState.CardNo, AkshanCardNo` resolution check were deleted.
 
@@ -47,7 +47,7 @@ Coverage:
 - `BalancedDiscipleOtherPowerDrawPlaySourceUsesCatalogEffectKind` blocks reintroducing `BalancedDiscipleCardNo` or direct `behavior.CardNo` comparisons in `CoreRuleEngine.cs`.
 - `CrescentGuardReadyOptionalCostSourceUsesBehaviorFields` blocks reintroducing `CrescentGuardCardNo`, `CrescentGuardReadyOptionalCostSourceEffectKind`, `CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT`, or direct `behavior.CardNo` comparisons in `CoreRuleEngine.cs` and `MatchSession.cs`, and requires the source-ready behavior fields.
 - `ConditionalSourceUnitPowerAndTagsUseCatalogEffectKind` blocks reintroducing `AscendedBelieverCardNo`, `SlySalamanderCardNo`, `RampagingSoulCardNo`, or direct `behavior.CardNo` comparisons in the conditional source-unit power / keyword branches.
-- `OptionalCostRepresentativeSourcesUseCatalogEffectKind` blocks reintroducing Armed Assaulter / Akshan direct `behavior.CardNo` comparisons in the optional-cost representative branches and blocks reintroducing direct `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation branch.
+- `OptionalCostRepresentativeSourcesUseBehaviorFieldsWhereAvailable` blocks reintroducing Armed Assaulter / Akshan direct `behavior.CardNo` comparisons, blocks reintroducing direct `akshanState.CardNo, AkshanCardNo`, blocks the Akshan runtime effect id selector, and requires the source steal behavior fields.
 - Existing `P79RagingDrakeCreatesNextSpellCostReductionAfterResolution`, `P79RagingDrakeNextSpellCostReductionPromptShowsReducedSpellCost`, and `P79RagingDrakeNextSpellCostReductionPaysReducedSpellCostAndConsumesMarker` verify runtime and prompt behavior remains intact.
 - Existing `P79PoroHerderGrantsBoonAndDrawsWhenControllerHasPoro` and `CoreRuleEnginePlaysBalancedDiscipleOtherPowerDraw` verify Poro Herder and Balanced Disciple runtime behavior remains intact.
 - Existing `CoreRuleEnginePlaysCrescentGuardReadyAfterSpellPayment`, `CoreRuleEngineRejectsCrescentGuardReadyPaymentWithoutSpellMemory`, and `ActionPromptExposesCrescentGuardReadyPaymentAfterSpell` verify Crescent Guard payment, rejection, and prompt behavior remains intact.
@@ -60,10 +60,10 @@ Coverage:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~PlayBehaviorSourceIdentityGuardTests" --nologo
 ```
 
-Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice, then failed on `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation follow-up, then failed on `CrescentGuardReadyOptionalCostSourceEffectKind` in the source-ready optional-cost field follow-up.
+Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice, then failed on `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation follow-up, then failed on `CrescentGuardReadyOptionalCostSourceEffectKind` in the source-ready optional-cost field follow-up, then failed on `AkshanOrangeExtraEquipmentStealSourceEffectKind` in the source steal enemy equipment optional-cost field follow-up.
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OptionalCostRepresentativeSourcesUseCatalogEffectKind" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OptionalCostRepresentativeSourcesUseBehaviorFieldsWhereAvailable" --nologo
 ```
 
 Result: failed before implementation on direct `akshanState.CardNo, AkshanCardNo`, then 1/1 passed after implementation.

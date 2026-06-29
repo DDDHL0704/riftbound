@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 Raging Drake / 狂暴龙怪、Poro Herder / 魄罗牧者、Balanced Disciple / 均衡门徒、Crescent Guard / 新月禁卫、Ascended Believer / 晋升信徒、Sly Salamander / 狡猾的蝾螈、Rampaging Soul / 肆虐狂魂、Armed Assaulter / 武装强袭者、Akshan / 阿克尚的 play-behavior 来源身份，从引擎直接 cardNo 分支迁移到 catalog effect kind 分支。2026-06-27 follow-up 继续把 Akshan 橙色额外装备夺取的 stack resolution source revalidation 从 direct `AkshanCardNo` 改为当前 `behavior.CardNo` 行校验，并删除 Core 的 `AkshanCardNo` 常量。2026-06-29 follow-up 继续把 Crescent Guard ready optional-cost source selector 从 catalog effect kind 迁移到 `SourceReadyAdditionalPowerCost` / `SourceReadyAdditionalPowerTrait` / `SourceReadyConditionKind` behavior fields。该切片只收窄当前 play resolution / optional-cost / conditional-entry representative source identity 硬编码；不关闭完整 play-trigger family、完整 PaymentEngine breadth、完整 LayerEngine breadth、frontend final validation 或 READY。
+本文件记录 Plan B 小切片：把 Raging Drake / 狂暴龙怪、Poro Herder / 魄罗牧者、Balanced Disciple / 均衡门徒、Crescent Guard / 新月禁卫、Ascended Believer / 晋升信徒、Sly Salamander / 狡猾的蝾螈、Rampaging Soul / 肆虐狂魂、Armed Assaulter / 武装强袭者、Akshan / 阿克尚的 play-behavior 来源身份，从引擎直接 cardNo 分支迁移到 catalog effect kind 分支。2026-06-27 follow-up 继续把 Akshan 橙色额外装备夺取的 stack resolution source revalidation 从 direct `AkshanCardNo` 改为当前 `behavior.CardNo` 行校验，并删除 Core 的 `AkshanCardNo` 常量。2026-06-29 follow-up 继续把 Crescent Guard ready optional-cost source selector 从 catalog effect kind 迁移到 `SourceReadyAdditionalPowerCost` / `SourceReadyAdditionalPowerTrait` / `SourceReadyConditionKind` behavior fields，并把 Akshan orange-extra enemy-equipment steal optional-cost source selector 迁移到 `SourceStealEnemyEquipmentAdditionalPowerCost` / `SourceStealEnemyEquipmentAdditionalPowerTrait` / `SourceStealEnemyEquipmentOptionalCostPrefix` behavior fields。该切片只收窄当前 play resolution / optional-cost / conditional-entry representative source identity 硬编码；不关闭完整 play-trigger family、完整 PaymentEngine breadth、完整 LayerEngine breadth、frontend final validation 或 READY。
 
 ## Scope
 
@@ -38,8 +38,8 @@ Not changed:
 | Sly Salamander conditional power / keyword source identity no longer directly selects by card number | `CoreRuleEngine` now checks `behavior.EffectKind == SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT` instead of `behavior.CardNo == SlySalamanderCardNo` | Accepted |
 | Rampaging Soul conditional keyword source identity no longer directly selects by card number | `CoreRuleEngine` now checks `behavior.EffectKind == RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT` instead of `behavior.CardNo == RampagingSoulCardNo` | Accepted |
 | Armed Assaulter haste / tempered source identity no longer directly selects by card number | `CoreRuleEngine` now checks `behavior.EffectKind == ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE` instead of `behavior.CardNo == ArmedAssaulterCardNo` | Accepted |
-| Akshan orange-extra source identity no longer directly selects by card number | `CoreRuleEngine` and `MatchSession` now check `behavior.EffectKind == AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT` instead of `behavior.CardNo == AkshanCardNo` for representative source selection | Accepted |
-| Akshan orange-extra resolution source revalidation no longer directly selects by card number | `TryResolveAkshanOrangeExtraEquipmentSteal` now checks the resolved source object against the current `behavior.CardNo` row instead of direct `akshanState.CardNo == AkshanCardNo`; the Core `AkshanCardNo` constant was removed | Accepted |
+| Akshan orange-extra source identity no longer selects by card number or runtime effect kind | `CoreRuleEngine` and `MatchSession` now read `SourceStealEnemyEquipmentAdditionalPowerCost` / `SourceStealEnemyEquipmentAdditionalPowerTrait` / `SourceStealEnemyEquipmentOptionalCostPrefix` behavior fields instead of `behavior.CardNo == AkshanCardNo` or `behavior.EffectKind == AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT` | Accepted |
+| Akshan orange-extra resolution source revalidation no longer directly selects by card number | `TryResolveSourceStealEnemyEquipment` now checks the resolved source object against the current `behavior.CardNo` row and source steal behavior fields instead of direct `akshanState.CardNo == AkshanCardNo`; the Core `AkshanCardNo` constant was removed | Accepted |
 | Existing next-spell marker semantics are preserved | the branch still creates `RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:<playerId>:<sourceObjectId>` and emits `TRIGGER_RESOLVED.effectKind=RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION` | Accepted |
 | Existing Poro Herder semantics are preserved | the branch still requires a controlled face-up Poro unit, grants boon to the source, and draws 1 | Accepted |
 | Existing Balanced Disciple semantics are preserved | the branch still requires other controlled unit power total at least 5 and draws 1 | Accepted |
@@ -58,7 +58,7 @@ Focused source identity guard:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~PlayBehaviorSourceIdentityGuardTests" --nologo
 ```
 
-Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice, then failed on `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation follow-up, then failed on `CrescentGuardReadyOptionalCostSourceEffectKind` in the source-ready optional-cost field follow-up.
+Initial results before implementation: failed on `RagingDrakeCardNo` in the first slice, then failed on `PoroHerderCardNo` and `BalancedDiscipleCardNo` in the follow-up slice, then failed on `CrescentGuardCardNo` in the Crescent Guard slice, then failed on `AscendedBelieverCardNo` / `SlySalamanderCardNo` / `RampagingSoulCardNo` in the conditional-entry slice, then failed on `ArmedAssaulterCardNo` / `AkshanCardNo` behavior-source comparisons in the optional-cost representative slice, then failed on `akshanState.CardNo, AkshanCardNo` in the Akshan resolution source revalidation follow-up, then failed on `CrescentGuardReadyOptionalCostSourceEffectKind` in the source-ready optional-cost field follow-up, then failed on `AkshanOrangeExtraEquipmentStealSourceEffectKind` in the source steal enemy equipment optional-cost field follow-up.
 
 Focused play-behavior source identity and representative behavior:
 
@@ -71,7 +71,7 @@ Result after implementation: 87/87 passed.
 Focused Akshan resolution source guard:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OptionalCostRepresentativeSourcesUseCatalogEffectKind" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OptionalCostRepresentativeSourcesUseBehaviorFieldsWhereAvailable" --nologo
 ```
 
 Result: failed before implementation on direct `akshanState.CardNo, AkshanCardNo`, then 1/1 passed after implementation.

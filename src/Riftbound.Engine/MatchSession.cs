@@ -6664,9 +6664,6 @@ internal static class ActionPromptBuilder
     private const string StandbyReactionDestination = "STACK";
     private const int BaseWinningScore = 8;
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
-    private const string AkshanOrangeExtraEquipmentStealSourceEffectKind = "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT";
-    private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
-    private const int AkshanStealEquipmentOrangePowerCost = 2;
 
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
@@ -14623,7 +14620,7 @@ internal static class ActionPromptBuilder
             choices.AddRange(TemperedOptionalAttachChoices(state, playerId));
         }
 
-        if (CanPromptAkshanStealEquipmentOptionalCost(
+        if (CanPromptSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
                 behavior,
@@ -14631,7 +14628,7 @@ internal static class ActionPromptBuilder
                 paymentResourcePowerByTrait,
                 sourceObjectId))
         {
-            choices.AddRange(AkshanStealEquipmentChoices(state, playerId));
+            choices.AddRange(SourceStealEnemyEquipmentChoices(state, playerId, behavior));
         }
 
         if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
@@ -14779,7 +14776,7 @@ internal static class ActionPromptBuilder
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
-    private static bool CanPromptAkshanStealEquipmentOptionalCost(
+    private static bool CanPromptSourceStealEnemyEquipmentOptionalCost(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
@@ -14787,28 +14784,34 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         string? sourceObjectId)
     {
-        if (!IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+        if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
             || runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
-            || !AkshanStealEquipmentChoices(state, playerId).Any())
+            || !SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
         {
             return false;
         }
 
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(RuneTrait.Orange, out var orangePower)
-            && orangePower >= AkshanStealEquipmentOrangePowerCost;
+        return availablePowerByTrait.TryGetValue(requiredTrait, out var availablePower)
+            && availablePower >= behavior.SourceStealEnemyEquipmentAdditionalPowerCost;
     }
 
-    private static bool IsAkshanOrangeExtraEquipmentStealRepresentative(CardBehaviorDefinition behavior)
+    private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
     {
+        var powerTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.EffectKind, AkshanOrangeExtraEquipmentStealSourceEffectKind, StringComparison.Ordinal);
+            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0
+            && !string.IsNullOrWhiteSpace(powerTrait)
+            && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> AkshanStealEquipmentChoices(
+    private static IReadOnlyList<ActionPromptChoiceDto> SourceStealEnemyEquipmentChoices(
         MatchState state,
-        string playerId)
+        string playerId,
+        CardBehaviorDefinition behavior)
     {
+        var optionalCostPrefix = behavior.SourceStealEnemyEquipmentOptionalCostPrefix.Trim();
         return EnemyBoardObjects(state, playerId)
             .Where(objectId => IsPromptAkshanStealEquipmentChoice(state, playerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -14816,8 +14819,8 @@ internal static class ActionPromptBuilder
             {
                 var choice = ObjectChoice(state, objectId, "implemented Akshan orange extra equipment steal");
                 return new ActionPromptChoiceDto(
-                    $"{AkshanStealEquipmentOptionalCostPrefix}{objectId}",
-                    $"阿克尚夺取装备：{choice.Label}",
+                    $"{optionalCostPrefix}{objectId}",
+                    $"{behavior.DisplayName}夺取装备：{choice.Label}",
                     choice.Reason);
             })
             .ToArray();
@@ -15334,14 +15337,15 @@ internal static class ActionPromptBuilder
             }
         }
 
-        if (IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
-            && AkshanStealEquipmentChoices(state, playerId).Any())
+        if (HasSourceStealEnemyEquipmentOptionalCost(behavior)
+            && SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
         {
+            var sourceStealTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
             AddRequirement(
                 0,
                 new Dictionary<string, int>(StringComparer.Ordinal)
                 {
-                    [RuneTrait.Orange] = AkshanStealEquipmentOrangePowerCost
+                    [sourceStealTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
                 });
         }
 
@@ -15655,7 +15659,7 @@ internal static class ActionPromptBuilder
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
-            || IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
+            || HasSourceStealEnemyEquipmentOptionalCost(behavior)
             || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0;
     }
 
