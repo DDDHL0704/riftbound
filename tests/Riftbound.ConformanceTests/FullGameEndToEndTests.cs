@@ -29,6 +29,7 @@ public sealed class FullGameEndToEndTests
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
     private const string CrimsonSignetTreantCardNo = "UNL-029/219";
+    private const string VayneConquestPayReturnCardNo = "OGN·035/298";
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string AggressiveDragonhoundCardNo = "SFD·006/221";
     private const string LegionRearguardCardNo = "OGN·010/298";
@@ -348,6 +349,51 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildVayneConquestPayReturnOfficialDeck(catalog);
+        var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-vayne-conquest-return-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildVayneConquestPayReturnBattleInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var paymentOpened = await SubmitVayneConquestReturnDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-vayne-conquest");
+
+        AssertVayneConquestReturnPaymentOpened(paymentOpened);
+
+        var paid = await PayVayneConquestReturnPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-vayne-conquest-pay");
+
+        AssertVayneConquestReturnPaid(paymentOpened, paid);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            paid,
+            "b0-vayne-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5178,6 +5224,63 @@ public sealed class FullGameEndToEndTests
 
         var boonTarget = result.State.CardObjects[boonTargetObjectId];
         Assert.Contains(CardObjectTags.Boon, boonTarget.Tags);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertVayneConquestReturnPaymentOpened(ResolutionResult result)
+    {
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && sourceObjectId is string source
+            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
+            && string.Equals(sourceObject.CardNo, VayneConquestPayReturnCardNo, StringComparison.Ordinal));
+        var vayneObjectId = Assert.IsType<string>(conqueredEvent.Payload["sourceObjectId"]);
+
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("P1", payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(1, payment.ManaCost);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Contains(vayneObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, vayneObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertVayneConquestReturnPaid(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        var paymentOpenedEvent = Assert.Single(paymentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
+        var vayneObjectId = Assert.IsType<string>(paymentOpenedEvent.Payload["sourceObjectId"]);
+
+        Assert.Null(result.State.PendingPayment);
+        Assert.Contains(vayneObjectId, result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(vayneObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.False(result.State.CardObjects.ContainsKey(vayneObjectId));
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
+        Assert.Equal(1, costPaid.Payload["mana"]);
+        Assert.Equal(["SPEND_MANA:1"], Assert.IsType<string[]>(costPaid.Payload["paymentChoiceIds"]));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, vayneObjectId, StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, vayneObjectId, StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -14906,6 +15009,108 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitVayneConquestReturnDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string vaynePlayerId,
+        string intentId)
+    {
+        Assert.Equal(vaynePlayerId, current.State.ActivePlayerId);
+        var opponentId = OpponentOf(current.State, vaynePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[vaynePlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Vayne driver could not find DECLARE_BATTLE for {vaynePlayerId}.");
+        var vayneObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            vaynePlayerId,
+            VayneConquestPayReturnCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Vayne driver could not find a ready Vayne attacker.");
+        var battlefieldId = current.State.ObjectLocations[vayneObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Vayne driver could not locate Vayne's battlefield.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(vayneObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds,
+            maxPowerExclusive: current.State.CardObjects[vayneObjectId].Power)
+            ?? throw new InvalidOperationException(
+                $"B0 Vayne driver could not find a legal ready defender below Vayne power: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [vayneObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            vaynePlayerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+        if (declared.State.PendingPayment is not null)
+        {
+            return declared;
+        }
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        if (result.State.PendingPayment is not null)
+        {
+            AssertNoHiddenZoneLeak(result);
+            return result;
+        }
+
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        if (result.State.PendingPayment is not null)
+        {
+            AssertNoHiddenZoneLeak(result);
+            return result;
+        }
+
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        Assert.NotNull(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> PayVayneConquestReturnPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Vayne payment driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
+        if (current.State.RunePools[playerId].Mana < 1)
+        {
+            throw new InvalidOperationException(
+                $"B0 Vayne payment driver expected mana before paying: pool={JsonSerializer.Serialize(current.State.RunePools[playerId])}; state={DescribeState(current.State)}");
+        }
+
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldConquerGoldDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -20737,6 +20942,19 @@ public sealed class FullGameEndToEndTests
         return WithSlowBattlefields(catalog, tunedDeck);
     }
 
+    private static OfficialDecklist BuildVayneConquestPayReturnOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    VayneConquestPayReturnCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return BuildSameBattlefieldStaticAuraOfficialDeck(
@@ -23117,6 +23335,92 @@ public sealed class FullGameEndToEndTests
                 {
                     [RuneTrait.Red] = 1
                 }));
+    }
+
+    private static MatchState BuildVayneConquestPayReturnBattleInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [VayneConquestPayReturnCardNo],
+                    new RunePool(
+                        mana: 1,
+                        power: 0,
+                        new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P1");
+        var vayneObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            VayneConquestPayReturnCardNo)
+            ?? throw new InvalidOperationException("B0 Vayne setup could not find Vayne in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Vayne setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, vayneObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([vayneObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[vayneObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[vayneObjectId] = cardObjects[vayneObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[vayneObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
     }
 
     private static MatchState BuildSameBattlefieldStaticAuraMidgameInitialState(MatchState state)

@@ -1,6 +1,6 @@
 # Plan B / B3 Unit Conquest Trigger Spec Evidence
 
-Date: 2026-06-27
+Date: 2026-06-29
 
 Project status: **NOT READY**.
 
@@ -59,6 +59,7 @@ Project status: **NOT READY**.
 - `NaturalUnitConquestTriggerTests.YetiBrawlerCreatesTwoDormantGoldAfterOverkillNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-018/219` 雪人斗士 with 5 assigned overkill damage emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, and creates two exhausted Gold equipment tokens in the controller's base.
 - `NaturalUnitConquestTriggerTests.TryndamereGainsScoreAfterAttackOverkillNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·034/298` 泰达米尔 with 7 assigned overkill damage emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_ATTACK_OVERKILL_GAIN_SCORE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, adds 1 score after the normal conquest score, and propagates `MATCH_WON` when the extra score reaches the effective winning score.
 - `TriggerPaymentTests.OgnVayneConquer*` representatives verify that visible face-up 薇恩 conquest opens the existing `TRIGGER_PAYMENT` / `PAY_COST` window using `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND`, accepts `SPEND_MANA:1` to return the source unit to its owner's hand, declines without movement, rejects insufficient mana while keeping the payment window, and suppresses the trigger for face-down, standby, or opponent-controlled source states.
+- `FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash` verifies the same `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` TriggerSpec through a legal official Jhin/Lillia deck opening-derived midgame state. It uses official `OGN·035/298` 薇恩 and `OGN·096/298` Watchful Sentinel objects, opens `TRIGGER_PAYMENT` from `DECLARE_BATTLE`, pays `PAY_COST(SPEND_MANA:1)`, returns the source object to its owner's hand, closes the window, continues to score victory, and replays the post-midgame action log to the same final state hash.
 - `FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash` verifies an official-deck midgame state produced from the normal submit/ready/mulligan/no-legal-battle opening can still play `UNL-029/219` 绯红印记树怪 through `PLAY_CARD`, move it with `MOVE_UNIT`, stage a defender, resolve a natural `DECLARE_BATTLE` conquest, emit two `UNIT_CONQUEST_EFFECT_ACTIVATED` / `BOON_GRANTED` events for the TriggerSpec repeat path, continue to score victory, and replay the post-midgame action log to the same final state hash.
 - `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` verifies the 清算人竞技场 representative still activates 卡莎's conquest draw effect, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - The same `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` representative verifies the 坏坏魄罗 dormant-Gold effect still emits `UNIT_CONQUEST_EFFECT_ACTIVATED` with `UNIT_CONQUEST_CREATE_DORMANT_GOLD`, creates an exhausted equipment token, and moves that token to the controller's base.
@@ -77,12 +78,13 @@ Project status: **NOT READY**.
 - Focused 雪人斗士 overkill TriggerSpec parser + natural conquest runtime representatives: `2/2` passing.
 - Focused 泰达米尔 attack-overkill score TriggerSpec parser + natural conquest runtime representatives: `2/2` passing.
 - Focused 薇恩 pay-return-self TriggerSpec parser + trigger-payment source/runtime representatives: `9/9` passing.
+- Focused official-deck-derived Vayne pay-return replay representative: `1/1` passing.
 - Focused natural unit conquest additional-activation + 清算人竞技场 non-repeat representatives: `5/5` passing.
 - Focused official-deck midgame Treant conquest repeat replay representative: `1/1` passing.
 - Adjacent `FullGameEndToEnd` / `NaturalUnitConquestTrigger` / `UnitConquest` / `MatchRecovery` representatives: `2034/2034` passing.
 - Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `Score` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2589/2589` passing.
-- Adjacent `TriggerPayment` / `Vayne` / `UnitConquest` / `BattlefieldConquer` / `DeclareBattle` / `PaymentEngine` / `MatchRecovery` / `CardCatalogBaseline` representatives: `3276/3276` passing.
-- Backend full conformance: `8785/8785` passing.
+- Adjacent `OfficialDeckMidgamePaysVayneConquestReturn` / `Vayne` / `UnitConquest` / `TriggerPayment` / `BattlefieldConquer` / `DeclareBattle` / `PaymentEngine` / `FullGameEndToEnd` / `MatchRecovery` / `CardCatalogBaseline` representatives: `3453/3453` passing.
+- Backend full conformance: `9020/9020` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
