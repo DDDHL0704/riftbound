@@ -169,6 +169,7 @@ app.MapGet("/matches", async (IPublicMatchDirectory publicMatches, CancellationT
 
 app.MapGet("/players/{handle}", PlayerProfileEndpoints.GetPlayerProfileAsync);
 app.MapGet("/players/{handle}/matches", PlayerProfileEndpoints.GetPlayerMatchesAsync);
+app.MapGet("/leaderboard", PlayerProfileEndpoints.GetLeaderboardAsync);
 
 app.MapHub<GameHub>("/hubs/game");
 if (devUiDistProvider is not null)

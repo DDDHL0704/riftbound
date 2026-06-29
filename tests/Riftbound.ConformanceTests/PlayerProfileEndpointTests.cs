@@ -51,4 +51,42 @@ public sealed class PlayerProfileEndpointTests
             ["charlie:P1:8:True", "alice:P2:7:False"],
             matches[0].Players.Select(player => $"{player.PlayerId}:{player.Seat}:{player.Score}:{player.Won}").ToArray());
     }
+
+    [Fact]
+    public async Task LeaderboardEndpointOrdersByWinsWinRateAndHandle()
+    {
+        var store = new InMemoryMatchResultStore();
+        await store.RecordMatchResultAsync(
+            Result("leader-room-1", "alice", "bob", winnerPlayerId: "alice", finishedAt: "2026-06-29T01:00:00Z"),
+            CancellationToken.None);
+        await store.RecordMatchResultAsync(
+            Result("leader-room-2", "alice", "charlie", winnerPlayerId: "alice", finishedAt: "2026-06-29T02:00:00Z"),
+            CancellationToken.None);
+        await store.RecordMatchResultAsync(
+            Result("leader-room-3", "charlie", "bob", winnerPlayerId: "charlie", finishedAt: "2026-06-29T03:00:00Z"),
+            CancellationToken.None);
+
+        var leaderboard = await PlayerProfileEndpoints.GetLeaderboardAsync(limit: 10, store, CancellationToken.None);
+
+        Assert.Equal(
+            ["1:alice:2:2:0:1", "2:charlie:2:1:1:0.5", "3:bob:2:0:2:0"],
+            leaderboard.Select(entry => $"{entry.Rank}:{entry.Handle}:{entry.TotalMatches}:{entry.Wins}:{entry.Losses}:{entry.WinRate}").ToArray());
+    }
+
+    private static MatchResultRecord Result(
+        string roomId,
+        string p1,
+        string p2,
+        string winnerPlayerId,
+        string finishedAt)
+    {
+        return new MatchResultRecord(
+            roomId,
+            [
+                new MatchResultPlayerRecord(p1, "P1", string.Equals(p1, winnerPlayerId, StringComparison.Ordinal) ? 8 : 4, string.Equals(p1, winnerPlayerId, StringComparison.Ordinal)),
+                new MatchResultPlayerRecord(p2, "P2", string.Equals(p2, winnerPlayerId, StringComparison.Ordinal) ? 8 : 4, string.Equals(p2, winnerPlayerId, StringComparison.Ordinal))
+            ],
+            winnerPlayerId,
+            DateTimeOffset.Parse(finishedAt));
+    }
 }

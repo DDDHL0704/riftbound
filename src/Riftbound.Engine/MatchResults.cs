@@ -21,6 +21,13 @@ public sealed record PlayerMatchStatsRecord(
     int Losses,
     double WinRate);
 
+public sealed record PlayerLeaderboardEntryRecord(
+    string PlayerId,
+    int TotalMatches,
+    int Wins,
+    int Losses,
+    double WinRate);
+
 public interface IMatchResultStore
 {
     ValueTask RecordMatchResultAsync(MatchResultRecord result, CancellationToken cancellationToken);
@@ -28,6 +35,10 @@ public interface IMatchResultStore
     ValueTask<MatchResultRecord?> GetMatchResultAsync(string roomId, CancellationToken cancellationToken);
 
     ValueTask<PlayerMatchStatsRecord> GetPlayerMatchStatsAsync(string playerId, CancellationToken cancellationToken);
+
+    ValueTask<IReadOnlyList<PlayerLeaderboardEntryRecord>> ListLeaderboardAsync(
+        int limit,
+        CancellationToken cancellationToken);
 
     ValueTask<IReadOnlyList<MatchResultRecord>> ListMatchResultsForPlayerAsync(
         string playerId,
@@ -71,6 +82,35 @@ public sealed class InMemoryMatchResultStore : IMatchResultStore
             wins,
             losses,
             totalMatches == 0 ? 0 : (double)wins / totalMatches));
+    }
+
+    public ValueTask<IReadOnlyList<PlayerLeaderboardEntryRecord>> ListLeaderboardAsync(
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var safeLimit = Math.Clamp(limit, 1, 100);
+        var entries = resultsByRoom.Values
+            .SelectMany(result => result.Players)
+            .GroupBy(player => player.PlayerId, StringComparer.Ordinal)
+            .Select(group =>
+            {
+                var totalMatches = group.Count();
+                var wins = group.Count(player => player.Won);
+                var losses = totalMatches - wins;
+                return new PlayerLeaderboardEntryRecord(
+                    group.Key,
+                    totalMatches,
+                    wins,
+                    losses,
+                    totalMatches == 0 ? 0 : (double)wins / totalMatches);
+            })
+            .OrderByDescending(entry => entry.Wins)
+            .ThenByDescending(entry => entry.WinRate)
+            .ThenByDescending(entry => entry.TotalMatches)
+            .ThenBy(entry => entry.PlayerId, StringComparer.Ordinal)
+            .Take(safeLimit)
+            .ToArray();
+        return ValueTask.FromResult<IReadOnlyList<PlayerLeaderboardEntryRecord>>(entries);
     }
 
     public ValueTask<IReadOnlyList<MatchResultRecord>> ListMatchResultsForPlayerAsync(

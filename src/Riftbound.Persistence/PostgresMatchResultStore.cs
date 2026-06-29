@@ -99,6 +99,45 @@ public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMat
         return results;
     }
 
+    public async ValueTask<IReadOnlyList<PlayerLeaderboardEntryRecord>> ListLeaderboardAsync(
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            select player_id,
+                   count(*)::int as total_matches,
+                   count(*) filter (where won)::int as wins
+            from match_result_players
+            group by player_id
+            order by wins desc,
+                     (case when count(*) = 0 then 0 else (count(*) filter (where won))::double precision / count(*) end) desc,
+                     count(*) desc,
+                     player_id
+            limit @limit;
+            """;
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("limit", Math.Clamp(limit, 1, 100));
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+
+        var entries = new List<PlayerLeaderboardEntryRecord>();
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var playerId = reader.GetString(0);
+            var totalMatches = reader.GetInt32(1);
+            var wins = reader.GetInt32(2);
+            var losses = totalMatches - wins;
+            entries.Add(new PlayerLeaderboardEntryRecord(
+                playerId,
+                totalMatches,
+                wins,
+                losses,
+                totalMatches == 0 ? 0 : (double)wins / totalMatches));
+        }
+
+        return entries;
+    }
+
     private static async Task UpsertMatchAsync(
         NpgsqlConnection connection,
         NpgsqlTransaction transaction,

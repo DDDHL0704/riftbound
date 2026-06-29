@@ -39,6 +39,26 @@ public static class PlayerProfileEndpoints
         return results.Select(ToDto).ToArray();
     }
 
+    public static async Task<IReadOnlyList<LeaderboardEntryDto>> GetLeaderboardAsync(
+        int? limit,
+        IMatchResultStore matchResults,
+        CancellationToken cancellationToken)
+    {
+        var entries = await matchResults.ListLeaderboardAsync(
+                NormalizeLimit(limit),
+                cancellationToken)
+            .ConfigureAwait(false);
+        return entries
+            .Select((entry, index) => new LeaderboardEntryDto(
+                index + 1,
+                entry.PlayerId,
+                entry.TotalMatches,
+                entry.Wins,
+                entry.Losses,
+                entry.WinRate))
+            .ToArray();
+    }
+
     private static PlayerMatchDto ToDto(MatchResultRecord result)
     {
         return new PlayerMatchDto(

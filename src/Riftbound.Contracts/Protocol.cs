@@ -151,6 +151,14 @@ public sealed record PlayerMatchDto(
     DateTimeOffset FinishedAt,
     IReadOnlyList<PlayerMatchParticipantDto> Players);
 
+public sealed record LeaderboardEntryDto(
+    int Rank,
+    string Handle,
+    int TotalMatches,
+    int Wins,
+    int Losses,
+    double WinRate);
+
 public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");
