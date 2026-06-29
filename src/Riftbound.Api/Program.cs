@@ -139,6 +139,23 @@ app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationTok
     return Results.Ok(KeywordCoverageReporter.Build(specs));
 });
 
+app.MapGet("/decks/preconstructed", async (CancellationToken cancellationToken) =>
+{
+    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var decks = PreconstructedDeckCatalog.Build(catalog).Select(deck => new
+    {
+        deck.Id,
+        deck.Name,
+        deck.Description,
+        legendCardNo = deck.Decklist.LegendCardNo,
+        championCardNo = deck.Decklist.ChampionCardNo,
+        mainDeck = deck.Decklist.MainDeck,
+        runeDeck = deck.Decklist.RuneDeck,
+        battlefields = deck.Decklist.Battlefields
+    });
+    return Results.Ok(decks);
+});
+
 app.MapHub<GameHub>("/hubs/game");
 if (devUiDistProvider is not null)
 {
