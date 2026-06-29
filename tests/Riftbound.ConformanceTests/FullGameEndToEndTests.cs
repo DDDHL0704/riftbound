@@ -53,6 +53,8 @@ public sealed class FullGameEndToEndTests
     private const string DariusChampionCardNo = "OGN·243/298";
     private const string FarronCaptainSameBattlefieldStaticKeywordCardNo = "OGN·015/298";
     private const string TaricSameBattlefieldStaticKeywordCardNo = "OGN·074/298";
+    private const string AerieHeadFanSameBattlefieldSpellshieldCardNo = "UNL-041/219";
+    private const string IncinerateSpellCardNo = "OGS·003/024";
     private const string WildclawBeastmasterCardNo = "UNL-057/219";
     private const string DunehornBeastCardNo = "SFD·027/221";
     private const string AscendedBelieverCardNo = "UNL-004/219";
@@ -3917,6 +3919,63 @@ public sealed class FullGameEndToEndTests
             gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal)
                 && gameEvent.Payload.TryGetValue("reason", out var reason)
                 && string.Equals(reason as string, "NO_LEGAL_COMBATANTS", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildAerieHeadFanSpellshieldTaxSpellOfficialDeck(catalog);
+        var p2Deck = BuildAerieHeadFanSameBattlefieldSpellshieldOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-aerie-head-fan-spellshield-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildAerieHeadFanSameBattlefieldSpellshieldMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            AerieHeadFanSameBattlefieldSpellshieldCardNo,
+            "P2",
+            "b0-aerie-head-fan-spellshield-stage-source");
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            WatchfulSentinelCardNo,
+            "P2",
+            "b0-aerie-head-fan-spellshield-stage-ally");
+
+        var spellPlayed = await DriveAerieHeadFanSpellshieldTaxSpellAsync(
+            session,
+            current,
+            "P1",
+            "P2",
+            "b0-aerie-head-fan-spellshield-tax");
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-aerie-head-fan-spellshield-tax-resolve");
+
+        AssertAerieHeadFanSpellshieldTaxSpellResolved(spellPlayed, spellResolved);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-aerie-head-fan-spellshield-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -8379,6 +8438,31 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertAerieHeadFanSpellshieldTaxSpellResolved(
+        ResolutionResult spellPlayed,
+        ResolutionResult spellResolved)
+    {
+        var costPaid = Assert.Single(spellPlayed.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaid.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaid.Payload["spellshieldTaxMana"]);
+        var targetObjectId = Assert.Single(Assert.IsType<string[]>(costPaid.Payload["spellshieldTaxTargetObjectIds"]));
+
+        Assert.Contains(spellPlayed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("targetObjectIds", out var targetObjectIds)
+            && Assert.IsType<string[]>(targetObjectIds).Contains(targetObjectId, StringComparer.Ordinal));
+        Assert.Contains(spellResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("targetObjectId", out var damagedTargetObjectId)
+            && string.Equals(damagedTargetObjectId as string, targetObjectId, StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("damage", out var damage)
+            && damage is 2);
+        AssertNoHiddenZoneLeak(spellPlayed);
+        AssertNoHiddenZoneLeak(spellResolved);
     }
 
     private static void AssertTaricBulwarkDamageAssignmentOrdering(
@@ -18543,6 +18627,106 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> DriveAerieHeadFanSpellshieldTaxSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string spellControllerId,
+        string auraControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                result = await SubmitFirstDeclareBattleCandidateAsync(
+                    session,
+                    result,
+                    $"{intentPrefix}-clear-existing-battle-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Aerie Head Fan spellshield driver cannot play the target spell: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, spellControllerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, spellControllerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            var spellObjectId = FindHandCardObjectByCardNo(result.State, spellControllerId, IncinerateSpellCardNo);
+            var sourceObjectId = FindBattlefieldUnitByCardNo(
+                result.State,
+                auraControllerId,
+                AerieHeadFanSameBattlefieldSpellshieldCardNo)
+                ?? throw new InvalidOperationException("B0 Aerie Head Fan spellshield driver could not find Aerie Head Fan source.");
+            var battlefieldId = result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
+                ?? throw new InvalidOperationException("B0 Aerie Head Fan spellshield driver could not locate Aerie Head Fan's battlefield.");
+            var targetObjectId = FindBattlefieldUnitByCardNo(
+                result.State,
+                auraControllerId,
+                WatchfulSentinelCardNo,
+                battlefieldId)
+                ?? throw new InvalidOperationException("B0 Aerie Head Fan spellshield driver could not find Watchful Sentinel ally target.");
+
+            var ruleTextAura = Assert.Single(result.State.ContinuousEffects, effect =>
+                string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal));
+            Assert.StartsWith("RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:", ruleTextAura.EffectId, StringComparison.Ordinal);
+            Assert.EndsWith($":{CardResourceKeywordNames.Spellshield}", ruleTextAura.EffectId, StringComparison.Ordinal);
+            Assert.Equal("OBJECT", ruleTextAura.Scope);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", ruleTextAura.Duration);
+
+            var playCandidate = EnabledCandidate(result.Prompts[spellControllerId], CommandTypes.PlayCard);
+            var legalSourceIds = playCandidate?.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+                ?? [];
+            var legalTargetIds = playCandidate?.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+                ?? [];
+            if (spellObjectId is not null
+                && legalSourceIds.Contains(spellObjectId)
+                && legalTargetIds.Contains(targetObjectId)
+                && result.State.RunePools[spellControllerId].Mana >= 3)
+            {
+                var command = new PlayCardCommand(
+                    spellObjectId,
+                    IncinerateSpellCardNo,
+                    [targetObjectId]);
+                var played = await session.SubmitAsync(
+                    spellControllerId,
+                    $"{intentPrefix}-play-{turnIndex}",
+                    command,
+                    RawCommand(command),
+                    CancellationToken.None);
+                AssertAccepted(played);
+                AssertNoHiddenZoneLeak(played);
+                return played;
+            }
+
+            result = await EndTurnAsync(session, spellControllerId, $"{intentPrefix}-wait-resources-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Aerie Head Fan spellshield driver could not play Incinerate for {spellControllerId}.");
+    }
+
     private static async ValueTask<ResolutionResult> SubmitSameBattlefieldSteadfastDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -21367,6 +21551,32 @@ public sealed class FullGameEndToEndTests
                 [
                     TaricSameBattlefieldStaticKeywordCardNo,
                     LeblancCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildAerieHeadFanSpellshieldTaxSpellOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    IncinerateSpellCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildAerieHeadFanSameBattlefieldSpellshieldOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LilliaLegendCardNo,
+                LilliaChampionCardNo,
+                [
+                    AerieHeadFanSameBattlefieldSpellshieldCardNo
                 ]));
     }
 
@@ -27291,6 +27501,21 @@ public sealed class FullGameEndToEndTests
             "P1",
             [TaricSameBattlefieldStaticKeywordCardNo, LeblancCardNo],
             new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+    }
+
+    private static MatchState BuildAerieHeadFanSameBattlefieldSpellshieldMidgameInitialState(MatchState state)
+    {
+        return BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [IncinerateSpellCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [AerieHeadFanSameBattlefieldSpellshieldCardNo, WatchfulSentinelCardNo],
+                    new RunePool(mana: 8, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
     }
 
     private static MatchState BuildTaricBulwarkDamageAssignmentMidgameInitialState(MatchState state)

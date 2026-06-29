@@ -1,6 +1,6 @@
 # Plan B B1 Static Aura Spec Audit
 
-更新时间：2026-06-28
+更新时间：2026-06-29
 
 ## Scope
 
@@ -62,6 +62,7 @@ Implemented in this slice:
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGS·013/024` Garen's same-battlefield other-friendly static aura in a legal official Poppy deck route: server prompts play and move Garen plus `UNL-092/219` Demacia Envoy to the same battlefield, the spec-driven continuous effect targets the Envoy, real battle damage records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also covers `SFD·236/221` Darius's same-battlefield other-friendly static aura in a legal official Darius deck route: server prompts play and move Darius plus `SFD·006/221` Aggressive Dragonhound to the same battlefield, the spec-driven continuous effect targets the Dragonhound, real battle damage records `basePower=3`, `staticPowerBonus=1`, `combatPower=4`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `SFD·085/221` Ornn's friendly-equipment count-to-source static aura in a legal official Rumble deck route: an official `SFD·022/221` Long Sword is staged as a public friendly equipment, server prompts play and move Ornn to a battlefield, the spec-driven `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER` continuous effect targets Ornn itself with the Long Sword as participant, real battle damage records recomputed `basePower=5` without an extra `staticPowerBonus`, and the full action log replays through score victory to the same final state hash.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-041/219` Aerie Head Fan's same-battlefield other-friendly `法盾` RULE_TEXT aura in a legal official Jhin vs Lillia deck route: server prompts play and move Aerie Head Fan plus official `OGN·096/298` Watchful Sentinel to the same battlefield, the spec-driven continuous effect grants `法盾` to the Sentinel, official `OGS·003/024` Incinerate targeting that unit pays `baseManaCost=2`, `spellshieldTaxMana=1`, and `totalManaCost=3`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-147/219` Baron Nashor's non-local other-friendly static aura in a legal official Vex deck route: server prompts play Baron Nashor to base and move `UNL-057/219` Wildclaw Beastmaster to a battlefield, the spec-driven continuous effect targets Wildclaw from the non-local source, real battle damage records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `UNL-154/219` Scarlet Pigeon's source-combat static aura in a legal official Poppy deck route: server prompts play and move Scarlet Pigeon plus `UNL-092/219` Demacia Envoy, the server-authored `DECLARE_BATTLE` includes both as attackers, Scarlet Pigeon's source-combat route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGN·131/298` Dune Drake's source-attacking-ready-enemy static aura in a legal official Poppy deck route: server prompts play and move Dune Drake plus an opposing ready defender to the same battlefield, the server-authored `DECLARE_BATTLE` has Dune Drake attacking alone, Dune Drake's `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route records `staticPowerBonus=2`, and the full action log replays through score victory to the same final state hash.
@@ -88,7 +89,6 @@ This slice does not claim full B1 completion:
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
 - Garen and Darius same-battlefield other-friendly, Ornn friendly-equipment count-to-source, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1/B2 breadth can be claimed.
-- Aerie Head Fan same-battlefield other-friendly `法盾` now has focused catalog/projection/tax representatives, but it does not yet have a legal official-deck score-victory replay representative.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, additional RULE_TEXT keyword grants / modifiers, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text is now tracked by `docs/CURRENT_PLAN_B_OTHER_FRIENDLY_ACTIVE_ENTRY_STATIC_ABILITY_SPEC_AUDIT.md`; it remains outside this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -147,6 +147,30 @@ Latest backend full after Aerie Head Fan same-battlefield Spellshield RULE_TEXT 
 ```
 
 Result: 8929/8929 passed.
+
+Latest Aerie Head Fan same-battlefield Spellshield RULE_TEXT official-deck replay focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTax" --no-restore --nologo
+```
+
+Result: 1/1 passed.
+
+Latest Aerie Head Fan same-battlefield Spellshield RULE_TEXT official-deck replay adjacent / hidden-info check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~AerieHeadFan|FullyQualifiedName~SameBattlefieldStaticSpellshieldAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~SpellshieldTax|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery" --no-restore --nologo
+```
+
+Result: 2141/2141 passed.
+
+Latest backend full after Aerie Head Fan same-battlefield Spellshield RULE_TEXT official-deck replay evidence:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8941/8941 passed.
 
 Focused:
 
