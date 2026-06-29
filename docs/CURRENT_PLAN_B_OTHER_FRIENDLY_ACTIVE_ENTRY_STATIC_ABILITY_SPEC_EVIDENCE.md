@@ -72,7 +72,8 @@ Low-hand source-unit active-entry runtime:
 Level-gated source-unit active-entry BehaviorSpec / catalog:
 
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
-- `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` verifies `UNL-016/219` 焰爪 exposes this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` also parses `{{等级3>}} 我以活跃状态进场。` into the same `SOURCE_UNIT_ENTER_READY` shape with `RequiredPlayerExperience=3`.
+- `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` verifies `UNL-016/219` 焰爪 and `UNL-151/219` 班德尔士兵 expose this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
 
 Level-gated source-unit active-entry runtime:
 
@@ -80,7 +81,9 @@ Level-gated source-unit active-entry runtime:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller before deciding whether the source unit enters ready.
 - `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` proves Flameclaw enters ready at 3 experience and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves 2 experience does not satisfy the parsed requirement and leaves Flameclaw exhausted with no entry-static metadata.
+- `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` also proves Bandle Soldier enters ready at 3 experience, stays exhausted below level 3, and emits the same self-source entry metadata when the requirement is satisfied.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Jhin deck opening can feed Flameclaw level-gated active-entry and source-object static-power into B0 score victory: P1 has 3 experience, plays `UNL-016/219` directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, projects `SOURCE_OBJECT_POWER` with `PowerDelta=1`, deals 4 real combat damage from base 3 plus static 1, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Poppy deck opening can feed `UNL-151/219` Bandle Soldier level-gated active-entry into B0 score victory: P1 has 3 experience, plays Bandle Soldier directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, enters active with printed 5 power and no continuous-effect projection, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
 
 ## Validation Evidence
 
@@ -111,11 +114,15 @@ Level-gated source-unit active-entry runtime:
 - Flameclaw level-gated source-unit active-entry focused post-implementation: 3/3 passed.
 - Flameclaw level-gated active-entry + source-object static-power B0 official-deck replay focused: 4/4 passed.
 - Flameclaw active-entry / static-aura / FullGameEndToEnd / MatchRecovery adjacent regression: 2501/2501 passed.
+- Bandle Soldier level-gated source-unit active-entry focused: 6/6 passed.
+- Bandle Soldier level-gated source-unit active-entry + B0 official-deck replay focused: 7/7 passed.
+- Bandle Soldier active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2456/2456 passed.
 - Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
 - Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
 - Backend full after the Molten Drake other-friendly active-entry B0 official-deck replay follow-up: 8883/8883 passed.
 - Backend full after the Master Yi level active-entry B0 official-deck replay follow-up: 8884/8884 passed.
 - Backend full after the Flameclaw level-gated source-unit active-entry + source-object static-power B0 official-deck replay follow-up: 8971/8971 passed.
+- Backend full after the Bandle Soldier level-gated source-unit active-entry B0 official-deck replay follow-up: 8982/8982 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed

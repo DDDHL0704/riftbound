@@ -160,6 +160,8 @@ The Molten Drake other-friendly active-entry action-log replay regression proves
 
 The Master Yi level active-entry action-log replay regression proves a legal official Master Yi level deck opening can feed `FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. `OfficialDeckMidgameResolvesMasterYiLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Master Yi level deck opening, then starts from a focused midgame play state with P1 `UNL-191/219` in the legend zone, P1 at 11 experience, and official `UNL-092/219` Demacia Envoy in hand. The server-authored `PLAY_CARD` to a P1 battlefield pays only Demacia Envoy's base cost, does not pay `HASTE_READY`, resolves Demacia Envoy ready from the legend-source static ability, emits `UNIT_PLAYED_TO_BATTLEFIELD` with `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY`, Master Yi source object/card metadata, `isExhausted=false`, and continues through score-victory action-log replay to the same final state hash with hidden-info guards. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+The Bandle Soldier level active-entry action-log replay regression proves a legal official Poppy deck opening can feed the same `SOURCE_UNIT_ENTER_READY` level-gated source-unit path into the B0 score-victory route without a source-object static aura. `OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening, then starts from a focused midgame play state with P1 official `UNL-151/219` Bandle Soldier in hand and P1 at 3 experience. The server-authored `PLAY_CARD` to a P1 battlefield resolves Bandle Soldier ready, emits `UNIT_PLAYED_TO_BATTLEFIELD` with `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object/card metadata, `isExhausted=false`, printed `power=5`, and continues through score-victory action-log replay to the same final state hash with hidden-info guards. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 The Card Trick draw/recycle action-log replay regression proves a legal official Vex deck opening can feed official `OGN·183/298` Card Trick into the B0 score-victory route and expose a real private-zone stack-target redaction issue. `OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening, then starts from a focused midgame play state with Card Trick in P1 hand and controlled top-three main-deck objects. The server-authored `PLAY_CARD` prompt exposes exactly those top-three target choices to P1, the stack resolves by moving the selected card to P1 hand and recycling the unselected top cards to the bottom of P1's main deck, and the command stream continues through score-victory action-log replay to the same final state hash. The shared runtime change is hidden-information scoped: `MatchSession` now projects stack `targetObjectIds` through viewer visibility redaction for hand / main-deck / rune-deck / hidden-standby targets, and `MatchRecovery` validates spectator stack target ids against the same redacted projection. This slice does not add a runtime card-number branch or close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
 The Flowing Time Mirror ephemeral-cleanup action-log replay regressions prove the existing legal Lost Library B0 route also carries official `OGN·180/298` through the shared `瞬息` start-of-turn lifecycle for both printed target shapes and the LeBlanc suppression representative. `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` records the unit target before play, verifies the spell gives P2's same-battlefield `OGN·096/298` Watchful Sentinel the `瞬息` tag, then continues through `END_TURN` until P2's turn start. The match journal must contain exactly one `UNIT_DESTROYED` event for that unit target from an `END_TURN` command with `reason=EPHEMERAL_TURN_START`, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, and `destinationZone=GRAVEYARD`. `OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` records the equipment target route from a legal official Vex vs Rumble opening, verifies server prompt legality for official `SFD·022/221` Long Sword as public equipment, resolves `OBJECT_TAG_ADDED(tag=瞬息)`, then proves P2's next turn-start `END_TURN` emits exactly one `EQUIPMENT_DESTROYED` with `reason=EPHEMERAL_TURN_START` and moves the equipment to P2 graveyard. `OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` records the same official spell from a legal Vex vs Lillia opening with P2 `UNL-090/219` LeBlanc and `OGN·096/298` Watchful Sentinel at the same battlefield; it proves P2's next turn-start emits no `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START` for the protected target and then replays through score victory. This slice changes only test / evidence coverage; it does not add runtime behavior or close all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
@@ -2398,6 +2400,42 @@ Result:
 
 ```text
 Passed: 8971, Failed: 0, Skipped: 0, Total: 8971
+```
+
+Latest Bandle Soldier level-gated active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~SourceUnitLevelActiveEntryStaticAbilityTests"
+```
+
+Result:
+
+```text
+Passed: 7, Failed: 0, Skipped: 0, Total: 7
+```
+
+Latest Bandle Soldier active-entry / full-game / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2456, Failed: 0, Skipped: 0, Total: 2456
+```
+
+Latest backend full after Bandle Soldier level-gated active-entry official-deck evidence passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 8982, Failed: 0, Skipped: 0, Total: 8982
 ```
 
 ## Non-Closure

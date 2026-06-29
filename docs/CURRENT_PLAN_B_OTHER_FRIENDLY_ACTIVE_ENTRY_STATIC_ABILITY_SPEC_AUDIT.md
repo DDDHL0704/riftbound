@@ -52,6 +52,13 @@ Implemented for `UNL-016/219` 焰爪:
 - `CoreRuleEngine` checks the parsed controller experience requirement before deciding whether the played source unit enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this level-gated source-unit static ability controls the entry state.
 
+Implemented for `UNL-151/219` 班德尔士兵:
+
+- The same `SOURCE_UNIT_ENTER_READY` + `RequiredPlayerExperience` static ability path covers simple level-gated self active entry with no source-object power aura.
+- `RuleTextParsers.StaticAbilityParser` parses `{{等级3>}} 我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
+- `CoreRuleEngine` checks the parsed controller experience requirement before deciding whether Bandle Soldier enters ready.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this level-gated source-unit static ability controls the entry state.
+
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
@@ -60,6 +67,7 @@ Implemented for `UNL-016/219` 焰爪:
 - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师: `{{等级11>}} 你的单位以活跃状态进场。`
 - `SFD·027/221` 穿沙角兽: `如果你的手牌不超过两张，则我以活跃状态进场。`
 - `UNL-016/219` 焰爪: `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。`
+- `UNL-151/219` 班德尔士兵: `{{等级3>}} 我以活跃状态进场。（如果你拥有不少于3经验，则获得该效果。）`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
@@ -181,6 +189,30 @@ Flameclaw level-gated active-entry + source-object static-power B0 official-deck
 ```
 
 Result: 4/4 passed.
+
+Bandle Soldier level-gated source-unit active-entry focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceUnitLevelActiveEntryStaticAbilityTests"
+```
+
+Result: 6/6 passed.
+
+Bandle Soldier level-gated source-unit active-entry B0 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~SourceUnitLevelActiveEntryStaticAbilityTests"
+```
+
+Result: 7/7 passed.
+
+Latest Bandle Soldier active-entry / full-game / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 2456/2456 passed.
 
 Latest Flameclaw active-entry / static-aura / hidden-info adjacent:
 

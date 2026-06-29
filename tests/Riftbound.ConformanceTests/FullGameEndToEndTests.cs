@@ -50,6 +50,7 @@ public sealed class FullGameEndToEndTests
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string FlameclawSourceUnitLevelActiveEntryCardNo = "UNL-016/219";
+    private const string BandleSoldierLevelActiveEntryCardNo = "UNL-151/219";
     private const string CrystalhandHunterSourceObjectLevelStaticAuraCardNo = "UNL-094/219";
     private const string TargonSeerSourceObjectLevelStaticAuraCardNo = "UNL-098/219";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -2328,6 +2329,44 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBandleSoldierLevelActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-bandle-soldier-level-active-entry-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBandleSoldierLevelActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            BandleSoldierLevelActiveEntryCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-bandle-soldier-level-active-entry");
+        AssertBandleSoldierLevelActiveEntryResolved(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-bandle-soldier-level-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -7599,6 +7638,44 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
         Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
         Assert.Equal(FlameclawSourceUnitLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBandleSoldierLevelActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            BandleSoldierLevelActiveEntryCardNo)
+            ?? throw new InvalidOperationException("B0 Bandle Soldier level active-entry assertion could not locate Bandle Soldier in P1 hand.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Equal(3, beforePlay.State.PlayerExperience["P1"]);
+        Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(5, result.State.CardObjects[sourceObjectId].Power);
+        Assert.DoesNotContain(
+            result.State.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal));
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "班德尔士兵", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(5, unitEvent.Payload["power"]);
+        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(BandleSoldierLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -21981,6 +22058,19 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildBandleSoldierLevelActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                PoppyLegendCardNo,
+                PoppyChampionCardNo,
+                [
+                    BandleSoldierLevelActiveEntryCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildWiseElderSourceObjectFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -27801,6 +27891,28 @@ public sealed class FullGameEndToEndTests
                     new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
                 ["P2"] = (
                     [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        return midgameState with
+        {
+            PlayerExperience = midgameState.Seats.Keys.ToDictionary(
+                playerId => playerId,
+                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 3 : 0,
+                StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BuildBandleSoldierLevelActiveEntryMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [BandleSoldierLevelActiveEntryCardNo],
+                    new RunePool(mana: 4, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [],
                     new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
         return midgameState with
