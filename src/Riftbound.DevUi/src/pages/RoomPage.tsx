@@ -1,5 +1,5 @@
-import { Check, FileText, RefreshCcw, Send, Swords, Wifi } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { Check, Copy, FileText, RefreshCcw, Send, Swords, Users, Wifi } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
@@ -26,6 +26,13 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
   const players = Object.values(snapshot?.players ?? {});
   const roomStatus = asString(asRecord(snapshot?.timing).roomStatus, "");
   const connected = controller.state.status === "connected";
+  const [codeCopied, setCodeCopied] = useState(false);
+  const copyRoomCode = useCallback(() => {
+    void navigator.clipboard?.writeText(roomId).then(() => {
+      setCodeCopied(true);
+      window.setTimeout(() => setCodeCopied(false), 1500);
+    });
+  }, [roomId]);
   const canAct = Boolean(prompt?.actionable && prompt.playerId === settings.playerId);
   const submissionGate = useMemo(() => buildServerSubmissionGatePlan({
     connectionStatus: controller.state.status,
@@ -161,6 +168,13 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           {connectionStatusLabel(controller.state.status)}
         </StatusPill>
       </section>
+      <RoomCodeBanner
+        codeCopied={codeCopied}
+        connected={connected}
+        onCopy={copyRoomCode}
+        playerCount={players.length}
+        roomId={roomId}
+      />
       <RoomWorkflowSurface plan={roomWorkflowSurfacePlan} />
       <section className="room-actions">
         <div className="room-action-region" data-room-recovery-region>
@@ -239,6 +253,60 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         </div>
       </section>
     </div>
+  );
+}
+
+function RoomCodeBanner({
+  codeCopied,
+  connected,
+  onCopy,
+  playerCount,
+  roomId
+}: {
+  codeCopied: boolean;
+  connected: boolean;
+  onCopy: () => void;
+  playerCount: number;
+  roomId: string;
+}) {
+  const opponentPresent = playerCount >= 2;
+  const presenceState = !connected ? "offline" : opponentPresent ? "ready" : "waiting";
+  const presenceLabel = !connected
+    ? "未连接"
+    : opponentPresent
+      ? "对手已加入"
+      : "等待对手加入";
+
+  return (
+    <section
+      className="room-code-banner"
+      data-room-code={roomId}
+      data-room-code-banner
+      data-room-presence={presenceState}
+      data-room-player-count={playerCount}
+    >
+      <div className="room-code-banner-main">
+        <span className="eyebrow">房间码 · 分享给对手</span>
+        <div className="room-code-row">
+          <code className="room-code-value">{roomId}</code>
+          <Button
+            data-room-code-copy
+            icon={codeCopied ? <Check size={16} /> : <Copy size={16} />}
+            onClick={onCopy}
+            variant="secondary"
+          >
+            {codeCopied ? "已复制" : "复制房间码"}
+          </Button>
+        </div>
+        <p>把这个房间码发给对手，对手在大厅「加入房间」处输入即可进入同一对局。</p>
+      </div>
+      <div className="room-code-presence" data-room-presence-state={presenceState}>
+        <StatusPill tone={presenceState === "ready" ? "good" : presenceState === "waiting" ? "warn" : "neutral"}>
+          <Users size={14} /> {presenceLabel}
+        </StatusPill>
+        <span className="room-code-presence-count">{Math.min(playerCount, 2)}/2 玩家</span>
+      </div>
+    </section>
   );
 }
 

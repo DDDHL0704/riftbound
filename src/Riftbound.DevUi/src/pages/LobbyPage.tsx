@@ -3,14 +3,14 @@ import { FormEvent, useState } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { useSettings } from "../stores/settingsStore";
+import { generateRoomCode } from "../utils/roomCode";
 
 export function LobbyPage({ onNavigate }: { onNavigate: (route: AppRoute) => void }) {
   const { settings, updateSettings } = useSettings();
   const [roomId, setRoomId] = useState("");
 
   const createRoom = () => {
-    const nextRoom = `room-${Math.random().toString(36).slice(2, 8)}`;
-    onNavigate({ name: "room", roomId: nextRoom });
+    onNavigate({ name: "room", roomId: generateRoomCode() });
   };
 
   const joinRoom = (event: FormEvent) => {

@@ -629,6 +629,63 @@ h3 {
   overflow-wrap: anywhere;
 }
 
+.room-code-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 16px 18px;
+}
+
+.room-code-banner-main {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.room-code-banner-main p {
+  margin: 0;
+  color: #272727;
+  line-height: 1.45;
+}
+
+.room-code-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.room-code-value {
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 6px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.room-code-presence {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  text-align: right;
+}
+
+.room-code-presence-count {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+}
+
 .room-workflow-surface {
   display: grid;
   gap: 12px;
