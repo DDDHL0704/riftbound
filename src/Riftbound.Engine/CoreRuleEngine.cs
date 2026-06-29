@@ -119,7 +119,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SlySalamanderConditionalSourceEffectKind = "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT";
     private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
-    private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
@@ -32497,14 +32496,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (TryBuildCrescentGuardReadyOptionalCost(
+        if (TryBuildSourceReadyOptionalCost(
             state,
             playerId,
             normalizedOptionalCosts,
             behavior,
-            out var crescentGuardExtraPowerCostByTrait))
+            out var sourceReadyExtraPowerCostByTrait))
         {
-            extraPowerCostByTrait = crescentGuardExtraPowerCostByTrait;
+            extraPowerCostByTrait = sourceReadyExtraPowerCostByTrait;
             return true;
         }
 
@@ -32868,7 +32867,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryBuildCrescentGuardReadyOptionalCost(
+    private static bool TryBuildSourceReadyOptionalCost(
         MatchState state,
         string playerId,
         IReadOnlyList<string> normalizedOptionalCosts,
@@ -32876,21 +32875,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
     {
         extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
         if (normalizedOptionalCosts.Count != 1
-            || !string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
-            || !PlayerPlayedSpellThisTurn(state.UntilEndOfTurnEffects, playerId)
+            || behavior.SourceReadyAdditionalPowerCost <= 0
+            || string.IsNullOrWhiteSpace(requiredTrait)
+            || !SourceReadyConditionApplies(behavior.SourceReadyConditionKind, state.UntilEndOfTurnEffects, playerId)
             || !TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait)
-            || powerCost != 1
-            || !string.Equals(powerTrait, RuneTrait.Purple, StringComparison.Ordinal))
+            || powerCost != behavior.SourceReadyAdditionalPowerCost
+            || !string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal))
         {
             return false;
         }
 
         extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
         {
-            [RuneTrait.Purple] = 1
+            [requiredTrait] = powerCost
         };
         return true;
+    }
+
+    private static bool SourceReadyConditionApplies(
+        string conditionKind,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId)
+    {
+        return conditionKind switch
+        {
+            CardSourceReadyConditionKinds.None => true,
+            CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn =>
+                PlayerPlayedSpellThisTurn(untilEndOfTurnEffects, playerId),
+            _ => false
+        };
     }
 
     private static bool TryParseExhaustFriendlyUnitOptionalCost(string optionalCost, out string targetObjectId)
@@ -41318,15 +41333,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool IsCrescentGuardReadyOptionalCostPaid(
+    private static bool IsSourceReadyOptionalCostPaid(
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> optionalCosts)
+        IReadOnlyList<string> optionalCosts,
+        string controllerId,
+        IReadOnlyList<string> untilEndOfTurnEffects)
     {
-        return string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
+        return behavior.SourceReadyAdditionalPowerCost > 0
+            && !string.IsNullOrWhiteSpace(requiredTrait)
+            && SourceReadyConditionApplies(behavior.SourceReadyConditionKind, untilEndOfTurnEffects, controllerId)
             && optionalCosts.Any(optionalCost =>
                 TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
-                && powerCost == 1
-                && string.Equals(powerTrait, RuneTrait.Purple, StringComparison.Ordinal));
+                && powerCost == behavior.SourceReadyAdditionalPowerCost
+                && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal));
     }
 
     private static void PlaySourceUnitToBase(
@@ -41373,9 +41393,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem.OptionalCosts);
         var exhaustsForUnpaidHasteReady = HasHasteReadyEntryCost(behavior) && !hasteReadyOptionalCostPaid;
-        var crescentGuardReadyOptionalCostPaid = IsCrescentGuardReadyOptionalCostPaid(
+        var sourceReadyOptionalCostPaid = IsSourceReadyOptionalCostPaid(
             behavior,
-            stackItem.OptionalCosts);
+            stackItem.OptionalCosts,
+            stackItem.ControllerId,
+            untilEndOfTurnEffects);
         var entersReadyFromSourceUnitStaticAbility =
             TryGetSourceUnitEnterReadyStaticAbility(
                 behavior,
@@ -41414,7 +41436,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Power = unitPower,
             IsExhausted = entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
-                || crescentGuardReadyOptionalCostPaid
+                || sourceReadyOptionalCostPaid
                     ? false
                     : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
@@ -41444,7 +41466,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 unitState,
                 hasteReadyOptionalCostPaid,
-                crescentGuardReadyOptionalCostPaid,
+                sourceReadyOptionalCostPaid,
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
@@ -41654,7 +41676,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         CardObjectState unitState,
         bool hasteReadyOptionalCostPaid,
-        bool crescentGuardReadyOptionalCostPaid,
+        bool sourceReadyOptionalCostPaid,
         int friendlyEquipmentPowerBonus,
         StaticAbilitySpec? entryStaticAbility = null,
         string? entryStaticAbilitySourceObjectId = null,
@@ -41681,10 +41703,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["hasteReadyOptionalCostPaid"] = true;
         }
 
-        if (crescentGuardReadyOptionalCostPaid)
+        if (sourceReadyOptionalCostPaid)
         {
             payload["isExhausted"] = unitState.IsExhausted;
-            payload["crescentGuardReadyOptionalCostPaid"] = true;
+            var sourceReadyPayloadKey = string.IsNullOrWhiteSpace(behavior.SourceReadyOptionalCostPayloadKey)
+                ? "sourceReadyOptionalCostPaid"
+                : behavior.SourceReadyOptionalCostPayloadKey;
+            payload[sourceReadyPayloadKey] = true;
         }
 
         if (friendlyEquipmentPowerBonus > 0)

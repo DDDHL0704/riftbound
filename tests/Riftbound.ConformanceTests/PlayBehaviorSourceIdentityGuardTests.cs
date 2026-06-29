@@ -98,7 +98,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
-    public void CrescentGuardReadyOptionalCostSourceUsesCatalogEffectKind()
+    public void CrescentGuardReadyOptionalCostSourceUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -115,16 +115,18 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("CrescentGuardCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, CrescentGuardCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, CrescentGuardCardNo", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("CrescentGuardReadyOptionalCostSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CrescentGuardReadyOptionalCostSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind",
-            matchSessionSource,
-            StringComparison.Ordinal);
+        Assert.DoesNotContain("CrescentGuardReadyOptionalCostSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CrescentGuardReadyOptionalCostSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyConditionKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyAdditionalPowerCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyAdditionalPowerTrait", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceReadyConditionKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]

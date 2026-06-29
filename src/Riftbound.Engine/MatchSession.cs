@@ -6668,8 +6668,6 @@ internal static class ActionPromptBuilder
     private const string AkshanStealEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:";
     private const int AkshanStealEquipmentOrangePowerCost = 2;
 
-    private const string CrescentGuardReadyOptionalCostSourceEffectKind = "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT";
-    private const int CrescentGuardReadyPowerCost = 1;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
@@ -14657,13 +14655,14 @@ internal static class ActionPromptBuilder
                 $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
         }
 
-        if (CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
-            && CanPayCrescentGuardReadyPowerCost(runePool, paymentResourcePowerByTrait))
+        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior)
+            && CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior))
         {
+            var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
             choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{RuneTrait.Purple}:{CrescentGuardReadyPowerCost}",
-                $"新月禁卫活跃：支付 {CrescentGuardReadyPowerCost} 紫色符能",
-                "本回合已打出过法术"));
+                $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}",
+                $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
+                SourceReadyOptionalCostReason(behavior.SourceReadyConditionKind)));
         }
 
         if (behavior.OptionalExperienceCost > 0
@@ -15346,13 +15345,14 @@ internal static class ActionPromptBuilder
                 });
         }
 
-        if (CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior))
+        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior))
         {
+            var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
             AddRequirement(
                 0,
                 new Dictionary<string, int>(StringComparer.Ordinal)
                 {
-                    [RuneTrait.Purple] = CrescentGuardReadyPowerCost
+                    [sourceReadyTrait] = behavior.SourceReadyAdditionalPowerCost
                 });
         }
 
@@ -15590,22 +15590,57 @@ internal static class ActionPromptBuilder
             : value.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    private static bool CanPayCrescentGuardReadyPowerCost(
+    private static bool CanPaySourceReadyOptionalCost(
         RunePool runePool,
-        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
+        CardBehaviorDefinition behavior)
     {
+        if (behavior.SourceReadyAdditionalPowerCost <= 0)
+        {
+            return false;
+        }
+
+        var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
+        if (string.IsNullOrWhiteSpace(sourceReadyTrait))
+        {
+            return false;
+        }
+
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(RuneTrait.Purple, out var availablePower)
-            && availablePower >= CrescentGuardReadyPowerCost;
+        return availablePowerByTrait.TryGetValue(sourceReadyTrait, out var availablePower)
+            && availablePower >= behavior.SourceReadyAdditionalPowerCost;
     }
 
-    private static bool CanPromptCrescentGuardReadyOptionalCost(
+    private static bool CanPromptSourceReadyOptionalCost(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return string.Equals(behavior.EffectKind, CrescentGuardReadyOptionalCostSourceEffectKind, StringComparison.Ordinal)
-            && PromptPlayerPlayedSpellThisTurn(state, playerId);
+        return behavior.SourceReadyAdditionalPowerCost > 0
+            && !string.IsNullOrWhiteSpace(RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait))
+            && PromptSourceReadyConditionApplies(state, playerId, behavior.SourceReadyConditionKind);
+    }
+
+    private static bool PromptSourceReadyConditionApplies(
+        MatchState state,
+        string playerId,
+        string conditionKind)
+    {
+        return conditionKind switch
+        {
+            CardSourceReadyConditionKinds.None => true,
+            CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn => PromptPlayerPlayedSpellThisTurn(state, playerId),
+            _ => false
+        };
+    }
+
+    private static string SourceReadyOptionalCostReason(string conditionKind)
+    {
+        return conditionKind switch
+        {
+            CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn => "本回合已打出过法术",
+            _ => "可选额外费用"
+        };
     }
 
     private static bool PlayCardBehaviorMayNeedPaymentResource(
@@ -15619,7 +15654,7 @@ internal static class ActionPromptBuilder
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
-            || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
+            || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
             || IsAkshanOrangeExtraEquipmentStealRepresentative(behavior)
             || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0;
     }

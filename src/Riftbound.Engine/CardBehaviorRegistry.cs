@@ -194,7 +194,11 @@ public sealed record CardBehaviorDefinition(
     string StandbyReactionCountedTag = "",
     int StandbyReactionDamagePerCountedCard = 0,
     bool StandbyReactionRecyclesLookedMainDeckCards = false,
-    bool ExhaustsTarget = false);
+    bool ExhaustsTarget = false,
+    int SourceReadyAdditionalPowerCost = 0,
+    string SourceReadyAdditionalPowerTrait = "",
+    string SourceReadyConditionKind = CardSourceReadyConditionKinds.None,
+    string SourceReadyOptionalCostPayloadKey = "");
 
 public static class CardDamageConditionKinds
 {
@@ -295,6 +299,12 @@ public static class CardSourceBoonConditionKinds
 {
     public const string None = "NONE";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
+}
+
+public static class CardSourceReadyConditionKinds
+{
+    public const string None = "NONE";
+    public const string ControllerPlayedSpellThisTurn = "CONTROLLER_PLAYED_SPELL_THIS_TURN";
 }
 
 public static class CardTargetCountConditionKinds
@@ -4933,7 +4943,11 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourceReadyAdditionalPowerCost: 1,
+            SourceReadyAdditionalPowerTrait: RuneTrait.Purple,
+            SourceReadyConditionKind: CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn,
+            SourceReadyOptionalCostPayloadKey: "crescentGuardReadyOptionalCostPaid"),
         new(
             "OGN·012/298",
             "诺克萨斯新兵",
