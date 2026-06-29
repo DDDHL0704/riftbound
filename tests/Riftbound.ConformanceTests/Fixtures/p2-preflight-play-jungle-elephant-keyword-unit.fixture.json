@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-008/219 莽林巨象",
-      "note": "官方卡面：费用 6；单位；战力 6；强攻；若本回合内有单位被摧毁，则以活跃状态进场。当前 fixture 覆盖无单位被摧毁时的普通主阶段打出路径，源牌成为基地单位对象并记录关键词标签；强攻战斗修正和条件活跃进场路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 6；强攻；若本回合内有单位被摧毁，则以活跃状态进场。当前 fixture 覆盖无单位被摧毁时的普通主阶段打出路径，源牌成为基地单位对象并记录关键词标签；本回合有任一玩家单位被摧毁时活跃进场已由 SOURCE_UNIT_ENTER_READY / RequiresUnitDestroyedThisTurn 通用 StaticAbilitySpec 覆盖，强攻战斗修正仍暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

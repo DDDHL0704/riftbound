@@ -76,6 +76,14 @@ Implemented for `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩:
 - Opponent units located at battlefields do not satisfy the condition unless a controlled battlefield-card object is present.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this opponent-battlefield source-unit static ability controls the entry state.
 
+Implemented for `UNL-008/219` 莽林巨象:
+
+- `StaticAbilitySpec.RequiresUnitDestroyedThisTurn` can now carry source-unit active-entry requirements that depend on a unit having been destroyed earlier this turn.
+- `RuleTextParsers.StaticAbilityParser` parses `如果本回合内有单位被摧毁，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiresUnitDestroyedThisTurn=true`.
+- `CoreRuleEngine` checks the existing `DestroyedUnitOwnerIdsThisTurn` turn memory in the shared source-unit entry requirement gate.
+- The condition is owner-agnostic, matching the official text: either player's destroyed unit owner id satisfies it.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this unit-destroyed-this-turn source-unit static ability controls the entry state.
+
 Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
 
 - `RuleTextParsers.StaticAbilityParser` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` without requirement fields.
@@ -96,6 +104,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 - `SFD·094/221` 凶翼: `如果你控制着其他“龙”属性单位，则我以活跃状态进场。`
 - `SFD·071/221` 疾驰机械: `如果你控制着其他“机械”单位，则我以活跃状态进场。`
 - `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩: `如果对手已控制任意战场，则我以活跃状态进场。`
+- `UNL-008/219` 莽林巨象: `如果本回合内有单位被摧毁，则我以活跃状态进场。`
 - `SFD·006/221` 好斗的龙犬: `我以活跃状态进场。`
 - `OGS·016/024` 先锋扈从: `我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.

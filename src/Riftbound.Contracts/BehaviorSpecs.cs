@@ -541,7 +541,8 @@ public sealed record StaticAbilitySpec(
     int? RequiredPlayerExperience = null,
     int? MaxControllerHandCount = null,
     string? RequiredOtherControlledUnitTag = null,
-    int? RequiredOpponentControlledBattlefieldCount = null);
+    int? RequiredOpponentControlledBattlefieldCount = null,
+    bool? RequiresUnitDestroyedThisTurn = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

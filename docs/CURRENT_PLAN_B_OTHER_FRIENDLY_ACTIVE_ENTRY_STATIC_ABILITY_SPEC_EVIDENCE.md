@@ -99,6 +99,20 @@ Opponent-battlefield source-unit active-entry runtime:
 - `tests/Riftbound.ConformanceTests/OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests.cs` proves Vayne enters ready when the opponent controls a public battlefield card and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves no opponent battlefield card leaves Vayne exhausted: no battlefield objects and an opponent-controlled unit at a battlefield do not satisfy the parsed requirement and emit no entry-static metadata.
 
+Unit-destroyed-this-turn source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilitySpec.RequiresUnitDestroyedThisTurn`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `requiresUnitDestroyedThisTurn` on `staticAbilities` for the shared catalog payload shape.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `如果本回合内有单位被摧毁，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiresUnitDestroyedThisTurn=true`.
+- `tests/Riftbound.ConformanceTests/UnitDestroyedThisTurnSourceUnitActiveEntryStaticAbilityTests.cs` verifies `UNL-008/219` 莽林巨象 exposes this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+
+Unit-destroyed-this-turn source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through the same `SOURCE_UNIT_ENTER_READY` requirement gate and checks `DestroyedUnitOwnerIdsThisTurn`.
+- The requirement is owner-agnostic: either player's destroyed unit owner id satisfies the official `有单位被摧毁` wording.
+- `tests/Riftbound.ConformanceTests/UnitDestroyedThisTurnSourceUnitActiveEntryStaticAbilityTests.cs` proves Jungle Elephant enters ready when a P1-owned or P2-owned unit was destroyed earlier this turn and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves no destroyed unit this turn leaves Jungle Elephant exhausted and emits no entry-static metadata.
+
 Unconditional source-unit active-entry BehaviorSpec / catalog:
 
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` with no requirement fields.
@@ -167,6 +181,9 @@ Level-gated source-unit active-entry runtime:
 - Opponent-battlefield source-unit active-entry focused post-implementation: 6/6 passed.
 - Opponent-battlefield source-unit active-entry / source-unit active-entry / Vayne trigger-payment adjacent regression: 112/112 passed.
 - Opponent-battlefield source-unit active-entry / active-entry / Vayne / CardCatalogBaseline / MatchRecovery adjacent regression: 2369/2369 passed.
+- Unit-destroyed-this-turn source-unit active-entry pre-implementation red: `UnitDestroyedThisTurnSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiresUnitDestroyedThisTurn` did not exist.
+- Unit-destroyed-this-turn source-unit active-entry focused post-implementation: 4/4 passed.
+- Unit-destroyed-this-turn source-unit active-entry / active-entry / CardCatalogBaseline / MatchRecovery adjacent regression: 2363/2363 passed.
 - Unconditional source-unit active-entry pre-implementation red: `UnconditionalSourceUnitActiveEntryStaticAbilityTests` initially found no parsed `SOURCE_UNIT_ENTER_READY` spec for `SFD·006/221` / `OGS·016/024`, and Aggressive Dragonhound stayed exhausted when its source object was pre-exhausted.
 - Unconditional source-unit active-entry + Aggressive Dragonhound B0 official-deck replay focused post-implementation: 5/5 passed.
 - Unconditional source-unit active-entry / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2468/2468 passed.
@@ -179,9 +196,11 @@ Level-gated source-unit active-entry runtime:
 - Backend full after the Fiercewing controlled-tag source-unit active-entry B0 official-deck replay follow-up: 8990/8990 passed.
 - Backend full after the unconditional source-unit active-entry B0 official-deck replay follow-up: 8997/8997 passed.
 - Backend full after the Vayne opponent-battlefield source-unit active-entry StaticAbilitySpec follow-up: 9003/9003 passed.
+- Backend full after the Jungle Elephant unit-destroyed-this-turn source-unit active-entry StaticAbilitySpec follow-up: 9010/9010 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`, `StaticAbilitySpec.MaxControllerHandCount`, and `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount`: passed.
+- DevUi catalog type build after adding `StaticAbilitySpec.RequiresUnitDestroyedThisTurn`: passed.
 
 ## Remaining Evidence Needed
 
-- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, source-unit controlled-tag, and source-unit opponent-battlefield representatives.
+- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, source-unit controlled-tag, source-unit opponent-battlefield, and source-unit unit-destroyed-this-turn representatives.
 - Project remains NOT READY.

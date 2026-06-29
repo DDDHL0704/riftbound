@@ -35026,6 +35026,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     state.PlayerExperience,
+                    state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
                     events);
             }
@@ -35037,6 +35038,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     state.PlayerExperience,
+                    state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
                     events);
             }
@@ -41315,6 +41317,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId,
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience,
+        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         out StaticAbilitySpec ability)
     {
         ability = default!;
@@ -41326,7 +41329,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 sourceObjectId,
                 controllerId,
-                playerExperience))
+                playerExperience,
+                destroyedUnitOwnerIdsThisTurn))
         {
             return false;
         }
@@ -41341,7 +41345,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId,
         string controllerId,
-        IReadOnlyDictionary<string, int>? playerExperience)
+        IReadOnlyDictionary<string, int>? playerExperience,
+        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn)
     {
         if (!StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
         {
@@ -41369,6 +41374,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (ability.RequiredOpponentControlledBattlefieldCount is > 0
             && CountOpponentControlledPublicBattlefieldCards(playerZones, cardObjects, controllerId)
                 < ability.RequiredOpponentControlledBattlefieldCount.Value)
+        {
+            return false;
+        }
+
+        if (ability.RequiresUnitDestroyedThisTurn is true
+            && destroyedUnitOwnerIdsThisTurn.Count == 0)
         {
             return false;
         }
@@ -41475,6 +41486,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         IReadOnlyDictionary<string, int> playerExperience,
+        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
         List<GameEvent> events)
     {
@@ -41523,6 +41535,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
                 playerExperience,
+                destroyedUnitOwnerIdsThisTurn,
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(
@@ -41613,6 +41626,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         IReadOnlyDictionary<string, int> playerExperience,
+        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
         List<GameEvent> events)
     {
@@ -41658,6 +41672,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
                 playerExperience,
+                destroyedUnitOwnerIdsThisTurn,
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(
