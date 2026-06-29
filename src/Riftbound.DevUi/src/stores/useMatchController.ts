@@ -136,6 +136,16 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     }
   }, [playerId, roomId, socket]);
 
+  // Auto-connect (reconnecting via the stored token when present) whenever the controller
+  // is idle, so moving between the room, match and result pages doesn't strand the player
+  // on a manual "连接" click. Once connected it stays put; an explicit disconnect is honored
+  // because the status no longer returns to "idle".
+  useEffect(() => {
+    if (state.status === "idle") {
+      void join();
+    }
+  }, [join, state.status]);
+
   const requestSnapshot = useCallback(async () => {
     setState((current) => ({ ...current, status: "resyncing" }));
     try {
