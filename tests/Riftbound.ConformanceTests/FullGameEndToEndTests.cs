@@ -50,6 +50,7 @@ public sealed class FullGameEndToEndTests
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string CrystalhandHunterSourceObjectLevelStaticAuraCardNo = "UNL-094/219";
+    private const string TargonSeerSourceObjectLevelStaticAuraCardNo = "UNL-098/219";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
     private const string DariusSameBattlefieldStaticAuraCardNo = "SFD·236/221";
@@ -3893,7 +3894,14 @@ public sealed class FullGameEndToEndTests
             "P1",
             CrystalhandHunterSourceObjectLevelStaticAuraCardNo,
             "b0-crystalhand-hunter-source-object-level-aura-stage-attacker");
-        AssertCrystalhandHunterSourceObjectLevelStaticAuraProjection(current, "P1");
+        AssertSourceObjectLevelStaticAuraProjection(
+            current,
+            "P1",
+            CrystalhandHunterSourceObjectLevelStaticAuraCardNo,
+            expectedBasePower: 2,
+            expectedPowerDelta: 1,
+            expectedRequiredExperience: 6,
+            displayName: "Crystalhand Hunter");
 
         current = await DriveSpecificUnitToPlayerBattlefieldAsync(
             session,
@@ -3903,18 +3911,96 @@ public sealed class FullGameEndToEndTests
             "P1",
             "b0-crystalhand-hunter-source-object-level-aura-stage-defender");
 
-        var battleResult = await DriveContestedBattlefieldToCrystalhandHunterSourceObjectLevelStaticAuraBattleAsync(
+        var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
             session,
             current,
             "P1",
-            "b0-crystalhand-hunter-source-object-level-aura-battle");
+            CrystalhandHunterSourceObjectLevelStaticAuraCardNo,
+            expectedBasePower: 2,
+            expectedPowerDelta: 1,
+            expectedRequiredExperience: 6,
+            displayName: "Crystalhand Hunter",
+            intentPrefix: "b0-crystalhand-hunter-source-object-level-aura-battle");
 
-        AssertCrystalhandHunterSourceObjectLevelStaticAuraDamage(battleResult);
+        AssertSourceObjectLevelStaticAuraDamage(
+            battleResult,
+            expectedBasePower: 2,
+            expectedStaticPowerBonus: 1);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
             battleResult,
             "b0-crystalhand-hunter-source-object-level-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildTargonSeerSourceObjectLevelStaticAuraOfficialDeck(catalog);
+        var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-targon-seer-source-object-level-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildTargonSeerSourceObjectLevelStaticAuraMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        Assert.True(current.State.PlayerExperience.TryGetValue("P1", out var p1Experience) && p1Experience >= 11);
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            TargonSeerSourceObjectLevelStaticAuraCardNo,
+            "b0-targon-seer-source-object-level-aura-stage-attacker");
+        AssertSourceObjectLevelStaticAuraProjection(
+            current,
+            "P1",
+            TargonSeerSourceObjectLevelStaticAuraCardNo,
+            expectedBasePower: 6,
+            expectedPowerDelta: 4,
+            expectedRequiredExperience: 11,
+            displayName: "Targon Seer");
+
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            WatchfulSentinelCardNo,
+            "P1",
+            "b0-targon-seer-source-object-level-aura-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            TargonSeerSourceObjectLevelStaticAuraCardNo,
+            expectedBasePower: 6,
+            expectedPowerDelta: 4,
+            expectedRequiredExperience: 11,
+            displayName: "Targon Seer",
+            intentPrefix: "b0-targon-seer-source-object-level-aura-battle");
+
+        AssertSourceObjectLevelStaticAuraDamage(
+            battleResult,
+            expectedBasePower: 6,
+            expectedStaticPowerBonus: 4);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-targon-seer-source-object-level-aura-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -8617,20 +8703,25 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertCrystalhandHunterSourceObjectLevelStaticAuraDamage(ResolutionResult result)
+    private static void AssertSourceObjectLevelStaticAuraDamage(
+        ResolutionResult result,
+        int expectedBasePower,
+        int expectedStaticPowerBonus)
     {
         var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
-            && basePower is 2
+            && basePower is int actualBasePower
+            && actualBasePower == expectedBasePower
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
-        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
-        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
-        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
-        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+            && staticPowerBonus is int actualStaticPowerBonus
+            && actualStaticPowerBonus == expectedStaticPowerBonus);
+        Assert.Equal(expectedBasePower, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(expectedStaticPowerBonus, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(expectedBasePower + expectedStaticPowerBonus, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(expectedBasePower + expectedStaticPowerBonus, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -13384,10 +13475,15 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 Wise Elder source-object-filtered static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
-    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToCrystalhandHunterSourceObjectLevelStaticAuraBattleAsync(
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
         MatchSession session,
         ResolutionResult current,
         string attackingPlayerId,
+        string sourceCardNo,
+        int expectedBasePower,
+        int expectedPowerDelta,
+        int expectedRequiredExperience,
+        string displayName,
         string intentPrefix)
     {
         var result = current;
@@ -13417,7 +13513,7 @@ public sealed class FullGameEndToEndTests
                 var attackerObjectId = FindBattlefieldUnitByCardNo(
                     result.State,
                     attackingPlayerId,
-                    CrystalhandHunterSourceObjectLevelStaticAuraCardNo,
+                    sourceCardNo,
                     readyOnly: true);
                 var targetBattlefieldId = attackerObjectId is not null
                     && result.State.ObjectLocations.TryGetValue(attackerObjectId, out var attackerLocation)
@@ -13435,10 +13531,15 @@ public sealed class FullGameEndToEndTests
                     continue;
                 }
 
-                return await SubmitCrystalhandHunterSourceObjectLevelStaticAuraDeclareBattleAsync(
+                return await SubmitSourceObjectLevelStaticAuraDeclareBattleAsync(
                     session,
                     result,
                     attackingPlayerId,
+                    sourceCardNo,
+                    expectedBasePower,
+                    expectedPowerDelta,
+                    expectedRequiredExperience,
+                    displayName,
                     $"{intentPrefix}-declare-{turnIndex}");
             }
 
@@ -13446,14 +13547,14 @@ public sealed class FullGameEndToEndTests
                 || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
                 || result.State.PendingTaskQueue.HasTasks)
             {
-                throw new InvalidOperationException($"B0 Crystalhand Hunter source-object level static aura driver cannot advance to battle: {DescribeState(result.State)}");
+                throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver cannot advance to battle: {DescribeState(result.State)}");
             }
 
             result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
             AssertNoHiddenZoneLeak(result);
         }
 
-        throw new InvalidOperationException($"B0 Crystalhand Hunter source-object level static aura driver could not open a legal battle task: {DescribeState(result.State)}");
+        throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not open a legal battle task: {DescribeState(result.State)}");
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToSameBattlefieldStaticKeywordBattleAsync(
@@ -18882,24 +18983,29 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
-    private static async ValueTask<ResolutionResult> SubmitCrystalhandHunterSourceObjectLevelStaticAuraDeclareBattleAsync(
+    private static async ValueTask<ResolutionResult> SubmitSourceObjectLevelStaticAuraDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
         string attackingPlayerId,
+        string sourceCardNo,
+        int expectedBasePower,
+        int expectedPowerDelta,
+        int expectedRequiredExperience,
+        string displayName,
         string intentId)
     {
         Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
         var opponentId = OpponentOf(current.State, attackingPlayerId);
         var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
-            ?? throw new InvalidOperationException($"B0 Crystalhand Hunter source-object level static aura driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
+            ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
         var attackerObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             attackingPlayerId,
-            CrystalhandHunterSourceObjectLevelStaticAuraCardNo,
+            sourceCardNo,
             readyOnly: true)
-            ?? throw new InvalidOperationException("B0 Crystalhand Hunter source-object level static aura driver could not find ready Crystalhand Hunter attacker.");
+            ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not find ready attacker.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
-            ?? throw new InvalidOperationException("B0 Crystalhand Hunter source-object level static aura driver could not locate Crystalhand Hunter's battlefield.");
+            ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not locate attacker's battlefield.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
         var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -18908,7 +19014,14 @@ public sealed class FullGameEndToEndTests
             ?? [];
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
-        AssertCrystalhandHunterSourceObjectLevelStaticAuraProjection(current, attackingPlayerId);
+        AssertSourceObjectLevelStaticAuraProjection(
+            current,
+            attackingPlayerId,
+            sourceCardNo,
+            expectedBasePower,
+            expectedPowerDelta,
+            expectedRequiredExperience,
+            displayName);
 
         var defenderObjectId = FindReadyBattlefieldDefender(
             current.State,
@@ -18916,7 +19029,7 @@ public sealed class FullGameEndToEndTests
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 Crystalhand Hunter source-object level static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 {displayName} source-object level static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -19883,25 +19996,32 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertCrystalhandHunterSourceObjectLevelStaticAuraProjection(
+    private static void AssertSourceObjectLevelStaticAuraProjection(
         ResolutionResult result,
-        string controllerId)
+        string controllerId,
+        string sourceCardNo,
+        int expectedBasePower,
+        int expectedPowerDelta,
+        int expectedRequiredExperience,
+        string displayName)
     {
-        var sourceObjectId = FindBattlefieldUnitByCardNo(result.State, controllerId, CrystalhandHunterSourceObjectLevelStaticAuraCardNo)
-            ?? throw new InvalidOperationException("B0 Crystalhand Hunter source-object level static aura projection could not find Crystalhand Hunter.");
+        var sourceObjectId = FindBattlefieldUnitByCardNo(result.State, controllerId, sourceCardNo)
+            ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura projection could not find source unit.");
         var sourceObject = result.State.CardObjects[sourceObjectId];
-        Assert.Equal(2, sourceObject.Power);
-        Assert.True(result.State.PlayerExperience.TryGetValue(controllerId, out var experience) && experience >= 6);
+        Assert.Equal(expectedBasePower, sourceObject.Power);
+        Assert.True(
+            result.State.PlayerExperience.TryGetValue(controllerId, out var experience)
+            && experience >= expectedRequiredExperience);
 
         var staticAura = Assert.Single(result.State.ContinuousEffects, effect =>
             string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
             && string.Equals(effect.TargetObjectId, sourceObjectId, StringComparison.Ordinal));
-        Assert.Equal(CrystalhandHunterSourceObjectLevelStaticAuraCardNo, staticAura.SourceCardNo);
+        Assert.Equal(sourceCardNo, staticAura.SourceCardNo);
         Assert.Equal(StaticAuraKinds.SourceObjectPower, staticAura.EffectKind);
-        Assert.Equal(1, staticAura.PowerDelta);
-        Assert.Equal(2, staticAura.BasePower);
-        Assert.Equal(3, staticAura.EffectivePower);
+        Assert.Equal(expectedPowerDelta, staticAura.PowerDelta);
+        Assert.Equal(expectedBasePower, staticAura.BasePower);
+        Assert.Equal(expectedBasePower + expectedPowerDelta, staticAura.EffectivePower);
         Assert.Equal("CoreRuleEngine.ResolveSourceObjectPowerBonus", staticAura.SourcePath);
         Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE", staticAura.Condition);
         Assert.Equal("RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE", staticAura.Lifecycle);
@@ -21765,6 +21885,19 @@ public sealed class FullGameEndToEndTests
                 PoppyChampionCardNo,
                 [
                     CrystalhandHunterSourceObjectLevelStaticAuraCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildTargonSeerSourceObjectLevelStaticAuraOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                PoppyLegendCardNo,
+                PoppyChampionCardNo,
+                [
+                    TargonSeerSourceObjectLevelStaticAuraCardNo
                 ]));
     }
 
@@ -27511,6 +27644,28 @@ public sealed class FullGameEndToEndTests
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
                 playerId => playerId,
                 playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 6 : 0,
+                StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BuildTargonSeerSourceObjectLevelStaticAuraMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [TargonSeerSourceObjectLevelStaticAuraCardNo],
+                    new RunePool(mana: 11, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        return midgameState with
+        {
+            PlayerExperience = midgameState.Seats.Keys.ToDictionary(
+                playerId => playerId,
+                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 11 : 0,
                 StringComparer.Ordinal)
         };
     }

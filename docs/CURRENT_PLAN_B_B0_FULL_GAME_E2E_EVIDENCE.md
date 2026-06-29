@@ -176,6 +176,8 @@ The Wise Elder source-object filtered static-aura action-log replay regression p
 
 The Crystalhand Hunter source-object level static-aura action-log replay regression proves a legal official deck can carry a level-gated source-object `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesCrystalhandHunterSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Poppy deck containing `UNL-094/219` Crystalhand Hunter, follows the normal official opening seed path, starts the focused midgame route at 6 experience, stages Crystalhand Hunter and an opposing `OGN·096/298` Watchful Sentinel through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Crystalhand Hunter's `SOURCE_OBJECT_POWER` continuous effect targets itself with `SourcePath=CoreRuleEngine.ResolveSourceObjectPowerBonus`, submits a server-authorized `DECLARE_BATTLE`, observes Crystalhand Hunter's real attacker `DAMAGE_APPLIED` with `basePower=2`, `staticPowerBonus=1`, `combatPower=3`, and `damage=3`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-object level family breadth, complete official deck archetype breadth, or READY.
 
+The Targon Seer source-object level static-aura action-log replay regression proves the same legal official deck path can carry a larger level-gated source-object `STATIC_AURA` scalar through the B0 full-game route. `OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Poppy deck containing `UNL-098/219` Targon Seer, follows the normal official opening seed path, starts the focused midgame route at 11 experience, stages Targon Seer and an opposing `OGN·096/298` Watchful Sentinel through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies Targon Seer's `SOURCE_OBJECT_POWER` continuous effect targets itself with `PowerDelta=4`, `RequiredPlayerExperience=11`, and `SourcePath=CoreRuleEngine.ResolveSourceObjectPowerBonus`, submits a server-authorized `DECLARE_BATTLE`, observes Targon Seer's real attacker `DAMAGE_APPLIED` with `basePower=6`, `staticPowerBonus=4`, `combatPower=10`, and `damage=10`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete source-object level family breadth, complete official deck archetype breadth, or READY.
+
 The battlefield all-units static-aura action-log replay regression proves a legal official deck can carry a public battlefield-source `STATIC_AURA` through the B0 full-game route. `OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex decks whose battlefield set includes `OGN·294/298` Trifarian Training Grounds, probes official-opening seeds until P1 randomly selects that battlefield, stages `UNL-057/219` Wildclaw Beastmaster and an opposing defender to that battlefield through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies the battlefield's `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` projection targets both attacker and defender, observes Wildclaw's real `DAMAGE_APPLIED` with `basePower=7`, `staticPowerBonus=1`, `combatPower=8`, and `damage=8`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete battlefield static-aura breadth, complete official deck archetype breadth, or READY.
 
 The battlefield all-units static-keyword action-log replay regression proves a legal official deck can carry a public battlefield-source `RULE_TEXT` keyword aura into a real movement command. `OfficialDeckMidgameProjectsBattlefieldAllUnitsStaticKeywordRoamAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official Vex decks whose battlefield set includes `OGN·297/298` Wind Hill / 疾风山丘, probes official-opening seeds until P1 randomly selects that battlefield, stages `UNL-057/219` Wildclaw Beastmaster to Wind Hill through server-authored `PLAY_CARD` / `MOVE_UNIT` prompts, verifies the battlefield's `BATTLEFIELD_ALL_UNITS_KEYWORD` projection grants `游走` without adding a printed tag, submits the server-authored precise battlefield `MOVE_UNIT` from Wind Hill to a second official P1 battlefield with optional cost `ROAM`, then continues through score-victory replay to the same final state hash. This slice changes only test / evidence coverage; it does not close complete battlefield RULE_TEXT keyword breadth, complete official deck archetype breadth, or READY.
@@ -2324,11 +2326,49 @@ Result:
 Passed: 8955, Failed: 0, Skipped: 0, Total: 8955
 ```
 
+Latest Targon Seer source-object level static-aura B0 score-victory replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Targon Seer source-object level static-aura adjacent / recovery validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAura|FullyQualifiedName~SourceObjectLevelPower|FullyQualifiedName~SourceObjectPower|FullyQualifiedName~SourceObjectFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~Experience|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2244, Failed: 0, Skipped: 0, Total: 2244
+```
+
+Latest backend full after Targon Seer source-object level static-aura official-deck evidence passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 8956, Failed: 0, Skipped: 0, Total: 8956
+```
+
 ## Non-Closure
 
 This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, same-turn false-to-true legal-combatants skipped-battle reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves official Lillia multi-defender damage-assignment paths can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, including Taric `壁垒` before LeBlanc `后排` ordering with printed/granted `坚守` battle effective power; official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts; an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event; an official Poppy / Bandle Tree path can hide a standby card to a battlefield extra-standby destination and still finish through score-victory replay; official Poppy / Garen / Demacia Envoy, Darius legend / Darius static source / Aggressive Dragonhound, Rumble / Ornn / Long Sword, Vex / Baron Nashor / Wildclaw Beastmaster, Poppy / Scarlet Pigeon / Demacia Envoy, Lillia / Petal Pixie / Faerie token / Wildclaw Beastmaster, Lillia / Soul Shepherd / Warhawk token / Wildclaw Beastmaster, Lillia / Waterbender / Watchful Sentinel, Master Yi intro / Demacia Envoy, Master Yi level / Demacia Envoy, Master Yi level / Wise Elder / Arena Rookie / Watchful Sentinel, Vex / Trifarian Training Grounds / Wildclaw Beastmaster, Poppy / Reliable Siege Dog / Demacia Envoy, Poppy / Sett / Arena Rookie / Demacia Envoy, and Poppy / Lee Sin / Arena Rookie / Demacia Envoy paths can apply data-driven same-battlefield, friendly-equipment count-to-source, non-local other-friendly, source-combat, same-battlefield ephemeral count-to-source, friendly-token filtered, source-lone-battle, friendly single-defender, experience-gated friendly-units, source-object filtered, battlefield-source all-units, source same-location threshold, same-battlefield boon count-to-source, and same-battlefield other-friendly filtered static auras to real battle damage and still finish through score-victory replay; official Jhin / Farron Captain / Ascended Believer and Lillia / Taric / LeBlanc paths can apply data-driven same-battlefield RULE_TEXT keyword auras to attacker and defender real battle damage and still finish through score-victory replay; and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Taric Bulwark assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, Bandle Tree battlefield extra-standby hide, Garen same-battlefield static-aura, Darius same-battlefield static-aura, Ornn friendly-equipment static-aura, Baron Nashor other-friendly static-aura, Scarlet Pigeon source-combat static-aura, Petal Pixie same-battlefield ephemeral count-to-source static-aura, Soul Shepherd friendly-token static-aura, Waterbender source-lone-battle static-aura, Master Yi intro friendly single-defender static-aura, Master Yi level friendly-units static-aura, Wise Elder source-object filtered static-aura, Trifarian Training Grounds battlefield all-units static-aura, Reliable Siege Dog source same-location static-aura, Sett same-battlefield boon count-to-source static-aura, Lee Sin same-battlefield other-friendly filtered static-aura, Farron same-battlefield static-keyword aura, Taric same-battlefield Steadfast static-keyword aura, and Teemo standby reaction command streams can now be recovered from their representative initial states through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, token-creation command breadth, all standby reaction card effects / targeted standby reactions, battlefield standby reaction / cleanup breadth, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete static-aura official breadth, complete RULE_TEXT keyword aura breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
 
 The current Crystalhand Hunter increment additionally proves one legal official Poppy deck route can carry a source-object level-gated static-power aura through projection, real attacker damage, score-victory replay, and hidden-info guarded full-game helpers. Complete source-object level family breadth remains open.
+
+The current Targon Seer increment additionally proves the same source-object level family handles a non-1 power delta (`+4`) and an 11-experience gate through projection, real attacker damage, score-victory replay, and hidden-info guarded full-game helpers. Complete source-object level family breadth remains open.
 
 The current Forbidden Wasteland increment additionally proves one battlefield-source isolated-defender RULE_TEXT keyword-modifier route through direct continuous-effect projection, real defender damage, score-victory replay, and hidden-info guarded full-game helpers. Complete battlefield RULE_TEXT keyword-modifier breadth remains open.
 
