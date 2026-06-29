@@ -18,6 +18,7 @@ public static class PersistenceServiceCollectionExtensions
             services.AddSingleton<IMatchJournal>(NoopMatchJournal.Instance);
             services.AddSingleton<IMatchRecoveryStore>(NoopMatchRecoveryStore.Instance);
             services.AddSingleton<IMatchPlayerStore>(NoopMatchPlayerStore.Instance);
+            services.AddSingleton<IMatchResultStore, InMemoryMatchResultStore>();
             return services;
         }
 
@@ -25,6 +26,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddSingleton<IMatchJournal, PostgresMatchJournal>();
         services.AddSingleton<IMatchRecoveryStore, PostgresMatchRecoveryStore>();
         services.AddSingleton<IMatchPlayerStore, PostgresMatchPlayerStore>();
+        services.AddSingleton<IMatchResultStore, PostgresMatchResultStore>();
         services.AddSingleton<IPlayerIdentityStore, PostgresPlayerIdentityStore>();
         services.AddHostedService<PostgresSchemaInitializer>();
         return services;

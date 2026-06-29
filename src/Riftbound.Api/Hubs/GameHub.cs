@@ -28,7 +28,8 @@ public sealed class GameHub(
     IConfiguration? configuration = null,
     PlayerIdentityService? playerIdentity = null,
     IMatchmakingQueue? matchmakingQueue = null,
-    IPublicMatchDirectory? publicMatches = null) : Hub<IGameClient>
+    IPublicMatchDirectory? publicMatches = null,
+    IMatchResultStore? matchResultStore = null) : Hub<IGameClient>
 {
     private const string AuthenticatedHandleItemKey = "riftbound:authenticatedHandle";
 
@@ -559,6 +560,14 @@ public sealed class GameHub(
         var projectedEvents = result.Events.Count > 0
             ? ProjectEvents(result.Events, result.State)
             : Array.Empty<GameEvent>();
+        if (matchResultStore is not null
+            && result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)))
+        {
+            await matchResultStore.RecordMatchResultAsync(
+                BuildMatchResultRecord(result.State),
+                Context.ConnectionAborted);
+        }
+
         if (projectedEvents.Count > 0)
         {
             await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
@@ -620,6 +629,38 @@ public sealed class GameHub(
         return result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal))
             ? MessageType.START
             : MessageType.READY;
+    }
+
+    private static MatchResultRecord BuildMatchResultRecord(MatchState state)
+    {
+        var winnerPlayerId = string.IsNullOrWhiteSpace(state.WinnerPlayerId)
+            ? throw new InvalidOperationException("Cannot record a match result without a winner.")
+            : state.WinnerPlayerId;
+        var players = state.Seats
+            .Select(entry =>
+            {
+                var score = state.PlayerScores.TryGetValue(entry.Key, out var playerScore)
+                    ? playerScore
+                    : 0;
+                return new MatchResultPlayerRecord(
+                    entry.Key,
+                    entry.Value,
+                    score,
+                    string.Equals(entry.Key, winnerPlayerId, StringComparison.Ordinal));
+            })
+            .OrderBy(player => string.Equals(player.Seat, "P1", StringComparison.Ordinal)
+                ? "0"
+                : string.Equals(player.Seat, "P2", StringComparison.Ordinal)
+                    ? "1"
+                    : $"2:{player.Seat}", StringComparer.Ordinal)
+            .ThenBy(player => player.PlayerId, StringComparer.Ordinal)
+            .ToArray();
+
+        return new MatchResultRecord(
+            state.RoomId,
+            players,
+            winnerPlayerId,
+            DateTimeOffset.UtcNow);
     }
 
     private static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)

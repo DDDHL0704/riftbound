@@ -17433,6 +17433,63 @@ public sealed class GameHubJoinTests
         Assert.Empty(await publicMatches.ListOpenAsync(CancellationToken.None));
     }
 
+    [Fact]
+    public async Task MatchWonThroughHubRecordsPublicResultForBothPlayers()
+    {
+        var initialState = new MatchState(
+            "result-record-room",
+            12,
+            4,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["alice"] = 3,
+                ["bob"] = 5
+            });
+        var session = new MatchSession(initialState, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var resultStore = new InMemoryMatchResultStore();
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(
+            clients,
+            new RecordingGroupManager(),
+            "connection-1",
+            new FixedMatchSessionRegistry(session),
+            matchResultStore: resultStore);
+
+        var receipt = await hub.SubmitIntent(
+            "result-record-room",
+            "alice",
+            "intent-alice-surrender",
+            JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" }));
+
+        Assert.True(receipt.Accepted, receipt.Message);
+        var winEvent = Assert.Single(
+            Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(Assert.Single(clients.GroupClient.EventMessages).Payload),
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("bob", winEvent.Payload["winnerPlayerId"]);
+
+        var recorded = await resultStore.GetMatchResultAsync("result-record-room", CancellationToken.None);
+        Assert.NotNull(recorded);
+        Assert.Equal("result-record-room", recorded.RoomId);
+        Assert.Equal("bob", recorded.WinnerPlayerId);
+        Assert.True(recorded.FinishedAtUtc <= DateTimeOffset.UtcNow);
+        Assert.Equal(
+            ["alice:P1:3:False", "bob:P2:5:True"],
+            recorded.Players.Select(player => $"{player.PlayerId}:{player.Seat}:{player.Score}:{player.Won}").ToArray());
+        Assert.Single(await resultStore.ListMatchResultsForPlayerAsync("alice", limit: 10, CancellationToken.None));
+        Assert.Single(await resultStore.ListMatchResultsForPlayerAsync("bob", limit: 10, CancellationToken.None));
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -17442,7 +17499,8 @@ public sealed class GameHubJoinTests
         IConfiguration? configuration = null,
         PlayerIdentityService? playerIdentity = null,
         IMatchmakingQueue? matchmakingQueue = null,
-        IPublicMatchDirectory? publicMatches = null)
+        IPublicMatchDirectory? publicMatches = null,
+        IMatchResultStore? matchResultStore = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
@@ -17451,7 +17509,8 @@ public sealed class GameHubJoinTests
             configuration,
             playerIdentity,
             matchmakingQueue,
-            publicMatches)
+            publicMatches,
+            matchResultStore)
         {
             Clients = clients,
             Groups = groups,

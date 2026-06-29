@@ -20,6 +20,7 @@ public sealed class PersistenceWiringTests
         Assert.Same(NoopMatchJournal.Instance, provider.GetRequiredService<IMatchJournal>());
         Assert.Same(NoopMatchRecoveryStore.Instance, provider.GetRequiredService<IMatchRecoveryStore>());
         Assert.Same(NoopMatchPlayerStore.Instance, provider.GetRequiredService<IMatchPlayerStore>());
+        Assert.IsType<InMemoryMatchResultStore>(provider.GetRequiredService<IMatchResultStore>());
     }
 
     [Fact]
@@ -40,6 +41,7 @@ public sealed class PersistenceWiringTests
         Assert.Equal(typeof(PostgresMatchRecoveryStore), DescriptorFor<IMatchRecoveryStore>(services).ImplementationType);
         Assert.Equal(typeof(PostgresMatchPlayerStore), DescriptorFor<IMatchPlayerStore>(services).ImplementationType);
         Assert.Equal(typeof(PostgresPlayerIdentityStore), DescriptorFor<IPlayerIdentityStore>(services).ImplementationType);
+        Assert.Equal(typeof(PostgresMatchResultStore), DescriptorFor<IMatchResultStore>(services).ImplementationType);
     }
 
     private static ServiceDescriptor DescriptorFor<TService>(IServiceCollection services)
