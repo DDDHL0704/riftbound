@@ -3,6 +3,7 @@ export type AppRoute =
   | { name: "cards" }
   | { name: "decks" }
   | { name: "lobby" }
+  | { name: "profile"; handle: string }
   | { name: "room"; roomId: string }
   | { name: "match"; matchId: string }
   | { name: "result"; matchId: string }
@@ -26,6 +27,10 @@ export function parseRoute(pathname = window.location.pathname): AppRoute {
 
   if (segments[0] === "lobby") {
     return { name: "lobby" };
+  }
+
+  if (segments[0] === "players" && segments[1]) {
+    return { name: "profile", handle: segments[1] };
   }
 
   if (segments[0] === "rooms" && segments[1]) {
@@ -65,6 +70,8 @@ export function routePath(route: AppRoute): string {
       return "/decks";
     case "lobby":
       return "/lobby";
+    case "profile":
+      return `/players/${encodeURIComponent(route.handle)}`;
     case "room":
       return `/rooms/${encodeURIComponent(route.roomId)}`;
     case "match":

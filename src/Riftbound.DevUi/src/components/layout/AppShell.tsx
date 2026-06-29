@@ -1,5 +1,6 @@
-import { BookOpen, ClipboardCheck, Grid3X3, Home, Library, Settings, Shield, Swords, UsersRound } from "lucide-react";
+import { BookOpen, ClipboardCheck, Grid3X3, Home, Library, Settings, Shield, Swords, UserRound, UsersRound } from "lucide-react";
 import { AppRoute } from "../../app/router";
+import { useSettings } from "../../stores/settingsStore";
 import { Button } from "../ui/Button";
 import { Tooltip, TooltipProvider } from "../ui/Tooltip";
 
@@ -11,6 +12,8 @@ type AppShellProps = {
 
 export function AppShell({ activeRoute, onNavigate, children }: AppShellProps) {
   const matchFrame = activeRoute === "match";
+  const { settings } = useSettings();
+  const profileHandle = settings.playerId.trim() || "player";
 
   return (
     <TooltipProvider delayDuration={160}>
@@ -27,6 +30,7 @@ export function AppShell({ activeRoute, onNavigate, children }: AppShellProps) {
             <nav>
               <NavButton active={activeRoute === "home"} icon={<Home size={18} />} label="首页" onClick={() => onNavigate({ name: "home" })} />
               <NavButton active={activeRoute === "lobby" || activeRoute === "room"} icon={<UsersRound size={18} />} label="大厅" onClick={() => onNavigate({ name: "lobby" })} />
+              <NavButton active={activeRoute === "profile"} icon={<UserRound size={18} />} label="资料" onClick={() => onNavigate({ name: "profile", handle: profileHandle })} />
               <NavButton active={false} icon={<Swords size={18} />} label="对战" onClick={() => onNavigate({ name: "match", matchId: "local" })} />
               <NavButton active={activeRoute === "cards"} icon={<Library size={18} />} label="图鉴" onClick={() => onNavigate({ name: "cards" })} />
               <NavButton active={activeRoute === "decks"} icon={<BookOpen size={18} />} label="卡组" onClick={() => onNavigate({ name: "decks" })} />

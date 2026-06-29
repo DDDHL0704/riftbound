@@ -1,5 +1,5 @@
 import { BehaviorSpec, KeywordCoverageReport } from "../types/catalog";
-import { PublicMatchDto } from "../types/protocol";
+import { LeaderboardEntryDto, PlayerMatchDto, PlayerProfileDto, PublicMatchDto } from "../types/protocol";
 
 export type HealthResponse = {
   status: string;
@@ -40,6 +40,20 @@ export class ApiClient {
 
   async publicMatches(signal?: AbortSignal): Promise<PublicMatchDto[]> {
     return this.get<PublicMatchDto[]>("/matches", signal);
+  }
+
+  async playerProfile(handle: string, signal?: AbortSignal): Promise<PlayerProfileDto> {
+    return this.get<PlayerProfileDto>(`/players/${encodeURIComponent(handle)}`, signal);
+  }
+
+  async playerMatches(handle: string, limit?: number, signal?: AbortSignal): Promise<PlayerMatchDto[]> {
+    const query = typeof limit === "number" ? `?limit=${encodeURIComponent(String(limit))}` : "";
+    return this.get<PlayerMatchDto[]>(`/players/${encodeURIComponent(handle)}/matches${query}`, signal);
+  }
+
+  async leaderboard(limit?: number, signal?: AbortSignal): Promise<LeaderboardEntryDto[]> {
+    const query = typeof limit === "number" ? `?limit=${encodeURIComponent(String(limit))}` : "";
+    return this.get<LeaderboardEntryDto[]>(`/leaderboard${query}`, signal);
   }
 
   private async get<T>(path: string, signal?: AbortSignal): Promise<T> {

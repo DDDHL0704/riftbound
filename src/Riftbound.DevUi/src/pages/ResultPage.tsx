@@ -1,17 +1,26 @@
-import { ArrowLeft, Home, RefreshCw, Swords } from "lucide-react";
-import { useEffect } from "react";
+import { ArrowLeft, Home, RefreshCw, Swords, UserRound } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppRoute } from "../app/router";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
+import { ApiClient } from "../services/apiClient";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
+import { PlayerMatchDto } from "../types/protocol";
 import { asNumber, asRecord, asString } from "../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
 import { connectionStatusLabel, connectionStatusTone, roomStatusLabel, roomStatusTone } from "../utils/formatters";
 
+type ResultRecordStatus = {
+  match?: PlayerMatchDto;
+  message: string;
+  state: "checking" | "error" | "recorded" | "unavailable" | "waiting";
+};
+
 export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
+  const api = useMemo(() => new ApiClient(settings.serverUrl), [settings.serverUrl]);
   const controller = useMatchController(settings.serverUrl, matchId, settings.playerId);
   const snapshot = controller.state.snapshot;
   const timing = asRecord(snapshot?.timing);
@@ -25,11 +34,71 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
   });
   const latestEvent = controller.state.events[0];
   const latestError = controller.state.errors[0];
+  const [recordStatus, setRecordStatus] = useState<ResultRecordStatus>({
+    message: "正在查询公开终局记录。",
+    state: "checking"
+  });
   const resultActionCount = 5;
+
+  const refreshRecordStatus = useCallback(
+    async (signal?: AbortSignal) => {
+      const playerId = settings.playerId.trim();
+      if (!playerId) {
+        setRecordStatus({
+          message: "当前玩家名为空，无法查询公开终局记录。",
+          state: "unavailable"
+        });
+        return;
+      }
+
+      setRecordStatus({
+        message: "正在查询公开终局记录。",
+        state: "checking"
+      });
+
+      try {
+        const matches = await api.playerMatches(playerId, 50, signal);
+        if (signal?.aborted) {
+          return;
+        }
+
+        const recordedMatch = matches.find((match) => match.roomId === matchId);
+        if (recordedMatch) {
+          setRecordStatus({
+            match: recordedMatch,
+            message: `公开终局已记录，胜者 ${recordedMatch.winnerPlayerId}。`,
+            state: "recorded"
+          });
+          return;
+        }
+
+        setRecordStatus({
+          message: roomStatus === "FINISHED" ? "服务端已结算，公开记录仍在等待查询命中。" : "对局尚未进入公开终局记录。",
+          state: "waiting"
+        });
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        setRecordStatus({
+          message: error instanceof Error ? error.message : "记录查询失败。",
+          state: "error"
+        });
+      }
+    },
+    [api, matchId, roomStatus, settings.playerId]
+  );
 
   useEffect(() => {
     void controller.join().catch(() => undefined);
   }, [controller.join]);
+
+  useEffect(() => {
+    const abort = new AbortController();
+    void refreshRecordStatus(abort.signal);
+    return () => abort.abort();
+  }, [refreshRecordStatus]);
 
   return (
     <div
@@ -122,6 +191,24 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
           <h2>{winnerPlayerId || "未决"}</h2>
           <p>胜利分数：{asNumber(timing.winningScore, 0) || "未公开"}</p>
         </article>
+        <article
+          data-result-recorded-player-id={settings.playerId}
+          data-result-recorded-room-id={recordStatus.match?.roomId ?? ""}
+          data-result-recorded-status={recordStatus.state}
+        >
+          <span className="eyebrow">战绩记录</span>
+          <h2>{recordStatusLabel(recordStatus)}</h2>
+          <p>{recordStatus.message}</p>
+          <div className="result-record-actions">
+            <StatusPill tone={recordStatusTone(recordStatus)}>{recordStatus.state}</StatusPill>
+            <Button icon={<RefreshCw size={16} />} onClick={() => void refreshRecordStatus()} variant="ghost">
+              刷新记录
+            </Button>
+            <Button icon={<UserRound size={16} />} onClick={() => onNavigate({ name: "profile", handle: settings.playerId.trim() || winnerPlayerId || "player" })} variant="ghost">
+              资料
+            </Button>
+          </div>
+        </article>
         <article data-result-event-count={controller.state.events.length} data-result-event-summary>
           <span className="eyebrow">事件入口</span>
           <h2>{controller.state.events.length} 条</h2>
@@ -193,6 +280,36 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
       </section>
     </div>
   );
+}
+
+function recordStatusLabel(status: ResultRecordStatus): string {
+  switch (status.state) {
+    case "recorded":
+      return "本局已记录";
+    case "checking":
+      return "查询中";
+    case "waiting":
+      return "等待记录";
+    case "unavailable":
+      return "不可查询";
+    case "error":
+      return "记录查询失败";
+  }
+}
+
+function recordStatusTone(status: ResultRecordStatus): "neutral" | "good" | "warn" | "bad" | "info" {
+  switch (status.state) {
+    case "recorded":
+      return "good";
+    case "checking":
+      return "info";
+    case "waiting":
+      return "warn";
+    case "unavailable":
+      return "neutral";
+    case "error":
+      return "bad";
+  }
 }
 
 function resultFinalState({

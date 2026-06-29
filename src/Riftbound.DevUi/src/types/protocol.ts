@@ -46,6 +46,37 @@ export type CreatePublicMatchResultDto = {
   playerSession: PlayerSessionDto;
 };
 
+export type PlayerProfileDto = {
+  handle: string;
+  totalMatches: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+};
+
+export type PlayerMatchParticipantDto = {
+  playerId: string;
+  seat: string;
+  score: number;
+  won: boolean;
+};
+
+export type PlayerMatchDto = {
+  roomId: string;
+  winnerPlayerId: string;
+  finishedAt: string;
+  players: PlayerMatchParticipantDto[];
+};
+
+export type LeaderboardEntryDto = {
+  rank: number;
+  handle: string;
+  totalMatches: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+};
+
 export type ErrorDto = {
   code: string;
   message: string;

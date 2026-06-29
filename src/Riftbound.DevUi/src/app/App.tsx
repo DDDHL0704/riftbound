@@ -5,6 +5,7 @@ import { DecksPage } from "../pages/DecksPage";
 import { HomePage } from "../pages/HomePage";
 import { LobbyPage } from "../pages/LobbyPage";
 import { MatchPage } from "../pages/MatchPage";
+import { PlayerProfilePage } from "../pages/PlayerProfilePage";
 import { ResultPage } from "../pages/ResultPage";
 import { RoomPage } from "../pages/RoomPage";
 import { RuleAuditPage } from "../pages/RuleAuditPage";
@@ -41,6 +42,7 @@ function RoutedApp() {
         {route.name === "cards" && <CardLibraryPage />}
         {route.name === "decks" && <DecksPage onNavigate={navigate} />}
         {route.name === "lobby" && <LobbyPage onNavigate={navigate} />}
+        {route.name === "profile" && <PlayerProfilePage handle={route.handle} onNavigate={navigate} />}
         {route.name === "room" && <RoomPage roomId={route.roomId} onNavigate={navigate} />}
         {route.name === "match" && <MatchPage matchId={route.matchId} onNavigate={navigate} />}
         {route.name === "result" && <ResultPage matchId={route.matchId} onNavigate={navigate} />}
