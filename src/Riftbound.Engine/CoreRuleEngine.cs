@@ -27297,7 +27297,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsBattleOrFlightTargetAllowed(state, behavior, targetObjectId)
                 || !IsGustTargetAllowed(state, behavior, targetObjectId)
                 || !IsHuntTheWeakTargetAllowed(state, behavior, targetObjectId)
-                || !IsReprimandTargetAllowed(state, behavior, targetObjectId)
+                || !IsVisibleBattlefieldUnitReturnTargetAllowed(state, behavior, targetObjectId)
                 || !IsRideTheWindTargetAllowed(state, behavior, targetObjectId)
                 || !IsCharmTargetAllowed(state, behavior, targetObjectId)
                 || !IsIsolateTargetAllowed(state, behavior, targetObjectId)
@@ -31723,17 +31723,30 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Count == 0;
     }
 
-    private static bool IsReprimandTargetAllowed(
+    private static bool IsVisibleBattlefieldUnitReturnTargetAllowed(
         MatchState state,
         CardBehaviorDefinition behavior,
         string objectId)
     {
-        if (!string.Equals(behavior.EffectKind, "REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND", StringComparison.Ordinal))
+        if (!RequiresVisibleBattlefieldUnitReturnTarget(behavior))
         {
             return true;
         }
 
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
+        return IsVisibleBattlefieldUnitOrLegacyUntaggedObject(state.CardObjects, objectId);
+    }
+
+    private static bool RequiresVisibleBattlefieldUnitReturnTarget(CardBehaviorDefinition behavior)
+    {
+        return behavior.ReturnsTargetToHand
+            && string.Equals(PlayCardTargetScopeForBehavior(behavior), CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal);
+    }
+
+    private static bool IsVisibleBattlefieldUnitOrLegacyUntaggedObject(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        if (!cardObjects.TryGetValue(objectId, out var targetState)
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)

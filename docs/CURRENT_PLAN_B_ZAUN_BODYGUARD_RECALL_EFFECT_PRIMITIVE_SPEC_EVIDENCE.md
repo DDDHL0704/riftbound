@@ -6,18 +6,24 @@
 
 This evidence records the `OGN·188/298` 祖安保镖 BehaviorSpec effect primitive metadata slice.
 
+2026-06-29 follow-up: the same recall family also records `OGN·172/298` 责退 target-guard de-hardcoding. The engine still resolves the existing `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` stack item through the shared `ReturnsTargetToHand` resolution path, but target legality and prompt filtering no longer branch on that effect id in `CoreRuleEngine` or `MatchSession`.
+
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` adds optional `EffectPhraseSpec.ReturnsTargetToHand` and `EffectPhraseSpec.ReturnDestinationZone`.
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses Zaun Bodyguard's official `返回其所属的手牌` phrase into `ReturnsTargetToHand=true`.
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` maps `从战场上` to `TargetScope=BATTLEFIELD_UNIT`.
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` maps `手牌` to `ReturnDestinationZone=HAND`.
+- `src/Riftbound.Engine/CardBehaviorRegistry.cs` remains the catalog source for `OGN·172/298` 责退 with `ReturnsTargetToHand=true` and default `TargetScope=BATTLEFIELD_UNIT`.
 
 Engine primitive plan:
 
 - `src/Riftbound.Engine/BehaviorTemplatePrimitiveExecutor.cs` adds the `return-target-to-hand` primitive kind.
 - `src/Riftbound.Engine/BehaviorTemplatePrimitiveExecutor.cs` checks `BehaviorSpec.Effects` for `Recall` primitive metadata before falling back to existing P2 `CardBehaviorDefinition` metadata.
 - `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies Zaun Bodyguard's parsed effect metadata and proves the primitive plan reason cites `BehaviorSpec.Effects`.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` replaces the Reprimand-specific target guard with `RequiresVisibleBattlefieldUnitReturnTarget`, keyed by `ReturnsTargetToHand` + `BATTLEFIELD_UNIT`.
+- `src/Riftbound.Engine/MatchSession.cs` uses the same shared condition for ActionPrompt target filtering, so prompt candidates and authoritative validation stay aligned.
+- `tests/Riftbound.ConformanceTests/ReprimandReturnToHandGuardTests.cs` adds a source guard proving `CoreRuleEngine` and `MatchSession` no longer contain the Reprimand effect id branch, plus a legacy untyped public-unit compatibility test.
 
 Protocol/frontend:
 
@@ -29,6 +35,9 @@ Protocol/frontend:
 - Adjacent `BehaviorTemplate|CardCatalogBaseline|ConformanceFixtureRunner`: 3414/3414 passed.
 - Backend full conformance: 8935/8935 passed.
 - Dev UI catalog contract build: passed.
+- 2026-06-29 focused `ReprimandReturnToHandGuardTests`: 11/11 passed.
+- 2026-06-29 adjacent `ReprimandReturnToHandGuardTests|GustReturnToHandTests|BehaviorSpecEffectPhrasesCarryZaunBodyguardRecallPrimitiveMetadata|P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen`: 236/236 passed.
+- 2026-06-29 backend full conformance: 9022/9022 passed.
 
 ## Remaining Evidence Needed
 

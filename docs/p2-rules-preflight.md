@@ -113,7 +113,7 @@
 - `p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json` 已验证官方法术 `SFD·164/221 流沙陷坑` 从手牌打出的全额费用路径：支付 5 点费用，选择战场上的一名单位，双方让过后摧毁目标单位并移入拥有者废牌堆；从手牌以外位置打出的减费路径暂缓。
 - `p2-preflight-play-ruination-destroy-all-units.fixture.json` 已验证官方法术 `UNL-180/219 破败之咒` 的全局摧毁路径：支付 9 点费用，0 目标入栈，双方让过后摧毁当前所有场上单位，即各玩家基地和战场区域中的单位。
 - `p2-preflight-play-undertow-return-all-units.fixture.json` 已验证官方法术 `SFD·147/221 坠渊之流` 的全局回手路径：支付 8 点费用，0 目标入栈，双方让过后让当前所有场上单位和装备返回所属者手牌。
-- `p2-preflight-play-reprimand-return-battlefield-unit.fixture.json` 已验证官方法术 `OGN·172/298 责退` 的回手路径：支付 2 点费用，选择战场上的一名单位，双方让过后将其从战场移入所属者手牌，并移除场上对象状态。
+- `p2-preflight-play-reprimand-return-battlefield-unit.fixture.json` 已验证官方法术 `OGN·172/298 责退` 的回手路径：支付 2 点费用，选择战场上的一名单位，双方让过后将其从战场移入所属者手牌，并移除场上对象状态。2026-06-29 Plan B follow-up 已将 engine/session 中的《责退》专属目标 guard 提升为共享 `ReturnsTargetToHand` + `BATTLEFIELD_UNIT` 公开战场单位回手规则。
 - `p2-preflight-play-gust-return-small-battlefield-unit.fixture.json` 已验证官方法术 `OGN·169/298 罡风` 的小单位回手路径：支付 1 点费用，选择战场上不高于 3 战力的一名单位，双方让过后将其返回所属者手牌；P4.109 以 `p4-play-gust-target-power-too-high-rejected.fixture.json` 覆盖 4 战力目标拒绝且不改状态。
 - `p2-preflight-play-reconsider-return-friendly-call-rune.fixture.json` 已验证官方法术 `OGN·104/298 择日再战` 的友方单位回手后召出休眠符文路径：支付 1 点费用，选择一名友方单位，双方让过后将其返回所属者手牌，再让其拥有者召出 1 枚休眠符文。
 - `p2-preflight-play-happenstance-return-friendly-and-enemy.fixture.json` 已验证官方法术 `UNL-128/219 造化弄人` 的按序双目标回手路径：支付 3 点费用，第一目标必须是友方单位、第二目标必须是敌方单位，双方让过后分别返回所属者手牌；目标顺序反转由直接拒绝测试覆盖。
@@ -698,7 +698,7 @@ P1 的 `TURN_ENDED`、`TURN_BEGAN`、`RUNE_CHANNELLED`、`CARD_DRAWN` 仍保留�
 | `p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack` | P1 从手牌打出官方法术《流沙陷坑》，目标为战场上的一名单位 | 支付 5 点费用，卡牌入栈，双方让过后摧毁战场单位；从非手牌位置打出的减费路径暂缓。 | `CATALOG` SFD·164/221; `CORE-260330` p39-p42 rules 355-356; p33-p35 rules 327-340; p62-p63 rule 428 |
 | `p2-preflight-play-ruination-destroy-all-units` | P1 打出官方法术《破败之咒》 | 支付 9 点费用，0 目标入栈，双方让过后摧毁所有当前场上单位；当前最小模型覆盖基地和战场区域中的单位。 | `CATALOG` UNL-180/219; `CORE-260330` p39-p42 rules 355-356; p62-p63 rule 428 |
 | `p2-preflight-play-undertow-return-all-units` | P1 打出官方法术《坠渊之流》 | 支付 8 点费用，0 目标入栈，双方让过后让所有当前场上单位和装备返回所属者手牌，并移除公开对象状态。 | `CATALOG` SFD·147/221; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356 |
-| `p2-preflight-play-reprimand-return-battlefield-unit` | P1 打出官方法术《责退》 | 支付 2 点费用，选择战场上的一名单位，双方让过后让目标返回所属者手牌，并移除场上对象状态。 | `CATALOG` OGN·172/298; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356 |
+| `p2-preflight-play-reprimand-return-battlefield-unit` | P1 打出官方法术《责退》 | 支付 2 点费用，选择战场上的一名单位，双方让过后让目标返回所属者手牌，并移除场上对象状态。2026-06-29 Plan B follow-up：目标合法性不再走 Reprimand effect id 专属分支，而是共享 `ReturnsTargetToHand` + `BATTLEFIELD_UNIT` guard。 | `CATALOG` OGN·172/298; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356 |
 | `p2-preflight-play-gust-return-small-battlefield-unit` | P1 打出官方法术《罡风》 | 支付 1 点费用，目标必须是战场上不高于 3 战力的单位，双方让过后让目标返回所属者手牌；P4.109 已补 4 战力目标拒绝 fixture。 | `CATALOG` OGN·169/298; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356 |
 | `p2-preflight-play-reconsider-return-friendly-call-rune` | P1 打出官方法术《择日再战》 | 支付 1 点费用，目标必须是一名友方单位；双方让过后让目标返回所属者手牌，再让其拥有者召出一枚休眠符文并记录 `isExhausted = true`；敌方单位目标由直接测试拒绝。 | `CATALOG` OGN·104/298; `CORE-260330` p4-p8 rules 107-129; p20 rules 164-167; p39-p42 rules 355-356 |
 | `p2-preflight-play-happenstance-return-friendly-and-enemy` | P1 打出官方法术《造化弄人》 | 支付 3 点费用，目标顺序必须是一名友方单位再一名敌方单位；双方让过后两个目标分别返回所属者手牌；目标顺序反转由直接拒绝测试覆盖。 | `CATALOG` UNL-128/219; `CORE-260330` p4-p8 rules 107-129; p39-p42 rules 355-356 |

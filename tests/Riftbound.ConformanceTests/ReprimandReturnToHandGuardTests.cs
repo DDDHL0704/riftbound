@@ -12,6 +12,27 @@ public sealed class ReprimandReturnToHandGuardTests
     private const string ReprimandTargetObjectId = "P2-BATTLEFIELD-UNIT";
 
     [Fact]
+    public void ReprimandTargetingUsesSharedReturnToHandBattlefieldUnitRules()
+    {
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("IsReprimandTargetAllowed", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND\"", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND\"", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("RequiresVisibleBattlefieldUnitReturnTarget", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("RequiresVisibleBattlefieldUnitReturnTarget", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task ReprimandReturnsPublicBattlefieldUnitToOwnerHand()
     {
         var engine = new CoreRuleEngine();
@@ -47,6 +68,38 @@ public sealed class ReprimandReturnToHandGuardTests
             string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["ownerPlayerId"] as string, "P2", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ReprimandKeepsLegacyUntaggedBattlefieldUnitTargetCompatibility()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildReprimandState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[ReprimandTargetObjectId] = cardObjects[ReprimandTargetObjectId] with { Tags = [] };
+        state = state with { CardObjects = cardObjects };
+
+        var played = await PlayReprimandAsync(engine, state, ReprimandTargetObjectId);
+        Assert.True(played.Accepted, played.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-reprimand-legacy-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-reprimand-legacy-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(["P2-HAND-KEEP", ReprimandTargetObjectId], p2Pass.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain(ReprimandTargetObjectId, p2Pass.State.CardObjects.Keys);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, ReprimandTargetObjectId, StringComparison.Ordinal));
     }
 
     [Theory]
@@ -570,6 +623,23 @@ public sealed class ReprimandReturnToHandGuardTests
                     ownerId: "P2",
                     controllerId: "P2")
             });
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

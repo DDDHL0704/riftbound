@@ -5,6 +5,8 @@
 
 本文只记录 Reprimand / 责退 `OGN·172/298`、`FU-d0383ed260` / `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 的代表性 return public battlefield unit to owner hand 与 target guard hardening 证据。4C-31 不宣称 full-official，`fullOfficial=false`，不进入 1009 张卡全量实现，不启动最终正式 18-step E2E。
 
+2026-06-29 Plan B follow-up：该 target guard 已从 Reprimand 专属 effect-kind 分支迁移为共享 `ReturnsTargetToHand` + `BATTLEFIELD_UNIT` 规则。`CoreRuleEngine` 与 `MatchSession` 源码 guard 现在证明不再包含 `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 分支，且保留 legacy untyped public-unit compatibility。
+
 ## 证据锚点
 
 | 领域 | 证据 | 4C-31 使用方式 |
@@ -22,6 +24,7 @@
 - Guard route：base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object 均在 `PLAY_CARD` 阶段返回 `INVALID_TARGET`，不推进 tick，不写事件，不支付费用，不移动源手牌，不创建 stack item，不回手目标。
 - Hidden-info route：face-down standby target 被拒绝，且本批不暴露其真实 card identity；opponent hidden info 继续通过既有 viewer-specific snapshot / redaction 保护。
 - Protocol boundary：本批无新增 protocol / frontend shape，只复用现有 play-card / stack / return-to-hand evidence。
+- Plan B follow-up boundary：本批只去除 engine/session 中的 Reprimand 专属目标合法性分支；`CardBehaviorRegistry`、fixture、stack item 和文档仍可保留该 effect id 作为 catalog/evidence 标识。
 - Boundary：本批不覆盖 swift / reaction timing、spell-duel breadth、owner/controller split、attached-equipment replacement、full movement / control-zone matrix、full target selection prompt、PaymentEngine、Spellshield target tax、FAQ regression、Hostile Takeover / Berserk Impulse / Edge of Night / Karthus / Aphelios design gates、1009/811 full-official 或正式 18-step E2E。
 
 ## 验证
@@ -32,6 +35,9 @@
 - Frontend build：A 记录 frontend build passed。
 - Chrome smoke：A 记录 Chrome smoke passed。
 - Tests added in `ReprimandReturnToHandGuardTests`：`ReprimandReturnsPublicBattlefieldUnitToOwnerHand`、`ReprimandRejectsInvalidTargetsWithoutMutation`。
+- 2026-06-29 Plan B follow-up focused：`ReprimandReturnToHandGuardTests` 11/11 passed。
+- 2026-06-29 Plan B follow-up adjacent：`ReprimandReturnToHandGuardTests|GustReturnToHandTests|BehaviorSpecEffectPhrasesCarryZaunBodyguardRecallPrimitiveMetadata|P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 236/236 passed。
+- 2026-06-29 Plan B follow-up backend full：9022/9022 passed。
 
 ## 仍未关闭
 

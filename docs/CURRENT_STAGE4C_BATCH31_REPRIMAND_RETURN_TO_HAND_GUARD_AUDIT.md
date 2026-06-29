@@ -7,6 +7,8 @@
 
 配套证据文档：`docs/CURRENT_STAGE4C_BATCH31_REPRIMAND_RETURN_TO_HAND_GUARD_EVIDENCE.md`。
 
+2026-06-29 Plan B follow-up：本代表路径的目标 guard 已从 `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 专属分支提升为共享 `ReturnsTargetToHand` + `BATTLEFIELD_UNIT` 规则。`CoreRuleEngine` 与 `MatchSession` 均不再按《责退》 effect id 判断目标类型；结算仍保留现有 stack item effect id、`UNIT_RETURNED_TO_HAND` 事件和 owner hand 移动语义。
+
 ## 本批范围
 
 - 4C-31 收 Reprimand / 责退 `OGN·172/298`、`FU-d0383ed260` / `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 的 return-to-owner-hand + target guard hardening representative slice。
@@ -43,6 +45,7 @@
 
 - `OGN·172/298` / `FU-d0383ed260` 的 visible face-up Reprimand return public battlefield unit to owner hand representative baseline 已记录。
 - `REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND` 在 `PLAY_CARD` validation 中的服务端权威目标合法性代表 guard 已记录。
+- 2026-06-29 follow-up：上述 guard 已迁移为共享 visible battlefield-unit return-target rule，不再依赖 `CoreRuleEngine` / `MatchSession` 内的 Reprimand 专属 effect-kind 分支，并保留 legacy untyped public-unit 兼容路径。
 - base unit、stale object、face-down standby object、battlefield equipment、battlefield spell object、battlefield rune object guard 已记录，并确认 rejected without mutation。
 - face-down standby invalid target 不暴露真实身份 / opponent hidden info 保护口径已记录。
 
@@ -61,3 +64,10 @@
 - P0：Hostile Takeover control lifecycle、Berserk Impulse hidden-zone reveal / choose / recycle、Edge of Night face-down standby attach、Karthus extra Last Breath、Aphelios weapon-attachment three-mode design gates 仍未完成。
 - P0：FAQ regression、1009 entries / 811 functional units full-official、正式 18-step E2E 与 completion audit。
 - P1/P2：Reprimand / swift 相关 swift / reaction timing、spell-duel breadth、owner/controller split、attached-equipment replacement、full movement / control-zone matrix、target prompt、target invalidation、hidden / face-down target policy、Spellshield target tax、UI/DTO 解释字段、event label / replay redaction、targeting UX 与 return-to-hand UX 仍需后续全矩阵证据。
+
+## 2026-06-29 Plan B follow-up 验证
+
+- Focused backend：`ReprimandReturnToHandGuardTests` 11/11 通过。
+- Adjacent return-to-hand / primitive：`ReprimandReturnToHandGuardTests|GustReturnToHandTests|BehaviorSpecEffectPhrasesCarryZaunBodyguardRecallPrimitiveMetadata|P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 236/236 通过。
+- Backend full：`tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj` 9022/9022 通过。
+- 本 follow-up 不修改 protocol / frontend，不更新 coverage matrix JSON，不声明 full-official 或 READY。
