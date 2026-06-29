@@ -28,8 +28,8 @@ public sealed class ReprimandReturnToHandGuardTests
         Assert.DoesNotContain("IsReprimandTargetAllowed", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("\"REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND\"", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("\"REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND\"", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("RequiresVisibleBattlefieldUnitReturnTarget", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("RequiresVisibleBattlefieldUnitReturnTarget", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]

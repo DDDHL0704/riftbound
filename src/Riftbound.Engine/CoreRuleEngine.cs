@@ -27294,17 +27294,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
-                || !IsBattleOrFlightTargetAllowed(state, behavior, targetObjectId)
-                || !IsGustTargetAllowed(state, behavior, targetObjectId)
-                || !IsHuntTheWeakTargetAllowed(state, behavior, targetObjectId)
-                || !IsVisibleBattlefieldUnitReturnTargetAllowed(state, behavior, targetObjectId)
-                || !IsRideTheWindTargetAllowed(state, behavior, targetObjectId)
-                || !IsCharmTargetAllowed(state, behavior, targetObjectId)
-                || !IsIsolateTargetAllowed(state, behavior, targetObjectId)
-                || !IsVengeanceTargetAllowed(state, behavior, targetObjectId)
-                || !IsHostileTakeoverTargetAllowed(state, behavior, targetObjectId)
+                || !IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, targetObjectId)
                 || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
-                || !IsSwitcherooTargetAllowed(state, behavior, targetObjectId)
                 || !IsZenithBladeTargetAllowed(state, intent.PlayerId, behavior, targetObjectId)
                 || !IsSpiritFireTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
@@ -31651,222 +31642,59 @@ public sealed class CoreRuleEngine : IRuleEngine
             || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag);
     }
 
-    private static bool IsBattleOrFlightTargetAllowed(
+    private static bool IsVisibleFieldUnitPrimitiveTargetAllowed(
         MatchState state,
         CardBehaviorDefinition behavior,
         string objectId)
     {
-        if (!string.Equals(behavior.EffectKind, "BATTLE_OR_FLIGHT_MOVE_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal))
+        if (!RequiresVisibleFieldUnitPrimitiveTarget(behavior))
         {
             return true;
         }
 
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
+        return IsVisibleFieldUnitOrLegacyUntaggedObject(state.CardObjects, objectId);
     }
 
-    private static bool IsGustTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
+    private static bool RequiresVisibleFieldUnitPrimitiveTarget(CardBehaviorDefinition behavior)
     {
-        if (!string.Equals(behavior.EffectKind, "GUST_RETURN_BATTLEFIELD_UNIT_POWER_3_OR_LESS_TO_HAND", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
+        return BehaviorUsesVisibleFieldUnitPrimitive(behavior)
+            && IsVisibleFieldUnitPrimitiveTargetScope(PlayCardTargetScopeForBehavior(behavior));
     }
 
-    private static bool IsHuntTheWeakTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
+    private static bool BehaviorUsesVisibleFieldUnitPrimitive(CardBehaviorDefinition behavior)
     {
-        if (!string.Equals(behavior.EffectKind, "HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
+        return behavior.MovesTargetToBase
+            || behavior.ReturnsTargetToHand
+            || behavior.DestroysTarget
+            || behavior.GainsControlOfTargetToBase
+            || behavior.GainsControlOfTargetToBattlefield
+            || behavior.SwapsTargetPowersUntilEndOfTurn;
     }
 
-    private static bool IsVisibleBattlefieldUnitReturnTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
+    private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)
     {
-        if (!RequiresVisibleBattlefieldUnitReturnTarget(behavior))
-        {
-            return true;
-        }
-
-        return IsVisibleBattlefieldUnitOrLegacyUntaggedObject(state.CardObjects, objectId);
+        return targetScope is CardTargetScopes.BattlefieldUnit
+            or CardTargetScopes.BaseUnit
+            or CardTargetScopes.AnyUnit
+            or CardTargetScopes.FriendlyUnit
+            or CardTargetScopes.FriendlyUnitThenFriendlyUnit
+            or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldUnit
+            or CardTargetScopes.FriendlyBaseUnit
+            or CardTargetScopes.AttackingUnit
+            or CardTargetScopes.EnemyAttackingUnit
+            or CardTargetScopes.EnemyBattlefieldUnit
+            or CardTargetScopes.EnemyUnit
+            or CardTargetScopes.EnemyUnitThenEnemyUnit;
     }
 
-    private static bool RequiresVisibleBattlefieldUnitReturnTarget(CardBehaviorDefinition behavior)
-    {
-        return behavior.ReturnsTargetToHand
-            && string.Equals(PlayCardTargetScopeForBehavior(behavior), CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal);
-    }
-
-    private static bool IsVisibleBattlefieldUnitOrLegacyUntaggedObject(
+    private static bool IsVisibleFieldUnitOrLegacyUntaggedObject(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId)
     {
         if (!cardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsRideTheWindTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsCharmTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsIsolateTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsVengeanceTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "VENGEANCE_DESTROY_UNIT", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsHostileTakeoverTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
@@ -31891,30 +31719,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return IsPublicUnitCardObject(state.CardObjects, objectId);
-    }
-
-    private static bool IsSwitcherooTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!state.CardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Count == 0;
     }
 
     private static bool IsSpiritFireTargetAllowed(

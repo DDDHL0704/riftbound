@@ -6,6 +6,8 @@
 
 This evidence records the `SFD·202/221` 恶意收购 BehaviorSpec control primitive metadata slice.
 
+2026-06-29 follow-up: `CoreRuleEngine` / `MatchSession` now use `RequiresVisibleFieldUnitPrimitiveTarget` for control primitive target validation/prompt filtering. The source guard proves `HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT` is no longer a runtime target-filtering branch in those files; the catalog, fixtures, and docs may still use that effect id as evidence identity.
+
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` adds optional control fields to `EffectPhraseSpec`.
@@ -29,6 +31,7 @@ Protocol/frontend:
 - Adjacent `BehaviorTemplate|CardCatalogBaseline|ConformanceFixtureRunner`: 3419/3419 passed.
 - Backend full conformance: 8940/8940 passed.
 - Dev UI catalog contract build: passed.
+- 2026-06-29 runtime target-guard follow-up: red/green focused `PrimitiveTargetGuardSourceTests` 1/1 passed; source guard + Reprimand source guard 2/2 passed; affected representative move/return/destroy/control/power-swap guards 105/105 passed; adjacent primitive/catalog/recovery 2401/2401 passed; backend full 9023/9023 passed.
 
 ## Remaining Evidence Needed
 

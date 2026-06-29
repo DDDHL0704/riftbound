@@ -13397,7 +13397,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string objectId)
     {
-        if (PromptEffectRequiresVisibleFieldUnitTarget(behavior))
+        if (RequiresVisibleFieldUnitPrimitiveTarget(behavior))
         {
             return IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId);
         }
@@ -13411,24 +13411,39 @@ internal static class ActionPromptBuilder
         return true;
     }
 
-    private static bool PromptEffectRequiresVisibleFieldUnitTarget(CardBehaviorDefinition behavior)
+    private static bool RequiresVisibleFieldUnitPrimitiveTarget(CardBehaviorDefinition behavior)
     {
-        return string.Equals(behavior.EffectKind, "BATTLE_OR_FLIGHT_MOVE_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "GUST_RETURN_BATTLEFIELD_UNIT_POWER_3_OR_LESS_TO_HAND", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS", StringComparison.Ordinal)
-            || RequiresVisibleBattlefieldUnitReturnTarget(behavior)
-            || string.Equals(behavior.EffectKind, "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "VENGEANCE_DESTROY_UNIT", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT", StringComparison.Ordinal)
-            || string.Equals(behavior.EffectKind, "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", StringComparison.Ordinal);
+        return BehaviorUsesVisibleFieldUnitPrimitive(behavior)
+            && IsVisibleFieldUnitPrimitiveTargetScope(behavior.TargetScope);
     }
 
-    private static bool RequiresVisibleBattlefieldUnitReturnTarget(CardBehaviorDefinition behavior)
+    private static bool BehaviorUsesVisibleFieldUnitPrimitive(CardBehaviorDefinition behavior)
     {
-        return behavior.ReturnsTargetToHand
-            && string.Equals(behavior.TargetScope, CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal);
+        return behavior.MovesTargetToBase
+            || behavior.ReturnsTargetToHand
+            || behavior.DestroysTarget
+            || behavior.GainsControlOfTargetToBase
+            || behavior.GainsControlOfTargetToBattlefield
+            || behavior.SwapsTargetPowersUntilEndOfTurn;
+    }
+
+    private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)
+    {
+        return targetScope is CardTargetScopes.BattlefieldUnit
+            or CardTargetScopes.BaseUnit
+            or CardTargetScopes.AnyUnit
+            or CardTargetScopes.FriendlyUnit
+            or CardTargetScopes.FriendlyUnitThenFriendlyUnit
+            or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldUnit
+            or CardTargetScopes.FriendlyBaseUnit
+            or CardTargetScopes.AttackingUnit
+            or CardTargetScopes.EnemyAttackingUnit
+            or CardTargetScopes.EnemyBattlefieldUnit
+            or CardTargetScopes.EnemyUnit
+            or CardTargetScopes.EnemyUnitThenEnemyUnit;
     }
 
     private static bool IsPromptTargetRequiredTagAllowed(

@@ -6,6 +6,8 @@
 
 This slice advances Plan B by moving the low-risk control primitive metadata for `SFD·202/221` 恶意收购 from the old P2 `CardBehaviorDefinition` surface into `BehaviorSpec.Effects`.
 
+2026-06-29 follow-up: control-primitive target validation/prompt filtering now also consumes shared primitive metadata. `CoreRuleEngine` and `MatchSession` no longer branch on `HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT` to require public field-unit targets; `RequiresVisibleFieldUnitPrimitiveTarget` derives that guard from `GainsControlOfTargetToBattlefield` / `GainsControlOfTargetToBase` plus a unit target scope.
+
 Implemented in this slice:
 
 - `EffectPhraseSpec` now carries optional control metadata:
@@ -73,3 +75,11 @@ PATH="/opt/homebrew/bin:/Users/dinghaolin/.cache/codex-runtimes/codex-primary-ru
 ```
 
 Result: passed.
+
+2026-06-29 runtime target-guard follow-up:
+
+- Red/green focused `PrimitiveTargetGuardSourceTests`: 1/1 passed after proving the old effect-id target guard was present.
+- Source guard + Reprimand source guard: 2/2 passed.
+- Affected representative move/return/destroy/control/power-swap guards: 105/105 passed.
+- Adjacent primitive/catalog/recovery regression: 2401/2401 passed.
+- Backend full conformance: 9023/9023 passed.

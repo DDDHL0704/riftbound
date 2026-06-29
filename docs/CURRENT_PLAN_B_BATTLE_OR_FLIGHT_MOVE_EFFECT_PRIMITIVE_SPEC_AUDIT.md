@@ -6,6 +6,8 @@
 
 This slice advances Plan B by moving low-risk move primitive metadata for `OGN·168/298` 战或逃 from the old P2 `CardBehaviorDefinition` surface into `BehaviorSpec.Effects`.
 
+2026-06-29 follow-up: move-primitive target validation/prompt filtering now also consumes shared primitive metadata. `CoreRuleEngine` and `MatchSession` no longer branch on `BATTLE_OR_FLIGHT_MOVE_BATTLEFIELD_UNIT_TO_BASE` or other representative move effect ids to require public field-unit targets; `RequiresVisibleFieldUnitPrimitiveTarget` derives that guard from `MovesTargetToBase` plus a unit target scope.
+
 Implemented in this slice:
 
 - `EffectPhraseSpec` now carries optional `MovesTarget`, `MoveCount`, and `MoveDestination`.
@@ -65,3 +67,11 @@ PATH="/opt/homebrew/bin:/Users/dinghaolin/.cache/codex-runtimes/codex-primary-ru
 ```
 
 Result: passed.
+
+2026-06-29 runtime target-guard follow-up:
+
+- Red/green focused `PrimitiveTargetGuardSourceTests`: 1/1 passed after proving the old effect-id target guard was present.
+- Source guard + Reprimand source guard: 2/2 passed.
+- Affected representative move/return/destroy/control/power-swap guards: 105/105 passed.
+- Adjacent primitive/catalog/recovery regression: 2401/2401 passed.
+- Backend full conformance: 9023/9023 passed.

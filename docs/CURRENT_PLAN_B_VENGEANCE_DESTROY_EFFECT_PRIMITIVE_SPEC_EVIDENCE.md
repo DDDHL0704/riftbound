@@ -6,6 +6,8 @@
 
 This evidence records the `OGN·229/298` 复仇 BehaviorSpec effect primitive metadata slice.
 
+2026-06-29 follow-up: `CoreRuleEngine` / `MatchSession` now use `RequiresVisibleFieldUnitPrimitiveTarget` for destroy primitive target validation/prompt filtering. The source guard proves `VENGEANCE_DESTROY_UNIT` is no longer a runtime target-filtering branch in those files; the catalog, fixtures, and docs may still use that effect id as evidence identity.
+
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` adds optional `EffectPhraseSpec.DestroysTarget`.
@@ -27,6 +29,7 @@ Protocol/frontend:
 - Adjacent `BehaviorTemplate|CardCatalogBaseline|ConformanceFixtureRunner`: 3412/3412 passed.
 - Backend full conformance: 8933/8933 passed.
 - Dev UI catalog contract build: passed.
+- 2026-06-29 runtime target-guard follow-up: red/green focused `PrimitiveTargetGuardSourceTests` 1/1 passed; source guard + Reprimand source guard 2/2 passed; affected representative move/return/destroy/control/power-swap guards 105/105 passed; adjacent primitive/catalog/recovery 2401/2401 passed; backend full 9023/9023 passed.
 
 ## Remaining Evidence Needed
 
