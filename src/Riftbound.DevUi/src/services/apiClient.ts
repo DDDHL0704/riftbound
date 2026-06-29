@@ -7,6 +7,17 @@ export type HealthResponse = {
   dotnet: string;
 };
 
+export type PreconstructedDeck = {
+  id: string;
+  name: string;
+  description: string;
+  legendCardNo: string;
+  championCardNo: string;
+  mainDeck: string[];
+  runeDeck: string[];
+  battlefields: string[];
+};
+
 export class ApiClient {
   constructor(private readonly serverUrl: string) {}
 
@@ -20,6 +31,10 @@ export class ApiClient {
 
   async keywordCoverage(signal?: AbortSignal): Promise<KeywordCoverageReport> {
     return this.get<KeywordCoverageReport>("/catalog/keyword-coverage", signal);
+  }
+
+  async preconstructedDecks(signal?: AbortSignal): Promise<PreconstructedDeck[]> {
+    return this.get<PreconstructedDeck[]>("/decks/preconstructed", signal);
   }
 
   private async get<T>(path: string, signal?: AbortSignal): Promise<T> {

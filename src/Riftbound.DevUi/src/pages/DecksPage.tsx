@@ -1,13 +1,15 @@
-import { ArrowRight, CheckCircle2, ClipboardPaste, FileText, RotateCcw, Search, XCircle } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowRight, CheckCircle2, ClipboardPaste, FileText, Layers, RotateCcw, Search, XCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { InspectedCard } from "../components/cards/CardFace";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
+import { ApiClient, type PreconstructedDeck } from "../services/apiClient";
 import { buildStarterDeck } from "../services/starterDeck";
 import { useCatalog } from "../stores/catalogStore";
+import { useSettings } from "../stores/settingsStore";
 import { SubmitDeckCommand } from "../types/protocol";
 import { buildDeckImportHandoffPlan, type DeckImportHandoffPlan, type DeckImportHandoffState, type DeckSource } from "../utils/deckImportHandoffPlan";
 import { buildDeckImportFlowPlan } from "../utils/deckImportFlowPlan";
@@ -26,8 +28,12 @@ import {
 
 export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => void }) {
   const { specByNo } = useCatalog();
+  const { settings } = useSettings();
   const [deck, setDeck] = useState(() => buildStarterDeck());
   const [deckSource, setDeckSource] = useState<DeckSource>(() => initialDeckSource());
+  const [preconstructed, setPreconstructed] = useState<PreconstructedDeck[]>([]);
+  const [preconstructedState, setPreconstructedState] = useState<"loading" | "ready" | "error">("loading");
+  const [selectedPreconstructedId, setSelectedPreconstructedId] = useState<string | undefined>(undefined);
   const [importText, setImportText] = useState(() => deckToImportText(buildStarterDeck()));
   const [importMessage, setImportMessage] = useState("当前摘要来自本地 starter 或已缓存的导入构筑。");
   const [query, setQuery] = useState("");
@@ -74,6 +80,43 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   );
   const normalizedQuery = query.trim().toLowerCase();
 
+  useEffect(() => {
+    const controller = new AbortController();
+    setPreconstructedState("loading");
+    new ApiClient(settings.serverUrl)
+      .preconstructedDecks(controller.signal)
+      .then((decks) => {
+        setPreconstructed(decks);
+        setPreconstructedState("ready");
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setPreconstructedState("error");
+        setImportMessage(`未能从服务端加载预构筑卡组：${error instanceof Error ? error.message : String(error)}`);
+      });
+    return () => controller.abort();
+  }, [settings.serverUrl]);
+
+  function applyPreconstructed(preset: PreconstructedDeck) {
+    const nextDeck: SubmitDeckCommand = {
+      cmdType: "SUBMIT_DECK",
+      legendCardNo: preset.legendCardNo,
+      championCardNo: preset.championCardNo,
+      mainDeck: preset.mainDeck,
+      runeDeck: preset.runeDeck,
+      battlefields: preset.battlefields
+    };
+    setDeck(nextDeck);
+    persistStarterDeckOverride(nextDeck);
+    setDeckSource("storage");
+    setSelectedPreconstructedId(preset.id);
+    setImportText(deckToImportText(nextDeck));
+    setImportMessage(`已选用预构筑卡组《${preset.name}》，将提交给服务端做权威合法性判断。`);
+  }
+
   function applyImport() {
     const result = parseDeckImport(importText);
     if (!result.ok) {
@@ -84,6 +127,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
     setDeck(result.deck);
     persistStarterDeckOverride(result.deck);
     setDeckSource("storage");
+    setSelectedPreconstructedId(undefined);
     setImportText(deckToImportText(result.deck));
     const summary = summarizeStarterDeck(result.deck);
     setImportMessage(`已更新当前待提交构筑：主牌堆 ${summary.mainDeck} 张，符文 ${summary.runeDeck} 张，战场 ${summary.battlefields} 张。`);
@@ -94,6 +138,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
     clearStarterDeckOverride();
     setDeck(nextDeck);
     setDeckSource("starter");
+    setSelectedPreconstructedId(undefined);
     setImportText(deckToImportText(nextDeck));
     setImportMessage("已恢复本地默认 starter 构筑。");
   }
@@ -120,6 +165,52 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
         <Button icon={<ArrowRight size={16} />} onClick={() => onNavigate({ name: "lobby" })} style={deckWireStyles.primaryButton}>
           用当前构筑进入大厅
         </Button>
+      </section>
+      <section
+        aria-label="预构筑卡组"
+        data-preconstructed-decks
+        data-preconstructed-decks-count={preconstructed.length}
+        data-preconstructed-decks-state={preconstructedState}
+        data-preconstructed-selected={selectedPreconstructedId ?? ""}
+        style={deckWireStyles.preconstructedShell}
+      >
+        <header style={deckWireStyles.panelHeader}>
+          <div>
+            <span style={deckWireStyles.eyebrow}>STARTER DECKS</span>
+            <h2 style={deckWireStyles.h2}>预构筑卡组</h2>
+          </div>
+          <StatusPill tone={preconstructedState === "ready" ? "good" : preconstructedState === "error" ? "bad" : "neutral"}>
+            {preconstructedState === "ready" ? `${preconstructed.length} 套可选` : preconstructedState === "error" ? "加载失败" : "加载中"}
+          </StatusPill>
+        </header>
+        <p style={deckWireStyles.bodyCopy}>选择一套服务端校验过的合法卡组即可直接对战，无需手动构筑；仍可在下方粘贴导入覆盖。</p>
+        <div style={deckWireStyles.preconstructedGrid}>
+          {preconstructedState === "loading" && <span className="empty-hint">正在从服务端加载预构筑卡组…</span>}
+          {preconstructedState === "error" && <span className="empty-hint">未能加载预构筑卡组，请确认服务端地址后重试。</span>}
+          {preconstructed.map((preset) => (
+            <button
+              data-preconstructed-deck={preset.id}
+              data-preconstructed-deck-selected={preset.id === selectedPreconstructedId ? "true" : "false"}
+              key={preset.id}
+              onClick={() => applyPreconstructed(preset)}
+              style={{
+                ...deckWireStyles.preconstructedCard,
+                ...(preset.id === selectedPreconstructedId ? deckWireStyles.preconstructedCardSelected : null)
+              }}
+              type="button"
+            >
+              <div style={deckWireStyles.preconstructedCardHead}>
+                <Layers size={16} />
+                <strong>{preset.name}</strong>
+                {preset.id === selectedPreconstructedId && <StatusPill tone="good">已选用</StatusPill>}
+              </div>
+              <span style={deckWireStyles.bodyCopy}>{preset.description}</span>
+              <span style={deckWireStyles.preconstructedMeta}>
+                传奇 {preset.legendCardNo} · 主牌 {preset.mainDeck.length} · 符文 {preset.runeDeck.length} · 战场 {preset.battlefields.length}
+              </span>
+            </button>
+          ))}
+        </div>
       </section>
       <section aria-label="导入流程" style={deckWireStyles.flow}>
         {importFlowPlan.steps.map((step) => (
@@ -649,6 +740,44 @@ const deckWireStyles = {
     display: "flex",
     gap: 12,
     justifyContent: "space-between"
+  },
+  preconstructedShell: {
+    background: "#fff",
+    border: "1px solid #111",
+    color: "#111",
+    display: "grid",
+    gap: 12,
+    padding: 16
+  },
+  preconstructedGrid: {
+    display: "grid",
+    gap: 10,
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))"
+  },
+  preconstructedCard: {
+    background: "#fff",
+    border: "1px solid #111",
+    color: "#111",
+    cursor: "pointer",
+    display: "grid",
+    gap: 8,
+    padding: 12,
+    textAlign: "left"
+  },
+  preconstructedCardSelected: {
+    outline: "2px solid #111",
+    outlineOffset: -2
+  },
+  preconstructedCardHead: {
+    alignItems: "center",
+    display: "flex",
+    gap: 8
+  },
+  preconstructedMeta: {
+    color: "#272727",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    fontSize: 11,
+    overflowWrap: "anywhere"
   },
   previewGrid: {
     border: "1px solid #111",
