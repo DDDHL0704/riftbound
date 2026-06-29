@@ -272,16 +272,27 @@ public sealed class FullGameEndToEndTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var preconstructedDecks = PreconstructedDeckCatalog.Build(catalog);
-        var p1Deck = preconstructedDecks.Single(deck => string.Equals(deck.Id, "jhin-lowcurve", StringComparison.Ordinal));
-        var p2Deck = preconstructedDecks.Single(deck => string.Equals(deck.Id, "rumble-lowcurve", StringComparison.Ordinal));
-        Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
-        Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
+        var replayDecks = new[]
+        {
+            preconstructedDecks.Single(deck => string.Equals(deck.Id, "jhin-lowcurve", StringComparison.Ordinal)),
+            preconstructedDecks.Single(deck => string.Equals(deck.Id, "rumble-lowcurve", StringComparison.Ordinal)),
+            preconstructedDecks.Single(deck => string.Equals(deck.Id, "lillia-lowcurve", StringComparison.Ordinal))
+        };
+        Assert.Equal(replayDecks.Length, replayDecks.Select(deck => deck.Id).Distinct(StringComparer.Ordinal).Count());
 
-        await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
-            "b0-full-game-preconstructed-catalog-replay-room",
-            "b0-full-preconstructed-catalog-replay-score",
-            p1Deck.Decklist,
-            p2Deck.Decklist);
+        for (var i = 0; i < replayDecks.Length; i++)
+        {
+            var p1Deck = replayDecks[i];
+            var p2Deck = replayDecks[(i + 1) % replayDecks.Length];
+            Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
+            Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
+
+            await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+                $"b0-full-game-preconstructed-catalog-replay-room-{p1Deck.Id}-vs-{p2Deck.Id}",
+                $"b0-full-preconstructed-catalog-replay-score-{p1Deck.Id}-vs-{p2Deck.Id}",
+                p1Deck.Decklist,
+                p2Deck.Decklist);
+        }
     }
 
     [Fact]
