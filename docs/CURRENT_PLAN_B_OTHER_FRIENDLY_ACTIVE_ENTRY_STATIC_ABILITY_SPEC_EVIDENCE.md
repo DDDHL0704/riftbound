@@ -69,6 +69,22 @@ Low-hand source-unit active-entry runtime:
 - The same test proves three cards in hand after play does not satisfy the parsed requirement and leaves the pre-exhausted source unit exhausted with no entry-static metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Jhin deck opening can feed Dunehorn Beast low-hand active-entry into B0 score victory: P1 plays `SFD·027/221` from a three-card hand, the post-play two-card hand satisfies `SOURCE_UNIT_ENTER_READY`, `UNIT_PLAYED_TO_BATTLEFIELD` emits self source metadata, and the same action log replays to the final score-victory state hash without hidden-zone leaks.
 
+Controlled-tag source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilitySpec.RequiredOtherControlledUnitTag`.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `如果你控制着其他“龙”属性单位，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOtherControlledUnitTag=龙`.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` also parses `如果你控制着其他“机械”单位，则我以活跃状态进场。` into the same `SOURCE_UNIT_ENTER_READY` shape with `RequiredOtherControlledUnitTag=机械`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `requiredOtherControlledUnitTag` on `staticAbilities` for the shared catalog payload shape.
+- `tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs` verifies `SFD·094/221` 凶翼 and `SFD·071/221` 疾驰机械 expose this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+
+Controlled-tag source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry `MaxControllerHandCount`, `RequiredPlayerExperience`, or `RequiredOtherControlledUnitTag`.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks the entering unit controller's public field objects for another controlled, face-up, non-standby unit with the parsed official tag.
+- `tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs` proves Fiercewing enters ready when its controller controls another public `龙` unit and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves no other public controlled tagged unit leaves Fiercewing exhausted: no other unit, a friendly face-down standby Dragon, and an opponent-controlled face-up Dragon do not satisfy the parsed requirement and emit no entry-static metadata.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Poppy deck opening can feed `SFD·094/221` Fiercewing controlled-Dragon active-entry into B0 score victory: P1 first plays official `OGN·131/298` Dune Drake to base as a public controlled Dragon, then plays Fiercewing directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, enters active with printed 7 power, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+
 Level-gated source-unit active-entry BehaviorSpec / catalog:
 
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
@@ -117,12 +133,16 @@ Level-gated source-unit active-entry runtime:
 - Bandle Soldier level-gated source-unit active-entry focused: 6/6 passed.
 - Bandle Soldier level-gated source-unit active-entry + B0 official-deck replay focused: 7/7 passed.
 - Bandle Soldier active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2456/2456 passed.
+- Controlled-tag source-unit active-entry pre-implementation red: `ControlledTaggedSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOtherControlledUnitTag` did not exist.
+- Controlled-tag source-unit active-entry + Fiercewing B0 official-deck replay focused: 7/7 passed.
+- Fiercewing controlled-tag active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2427/2427 passed.
 - Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
 - Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
 - Backend full after the Molten Drake other-friendly active-entry B0 official-deck replay follow-up: 8883/8883 passed.
 - Backend full after the Master Yi level active-entry B0 official-deck replay follow-up: 8884/8884 passed.
 - Backend full after the Flameclaw level-gated source-unit active-entry + source-object static-power B0 official-deck replay follow-up: 8971/8971 passed.
 - Backend full after the Bandle Soldier level-gated source-unit active-entry B0 official-deck replay follow-up: 8982/8982 passed.
+- Backend full after the Fiercewing controlled-tag source-unit active-entry B0 official-deck replay follow-up: 8990/8990 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed

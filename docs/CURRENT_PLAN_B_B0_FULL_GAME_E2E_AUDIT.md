@@ -2,7 +2,7 @@
 
 Date: 2026-06-29
 
-Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Prescient Mech static-granted Predict official-deck replay, preconstructed catalog score-victory replay, Flameclaw level active-entry/source-object static-power official-deck replay, and Bandle Soldier level active-entry official-deck replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Prescient Mech static-granted Predict official-deck replay, preconstructed catalog score-victory replay, Flameclaw level active-entry/source-object static-power official-deck replay, Bandle Soldier level active-entry official-deck replay, and Fiercewing controlled-Dragon active-entry official-deck replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -85,6 +85,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with P2 official `SFD·027/221` Dunehorn Beast defending a slow battlefield against P1 `OGN·096/298` Watchful Sentinel; the defender survives, the unit-source `UNIT_BATTLEFIELD_HELD_DRAW` trigger draws two controlled main-deck cards for P2, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from a seated official Jhin opening state, a verified legal official-deck opening feeds a focused midgame play state with P1 official `SFD·027/221` Dunehorn Beast plus two other cards in hand; playing Dunehorn Beast to a P1 battlefield leaves two cards in hand, resolves `SOURCE_UNIT_ENTER_READY`, emits self source entry metadata, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Poppy opening state, a verified legal official-deck opening feeds a focused midgame play state with P1 official `UNL-151/219` Bandle Soldier in hand and P1 at 3 experience; playing Bandle Soldier to a P1 battlefield resolves `SOURCE_UNIT_ENTER_READY`, emits self source entry metadata, enters active at printed 5 power, then continues through score victory and action-log replay to the same final state hash;
+- from a seated official Poppy opening state, a verified legal official-deck opening feeds a focused midgame play state with P1 official `OGN·131/298` Dune Drake and `SFD·094/221` Fiercewing in hand; playing Dune Drake to base creates the public controlled Dragon condition, then playing Fiercewing to a P1 battlefield resolves `SOURCE_UNIT_ENTER_READY`, emits self source entry metadata, enters active at printed 7 power, and continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·220/221` Treasure Pile, `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, creates an exhausted Gold equipment token, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
 - from the same seated official Vex / Treasure Pile opening family, the B0 route also accepts replayable `PAY_COST(DECLINE)`, emits `TRIGGER_PAYMENT_DECLINED` / declined `PAYMENT_WINDOW_CLOSED`, creates no Gold token, applies no `COST_PAID`, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Vex opening state, a verified legal official-deck opening feeds a midgame `START_BATTLE` state with `SFD·218/221` Sunken Temple, `UNL-057/219` Wildclaw Beastmaster as a surviving powerful conquest attacker, opposing `OGN·096/298` Watchful Sentinel and sufficient available mana at the same P1 battlefield; the conquest path opens `TRIGGER_PAYMENT`, accepts replayable `PAY_COST(SPEND_MANA:1)`, draws one controlled main-deck card, and the score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash;
@@ -347,6 +348,8 @@ This Molten Drake other-friendly active-entry increment additionally proves a le
 This Master Yi level active-entry increment additionally proves a legal official Master Yi level deck opening can carry `FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps P1 at 11 experience with `UNL-191/219` in the legend zone and official `UNL-092/219` Demacia Envoy in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Demacia Envoy enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` plus Master Yi legend source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 This Bandle Soldier level active-entry increment additionally proves a legal official Poppy deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route for the simple level-gated self-entry text. The focused state keeps P1 at 3 experience with official `UNL-151/219` Bandle Soldier in hand; after the server-authored `PLAY_CARD` to a P1 battlefield, Bandle Soldier enters active at printed 5 power, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
+This Fiercewing controlled-Dragon active-entry increment additionally proves a legal official Poppy deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route for controlled-tag self-entry text. The focused state keeps official `OGN·131/298` Dune Drake and `SFD·094/221` Fiercewing in P1 hand; after the server-authored Dune Drake `PLAY_CARD` resolves to P1 base, P1 controls another public `龙` unit, and the subsequent server-authored Fiercewing `PLAY_CARD` to a P1 battlefield enters active at printed 7 power. `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 This Card Trick draw/recycle increment adds one shared hidden-information runtime fix. It extends the seated-room official-deck action-log recovery check to a legal Vex deck containing official `OGN·183/298` Card Trick. The driver verifies a legal official opening first, starts a focused midgame with Card Trick in P1 hand and at least three P1 main-deck cards, submits the server-authored `PLAY_CARD` targeting one of the top-three main-deck objects, resolves the stack, asserts the selected card moves to P1 hand and the unselected top cards are recycled to the bottom of P1's main deck, then continues through score victory and action-log replay. `MatchSession` now projects stack `targetObjectIds` through the existing viewer visibility redaction path instead of only hiding battlefield standby targets, so non-viewer private hand / main-deck / rune-deck stack targets appear as `HIDDEN`; `MatchRecovery` compares spectator stack target ids against that same hidden spectator projection. It still does not close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
@@ -807,6 +810,42 @@ Result:
 
 ```text
 Passed: 8982, Failed: 0, Skipped: 0, Total: 8982
+```
+
+Latest Fiercewing controlled-Dragon active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~ControlledTaggedSourceUnitActiveEntryStaticAbilityTests|FullyQualifiedName~OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 7, Failed: 0, Skipped: 0, Total: 7
+```
+
+Latest Fiercewing active-entry / full-game / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~ControlledTaggedSourceUnitActiveEntry|FullyQualifiedName~FiercewingControlledDragonActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntry|FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2427, Failed: 0, Skipped: 0, Total: 2427
+```
+
+Latest backend full after Fiercewing controlled-Dragon active-entry official-deck evidence passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 8990, Failed: 0, Skipped: 0, Total: 8990
 ```
 
 Latest Poro Forge official-deck rejected-command replay focused validation passed:

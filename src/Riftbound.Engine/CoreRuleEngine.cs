@@ -41311,6 +41311,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryGetSourceUnitEnterReadyStaticAbility(
         CardBehaviorDefinition behavior,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId,
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience,
         out StaticAbilitySpec ability)
@@ -41318,7 +41320,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         ability = default!;
         if (CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
             || !CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility(behavior.CardNo, out var candidateAbility)
-            || !SourceUnitEnterReadyRequirementsSatisfied(candidateAbility, playerZones, controllerId, playerExperience))
+            || !SourceUnitEnterReadyRequirementsSatisfied(
+                candidateAbility,
+                playerZones,
+                cardObjects,
+                sourceObjectId,
+                controllerId,
+                playerExperience))
         {
             return false;
         }
@@ -41330,6 +41338,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool SourceUnitEnterReadyRequirementsSatisfied(
         StaticAbilitySpec ability,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId,
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience)
     {
@@ -41345,7 +41355,44 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!string.IsNullOrWhiteSpace(ability.RequiredOtherControlledUnitTag)
+            && !ControllerControlsOtherPublicFieldUnitWithTag(
+                playerZones,
+                cardObjects,
+                controllerId,
+                sourceObjectId,
+                ability.RequiredOtherControlledUnitTag))
+        {
+            return false;
+        }
+
         return true;
+    }
+
+    private static bool ControllerControlsOtherPublicFieldUnitWithTag(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string sourceObjectId,
+        string requiredTag)
+    {
+        if (string.IsNullOrWhiteSpace(requiredTag)
+            || !playerZones.TryGetValue(controllerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Any(objectId =>
+                !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+                && cardObjects.TryGetValue(objectId, out var candidate)
+                && !candidate.IsFaceDown
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && candidate.Tags.Contains(requiredTag, StringComparer.Ordinal)
+                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    || string.Equals(candidate.ControllerId, controllerId, StringComparison.Ordinal)));
     }
 
     private static bool StaticAbilityTargetMatchesFilter(string? targetFilter, string? enteringCardNo)
@@ -41429,6 +41476,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             TryGetSourceUnitEnterReadyStaticAbility(
                 behavior,
                 playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
                 stackItem.ControllerId,
                 playerExperience,
                 out var sourceUnitEntryStaticAbility);
@@ -41562,6 +41611,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             TryGetSourceUnitEnterReadyStaticAbility(
                 behavior,
                 playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
                 stackItem.ControllerId,
                 playerExperience,
                 out var sourceUnitEntryStaticAbility);

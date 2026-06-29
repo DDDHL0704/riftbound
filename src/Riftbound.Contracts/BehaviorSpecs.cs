@@ -539,7 +539,8 @@ public sealed record StaticAbilitySpec(
     IReadOnlyList<string>? GrantedKeywords = null,
     string? TargetFilter = null,
     int? RequiredPlayerExperience = null,
-    int? MaxControllerHandCount = null);
+    int? MaxControllerHandCount = null,
+    string? RequiredOtherControlledUnitTag = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

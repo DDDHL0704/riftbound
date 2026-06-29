@@ -2152,6 +2152,21 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var sourceUnitOtherControlledTaggedUnitEnterReadyMatch = Regex.Match(
+                segment,
+                @"如果你控制着其他“(?<tag>[^”]+)”(?:属性)?单位，则我以活跃状态进场。?$",
+                RegexOptions.CultureInvariant);
+            if (sourceUnitOtherControlledTaggedUnitEnterReadyMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for spec-driven controlled-tag unit requirements.",
+                    RequiredOtherControlledUnitTag: sourceUnitOtherControlledTaggedUnitEnterReadyMatch.Groups["tag"].Value.Trim()));
+                continue;
+            }
+
             if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
                 || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
             {

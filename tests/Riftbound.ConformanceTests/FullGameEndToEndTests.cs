@@ -51,6 +51,7 @@ public sealed class FullGameEndToEndTests
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
     private const string FlameclawSourceUnitLevelActiveEntryCardNo = "UNL-016/219";
     private const string BandleSoldierLevelActiveEntryCardNo = "UNL-151/219";
+    private const string FiercewingControlledDragonActiveEntryCardNo = "SFD·094/221";
     private const string CrystalhandHunterSourceObjectLevelStaticAuraCardNo = "UNL-094/219";
     private const string TargonSeerSourceObjectLevelStaticAuraCardNo = "UNL-098/219";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -2364,6 +2365,51 @@ public sealed class FullGameEndToEndTests
             session,
             played,
             "b0-bandle-soldier-level-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildFiercewingControlledDragonActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-fiercewing-controlled-dragon-active-entry-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildFiercewingControlledDragonActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        current = await DriveSpecificUnitToOwnBaseAsync(
+            session,
+            current,
+            "P1",
+            DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo,
+            "b0-fiercewing-controlled-dragon-active-entry-stage-dragon");
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            FiercewingControlledDragonActiveEntryCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-fiercewing-controlled-dragon-active-entry");
+        AssertFiercewingControlledDragonActiveEntryResolved(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-fiercewing-controlled-dragon-active-entry-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -7676,6 +7722,48 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
         Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
         Assert.Equal(BandleSoldierLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertFiercewingControlledDragonActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            FiercewingControlledDragonActiveEntryCardNo)
+            ?? throw new InvalidOperationException("B0 Fiercewing controlled-Dragon active-entry assertion could not locate Fiercewing in P1 hand.");
+        var otherDragonObjectId = FindBaseUnitByCardNo(
+            beforePlay.State,
+            "P1",
+            DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo)
+            ?? throw new InvalidOperationException("B0 Fiercewing controlled-Dragon active-entry assertion could not locate the other Dragon in P1 base.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.Contains(otherDragonObjectId, beforePlay.State.PlayerZones["P1"].Base);
+        Assert.Contains("龙", beforePlay.State.CardObjects[otherDragonObjectId].Tags);
+        Assert.False(beforePlay.State.CardObjects[otherDragonObjectId].IsFaceDown);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(7, result.State.CardObjects[sourceObjectId].Power);
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "凶翼", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(7, unitEvent.Payload["power"]);
+        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(FiercewingControlledDragonActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -22071,6 +22159,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildFiercewingControlledDragonActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                PoppyLegendCardNo,
+                PoppyChampionCardNo,
+                [
+                    DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo,
+                    FiercewingControlledDragonActiveEntryCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildWiseElderSourceObjectFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -27922,6 +28024,21 @@ public sealed class FullGameEndToEndTests
                 playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 3 : 0,
                 StringComparer.Ordinal)
         };
+    }
+
+    private static MatchState BuildFiercewingControlledDragonActiveEntryMidgameInitialState(MatchState state)
+    {
+        return BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo, FiercewingControlledDragonActiveEntryCardNo],
+                    new RunePool(mana: 12, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
     }
 
     private static MatchState BuildSourceSameLocationStaticAuraMidgameInitialState(MatchState state)

@@ -59,6 +59,15 @@ Implemented for `UNL-151/219` 班德尔士兵:
 - `CoreRuleEngine` checks the parsed controller experience requirement before deciding whether Bandle Soldier enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this level-gated source-unit static ability controls the entry state.
 
+Implemented for `SFD·094/221` 凶翼 and the same controlled-tag source-unit family:
+
+- `StaticAbilitySpec.RequiredOtherControlledUnitTag` can now carry source-unit active-entry requirements that look for another controlled public unit with a matching official tag.
+- `RuleTextParsers.StaticAbilityParser` parses `如果你控制着其他“龙”属性单位，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOtherControlledUnitTag=龙`.
+- The same parser also covers `SFD·071/221` 疾驰机械 text `如果你控制着其他“机械”单位，则我以活跃状态进场。` with `RequiredOtherControlledUnitTag=机械`.
+- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with `MaxControllerHandCount`, `RequiredPlayerExperience`, or `RequiredOtherControlledUnitTag`.
+- `CoreRuleEngine` checks the entering unit controller's public field units, excludes the entering source object, and requires a face-up non-standby controlled unit carrying the parsed tag before the source unit enters ready.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controlled-tag source-unit static ability controls the entry state.
+
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
@@ -68,6 +77,8 @@ Implemented for `UNL-151/219` 班德尔士兵:
 - `SFD·027/221` 穿沙角兽: `如果你的手牌不超过两张，则我以活跃状态进场。`
 - `UNL-016/219` 焰爪: `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。`
 - `UNL-151/219` 班德尔士兵: `{{等级3>}} 我以活跃状态进场。（如果你拥有不少于3经验，则获得该效果。）`
+- `SFD·094/221` 凶翼: `如果你控制着其他“龙”属性单位，则我以活跃状态进场。`
+- `SFD·071/221` 疾驰机械: `如果你控制着其他“机械”单位，则我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
@@ -213,6 +224,30 @@ Latest Bandle Soldier active-entry / full-game / hidden-info adjacent:
 ```
 
 Result: 2456/2456 passed.
+
+Fiercewing controlled-tag source-unit active-entry focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~ControlledTaggedSourceUnitActiveEntryStaticAbilityTests|FullyQualifiedName~OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntry"
+```
+
+Result: initially failed at compile because `StaticAbilitySpec.RequiredOtherControlledUnitTag` did not exist; after implementation 7/7 passed.
+
+Latest Fiercewing controlled-tag active-entry / full-game / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~ControlledTaggedSourceUnitActiveEntry|FullyQualifiedName~FiercewingControlledDragonActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntry|FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 2427/2427 passed.
+
+Latest backend full after Fiercewing controlled-tag active-entry:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8990/8990 passed.
 
 Latest Flameclaw active-entry / static-aura / hidden-info adjacent:
 
