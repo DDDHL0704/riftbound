@@ -12199,7 +12199,7 @@ button.card-face:hover {
   height: 100vh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   background: #fff;
   color: #000;
   font-family: Arial, sans-serif;
@@ -12376,6 +12376,75 @@ button.card-face:hover {
 
 .wire-topbar-actions .connection-recovery-panel {
   align-self: stretch;
+}
+
+.match-guidance-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 6px 8px;
+}
+
+.match-guidance-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.match-guidance-headline-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.match-guidance-headline {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.match-guidance-detail {
+  margin: 0;
+  color: #272727;
+  line-height: 1.35;
+}
+
+.match-guidance-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.match-guidance-actions-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.match-guidance-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.match-guidance-chip {
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.match-guidance-banner[data-match-guidance-turn-state="yours"] {
+  background: #f4f4f4;
 }
 
 .match-recovery-surface {

@@ -23,6 +23,8 @@ import { WireTableAuthorityPanel } from "../components/match/WireTableAuthorityP
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import { WireTimelineDetailLayer } from "../components/match/WireTimelineDetailLayer";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
+import { MatchGuidanceBanner } from "../components/match/MatchGuidanceBanner";
+import { buildMatchGuidancePlan } from "../utils/matchGuidancePlan";
 import {
   WireCardFlow,
   type WireCardFlowPlan,
@@ -215,6 +217,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     prompt: tablePrompt,
     snapshot: tableSnapshot
   }), [tableConnectionStatus, tablePrompt, tableSnapshot]);
+  const matchGuidancePlan = useMemo(() => buildMatchGuidancePlan({
+    connectionStatus: tableConnectionStatus,
+    playerId: settings.playerId,
+    prompt: tablePrompt,
+    winnerPlayerId: asString(asRecord(tableSnapshot?.timing).winnerPlayerId, "")
+  }), [settings.playerId, tableConnectionStatus, tablePrompt, tableSnapshot?.timing]);
   const submitTableCommand = useCallback((command: GameCommand, uiSource?: CommandSubmissionUiSource) => {
     if (layoutFixtureEnabled) {
       setFixtureSubmissionFeedback(buildWireLayoutFixtureCommandSubmission({
@@ -990,6 +998,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           ))}
         </div>
       </header>
+
+      <MatchGuidanceBanner plan={matchGuidancePlan} />
 
       <MatchRecoverySurface plan={matchRecoverySurfacePlan} />
 
