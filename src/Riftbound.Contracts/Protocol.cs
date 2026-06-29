@@ -23,6 +23,7 @@ public enum MessageType
     SNAPSHOT,
     EVENTS,
     ERROR,
+    MATCHMAKING,
     PING,
     PONG
 }
@@ -50,6 +51,7 @@ public static class ErrorCodes
 {
     public const string PlayerIdRequired = "PLAYER_ID_REQUIRED";
     public const string PlayerNotInRoom = "PLAYER_NOT_IN_ROOM";
+    public const string AuthenticationRequired = "AUTHENTICATION_REQUIRED";
     public const string IdentityMismatch = "IDENTITY_MISMATCH";
     public const string RoomFull = "ROOM_FULL";
     public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
@@ -108,6 +110,15 @@ public sealed record AuthResultDto(
     bool Authenticated,
     string Status,
     string Handle);
+
+public sealed record MatchmakingStatusDto(
+    string State,
+    string PlayerId,
+    string? RoomId = null,
+    string? OpponentPlayerId = null,
+    PlayerSessionDto? PlayerSession = null,
+    string? ErrorCode = null,
+    string? Message = null);
 
 public abstract record GameCommand(string CmdType);
 

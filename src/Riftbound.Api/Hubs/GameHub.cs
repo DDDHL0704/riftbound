@@ -18,13 +18,16 @@ public interface IGameClient
     Task Events(WsServerMessage message);
 
     Task Error(WsServerMessage message);
+
+    Task Matchmaking(WsServerMessage message);
 }
 
 public sealed class GameHub(
     IMatchSessionRegistry sessions,
     IHostEnvironment? hostEnvironment = null,
     IConfiguration? configuration = null,
-    PlayerIdentityService? playerIdentity = null) : Hub<IGameClient>
+    PlayerIdentityService? playerIdentity = null,
+    IMatchmakingQueue? matchmakingQueue = null) : Hub<IGameClient>
 {
     private const string AuthenticatedHandleItemKey = "riftbound:authenticatedHandle";
 
@@ -42,6 +45,123 @@ public sealed class GameHub(
         }
 
         return new AuthResultDto(result.Authenticated, result.Status.ToString(), result.NormalizedHandle);
+    }
+
+    public async Task<MatchmakingStatusDto> EnqueueMatchmaking(string playerId)
+    {
+        var normalizedPlayerId = PlayerIdentityService.NormalizeHandle(playerId);
+        if (TryRejectUnauthenticatedOrMismatchedIdentity(
+                normalizedPlayerId,
+                out var rejected,
+                out var rejection))
+        {
+            await rejection;
+            return rejected;
+        }
+
+        if (matchmakingQueue is null)
+        {
+            var result = RejectedMatchmakingStatus(
+                normalizedPlayerId,
+                ErrorCodes.UnsupportedCommand,
+                "匹配队列未配置。");
+            await SendMatchmakingError(normalizedPlayerId, result);
+            return result;
+        }
+
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId,
+            MatchmakingPlayerGroup(normalizedPlayerId),
+            Context.ConnectionAborted);
+
+        MatchmakingQueueResult queueResult;
+        try
+        {
+            queueResult = await matchmakingQueue.EnqueueAsync(normalizedPlayerId, Context.ConnectionAborted);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or MatchSessionException)
+        {
+            var result = RejectedMatchmakingStatus(
+                normalizedPlayerId,
+                ErrorCodeFor(ex),
+                ex.Message);
+            await SendMatchmakingError(normalizedPlayerId, result);
+            return result;
+        }
+
+        var callerStatus = MatchmakingStatusFor(queueResult, normalizedPlayerId);
+        await Clients.Caller.Matchmaking(new WsServerMessage(
+            MessageType.MATCHMAKING,
+            callerStatus.RoomId ?? string.Empty,
+            normalizedPlayerId,
+            0,
+            callerStatus));
+
+        if (string.Equals(queueResult.State, MatchmakingStates.Matched, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(queueResult.OpponentPlayerId))
+        {
+            var opponentStatus = MatchmakingStatusFor(queueResult, queueResult.OpponentPlayerId);
+            await Clients.Group(MatchmakingPlayerGroup(queueResult.OpponentPlayerId)).Matchmaking(new WsServerMessage(
+                MessageType.MATCHMAKING,
+                opponentStatus.RoomId ?? string.Empty,
+                queueResult.OpponentPlayerId,
+                0,
+                opponentStatus));
+        }
+
+        return callerStatus;
+    }
+
+    public async Task<MatchmakingStatusDto> CancelMatchmaking(string playerId)
+    {
+        var normalizedPlayerId = PlayerIdentityService.NormalizeHandle(playerId);
+        if (TryRejectUnauthenticatedOrMismatchedIdentity(
+                normalizedPlayerId,
+                out var rejected,
+                out var rejection))
+        {
+            await rejection;
+            return rejected;
+        }
+
+        if (matchmakingQueue is null)
+        {
+            var result = RejectedMatchmakingStatus(
+                normalizedPlayerId,
+                ErrorCodes.UnsupportedCommand,
+                "匹配队列未配置。");
+            await SendMatchmakingError(normalizedPlayerId, result);
+            return result;
+        }
+
+        MatchmakingQueueResult queueResult;
+        try
+        {
+            queueResult = await matchmakingQueue.CancelAsync(normalizedPlayerId, Context.ConnectionAborted);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            var result = RejectedMatchmakingStatus(
+                normalizedPlayerId,
+                ErrorCodeFor(ex),
+                ex.Message);
+            await SendMatchmakingError(normalizedPlayerId, result);
+            return result;
+        }
+
+        await Groups.RemoveFromGroupAsync(
+            Context.ConnectionId,
+            MatchmakingPlayerGroup(normalizedPlayerId),
+            Context.ConnectionAborted);
+
+        var callerStatus = MatchmakingStatusFor(queueResult, normalizedPlayerId);
+        await Clients.Caller.Matchmaking(new WsServerMessage(
+            MessageType.MATCHMAKING,
+            string.Empty,
+            normalizedPlayerId,
+            0,
+            callerStatus));
+        return callerStatus;
     }
 
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
@@ -475,6 +595,85 @@ public sealed class GameHub(
     private static string PlayerGroup(string roomId, string playerId)
     {
         return $"room:{roomId}:player:{playerId}";
+    }
+
+    private static string MatchmakingPlayerGroup(string playerId)
+    {
+        return $"matchmaking:player:{playerId}";
+    }
+
+    private bool TryRejectUnauthenticatedOrMismatchedIdentity(
+        string normalizedPlayerId,
+        out MatchmakingStatusDto rejected,
+        out Task rejection)
+    {
+        rejection = Task.CompletedTask;
+        rejected = new MatchmakingStatusDto(MatchmakingStates.Rejected, normalizedPlayerId);
+
+        if (!Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var bound) || bound is not string boundHandle)
+        {
+            rejected = RejectedMatchmakingStatus(
+                normalizedPlayerId,
+                ErrorCodes.AuthenticationRequired,
+                "快速匹配需要先完成身份认证。");
+            rejection = SendMatchmakingError(normalizedPlayerId, rejected);
+            return true;
+        }
+
+        if (string.Equals(boundHandle, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        rejected = RejectedMatchmakingStatus(
+            normalizedPlayerId,
+            ErrorCodes.IdentityMismatch,
+            "已认证身份与请求的玩家不一致，已拒绝以他人身份匹配。");
+        rejection = SendMatchmakingError(normalizedPlayerId, rejected);
+        return true;
+    }
+
+    private Task SendMatchmakingError(string playerId, MatchmakingStatusDto result)
+    {
+        return Clients.Caller.Error(new WsServerMessage(
+            MessageType.ERROR,
+            string.Empty,
+            playerId,
+            0,
+            new ErrorDto(result.ErrorCode ?? ErrorCodes.UnsupportedCommand, result.Message ?? "匹配请求被拒绝。")));
+    }
+
+    private static MatchmakingStatusDto RejectedMatchmakingStatus(
+        string playerId,
+        string errorCode,
+        string message)
+    {
+        return new MatchmakingStatusDto(
+            MatchmakingStates.Rejected,
+            playerId,
+            ErrorCode: errorCode,
+            Message: message);
+    }
+
+    private static MatchmakingStatusDto MatchmakingStatusFor(
+        MatchmakingQueueResult result,
+        string playerId)
+    {
+        var playerSession = string.Equals(result.PlayerId, playerId, StringComparison.Ordinal)
+            ? result.PlayerSession
+            : result.OpponentSession;
+        var opponentPlayerId = string.Equals(result.PlayerId, playerId, StringComparison.Ordinal)
+            ? result.OpponentPlayerId
+            : result.PlayerId;
+
+        return new MatchmakingStatusDto(
+            result.State,
+            playerId,
+            result.RoomId,
+            string.Equals(result.State, MatchmakingStates.Matched, StringComparison.Ordinal)
+                ? opponentPlayerId
+                : null,
+            playerSession);
     }
 
     private Task SendError(string roomId, string playerId, long serverTick, Exception ex)

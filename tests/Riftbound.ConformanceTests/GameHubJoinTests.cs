@@ -17176,6 +17176,170 @@ public sealed class GameHubJoinTests
         Assert.Empty(clients.CallerClient.Errors);
     }
 
+    [Fact]
+    public async Task EnqueueMatchmakingRequiresAuthenticatedHandle()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var queue = new InMemoryMatchmakingQueue(registry, () => "RB-MATCH1");
+        var clients = new RecordingHubClients();
+        var groups = new RecordingGroupManager();
+        var hub = CreateHub(clients, groups, "connection-1", registry, matchmakingQueue: queue);
+
+        var result = await hub.EnqueueMatchmaking("Alice");
+
+        Assert.Equal(MatchmakingStates.Rejected, result.State);
+        Assert.Equal(ErrorCodes.AuthenticationRequired, result.ErrorCode);
+        Assert.Empty(groups.Added);
+        Assert.Empty(clients.CallerClient.MatchmakingMessages);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.AuthenticationRequired, error.Code);
+    }
+
+    [Fact]
+    public async Task EnqueueMatchmakingRejectsDifferentAuthenticatedHandle()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var queue = new InMemoryMatchmakingQueue(registry, () => "RB-MATCH1");
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var clients = new RecordingHubClients();
+        var groups = new RecordingGroupManager();
+        var hub = CreateHub(
+            clients,
+            groups,
+            "connection-1",
+            registry,
+            playerIdentity: identity,
+            matchmakingQueue: queue);
+
+        await hub.Authenticate("Alice", "alice-secret-key-1234");
+        var result = await hub.EnqueueMatchmaking("Bob");
+
+        Assert.Equal(MatchmakingStates.Rejected, result.State);
+        Assert.Equal(ErrorCodes.IdentityMismatch, result.ErrorCode);
+        Assert.Empty(groups.Added);
+        Assert.Empty(clients.CallerClient.MatchmakingMessages);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.IdentityMismatch, error.Code);
+    }
+
+    [Fact]
+    public async Task EnqueueMatchmakingPairsTwoAuthenticatedPlayersIntoSameRoom()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var queue = new InMemoryMatchmakingQueue(registry, () => "RB-MATCH1");
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+
+        var aliceClients = new RecordingHubClients();
+        var aliceGroups = new RecordingGroupManager();
+        var aliceHub = CreateHub(
+            aliceClients,
+            aliceGroups,
+            "connection-1",
+            registry,
+            playerIdentity: identity,
+            matchmakingQueue: queue);
+
+        await aliceHub.Authenticate("Alice", "alice-secret-key-1234");
+        var queued = await aliceHub.EnqueueMatchmaking("Alice");
+
+        Assert.Equal(MatchmakingStates.Queued, queued.State);
+        Assert.Equal("alice", queued.PlayerId);
+        Assert.Null(queued.RoomId);
+        Assert.Contains(("connection-1", "matchmaking:player:alice"), aliceGroups.Added);
+        var queuedMessage = Assert.Single(aliceClients.CallerClient.MatchmakingMessages);
+        Assert.Equal(MessageType.MATCHMAKING, queuedMessage.Type);
+        Assert.Equal(MatchmakingStates.Queued, Assert.IsType<MatchmakingStatusDto>(queuedMessage.Payload).State);
+
+        var bobClients = new RecordingHubClients();
+        var bobGroups = new RecordingGroupManager();
+        var bobHub = CreateHub(
+            bobClients,
+            bobGroups,
+            "connection-2",
+            registry,
+            playerIdentity: identity,
+            matchmakingQueue: queue);
+
+        await bobHub.Authenticate("Bob", "bob-secret-key-1234");
+        var matched = await bobHub.EnqueueMatchmaking("Bob");
+
+        Assert.Equal(MatchmakingStates.Matched, matched.State);
+        Assert.Equal("RB-MATCH1", matched.RoomId);
+        Assert.Equal("alice", matched.OpponentPlayerId);
+        Assert.NotNull(matched.PlayerSession);
+        Assert.Equal("bob", matched.PlayerSession.PlayerId);
+        Assert.Equal("P2", matched.PlayerSession.Seat);
+        Assert.StartsWith("rt_", matched.PlayerSession.ReconnectToken, StringComparison.Ordinal);
+        Assert.Contains(("connection-2", "matchmaking:player:bob"), bobGroups.Added);
+
+        var bobMessage = Assert.Single(bobClients.CallerClient.MatchmakingMessages);
+        Assert.Equal("bob", bobMessage.PlayerId);
+        var bobPayload = Assert.IsType<MatchmakingStatusDto>(bobMessage.Payload);
+        Assert.Equal("RB-MATCH1", bobPayload.RoomId);
+        Assert.Equal("alice", bobPayload.OpponentPlayerId);
+        Assert.Equal("bob", bobPayload.PlayerSession?.PlayerId);
+
+        var alicePush = Assert.Single(bobClients.GroupClient.MatchmakingMessages);
+        Assert.Equal("alice", alicePush.PlayerId);
+        var alicePayload = Assert.IsType<MatchmakingStatusDto>(alicePush.Payload);
+        Assert.Equal(MatchmakingStates.Matched, alicePayload.State);
+        Assert.Equal("RB-MATCH1", alicePayload.RoomId);
+        Assert.Equal("bob", alicePayload.OpponentPlayerId);
+        Assert.Equal("alice", alicePayload.PlayerSession?.PlayerId);
+        Assert.Equal("P1", alicePayload.PlayerSession?.Seat);
+        Assert.StartsWith("rt_", alicePayload.PlayerSession?.ReconnectToken, StringComparison.Ordinal);
+        Assert.NotEqual(alicePayload.PlayerSession?.ReconnectToken, bobPayload.PlayerSession?.ReconnectToken);
+
+        var session = await registry.GetOrCreateAsync("RB-MATCH1", CancellationToken.None);
+        Assert.True(session.SnapshotFor("alice").Players.ContainsKey("alice"));
+        Assert.True(session.SnapshotFor("bob").Players.ContainsKey("bob"));
+    }
+
+    [Fact]
+    public async Task CancelMatchmakingRemovesWaitingPlayerBeforeNextPair()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var queue = new InMemoryMatchmakingQueue(registry, () => "RB-MATCH1");
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+
+        var aliceClients = new RecordingHubClients();
+        var aliceGroups = new RecordingGroupManager();
+        var aliceHub = CreateHub(
+            aliceClients,
+            aliceGroups,
+            "connection-1",
+            registry,
+            playerIdentity: identity,
+            matchmakingQueue: queue);
+
+        await aliceHub.Authenticate("Alice", "alice-secret-key-1234");
+        await aliceHub.EnqueueMatchmaking("Alice");
+        var cancelled = await aliceHub.CancelMatchmaking("Alice");
+
+        Assert.Equal(MatchmakingStates.Cancelled, cancelled.State);
+        Assert.Contains(("connection-1", "matchmaking:player:alice"), aliceGroups.Removed);
+        Assert.Equal(
+            [MatchmakingStates.Queued, MatchmakingStates.Cancelled],
+            aliceClients.CallerClient.MatchmakingMessages
+                .Select(message => Assert.IsType<MatchmakingStatusDto>(message.Payload).State));
+
+        var bobClients = new RecordingHubClients();
+        var bobHub = CreateHub(
+            bobClients,
+            new RecordingGroupManager(),
+            "connection-2",
+            registry,
+            playerIdentity: identity,
+            matchmakingQueue: queue);
+
+        await bobHub.Authenticate("Bob", "bob-secret-key-1234");
+        var bobQueued = await bobHub.EnqueueMatchmaking("Bob");
+
+        Assert.Equal(MatchmakingStates.Queued, bobQueued.State);
+        Assert.Null(bobQueued.RoomId);
+        Assert.Empty(bobClients.GroupClient.MatchmakingMessages);
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -17183,14 +17347,16 @@ public sealed class GameHubJoinTests
         IMatchSessionRegistry? registry = null,
         IHostEnvironment? hostEnvironment = null,
         IConfiguration? configuration = null,
-        PlayerIdentityService? playerIdentity = null)
+        PlayerIdentityService? playerIdentity = null,
+        IMatchmakingQueue? matchmakingQueue = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance),
             hostEnvironment,
             configuration,
-            playerIdentity)
+            playerIdentity,
+            matchmakingQueue)
         {
             Clients = clients,
             Groups = groups,
@@ -17325,6 +17491,8 @@ public sealed class GameHubJoinTests
 
         public List<WsServerMessage> Errors { get; } = [];
 
+        public List<WsServerMessage> MatchmakingMessages { get; } = [];
+
         public Task Joined(WsServerMessage message)
         {
             JoinedMessages.Add(message);
@@ -17352,6 +17520,12 @@ public sealed class GameHubJoinTests
         public Task Error(WsServerMessage message)
         {
             Errors.Add(message);
+            return Task.CompletedTask;
+        }
+
+        public Task Matchmaking(WsServerMessage message)
+        {
+            MatchmakingMessages.Add(message);
             return Task.CompletedTask;
         }
     }
@@ -17391,6 +17565,8 @@ public sealed class GameHubJoinTests
     {
         public List<(string ConnectionId, string GroupName)> Added { get; } = [];
 
+        public List<(string ConnectionId, string GroupName)> Removed { get; } = [];
+
         public Task AddToGroupAsync(
             string connectionId,
             string groupName,
@@ -17405,6 +17581,7 @@ public sealed class GameHubJoinTests
             string groupName,
             CancellationToken cancellationToken = default)
         {
+            Removed.Add((connectionId, groupName));
             return Task.CompletedTask;
         }
     }

@@ -38,6 +38,8 @@ builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMat
     services.GetRequiredService<IMatchRecoveryStore>(),
     services.GetRequiredService<IMatchPlayerStore>(),
     new MatchSessionOptions(AllowLegacyReadyWithoutDeck: builder.Environment.IsDevelopment())));
+builder.Services.AddSingleton<IMatchmakingQueue>(services => new InMemoryMatchmakingQueue(
+    services.GetRequiredService<IMatchSessionRegistry>()));
 
 var app = builder.Build();
 
