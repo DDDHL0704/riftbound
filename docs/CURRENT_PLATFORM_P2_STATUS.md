@@ -7,8 +7,8 @@
 ## Snapshot
 
 - P2-A 轻量身份绑定：已有 `PlayerIdentityService`、Hub `Authenticate(handle, key)`、JoinRoom/Reconnect/命令身份一致性校验、内存/Postgres 身份存储。
-- P2-B 匹配与发现：B1 快速匹配队列已完成后端最小闭环。新增 `IMatchmakingQueue` / `InMemoryMatchmakingQueue`，Hub 暴露 `EnqueueMatchmaking(playerId)` 与 `CancelMatchmaking(playerId)`；入队必须先认证，冒充其他 handle 会拒绝；两名等待玩家会由服务端生成 `RB-XXXXXX` 房间、分配座位，并向每个玩家自己的匹配组推送 `MATCHMAKING` 消息，payload 只包含该玩家自己的 `PlayerSessionDto`。B2 公开对局发现已完成后端最小闭环，Hub 可创建公开房、列出公开等待房，HTTP `GET /matches` 返回同一目录，第二名玩家加入后公开等待项移除。B3 Dev UI 大厅已接入快速匹配、取消匹配、公开等候和公开房列表加入；匹配/公开房返回的 `PlayerSessionDto` 会写入本地 session，房间页可继续走服务端快照/提示。
-- P2-B 剩余：B4 双客户端 E2E 尚未完成。
+- P2-B 匹配与发现：B1 快速匹配队列已完成后端最小闭环。新增 `IMatchmakingQueue` / `InMemoryMatchmakingQueue`，Hub 暴露 `EnqueueMatchmaking(playerId)` 与 `CancelMatchmaking(playerId)`；入队必须先认证，冒充其他 handle 会拒绝；两名等待玩家会由服务端生成 `RB-XXXXXX` 房间、分配座位，并向每个玩家自己的匹配组推送 `MATCHMAKING` 消息，payload 只包含该玩家自己的 `PlayerSessionDto`。B2 公开对局发现已完成后端最小闭环，Hub 可创建公开房、列出公开等待房，HTTP `GET /matches` 返回同一目录，第二名玩家加入后公开等待项移除。B3 Dev UI 大厅已接入快速匹配、取消匹配、公开等候和公开房列表加入；匹配/公开房返回的 `PlayerSessionDto` 会写入本地 session，房间页可继续走服务端快照/提示。B4 新增可复用双客户端快速匹配到结算 E2E，覆盖认证、快速匹配同房、预构筑提交、READY、MULLIGAN、投降结算与对手手牌隐藏计数。
+- P2-B 剩余：无。
 - P2-C 战绩/资料/排行：未开始。
 - P2-D 部署/运维：未开始。
 
@@ -25,3 +25,6 @@
 - 2026-06-29 B3 frontend slice:
   - Runtime: `src/Riftbound.DevUi/src/pages/LobbyPage.tsx` 接入快速匹配、取消匹配、公开等候和公开房列表；`src/Riftbound.DevUi/src/services/matchSocket.ts` / `apiClient.ts` / `types/protocol.ts` 增加匹配发现协议；`useMatchController.ts` 导出 session 写入 helper；`globals.css` 增加大厅匹配发现布局。
   - Verification: `npm --prefix src/Riftbound.DevUi run build` passed. Browser QA at `http://127.0.0.1:5173/lobby` with API `http://127.0.0.1:5088`: page identity/DOM/console passed, quick match entered queued state, cancel returned idle, public room `RB-B8AJG9` created and navigated to room, returning to lobby listed that public room, list row join navigated back to the room, mobile viewport `390x844` rendered the new controls in a single column without overlap.
+- 2026-06-29 B4 E2E slice:
+  - Runtime: `src/Riftbound.DevUi/scripts/check-matchmaking-result-e2e.mjs` 新增双 SignalR 客户端验证脚本；`package.json` 新增 `npm --prefix src/Riftbound.DevUi run e2e:matchmaking-result`，并显式声明 Node 20 WebSocket 构造器依赖 `ws`。脚本要求本地 API 可用，但不加入普通 `build` 门禁。
+  - Verification: `npm --prefix src/Riftbound.DevUi run e2e:matchmaking-result` passed against API `http://127.0.0.1:5088`: 两名唯一 handle 认证成功，经 `EnqueueMatchmaking` 匹配到同一房间 `RB-CLD4SN`，各自用匹配 payload 的 reconnect token 重连房间组，从 `/decks/preconstructed` 取两套预构筑并提交，双方 READY 后进入 MULLIGAN，确认 mulligan 后进入 MAIN，检查双方快照中对手手牌仅暴露 `handHidden` 计数且未泄漏 `reconnectToken`，随后第二名玩家 `SURRENDER`，收到 `MATCH_WON`，胜者为先匹配玩家。`npm --prefix src/Riftbound.DevUi run build` passed；`~/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj` passed `8989/8989`；`git diff --check` passed。
