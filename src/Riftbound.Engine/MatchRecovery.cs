@@ -16358,6 +16358,17 @@ public static class MatchRecoveryValidator
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 && string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraExpectedEffectId(
+                        effectLabel,
+                        effectId,
+                        $"STATIC_AURA:SOURCE_OBJECT_POWER:{sourceObjectId}",
+                        "object static aura effect id",
+                        errors);
+                    return;
+                }
+
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(
@@ -16722,6 +16733,33 @@ public static class MatchRecoveryValidator
         {
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraSourceObjectPowerSourceCardSpecConsistency(
+                        effectLabel,
+                        sourceCardNo,
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        sourcePath,
+                        "CoreRuleEngine.ResolveSourceObjectPowerBonus",
+                        "object static aura source path",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        condition,
+                        "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                        "object static aura condition",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        lifecycle,
+                        "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
+                        "object static aura lifecycle",
+                        errors);
+                    return;
+                }
+
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
                 {
                     ValidateContinuousEffectStaticAuraSourceObjectFilteredSourceCardSpecConsistency(
@@ -17197,6 +17235,21 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} object static aura source card no must reference a BehaviorSpec source-object filtered power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSourceObjectPowerSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetSourceObjectPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec source-object power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraSameLocationOtherFriendlySourceCardSpecConsistency(
@@ -17968,6 +18021,12 @@ public static class MatchRecoveryValidator
             && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(sourceCardNo, out var sourceObjectFilteredAura))
         {
             return sourceObjectFilteredAura.PowerDeltaPerParticipant;
+        }
+
+        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TryGetSourceObjectPowerAura(sourceCardNo, out var sourceObjectAura))
+        {
+            return sourceObjectAura.PowerDeltaPerParticipant;
         }
 
         if (string.Equals(effectKind, StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, StringComparison.Ordinal)

@@ -19852,6 +19852,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObject);
         staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
+        staticPowerBonus += ResolveSourceObjectPowerBonus(state, cardObject);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
         staticPowerBonus += ResolveSourceLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
@@ -19894,6 +19895,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !cardObject.IsFaceDown
             && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(cardObject.CardNo, out var aura)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            ? aura.PowerDeltaPerParticipant
+            : 0;
+    }
+
+    private static int ResolveSourceObjectPowerBonus(MatchState state, CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !string.IsNullOrWhiteSpace(cardObject.ControllerId)
+            && StaticAuraSpecRules.TryGetSourceObjectPowerAura(cardObject.CardNo, out var aura)
+            && StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)
+            && !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura)
             ? aura.PowerDeltaPerParticipant
             : 0;
     }

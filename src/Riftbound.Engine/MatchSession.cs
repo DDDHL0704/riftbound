@@ -1899,6 +1899,11 @@ public sealed record MatchState
                 effects.Add(sourceObjectFilteredEffect);
             }
 
+            if (TryBuildSourceObjectPowerStaticAuraEffect(state, objectId, cardObject, out var sourceObjectPowerEffect))
+            {
+                effects.Add(sourceObjectPowerEffect);
+            }
+
             if (TryBuildSameBattlefieldFriendlyFilteredUnitCountToSourceStaticAuraEffect(
                     state,
                     objectId,
@@ -2167,6 +2172,57 @@ public sealed record MatchState
             LayerEngineFoundationResiduals(),
             Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
             Lifecycle: "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS",
+            ParticipantObjectIds: [objectId],
+            SourceDependencyObjectIds: dependencyObjectIds,
+            TargetDependencyObjectIds: dependencyObjectIds,
+            ParticipantDependencyObjectIds: dependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceObjectPowerStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !StaticAuraSpecRules.TryGetSourceObjectPowerAura(cardObject.CardNo, out var aura)
+            || StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura)
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+            || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
+        {
+            return false;
+        }
+
+        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId))
+        {
+            return false;
+        }
+
+        var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        effect = new ContinuousEffectState(
+            $"STATIC_AURA:SOURCE_OBJECT_POWER:{objectId}",
+            "OBJECT",
+            ContinuousEffectLayers.StaticAura,
+            aura.Duration,
+            objectId,
+            objectId,
+            aura.PowerDeltaPerParticipant,
+            cardObject.Power,
+            cardObject.Power + aura.PowerDeltaPerParticipant,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.ResolveSourceObjectPowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
             ParticipantObjectIds: [objectId],
             SourceDependencyObjectIds: dependencyObjectIds,
             TargetDependencyObjectIds: dependencyObjectIds,

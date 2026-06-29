@@ -2386,6 +2386,28 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var sourceObjectLevelPowerMatch = Regex.Match(
+                segment,
+                @"\{\{等级(\d+)>\}\}\s*我获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sourceObjectLevelPowerMatch.Success
+                && int.TryParse(sourceObjectLevelPowerMatch.Groups[1].Value, out var sourceObjectLevelExperience)
+                && int.TryParse(sourceObjectLevelPowerMatch.Groups[2].Value, out var sourceObjectLevelPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SourceObjectPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SourceObject,
+                    sourceObjectLevelPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
+                    RequiredPlayerExperience: sourceObjectLevelExperience));
+                continue;
+            }
+
             var sourceObjectFilteredPowerMatch = Regex.Match(
                 segment,
                 @"如果我拥有([^，。]+)，则我(?:额外)?获得\{\{S\}\}\+(\d+)",

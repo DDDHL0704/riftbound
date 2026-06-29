@@ -325,6 +325,7 @@ public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
+    public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string BattlefieldAllUnitsPowerPlusOne = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE";
     public const string BattlefieldAllUnitsKeyword = "BATTLEFIELD_ALL_UNITS_KEYWORD";

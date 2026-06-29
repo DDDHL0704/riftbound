@@ -23,6 +23,7 @@ Implemented in this slice:
   - `SFD·159/221` 可靠攻城犬：如果你在此处有其他单位，则自身获得 `{{S}}+1`。
   - `OGS·019/024` 无极剑圣：如果你只有一名友方单位防守一处战场，则该单位 `{{S}}+2`。
   - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师：`{{等级6>}}` 你的单位获得 `{{S}}+1`。
+  - `UNL-016/219` 焰爪、`UNL-047/219` 踏苔蜥、`UNL-075/219` 风行狐、`UNL-094/219` 晶手猎人、`UNL-098/219` 巨神峰先知：`{{等级N>}}` 自身获得 `{{S}}+X`。
   - `UNL-154/219` 猩红飞鸽：如果和另一名单位一起进攻一处战场，则自身 `{{S}}+2`。
   - `OGN·055/298` 驭水者：如果独自进攻或防守一处战场，则自身 `{{S}}+2`。
   - `OGN·131/298` 沙丘亚龙：进攻时如果此处有处于活跃状态的敌方单位，则自身 `{{S}}+2`。
@@ -40,6 +41,8 @@ Implemented in this slice:
 - `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now resolve Ornn-style friendly-equipment count-to-source static power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
 - Friendly-equipment static-power hidden-boundary guard: standby friendly-equipment count-to-source power sources no longer project `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER` `STATIC_AURA` effects or recompute source power from public equipment count.
 - `CoreRuleEngine` resolves Master Yi intro single-defender power and Master Yi level friendly-unit power through `StaticAuraSpec.Kind=FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` and `StaticAuraSpec.Kind=FRIENDLY_UNITS_POWER`; the old `HasMasterYiSingleDefenderBonus` / `ResolveMasterYiLevelLegendPowerBonus` combat-power special paths have been deleted.
+- `CoreRuleEngine.ResolveSourceObjectPowerBonus` and `MatchSession.TryBuildSourceObjectPowerStaticAuraEffect` now resolve level-gated source-object power (`SOURCE_OBJECT_POWER`) from `BehaviorSpec.StaticAuras`, using `StaticAuraSpec.RequiredPlayerExperience` and `PowerDeltaPerParticipant` rather than a source card-number branch.
+- `StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized` prevents legacy source-unit entry paths that already stored the same level power in the authoritative object power from double-counting the new spec-driven combat resolver; this compatibility guard is data-driven by the card behavior's level power metadata and the parsed aura delta.
 - `MatchSession` now projects source-object combat static auras for `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` from `BehaviorSpec.StaticAuras` while the current battle state satisfies their parsed participant-count conditions.
 - Source-combat static-aura hidden-boundary guard: standby battle participants are excluded from battle attacker/defender participant evaluation and from source-combat participant / dependency metadata, so standby objects do not enable source-combat static auras or appear in their participant lists.
 - Source-combat Core recompute hidden-boundary guard: standby source units are excluded from the `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` combat-power helpers, matching the projection layer.
@@ -58,6 +61,7 @@ Implemented in this slice:
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
 - `tests/Riftbound.ConformanceTests/WiseElderSourceObjectFilteredPowerTests.cs` now covers `SOURCE_OBJECT_FILTERED_POWER` participating in real `DECLARE_BATTLE` damage: Wise Elder with `CardObjectTags.Boon` deals 5 damage from base 4 plus `staticPowerBonus=1`.
+- `tests/Riftbound.ConformanceTests/SourceObjectLevelPowerStaticAuraTests.cs` now covers `SOURCE_OBJECT_POWER` participating in continuous-effect projection and real `DECLARE_BATTLE` damage: Crystalhand Hunter at 6 experience projects `STATIC_AURA:SOURCE_OBJECT_POWER:*` with `PowerDelta=1`, stays absent below 6 experience, and deals 3 damage from base 2 plus `staticPowerBonus=1`.
 - `tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs` now covers the official same-battlefield other-friendly static-power card rows (`OGS·013/024`, `SFD·236/221`, `SFD·236*/221`, `OGN·243/298`, `OGN·243a/298`) in continuous-effect projection and real `DECLARE_BATTLE` damage.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now covers `OGS·013/024` Garen's same-battlefield other-friendly static aura in a legal official Poppy deck route: server prompts play and move Garen plus `UNL-092/219` Demacia Envoy to the same battlefield, the spec-driven continuous effect targets the Envoy, real battle damage records `staticPowerBonus=1`, and the full action log replays through score victory to the same final state hash.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also covers `SFD·236/221` Darius's same-battlefield other-friendly static aura in a legal official Darius deck route: server prompts play and move Darius plus `SFD·006/221` Aggressive Dragonhound to the same battlefield, the spec-driven continuous effect targets the Dragonhound, real battle damage records `basePower=3`, `staticPowerBonus=1`, `combatPower=4`, and the full action log replays through score victory to the same final state hash.
@@ -88,7 +92,7 @@ This slice does not claim full B1 completion:
 - Battlefield card recognition still has an implemented-battlefield-card registry; this slice only removes card-number gating from the static-power bonus arithmetic.
 - Current non-local other-friendly aura coverage is the fixed static-power family only; Nash battlefield-token creation, replacement entry destination, and enemy spell/skill target protection remain open.
 - Brush score-time replacement now has a combined static-aura representative, but broader battlefield-token replacement / actual swap-back lifecycle is still not closed by this B1 slice.
-- Garen and Darius same-battlefield other-friendly, Ornn friendly-equipment count-to-source, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have legal official-deck replay representatives, but other static-aura families still need comparable official-deck routes before full B1/B2 breadth can be claimed.
+- Garen and Darius same-battlefield other-friendly, Ornn friendly-equipment count-to-source, Baron Nashor non-local other-friendly, Scarlet Pigeon source-combat, Dune Drake source-attacking-ready-enemy, Petal Pixie same-battlefield ephemeral count-to-source, Soul Shepherd friendly-token filtered, Rumble friendly-mechanical filtered self-boost, Rumble legend friendly-mechanical Steadfast, Forbidden Wasteland battlefield isolated-defender keyword modifier, Waterbender source-lone-battle, Master Yi intro friendly single-defender, Master Yi level friendly-units, Wise Elder source-object filtered, Crystalhand Hunter source-object level power, Trifarian Training Grounds battlefield all-units, Reliable Siege Dog source same-location threshold, Sett same-battlefield boon count-to-source, and Lee Sin same-battlefield other-friendly filtered now have representative evidence, but source-object level power still needs legal official-deck replay breadth and other static-aura families still need comparable official-deck routes before full B1/B2 breadth can be claimed.
 - Broader multiple-aura stacking beyond the current source-combat + other-friendly + until-end power representative, full LayerEngine timestamp ordering, additional conditional subscopes beyond the same-location threshold representative, additional RULE_TEXT keyword grants / modifiers, and full official static-aura breadth remain open.
 - Master Yi `{{等级11>}}` active-entry text is now tracked by `docs/CURRENT_PLAN_B_OTHER_FRIENDLY_ACTIVE_ENTRY_STATIC_ABILITY_SPEC_AUDIT.md`; it remains outside this B1 combat/static-power slice.
 - Current `private|public static bool Is*CardNo(...)` helper count remains 0.
@@ -1197,4 +1201,28 @@ Full backend:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Latest result: 8854/8854 passed.
+Latest result: 8954/8954 passed.
+
+2026-06-29 source-object level static-power focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceObjectLevelPowerStaticAuraTests|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives"
+```
+
+Result: 5/5 passed.
+
+2026-06-29 source-object level static-power adjacent / recovery check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceObjectLevelPower|FullyQualifiedName~SourceObjectPower|FullyQualifiedName~SourceObjectFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~Experience|FullyQualifiedName~MatchRecovery"
+```
+
+Result: 2149/2149 passed.
+
+2026-06-29 backend full after source-object level static-power:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8954/8954 passed.

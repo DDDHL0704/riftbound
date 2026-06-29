@@ -43,6 +43,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetSourceObjectPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.SourceObjectPower,
+            out aura);
+    }
+
     public static bool TryGetBattlefieldAllUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -214,6 +222,23 @@ internal static class StaticAuraSpecRules
         }
 
         return TargetMatchesFilter(aura.TargetFilter, target);
+    }
+
+    public static bool IsSourceObjectPowerAuraAlreadyMaterialized(
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
+    {
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+            || behavior.LevelSourceUnitPowerBonus <= 0
+            || behavior.SourceUnitPower <= 0
+            || behavior.LevelSourceUnitPowerBonus != aura.PowerDeltaPerParticipant)
+        {
+            return false;
+        }
+
+        var persistentPower = cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return persistentPower >= behavior.SourceUnitPower + aura.PowerDeltaPerParticipant;
     }
 
     private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)

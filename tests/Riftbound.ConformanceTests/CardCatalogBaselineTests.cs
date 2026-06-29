@@ -1463,6 +1463,29 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, masterYiLevelAura.Status);
         }
 
+        foreach (var (cardNo, requiredExperience, powerDelta) in new[]
+        {
+            ("UNL-016/219", 3, 1),
+            ("UNL-047/219", 3, 1),
+            ("UNL-075/219", 3, 1),
+            ("UNL-094/219", 6, 1),
+            ("UNL-098/219", 11, 4)
+        })
+        {
+            var levelSource = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var levelSourceAura = Assert.Single(
+                levelSource.StaticAuras,
+                aura => string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal));
+            Assert.Equal(ContinuousEffectLayers.StaticAura, levelSourceAura.Layer);
+            Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", levelSourceAura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.SourceObject, levelSourceAura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.SourceObject, levelSourceAura.ParticipantScope);
+            Assert.Equal(powerDelta, levelSourceAura.PowerDeltaPerParticipant);
+            Assert.Equal(requiredExperience, levelSourceAura.RequiredPlayerExperience);
+            Assert.Contains($"{{{{等级{requiredExperience}>}}}} 我获得{{{{S}}}}+{powerDelta}", levelSourceAura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, levelSourceAura.Status);
+        }
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
