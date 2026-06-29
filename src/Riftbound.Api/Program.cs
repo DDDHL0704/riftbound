@@ -3,6 +3,7 @@ using Riftbound.Api;
 using Riftbound.CardCatalog;
 using Riftbound.Engine;
 using Riftbound.Persistence;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,6 +29,8 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddRiftboundPersistence(builder.Configuration);
+builder.Services.TryAddSingleton<IPlayerIdentityStore, InMemoryPlayerIdentityStore>();
+builder.Services.AddSingleton<PlayerIdentityService>();
 builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
 builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMatchSessionRegistry(
     services.GetRequiredService<IRuleEngine>(),

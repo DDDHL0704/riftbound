@@ -17115,19 +17115,82 @@ public sealed class GameHubJoinTests
             ]);
     }
 
+    [Fact]
+    public async Task AuthenticatedConnectionCanJoinWithMatchingHandle()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, playerIdentity: identity);
+
+        var auth = await hub.Authenticate("Alice", "alice-secret-key-1234");
+        await hub.JoinRoom("identity-room", "Alice");
+
+        Assert.True(auth.Authenticated);
+        Assert.Single(clients.CallerClient.JoinedMessages);
+        Assert.Empty(clients.CallerClient.Errors);
+    }
+
+    [Fact]
+    public async Task AuthenticatedConnectionCannotActAsDifferentPlayer()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, playerIdentity: identity);
+
+        await hub.Authenticate("Alice", "alice-secret-key-1234");
+        await hub.JoinRoom("identity-room", "Bob");
+
+        Assert.Empty(clients.CallerClient.JoinedMessages);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.IdentityMismatch, error.Code);
+    }
+
+    [Fact]
+    public async Task AuthenticateRejectsImpostorKeyForClaimedHandle()
+    {
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var ownerHub = CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", playerIdentity: identity);
+        var impostorHub = CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", playerIdentity: identity);
+
+        var owner = await ownerHub.Authenticate("Alice", "alice-secret-key-1234");
+        var impostor = await impostorHub.Authenticate("Alice", "totally-different-key-5678");
+
+        Assert.True(owner.Authenticated);
+        Assert.Equal("Registered", owner.Status);
+        Assert.False(impostor.Authenticated);
+        Assert.Equal("HandleClaimed", impostor.Status);
+    }
+
+    [Fact]
+    public async Task UnauthenticatedConnectionStillJoins()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(clients, new RecordingGroupManager(), "connection-1", registry);
+
+        await hub.JoinRoom("identity-room", "Alice");
+
+        Assert.Single(clients.CallerClient.JoinedMessages);
+        Assert.Empty(clients.CallerClient.Errors);
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
         string connectionId,
         IMatchSessionRegistry? registry = null,
         IHostEnvironment? hostEnvironment = null,
-        IConfiguration? configuration = null)
+        IConfiguration? configuration = null,
+        PlayerIdentityService? playerIdentity = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance),
             hostEnvironment,
-            configuration)
+            configuration,
+            playerIdentity)
         {
             Clients = clients,
             Groups = groups,

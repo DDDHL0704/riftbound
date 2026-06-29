@@ -50,6 +50,7 @@ public static class ErrorCodes
 {
     public const string PlayerIdRequired = "PLAYER_ID_REQUIRED";
     public const string PlayerNotInRoom = "PLAYER_NOT_IN_ROOM";
+    public const string IdentityMismatch = "IDENTITY_MISMATCH";
     public const string RoomFull = "ROOM_FULL";
     public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
     public const string ClientIntentIdRequired = "CLIENT_INTENT_ID_REQUIRED";
@@ -102,6 +103,11 @@ public sealed record PlayerSessionDto(
     string PlayerId,
     string Seat,
     string ReconnectToken);
+
+public sealed record AuthResultDto(
+    bool Authenticated,
+    string Status,
+    string Handle);
 
 public abstract record GameCommand(string CmdType);
 
