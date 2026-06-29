@@ -66,4 +66,4 @@ source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore
   - `functionalUnits[].stage4C90`
   - `snapshotEntries[].stage4C90`
 
-4B freeze status 从 `IMPLEMENTED_UNTESTED` 升级为 `IMPLEMENTED_TESTED`，自动化状态改为 `REPRESENTATIVE_AUTOMATED_EVIDENCE_PRESENT`；`fullOfficial=false` 保持不变。本批只入账 Vanguard Squire / Aggressive Dragonhound representative active-entry source-unit route 与 target rejection，不声明 full-official 或 final READY。
+4B freeze status 从 `IMPLEMENTED_UNTESTED` 升级为 `IMPLEMENTED_TESTED`，自动化状态改为 `REPRESENTATIVE_AUTOMATED_EVIDENCE_PRESENT`；`fullOfficial=false` 保持不变。本批只入账 Vanguard Squire / Aggressive Dragonhound representative active-entry source-unit route 与 target rejection，不声明 full-official 或 final READY。2026-06-29 Plan B follow-up 已将二者的无条件 `我以活跃状态进场。` 接入 `SOURCE_UNIT_ENTER_READY` 通用 StaticAbilitySpec，并为 Aggressive Dragonhound 补合法官方 Rumble deck B0 score-victory replay；完整 active-entry family 仍 open。

@@ -2193,6 +2193,42 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildAggressiveDragonhoundUnconditionalActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-aggressive-dragonhound-unconditional-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildAggressiveDragonhoundUnconditionalActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            AggressiveDragonhoundCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-aggressive-dragonhound-unconditional-active-entry");
+        AssertAggressiveDragonhoundUnconditionalActiveEntryResolved(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-aggressive-dragonhound-unconditional-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -7570,6 +7606,41 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
         Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
         Assert.Equal(DunehornBeastCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertAggressiveDragonhoundUnconditionalActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Aggressive Dragonhound active-entry assertion could not locate Aggressive Dragonhound in P1 hand.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.True(beforePlay.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(3, result.State.CardObjects[sourceObjectId].Power);
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "好斗的龙犬", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(3, unitEvent.Payload["power"]);
+        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(AggressiveDragonhoundCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -21518,6 +21589,17 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildAggressiveDragonhoundUnconditionalActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [AggressiveDragonhoundCardNo]));
+    }
+
     private static OfficialDecklist BuildMoltenDrakeOtherFriendlyActiveEntryOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -26371,6 +26453,44 @@ public sealed class FullGameEndToEndTests
         {
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildAggressiveDragonhoundUnconditionalActiveEntryMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [AggressiveDragonhoundCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            AggressiveDragonhoundCardNo)
+            ?? throw new InvalidOperationException("B0 Aggressive Dragonhound active-entry setup could not find Aggressive Dragonhound in P1 hand.");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
             CardObjects = cardObjects
         };
     }

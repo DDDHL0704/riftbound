@@ -34,12 +34,9 @@ internal static class CardStaticAbilitySpecRules
     public static bool TryGetSourceUnitEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(
-                cardNo,
-                StaticAbilityKinds.SourceUnitEnterReady,
-                out ability)
-            && (ability.MaxControllerHandCount is >= 0
-                || ability.RequiredPlayerExperience is >= 0
-                || !string.IsNullOrWhiteSpace(ability.RequiredOtherControlledUnitTag));
+            cardNo,
+            StaticAbilityKinds.SourceUnitEnterReady,
+            out ability);
     }
 
     public static bool TryGetOtherFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)

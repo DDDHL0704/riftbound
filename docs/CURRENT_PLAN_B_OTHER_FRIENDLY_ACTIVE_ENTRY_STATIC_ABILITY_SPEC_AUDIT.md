@@ -68,6 +68,14 @@ Implemented for `SFD·094/221` 凶翼 and the same controlled-tag source-unit fa
 - `CoreRuleEngine` checks the entering unit controller's public field units, excludes the entering source object, and requires a face-up non-standby controlled unit carrying the parsed tag before the source unit enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controlled-tag source-unit static ability controls the entry state.
 
+Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
+
+- `RuleTextParsers.StaticAbilityParser` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` without requirement fields.
+- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` now accepts `SOURCE_UNIT_ENTER_READY` specs with no extra requirement fields, so the existing `CoreRuleEngine` source-unit entry path can treat the official text as an unconditional self entry modifier.
+- Haste reminder text such as `{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）` is guarded against this parser route and remains on the Haste optional-cost path.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this unconditional source-unit static ability controls the entry state.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` proves a legal official Rumble deck route can carry `SFD·006/221` through the B0 score-victory action-log replay path with self source entry metadata.
+
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
@@ -79,6 +87,8 @@ Implemented for `SFD·094/221` 凶翼 and the same controlled-tag source-unit fa
 - `UNL-151/219` 班德尔士兵: `{{等级3>}} 我以活跃状态进场。（如果你拥有不少于3经验，则获得该效果。）`
 - `SFD·094/221` 凶翼: `如果你控制着其他“龙”属性单位，则我以活跃状态进场。`
 - `SFD·071/221` 疾驰机械: `如果你控制着其他“机械”单位，则我以活跃状态进场。`
+- `SFD·006/221` 好斗的龙犬: `我以活跃状态进场。`
+- `OGS·016/024` 先锋扈从: `我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
@@ -241,6 +251,22 @@ Latest Fiercewing controlled-tag active-entry / full-game / hidden-info adjacent
 
 Result: 2427/2427 passed.
 
+Latest unconditional source-unit active-entry + Aggressive Dragonhound B0 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~UnconditionalSourceUnitActiveEntryStaticAbilityTests|FullyQualifiedName~OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntry"
+```
+
+Result: initially failed before implementation because `SFD·006/221` / `OGS·016/024` exposed no parsed `SOURCE_UNIT_ENTER_READY` spec and Aggressive Dragonhound stayed exhausted when its source object was pre-exhausted; after implementation 5/5 passed.
+
+Latest unconditional source-unit active-entry / full-game / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~UnconditionalSourceUnitActiveEntryStaticAbilityTests|FullyQualifiedName~OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 2468/2468 passed.
+
 Latest backend full after Fiercewing controlled-tag active-entry:
 
 ```bash
@@ -248,6 +274,14 @@ Latest backend full after Fiercewing controlled-tag active-entry:
 ```
 
 Result: 8990/8990 passed.
+
+Latest backend full after unconditional source-unit active-entry:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 8997/8997 passed.
 
 Latest Flameclaw active-entry / static-aura / hidden-info adjacent:
 

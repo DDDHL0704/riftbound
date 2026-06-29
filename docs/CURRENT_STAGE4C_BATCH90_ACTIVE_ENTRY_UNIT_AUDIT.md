@@ -10,6 +10,7 @@
 - 代表卡：好斗的龙犬 / Aggressive Dragonhound `SFD·006/221` / cardId `33078`
 - 代表 effects：`VANGUARD_SQUIRE_PLAY_ACTIVE_UNIT`、`AGGRESSIVE_DRAGONHOUND_PLAY_ACTIVE_UNIT`
 - 本批是 evidence-only overlay，不修改功能代码；覆盖 active-entry source-unit ordinary hand `PLAY_CARD`、支付基础费用、0 目标入栈、stack / pass-pass 后源牌进入控制者基地，成为官方战力、官方标签、未休眠的 `CARD_TYPE:UNIT` 单位对象。
+- 2026-06-29 Plan B follow-up：`SFD·006/221` 好斗的龙犬与 `OGS·016/024` 先锋扈从的无条件 `我以活跃状态进场。` 已接入 `SOURCE_UNIT_ENTER_READY` 通用 StaticAbilitySpec；好斗的龙犬另有合法官方 Rumble deck B0 score-victory replay。
 - 本批同步记录 active-entry source-unit 带目标打出拒绝，防止 0 目标单位路径被 target input 驱动变异。
 - 本批不声明其他 active-entry family、游走移动、战场移动、横置技能、进攻触发、隐藏信息 / redaction、1009/811 full-official 或 final READY 覆盖。
 

@@ -2167,6 +2167,19 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (Regex.IsMatch(
+                    segment,
+                    @"^我以活跃状态进场。?$",
+                    RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Unconditional source-unit active-entry static ability parsed for spec-driven unit-entry routing."));
+                continue;
+            }
+
             if (segment.Contains("无法变为活跃状态", StringComparison.Ordinal)
                 || segment.Contains("不能变为活跃状态", StringComparison.Ordinal))
             {
