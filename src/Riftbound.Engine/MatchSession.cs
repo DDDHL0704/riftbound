@@ -13400,12 +13400,6 @@ internal static class ActionPromptBuilder
             return IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId);
         }
 
-        if (string.Equals(behavior.EffectKind, "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE", StringComparison.Ordinal))
-        {
-            return IsPromptEnemyBattlefieldObject(state, playerId, objectId)
-                && IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId);
-        }
-
         return true;
     }
 
@@ -13422,7 +13416,10 @@ internal static class ActionPromptBuilder
             || behavior.DestroysTarget
             || behavior.GainsControlOfTargetToBase
             || behavior.GainsControlOfTargetToBattlefield
-            || behavior.SwapsTargetPowersUntilEndOfTurn;
+            || behavior.SwapsTargetPowersUntilEndOfTurn
+            || behavior.ExhaustsTarget
+            || !string.IsNullOrWhiteSpace(behavior.StatusEffectId)
+            || !string.IsNullOrWhiteSpace(behavior.SecondaryStatusEffectId);
     }
 
     private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)

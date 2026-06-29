@@ -27296,7 +27296,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
                 || !IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, targetObjectId)
                 || !IsBerserkImpulseTargetAllowed(state, behavior, targetObjectId)
-                || !IsZenithBladeTargetAllowed(state, intent.PlayerId, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
@@ -31667,7 +31666,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || behavior.DestroysTarget
             || behavior.GainsControlOfTargetToBase
             || behavior.GainsControlOfTargetToBattlefield
-            || behavior.SwapsTargetPowersUntilEndOfTurn;
+            || behavior.SwapsTargetPowersUntilEndOfTurn
+            || behavior.ExhaustsTarget
+            || !string.IsNullOrWhiteSpace(behavior.StatusEffectId)
+            || !string.IsNullOrWhiteSpace(behavior.SecondaryStatusEffectId);
     }
 
     private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)
@@ -31718,21 +31720,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return IsPublicUnitCardObject(state.CardObjects, objectId);
-    }
-
-    private static bool IsZenithBladeTargetAllowed(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!string.Equals(behavior.EffectKind, "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        return IsEnemyBattlefieldObject(state, playerId, objectId)
-            && IsVisibleFieldUnitObject(state.CardObjects, objectId);
     }
 
     private static bool IsTargetManaCostAllowed(
