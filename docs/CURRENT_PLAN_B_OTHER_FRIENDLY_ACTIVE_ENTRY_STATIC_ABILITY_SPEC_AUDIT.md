@@ -1,6 +1,6 @@
 # Plan B Active-Entry Static Ability Spec Audit
 
-更新时间：2026-06-28
+更新时间：2026-06-29
 
 ## Scope
 
@@ -43,6 +43,15 @@ Implemented for `SFD·027/221` 穿沙角兽:
 - `CoreRuleEngine` source-unit entry resolution now checks this generic static ability against the controller's hand count after the played card has left hand.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this static ability controls the entry state.
 
+Implemented for `UNL-016/219` 焰爪:
+
+- `StaticAbilityKinds.SourceUnitEnterReady = SOURCE_UNIT_ENTER_READY` is reused for level-gated source-unit active entry.
+- `StaticAbilitySpec.RequiredPlayerExperience` now applies to source-unit active-entry requirements as well as friendly-unit active-entry requirements.
+- `RuleTextParsers.StaticAbilityParser` parses `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
+- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with either `MaxControllerHandCount` or `RequiredPlayerExperience`.
+- `CoreRuleEngine` checks the parsed controller experience requirement before deciding whether the played source unit enters ready.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this level-gated source-unit static ability controls the entry state.
+
 ## Rule Authority
 
 - Official card text from `data/official/card-catalog.zh-CN.json`.
@@ -50,6 +59,7 @@ Implemented for `SFD·027/221` 穿沙角兽:
 - `SFD·171/221` / `SFD·171a/221` 烈娜塔·戈拉斯克: `你的指示物以活跃状态进场。`
 - `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师: `{{等级11>}} 你的单位以活跃状态进场。`
 - `SFD·027/221` 穿沙角兽: `如果你的手牌不超过两张，则我以活跃状态进场。`
+- `UNL-016/219` 焰爪: `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
@@ -156,6 +166,30 @@ Latest Master Yi level active-entry replay / hidden-info adjacent:
 
 Result: 2104/2104 passed.
 
+Latest Flameclaw level-gated source-unit active-entry focused red/green:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceUnitLevelActiveEntryStaticAbility"
+```
+
+Result: initially failed because the catalog parser did not expose the `SOURCE_UNIT_ENTER_READY` spec and the runtime left Flameclaw exhausted at level 3; after implementation 3/3 passed.
+
+Flameclaw level-gated active-entry + source-object static-power B0 official-deck replay focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceUnitLevelActiveEntryStaticAbility|FullyQualifiedName~OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAura"
+```
+
+Result: 4/4 passed.
+
+Latest Flameclaw active-entry / static-aura / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~StaticAbility|FullyQualifiedName~StaticAura|FullyQualifiedName~SourceObjectLevelPower|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 2501/2501 passed.
+
 Hidden-info / continuous-effect recovery guard:
 
 ```bash
@@ -202,7 +236,7 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884; the later Flameclaw level-gated source-unit active-entry + source-object static-power B0 replay follow-up passed 8971/8971.
 
 DevUi catalog type build after adding active-entry static ability fields:
 

@@ -49,6 +49,7 @@ public sealed class FullGameEndToEndTests
     private const string SpeedingMechFriendlyMechanicalStaticKeywordCardNo = "SFD·071/221";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
     private const string WiseElderSourceObjectFilteredStaticAuraCardNo = "OGN·065/298";
+    private const string FlameclawSourceUnitLevelActiveEntryCardNo = "UNL-016/219";
     private const string CrystalhandHunterSourceObjectLevelStaticAuraCardNo = "UNL-094/219";
     private const string TargonSeerSourceObjectLevelStaticAuraCardNo = "UNL-098/219";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
@@ -2257,6 +2258,77 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildFlameclawLevelActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-flameclaw-level-active-entry-static-aura-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildFlameclawLevelActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            FlameclawSourceUnitLevelActiveEntryCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-flameclaw-level-active-entry-static-aura");
+        AssertFlameclawLevelActiveEntryResolved(current, played);
+        AssertSourceObjectLevelStaticAuraProjection(
+            played,
+            "P1",
+            FlameclawSourceUnitLevelActiveEntryCardNo,
+            expectedBasePower: 3,
+            expectedPowerDelta: 1,
+            expectedRequiredExperience: 3,
+            displayName: "Flameclaw");
+
+        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+            session,
+            played,
+            "P2",
+            WatchfulSentinelCardNo,
+            "P1",
+            "b0-flameclaw-level-active-entry-static-aura-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
+            session,
+            current,
+            "P1",
+            FlameclawSourceUnitLevelActiveEntryCardNo,
+            expectedBasePower: 3,
+            expectedPowerDelta: 1,
+            expectedRequiredExperience: 3,
+            displayName: "Flameclaw",
+            intentPrefix: "b0-flameclaw-level-active-entry-static-aura-battle");
+
+        AssertSourceObjectLevelStaticAuraDamage(
+            battleResult,
+            expectedBasePower: 3,
+            expectedStaticPowerBonus: 1);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-flameclaw-level-active-entry-static-aura-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -7492,6 +7564,41 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(StaticAbilityKinds.FriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
         Assert.Equal(legendObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
         Assert.Equal(MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertFlameclawLevelActiveEntryResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            beforePlay.State,
+            "P1",
+            FlameclawSourceUnitLevelActiveEntryCardNo)
+            ?? throw new InvalidOperationException("B0 Flameclaw level active-entry assertion could not locate Flameclaw in P1 hand.");
+        var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
+
+        Assert.Equal(3, beforePlay.State.PlayerExperience["P1"]);
+        Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
+        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(3, result.State.CardObjects[sourceObjectId].Power);
+
+        var unitEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitName"] as string, "焰爪", StringComparison.Ordinal));
+        Assert.Equal("P1", unitEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
+        Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
+        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(3, unitEvent.Payload["power"]);
+        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+        Assert.Equal(FlameclawSourceUnitLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -21861,6 +21968,19 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildFlameclawLevelActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    FlameclawSourceUnitLevelActiveEntryCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildWiseElderSourceObjectFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -27666,6 +27786,28 @@ public sealed class FullGameEndToEndTests
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
                 playerId => playerId,
                 playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 11 : 0,
+                StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BuildFlameclawLevelActiveEntryMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [FlameclawSourceUnitLevelActiveEntryCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        return midgameState with
+        {
+            PlayerExperience = midgameState.Seats.Keys.ToDictionary(
+                playerId => playerId,
+                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 3 : 0,
                 StringComparer.Ordinal)
         };
     }

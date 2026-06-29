@@ -41312,12 +41312,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string controllerId,
+        IReadOnlyDictionary<string, int>? playerExperience,
         out StaticAbilitySpec ability)
     {
         ability = default!;
         if (CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
             || !CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility(behavior.CardNo, out var candidateAbility)
-            || !SourceUnitEnterReadyRequirementsSatisfied(candidateAbility, playerZones, controllerId))
+            || !SourceUnitEnterReadyRequirementsSatisfied(candidateAbility, playerZones, controllerId, playerExperience))
         {
             return false;
         }
@@ -41329,8 +41330,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool SourceUnitEnterReadyRequirementsSatisfied(
         StaticAbilitySpec ability,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string controllerId)
+        string controllerId,
+        IReadOnlyDictionary<string, int>? playerExperience)
     {
+        if (!StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
+        {
+            return false;
+        }
+
         if (ability.MaxControllerHandCount.HasValue
             && (!playerZones.TryGetValue(controllerId, out var zones)
                 || zones.Hand.Count > ability.MaxControllerHandCount.Value))
@@ -41423,6 +41430,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 playerZones,
                 stackItem.ControllerId,
+                playerExperience,
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(
@@ -41555,6 +41563,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 playerZones,
                 stackItem.ControllerId,
+                playerExperience,
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(

@@ -37,7 +37,7 @@ internal static class CardStaticAbilitySpecRules
                 cardNo,
                 StaticAbilityKinds.SourceUnitEnterReady,
                 out ability)
-            && ability.MaxControllerHandCount is >= 0;
+            && (ability.MaxControllerHandCount is >= 0 || ability.RequiredPlayerExperience is >= 0);
     }
 
     public static bool TryGetOtherFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)

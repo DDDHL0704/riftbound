@@ -1,6 +1,6 @@
 # Plan B Active-Entry Static Ability Spec Evidence
 
-更新时间：2026-06-28
+更新时间：2026-06-29
 
 ## Evidence Summary
 
@@ -69,6 +69,19 @@ Low-hand source-unit active-entry runtime:
 - The same test proves three cards in hand after play does not satisfy the parsed requirement and leaves the pre-exhausted source unit exhausted with no entry-static metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Jhin deck opening can feed Dunehorn Beast low-hand active-entry into B0 score victory: P1 plays `SFD·027/221` from a three-card hand, the post-play two-card hand satisfies `SOURCE_UNIT_ENTER_READY`, `UNIT_PLAYED_TO_BATTLEFIELD` emits self source metadata, and the same action log replays to the final score-victory state hash without hidden-zone leaks.
 
+Level-gated source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
+- `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` verifies `UNL-016/219` 焰爪 exposes this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+
+Level-gated source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry either `MaxControllerHandCount` or `RequiredPlayerExperience`.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller before deciding whether the source unit enters ready.
+- `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` proves Flameclaw enters ready at 3 experience and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves 2 experience does not satisfy the parsed requirement and leaves Flameclaw exhausted with no entry-static metadata.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Jhin deck opening can feed Flameclaw level-gated active-entry and source-object static-power into B0 score victory: P1 has 3 experience, plays `UNL-016/219` directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, projects `SOURCE_OBJECT_POWER` with `PowerDelta=1`, deals 4 real combat damage from base 3 plus static 1, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+
 ## Validation Evidence
 
 - Focused pre-implementation red: `BehaviorSpecCatalogParsesOtherFriendlyUnitsEnterReadyStaticAbility` had no matching static ability and `MoltenDrakeMakesOtherFriendlyUnpaidHasteUnitEnterReadyFromStaticAbilitySpec` observed the target still exhausted.
@@ -94,13 +107,18 @@ Low-hand source-unit active-entry runtime:
 - Dunehorn / active-entry / MatchRecovery adjacent regression: 2297/2297 passed.
 - Dunehorn low-hand active-entry B0 official-deck replay focused: 1/1 passed.
 - Dunehorn low-hand active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2100/2100 passed.
+- Flameclaw level-gated source-unit active-entry pre-implementation red: `SourceUnitLevelActiveEntryStaticAbilityTests` had no matching parsed `SOURCE_UNIT_ENTER_READY` spec and observed Flameclaw still exhausted at 3 experience.
+- Flameclaw level-gated source-unit active-entry focused post-implementation: 3/3 passed.
+- Flameclaw level-gated active-entry + source-object static-power B0 official-deck replay focused: 4/4 passed.
+- Flameclaw active-entry / static-aura / FullGameEndToEnd / MatchRecovery adjacent regression: 2501/2501 passed.
 - Backend full after the StaticAbilitySpec slice: 8881/8881 passed.
 - Backend full after the Dunehorn low-hand active-entry B0 official-deck replay follow-up: 8882/8882 passed.
 - Backend full after the Molten Drake other-friendly active-entry B0 official-deck replay follow-up: 8883/8883 passed.
 - Backend full after the Master Yi level active-entry B0 official-deck replay follow-up: 8884/8884 passed.
+- Backend full after the Flameclaw level-gated source-unit active-entry + source-object static-power B0 official-deck replay follow-up: 8971/8971 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
 
 ## Remaining Evidence Needed
 
-- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants.
+- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit low-hand, and source-unit level-gated representatives.
 - Project remains NOT READY.

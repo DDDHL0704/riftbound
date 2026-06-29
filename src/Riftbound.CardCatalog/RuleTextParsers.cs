@@ -2121,6 +2121,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var sourceUnitLevelEnterReadyMatch = Regex.Match(
+                segment,
+                @"\{\{等级(\d+)>\}\}\s*我.*以活跃状态进场。?$",
+                RegexOptions.CultureInvariant);
+            if (sourceUnitLevelEnterReadyMatch.Success
+                && int.TryParse(sourceUnitLevelEnterReadyMatch.Groups[1].Value, out var sourceUnitRequiredExperience))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Level-gated source-unit active-entry static ability parsed for spec-driven unit-entry routing.",
+                    RequiredPlayerExperience: sourceUnitRequiredExperience));
+                continue;
+            }
+
             var sourceUnitMaxHandEnterReadyMatch = Regex.Match(
                 segment,
                 @"如果你的手牌不超过(?<max>[0-9一两二三四五六七八九十]+)张，则我以活跃状态进场。?$",
