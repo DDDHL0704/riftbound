@@ -17340,6 +17340,99 @@ public sealed class GameHubJoinTests
         Assert.Empty(bobClients.GroupClient.MatchmakingMessages);
     }
 
+    [Fact]
+    public async Task CreatePublicMatchRequiresAuthenticatedHandle()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var publicMatches = new InMemoryPublicMatchDirectory();
+        var clients = new RecordingHubClients();
+        var groups = new RecordingGroupManager();
+        var hub = CreateHub(clients, groups, "connection-1", registry, publicMatches: publicMatches);
+
+        var result = await hub.CreatePublicMatch("Alice");
+
+        Assert.Null(result);
+        Assert.Empty(groups.Added);
+        Assert.Empty(await publicMatches.ListOpenAsync(CancellationToken.None));
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.AuthenticationRequired, error.Code);
+    }
+
+    [Fact]
+    public async Task CreatePublicMatchSeatsHostAndListsWaitingRoom()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var publicMatches = new InMemoryPublicMatchDirectory();
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+        var clients = new RecordingHubClients();
+        var groups = new RecordingGroupManager();
+        var hub = CreateHub(
+            clients,
+            groups,
+            "connection-1",
+            registry,
+            playerIdentity: identity,
+            publicMatches: publicMatches);
+
+        await hub.Authenticate("Alice", "alice-secret-key-1234");
+        var result = await hub.CreatePublicMatch("Alice");
+
+        Assert.NotNull(result);
+        Assert.StartsWith("RB-", result.Match.RoomId, StringComparison.Ordinal);
+        Assert.Equal("alice", result.Match.HostPlayerId);
+        Assert.Equal(1, result.Match.SeatCount);
+        Assert.Equal(2, result.Match.Capacity);
+        Assert.Equal(PublicMatchStatuses.Waiting, result.Match.Status);
+        Assert.Equal("alice", result.PlayerSession.PlayerId);
+        Assert.Equal("P1", result.PlayerSession.Seat);
+        Assert.Contains(("connection-1", $"room:{result.Match.RoomId}"), groups.Added);
+        Assert.Contains(("connection-1", $"room:{result.Match.RoomId}:player:alice"), groups.Added);
+        Assert.Single(clients.CallerClient.JoinedMessages);
+        Assert.Single(clients.CallerClient.Snapshots);
+        Assert.Single(clients.CallerClient.Prompts);
+
+        var listed = Assert.Single(await publicMatches.ListOpenAsync(CancellationToken.None));
+        Assert.Equal(result.Match.RoomId, listed.RoomId);
+        Assert.Equal("alice", listed.HostPlayerId);
+        var hubListed = Assert.Single(await hub.ListPublicMatches());
+        Assert.Equal(result.Match.RoomId, hubListed.RoomId);
+        Assert.Equal("alice", hubListed.HostPlayerId);
+    }
+
+    [Fact]
+    public async Task PublicMatchLeavesDiscoveryWhenOpponentJoins()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var publicMatches = new InMemoryPublicMatchDirectory();
+        var identity = new PlayerIdentityService(new InMemoryPlayerIdentityStore());
+
+        var aliceHub = CreateHub(
+            new RecordingHubClients(),
+            new RecordingGroupManager(),
+            "connection-1",
+            registry,
+            playerIdentity: identity,
+            publicMatches: publicMatches);
+        await aliceHub.Authenticate("Alice", "alice-secret-key-1234");
+        var created = await aliceHub.CreatePublicMatch("Alice");
+        Assert.NotNull(created);
+        Assert.Single(await publicMatches.ListOpenAsync(CancellationToken.None));
+
+        var bobClients = new RecordingHubClients();
+        var bobHub = CreateHub(
+            bobClients,
+            new RecordingGroupManager(),
+            "connection-2",
+            registry,
+            playerIdentity: identity,
+            publicMatches: publicMatches);
+        await bobHub.Authenticate("Bob", "bob-secret-key-1234");
+        await bobHub.JoinRoom(created.Match.RoomId, "Bob");
+
+        Assert.Single(bobClients.CallerClient.JoinedMessages);
+        Assert.Empty(await publicMatches.ListOpenAsync(CancellationToken.None));
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -17348,7 +17441,8 @@ public sealed class GameHubJoinTests
         IHostEnvironment? hostEnvironment = null,
         IConfiguration? configuration = null,
         PlayerIdentityService? playerIdentity = null,
-        IMatchmakingQueue? matchmakingQueue = null)
+        IMatchmakingQueue? matchmakingQueue = null,
+        IPublicMatchDirectory? publicMatches = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
@@ -17356,7 +17450,8 @@ public sealed class GameHubJoinTests
             hostEnvironment,
             configuration,
             playerIdentity,
-            matchmakingQueue)
+            matchmakingQueue,
+            publicMatches)
         {
             Clients = clients,
             Groups = groups,

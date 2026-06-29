@@ -120,6 +120,18 @@ public sealed record MatchmakingStatusDto(
     string? ErrorCode = null,
     string? Message = null);
 
+public sealed record PublicMatchDto(
+    string RoomId,
+    string HostPlayerId,
+    int SeatCount,
+    int Capacity,
+    string Status,
+    DateTimeOffset CreatedAt);
+
+public sealed record CreatePublicMatchResultDto(
+    PublicMatchDto Match,
+    PlayerSessionDto PlayerSession);
+
 public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");

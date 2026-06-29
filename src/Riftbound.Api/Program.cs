@@ -40,6 +40,7 @@ builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMat
     new MatchSessionOptions(AllowLegacyReadyWithoutDeck: builder.Environment.IsDevelopment())));
 builder.Services.AddSingleton<IMatchmakingQueue>(services => new InMemoryMatchmakingQueue(
     services.GetRequiredService<IMatchSessionRegistry>()));
+builder.Services.AddSingleton<IPublicMatchDirectory, InMemoryPublicMatchDirectory>();
 
 var app = builder.Build();
 
@@ -159,6 +160,11 @@ app.MapGet("/decks/preconstructed", async (CancellationToken cancellationToken) 
         battlefields = deck.Decklist.Battlefields
     });
     return Results.Ok(decks);
+});
+
+app.MapGet("/matches", async (IPublicMatchDirectory publicMatches, CancellationToken cancellationToken) =>
+{
+    return Results.Ok(await publicMatches.ListOpenAsync(cancellationToken));
 });
 
 app.MapHub<GameHub>("/hubs/game");

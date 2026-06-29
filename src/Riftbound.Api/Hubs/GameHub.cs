@@ -27,7 +27,8 @@ public sealed class GameHub(
     IHostEnvironment? hostEnvironment = null,
     IConfiguration? configuration = null,
     PlayerIdentityService? playerIdentity = null,
-    IMatchmakingQueue? matchmakingQueue = null) : Hub<IGameClient>
+    IMatchmakingQueue? matchmakingQueue = null,
+    IPublicMatchDirectory? publicMatches = null) : Hub<IGameClient>
 {
     private const string AuthenticatedHandleItemKey = "riftbound:authenticatedHandle";
 
@@ -164,6 +165,65 @@ public sealed class GameHub(
         return callerStatus;
     }
 
+    public async Task<CreatePublicMatchResultDto?> CreatePublicMatch(string playerId)
+    {
+        var normalizedPlayerId = PlayerIdentityService.NormalizeHandle(playerId);
+        if (TryRejectPublicMatchIdentity(normalizedPlayerId, out var rejection))
+        {
+            await rejection;
+            return null;
+        }
+
+        if (publicMatches is null)
+        {
+            await SendClientError(
+                string.Empty,
+                normalizedPlayerId,
+                ErrorCodes.UnsupportedCommand,
+                "公开对局目录未配置。");
+            return null;
+        }
+
+        var roomId = RoomCodeGenerator.NewRoomId();
+        IMatchSession session;
+        PlayerSessionDto playerSession;
+        PublicMatchDto match;
+        try
+        {
+            session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+            playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
+            match = await publicMatches.CreateAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
+        }
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
+        {
+            await SendError(roomId, normalizedPlayerId, 0, ex);
+            return null;
+        }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, RoomGroup(roomId), Context.ConnectionAborted);
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId,
+            PlayerGroup(roomId, normalizedPlayerId),
+            Context.ConnectionAborted);
+
+        await Clients.Caller.Joined(new WsServerMessage(
+            MessageType.JOIN,
+            roomId,
+            normalizedPlayerId,
+            0,
+            playerSession));
+
+        await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+        return new CreatePublicMatchResultDto(match, playerSession);
+    }
+
+    public async Task<IReadOnlyList<PublicMatchDto>> ListPublicMatches()
+    {
+        return publicMatches is null
+            ? []
+            : await publicMatches.ListOpenAsync(Context.ConnectionAborted);
+    }
+
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
@@ -179,6 +239,10 @@ public sealed class GameHub(
         {
             session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
+            if (publicMatches is not null)
+            {
+                await publicMatches.NotifyPlayerJoinedAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
+            }
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
@@ -635,12 +699,47 @@ public sealed class GameHub(
 
     private Task SendMatchmakingError(string playerId, MatchmakingStatusDto result)
     {
-        return Clients.Caller.Error(new WsServerMessage(
-            MessageType.ERROR,
+        return SendClientError(
             string.Empty,
             playerId,
+            result.ErrorCode ?? ErrorCodes.UnsupportedCommand,
+            result.Message ?? "匹配请求被拒绝。");
+    }
+
+    private bool TryRejectPublicMatchIdentity(string normalizedPlayerId, out Task rejection)
+    {
+        rejection = Task.CompletedTask;
+        if (!Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var bound) || bound is not string boundHandle)
+        {
+            rejection = SendClientError(
+                string.Empty,
+                normalizedPlayerId,
+                ErrorCodes.AuthenticationRequired,
+                "创建公开对局需要先完成身份认证。");
+            return true;
+        }
+
+        if (string.Equals(boundHandle, normalizedPlayerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        rejection = SendClientError(
+            string.Empty,
+            normalizedPlayerId,
+            ErrorCodes.IdentityMismatch,
+            "已认证身份与请求的玩家不一致，已拒绝以他人身份创建公开对局。");
+        return true;
+    }
+
+    private Task SendClientError(string roomId, string playerId, string code, string message)
+    {
+        return Clients.Caller.Error(new WsServerMessage(
+            MessageType.ERROR,
+            roomId,
+            playerId,
             0,
-            new ErrorDto(result.ErrorCode ?? ErrorCodes.UnsupportedCommand, result.Message ?? "匹配请求被拒绝。")));
+            new ErrorDto(code, message)));
     }
 
     private static MatchmakingStatusDto RejectedMatchmakingStatus(
