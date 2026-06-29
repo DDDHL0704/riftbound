@@ -98,6 +98,8 @@ The Speeding Mech friendly-mechanical Spellshield/Roam action-log replay regress
 
 The Prescient Mech static-granted Predict action-log replay regression proves a legal official deck opening can feed the non-combat keyword branch of `FRIENDLY_FILTERED_UNITS_KEYWORD` through the B0 score-victory route. `OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Rumble deck containing `SFD·065/221` Prescient Mech and `SFD·075/221` Progress Glory, verifies official deck submission/opening first, then starts from a focused midgame state with Prescient Mech in P1 base and Progress Glory in P1 hand. The server-authored `PLAY_CARD` prompt exposes only the controller's top main-deck card as the optional `预知` recycle target, Progress Glory has no printed `预知` tag, the resolved public-field state projects `RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD` / `预知` from Prescient Mech to Progress Glory, `CARDS_RECYCLED` moves the selected top card to the bottom of P1's main deck, and the route continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; static `预知` self-grant / simultaneous-entry sequencing, complete Predict breadth, complete official deck archetype breadth, and READY remain open.
 
+The Gemstone Seer static-granted Predict action-log replay regression proves a legal official deck opening can feed the global other-friendly keyword branch of `OTHER_FRIENDLY_UNITS_KEYWORD` through the B0 score-victory route. `OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Jhin deck containing `OGN·100/298` Gemstone Seer and official `SFD·075/221` Progress Glory, verifies official deck submission/opening first, then starts from a focused midgame state with Gemstone Seer in P1 base and Progress Glory in P1 hand. The server-authored `PLAY_CARD` prompt exposes only the controller's top main-deck card as the optional static-granted `预知` recycle target, Progress Glory has no printed `预知` tag, the resolved public-field state projects `RULE_TEXT:OTHER_FRIENDLY_UNITS_KEYWORD` / `预知` from Gemstone Seer to Progress Glory, `CARDS_RECYCLED` moves the selected top card to the bottom of P1's main deck, and the route continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; static `预知` self-grant / simultaneous-entry sequencing, complete Predict breadth, complete official deck archetype breadth, and READY remain open.
+
 The Treasure Pile trigger-payment action-log replay regressions prove a legal official deck opening can feed both focused battlefield-conquer payment choices through the B0 score-victory replay path. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·220/221` Treasure Pile, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster, opposing `OGN·096/298` Watchful Sentinel, and sufficient available mana at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`; the pay branch accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED`, creates an exhausted Gold equipment token, and continues through score-victory action-log replay to the same final state hash. `OfficialDeckMidgameDeclinesTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` records replayable `PAY_COST(DECLINE)` from the same official opening family, emits `TRIGGER_PAYMENT_DECLINED` plus declined `PAYMENT_WINDOW_CLOSED`, creates no token, emits no `COST_PAID`, and still continues through score-victory replay. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
 The Sunken Temple powerful-unit trigger-payment action-log replay regressions prove another legal official deck opening can feed both focused battlefield-conquer payment choices with a condition and hidden draw. `OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening that selected official `SFD·218/221` Sunken Temple, then starts from a focused midgame `START_BATTLE` state with `UNL-057/219` Wildclaw Beastmaster as the surviving powerful conquest attacker and opposing `OGN·096/298` Watchful Sentinel at that P1 battlefield. The server-authored `DECLARE_BATTLE` route opens `TRIGGER_PAYMENT`; the pay branch accepts replayable `PAY_COST(SPEND_MANA:1)`, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `CARD_DRAWN`, moves one controlled main-deck card into P1 hand, and continues through score-victory action-log replay to the same final state hash. `OfficialDeckMidgameDeclinesSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash` records replayable `PAY_COST(DECLINE)` from the same official opening family, emits `TRIGGER_PAYMENT_DECLINED` plus declined `PAYMENT_WINDOW_CLOSED`, draws no card, emits no `COST_PAID`, and still continues through score-victory replay. This slice changes only test / evidence coverage; it does not close all triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
@@ -233,6 +235,42 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` checks exact JSON string values in each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids without prefix false positives between similar object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. The Card Trick regression adds stack-target coverage: private-zone target ids in stack snapshots are redacted through the same viewer visibility path and spectator recovery now expects `HIDDEN` for those targets. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Gemstone Seer other-friendly static-granted Predict official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~GemstoneSeerStaticGrantedPredict|FullyQualifiedName~OtherFriendlyStaticGrantedPredict|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives|FullyQualifiedName~OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycle"
+```
+
+Result:
+
+```text
+Passed: 4, Failed: 0, Skipped: 0, Total: 4
+```
+
+Latest Gemstone Seer other-friendly static-granted Predict adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~GemstoneSeerOtherFriendlyStaticGrantedPredict|FullyQualifiedName~OtherFriendlyStaticGrantedPredict|FullyQualifiedName~StaticGrantedPredict|FullyQualifiedName~Predict|FullyQualifiedName~OtherFriendly|FullyQualifiedName~StaticKeyword|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 2177, Failed: 0, Skipped: 0, Total: 2177
+```
+
+Latest backend full validation after Gemstone Seer other-friendly static-granted Predict official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 9019, Failed: 0, Skipped: 0, Total: 9019
+```
 
 Latest Flowing Time Mirror / LeBlanc suppressed-cleanup focused validation passed:
 

@@ -45,6 +45,7 @@ public sealed class FullGameEndToEndTests
     private const string SoulShepherdFriendlyTokenStaticAuraCardNo = "UNL-077/219";
     private const string RumbleFriendlyMechanicalStaticAuraCardNo = "SFD·089/221";
     private const string PrescientMechStaticGrantedPredictCardNo = "SFD·065/221";
+    private const string GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo = "OGN·100/298";
     private const string ProgressGloryMechanicalUnitCardNo = "SFD·075/221";
     private const string SpeedingMechFriendlyMechanicalStaticKeywordCardNo = "SFD·071/221";
     private const string LeeSinSameBattlefieldOtherFriendlyFilteredStaticAuraCardNo = "OGN·151/298";
@@ -3616,6 +3617,43 @@ public sealed class FullGameEndToEndTests
             session,
             played,
             "b0-prescient-mech-static-granted-predict-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildGemstoneSeerOtherFriendlyStaticGrantedPredictOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, LilliaLegendCardNo, LilliaChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-gemstone-seer-other-friendly-static-granted-predict-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        AssertGemstoneSeerOtherFriendlyStaticGrantedPredictPrompt(current);
+        var recycledObjectId = current.State.PlayerZones["P1"].MainDeck.First();
+        var played = await SubmitGemstoneSeerOtherFriendlyStaticGrantedPredictProgressGloryAsync(
+            session,
+            current,
+            "P1",
+            "b0-gemstone-seer-other-friendly-static-granted-predict");
+        AssertGemstoneSeerOtherFriendlyStaticGrantedPredictResolved(current, played, recycledObjectId);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-gemstone-seer-other-friendly-static-granted-predict-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -8904,6 +8942,97 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
+    private static void AssertGemstoneSeerOtherFriendlyStaticGrantedPredictPrompt(ResolutionResult result)
+    {
+        var state = result.State;
+        var sourceObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer prompt assertion could not find Gemstone Seer source.");
+        var targetObjectId = FindHandCardObjectByCardNo(
+            state,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer prompt assertion could not find Progress Glory in hand.");
+        var topMainDeckObjectId = state.PlayerZones["P1"].MainDeck.First();
+
+        Assert.Contains(CardLifecycleKeywordNames.Predict, state.CardObjects[sourceObjectId].Tags);
+        Assert.Contains("机械", state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardLifecycleKeywordNames.Predict, state.CardObjects[targetObjectId].Tags);
+
+        var playCandidate = EnabledCandidate(result.Prompts["P1"], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Gemstone Seer prompt assertion could not find PLAY_CARD: {DescribeState(state)}");
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, targetObjectId, StringComparison.Ordinal));
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal([topMainDeckObjectId], firstTargetChoiceIds);
+    }
+
+    private static void AssertGemstoneSeerOtherFriendlyStaticGrantedPredictResolved(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        string recycledObjectId)
+    {
+        var state = result.State;
+        var sourceObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer resolved assertion could not find Gemstone Seer source.");
+        var targetObjectId = FindBaseUnitByCardNo(
+            state,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer resolved assertion could not find Progress Glory in base.");
+
+        Assert.Equal(beforePlay.State.PlayerZones["P1"].MainDeck.First(), recycledObjectId);
+        Assert.Equal(
+            beforePlay.State.PlayerZones["P1"].MainDeck.Skip(1).Concat([recycledObjectId]).ToArray(),
+            state.PlayerZones["P1"].MainDeck);
+        Assert.Equal(new RunePool(0, 0), state.RunePools["P1"]);
+        Assert.Empty(state.StackItems);
+        Assert.Contains("机械", state.CardObjects[targetObjectId].Tags);
+        Assert.DoesNotContain(CardLifecycleKeywordNames.Predict, state.CardObjects[targetObjectId].Tags);
+
+        var ruleTextAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal)
+            && effect.EffectId.EndsWith($":{CardLifecycleKeywordNames.Predict}", StringComparison.Ordinal));
+        Assert.Equal(
+            $"RULE_TEXT:OTHER_FRIENDLY_UNITS_KEYWORD:{sourceObjectId}:{targetObjectId}:{CardLifecycleKeywordNames.Predict}",
+            ruleTextAura.EffectId);
+        Assert.Equal("OBJECT", ruleTextAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", ruleTextAura.Duration);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
+        Assert.Equal(1, recycleEvent.Payload["count"]);
+        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
     private static void AssertSameBattlefieldOtherFriendlyFilteredStaticAuraDamage(ResolutionResult result)
     {
         var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
@@ -14142,6 +14271,38 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 Prescient Mech driver could not find a friendly top main-deck card.");
         var playCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.PlayCard)
             ?? throw new InvalidOperationException($"B0 Prescient Mech driver could not find PLAY_CARD for {playerId}: {DescribeState(result.State)}");
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, sourceObjectId, StringComparison.Ordinal));
+
+        var command = new PlayCardCommand(
+            sourceObjectId,
+            ProgressGloryMechanicalUnitCardNo,
+            [recycledObjectId],
+            Destination: "BASE");
+        var played = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-play",
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(played);
+        AssertNoHiddenZoneLeak(played);
+        return await ResolveStackPassPassAsync(session, played, $"{intentPrefix}-resolve");
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitGemstoneSeerOtherFriendlyStaticGrantedPredictProgressGloryAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentPrefix)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var result = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentPrefix}-tap");
+        var sourceObjectId = FindHandCardObjectByCardNo(result.State, playerId, ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer driver could not find Progress Glory in hand.");
+        var recycledObjectId = result.State.PlayerZones[playerId].MainDeck.FirstOrDefault()
+            ?? throw new InvalidOperationException("B0 Gemstone Seer driver could not find a friendly top main-deck card.");
+        var playCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Gemstone Seer driver could not find PLAY_CARD for {playerId}: {DescribeState(result.State)}");
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, sourceObjectId, StringComparison.Ordinal));
 
         var command = new PlayCardCommand(
@@ -22498,6 +22659,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildGemstoneSeerOtherFriendlyStaticGrantedPredictOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo,
+                    ProgressGloryMechanicalUnitCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -28645,6 +28820,70 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[prescientObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[progressGloryObjectId] = cardObjects[progressGloryObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[progressGloryObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            [GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo, ProgressGloryMechanicalUnitCardNo],
+            new RunePool(mana: 4, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var gemstoneSeerObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            GemstoneSeerOtherFriendlyStaticGrantedPredictCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer setup could not find Gemstone Seer in P1 hand.");
+        var progressGloryObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Gemstone Seer setup could not find Progress Glory in P1 hand.");
+        Assert.NotEmpty(midgameState.PlayerZones["P1"].MainDeck);
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, gemstoneSeerObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Base = p1Zones.Base.Concat([gemstoneSeerObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[gemstoneSeerObjectId] = new ObjectLocationState("P1", "BASE");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[gemstoneSeerObjectId] = cardObjects[gemstoneSeerObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[gemstoneSeerObjectId]),
             OwnerId = "P1",
             ControllerId = "P1"
         };

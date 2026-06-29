@@ -1,6 +1,6 @@
 # Plan B Other-Friendly Static Keyword Aura Spec Audit
 
-更新时间：2026-06-27
+更新时间：2026-06-29
 
 ## Scope
 
@@ -28,6 +28,7 @@ Runtime evidence now covers:
 - `CoreRuleEngine.ApplyStaticGrantedPredictLifecycleDefault` now reads both friendly-filtered and other-friendly static keyword grants before building the stack item.
 - `CoreRuleEngine` combat/resource keyword resolution also reads `OTHER_FRIENDLY_UNITS_KEYWORD`, so later other-friendly Assault / Steadfast / Roam / Spellshield-style grants use the same shared path.
 - The representative runtime path plays a non-printed-Predict other friendly unit under Gemstone Seer, resolves it to base, recycles the selected top main-deck card, and then projects the RULE_TEXT aura to the now-public unit.
+- The official-deck replay path now starts from legal Jhin official deck submission/opening, places public Gemstone Seer in P1 base, plays official Progress Glory from hand with a server-authored static-granted `预知` target choice, recycles the selected top main-deck card, projects `RULE_TEXT:OTHER_FRIENDLY_UNITS_KEYWORD`, and continues through score-victory action-log replay to the same final state hash.
 
 ## Not Closed
 
@@ -38,7 +39,6 @@ Still open:
 - Complete keyword removal and later-layer loss effects.
 - Static-granted `预知` simultaneous-entry and self-grant edge cases.
 - Other-friendly keyword breadth beyond the covered `预知` representative.
-- Gemstone Seer official-deck full-game route.
 - READY.
 
 ## Rule Authority
@@ -54,18 +54,18 @@ Still open:
 Focused:
 
 ```bash
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GemstoneSeerStaticGrantedPredict|FullyQualifiedName~OtherFriendlyStaticGrantedPredict|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GemstoneSeerStaticGrantedPredict|FullyQualifiedName~OtherFriendlyStaticGrantedPredict|FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives|FullyQualifiedName~OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycle" --nologo
 ```
 
-Result: 3/3 passed.
+Result: 4/4 passed.
 
 Adjacent:
 
 ```bash
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Gemstone|FullyQualifiedName~OtherFriendly|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Predict|FullyQualifiedName~MatchRecovery" --nologo
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~GemstoneSeerOtherFriendlyStaticGrantedPredict|FullyQualifiedName~OtherFriendlyStaticGrantedPredict|FullyQualifiedName~StaticGrantedPredict|FullyQualifiedName~Predict|FullyQualifiedName~OtherFriendly|FullyQualifiedName~StaticKeyword|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery"
 ```
 
-Result: 2119/2119 passed.
+Result: 2177/2177 passed.
 
 Backend full conformance:
 
@@ -73,4 +73,4 @@ Backend full conformance:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8805/8805 passed.
+Result: 9019/9019 passed.

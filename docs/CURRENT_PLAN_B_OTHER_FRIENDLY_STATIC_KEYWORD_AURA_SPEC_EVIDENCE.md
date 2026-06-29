@@ -1,6 +1,6 @@
 # Plan B Other-Friendly Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-27
+更新时间：2026-06-29
 
 ## Evidence Summary
 
@@ -13,6 +13,7 @@ Implemented evidence:
 - `MatchSession.BuildOtherFriendlyUnitsKeywordAuraEffects` projects RULE_TEXT continuous effects to public other friendly units while excluding the source.
 - Play-card prompts and Core play-card planning both use a shared static-granted keyword check for `预知`, so public Gemstone Seer grants the top-card optional recycle target to a later-played other friendly unit.
 - Existing combat/resource keyword resolvers now include `OTHER_FRIENDLY_UNITS_KEYWORD`, keeping the new spec kind generic instead of lifecycle-Predict-only.
+- `FullGameEndToEndTests` now carries the representative through a legal official-deck opening, static-granted `预知` play-card prompt, stack resolution, score-victory close, hidden-zone guard, and action-log replay.
 
 ## Covered Cards
 
@@ -29,12 +30,14 @@ Implemented evidence:
   - Verifies the prompt exposes only the controller's top main-deck card, excluding the second friendly card and the opponent's hidden deck card.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysOtherFriendlyStaticGrantedPredictSourceUnitRecycleTopCard`
   - Verifies Core accepts the static-granted `预知` target, resolves the stack after both players pass, plays the unit to base, recycles the selected top card to the bottom of the main deck, and projects the RULE_TEXT aura to the now-public other friendly unit.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash`
+  - Verifies a legal official Jhin deck opening can feed public Gemstone Seer and official Progress Glory into the same shared prompt / Core / RULE_TEXT projection route, then continue through score-victory action-log replay to the same final state hash.
 
 ## Validation Results
 
-- Focused other-friendly static keyword Predict slice: 3/3 passed.
-- Adjacent Gemstone / OtherFriendly / StaticKeyword / StaticAura / Predict / MatchRecovery: 2119/2119 passed.
-- Backend full conformance: 8805/8805 passed.
+- Focused other-friendly static keyword Predict slice: 4/4 passed.
+- Adjacent Gemstone / OtherFriendly / StaticKeyword / StaticAura / Predict / FullGameEndToEnd / MatchRecovery: 2177/2177 passed.
+- Backend full conformance: 9019/9019 passed.
 
 ## Residuals
 
@@ -43,4 +46,3 @@ Not closed by this slice:
 - Complete keyword removal / loss layering.
 - Static-granted `预知` simultaneous-entry and self-grant edge cases.
 - Other-friendly keyword breadth beyond the `预知` representative.
-- Gemstone Seer official-deck full-game route.
