@@ -543,6 +543,7 @@ public sealed record StaticAbilitySpec(
     string? RequiredOtherControlledUnitTag = null,
     int? RequiredOpponentControlledBattlefieldCount = null,
     int? RequiredOtherControllerBaseUnitCount = null,
+    bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null);
 
 public sealed record StaticAuraSpec(

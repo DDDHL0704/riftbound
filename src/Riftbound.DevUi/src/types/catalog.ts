@@ -129,6 +129,7 @@ export type BehaviorSpec = {
     requiredOtherControlledUnitTag?: string | null;
     requiredOpponentControlledBattlefieldCount?: number | null;
     requiredOtherControllerBaseUnitCount?: number | null;
+    requiresBattlefieldDestination?: boolean | null;
     requiresUnitDestroyedThisTurn?: boolean | null;
   }>;
   staticAuras: StaticAuraSpec[];

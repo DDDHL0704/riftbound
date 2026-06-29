@@ -41318,6 +41318,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
+        bool isBattlefieldDestination,
         out StaticAbilitySpec ability)
     {
         ability = default!;
@@ -41330,7 +41331,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 sourceObjectId,
                 controllerId,
                 playerExperience,
-                destroyedUnitOwnerIdsThisTurn))
+                destroyedUnitOwnerIdsThisTurn,
+                isBattlefieldDestination))
         {
             return false;
         }
@@ -41346,7 +41348,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId,
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience,
-        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn)
+        IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
+        bool isBattlefieldDestination)
     {
         if (!StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
         {
@@ -41377,6 +41380,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 controllerId,
                 sourceObjectId) < ability.RequiredOtherControllerBaseUnitCount.Value)
+        {
+            return false;
+        }
+
+        if (ability.RequiresBattlefieldDestination is true
+            && !isBattlefieldDestination)
         {
             return false;
         }
@@ -41579,6 +41588,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 playerExperience,
                 destroyedUnitOwnerIdsThisTurn,
+                IsStackItemBattlefieldDestination(stackItem),
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(
@@ -41716,6 +41726,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 playerExperience,
                 destroyedUnitOwnerIdsThisTurn,
+                IsStackItemBattlefieldDestination(stackItem),
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(

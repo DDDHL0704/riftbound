@@ -92,6 +92,15 @@ Implemented for `SFD·176/221` 赵信:
 - The count only includes public, face-up, non-standby unit objects controlled by the entering unit's controller.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controller-base unit-count source-unit static ability controls the entry state.
 
+Implemented for `UNL-194/219` 黑影:
+
+- `StaticAbilitySpec.RequiresBattlefieldDestination` can now carry source-unit active-entry requirements that depend on the play destination being a battlefield.
+- `RuleTextParsers.StaticAbilityParser` parses `如果你将我打出至一处战场，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiresBattlefieldDestination=true`.
+- `CoreRuleEngine` checks `IsStackItemBattlefieldDestination(stackItem)` in the shared source-unit entry requirement gate before deciding whether the source unit enters ready.
+- The check is shared by `PlaySourceUnitToBase` and `PlaySourceUnitToBattlefield`: battlefield destinations satisfy the condition, base destinations do not.
+- `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this battlefield-destination source-unit static ability controls the entry state.
+- `UNIT_PLAYED_TO_BASE` remains without entry-static metadata for Shadow because the parsed battlefield-destination requirement is not satisfied.
+
 Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
 
 - `RuleTextParsers.StaticAbilityParser` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` without requirement fields.
@@ -114,6 +123,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 - `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩: `如果对手已控制任意战场，则我以活跃状态进场。`
 - `UNL-008/219` 莽林巨象: `如果本回合内有单位被摧毁，则我以活跃状态进场。`
 - `SFD·176/221` 赵信: `如果你的基地中有不少于两名其他单位，则我以活跃状态进场。`
+- `UNL-194/219` 黑影: `如果你将我打出至一处战场，则我以活跃状态进场。`
 - `SFD·006/221` 好斗的龙犬: `我以活跃状态进场。`
 - `OGS·016/024` 先锋扈从: `我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
@@ -121,7 +131,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 
 ## Not Closed
 
-- Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants beyond the currently covered source-unit requirement families still need separate BehaviorSpec slices.
+- Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and source-zone variants beyond the currently covered source-unit requirement families still need separate BehaviorSpec slices.
 - This slice does not close P0 full objective or READY.
 
 ## Validation
@@ -294,6 +304,22 @@ Latest unconditional source-unit active-entry / full-game / hidden-info adjacent
 
 Result: 2468/2468 passed.
 
+Latest Shadow battlefield-destination source-unit active-entry focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests"
+```
+
+Result: initially failed at compile because `StaticAbilitySpec.RequiresBattlefieldDestination` did not exist; after implementation 3/3 passed.
+
+Latest Shadow battlefield-destination active-entry / full-game / hidden-info adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests|FullyQualifiedName~Shadow|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~MatchRecoveryTests|FullyQualifiedName~FullGameEndToEndTests"
+```
+
+Result: 2533/2533 passed.
+
 Latest backend full after Fiercewing controlled-tag active-entry:
 
 ```bash
@@ -364,7 +390,7 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
-Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884; the later Flameclaw level-gated source-unit active-entry + source-object static-power B0 replay follow-up passed 8971/8971; the later Xin Zhao controller-base unit-count source-unit active-entry StaticAbilitySpec follow-up passed 9015/9015.
+Result: 8881/8881 passed after the Dunehorn low-hand active-entry StaticAbilitySpec follow-up slice; the later Dunehorn B0 official-deck replay follow-up passed 8882/8882; the later Molten Drake B0 official-deck replay follow-up passed 8883/8883; the later Master Yi level B0 official-deck replay follow-up passed 8884/8884; the later Flameclaw level-gated source-unit active-entry + source-object static-power B0 replay follow-up passed 8971/8971; the later Xin Zhao controller-base unit-count source-unit active-entry StaticAbilitySpec follow-up passed 9015/9015; the later Shadow battlefield-destination source-unit active-entry StaticAbilitySpec follow-up passed 9018/9018.
 
 DevUi catalog type build after adding active-entry static ability fields:
 

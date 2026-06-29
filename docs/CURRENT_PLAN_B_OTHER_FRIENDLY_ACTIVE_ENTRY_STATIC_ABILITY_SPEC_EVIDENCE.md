@@ -127,6 +127,20 @@ Controller-base unit-count source-unit active-entry runtime:
 - `tests/Riftbound.ConformanceTests/OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests.cs` proves Xin Zhao enters ready when the controller base has two other public units and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves one friendly base unit, one friendly plus one opponent base unit, or one public friendly plus one face-down standby friendly object leaves Xin Zhao exhausted and emits no entry-static metadata.
 
+Battlefield-destination source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilitySpec.RequiresBattlefieldDestination`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `requiresBattlefieldDestination` on `staticAbilities` for the shared catalog payload shape.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `如果你将我打出至一处战场，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiresBattlefieldDestination=true`.
+- `tests/Riftbound.ConformanceTests/BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests.cs` verifies `UNL-194/219` 黑影 exposes this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+
+Battlefield-destination source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through the same `SOURCE_UNIT_ENTER_READY` requirement gate and checks whether the stack item destination is a battlefield.
+- The requirement is destination-specific: `BATTLEFIELD:*` satisfies the parsed official text, while the default base destination does not.
+- `tests/Riftbound.ConformanceTests/BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests.cs` proves a pre-exhausted Shadow enters ready when played to `BATTLEFIELD:P1-MAIN` and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves playing Shadow to base leaves it exhausted and emits no entry-static metadata.
+
 Unconditional source-unit active-entry BehaviorSpec / catalog:
 
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` with no requirement fields.
@@ -201,6 +215,9 @@ Level-gated source-unit active-entry runtime:
 - Controller-base unit-count source-unit active-entry pre-implementation red: `OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOtherControllerBaseUnitCount` did not exist.
 - Controller-base unit-count source-unit active-entry focused post-implementation: 5/5 passed.
 - Controller-base unit-count source-unit active-entry / active-entry / CardCatalogBaseline / MatchRecovery adjacent regression: 2368/2368 passed.
+- Battlefield-destination source-unit active-entry pre-implementation red: `BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiresBattlefieldDestination` did not exist.
+- Battlefield-destination source-unit active-entry focused post-implementation: 3/3 passed.
+- Battlefield-destination source-unit active-entry / Shadow / active-entry / FullGameEndToEnd / CardCatalogBaseline / MatchRecovery adjacent regression: 2533/2533 passed.
 - Unconditional source-unit active-entry pre-implementation red: `UnconditionalSourceUnitActiveEntryStaticAbilityTests` initially found no parsed `SOURCE_UNIT_ENTER_READY` spec for `SFD·006/221` / `OGS·016/024`, and Aggressive Dragonhound stayed exhausted when its source object was pre-exhausted.
 - Unconditional source-unit active-entry + Aggressive Dragonhound B0 official-deck replay focused post-implementation: 5/5 passed.
 - Unconditional source-unit active-entry / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2468/2468 passed.
@@ -215,11 +232,13 @@ Level-gated source-unit active-entry runtime:
 - Backend full after the Vayne opponent-battlefield source-unit active-entry StaticAbilitySpec follow-up: 9003/9003 passed.
 - Backend full after the Jungle Elephant unit-destroyed-this-turn source-unit active-entry StaticAbilitySpec follow-up: 9010/9010 passed.
 - Backend full after the Xin Zhao controller-base unit-count source-unit active-entry StaticAbilitySpec follow-up: 9015/9015 passed.
+- Backend full after the Shadow battlefield-destination source-unit active-entry StaticAbilitySpec follow-up: 9018/9018 passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`, `StaticAbilitySpec.MaxControllerHandCount`, and `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount`: passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiresUnitDestroyedThisTurn`: passed.
 - DevUi catalog type build after adding `StaticAbilitySpec.RequiredOtherControllerBaseUnitCount`: passed.
+- DevUi catalog type build after adding `StaticAbilitySpec.RequiresBattlefieldDestination`: passed.
 
 ## Remaining Evidence Needed
 
-- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, source-unit controlled-tag, source-unit opponent-battlefield, source-unit unit-destroyed-this-turn, and source-unit controller-base unit-count representatives.
+- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, source-unit controlled-tag, source-unit opponent-battlefield, source-unit unit-destroyed-this-turn, source-unit controller-base unit-count, and source-unit battlefield-destination representatives.
 - Project remains NOT READY.

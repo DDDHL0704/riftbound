@@ -12,7 +12,7 @@
 - `UNL-194/219`，卡名 `黑影` / `Shadow`。
 - 当前 deferred surface：`DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER`。
 - 官方文本锚点：`{{迅捷>}} 支付{{1}}和{{A}}，{{横置}}：{{眩晕}}一名进攻此处的敌方单位`。
-- 现有普通入场证据：`p2-preflight-play-shadow-base-unit-static`，确认 Shadow 从手牌打出后进入控制者基地成为 3 战力、未休眠、无额外标签的 `CARD_TYPE:UNIT` 单位对象；战场目的地、活跃战场进场和激活眩晕技能仍 deferred。
+- 现有普通入场证据：`p2-preflight-play-shadow-base-unit-static`，确认 Shadow 从手牌打出后进入控制者基地成为 3 战力、未休眠、无额外标签的 `CARD_TYPE:UNIT` 单位对象；2026-06-29 Plan B 后续切片已补 `SOURCE_UNIT_ENTER_READY` / `RequiresBattlefieldDestination` 战场目的地活跃进场代表路径，本 4D-03Q handoff 范围仍只处理激活眩晕技能。
 - 本切片只处理 activated skill：controlled face-up ready battlefield `UNL-194/219` source，在 representative swift combat response / battle-response priority window 中，支付 1 mana + 1 generic power，横置 source，选择同一战场正在进攻的敌方单位，创建普通可响应 stack item，双方让过后给目标应用 `STUNNED`。
 
 不要同时实现完整 battle response lifecycle、完整 swift family、完整 `[A]` / `[C]` resource skill family、Crimson Rose 第一行触发、完整 target-bearing activated ability family、coverage matrix full-official 升级或前端运行时代码。
@@ -21,7 +21,7 @@
 
 - `P4ActivatedAbilityCatalog.GetDeferredSurfaces()` 目前只剩 Shadow swift stun skill 作为 P4 activated ability deferred surface。
 - `ConformanceFixtureRunnerTests.P4DeferredActivatedAbilityOfficialTextAnchor` 已记录 Shadow 官方文本锚点。
-- `p2-preflight-play-shadow-base-unit-static.fixture.json` 当前只覆盖 Shadow 普通手牌打出，fixture 明确说明 activated stun skill deferred。
+- `p2-preflight-play-shadow-base-unit-static.fixture.json` 当前覆盖 Shadow 普通手牌打出；2026-06-29 Plan B 后续切片另以 `BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests` 覆盖战场目的地活跃进场，4D-03Q 范围内仍只关注 activated stun skill。
 - `CardTargetScopes.EnemyAttackingUnit` 已存在，`IsTargetObjectInScope` 会校验敌方 field object 且 `IsAttackingBattlefieldObject`。
 - `ObjectLocations[objectId].BattlefieldObjectId`、`IsObjectLocatedAtBattlefield` 与 `BattleState` 可用于校验 Shadow source 与 target 是否位于同一 battlefield。
 - `ResolveStatusEffectIds` / stack resolution 已有 `STUNNED` status effect application pattern。
