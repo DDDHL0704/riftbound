@@ -2169,6 +2169,20 @@ public static class StaticAbilityParser
 
             if (Regex.IsMatch(
                     segment,
+                    @"^如果对手已控制任意战场，则我以活跃状态进场。?$",
+                    RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for spec-driven opponent battlefield requirements.",
+                    RequiredOpponentControlledBattlefieldCount: 1));
+                continue;
+            }
+
+            if (Regex.IsMatch(
+                    segment,
                     @"^我以活跃状态进场。?$",
                     RegexOptions.CultureInvariant))
             {

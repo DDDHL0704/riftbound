@@ -127,6 +127,7 @@ export type BehaviorSpec = {
     requiredPlayerExperience?: number | null;
     maxControllerHandCount?: number | null;
     requiredOtherControlledUnitTag?: string | null;
+    requiredOpponentControlledBattlefieldCount?: number | null;
   }>;
   staticAuras: StaticAuraSpec[];
   effects: Array<{

@@ -64,9 +64,17 @@ Implemented for `SFD·094/221` 凶翼 and the same controlled-tag source-unit fa
 - `StaticAbilitySpec.RequiredOtherControlledUnitTag` can now carry source-unit active-entry requirements that look for another controlled public unit with a matching official tag.
 - `RuleTextParsers.StaticAbilityParser` parses `如果你控制着其他“龙”属性单位，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOtherControlledUnitTag=龙`.
 - The same parser also covers `SFD·071/221` 疾驰机械 text `如果你控制着其他“机械”单位，则我以活跃状态进场。` with `RequiredOtherControlledUnitTag=机械`.
-- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with `MaxControllerHandCount`, `RequiredPlayerExperience`, or `RequiredOtherControlledUnitTag`.
+- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
 - `CoreRuleEngine` checks the entering unit controller's public field units, excludes the entering source object, and requires a face-up non-standby controlled unit carrying the parsed tag before the source unit enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controlled-tag source-unit static ability controls the entry state.
+
+Implemented for `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩:
+
+- `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount` can now carry source-unit active-entry requirements that count opponent-controlled public battlefield cards.
+- `RuleTextParsers.StaticAbilityParser` parses `如果对手已控制任意战场，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOpponentControlledBattlefieldCount=1`.
+- `CoreRuleEngine` checks opponent player battlefield zones for public battlefield-card objects via the shared battlefield-card tag/rule-spec predicate.
+- Opponent units located at battlefields do not satisfy the condition unless a controlled battlefield-card object is present.
+- `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this opponent-battlefield source-unit static ability controls the entry state.
 
 Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
 
@@ -87,6 +95,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 - `UNL-151/219` 班德尔士兵: `{{等级3>}} 我以活跃状态进场。（如果你拥有不少于3经验，则获得该效果。）`
 - `SFD·094/221` 凶翼: `如果你控制着其他“龙”属性单位，则我以活跃状态进场。`
 - `SFD·071/221` 疾驰机械: `如果你控制着其他“机械”单位，则我以活跃状态进场。`
+- `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` 薇恩: `如果对手已控制任意战场，则我以活跃状态进场。`
 - `SFD·006/221` 好斗的龙犬: `我以活跃状态进场。`
 - `OGS·016/024` 先锋扈从: `我以活跃状态进场。`
 - Core timing / play rules: `CORE-260330` p4-p8 rules 107-129 and p39-p42 rules 355-356.
@@ -94,7 +103,7 @@ Implemented for unconditional source-unit active-entry text represented by `SFD�
 
 ## Not Closed
 
-- Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants still need separate BehaviorSpec slices.
+- Full active-entry family breadth remains open: turn-scoped spell-granted entry, battlefield token entry payload coverage, and battlefield/hand source-zone variants beyond the currently covered source-unit requirement families still need separate BehaviorSpec slices.
 - This slice does not close P0 full objective or READY.
 
 ## Validation

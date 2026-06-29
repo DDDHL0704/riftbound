@@ -79,11 +79,25 @@ Controlled-tag source-unit active-entry BehaviorSpec / catalog:
 
 Controlled-tag source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry `MaxControllerHandCount`, `RequiredPlayerExperience`, or `RequiredOtherControlledUnitTag`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks the entering unit controller's public field objects for another controlled, face-up, non-standby unit with the parsed official tag.
 - `tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs` proves Fiercewing enters ready when its controller controls another public `龙` unit and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves no other public controlled tagged unit leaves Fiercewing exhausted: no other unit, a friendly face-down standby Dragon, and an opponent-controlled face-up Dragon do not satisfy the parsed requirement and emit no entry-static metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Poppy deck opening can feed `SFD·094/221` Fiercewing controlled-Dragon active-entry into B0 score victory: P1 first plays official `OGN·131/298` Dune Drake to base as a public controlled Dragon, then plays Fiercewing directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, enters active with printed 7 power, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+
+Opponent-battlefield source-unit active-entry BehaviorSpec / catalog:
+
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount`.
+- `src/Riftbound.DevUi/src/types/catalog.ts` mirrors `requiredOpponentControlledBattlefieldCount` on `staticAbilities` for the shared catalog payload shape.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `如果对手已控制任意战场，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOpponentControlledBattlefieldCount=1`.
+- `tests/Riftbound.ConformanceTests/OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests.cs` verifies `OGN·035/298`, `SFD·223/221`, and `SFD·223*/221` 薇恩 expose this source-unit active-entry spec through `BehaviorSpec.StaticAbilities`.
+
+Opponent-battlefield source-unit active-entry runtime:
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through the same `SOURCE_UNIT_ENTER_READY` requirement gate and counts opponent-controlled public battlefield-card objects.
+- The battlefield requirement uses the shared battlefield-card predicate/tag path, so a unit object merely located in an opponent battlefield zone does not satisfy `RequiredOpponentControlledBattlefieldCount`.
+- `tests/Riftbound.ConformanceTests/OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests.cs` proves Vayne enters ready when the opponent controls a public battlefield card and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
+- The same test proves no opponent battlefield card leaves Vayne exhausted: no battlefield objects and an opponent-controlled unit at a battlefield do not satisfy the parsed requirement and emit no entry-static metadata.
 
 Unconditional source-unit active-entry BehaviorSpec / catalog:
 
@@ -93,7 +107,7 @@ Unconditional source-unit active-entry BehaviorSpec / catalog:
 
 Unconditional source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` now exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs even when `MaxControllerHandCount`, `RequiredPlayerExperience`, and `RequiredOtherControlledUnitTag` are all null.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` now exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs even when `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, and `RequiredOpponentControlledBattlefieldCount` are all null.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` already treated missing source-unit requirements as satisfied, so unconditional specs reuse the same source-unit entry path and event metadata as the conditional forms.
 - `tests/Riftbound.ConformanceTests/UnconditionalSourceUnitActiveEntryStaticAbilityTests.cs` proves pre-exhausted Aggressive Dragonhound enters ready from its parsed unconditional `SOURCE_UNIT_ENTER_READY` spec and emits self source object/card metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` proves a legal official Rumble deck opening can feed `SFD·006/221` Aggressive Dragonhound unconditional active-entry into B0 score victory: the focused midgame pre-exhausts the source object in hand, playing it directly to a P1 battlefield resolves `SOURCE_UNIT_ENTER_READY`, emits self source metadata, enters active with printed 3 power, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
@@ -106,7 +120,7 @@ Level-gated source-unit active-entry BehaviorSpec / catalog:
 
 Level-gated source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry either `MaxControllerHandCount` or `RequiredPlayerExperience`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry source-unit requirement fields such as `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller before deciding whether the source unit enters ready.
 - `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` proves Flameclaw enters ready at 3 experience and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves 2 experience does not satisfy the parsed requirement and leaves Flameclaw exhausted with no entry-static metadata.
@@ -149,6 +163,10 @@ Level-gated source-unit active-entry runtime:
 - Controlled-tag source-unit active-entry pre-implementation red: `ControlledTaggedSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOtherControlledUnitTag` did not exist.
 - Controlled-tag source-unit active-entry + Fiercewing B0 official-deck replay focused: 7/7 passed.
 - Fiercewing controlled-tag active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2427/2427 passed.
+- Opponent-battlefield source-unit active-entry pre-implementation red: `OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount` did not exist.
+- Opponent-battlefield source-unit active-entry focused post-implementation: 6/6 passed.
+- Opponent-battlefield source-unit active-entry / source-unit active-entry / Vayne trigger-payment adjacent regression: 112/112 passed.
+- Opponent-battlefield source-unit active-entry / active-entry / Vayne / CardCatalogBaseline / MatchRecovery adjacent regression: 2369/2369 passed.
 - Unconditional source-unit active-entry pre-implementation red: `UnconditionalSourceUnitActiveEntryStaticAbilityTests` initially found no parsed `SOURCE_UNIT_ENTER_READY` spec for `SFD·006/221` / `OGS·016/024`, and Aggressive Dragonhound stayed exhausted when its source object was pre-exhausted.
 - Unconditional source-unit active-entry + Aggressive Dragonhound B0 official-deck replay focused post-implementation: 5/5 passed.
 - Unconditional source-unit active-entry / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2468/2468 passed.
@@ -160,9 +178,10 @@ Level-gated source-unit active-entry runtime:
 - Backend full after the Bandle Soldier level-gated source-unit active-entry B0 official-deck replay follow-up: 8982/8982 passed.
 - Backend full after the Fiercewing controlled-tag source-unit active-entry B0 official-deck replay follow-up: 8990/8990 passed.
 - Backend full after the unconditional source-unit active-entry B0 official-deck replay follow-up: 8997/8997 passed.
-- DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience` and `StaticAbilitySpec.MaxControllerHandCount`: passed.
+- Backend full after the Vayne opponent-battlefield source-unit active-entry StaticAbilitySpec follow-up: 9003/9003 passed.
+- DevUi catalog type build after adding `StaticAbilitySpec.RequiredPlayerExperience`, `StaticAbilitySpec.MaxControllerHandCount`, and `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount`: passed.
 
 ## Remaining Evidence Needed
 
-- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, and source-unit controlled-tag representatives.
+- Broader active-entry static ability families remain open: battlefield token entry payload coverage, turn-scoped active-entry effects, and source-zone / battlefield-entry variants beyond the currently covered other-friendly, filtered-token, friendly-unit level, source-unit unconditional, source-unit low-hand, source-unit level-gated, source-unit controlled-tag, and source-unit opponent-battlefield representatives.
 - Project remains NOT READY.

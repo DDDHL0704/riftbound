@@ -41366,7 +41366,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (ability.RequiredOpponentControlledBattlefieldCount is > 0
+            && CountOpponentControlledPublicBattlefieldCards(playerZones, cardObjects, controllerId)
+                < ability.RequiredOpponentControlledBattlefieldCount.Value)
+        {
+            return false;
+        }
+
         return true;
+    }
+
+    private static int CountOpponentControlledPublicBattlefieldCards(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId)
+    {
+        var count = 0;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (string.Equals(playerId, controllerId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var objectId in zones.Battlefields.Distinct(StringComparer.Ordinal))
+            {
+                if (!cardObjects.TryGetValue(objectId, out var candidate)
+                    || candidate.IsFaceDown
+                    || !IsBattlefieldCardObject(candidate))
+                {
+                    continue;
+                }
+
+                var effectiveControllerId = string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    ? playerId
+                    : candidate.ControllerId.Trim();
+                if (string.Equals(effectiveControllerId, playerId, StringComparison.Ordinal)
+                    && !string.Equals(effectiveControllerId, controllerId, StringComparison.Ordinal))
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
     private static bool ControllerControlsOtherPublicFieldUnitWithTag(
