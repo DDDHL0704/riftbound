@@ -14,11 +14,20 @@ public sealed record MatchResultRecord(
     string WinnerPlayerId,
     DateTimeOffset FinishedAtUtc);
 
+public sealed record PlayerMatchStatsRecord(
+    string PlayerId,
+    int TotalMatches,
+    int Wins,
+    int Losses,
+    double WinRate);
+
 public interface IMatchResultStore
 {
     ValueTask RecordMatchResultAsync(MatchResultRecord result, CancellationToken cancellationToken);
 
     ValueTask<MatchResultRecord?> GetMatchResultAsync(string roomId, CancellationToken cancellationToken);
+
+    ValueTask<PlayerMatchStatsRecord> GetPlayerMatchStatsAsync(string playerId, CancellationToken cancellationToken);
 
     ValueTask<IReadOnlyList<MatchResultRecord>> ListMatchResultsForPlayerAsync(
         string playerId,
@@ -42,6 +51,26 @@ public sealed class InMemoryMatchResultStore : IMatchResultStore
         return ValueTask.FromResult(resultsByRoom.TryGetValue(NormalizeRequired(roomId, nameof(roomId)), out var result)
             ? result
             : null);
+    }
+
+    public ValueTask<PlayerMatchStatsRecord> GetPlayerMatchStatsAsync(
+        string playerId,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizeRequired(playerId, nameof(playerId));
+        var playerResults = resultsByRoom.Values
+            .SelectMany(result => result.Players)
+            .Where(player => string.Equals(player.PlayerId, normalizedPlayerId, StringComparison.Ordinal))
+            .ToArray();
+        var totalMatches = playerResults.Length;
+        var wins = playerResults.Count(player => player.Won);
+        var losses = totalMatches - wins;
+        return ValueTask.FromResult(new PlayerMatchStatsRecord(
+            normalizedPlayerId,
+            totalMatches,
+            wins,
+            losses,
+            totalMatches == 0 ? 0 : (double)wins / totalMatches));
     }
 
     public ValueTask<IReadOnlyList<MatchResultRecord>> ListMatchResultsForPlayerAsync(

@@ -9,7 +9,7 @@
 - P2-A 轻量身份绑定：已有 `PlayerIdentityService`、Hub `Authenticate(handle, key)`、JoinRoom/Reconnect/命令身份一致性校验、内存/Postgres 身份存储。
 - P2-B 匹配与发现：B1 快速匹配队列已完成后端最小闭环。新增 `IMatchmakingQueue` / `InMemoryMatchmakingQueue`，Hub 暴露 `EnqueueMatchmaking(playerId)` 与 `CancelMatchmaking(playerId)`；入队必须先认证，冒充其他 handle 会拒绝；两名等待玩家会由服务端生成 `RB-XXXXXX` 房间、分配座位，并向每个玩家自己的匹配组推送 `MATCHMAKING` 消息，payload 只包含该玩家自己的 `PlayerSessionDto`。B2 公开对局发现已完成后端最小闭环，Hub 可创建公开房、列出公开等待房，HTTP `GET /matches` 返回同一目录，第二名玩家加入后公开等待项移除。B3 Dev UI 大厅已接入快速匹配、取消匹配、公开等候和公开房列表加入；匹配/公开房返回的 `PlayerSessionDto` 会写入本地 session，房间页可继续走服务端快照/提示。B4 新增可复用双客户端快速匹配到结算 E2E，覆盖认证、快速匹配同房、预构筑提交、READY、MULLIGAN、投降结算与对手手牌隐藏计数。
 - P2-B 剩余：无。
-- P2-C 战绩/资料/排行：C1 对局结果记录已完成后端最小闭环。Hub 在 accepted `MATCH_WON` 后记录公开终局结果；结果只包含 roomId、双方 handle/seat/score/win 标记、winner 与 finishedAt，不包含隐藏区或完整快照。无连接串时使用内存结果 store，有连接串时使用 Postgres 结果 store 与幂等迁移。
+- P2-C 战绩/资料/排行：C1 对局结果记录已完成后端最小闭环。Hub 在 accepted `MATCH_WON` 后记录公开终局结果；结果只包含 roomId、双方 handle/seat/score/win 标记、winner 与 finishedAt，不包含隐藏区或完整快照。无连接串时使用内存结果 store，有连接串时使用 Postgres 结果 store 与幂等迁移。C2 后端资料/历史 API 已完成最小闭环，`GET /players/{handle}` 返回总场次、胜负与胜率，`GET /players/{handle}/matches` 返回最近公开终局记录。
 - P2-D 部署/运维：未开始。
 
 ## Evidence Log
@@ -31,3 +31,6 @@
 - 2026-06-29 C1 result persistence slice:
   - Runtime: `src/Riftbound.Engine/MatchResults.cs` 新增 `IMatchResultStore`、`MatchResultRecord` 与内存实现；`src/Riftbound.Persistence/PostgresMatchResultStore.cs` 与 `Sql/008_p2_match_results.sql` 新增 Postgres 存储和幂等表结构；`GameHub` 在 accepted `MATCH_WON` 后记录公开结果；`AddRiftboundPersistence` 无连接串注册内存结果 store，有连接串注册 Postgres 结果 store。
   - Tests: `GameHubJoinTests.MatchWonThroughHubRecordsPublicResultForBothPlayers` 覆盖 Hub 终局记录双方结果和按玩家可查询；`PersistenceWiringTests` 覆盖内存/Postgres DI 注册。Focused verification `~/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~PersistenceWiringTests"` passed `237/237`; full conformance `~/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj` passed `8990/8990`; `git diff --check` passed; precise `Is*CardNo` whitelist query excluding generic source-card checks returned no matches.
+- 2026-06-29 C2 profile/history API slice:
+  - Runtime: `src/Riftbound.Api/PlayerProfileEndpoints.cs` 新增玩家资料/最近对局 handler；`src/Riftbound.Contracts/Protocol.cs` 新增 `PlayerProfileDto` / `PlayerMatchDto`；`IMatchResultStore` 增加玩家统计查询，内存与 Postgres store 均实现；`Program.cs` 映射 `GET /players/{handle}` 与 `GET /players/{handle}/matches`。
+  - Tests: `PlayerProfileEndpointTests.PlayerProfileEndpointsReturnStatsAndRecentPublicMatches` 覆盖同一玩家多局聚合胜负/胜率、最近对局倒序、结果 payload 仅含公开终局字段。Focused verification `~/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~PlayerProfileEndpointTests"` passed `1/1`; C1+C2 focused regression passed `238/238`; full conformance passed `8991/8991`; `git diff --check` passed; precise `Is*CardNo` whitelist query excluding generic source-card checks returned no matches.

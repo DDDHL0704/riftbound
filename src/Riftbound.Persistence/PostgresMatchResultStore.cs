@@ -31,6 +31,37 @@ public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMat
             };
     }
 
+    public async ValueTask<PlayerMatchStatsRecord> GetPlayerMatchStatsAsync(
+        string playerId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            select count(*)::int,
+                   count(*) filter (where won)::int
+            from match_result_players
+            where player_id = @player_id;
+            """;
+        var normalizedPlayerId = NormalizeRequired(playerId, nameof(playerId));
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("player_id", normalizedPlayerId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return new PlayerMatchStatsRecord(normalizedPlayerId, 0, 0, 0, 0);
+        }
+
+        var totalMatches = reader.GetInt32(0);
+        var wins = reader.GetInt32(1);
+        var losses = totalMatches - wins;
+        return new PlayerMatchStatsRecord(
+            normalizedPlayerId,
+            totalMatches,
+            wins,
+            losses,
+            totalMatches == 0 ? 0 : (double)wins / totalMatches);
+    }
+
     public async ValueTask<IReadOnlyList<MatchResultRecord>> ListMatchResultsForPlayerAsync(
         string playerId,
         int limit,

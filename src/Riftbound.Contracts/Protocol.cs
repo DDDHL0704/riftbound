@@ -132,6 +132,25 @@ public sealed record CreatePublicMatchResultDto(
     PublicMatchDto Match,
     PlayerSessionDto PlayerSession);
 
+public sealed record PlayerProfileDto(
+    string Handle,
+    int TotalMatches,
+    int Wins,
+    int Losses,
+    double WinRate);
+
+public sealed record PlayerMatchParticipantDto(
+    string PlayerId,
+    string Seat,
+    int Score,
+    bool Won);
+
+public sealed record PlayerMatchDto(
+    string RoomId,
+    string WinnerPlayerId,
+    DateTimeOffset FinishedAt,
+    IReadOnlyList<PlayerMatchParticipantDto> Players);
+
 public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");

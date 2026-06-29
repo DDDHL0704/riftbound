@@ -167,6 +167,9 @@ app.MapGet("/matches", async (IPublicMatchDirectory publicMatches, CancellationT
     return Results.Ok(await publicMatches.ListOpenAsync(cancellationToken));
 });
 
+app.MapGet("/players/{handle}", PlayerProfileEndpoints.GetPlayerProfileAsync);
+app.MapGet("/players/{handle}/matches", PlayerProfileEndpoints.GetPlayerMatchesAsync);
+
 app.MapHub<GameHub>("/hubs/game");
 if (devUiDistProvider is not null)
 {
