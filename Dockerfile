@@ -1,11 +1,14 @@
 # syntax=docker/dockerfile:1
 
 FROM node:24-bookworm-slim AS devui-build
-WORKDIR /src/src/Riftbound.DevUi
-COPY src/Riftbound.DevUi/package*.json ./
-RUN npm ci
-COPY src/Riftbound.DevUi/ ./
-RUN npm run build
+WORKDIR /src
+COPY src/Riftbound.DevUi/package*.json ./src/Riftbound.DevUi/
+RUN cd src/Riftbound.DevUi && npm ci
+COPY src/Riftbound.DevUi ./src/Riftbound.DevUi
+COPY src/Riftbound.Engine ./src/Riftbound.Engine
+COPY src/Riftbound.Api ./src/Riftbound.Api
+COPY tests/Riftbound.ConformanceTests ./tests/Riftbound.ConformanceTests
+RUN cd src/Riftbound.DevUi && npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS api-build
 WORKDIR /src
