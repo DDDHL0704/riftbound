@@ -25,6 +25,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddSingleton<IMatchJournal, PostgresMatchJournal>();
         services.AddSingleton<IMatchRecoveryStore, PostgresMatchRecoveryStore>();
         services.AddSingleton<IMatchPlayerStore, PostgresMatchPlayerStore>();
+        services.AddSingleton<IPlayerIdentityStore, PostgresPlayerIdentityStore>();
         services.AddHostedService<PostgresSchemaInitializer>();
         return services;
     }

@@ -39,6 +39,7 @@ public sealed class PersistenceWiringTests
         Assert.Equal(typeof(PostgresMatchJournal), DescriptorFor<IMatchJournal>(services).ImplementationType);
         Assert.Equal(typeof(PostgresMatchRecoveryStore), DescriptorFor<IMatchRecoveryStore>(services).ImplementationType);
         Assert.Equal(typeof(PostgresMatchPlayerStore), DescriptorFor<IMatchPlayerStore>(services).ImplementationType);
+        Assert.Equal(typeof(PostgresPlayerIdentityStore), DescriptorFor<IPlayerIdentityStore>(services).ImplementationType);
     }
 
     private static ServiceDescriptor DescriptorFor<TService>(IServiceCollection services)
