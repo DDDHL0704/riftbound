@@ -16,6 +16,12 @@ export type PlayerSessionDto = {
   reconnectToken: string;
 };
 
+export type AuthResultDto = {
+  authenticated: boolean;
+  status: string;
+  handle: string;
+};
+
 export type ErrorDto = {
   code: string;
   message: string;

@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import {
   ActionPromptDto,
+  AuthResultDto,
   CommandReceiptDto,
   ErrorDto,
   GameCommand,
@@ -68,6 +69,10 @@ export class MatchSocket {
       this.handlers.onStatus("error");
       throw error;
     }
+  }
+
+  async authenticate(handle: string, playerKey: string): Promise<AuthResultDto> {
+    return await this.invoke<AuthResultDto>("Authenticate", handle, playerKey);
   }
 
   async joinRoom(roomId: string, playerId: string, reconnectToken?: string): Promise<PlayerSessionDto> {

@@ -14,6 +14,7 @@ import {
   WsServerMessage
 } from "../types/protocol";
 import { errorMessageLabel } from "../utils/errors";
+import { getOrCreatePlayerKey } from "../utils/playerKey";
 import type { CommandSubmissionUiSource, ObservedGameEvent } from "../utils/commandSubmissionFollowupPlan";
 
 export type MatchControllerState = {
@@ -113,6 +114,16 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     try {
       const stored = loadSession(roomId, playerId);
       await socket.connect();
+      const auth = await socket.authenticate(playerId, getOrCreatePlayerKey());
+      if (!auth.authenticated && auth.status !== "IDENTITY_NOT_CONFIGURED") {
+        setState((current) => ({
+          ...current,
+          status: "error",
+          lastSystemMessage: identityRejectionMessage(auth.status)
+        }));
+        return;
+      }
+
       if (stored?.reconnectToken) {
         try {
           await socket.reconnect(roomId, playerId, stored.reconnectToken);
@@ -270,6 +281,19 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     submitStarterDeck,
     disconnect
   };
+}
+
+function identityRejectionMessage(status: string): string {
+  switch (status) {
+    case "HandleClaimed":
+      return "该玩家名已被其他设备占用，换一个名称或在原设备上游玩。";
+    case "InvalidHandle":
+      return "玩家名不能为空。";
+    case "WeakKey":
+      return "本地身份密钥无效，请刷新页面后重试。";
+    default:
+      return "身份校验未通过，暂不入座。";
+  }
 }
 
 function intentId(playerId: string, commandType: string): string {
