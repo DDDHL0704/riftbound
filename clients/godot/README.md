@@ -49,13 +49,16 @@ after the log reports visible cards:
 ```sh
 room="godot-visual-$(date +%H%M%S)"
 server="http://127.0.0.1:5088"
+shot="/tmp/${room}.png"
 /Applications/Godot_dotnet.app/Contents/MacOS/Godot \
   --windowed --always-on-top --resolution 1600x900 --position 30,60 \
-  --path clients/godot --quit-after 0 -- \
+  --path clients/godot -- \
   --riftbound-server="${server}" \
   --riftbound-smoke-auto-ready \
   --riftbound-smoke-auto-mulligan \
   --riftbound-smoke-preview-first-card \
+  --riftbound-visual-screenshot="${shot}" \
+  --riftbound-visual-screenshot-min-table-cards=1 \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -64,10 +67,13 @@ server="http://127.0.0.1:5088"
 ```
 
 Pair it with a second Godot or DevUi opponent. Evidence should include both the
-logs (`Snapshot table rendered: visibleHand=... tableCards=...`) and a screenshot
-where cards, prompt UI, and the preview panel are actually visible. A protocol
-smoke that passes while the visible window is blank, clipped, or unreadable does
-not count as view/layout validation.
+logs (`Snapshot table rendered: visibleHand=... tableCards=...` and
+`Visual screenshot saved: ...`) and the saved Godot viewport screenshot where
+cards, prompt UI, and the preview panel are actually visible. A protocol smoke
+that passes while the visible window is blank, clipped, or unreadable does not
+count as view/layout validation. macOS `screencapture` can omit windows when the
+calling terminal lacks Screen Recording permission, so prefer the Godot viewport
+PNG for layout evidence and use system screenshots only as an extra check.
 
 G1/G2 dual-client smoke can be run against the same memory-mode API:
 

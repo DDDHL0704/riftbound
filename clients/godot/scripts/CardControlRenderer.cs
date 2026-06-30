@@ -5,10 +5,10 @@ namespace Riftbound.GodotClient;
 
 internal sealed class CardControlRenderer
 {
-    private static readonly Vector2 HandCardFrameSize = new(92, 128);
-    private static readonly Vector2 HandCardContentSize = new(84, 120);
-    private static readonly Vector2 ZoneCardFrameSize = new(64, 90);
-    private static readonly Vector2 ZoneCardContentSize = new(58, 82);
+    private static readonly Vector2 HandCardFrameSize = new(112, 156);
+    private static readonly Vector2 HandCardContentSize = new(104, 148);
+    private static readonly Vector2 ZoneCardFrameSize = new(78, 110);
+    private static readonly Vector2 ZoneCardContentSize = new(72, 102);
     private readonly Action<Godot.Collections.Dictionary> _cardInspected;
 
     public CardControlRenderer(Action<Godot.Collections.Dictionary> cardInspected)
@@ -88,7 +88,7 @@ internal sealed class CardControlRenderer
     {
         var row = new HBoxContainer
         {
-            CustomMinimumSize = new Vector2(0, 104)
+            CustomMinimumSize = new Vector2(0, 128)
         };
         row.AddChild(new Label
         {
@@ -99,7 +99,7 @@ internal sealed class CardControlRenderer
 
         var scroll = new ScrollContainer
         {
-            CustomMinimumSize = new Vector2(0, 104),
+            CustomMinimumSize = new Vector2(0, 128),
             HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways,
             VerticalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill

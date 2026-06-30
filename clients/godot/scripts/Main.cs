@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -82,6 +83,7 @@ public partial class Main : Control
     private Button? _returnLobbyButton;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
+    private string _visualScreenshotPath = string.Empty;
     private bool _autoSmoke;
     private bool _autoSmokeMulligan;
     private bool _autoSmokeTapRune;
@@ -93,7 +95,9 @@ public partial class Main : Control
     private bool _autoSmokeSurrender;
     private bool _autoSmokePreviewFirstVisibleCard;
     private bool _autoSmokeSubmitted;
+    private bool _visualScreenshotSaved;
     private int _autoSmokeTapRuneSubmissions;
+    private int _visualScreenshotMinTableCards = 1;
     private bool _autoSmokePlayCardSubmitted;
     private bool _autoSmokeSurrenderSubmitted;
     private bool _autoSmokePreviewRendered;
@@ -129,6 +133,10 @@ public partial class Main : Control
         _autoSmokeJoinPublicMatch = args.Contains("--riftbound-smoke-auto-join-public-match");
         _autoSmokeSurrender = args.Contains("--riftbound-smoke-auto-surrender");
         _autoSmokePreviewFirstVisibleCard = args.Contains("--riftbound-smoke-preview-first-card");
+        _visualScreenshotPath = ArgValue(args, "--riftbound-visual-screenshot=") ?? string.Empty;
+        _visualScreenshotMinTableCards = Math.Max(
+            0,
+            ArgInt(args, "--riftbound-visual-screenshot-min-table-cards=", _visualScreenshotMinTableCards));
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -1960,6 +1968,7 @@ public partial class Main : Control
 
             AppendLog(
                 $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
+            QueueVisualScreenshotIfReady(tableSections.CardCount);
         }
         catch (Exception ex)
         {
@@ -2499,6 +2508,12 @@ public partial class Main : Control
             .FirstOrDefault(arg => arg.StartsWith(prefix, StringComparison.Ordinal))
             ?[prefix.Length..]
             .Trim();
+    }
+
+    private static int ArgInt(IReadOnlyList<string> args, string prefix, int defaultValue)
+    {
+        var value = ArgValue(args, prefix);
+        return int.TryParse(value, out var parsed) ? parsed : defaultValue;
     }
 
     private static IReadOnlyList<string> CommandLineArgs()
@@ -3059,6 +3074,49 @@ public partial class Main : Control
         }
 
         _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
+    }
+
+    private void QueueVisualScreenshotIfReady(int tableCardCount)
+    {
+        if (_visualScreenshotSaved
+            || string.IsNullOrWhiteSpace(_visualScreenshotPath)
+            || tableCardCount < _visualScreenshotMinTableCards)
+        {
+            return;
+        }
+
+        _visualScreenshotSaved = true;
+        QueueMainThread(nameof(CaptureVisualScreenshot), _visualScreenshotPath);
+    }
+
+    public async void CaptureVisualScreenshot(string path)
+    {
+        try
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var image = GetViewport().GetTexture().GetImage();
+            var error = image.SavePng(path);
+            if (error == Error.Ok)
+            {
+                AppendLog($"Visual screenshot saved: {Escape(path)}");
+            }
+            else
+            {
+                AppendLog($"[color=yellow]Visual screenshot failed: {error} {Escape(path)}[/color]");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Visual screenshot failed: {Escape(ex.Message)}[/color]");
+        }
     }
 
     public void ApplyCardPreview(Godot.Collections.Dictionary card)
