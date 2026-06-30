@@ -391,6 +391,262 @@ public partial class Main : Control
         AppendReceipt(label, receipt);
     }
 
+    private async Task SubmitPromptTemplateAsync(
+        Godot.Collections.Dictionary action,
+        IReadOnlyList<PromptSelector> selectors)
+    {
+        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        {
+            AppendLog("[color=yellow]Prompt template skipped: not connected/authenticated.[/color]");
+            return;
+        }
+
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Prompt action";
+        var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
+        var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
+        var candidateJson = action.TryGetValue("candidateJson", out var candidateValue) ? candidateValue.AsString() : string.Empty;
+        if (string.IsNullOrWhiteSpace(candidateJson))
+        {
+            AppendLog($"[color=yellow]Prompt template skipped: {Escape(label)} has no candidate JSON.[/color]");
+            return;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(candidateJson);
+            var selection = PromptSelection.FromSelectors(selectors);
+            var payload = CommandFromTemplate(document.RootElement, selection, promptId, snapshotTick);
+            if (payload is null)
+            {
+                AppendLog($"[color=yellow]Prompt template incomplete: {Escape(label)} needs required selections.[/color]");
+                return;
+            }
+
+            var cmdType = payload.TryGetValue("cmdType", out var cmdTypeValue) ? Convert.ToString(cmdTypeValue) ?? "command" : "command";
+            var cmd = JsonSerializer.SerializeToElement(payload);
+            var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
+                "SubmitIntent",
+                _session.RoomId,
+                _authenticatedHandle,
+                NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
+                cmd,
+                _shutdown.Token);
+            AppendReceipt(label, receipt);
+        }
+        catch (JsonException ex)
+        {
+            AppendLog($"[color=yellow]Prompt template skipped: malformed candidate JSON ({Escape(ex.Message)}).[/color]");
+        }
+    }
+
+    private static Dictionary<string, object?>? CommandFromTemplate(
+        JsonElement candidate,
+        PromptSelection selection,
+        string promptId,
+        long snapshotTick)
+    {
+        if (!candidate.TryGetProperty("commandTemplate", out var template)
+            || template.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var cmdType = ReadString(template, "cmdType");
+        if (string.IsNullOrWhiteSpace(cmdType)
+            || !template.TryGetProperty("bindings", out var bindings)
+            || bindings.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var command = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["cmdType"] = cmdType
+        };
+        var requirement = SourceRequirementFor(candidate, selection.SourceId);
+        foreach (var binding in bindings.EnumerateArray())
+        {
+            var field = ReadString(binding, "field");
+            if (string.IsNullOrWhiteSpace(field))
+            {
+                continue;
+            }
+
+            var value = CommandTemplateValue(binding, candidate, requirement, selection);
+            var missing = IsMissingCommandValue(value);
+            var required = ReadBool(binding, "required");
+            var omitEmpty = ReadOptionalBool(binding, "omitEmpty") ?? true;
+            if (missing)
+            {
+                if (required)
+                {
+                    return null;
+                }
+
+                if (omitEmpty)
+                {
+                    continue;
+                }
+
+                value = ReadBool(binding, "asArray") ? Array.Empty<string>() : string.Empty;
+            }
+
+            command[field] = value;
+        }
+
+        if (!string.IsNullOrWhiteSpace(promptId))
+        {
+            command["promptId"] = promptId;
+        }
+
+        if (snapshotTick >= 0)
+        {
+            command["snapshotTick"] = snapshotTick;
+        }
+
+        return command;
+    }
+
+    private static object? CommandTemplateValue(
+        JsonElement binding,
+        JsonElement candidate,
+        JsonElement? requirement,
+        PromptSelection selection)
+    {
+        var source = ReadString(binding, "source");
+        object? rawValue = source switch
+        {
+            "selectedSource" => selection.SourceId,
+            "selectedTarget" => selection.TargetObjectIds.FirstOrDefault(),
+            "selectedTargets" => selection.TargetObjectIds,
+            "selectedDestination" => selection.DestinationId,
+            "selectedMode" => selection.Mode,
+            "selectedOptionalCosts" => selection.OptionalCostIds,
+            "candidateMetadata" => MetadataTemplateValue(binding, MetadataElement(candidate)),
+            "requirementMetadata" => MetadataTemplateValue(binding, requirement),
+            _ => null
+        };
+
+        if (!ReadBool(binding, "asArray"))
+        {
+            return rawValue;
+        }
+
+        return rawValue switch
+        {
+            IReadOnlyList<string> values => values.ToArray(),
+            string value when !string.IsNullOrWhiteSpace(value) => new[] { value },
+            _ => Array.Empty<string>()
+        };
+    }
+
+    private static JsonElement? MetadataElement(JsonElement candidate)
+    {
+        return candidate.TryGetProperty("metadata", out var metadata) && metadata.ValueKind == JsonValueKind.Object
+            ? metadata
+            : null;
+    }
+
+    private static JsonElement? SourceRequirementFor(JsonElement candidate, string? sourceObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceObjectId)
+            || MetadataElement(candidate) is not { } metadata
+            || !metadata.TryGetProperty("sourceRequirements", out var requirements))
+        {
+            return null;
+        }
+
+        if (requirements.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var requirement in requirements.EnumerateArray())
+            {
+                if (requirement.ValueKind == JsonValueKind.Object
+                    && string.Equals(ReadString(requirement, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal))
+                {
+                    return requirement;
+                }
+            }
+        }
+        else if (requirements.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var requirement in requirements.EnumerateObject())
+            {
+                if (requirement.Value.ValueKind == JsonValueKind.Object
+                    && string.Equals(ReadString(requirement.Value, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal))
+                {
+                    return requirement.Value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static object? MetadataTemplateValue(JsonElement binding, JsonElement? metadata)
+    {
+        if (metadata is not { ValueKind: JsonValueKind.Object } metadataElement)
+        {
+            return null;
+        }
+
+        foreach (var key in MetadataKeys(binding))
+        {
+            if (!metadataElement.TryGetProperty(key, out var value))
+            {
+                continue;
+            }
+
+            if (value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString()))
+            {
+                return value.GetString();
+            }
+
+            if (value.ValueKind == JsonValueKind.Array)
+            {
+                var strings = ReadStringArray(value).ToArray();
+                if (strings.Length > 0)
+                {
+                    return strings;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string> MetadataKeys(JsonElement binding)
+    {
+        var key = ReadString(binding, "metadataKey");
+        if (!string.IsNullOrWhiteSpace(key))
+        {
+            yield return key;
+        }
+
+        if (binding.TryGetProperty("metadataKeys", out var keys)
+            && keys.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in keys.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(item.GetString()))
+                {
+                    yield return item.GetString()!;
+                }
+            }
+        }
+    }
+
+    private static bool IsMissingCommandValue(object? value)
+    {
+        return value switch
+        {
+            null => true,
+            string text => string.IsNullOrWhiteSpace(text),
+            IReadOnlyCollection<string> values => values.Count == 0,
+            _ => false
+        };
+    }
+
     private PreconstructedDeck? SelectedDeck()
     {
         if (_decks.Count == 0)
@@ -478,7 +734,8 @@ public partial class Main : Control
         {
             var view = BuildPromptView(element);
             QueueMainThread(nameof(ApplyPrompt), view);
-            AppendLog($"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct.");
+            AppendLog(
+                $"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct, {view["templateCount"].AsInt32()} templates.");
         }
         catch (Exception ex)
         {
@@ -523,13 +780,17 @@ public partial class Main : Control
         var directCount = actions.Count(action =>
             action.TryGetValue("submitKind", out var kindValue)
             && !string.Equals(kindValue.AsString(), "unsupported", StringComparison.Ordinal));
+        var templateCount = actions.Count(action =>
+            action.TryGetValue("hasTemplate", out var templateValue)
+            && templateValue.AsBool());
 
         return new Godot.Collections.Dictionary
         {
             ["summary"] = $"{title}\n{message}\nActionable: {actionable} · {reason}",
             ["actions"] = actions,
             ["candidateCount"] = actions.Count,
-            ["directCount"] = directCount
+            ["directCount"] = directCount,
+            ["templateCount"] = templateCount
         };
     }
 
@@ -545,6 +806,9 @@ public partial class Main : Control
         var reason = ReadString(candidate, "reason");
         var submitKind = DirectSubmitKind(action);
         var cmdType = DirectCommandType(action);
+        var hasTemplate = candidate.TryGetProperty("commandTemplate", out var template)
+            && template.ValueKind == JsonValueKind.Object
+            && !string.IsNullOrWhiteSpace(ReadString(template, "cmdType"));
 
         if (string.IsNullOrWhiteSpace(label))
         {
@@ -560,8 +824,98 @@ public partial class Main : Control
             ["submitKind"] = submitKind,
             ["cmdType"] = cmdType,
             ["promptId"] = promptId,
-            ["snapshotTick"] = snapshotTick ?? -1L
+            ["snapshotTick"] = snapshotTick ?? -1L,
+            ["hasTemplate"] = hasTemplate,
+            ["candidateJson"] = candidate.GetRawText(),
+            ["selectionSteps"] = PromptSelectionSteps(candidate)
         };
+    }
+
+    private static Godot.Collections.Array<Godot.Collections.Dictionary> PromptSelectionSteps(JsonElement candidate)
+    {
+        var steps = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        if (candidate.TryGetProperty("selectionSteps", out var selectionSteps)
+            && selectionSteps.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var step in selectionSteps.EnumerateArray())
+            {
+                steps.Add(PromptSelectionStep(step));
+            }
+        }
+
+        if (steps.Count > 0)
+        {
+            return steps;
+        }
+
+        AddLegacySelectionStep(steps, candidate, "sources", "source", "Source", required: false);
+        AddLegacySelectionStep(steps, candidate, "targets", "target", "Target", required: false);
+        AddLegacySelectionStep(steps, candidate, "destinations", "destination", "Destination", required: false);
+        AddLegacySelectionStep(steps, candidate, "modes", "mode", "Mode", required: false);
+        AddLegacySelectionStep(steps, candidate, "optionalCosts", "optionalCost", "Optional cost", required: false);
+        return steps;
+    }
+
+    private static Godot.Collections.Dictionary PromptSelectionStep(JsonElement step)
+    {
+        var choices = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        if (step.TryGetProperty("choices", out var choiceElements)
+            && choiceElements.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var choice in choiceElements.EnumerateArray())
+            {
+                choices.Add(PromptChoice(choice));
+            }
+        }
+
+        return new Godot.Collections.Dictionary
+        {
+            ["role"] = ReadString(step, "role"),
+            ["label"] = ReadString(step, "label"),
+            ["required"] = ReadBool(step, "required"),
+            ["choices"] = choices
+        };
+    }
+
+    private static Godot.Collections.Dictionary PromptChoice(JsonElement choice)
+    {
+        var id = ReadString(choice, "id");
+        var label = ReadString(choice, "label");
+        return new Godot.Collections.Dictionary
+        {
+            ["id"] = id,
+            ["label"] = string.IsNullOrWhiteSpace(label) ? id : label
+        };
+    }
+
+    private static void AddLegacySelectionStep(
+        Godot.Collections.Array<Godot.Collections.Dictionary> steps,
+        JsonElement candidate,
+        string propertyName,
+        string role,
+        string label,
+        bool required)
+    {
+        if (!candidate.TryGetProperty(propertyName, out var choices)
+            || choices.ValueKind != JsonValueKind.Array
+            || choices.GetArrayLength() == 0)
+        {
+            return;
+        }
+
+        var normalizedChoices = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        foreach (var choice in choices.EnumerateArray())
+        {
+            normalizedChoices.Add(PromptChoice(choice));
+        }
+
+        steps.Add(new Godot.Collections.Dictionary
+        {
+            ["role"] = role,
+            ["label"] = label,
+            ["required"] = required,
+            ["choices"] = normalizedChoices
+        });
     }
 
     private static string DirectSubmitKind(string action)
@@ -1175,6 +1529,17 @@ public partial class Main : Control
         };
     }
 
+    private static bool? ReadOptionalBool(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property)
+            || property.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            return null;
+        }
+
+        return property.GetBoolean();
+    }
+
     private static bool ReadBool(JsonElement element, string propertyName)
     {
         return element.TryGetProperty(propertyName, out var property)
@@ -1353,7 +1718,21 @@ public partial class Main : Control
         var cmdType = action.TryGetValue("cmdType", out var cmdTypeValue) ? cmdTypeValue.AsString() : string.Empty;
         var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
         var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
-        var canSubmit = enabled && !string.Equals(submitKind, "unsupported", StringComparison.Ordinal);
+        var hasTemplate = action.TryGetValue("hasTemplate", out var hasTemplateValue) && hasTemplateValue.AsBool();
+        var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
+        var selectors = new List<PromptSelector>();
+
+        if (hasTemplate
+            && action.TryGetValue("selectionSteps", out var stepValue)
+            && stepValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is { } steps)
+        {
+            foreach (var step in steps)
+            {
+                var selectorNode = PromptSelectionStepNode(step, enabled);
+                selectors.Add(selectorNode.Selector);
+                row.AddChild(selectorNode.Node);
+            }
+        }
 
         var button = new Button
         {
@@ -1361,14 +1740,68 @@ public partial class Main : Control
             Text = canSubmit ? label : $"{label} (choose)",
             TooltipText = string.IsNullOrWhiteSpace(reason) ? actionName : reason
         };
-        button.Pressed += () => _ = SubmitPromptActionAsync(submitKind, cmdType, promptId, snapshotTick, label);
+        button.Pressed += () =>
+        {
+            if (hasTemplate)
+            {
+                _ = SubmitPromptTemplateAsync(action, selectors);
+            }
+            else
+            {
+                _ = SubmitPromptActionAsync(submitKind, cmdType, promptId, snapshotTick, label);
+            }
+        };
         row.AddChild(button);
         row.AddChild(new Label
         {
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {reason}"
+            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {(hasTemplate ? "template" : submitKind)} · {reason}"
         });
         return row;
+    }
+
+    private static PromptSelectorNode PromptSelectionStepNode(Godot.Collections.Dictionary step, bool enabled)
+    {
+        var role = step.TryGetValue("role", out var roleValue) ? roleValue.AsString() : string.Empty;
+        var label = step.TryGetValue("label", out var labelValue) ? labelValue.AsString() : role;
+        var required = step.TryGetValue("required", out var requiredValue) && requiredValue.AsBool();
+        var choices = step.TryGetValue("choices", out var choicesValue)
+            ? choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+        var row = new HBoxContainer();
+        row.AddChild(new Label
+        {
+            CustomMinimumSize = new Vector2(76, 0),
+            Text = required ? $"{label}*" : label
+        });
+
+        var selector = new OptionButton
+        {
+            Disabled = !enabled || choices.Count == 0,
+            CustomMinimumSize = new Vector2(180, 0)
+        };
+        if (!required)
+        {
+            selector.AddItem("(none)");
+            selector.SetItemMetadata(0, string.Empty);
+        }
+
+        foreach (var choice in choices)
+        {
+            var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+            var choiceLabel = choice.TryGetValue("label", out var textValue) ? textValue.AsString() : choiceId;
+            selector.AddItem(string.IsNullOrWhiteSpace(choiceLabel) ? choiceId : choiceLabel);
+            selector.SetItemMetadata(selector.ItemCount - 1, choiceId);
+        }
+
+        if (choices.Count == 0)
+        {
+            selector.AddItem("(no choices)");
+            selector.SetItemMetadata(selector.ItemCount - 1, string.Empty);
+        }
+
+        row.AddChild(selector);
+        return new PromptSelectorNode(row, new PromptSelector(role, selector));
     }
 
     public void ApplySnapshotSections(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
@@ -1530,6 +1963,69 @@ public partial class Main : Control
         if (_officialCardPreview is not null)
         {
             _officialCardPreview.Texture = ImageTexture.CreateFromImage(image);
+        }
+    }
+
+    private sealed record PromptSelector(string Role, OptionButton Control);
+
+    private sealed record PromptSelectorNode(Control Node, PromptSelector Selector);
+
+    private sealed record PromptSelection(
+        string? SourceId,
+        IReadOnlyList<string> TargetObjectIds,
+        string? DestinationId,
+        string? Mode,
+        IReadOnlyList<string> OptionalCostIds)
+    {
+        public static PromptSelection FromSelectors(IEnumerable<PromptSelector> selectors)
+        {
+            string? sourceId = null;
+            string? destinationId = null;
+            string? mode = null;
+            var targets = new List<string>();
+            var optionalCosts = new List<string>();
+
+            foreach (var selector in selectors)
+            {
+                var selected = SelectedChoiceId(selector.Control);
+                if (string.IsNullOrWhiteSpace(selected))
+                {
+                    continue;
+                }
+
+                switch (selector.Role)
+                {
+                    case "source":
+                        sourceId ??= selected;
+                        break;
+                    case "target":
+                        targets.Add(selected);
+                        break;
+                    case "destination":
+                        destinationId ??= selected;
+                        break;
+                    case "mode":
+                        mode ??= selected;
+                        break;
+                    case "optionalCost":
+                        optionalCosts.Add(selected);
+                        break;
+                }
+            }
+
+            return new PromptSelection(sourceId, targets, destinationId, mode, optionalCosts);
+        }
+
+        private static string SelectedChoiceId(OptionButton control)
+        {
+            var selected = control.Selected;
+            if (selected < 0 || selected >= control.ItemCount)
+            {
+                return string.Empty;
+            }
+
+            var metadata = control.GetItemMetadata(selected);
+            return metadata.VariantType == Variant.Type.String ? metadata.AsString() : string.Empty;
         }
     }
 
