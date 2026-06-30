@@ -43,6 +43,20 @@ public static class PreconstructedDeckCatalog
             "UNL-055/219",
             ["OGN·183/298", "OGN·180/298"]),
         new(
+            "vex-response",
+            "暗影响应 · 薇古丝",
+            "加入黑影与提莫代表，覆盖服务端战斗响应与待命反应路径。",
+            "UNL-232/219",
+            "UNL-055/219",
+            [
+                "UNL-194/219",
+                "UNL-194/219",
+                "UNL-194/219",
+                "OGN·197/298",
+                "OGN·197/298",
+                "OGN·197/298"
+            ]),
+        new(
             "poppy-standby",
             "班德尔待命 · 波比",
             "加入待命单位与班德尔树，覆盖服务端待命布置路径。",
@@ -121,7 +135,7 @@ public static class PreconstructedDeckCatalog
                 throw new InvalidOperationException($"Required preconstructed card '{cardNo}' was not found.");
             }
 
-            if (!IsRequiredMainDeckCandidate(requiredCard, allowedColors))
+            if (!IsRequiredMainDeckCandidate(requiredCard, legend, allowedColors))
             {
                 throw new InvalidOperationException(
                     $"Required preconstructed card '{cardNo}' is not legal for legend '{legendCardNo}'.");
@@ -237,10 +251,13 @@ public static class PreconstructedDeckCatalog
             && TraitsAllowed(card, allowedColors);
     }
 
-    private static bool IsRequiredMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
+    private static bool IsRequiredMainDeckCandidate(
+        OfficialCard card,
+        OfficialCard legend,
+        HashSet<string> allowedColors)
     {
         return !string.IsNullOrWhiteSpace(card.CardNo)
-            && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+            && IsRequiredMainDeckCategoryAllowed(card, legend)
             && card.CardGroupLimit != 1
             && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
             && TraitsAllowed(card, allowedColors)
@@ -248,15 +265,33 @@ public static class PreconstructedDeckCatalog
             && IsImplementedMainDeckPlayBehavior(card, behavior);
     }
 
+    private static bool IsRequiredMainDeckCategoryAllowed(OfficialCard card, OfficialCard legend)
+    {
+        if (!card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal))
+        {
+            return card.CardCategoryName is "单位" or "英雄单位" or "装备" or "法术";
+        }
+
+        return card.CardCategoryName is "专属单位" or "专属装备" or "专属法术"
+            && !string.IsNullOrWhiteSpace(card.Hero)
+            && string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal);
+    }
+
     private static bool IsImplementedMainDeckPlayBehavior(OfficialCard card, CardBehaviorDefinition behavior)
     {
-        return card.CardCategoryName is "单位" or "英雄单位"
-                ? behavior.PlaysSourceToBaseAsUnit
-            : string.Equals(card.CardCategoryName, "装备", StringComparison.Ordinal)
-                ? behavior.PlaysSourceToBaseAsEquipment
-            : string.Equals(card.CardCategoryName, "法术", StringComparison.Ordinal)
-                && !behavior.PlaysSourceToBaseAsUnit
-                && !behavior.PlaysSourceToBaseAsEquipment;
+        if (card.CardCategoryName.Contains("单位", StringComparison.Ordinal))
+        {
+            return behavior.PlaysSourceToBaseAsUnit;
+        }
+
+        if (card.CardCategoryName.Contains("装备", StringComparison.Ordinal))
+        {
+            return behavior.PlaysSourceToBaseAsEquipment;
+        }
+
+        return card.CardCategoryName.Contains("法术", StringComparison.Ordinal)
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
     private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)

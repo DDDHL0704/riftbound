@@ -15,8 +15,11 @@ public sealed class PreconstructedDeckCatalogTests
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string LongSwordCardNo = "SFD·022/221";
     private const string VexSpellsDeckId = "vex-spells";
+    private const string VexResponseDeckId = "vex-response";
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
+    private const string ShadowCardNo = "UNL-194/219";
+    private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string CardTrickCardNo = "OGN·183/298";
     private const string FlowingTimeMirrorCardNo = "OGN·180/298";
     private const string PoppyStandbyDeckId = "poppy-standby";
@@ -87,6 +90,21 @@ public sealed class PreconstructedDeckCatalogTests
         Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
         Assert.Contains(CardTrickCardNo, deck.Decklist.MainDeck);
         Assert.Contains(FlowingTimeMirrorCardNo, deck.Decklist.MainDeck);
+    }
+
+    [Fact]
+    public async Task BuildIncludesVexResponseDeckForBattleResponseAndStandbyReactionCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, VexResponseDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(VexLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(ShadowCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(TeemoSelfPowerCardNo, deck.Decklist.MainDeck);
     }
 
     [Fact]
@@ -210,12 +228,18 @@ public sealed class PreconstructedDeckCatalogTests
 
     private static bool IsImplementedMainDeckPlayBehavior(OfficialCard card, CardBehaviorDefinition behavior)
     {
-        return card.CardCategoryName is "单位" or "英雄单位"
-                ? behavior.PlaysSourceToBaseAsUnit
-            : string.Equals(card.CardCategoryName, "装备", StringComparison.Ordinal)
-                ? behavior.PlaysSourceToBaseAsEquipment
-            : string.Equals(card.CardCategoryName, "法术", StringComparison.Ordinal)
-                && !behavior.PlaysSourceToBaseAsUnit
-                && !behavior.PlaysSourceToBaseAsEquipment;
+        if (card.CardCategoryName.Contains("单位", StringComparison.Ordinal))
+        {
+            return behavior.PlaysSourceToBaseAsUnit;
+        }
+
+        if (card.CardCategoryName.Contains("装备", StringComparison.Ordinal))
+        {
+            return behavior.PlaysSourceToBaseAsEquipment;
+        }
+
+        return card.CardCategoryName.Contains("法术", StringComparison.Ordinal)
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
     }
 }
