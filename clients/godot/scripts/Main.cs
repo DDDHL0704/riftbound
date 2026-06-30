@@ -44,8 +44,10 @@ public partial class Main : Control
     private HubConnection? _connection;
     private string _authenticatedHandle = string.Empty;
     private bool _autoSmoke;
+    private bool _autoSmokeMulligan;
     private bool _autoSmokeSubmitted;
     private bool _ephemeralSession;
+    private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
@@ -56,6 +58,7 @@ public partial class Main : Control
         WireButtons();
         var args = CommandLineArgs();
         _autoSmoke = args.Contains("--riftbound-smoke-auto-ready");
+        _autoSmokeMulligan = args.Contains("--riftbound-smoke-auto-mulligan");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -386,6 +389,52 @@ public partial class Main : Control
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
+            cmd,
+            _shutdown.Token);
+        AppendReceipt(label, receipt);
+    }
+
+    private async Task SubmitMulliganAsync(
+        Godot.Collections.Dictionary action,
+        IReadOnlyList<string> handObjectIds)
+    {
+        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        {
+            AppendLog("[color=yellow]Mulligan skipped: not connected/authenticated.[/color]");
+            return;
+        }
+
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Mulligan";
+        var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
+        var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
+        var maxSelectionCount = action.TryGetValue("maxSelectionCount", out var maxValue) ? maxValue.AsInt32() : -1;
+        if (maxSelectionCount >= 0 && handObjectIds.Count > maxSelectionCount)
+        {
+            AppendLog($"[color=yellow]Mulligan skipped: selected {handObjectIds.Count} exceeds server max {maxSelectionCount}.[/color]");
+            return;
+        }
+
+        var payload = new Dictionary<string, object?>
+        {
+            ["cmdType"] = "MULLIGAN",
+            ["handObjectIds"] = handObjectIds.ToArray()
+        };
+        if (!string.IsNullOrWhiteSpace(promptId))
+        {
+            payload["promptId"] = promptId;
+        }
+
+        if (snapshotTick >= 0)
+        {
+            payload["snapshotTick"] = snapshotTick;
+        }
+
+        var cmd = JsonSerializer.SerializeToElement(payload);
+        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
+            "SubmitIntent",
+            _session.RoomId,
+            _authenticatedHandle,
+            NewIntentId("prompt-mulligan"),
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
@@ -736,10 +785,43 @@ public partial class Main : Control
             QueueMainThread(nameof(ApplyPrompt), view);
             AppendLog(
                 $"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct, {view["templateCount"].AsInt32()} templates.");
+            _ = RunAutoSmokePromptAsync(view);
         }
         catch (Exception ex)
         {
             AppendLog($"[color=yellow]Prompt render skipped: {Escape(ex.Message)}[/color]");
+        }
+    }
+
+    private async Task RunAutoSmokePromptAsync(Godot.Collections.Dictionary view)
+    {
+        if (!_autoSmokeMulligan
+            || !view.TryGetValue("actions", out var actionsValue)
+            || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
+        {
+            return;
+        }
+
+        foreach (var action in actions)
+        {
+            var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+            var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+            if (!enabled || !string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var promptId = action.TryGetValue("promptId", out var promptValue) ? promptValue.AsString() : string.Empty;
+            var snapshotTick = action.TryGetValue("snapshotTick", out var tickValue) ? tickValue.AsInt64() : -1L;
+            var key = $"{_session.RoomId}:{_authenticatedHandle}:{promptId}:{snapshotTick}:{actionName}";
+            if (!_autoSmokePromptSubmissions.Add(key))
+            {
+                return;
+            }
+
+            AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
+            await SubmitMulliganAsync(action, Array.Empty<string>());
+            return;
         }
     }
 
@@ -827,8 +909,30 @@ public partial class Main : Control
             ["snapshotTick"] = snapshotTick ?? -1L,
             ["hasTemplate"] = hasTemplate,
             ["candidateJson"] = candidate.GetRawText(),
-            ["selectionSteps"] = PromptSelectionSteps(candidate)
+            ["selectionSteps"] = PromptSelectionSteps(candidate),
+            ["sourceChoices"] = PromptChoices(candidate, "sources"),
+            ["minSelectionCount"] = CandidateMetadataInt(candidate, "minSelectionCount") ?? -1,
+            ["maxSelectionCount"] = CandidateMetadataInt(candidate, "maxSelectionCount") ?? -1
         };
+    }
+
+    private static Godot.Collections.Array<Godot.Collections.Dictionary> PromptChoices(
+        JsonElement candidate,
+        string propertyName)
+    {
+        var choices = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        if (!candidate.TryGetProperty(propertyName, out var elements)
+            || elements.ValueKind != JsonValueKind.Array)
+        {
+            return choices;
+        }
+
+        foreach (var choice in elements.EnumerateArray())
+        {
+            choices.Add(PromptChoice(choice));
+        }
+
+        return choices;
     }
 
     private static Godot.Collections.Array<Godot.Collections.Dictionary> PromptSelectionSteps(JsonElement candidate)
@@ -885,6 +989,22 @@ public partial class Main : Control
         {
             ["id"] = id,
             ["label"] = string.IsNullOrWhiteSpace(label) ? id : label
+        };
+    }
+
+    private static int? CandidateMetadataInt(JsonElement candidate, string propertyName)
+    {
+        if (MetadataElement(candidate) is not { ValueKind: JsonValueKind.Object } metadata
+            || !metadata.TryGetProperty(propertyName, out var property))
+        {
+            return null;
+        }
+
+        return property.ValueKind switch
+        {
+            JsonValueKind.Number when property.TryGetInt32(out var number) => number,
+            JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
+            _ => null
         };
     }
 
@@ -1719,6 +1839,11 @@ public partial class Main : Control
         var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
         var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
         var hasTemplate = action.TryGetValue("hasTemplate", out var hasTemplateValue) && hasTemplateValue.AsBool();
+        if (string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
+        {
+            return PromptMulliganActionNode(action);
+        }
+
         var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
         var selectors = new List<PromptSelector>();
 
@@ -1758,6 +1883,111 @@ public partial class Main : Control
             Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {(hasTemplate ? "template" : submitKind)} · {reason}"
         });
         return row;
+    }
+
+    private Control PromptMulliganActionNode(Godot.Collections.Dictionary action)
+    {
+        var row = new VBoxContainer();
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Mulligan";
+        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
+        var minSelectionCount = action.TryGetValue("minSelectionCount", out var minValue) ? minValue.AsInt32() : -1;
+        var maxSelectionCount = action.TryGetValue("maxSelectionCount", out var maxValue) ? maxValue.AsInt32() : -1;
+        var choices = action.TryGetValue("sourceChoices", out var choicesValue)
+            ? choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+        var selectedObjectIds = new List<string>();
+        var summary = new Label
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart
+        };
+        var submit = new Button
+        {
+            TooltipText = string.IsNullOrWhiteSpace(reason) ? "Confirm mulligan" : reason
+        };
+
+        void Refresh()
+        {
+            var hasServerLimit = maxSelectionCount >= 0;
+            var min = Math.Max(0, minSelectionCount);
+            var canSubmit = enabled
+                && hasServerLimit
+                && selectedObjectIds.Count >= min
+                && selectedObjectIds.Count <= maxSelectionCount;
+            summary.Text = hasServerLimit
+                ? $"{label} · selected {selectedObjectIds.Count} / {maxSelectionCount}"
+                : $"{label} · waiting for server selection limit";
+            submit.Text = "Confirm mulligan";
+            submit.Disabled = !canSubmit;
+        }
+
+        row.AddChild(summary);
+        if (choices.Count == 0)
+        {
+            row.AddChild(new Label
+            {
+                Text = "No server-provided mulligan choices."
+            });
+        }
+        else
+        {
+            foreach (var choice in choices)
+            {
+                var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+                var checkBox = new CheckBox
+                {
+                    Disabled = !enabled || string.IsNullOrWhiteSpace(choiceId),
+                    Text = PromptChoiceText(choice)
+                };
+                checkBox.Toggled += pressed =>
+                {
+                    if (pressed)
+                    {
+                        if (maxSelectionCount >= 0 && selectedObjectIds.Count >= maxSelectionCount)
+                        {
+                            checkBox.SetPressedNoSignal(false);
+                            return;
+                        }
+
+                        if (!selectedObjectIds.Contains(choiceId, StringComparer.Ordinal))
+                        {
+                            selectedObjectIds.Add(choiceId);
+                        }
+                    }
+                    else
+                    {
+                        selectedObjectIds.RemoveAll(objectId => string.Equals(objectId, choiceId, StringComparison.Ordinal));
+                    }
+
+                    Refresh();
+                };
+                row.AddChild(checkBox);
+            }
+        }
+
+        submit.Pressed += () => _ = SubmitMulliganAsync(action, selectedObjectIds.ToArray());
+        row.AddChild(submit);
+        row.AddChild(new Label
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            Text = $"MULLIGAN · {(enabled ? "enabled" : "disabled")} · {reason}"
+        });
+        Refresh();
+        return row;
+    }
+
+    private static string PromptChoiceText(Godot.Collections.Dictionary choice)
+    {
+        var label = choice.TryGetValue("label", out var labelValue) ? labelValue.AsString() : string.Empty;
+        var id = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return id;
+        }
+
+        return string.IsNullOrWhiteSpace(id) || string.Equals(label, id, StringComparison.Ordinal)
+            ? label
+            : $"{label} ({id})";
     }
 
     private static PromptSelectorNode PromptSelectionStepNode(Godot.Collections.Dictionary step, bool enabled)
