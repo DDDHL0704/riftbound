@@ -216,7 +216,9 @@ public sealed record CardBehaviorDefinition(
     int SourceDrawRequiredOtherControlledUnitPower = 0,
     int StaticUnitCostReductionMana = 0,
     string StaticUnitCostReductionRequiredUnitTag = "",
-    int StaticUnitCostReductionMinimumManaCost = 0);
+    int StaticUnitCostReductionMinimumManaCost = 0,
+    int StaticSpellCostReductionMana = 0,
+    int StaticSpellCostReductionMinimumManaCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -4157,7 +4159,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            StaticSpellCostReductionMana: 1,
+            StaticSpellCostReductionMinimumManaCost: 1),
         new(
             "OGN·091/298",
             "竞技场勤务小队",

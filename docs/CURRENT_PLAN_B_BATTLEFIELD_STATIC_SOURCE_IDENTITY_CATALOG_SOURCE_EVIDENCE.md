@@ -3,6 +3,8 @@
 日期：2026-06-26
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
+2026-06-30 follow-up: this source-identity evidence is historical. The live Eager Apprentice spell-cost selector has since moved from `CardBehaviorRegistry.IsImplementedUnitWithEffectKind(..., EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT)` to `StaticSpellCostReductionMana=1` and `StaticSpellCostReductionMinimumManaCost=1` behavior fields; see `docs/CURRENT_PLAN_B_STATIC_SPELL_COST_REDUCTION_BEHAVIOR_FIELDS_EVIDENCE.md`.
+
 This file records concrete evidence for removing direct Eager Apprentice card-number checks from the current battlefield spell-cost static source representatives in runtime and prompt generation.
 
 ## Runtime Evidence

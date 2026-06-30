@@ -25,7 +25,7 @@ public sealed class BattlefieldStaticSourceIdentityGuardTests
     }
 
     [Fact]
-    public void EagerApprenticeSpellCostSourceIdentityUsesCatalogEffectKind()
+    public void EagerApprenticeSpellCostSourceIdentityUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -42,8 +42,14 @@ public sealed class BattlefieldStaticSourceIdentityGuardTests
         Assert.DoesNotContain("EagerApprenticeCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(cardObject.CardNo, EagerApprenticeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(cardObject.CardNo, EagerApprenticeCardNo", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("EagerApprenticeSpellCostStaticSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("EagerApprenticeSpellCostStaticSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticSpellCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticSpellCostReductionMinimumManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticSpellCostReductionMinimumManaCost", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

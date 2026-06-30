@@ -113,7 +113,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
@@ -33415,23 +33414,51 @@ public sealed class CoreRuleEngine : IRuleEngine
         int alreadyAppliedBaseReductionMana)
     {
         if (!IsSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 1
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
-                    cardObject.CardNo,
-                    EagerApprenticeSpellCostStaticSourceEffectKind)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                && !cardObject.IsFaceDown))
+            || behavior.ManaCost <= 0)
         {
             return 0;
         }
 
+        var sources = StaticSpellCostReductionSourceBehaviors(state, playerId).ToArray();
+        if (sources.Length == 0)
+        {
+            return 0;
+        }
+
+        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticSpellCostReductionMinimumManaCost));
         var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > 1
-            ? Math.Min(1, baseManaAfterExistingReductions - 1)
+        return baseManaAfterExistingReductions > minimumManaCost
+            ? Math.Min(
+                sources.Sum(source => Math.Max(0, source.StaticSpellCostReductionMana)),
+                baseManaAfterExistingReductions - minimumManaCost)
             : 0;
+    }
+
+    private static IEnumerable<CardBehaviorDefinition> StaticSpellCostReductionSourceBehaviors(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Battlefields
+            .Distinct(StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    || cardObject.IsFaceDown
+                    || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? "", out var sourceBehavior)
+                    || sourceBehavior.StaticSpellCostReductionMana <= 0)
+                {
+                    return null;
+                }
+
+                return sourceBehavior;
+            })
+            .OfType<CardBehaviorDefinition>();
     }
 
     private static int ResolveBattlefieldHeldUnitCostIncreaseMana(

@@ -130,6 +130,16 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void EagerApprenticeStaticSpellCostReductionCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·084/298", out var behavior));
+
+        Assert.Equal("踊跃的学徒", behavior.DisplayName);
+        Assert.Equal(1, behavior.StaticSpellCostReductionMana);
+        Assert.Equal(1, behavior.StaticSpellCostReductionMinimumManaCost);
+    }
+
+    [Fact]
     public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

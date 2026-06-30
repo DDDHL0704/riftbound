@@ -6717,7 +6717,6 @@ internal static class ActionPromptBuilder
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitRoamOptionalCost = "ROAM";
@@ -15294,23 +15293,51 @@ internal static class ActionPromptBuilder
         int alreadyAppliedBaseReductionMana)
     {
         if (!IsPromptSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 1
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
-                    cardObject.CardNo,
-                    EagerApprenticeSpellCostStaticSourceEffectKind)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                && !cardObject.IsFaceDown))
+            || behavior.ManaCost <= 0)
         {
             return 0;
         }
 
+        var sources = PromptStaticSpellCostReductionSourceBehaviors(state, playerId).ToArray();
+        if (sources.Length == 0)
+        {
+            return 0;
+        }
+
+        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticSpellCostReductionMinimumManaCost));
         var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > 1
-            ? Math.Min(1, baseManaAfterExistingReductions - 1)
+        return baseManaAfterExistingReductions > minimumManaCost
+            ? Math.Min(
+                sources.Sum(source => Math.Max(0, source.StaticSpellCostReductionMana)),
+                baseManaAfterExistingReductions - minimumManaCost)
             : 0;
+    }
+
+    private static IEnumerable<CardBehaviorDefinition> PromptStaticSpellCostReductionSourceBehaviors(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Battlefields
+            .Distinct(StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    || cardObject.IsFaceDown
+                    || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? "", out var sourceBehavior)
+                    || sourceBehavior.StaticSpellCostReductionMana <= 0)
+                {
+                    return null;
+                }
+
+                return sourceBehavior;
+            })
+            .OfType<CardBehaviorDefinition>();
     }
 
     private static int PromptBattlefieldHeldUnitCostIncreaseMana(

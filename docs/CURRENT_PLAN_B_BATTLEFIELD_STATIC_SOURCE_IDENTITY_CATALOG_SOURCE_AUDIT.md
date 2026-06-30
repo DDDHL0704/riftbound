@@ -3,6 +3,8 @@
 日期：2026-06-26
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
+2026-06-30 follow-up: this 2026-06-26 source-identity slice has been superseded for the live runtime selector by `docs/CURRENT_PLAN_B_STATIC_SPELL_COST_REDUCTION_BEHAVIOR_FIELDS_AUDIT.md`. Core and MatchSession now derive the Eager Apprentice representative through `StaticSpellCostReductionMana=1` and `StaticSpellCostReductionMinimumManaCost=1` behavior fields rather than the `EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT` runtime effect id. The effect id remains row identity data in the catalog, fixtures, and matrix evidence.
+
 本文件记录 Plan B 小切片：把 Eager Apprentice / 踊跃的学徒的 battlefield spell-cost static representative 来源身份，从 `CoreRuleEngine` 与 `MatchSession` prompt 路径里的直接 cardNo 分支迁移到 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`。该切片只收窄当前战场静态法术减费来源身份硬编码；不关闭完整静态费用族、完整 PaymentEngine breadth、完整 LayerEngine breadth、frontend final validation 或 READY。
 
 ## Scope
