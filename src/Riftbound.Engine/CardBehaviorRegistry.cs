@@ -220,7 +220,9 @@ public sealed record CardBehaviorDefinition(
     int StaticSpellCostReductionMana = 0,
     int StaticSpellCostReductionMinimumManaCost = 0,
     bool SourceReadiesWhenControllerPlaysEquipment = false,
-    string SourceReadyOnEquipmentPlayedEffectKind = "");
+    string SourceReadyOnEquipmentPlayedEffectKind = "",
+    int SourcePowerOnControllerStandbyHiddenAmount = 0,
+    string SourcePowerOnControllerStandbyHiddenEffectKind = "");
 
 public static class CardDamageConditionKinds
 {
@@ -4277,7 +4279,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourcePowerOnControllerStandbyHiddenAmount: 2,
+            SourcePowerOnControllerStandbyHiddenEffectKind: "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2"),
         new(
             "OGN·177/298",
             "隐秘追踪者",

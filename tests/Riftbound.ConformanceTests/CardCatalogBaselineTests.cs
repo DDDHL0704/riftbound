@@ -150,6 +150,16 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void EmberMonkStandbyHiddenPowerCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·167/298", out var behavior));
+
+        Assert.Equal("余火修士", behavior.DisplayName);
+        Assert.Equal(2, behavior.SourcePowerOnControllerStandbyHiddenAmount);
+        Assert.Equal("EMBER_MONK_FACE_DOWN_STANDBY_POWER_2", behavior.SourcePowerOnControllerStandbyHiddenEffectKind);
+    }
+
+    [Fact]
     public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

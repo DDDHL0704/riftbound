@@ -36,8 +36,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
-    private const string EmberMonkStandbyTriggerSourceEffectKind = "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT";
-    private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
@@ -14819,7 +14817,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 $"{intent.PlayerId} 正面朝下放置一张待命牌",
                 hiddenPayload));
 
-        events.AddRange(ResolveEmberMonkStandbyHiddenPowerTrigger(
+        events.AddRange(ResolveSourcePowerOnControllerStandbyHiddenTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -14855,52 +14853,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextStateWithLocations));
     }
 
-    private static IReadOnlyList<GameEvent> ResolveEmberMonkStandbyHiddenPowerTrigger(
+    private static IReadOnlyList<GameEvent> ResolveSourcePowerOnControllerStandbyHiddenTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string hiddenObjectId,
         string destination)
     {
-        const int powerDelta = 2;
-        var triggerSourceObjectIds = playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => !string.Equals(sourceObjectId, hiddenObjectId, StringComparison.Ordinal))
-            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && IsControlledFaceUpFieldUnitWithEffectKind(
-                    sourceState,
-                    EmberMonkStandbyTriggerSourceEffectKind)
-                && IsObjectOnField(playerZones, sourceObjectId)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    playerId,
-                    StringComparison.Ordinal))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+        var triggerSources = SourcePowerOnControllerStandbyHiddenTriggers(
+                playerZones,
+                cardObjects,
+                playerId,
+                hiddenObjectId)
+            .OrderBy(source => source.ObjectId, StringComparer.Ordinal)
             .ToArray();
 
         var events = new List<GameEvent>();
-        foreach (var sourceObjectId in triggerSourceObjectIds)
+        foreach (var source in triggerSources)
         {
+            var sourceObjectId = source.ObjectId;
+            var sourceBehavior = source.Behavior;
             var sourceState = cardObjects[sourceObjectId];
+            var effectKind = sourceBehavior.SourcePowerOnControllerStandbyHiddenEffectKind;
+            var powerDelta = sourceBehavior.SourcePowerOnControllerStandbyHiddenAmount;
+            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
+                ? sourceObjectId
+                : sourceBehavior.DisplayName;
             var nextSourceState = ApplyDirectUntilEndPowerModifier(
                 sourceState,
                 sourceObjectId,
                 sourceObjectId,
                 sourceState.CardNo,
-                EmberMonkStandbyHiddenPowerEffectKind,
-                "CoreRuleEngine.ResolveEmberMonkStandbyHiddenPowerTrigger",
+                effectKind,
+                "CoreRuleEngine.ResolveSourcePowerOnControllerStandbyHiddenTriggers",
                 powerDelta,
                 sourceState.Power + powerDelta);
             cardObjects[sourceObjectId] = nextSourceState;
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{playerId} 的余火修士因布置待命牌而触发",
+                $"{playerId} 的{sourceDisplayName}因布置待命牌而触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["effectKind"] = EmberMonkStandbyHiddenPowerEffectKind,
+                    ["effectKind"] = effectKind,
                     ["triggeredByEventKind"] = "CARD_HIDDEN",
                     ["hiddenObjectId"] = hiddenObjectId,
                     ["destination"] = destination
@@ -14916,11 +14912,40 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["appliedPowerDelta"] = powerDelta,
                     ["minimumPower"] = 0,
                     ["resultingPower"] = nextSourceState.Power,
-                    ["reason"] = EmberMonkStandbyHiddenPowerEffectKind
+                    ["reason"] = effectKind
                 }));
         }
 
         return events;
+    }
+
+    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourcePowerOnControllerStandbyHiddenTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string hiddenObjectId)
+    {
+        foreach (var sourceObjectId in playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal))
+        {
+            if (string.Equals(sourceObjectId, hiddenObjectId, StringComparison.Ordinal)
+                || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || !IsFaceUpNonStandbyUnit(sourceState)
+                || !IsObjectOnField(playerZones, sourceObjectId)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    playerId,
+                    StringComparison.Ordinal)
+                || !CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo ?? "", out var sourceBehavior)
+                || sourceBehavior.SourcePowerOnControllerStandbyHiddenAmount == 0
+                || string.IsNullOrWhiteSpace(sourceBehavior.SourcePowerOnControllerStandbyHiddenEffectKind))
+            {
+                continue;
+            }
+
+            yield return (sourceObjectId, sourceBehavior);
+        }
     }
 
     private static void ResolveHandCardsDiscardedReadyPowerTriggers(
