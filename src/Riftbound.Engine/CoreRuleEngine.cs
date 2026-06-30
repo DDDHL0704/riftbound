@@ -20002,7 +20002,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObject,
             isAttacking,
             defendingUnitCount);
-        staticPowerBonus += ResolveFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
+        staticPowerBonus += ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus(
             state,
             playerZones,
@@ -20024,8 +20024,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             objectId,
             cardObject);
-        staticPowerBonus += ResolveOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
-        staticPowerBonus += ResolveFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
@@ -20311,7 +20309,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : 0;
     }
 
-    private static int ResolveOtherFriendlyUnitsPowerBonus(
+    private static int ResolvePublicFieldFriendlyPowerStaticAuraBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
@@ -20319,7 +20317,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -20332,76 +20329,87 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var bonus = 0;
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(candidateObjectId => candidateObjectId, StringComparer.Ordinal))
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
         {
-            if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
-                || !IsObjectOnField(playerZones, sourceObjectId)
-                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura(sourceState.CardNo, out var aura)
-                || !string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal))
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
             {
                 continue;
             }
 
-            bonus += aura.PowerDeltaPerParticipant;
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura))
+            {
+                if (!TryGetPublicFieldFriendlyPowerStaticAuraSourceControllerId(
+                        playerZones,
+                        sourceObjectId,
+                        sourceState,
+                        aura,
+                        out var sourceControllerId)
+                    || !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal)
+                    || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId)
+                    || !PublicFieldFriendlyPowerStaticAuraAppliesToTarget(aura, sourceObjectId, objectId, cardObject))
+                {
+                    continue;
+                }
+
+                bonus += aura.PowerDeltaPerParticipant;
+            }
         }
 
         return bonus;
     }
 
-    private static int ResolveFriendlyFilteredUnitsPowerBonus(
-        MatchState state,
+    private static bool TryGetPublicFieldFriendlyPowerStaticAuraSourceControllerId(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId,
-        CardObjectState cardObject)
+        string sourceObjectId,
+        CardObjectState sourceState,
+        StaticAuraSpec aura,
+        out string controllerId)
     {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || !IsObjectOnField(playerZones, objectId))
+        controllerId = string.Empty;
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyUnits, StringComparison.Ordinal))
         {
-            return 0;
+            controllerId = EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState);
+            return !string.IsNullOrWhiteSpace(controllerId);
         }
 
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
+        if ((string.Equals(aura.TargetScope, StaticAuraTargetScopes.OtherFriendlyUnits, StringComparison.Ordinal)
+                || string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyFilteredUnits, StringComparison.Ordinal))
+            && IsObjectOnField(playerZones, sourceObjectId)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
         {
-            return 0;
+            controllerId = EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState);
+            return !string.IsNullOrWhiteSpace(controllerId);
         }
 
-        var bonus = 0;
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(candidateObjectId => candidateObjectId, StringComparer.Ordinal))
-        {
-            if (!IsObjectOnField(playerZones, sourceObjectId)
-                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura(sourceState.CardNo, out var aura)
-                || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
-                || !string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
+        return false;
+    }
 
-            bonus += aura.PowerDeltaPerParticipant;
+    private static bool PublicFieldFriendlyPowerStaticAuraAppliesToTarget(
+        StaticAuraSpec aura,
+        string sourceObjectId,
+        string targetObjectId,
+        CardObjectState target)
+    {
+        if (target.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return false;
         }
 
-        return bonus;
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyUnits, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.OtherFriendlyUnits, StringComparison.Ordinal))
+        {
+            return !string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal);
+        }
+
+        return string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyFilteredUnits, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, target);
     }
 
     private static int ResolveFriendlyFilteredUnitsKeywordBonus(
@@ -20792,57 +20800,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
                     || defendingUnitCount != aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
-                    || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId))
-                {
-                    continue;
-                }
-
-                bonus += aura.PowerDeltaPerParticipant;
-            }
-        }
-
-        return bonus;
-    }
-
-    private static int ResolveFriendlyUnitsPowerBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId,
-        CardObjectState cardObject)
-    {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !IsObjectOnField(playerZones, objectId))
-        {
-            return 0;
-        }
-
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
-        {
-            return 0;
-        }
-
-        var bonus = 0;
-        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
-        {
-            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-            {
-                continue;
-            }
-
-            var sourceControllerId = EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState);
-            if (!string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyUnitsPower))
-            {
-                if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
                     || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId))
                 {
                     continue;

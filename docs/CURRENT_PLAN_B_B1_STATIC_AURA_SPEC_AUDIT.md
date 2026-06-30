@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-06-30 Supplement: Public-Field Friendly POWER Aura Scope Router
+
+This follow-up merges the public-field friendly POWER aura families into shared `StaticAuraSpec` scope routing: friendly units, other friendly units, and friendly filtered units.
+
+`CoreRuleEngine` now computes these public-field friendly POWER bonuses through `ResolvePublicFieldFriendlyPowerStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filtering with `StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura`. The participant applicability is derived from `StaticAuraTargetScopes.FriendlyUnits` / `OtherFriendlyUnits` / `FriendlyFilteredUnits`; filtered scopes continue using `StaticAuraSpecRules.TargetMatchesFilter`, and source-controller requirements still apply from the source aura spec.
+
+`MatchSession` now projects those same POWER aura families through `BuildPublicFieldFriendlyPowerStaticAuraEffects`, again enumerating each public static-aura source's `BehaviorSpec.StaticAuras` instead of using separate friendly-units, other-friendly-units, and friendly-filtered-units projection builders. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+Validation: red/green focused `PublicFieldFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; public-field static-aura focused regression 346/346; StaticAura / StaticPower / SameBattlefield / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2218/2218; backend full conformance 9062/9062.
+
+Non-closure: this slice only consolidates public-field friendly POWER scope routing. Same-battlefield other-friendly RULE_TEXT keyword routing, other public-field RULE_TEXT keyword routing, object-source aura families, full LayerEngine timestamp/order semantics, full B1, P0, and READY remain open.
+
 ## 2026-06-30 Supplement: Same-Battlefield Other-Friendly POWER Aura Scope Router
 
 This follow-up merges the same-battlefield other-friendly POWER aura and same-battlefield other-friendly filtered POWER aura runtime/projection selectors into shared `StaticAuraSpec` scope routing.

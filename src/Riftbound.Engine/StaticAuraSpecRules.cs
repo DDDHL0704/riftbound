@@ -293,6 +293,31 @@ internal static class StaticAuraSpecRules
                     StringComparison.Ordinal));
     }
 
+    public static bool IsPublicFieldFriendlyPowerStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || aura.PowerDeltaPerParticipant == 0)
+        {
+            return false;
+        }
+
+        return (string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.FriendlyPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.OtherFriendlyUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyFilteredUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                    StringComparison.Ordinal));
+    }
+
     public static bool IsBattlefieldPowerStaticAura(StaticAuraSpec aura)
     {
         if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)

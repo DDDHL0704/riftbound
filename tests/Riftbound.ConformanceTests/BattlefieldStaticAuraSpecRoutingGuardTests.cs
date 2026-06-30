@@ -79,6 +79,31 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
         Assert.Contains("StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyPowerStaticAura", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void PublicFieldFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ResolvePublicFieldFriendlyPowerStaticAuraBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildPublicFieldFriendlyPowerStaticAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
