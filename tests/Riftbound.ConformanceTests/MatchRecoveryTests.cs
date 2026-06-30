@@ -13789,7 +13789,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in objects; expected OGN·190/298 but got WRONG_CARD_NO",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 card no WRONG_CARD_NO must reference BehaviorSpec unit last-breath source-battlefield AoE damage trigger in objects; expected BehaviorSpec unit last-breath source-battlefield AoE damage trigger but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -35498,7 +35498,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 card no WRONG_CARD_NO must reference BehaviorSpec unit last-breath source-battlefield AoE damage trigger in authoritative state object registry; expected BehaviorSpec unit last-breath source-battlefield AoE damage trigger but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160692,7 +160692,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must reference BehaviorSpec unit last-breath source-battlefield AoE damage trigger in authoritative state object registry; expected BehaviorSpec unit last-breath source-battlefield AoE damage trigger but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160824,7 +160824,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must reference BehaviorSpec unit last-breath source-battlefield AoE damage trigger in authoritative state object registry; expected BehaviorSpec unit last-breath source-battlefield AoE damage trigger but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

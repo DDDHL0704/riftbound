@@ -5217,11 +5217,19 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var matchRecoveryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs");
+        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("KogmawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawLastBreathAoeEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawLastBreathDamage", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("KogmawCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]

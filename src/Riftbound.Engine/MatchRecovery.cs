@@ -925,8 +925,9 @@ public static class MatchRecoveryValidator
     private const int MaxRetainedResolutionHistoryItems = 12;
     private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
     private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
-    private const string KogmawCardNoForRecovery = "OGN·190/298";
     private const string KogmawLastBreathAoeEffectKindForRecovery = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
+    private const string KogmawLastBreathAoeSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath source-battlefield AoE damage trigger";
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
     private const string OgsLuxHighCostSpellCardNoForRecovery = "OGS·006/024";
     private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
@@ -19870,6 +19871,19 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {actualCardNoLabel} must be {expectedCardNoLabel} in {contextLabel}; {FormatExpectedActualForRecovery(expectedCardNoLabel, actualCardNoLabel)}");
     }
 
+    private static void AddTriggerQueueSourceCardSpecMismatch(
+        string payloadLabel,
+        string diagnosticName,
+        string sourceObjectId,
+        string actualCardNoLabel,
+        string expectedSpecLabel,
+        string contextLabel,
+        List<string> errors)
+    {
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {actualCardNoLabel} must reference {expectedSpecLabel} in {contextLabel}; {FormatExpectedActualForRecovery(expectedSpecLabel, actualCardNoLabel)}");
+    }
+
     private static string ExpectedSourceCardNoLabelForAbilityId(string abilityId)
     {
         return P4ActivatedAbilityCatalog.TryGetByAbilityId(abilityId, out var definition)
@@ -20669,15 +20683,15 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && objectCardNos is not null
             && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
-            && !string.Equals(sourceCardNo, KogmawCardNoForRecovery, StringComparison.Ordinal))
+            && !UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(sourceCardNo, out _))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-            AddTriggerQueueSourceCardNoMismatch(
+            AddTriggerQueueSourceCardSpecMismatch(
                 payloadLabel,
                 "kogmaw last breath",
                 sourceObjectId,
                 sourceCardNoLabel,
-                KogmawCardNoForRecovery,
+                KogmawLastBreathAoeSourceTriggerSpecLabelForRecovery,
                 objectCardNoLabel,
                 errors);
         }
