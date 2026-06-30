@@ -90,6 +90,9 @@ server-provided required selections.
 The same follow-up smoke path also handles server-metadata `ORDER_TRIGGERS` and
 `ASSIGN_COMBAT_DAMAGE` prompts when they appear, submitting the default trigger
 order or first legal damage assignments exposed by the server.
+With `--riftbound-smoke-preview-first-card`, the first server-visible hand card
+is sent through the same preview panel used by card clicks. Hidden or face-down
+cards still render only the server-redacted placeholder.
 With `--riftbound-smoke-auto-surrender`, the client submits `SURRENDER` only
 after the current server prompt exposes it as enabled. The result panel then
 waits for the authoritative `MATCH_WON` event before displaying the winner.

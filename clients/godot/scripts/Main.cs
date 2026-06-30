@@ -57,6 +57,7 @@ public partial class Main : Control
     private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
+    private Label? _officialCardPreviewSummary;
     private PanelContainer? _resultFrame;
     private Label? _resultSummary;
     private Label? _promptSummary;
@@ -88,10 +89,12 @@ public partial class Main : Control
     private bool _autoSmokePublicMatch;
     private bool _autoSmokeJoinPublicMatch;
     private bool _autoSmokeSurrender;
+    private bool _autoSmokePreviewFirstVisibleCard;
     private bool _autoSmokeSubmitted;
     private int _autoSmokeTapRuneSubmissions;
     private bool _autoSmokePlayCardSubmitted;
     private bool _autoSmokeSurrenderSubmitted;
+    private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
@@ -116,6 +119,7 @@ public partial class Main : Control
         _autoSmokePublicMatch = args.Contains("--riftbound-smoke-auto-public-match");
         _autoSmokeJoinPublicMatch = args.Contains("--riftbound-smoke-auto-join-public-match");
         _autoSmokeSurrender = args.Contains("--riftbound-smoke-auto-surrender");
+        _autoSmokePreviewFirstVisibleCard = args.Contains("--riftbound-smoke-preview-first-card");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -162,7 +166,8 @@ public partial class Main : Control
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
-        _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
+        _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreview");
+        _officialCardPreviewSummary = GetNode<Label>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreviewSummary");
         _resultFrame = GetNode<PanelContainer>("Controls/ResultFrame");
         _resultSummary = GetNode<Label>("Controls/ResultFrame/ResultBox/ResultSummary");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
@@ -293,6 +298,18 @@ public partial class Main : Control
             }
 
             QueueMainThread(nameof(ApplyOfficialCardPreview), image);
+            QueueMainThread(
+                nameof(ApplyOfficialCardPreviewSummary),
+                PreviewSummary(new Godot.Collections.Dictionary
+                {
+                    ["cardNo"] = card.CardNo,
+                    ["cardName"] = card.CardName,
+                    ["category"] = card.CardCategoryName,
+                    ["energy"] = card.Energy ?? -1,
+                    ["power"] = card.Power ?? -1,
+                    ["visible"] = true,
+                    ["faceDown"] = false
+                }));
             AppendLog($"Official card image loaded: {Escape(card.CardNo)} {Escape(card.CardName)}.");
         }
         catch (OperationCanceledException)
@@ -1916,6 +1933,8 @@ public partial class Main : Control
                 views.Add(view);
             }
 
+            TryRunAutoSmokePreview(views);
+
             var objectIndex = VisibleObjectIndex(element, table);
             var tableSections = await BuildTableSectionsAsync(element, table, objectIndex);
             QueueMainThread(nameof(ApplyBoardSummary), summary);
@@ -1942,6 +1961,29 @@ public partial class Main : Control
             }
 
             AppendLog($"[color=yellow]Snapshot render skipped: {Escape(ex.Message)}[/color]");
+        }
+    }
+
+    private void TryRunAutoSmokePreview(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
+    {
+        if (!_autoSmokePreviewFirstVisibleCard || _autoSmokePreviewRendered)
+        {
+            return;
+        }
+
+        foreach (var card in cards)
+        {
+            var isVisible = card.TryGetValue("visible", out var visibleValue) && visibleValue.AsBool();
+            if (!isVisible)
+            {
+                continue;
+            }
+
+            _autoSmokePreviewRendered = true;
+            var summary = PreviewSummary(card);
+            QueueMainThread(nameof(ApplyCardPreview), card);
+            AppendLog($"Auto smoke: previewing first visible card: {Escape(summary.Replace('\n', ' '))}");
+            return;
         }
     }
 
@@ -2382,12 +2424,27 @@ public partial class Main : Control
         var view = new Godot.Collections.Dictionary
         {
             ["label"] = string.IsNullOrWhiteSpace(card.CardNo) ? "Hidden" : card.CardNo,
-            ["objectId"] = card.ObjectId
+            ["objectId"] = card.ObjectId,
+            ["cardNo"] = card.CardNo,
+            ["visible"] = card.Visible,
+            ["faceDown"] = card.FaceDown,
+            ["category"] = string.Empty,
+            ["energy"] = -1,
+            ["power"] = -1
         };
 
-        if (card.Visible
-            && _officialCatalog.TryGetValue(card.CardNo, out var entry)
-            && await _cardImageLoader.LoadOfficialFrontImageAsync(entry, _shutdown.Token) is { } image)
+        if (!card.Visible || !_officialCatalog.TryGetValue(card.CardNo, out var entry))
+        {
+            return view;
+        }
+
+        view["label"] = $"{entry.CardNo}\n{entry.CardName}";
+        view["cardName"] = entry.CardName;
+        view["category"] = entry.CardCategoryName;
+        view["energy"] = entry.Energy ?? -1;
+        view["power"] = entry.Power ?? -1;
+
+        if (await _cardImageLoader.LoadOfficialFrontImageAsync(entry, _shutdown.Token) is { } image)
         {
             view["image"] = image;
         }
@@ -3039,7 +3096,7 @@ public partial class Main : Control
         }
     }
 
-    private static Control SectionNode(Godot.Collections.Dictionary section)
+    private Control SectionNode(Godot.Collections.Dictionary section)
     {
         var frame = new PanelContainer
         {
@@ -3063,7 +3120,7 @@ public partial class Main : Control
         return frame;
     }
 
-    private static Control ZoneNode(Godot.Collections.Dictionary zone)
+    private Control ZoneNode(Godot.Collections.Dictionary zone)
     {
         var row = new HBoxContainer
         {
@@ -3122,17 +3179,27 @@ public partial class Main : Control
         return label;
     }
 
-    private static Control CardNode(Godot.Collections.Dictionary card)
+    private Control CardNode(Godot.Collections.Dictionary card)
     {
         return CardNode(card, new Vector2(92, 128), new Vector2(84, 120));
     }
 
-    private static Control CardNode(Godot.Collections.Dictionary card, Vector2 frameSize, Vector2 contentSize)
+    private Control CardNode(Godot.Collections.Dictionary card, Vector2 frameSize, Vector2 contentSize)
     {
         var frame = new PanelContainer
         {
-            CustomMinimumSize = frameSize
+            CustomMinimumSize = frameSize,
+            MouseDefaultCursorShape = CursorShape.PointingHand,
+            TooltipText = PreviewSummary(card)
         };
+        frame.GuiInput += input =>
+        {
+            if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
+            {
+                ApplyCardPreview(card);
+            }
+        };
+
         var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
         if (image is not null)
         {
@@ -3154,6 +3221,74 @@ public partial class Main : Control
             Text = card.TryGetValue("label", out var label) ? label.AsString() : "Card"
         });
         return frame;
+    }
+
+    public void ApplyCardPreview(Godot.Collections.Dictionary card)
+    {
+        if (_officialCardPreviewSummary is not null)
+        {
+            _officialCardPreviewSummary.Text = PreviewSummary(card);
+        }
+
+        if (_officialCardPreview is null)
+        {
+            return;
+        }
+
+        var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
+        _officialCardPreview.Texture = image is null
+            ? null
+            : ImageTexture.CreateFromImage(image);
+    }
+
+    private static string PreviewSummary(Godot.Collections.Dictionary card)
+    {
+        var isVisible = card.TryGetValue("visible", out var visibleValue) && visibleValue.AsBool();
+        var isFaceDown = card.TryGetValue("faceDown", out var faceDownValue) && faceDownValue.AsBool();
+        if (!isVisible || isFaceDown)
+        {
+            return "Hidden card\nIdentity is hidden by the server snapshot.";
+        }
+
+        var cardNo = card.TryGetValue("cardNo", out var cardNoValue) ? cardNoValue.AsString() : string.Empty;
+        var cardName = card.TryGetValue("cardName", out var nameValue) ? nameValue.AsString() : string.Empty;
+        var category = card.TryGetValue("category", out var categoryValue) ? categoryValue.AsString() : string.Empty;
+        var energy = card.TryGetValue("energy", out var energyValue) ? energyValue.AsInt32() : -1;
+        var power = card.TryGetValue("power", out var powerValue) ? powerValue.AsInt32() : -1;
+        var title = string.IsNullOrWhiteSpace(cardName)
+            ? cardNo
+            : string.IsNullOrWhiteSpace(cardNo)
+                ? cardName
+                : $"{cardNo} · {cardName}";
+
+        var lines = new List<string>();
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            lines.Add(title);
+        }
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            lines.Add(category);
+        }
+
+        var stats = new List<string>();
+        if (energy >= 0)
+        {
+            stats.Add($"Cost {energy}");
+        }
+
+        if (power >= 0)
+        {
+            stats.Add($"Power {power}");
+        }
+
+        if (stats.Count > 0)
+        {
+            lines.Add(string.Join(" · ", stats));
+        }
+
+        return lines.Count == 0 ? "Visible card" : string.Join("\n", lines);
     }
 
     public void ApplyDeckOptions()
@@ -3204,6 +3339,14 @@ public partial class Main : Control
         if (_officialCardPreview is not null)
         {
             _officialCardPreview.Texture = ImageTexture.CreateFromImage(image);
+        }
+    }
+
+    public void ApplyOfficialCardPreviewSummary(string text)
+    {
+        if (_officialCardPreviewSummary is not null)
+        {
+            _officialCardPreviewSummary.Text = text;
         }
     }
 
