@@ -22,14 +22,31 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
         Assert.Contains("EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach", rulesSource, StringComparison.Ordinal);
         Assert.Contains("HasRepresentativeBoundary", rulesSource, StringComparison.Ordinal);
         Assert.Contains("TryGetEquipmentStateRepresentative", rulesSource, StringComparison.Ordinal);
+        Assert.Contains("BehaviorSpecCatalogBuilder.Build", rulesSource, StringComparison.Ordinal);
+        foreach (var row in new[]
+        {
+            "new(\"SFD·022/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
+            "new(\"SFD·056/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
+            "new(\"SFD·064/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
+            "new(\"SFD·186/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
+            "new(\"SFD·085/221\", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower)",
+            "new(\"SFD·085a/221\", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower)"
+        })
+        {
+            Assert.DoesNotContain(row, rulesSource, StringComparison.Ordinal);
+        }
 
         Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·022/221"));
+        Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·056/221"));
+        Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·064/221"));
+        Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·186/221"));
         Assert.False(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·033/221"));
         Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·008/221"));
         Assert.False(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·033/221"));
         Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·186/221"));
         Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·022/221"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085/221"));
+        Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085a/221"));
         Assert.False(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·033/221"));
         Assert.True(CardEquipmentKeywordRules.TryGetEquipmentStateRepresentative("SFD·022/221", out var stateRepresentative));
         Assert.Equal("Long Sword", stateRepresentative.CardName);

@@ -5,6 +5,14 @@
 
 本文件记录 Plan B 小切片：把装备关键词代表性边界从 `CardEquipmentKeywordRules` 中独立 `Is*CardNo` helper / set 查询迁移到 `EquipmentRepresentativeBoundaries` source rows，并让 `CoreRuleEngine` 与 `MatchSession` 通过领域查询消费这些 source rows。该切片只迁移代表性边界来源，不改变装备打出、装配、百炼可选贴附、奥恩静态力量重算、事件 payload、prompt 或 snapshot 语义。
 
+## 2026-06-30 Supplement: BehaviorSpec-Derived Agile and Friendly-Equipment Boundaries
+
+本补充把 `AgileDirectPlayAttach` 与 `FriendlyEquipmentStaticPower` representative boundary 从显式卡号 source rows 继续上移到官方目录驱动的 `BehaviorSpec` 派生。`CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` 现在由三类来源合并：`BehaviorSpecCatalogBuilder.Build(...)` 派生的灵便直接贴附 / 友方装备数量静态力量边界、仍显式保留的百炼 optional attach 代表边界、以及装备状态 verifier metadata 派生的 `EquipmentState` 边界。
+
+派生条件保持窄口径：灵便直接贴附要求官方目录中的装备 / 专属装备 `BehaviorSpec`、自身官方 `{{灵便}}` 行、已实现 `CardBehaviorRegistry.PlaysSourceToBaseAsEquipment` 路径、registry `SourceEquipmentTags` 含 `灵便`，并且该卡已有 `AssembleEquipmentProfileCatalog` 代表装配 profile；友方装备静态力量要求已实现 unit play 行为并且 `BehaviorSpec.StaticAuras` 含 `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER`。因此新增同形状官方卡只需进入 catalog / behavior spec 即可被 representative boundary 识别，但本批不扩大尚未实现的灵便 reaction timing、百炼全量范围或装备生命周期。
+
+验证：focused guard red/green 1/1；EquipmentKeyword / AgileEquipment / OrnnFriendlyEquipment / AssembleEquipment / EquipmentState / CardCatalogBaseline adjacent 477/477；同组加 MatchRecovery / PaymentEngine hidden-info/payment adjacent 3254/3254；backend full conformance 9049/9049。
+
 ## 2026-06-28 Supplement: Tempered Attach Equipment Source Boundary
 
 本补充把百炼 optional attach 中“可被选择的装备来源”也迁移到同一 representative-boundary source rows：`EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment` 现在记录 `SFD·186/221`，`CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(cardNo)` 是 prompt 与 Core 结算重验共享的唯一查询。`MatchSession.IsPromptTemperedOptionalAttachChoice` 与 `CoreRuleEngine.IsLegalTemperedOptionalAttachChoice` 不再持有 `SpinningAxeCardNo` runtime 常量或直接比较 `SFD·186/221`。语义不扩大：当前仍只关闭既有《旋转飞斧》代表路径，不关闭 full Tempered official breadth。
@@ -95,6 +103,6 @@ Result: 8585/8585 passed.
 ## 5. Residual Risks
 
 - This does not close full Agile reaction timing, full Tempered official breadth, all weapon/static modifiers, copy-text effects, or full attach lifecycle coverage.
-- `EquipmentRepresentativeBoundaries` still records implemented representative source rows inside the engine helper file; a later catalog extraction can move these rows farther out without changing the consumer API.
+- `EquipmentRepresentativeBoundaries` still retains explicit source rows for Tempered optional attach representative coverage; a later catalog extraction can move those rows farther out without changing the consumer API.
 - This does not change current official-card parser breadth or functional-unit matrix status.
 - Project remains **NOT READY**.

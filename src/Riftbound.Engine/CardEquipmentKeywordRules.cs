@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -65,21 +66,20 @@ public sealed record CardEquipmentAttachmentProfile(
 
 public static class CardEquipmentKeywordRules
 {
-    public static readonly IReadOnlyList<CardEquipmentRepresentativeBoundary> EquipmentRepresentativeBoundaries =
+    private static readonly Lazy<IReadOnlyList<CardEquipmentRepresentativeBoundary>> RepresentativeBoundaries =
+        new(BuildRepresentativeBoundaries, LazyThreadSafetyMode.ExecutionAndPublication);
+
+    private static readonly IReadOnlyList<CardEquipmentRepresentativeBoundary> ExplicitRepresentativeBoundaries =
     [
-        new("SFD·022/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
-        new("SFD·056/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
-        new("SFD·064/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
-        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
         new("SFD·002/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
         new("SFD·008/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
         new("SFD·119/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
         new("SFD·119a/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
-        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment),
-        new("SFD·085/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
-        new("SFD·085a/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
-        new("SFD·022/221", EquipmentRepresentativeBoundaryKinds.EquipmentState)
+        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment)
     ];
+
+    public static IReadOnlyList<CardEquipmentRepresentativeBoundary> EquipmentRepresentativeBoundaries =>
+        RepresentativeBoundaries.Value;
 
     public static readonly IReadOnlyList<CardEquipmentStateRepresentative> EquipmentStateRepresentatives =
     [
@@ -245,6 +245,88 @@ public static class CardEquipmentKeywordRules
             behavior.DrawCount,
             EquipmentAttachmentProfileStatuses.ImplementedRepresentative,
             "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, other static equipment modifiers, full owner/controller breadth, and full attach lifecycle breadth remain deferred.");
+    }
+
+    private static IReadOnlyList<CardEquipmentRepresentativeBoundary> BuildRepresentativeBoundaries()
+    {
+        return BuildBehaviorSpecRepresentativeBoundaries()
+            .Concat(ExplicitRepresentativeBoundaries)
+            .Concat(EquipmentStateRepresentatives.Select(representative => new CardEquipmentRepresentativeBoundary(
+                representative.CardNo,
+                EquipmentRepresentativeBoundaryKinds.EquipmentState)))
+            .GroupBy(boundary => $"{boundary.CardNo}\n{boundary.Kind}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderBy(boundary => boundary.CardNo, StringComparer.Ordinal)
+            .ThenBy(boundary => boundary.Kind, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<CardEquipmentRepresentativeBoundary> BuildBehaviorSpecRepresentativeBoundaries()
+    {
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var behaviors = CardBehaviorRegistry.GetAll();
+        var behaviorByCardNo = behaviors
+            .GroupBy(behavior => behavior.CardNo, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
+            catalog.Cards,
+            behaviors.Select(behavior => new ImplementedCardBehavior(
+                    behavior.CardNo,
+                    behavior.EffectKind,
+                    behavior.DisplayName))
+                .ToArray());
+        var boundaries = new List<CardEquipmentRepresentativeBoundary>();
+
+        foreach (var spec in BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors))
+        {
+            behaviorByCardNo.TryGetValue(spec.CardNo, out var behavior);
+            if (IsAgileDirectPlayAttachRepresentative(spec, behavior))
+            {
+                boundaries.Add(new CardEquipmentRepresentativeBoundary(
+                    spec.CardNo,
+                    EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach));
+            }
+
+            if (IsFriendlyEquipmentStaticPowerRepresentative(spec, behavior))
+            {
+                boundaries.Add(new CardEquipmentRepresentativeBoundary(
+                    spec.CardNo,
+                    EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower));
+            }
+        }
+
+        return boundaries;
+    }
+
+    private static bool IsAgileDirectPlayAttachRepresentative(
+        BehaviorSpec spec,
+        CardBehaviorDefinition? behavior)
+    {
+        return behavior is not null
+            && IsEquipmentCard(spec)
+            && behavior.PlaysSourceToBaseAsEquipment
+            && HasExactKeyword(ParseDelimitedValues(behavior.SourceEquipmentTags), CardEquipmentKeywordNames.Agile)
+            && HasOwnKeywordLine(spec, CardEquipmentKeywordNames.Agile)
+            && AssembleEquipmentProfileCatalog.HasImplementedRepresentative(spec.CardNo);
+    }
+
+    private static bool IsFriendlyEquipmentStaticPowerRepresentative(
+        BehaviorSpec spec,
+        CardBehaviorDefinition? behavior)
+    {
+        return behavior is not null
+            && behavior.PlaysSourceToBaseAsUnit
+            && spec.StaticAuras.Any(aura => string.Equals(
+                aura.Kind,
+                StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower,
+                StringComparison.Ordinal));
+    }
+
+    private static bool IsEquipmentCard(BehaviorSpec spec)
+    {
+        return string.Equals(spec.CardCategoryName, "装备", StringComparison.Ordinal)
+            || string.Equals(spec.CardCategoryName, "专属装备", StringComparison.Ordinal);
     }
 
     private static bool HasKeyword(

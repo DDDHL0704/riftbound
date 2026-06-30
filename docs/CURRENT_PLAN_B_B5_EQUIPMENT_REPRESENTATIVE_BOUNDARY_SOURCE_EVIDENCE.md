@@ -5,6 +5,20 @@
 
 This file records concrete evidence for removing duplicated equipment representative card-number helpers and routing those checks through a shared representative-boundary source table.
 
+## 2026-06-30 Supplement Evidence: BehaviorSpec-Derived Agile and Friendly-Equipment Boundaries
+
+- `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` now exposes a lazy merged boundary set rather than a single hand-written table.
+- `BuildBehaviorSpecRepresentativeBoundaries()` loads `data/official/card-catalog.zh-CN.json`, builds functional units and implemented behavior metadata, and calls `BehaviorSpecCatalogBuilder.Build(...)`.
+- `AgileDirectPlayAttach` boundaries are derived when the official `BehaviorSpec` is an equipment card with an own `{{灵便}}` line, the implemented behavior plays the source as equipment, `SourceEquipmentTags` includes `灵便`, and `AssembleEquipmentProfileCatalog.HasImplementedRepresentative(cardNo)` is true.
+- `FriendlyEquipmentStaticPower` boundaries are derived when the implemented behavior plays the source as a unit and `BehaviorSpec.StaticAuras` contains `StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower`.
+- The previous explicit `AgileDirectPlayAttach` rows for `SFD·022/221`, `SFD·056/221`, `SFD·064/221`, and `SFD·186/221` were removed.
+- The previous explicit `FriendlyEquipmentStaticPower` rows for `SFD·085/221` and `SFD·085a/221` were removed.
+- `TemperedOptionalAttach` and `TemperedOptionalAttachEquipment` rows remain explicit representative boundaries in this slice.
+- `EquipmentState` remains derived from `EquipmentStateRepresentatives` verifier metadata, not from a runtime card-number helper.
+- `EquipmentKeywordRepresentativeBoundaryGuardTests.EquipmentKeywordRepresentativeBoundariesUseSourceRowsNotCardNumberHelpers` now requires `BehaviorSpecCatalogBuilder.Build(...)`, blocks reintroducing the removed Agile / friendly-equipment static-power explicit rows, and verifies the expected positive / negative runtime boundary queries.
+- Validation passed: focused guard red/green 1/1; EquipmentKeyword / AgileEquipment / OrnnFriendlyEquipment / AssembleEquipment / EquipmentState / CardCatalogBaseline adjacent 477/477; the same set plus MatchRecovery / PaymentEngine adjacent 3254/3254; backend full conformance 9049/9049.
+- Non-closure: this does not expand full Agile reaction timing, full Tempered official breadth, owner/controller breadth, attach lifecycle breadth, copy-text effects, LayerEngine, frontend final validation, full official, or READY.
+
 ## 2026-06-28 Supplement: Tempered Attach Equipment Choice Boundary
 
 - `EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment` now identifies equipment cards that may be selected by the existing Tempered optional attach representative path.
@@ -27,7 +41,7 @@ This file records concrete evidence for removing duplicated equipment representa
 
 ## 1. Runtime Evidence
 
-- `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` now defines `CardEquipmentRepresentativeBoundary` rows keyed by `EquipmentRepresentativeBoundaryKinds`.
+- `CardEquipmentKeywordRules.EquipmentRepresentativeBoundaries` now exposes `CardEquipmentRepresentativeBoundary` values keyed by `EquipmentRepresentativeBoundaryKinds`, with Agile / friendly-equipment static-power values derived from `BehaviorSpec`, explicit Tempered values retained, and equipment-state values derived from verifier metadata.
 - `CardEquipmentKeywordRules.HasRepresentativeBoundary(cardNo, boundaryKind)` is the shared source-row query.
 - `CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary` now routes Agile direct-play attach representative checks through `HasRepresentativeBoundary`.
 - `CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary` now routes Tempered optional attach representative checks through `HasRepresentativeBoundary`.
