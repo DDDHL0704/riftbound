@@ -31,6 +31,8 @@ public partial class Main : Control
     private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
+    private Label? _promptSummary;
+    private VBoxContainer? _promptActions;
     private LineEdit? _handleInput;
     private LineEdit? _roomInput;
     private OptionButton? _deckSelect;
@@ -84,6 +86,8 @@ public partial class Main : Control
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
+        _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
+        _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
         _roomInput = GetNode<LineEdit>("Controls/SessionRow/RoomInput");
         _deckSelect = GetNode<OptionButton>("Controls/DeckRow/DeckSelect");
@@ -324,6 +328,69 @@ public partial class Main : Control
         AppendReceipt("Ready", receipt);
     }
 
+    private async Task SubmitPromptActionAsync(
+        string submitKind,
+        string cmdType,
+        string promptId,
+        long snapshotTick,
+        string label)
+    {
+        switch (submitKind)
+        {
+            case "ready":
+                await ReadyAsync();
+                return;
+            case "submitDeck":
+                await SubmitSelectedDeckAsync();
+                return;
+            case "command":
+                await SubmitPromptCommandAsync(cmdType, promptId, snapshotTick, label);
+                return;
+            default:
+                AppendLog($"[color=yellow]Prompt action requires choices: {Escape(label)}.[/color]");
+                return;
+        }
+    }
+
+    private async Task SubmitPromptCommandAsync(string cmdType, string promptId, long snapshotTick, string label)
+    {
+        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        {
+            AppendLog("[color=yellow]Prompt command skipped: not connected/authenticated.[/color]");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(cmdType))
+        {
+            AppendLog($"[color=yellow]Prompt command skipped: {Escape(label)} has no command type.[/color]");
+            return;
+        }
+
+        var payload = new Dictionary<string, object?>
+        {
+            ["cmdType"] = cmdType
+        };
+        if (!string.IsNullOrWhiteSpace(promptId))
+        {
+            payload["promptId"] = promptId;
+        }
+
+        if (snapshotTick >= 0)
+        {
+            payload["snapshotTick"] = snapshotTick;
+        }
+
+        var cmd = JsonSerializer.SerializeToElement(payload);
+        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
+            "SubmitIntent",
+            _session.RoomId,
+            _authenticatedHandle,
+            NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
+            cmd,
+            _shutdown.Token);
+        AppendReceipt(label, receipt);
+    }
+
     private PreconstructedDeck? SelectedDeck()
     {
         if (_decks.Count == 0)
@@ -391,9 +458,134 @@ public partial class Main : Control
         {
             _ = RenderSnapshotAsync(message);
         }
+        else if (channel == "Prompt")
+        {
+            RenderPrompt(message);
+        }
 
         AppendLog(
             $"[b]{Escape(channel)}[/b] type={message.Type} room={Escape(message.RoomId)} player={Escape(message.PlayerId)} tick={message.ServerTick} payload={PayloadSummary(message.Payload)}");
+    }
+
+    private void RenderPrompt(WsServerMessage message)
+    {
+        if (message.Payload is not JsonElement element || element.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        try
+        {
+            var view = BuildPromptView(element);
+            QueueMainThread(nameof(ApplyPrompt), view);
+            AppendLog($"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct.");
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Prompt render skipped: {Escape(ex.Message)}[/color]");
+        }
+    }
+
+    private static Godot.Collections.Dictionary BuildPromptView(JsonElement prompt)
+    {
+        var actions = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var promptId = ReadString(prompt, "promptId");
+        var snapshotTick = ReadOptionalLong(prompt, "snapshotTick");
+        var actionable = ReadBool(prompt, "actionable");
+        var reason = ReadString(prompt, "reason");
+        var title = "Prompt";
+        var message = reason;
+
+        if (prompt.TryGetProperty("view", out var promptView) && promptView.ValueKind == JsonValueKind.Object)
+        {
+            title = ReadString(promptView, "title");
+            message = ReadString(promptView, "message");
+        }
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            title = "Prompt";
+        }
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            message = string.IsNullOrWhiteSpace(reason) ? "Waiting for server prompt." : reason;
+        }
+
+        if (prompt.TryGetProperty("candidates", out var candidates) && candidates.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var candidate in candidates.EnumerateArray())
+            {
+                actions.Add(PromptAction(candidate, promptId, snapshotTick, actionable));
+            }
+        }
+
+        var directCount = actions.Count(action =>
+            action.TryGetValue("submitKind", out var kindValue)
+            && !string.Equals(kindValue.AsString(), "unsupported", StringComparison.Ordinal));
+
+        return new Godot.Collections.Dictionary
+        {
+            ["summary"] = $"{title}\n{message}\nActionable: {actionable} · {reason}",
+            ["actions"] = actions,
+            ["candidateCount"] = actions.Count,
+            ["directCount"] = directCount
+        };
+    }
+
+    private static Godot.Collections.Dictionary PromptAction(
+        JsonElement candidate,
+        string promptId,
+        long? snapshotTick,
+        bool promptActionable)
+    {
+        var action = ReadString(candidate, "action");
+        var label = ReadString(candidate, "label");
+        var enabled = promptActionable && ReadBool(candidate, "enabled");
+        var reason = ReadString(candidate, "reason");
+        var submitKind = DirectSubmitKind(action);
+        var cmdType = DirectCommandType(action);
+
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            label = action;
+        }
+
+        return new Godot.Collections.Dictionary
+        {
+            ["action"] = action,
+            ["label"] = label,
+            ["enabled"] = enabled,
+            ["reason"] = reason,
+            ["submitKind"] = submitKind,
+            ["cmdType"] = cmdType,
+            ["promptId"] = promptId,
+            ["snapshotTick"] = snapshotTick ?? -1L
+        };
+    }
+
+    private static string DirectSubmitKind(string action)
+    {
+        return action switch
+        {
+            "READY" => "ready",
+            "SUBMIT_DECK" => "submitDeck",
+            "PASS_PRIORITY" or "PASS_FOCUS" or "PASS" or "END_TURN" or "SURRENDER" => "command",
+            _ => "unsupported"
+        };
+    }
+
+    private static string DirectCommandType(string action)
+    {
+        return action switch
+        {
+            "PASS_PRIORITY" => "PASS_PRIORITY",
+            "PASS_FOCUS" => "PASS_FOCUS",
+            "PASS" => "PASS",
+            "END_TURN" => "END_TURN",
+            "SURRENDER" => "SURRENDER",
+            _ => string.Empty
+        };
     }
 
     private async Task RenderSnapshotAsync(WsServerMessage message)
@@ -968,6 +1160,21 @@ public partial class Main : Control
         };
     }
 
+    private static long? ReadOptionalLong(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property))
+        {
+            return null;
+        }
+
+        return property.ValueKind switch
+        {
+            JsonValueKind.Number when property.TryGetInt64(out var number) => number,
+            JsonValueKind.String when long.TryParse(property.GetString(), out var number) => number,
+            _ => null
+        };
+    }
+
     private static bool ReadBool(JsonElement element, string propertyName)
     {
         return element.TryGetProperty(propertyName, out var property)
@@ -1096,6 +1303,72 @@ public partial class Main : Control
         {
             _handRow.AddChild(CardNode(card));
         }
+    }
+
+    public void ApplyPrompt(Godot.Collections.Dictionary view)
+    {
+        if (_promptSummary is not null)
+        {
+            _promptSummary.Text = view.TryGetValue("summary", out var summary)
+                ? summary.AsString()
+                : "No prompt";
+        }
+
+        if (_promptActions is null)
+        {
+            return;
+        }
+
+        foreach (var child in _promptActions.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        var actions = view.TryGetValue("actions", out var actionsValue)
+            ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+        if (actions.Count == 0)
+        {
+            _promptActions.AddChild(new Label
+            {
+                Text = "No candidate actions"
+            });
+            return;
+        }
+
+        foreach (var action in actions)
+        {
+            _promptActions.AddChild(PromptActionNode(action));
+        }
+    }
+
+    private Control PromptActionNode(Godot.Collections.Dictionary action)
+    {
+        var row = new VBoxContainer();
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Action";
+        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
+        var submitKind = action.TryGetValue("submitKind", out var submitKindValue) ? submitKindValue.AsString() : "unsupported";
+        var cmdType = action.TryGetValue("cmdType", out var cmdTypeValue) ? cmdTypeValue.AsString() : string.Empty;
+        var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
+        var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
+        var canSubmit = enabled && !string.Equals(submitKind, "unsupported", StringComparison.Ordinal);
+
+        var button = new Button
+        {
+            Disabled = !canSubmit,
+            Text = canSubmit ? label : $"{label} (choose)",
+            TooltipText = string.IsNullOrWhiteSpace(reason) ? actionName : reason
+        };
+        button.Pressed += () => _ = SubmitPromptActionAsync(submitKind, cmdType, promptId, snapshotTick, label);
+        row.AddChild(button);
+        row.AddChild(new Label
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {reason}"
+        });
+        return row;
     }
 
     public void ApplySnapshotSections(Godot.Collections.Array<Godot.Collections.Dictionary> sections)

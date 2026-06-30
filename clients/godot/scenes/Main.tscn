@@ -134,6 +134,37 @@ layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="PromptFrame" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -304.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="PromptBox" type="VBoxContainer" parent="PromptFrame"]
+layout_mode = 2
+
+[node name="PromptSummary" type="Label" parent="PromptFrame/PromptBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = "No prompt"
+
+[node name="PromptScroll" type="ScrollContainer" parent="PromptFrame/PromptBox"]
+custom_minimum_size = Vector2(0, 216)
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="PromptActions" type="VBoxContainer" parent="PromptFrame/PromptBox/PromptScroll"]
+layout_mode = 2
+
 [node name="Log" type="RichTextLabel" parent="."]
 layout_mode = 1
 anchors_preset = 15
