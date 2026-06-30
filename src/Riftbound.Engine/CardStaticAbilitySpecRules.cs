@@ -64,6 +64,20 @@ internal static class CardStaticAbilitySpecRules
             && !string.IsNullOrWhiteSpace(ability.TargetFilter);
     }
 
+    public static bool TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility(
+        string? cardNo,
+        out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+                cardNo,
+                StaticAbilityKinds.SameBattlefieldEphemeralTurnStartSuppression,
+                out ability)
+            && string.Equals(
+                ability.TargetFilter,
+                StaticAuraTargetFilters.TagPrefix + CardObjectTags.Ephemeral,
+                StringComparison.Ordinal);
+    }
+
     public static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;

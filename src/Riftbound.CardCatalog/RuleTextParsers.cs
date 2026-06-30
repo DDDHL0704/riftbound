@@ -2436,6 +2436,17 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Battlefield extra-standby destination static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities."));
+                continue;
+            }
+
+            if (segment.Contains("你在我所处战场的{{瞬息}}效果不会触发", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SameBattlefieldEphemeralTurnStartSuppression,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Same-battlefield Ephemeral turn-start suppression parsed for spec-driven lifecycle routing.",
+                    TargetFilter: StaticAuraTargetFilters.TagPrefix + "瞬息"));
             }
         }
 

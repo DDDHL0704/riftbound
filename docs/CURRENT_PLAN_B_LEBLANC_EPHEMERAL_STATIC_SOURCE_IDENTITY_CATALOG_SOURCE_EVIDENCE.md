@@ -3,6 +3,8 @@
 日期：2026-06-25
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
+2026-06-30 follow-up: the current runtime source predicate has moved from `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` to `BehaviorSpec.StaticAbilities`; see `docs/CURRENT_PLAN_B_LEBLANC_EPHEMERAL_STATIC_ABILITY_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_LEBLANC_EPHEMERAL_STATIC_ABILITY_SPEC_EVIDENCE.md`. This file remains the historical evidence for the earlier cardNo allow-list removal.
+
 This file records the concrete evidence for removing the duplicated LeBlanc ephemeral-static card-number allow-list from `CoreRuleEngine`.
 
 ## 1. Runtime Evidence

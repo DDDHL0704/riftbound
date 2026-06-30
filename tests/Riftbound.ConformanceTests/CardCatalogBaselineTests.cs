@@ -563,7 +563,13 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsLeblancEphemeralStaticUnitCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("LeblancEphemeralStaticUnitCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("UNL-090a/219", source, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("LeblancEphemeralStaticSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("LEBLANC_PLAY_KEYWORD_UNIT", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT", source, StringComparison.Ordinal);
+        Assert.Contains(
+            "CardStaticAbilitySpecRules.TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility",
+            source,
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -3841,6 +3847,30 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(StaticAbilityKinds.BattlefieldGrantLegendAttachArmament, ability.Kind);
         Assert.Contains("所有友方传奇获得", ability.Text, StringComparison.Ordinal);
         Assert.Contains("将你控制的一件武装贴附", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Theory]
+    [InlineData("UNL-090/219")]
+    [InlineData("UNL-090a/219")]
+    public async Task BehaviorSpecCatalogParsesLeblancEphemeralSuppressionStaticAbility(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var leblanc = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var ability = Assert.Single(
+            leblanc.StaticAbilities,
+            candidate => string.Equals(
+                candidate.Kind,
+                StaticAbilityKinds.SameBattlefieldEphemeralTurnStartSuppression,
+                StringComparison.Ordinal));
+
+        Assert.Equal(StaticAbilityKinds.SameBattlefieldEphemeralTurnStartSuppression, ability.Kind);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + CardObjectTags.Ephemeral, ability.TargetFilter);
+        Assert.Contains("我所处战场", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("{{瞬息}}效果不会触发", ability.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
     }
 

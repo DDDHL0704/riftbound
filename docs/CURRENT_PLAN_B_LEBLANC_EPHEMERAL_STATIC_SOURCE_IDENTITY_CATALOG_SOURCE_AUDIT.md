@@ -3,6 +3,8 @@
 日期：2026-06-25
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
+2026-06-30 follow-up: the current runtime source predicate has moved one step further to `BehaviorSpec.StaticAbilities`; see `docs/CURRENT_PLAN_B_LEBLANC_EPHEMERAL_STATIC_ABILITY_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_LEBLANC_EPHEMERAL_STATIC_ABILITY_SPEC_EVIDENCE.md`. This document remains the historical evidence for deleting the old cardNo allow-list.
+
 本文件记录 Plan B 小切片：把乐芙兰“同战场瞬息效果不会触发”的开始阶段清理抑制 source identity 从 `CoreRuleEngine` 本地 cardNo allow-list 改为 `CardBehaviorRegistry` 的已实现单位 `EffectKind` 查询。该切片只收窄 LeBlanc ephemeral static source identity 硬编码，不关闭完整瞬息 replacement / cleanup breadth、完整 LeBlanc official、完整 lifecycle matrix 或 READY。
 
 ## 1. Scope

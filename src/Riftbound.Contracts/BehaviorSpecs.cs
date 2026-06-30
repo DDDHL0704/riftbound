@@ -322,6 +322,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_EXTRA_STANDBY_DESTINATION";
     public const string BattlefieldDestroyedInBattlePayRecallReplacement =
         "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
+    public const string SameBattlefieldEphemeralTurnStartSuppression =
+        "SAME_BATTLEFIELD_EPHEMERAL_TURN_START_SUPPRESSION";
 }
 
 public static class StaticAuraKinds

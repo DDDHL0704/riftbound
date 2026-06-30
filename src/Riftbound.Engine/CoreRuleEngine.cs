@@ -132,8 +132,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag;
     private const string LeblancLegendIdentityId = LegendIdentityCatalog.LeblancLegendIdentityId;
-    private const string LeblancEphemeralStaticSourceEffectKind = "LEBLANC_PLAY_KEYWORD_UNIT";
-    private const string LeblancEphemeralStaticAltSourceEffectKind = "LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT";
     private const string ReksaiLegendIdentityId = LegendIdentityCatalog.ReksaiLegendIdentityId;
     private const string IvernLegendIdentityId = LegendIdentityCatalog.IvernLegendIdentityId;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
@@ -22233,10 +22231,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool IsLeblancEphemeralStaticSourceBehavior(string? cardNo)
+    private static bool SuppressesSameBattlefieldEphemeralTurnStart(string? cardNo)
     {
-        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, LeblancEphemeralStaticSourceEffectKind)
-            || CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, LeblancEphemeralStaticAltSourceEffectKind);
+        return CardStaticAbilitySpecRules.TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility(cardNo, out _);
     }
 
     private static void AddBattlefieldHeldEventIfNeeded(
@@ -30630,7 +30627,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 && IsObjectOnField(playerZones, entry.Key)
                 && cardObjects.TryGetValue(entry.Key, out var candidate)
-                && IsLeblancEphemeralStaticSourceBehavior(candidate.CardNo)
+                && SuppressesSameBattlefieldEphemeralTurnStart(candidate.CardNo)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !candidate.IsFaceDown
                 && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
