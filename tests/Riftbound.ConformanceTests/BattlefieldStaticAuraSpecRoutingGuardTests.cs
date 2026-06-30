@@ -129,6 +129,33 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
         Assert.Contains("StaticAuraSpecRules.IsSourceObjectPowerStaticAura", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void SourceBattleStatePowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveSourceBattleStatePowerStaticAuraBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildSourceBattleStatePowerStaticAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

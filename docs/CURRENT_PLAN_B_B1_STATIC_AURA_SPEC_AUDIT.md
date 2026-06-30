@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Source Battle-State POWER Aura Scope Router
+
+This follow-up merges source battle-state POWER aura families into shared `StaticAuraSpec` scope routing: attacking with another unit, lone battle, and attacking a battlefield with ready enemy units.
+
+`CoreRuleEngine` now computes these source-combat POWER bonuses through `ResolveSourceBattleStatePowerStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and filtering with `StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura`. The runtime condition is derived from participant scope: `AttackingBattlefieldPublicUnits`, `BattlefieldPublicUnits`, and `ReadyEnemyBattlefieldPublicUnits`, while the existing required participant-count fields still drive the exact threshold.
+
+`MatchSession` now projects those same source battle-state POWER auras through `BuildSourceBattleStatePowerStaticAuraEffects`, again enumerating the source object's `BehaviorSpec.StaticAuras` instead of separate Scarlet Pigeon / Waterbender / Dune Drake-shaped projection helpers. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+Validation: red/green focused `SourceBattleStatePowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; source-combat focused regression 16/16; StaticAura / StaticPower / SourceCombat / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2219/2219; backend full conformance 9064/9064.
+
+Non-closure: this slice only consolidates source battle-state POWER scope routing. Source-object RULE_TEXT keyword routing, count-to-source POWER families, friendly-equipment count-to-source power, full LayerEngine timestamp/order semantics, full B1, P0, and READY remain open.
+
 ## 2026-06-30 Supplement: Source-Object POWER Aura Scope Router
 
 This follow-up merges source-object POWER aura families into shared `StaticAuraSpec` scope routing: source-object filtered POWER and source-object level/experience POWER.

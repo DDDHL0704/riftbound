@@ -20013,10 +20013,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             objectId,
             cardObject);
-        staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
-        staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
         staticPowerBonus += ResolveSourceObjectPowerStaticAuraBonus(state, cardObject);
-        staticPowerBonus += ResolveSourceLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
+        staticPowerBonus += ResolveSourceBattleStatePowerStaticAuraBonus(
+            cardObject,
+            isAttacking,
+            attackingUnitCount,
+            defendingUnitCount,
+            readyEnemyUnitCount);
         staticPowerBonus += ResolveBattlefieldPowerStaticAuraBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(
             state,
@@ -20027,27 +20030,76 @@ public sealed class CoreRuleEngine : IRuleEngine
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
 
-    private static int ResolveSourceLoneBattlePowerBonus(
+    private static int ResolveSourceBattleStatePowerStaticAuraBonus(
         CardObjectState cardObject,
         bool isAttacking,
         int attackingUnitCount,
-        int defendingUnitCount)
+        int defendingUnitCount,
+        int readyEnemyUnitCount)
     {
-        if (!StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(cardObject.CardNo, out var aura)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
         {
             return 0;
         }
 
-        return isAttacking
-            ? attackingUnitCount == aura.RequiredAttackingUnitCount.GetValueOrDefault(1)
-                ? aura.PowerDeltaPerParticipant
-                : 0
-            : defendingUnitCount == aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
-                ? aura.PowerDeltaPerParticipant
-                : 0;
+        var bonus = 0;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura))
+        {
+            if (!SourceBattleStatePowerStaticAuraApplies(
+                    aura,
+                    isAttacking,
+                    attackingUnitCount,
+                    defendingUnitCount,
+                    readyEnemyUnitCount))
+            {
+                continue;
+            }
+
+            bonus += aura.PowerDeltaPerParticipant;
+        }
+
+        return bonus;
+    }
+
+    private static bool SourceBattleStatePowerStaticAuraApplies(
+        StaticAuraSpec aura,
+        bool isAttacking,
+        int attackingUnitCount,
+        int defendingUnitCount,
+        int readyEnemyUnitCount)
+    {
+        if (string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.AttackingBattlefieldPublicUnits,
+                StringComparison.Ordinal))
+        {
+            return isAttacking
+                && attackingUnitCount >= aura.RequiredAttackingUnitCount.GetValueOrDefault(2);
+        }
+
+        if (string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.ReadyEnemyBattlefieldPublicUnits,
+                StringComparison.Ordinal))
+        {
+            return isAttacking
+                && readyEnemyUnitCount >= aura.RequiredReadyEnemyUnitCount.GetValueOrDefault(1);
+        }
+
+        if (string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.BattlefieldPublicUnits,
+                StringComparison.Ordinal))
+        {
+            return isAttacking
+                ? attackingUnitCount == aura.RequiredAttackingUnitCount.GetValueOrDefault(1)
+                : defendingUnitCount == aura.RequiredDefendingUnitCount.GetValueOrDefault(1);
+        }
+
+        return false;
     }
 
     private static int ResolveSourceObjectFilteredKeywordBonus(CardObjectState cardObject, string combatKeyword)
@@ -20109,21 +20161,6 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return !string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
             || !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura);
-    }
-
-    private static int ResolveSourceAttackingReadyEnemyUnitPowerBonus(
-        CardObjectState cardObject,
-        bool isAttacking,
-        int readyEnemyUnitCount)
-    {
-        return isAttacking
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(cardObject.CardNo, out var aura)
-            && readyEnemyUnitCount >= aura.RequiredReadyEnemyUnitCount.GetValueOrDefault(1)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
     }
 
     private static bool IsStunnedForBattle(CardObjectState cardObject)
@@ -20665,21 +20702,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.ObjectLocations,
             objectId,
             controllerId)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
-    }
-
-    private static int ResolveSourceAttackingWithAnotherUnitPowerBonus(
-        CardObjectState cardObject,
-        bool isAttacking,
-        int attackingUnitCount)
-    {
-        return isAttacking
-            && StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(cardObject.CardNo, out var aura)
-            && attackingUnitCount >= aura.RequiredAttackingUnitCount.GetValueOrDefault(2)
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             ? aura.PowerDeltaPerParticipant
             : 0;
     }

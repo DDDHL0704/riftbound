@@ -6,6 +6,16 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Source Battle-State POWER Aura Scope Router
+
+- `StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is current attackers, all current battle participants, or ready enemy units at the current battlefield.
+- `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and sums matching `PowerDeltaPerParticipant` values instead of calling separate source-attacking-with-another, source-lone-battle, and source-attacking-ready-enemy POWER resolvers.
+- `MatchSession.BuildSourceBattleStatePowerStaticAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and projects matching source battle-state POWER static auras from their `StaticAuraSpec` participant scopes instead of separate projection builders.
+- Existing recovery-sensitive metadata remains compatible for the current representatives: `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` still project the same effect id prefixes, source paths, conditions and lifecycle strings.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceBattleStatePowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing direct `StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura` / `TryGetSourceLoneBattlePowerAura` / `TryGetSourceAttackingReadyEnemyUnitPowerAura` calls in CoreRuleEngine or MatchSession source battle-state POWER execution/projection routing.
+- Validation passed: red/green focused guard 1/1; source-combat focused regression 16/16; StaticAura / StaticPower / SourceCombat / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2219/2219; backend full conformance 9064/9064.
+- Non-closure: this does not finish source-object RULE_TEXT keyword routing, count-to-source POWER families, friendly-equipment count-to-source power, complete LayerEngine timestamp/order behavior, full B1, P0, or READY.
+
 ## 2026-06-30 Supplement Evidence: Source-Object POWER Aura Scope Router
 
 - `StaticAuraSpecRules.IsSourceObjectPowerStaticAura` is now the shared predicate for source-object POWER static auras whose target/participant scope is the source object itself.

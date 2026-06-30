@@ -326,6 +326,29 @@ internal static class StaticAuraSpecRules
             && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SourceObject, StringComparison.Ordinal);
     }
 
+    public static bool IsSourceBattleStatePowerStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || aura.PowerDeltaPerParticipant == 0
+            || !string.Equals(aura.TargetScope, StaticAuraTargetScopes.SourceObject, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.AttackingBattlefieldPublicUnits,
+                StringComparison.Ordinal)
+            || string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.BattlefieldPublicUnits,
+                StringComparison.Ordinal)
+            || string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.ReadyEnemyBattlefieldPublicUnits,
+                StringComparison.Ordinal);
+    }
+
     public static bool IsBattlefieldPowerStaticAura(StaticAuraSpec aura)
     {
         if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
