@@ -6,8 +6,6 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
 using Riftbound.Contracts;
 
 namespace Riftbound.GodotClient;
@@ -72,7 +70,7 @@ public partial class Main : Control
     private Button? _loadDecksButton;
     private Button? _submitDeckButton;
     private Button? _readyButton;
-    private HubConnection? _connection;
+    private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
     private bool _autoSmoke;
     private bool _autoSmokeMulligan;
@@ -288,17 +286,15 @@ public partial class Main : Control
         await SaveSessionAsync();
 
         SetStatus("Connecting");
-        if (_connection is null || _connection.State == HubConnectionState.Disconnected)
+        var hub = EnsureHubClient();
+        var started = await hub.StartAsync(_shutdown.Token);
+        if (started)
         {
-            _connection = BuildConnection();
-            RegisterServerHandlers(_connection);
-            await _connection.StartAsync(_shutdown.Token);
             AppendLog($"Connected to {ServerUrl}/hubs/game.");
         }
 
         SetStatus("Connected");
-        var auth = await _connection!.InvokeAsync<AuthResultDto>(
-            "Authenticate",
+        var auth = await hub.AuthenticateAsync(
             _session.Handle,
             _session.PlayerKey,
             _shutdown.Token);
@@ -313,6 +309,20 @@ public partial class Main : Control
         return true;
     }
 
+    private RiftboundGameHubClient EnsureHubClient()
+    {
+        if (_hub is not null)
+        {
+            return _hub;
+        }
+
+        _hub = new RiftboundGameHubClient(ServerUrl);
+        _hub.StatusChanged += SetStatus;
+        _hub.LogReceived += AppendLog;
+        _hub.ServerMessageReceived += LogMessage;
+        return _hub;
+    }
+
     private async Task CreatePublicMatchAsync()
     {
         try
@@ -323,8 +333,7 @@ public partial class Main : Control
             }
 
             SetMatchmakingStatus("Creating public match...");
-            var result = await _connection!.InvokeAsync<CreatePublicMatchResultDto?>(
-                "CreatePublicMatch",
+            var result = await _hub!.CreatePublicMatchAsync(
                 _authenticatedHandle,
                 _shutdown.Token);
             if (result is null)
@@ -357,8 +366,7 @@ public partial class Main : Control
             }
 
             SetMatchmakingStatus("Queueing...");
-            var status = await _connection!.InvokeAsync<MatchmakingStatusDto>(
-                "EnqueueMatchmaking",
+            var status = await _hub!.EnqueueMatchmakingAsync(
                 _authenticatedHandle,
                 _shutdown.Token);
             await ApplyMatchmakingStatusAsync(status, "EnqueueMatchmaking");
@@ -384,8 +392,7 @@ public partial class Main : Control
             }
 
             SetMatchmakingStatus("Cancelling queue...");
-            var status = await _connection!.InvokeAsync<MatchmakingStatusDto>(
-                "CancelMatchmaking",
+            var status = await _hub!.CancelMatchmakingAsync(
                 _authenticatedHandle,
                 _shutdown.Token);
             await ApplyMatchmakingStatusAsync(status, "CancelMatchmaking");
@@ -452,21 +459,19 @@ public partial class Main : Control
             return;
         }
 
-        var shouldReconnect = useReconnectToken && !string.IsNullOrWhiteSpace(_session.ReconnectToken);
-        if (shouldReconnect)
+        var reconnectToken = _session.ReconnectToken;
+        if (useReconnectToken && !string.IsNullOrWhiteSpace(reconnectToken))
         {
-            await _connection!.InvokeAsync(
-                "Reconnect",
+            await _hub!.ReconnectAsync(
                 _session.RoomId,
                 _authenticatedHandle,
-                _session.ReconnectToken,
+                reconnectToken,
                 _shutdown.Token);
             AppendLog($"Reconnect requested: room={_session.RoomId}, player={_authenticatedHandle}.");
         }
         else
         {
-            await _connection!.InvokeAsync(
-                "JoinRoom",
+            await _hub!.JoinRoomAsync(
                 _session.RoomId,
                 _authenticatedHandle,
                 null,
@@ -474,7 +479,7 @@ public partial class Main : Control
             AppendLog($"JoinRoom requested: room={_session.RoomId}, player={_authenticatedHandle}.");
         }
 
-        await _connection!.InvokeAsync("RequestSnapshot", _session.RoomId, _authenticatedHandle, _shutdown.Token);
+        await _hub!.RequestSnapshotAsync(_session.RoomId, _authenticatedHandle, _shutdown.Token);
         AppendLog("RequestSnapshot submitted.");
     }
 
@@ -512,8 +517,7 @@ public partial class Main : Control
             deck.MainDeck,
             deck.RuneDeck,
             deck.Battlefields);
-        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-            "SubmitIntent",
+        var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId("submit-deck"),
@@ -549,8 +553,7 @@ public partial class Main : Control
             return;
         }
 
-        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-            "Ready",
+        var receipt = await _hub!.ReadyAsync(
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId("ready"),
@@ -611,8 +614,7 @@ public partial class Main : Control
         }
 
         var cmd = JsonSerializer.SerializeToElement(payload);
-        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-            "SubmitIntent",
+        var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
@@ -646,8 +648,7 @@ public partial class Main : Control
         }
 
         var cmd = JsonSerializer.SerializeToElement(payload);
-        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-            "SubmitIntent",
+        var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId($"prompt-{intentSuffix}"),
@@ -692,8 +693,7 @@ public partial class Main : Control
         }
 
         var cmd = JsonSerializer.SerializeToElement(payload);
-        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-            "SubmitIntent",
+        var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId("prompt-mulligan"),
@@ -741,8 +741,7 @@ public partial class Main : Control
 
             var cmdType = payload.TryGetValue("cmdType", out var cmdTypeValue) ? Convert.ToString(cmdTypeValue) ?? "command" : "command";
             var cmd = JsonSerializer.SerializeToElement(payload);
-            var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
-                "SubmitIntent",
+            var receipt = await _hub!.SubmitIntentAsync(
                 _session.RoomId,
                 _authenticatedHandle,
                 NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
@@ -973,48 +972,6 @@ public partial class Main : Control
 
         var selected = _deckSelect is null ? 0 : Math.Max(0, _deckSelect.Selected);
         return selected < _decks.Count ? _decks[selected] : _decks[0];
-    }
-
-    private HubConnection BuildConnection()
-    {
-        return new HubConnectionBuilder()
-            .WithUrl($"{ServerUrl.TrimEnd('/')}/hubs/game")
-            .WithAutomaticReconnect()
-            .AddJsonProtocol(options =>
-            {
-                options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            })
-            .Build();
-    }
-
-    private void RegisterServerHandlers(HubConnection connection)
-    {
-        connection.Reconnecting += error =>
-        {
-            SetStatus("Reconnecting");
-            AppendLog($"Reconnecting: {error?.Message ?? "unknown reason"}.");
-            return Task.CompletedTask;
-        };
-        connection.Reconnected += connectionId =>
-        {
-            SetStatus("Connected");
-            AppendLog($"Reconnected: {connectionId ?? "no connection id"}.");
-            return Task.CompletedTask;
-        };
-        connection.Closed += error =>
-        {
-            SetStatus("Disconnected");
-            AppendLog($"Closed: {error?.Message ?? "normal close"}.");
-            return Task.CompletedTask;
-        };
-
-        connection.On<WsServerMessage>("Joined", message => LogMessage("Joined", message));
-        connection.On<WsServerMessage>("Snapshot", message => LogMessage("Snapshot", message));
-        connection.On<WsServerMessage>("Prompt", message => LogMessage("Prompt", message));
-        connection.On<WsServerMessage>("Events", message => LogMessage("Events", message));
-        connection.On<WsServerMessage>("Error", message => LogMessage("Error", message));
-        connection.On<WsServerMessage>("Matchmaking", message => LogMessage("Matchmaking", message));
     }
 
     private void LogMessage(string channel, WsServerMessage message)
@@ -2348,18 +2305,18 @@ public partial class Main : Control
 
     private async Task DisconnectAsync()
     {
-        if (_connection is null)
+        if (_hub is null)
         {
             return;
         }
 
-        await _connection.DisposeAsync();
-        _connection = null;
+        await _hub.DisposeAsync();
+        _hub = null;
     }
 
     private bool IsConnected()
     {
-        return _connection?.State == HubConnectionState.Connected;
+        return _hub?.IsConnected == true;
     }
 
     private static string NewIntentId(string prefix)
