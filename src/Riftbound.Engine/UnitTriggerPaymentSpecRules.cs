@@ -11,23 +11,27 @@ internal static class UnitTriggerPaymentSpecRules
     public static bool TryGetUnitArmamentAttachedPayDrawTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(cardNo, TriggerKinds.UnitArmamentAttachedPayDraw, out trigger)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitArmamentAttached, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyEquipment, StringComparison.Ordinal)
-            && trigger.Optional == true
-            && trigger.ManaCost is > 0
-            && trigger.DrawCount is > 0;
+            && IsUnitArmamentAttachedPayDrawTrigger(trigger);
+    }
+
+    public static bool TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(
+        string? effectKind,
+        out TriggerSpec trigger)
+    {
+        return TryGetTriggerByEffectKind(effectKind, IsUnitArmamentAttachedPayDrawTrigger, out trigger);
     }
 
     public static bool TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(cardNo, TriggerKinds.UnitControlledUnitPowerfulPayPowerReady, out trigger)
-            && string.Equals(trigger.Timing, TriggerTimings.ControlledUnitBecamePowerful, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitOnField, StringComparison.Ordinal)
-            && trigger.Optional == true
-            && trigger.PowerCost is > 0
-            && !string.IsNullOrWhiteSpace(trigger.PowerCostTrait)
-            && trigger.RequiredPowerThreshold is > 0
-            && trigger.UnitReadyCount is > 0;
+            && IsUnitControlledUnitPowerfulPayPowerReadyTrigger(trigger);
+    }
+
+    public static bool TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(
+        string? effectKind,
+        out TriggerSpec trigger)
+    {
+        return TryGetTriggerByEffectKind(effectKind, IsUnitControlledUnitPowerfulPayPowerReadyTrigger, out trigger);
     }
 
     public static bool TryGetUnitAttackPayPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
@@ -40,24 +44,29 @@ internal static class UnitTriggerPaymentSpecRules
         string? effectKind,
         out TriggerSpec trigger)
     {
-        trigger = default!;
-        if (string.IsNullOrWhiteSpace(effectKind))
-        {
-            return false;
-        }
+        return TryGetTriggerByEffectKind(effectKind, IsUnitAttackPayPowerModifierTrigger, out trigger);
+    }
 
-        var match = TriggersByCardNo.Value
-            .SelectMany(entry => entry.Value)
-            .FirstOrDefault(candidate =>
-                IsUnitAttackPayPowerModifierTrigger(candidate)
-                && string.Equals(candidate.EffectKind, effectKind.Trim(), StringComparison.Ordinal));
-        if (match is null)
-        {
-            return false;
-        }
+    private static bool IsUnitArmamentAttachedPayDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitArmamentAttachedPayDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitArmamentAttached, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyEquipment, StringComparison.Ordinal)
+            && trigger.Optional == true
+            && trigger.ManaCost is > 0
+            && trigger.DrawCount is > 0;
+    }
 
-        trigger = match;
-        return true;
+    private static bool IsUnitControlledUnitPowerfulPayPowerReadyTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitControlledUnitPowerfulPayPowerReady, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.ControlledUnitBecamePowerful, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitOnField, StringComparison.Ordinal)
+            && trigger.Optional == true
+            && trigger.PowerCost is > 0
+            && !string.IsNullOrWhiteSpace(trigger.PowerCostTrait)
+            && trigger.RequiredPowerThreshold is > 0
+            && trigger.UnitReadyCount is > 0;
     }
 
     private static bool IsUnitAttackPayPowerModifierTrigger(TriggerSpec trigger)
@@ -70,6 +79,39 @@ internal static class UnitTriggerPaymentSpecRules
             && trigger.PowerDelta is < 0
             && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(trigger.EffectKind);
+    }
+
+    private static bool TryGetTriggerByEffectKind(
+        string? effectKind,
+        Func<TriggerSpec, bool> predicate,
+        out TriggerSpec trigger)
+    {
+        trigger = default!;
+        if (string.IsNullOrWhiteSpace(effectKind))
+        {
+            return false;
+        }
+
+        var normalized = effectKind.Trim();
+        var match = TriggersByCardNo.Value
+            .SelectMany(entry => entry.Value)
+            .FirstOrDefault(candidate =>
+                predicate(candidate)
+                && string.Equals(RuntimeEffectKind(candidate), normalized, StringComparison.Ordinal));
+        if (match is null)
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
+    }
+
+    private static string RuntimeEffectKind(TriggerSpec trigger)
+    {
+        return string.IsNullOrWhiteSpace(trigger.EffectKind)
+            ? trigger.Kind
+            : trigger.EffectKind!;
     }
 
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)

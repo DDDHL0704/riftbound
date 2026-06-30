@@ -59,12 +59,16 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain("SfdFioraPowerfulReadyAltCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdFioraPowerfulReadySourceEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdFioraPowerfulReadyAltSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SfdFioraPowerfulReadyEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY\"", source, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSfdFioraPowerfulReadySourceBehavior", source, StringComparison.Ordinal);
         Assert.DoesNotContain("IsJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachAltCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachSourceEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdJaxWeaponAttachAltSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("JaxWeaponAttachPayOneDrawEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"JAX_WEAPON_ATTACH_PAY_1_DRAW_1\"", source, StringComparison.Ordinal);
         Assert.DoesNotContain("IsJaxWeaponAttachSourceBehavior", source, StringComparison.Ordinal);
         Assert.DoesNotContain("OgnVayneConquerRecallSourceEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("TryGetOgnVayneConquerRecallSource", source, StringComparison.Ordinal);
@@ -73,7 +77,9 @@ public sealed class TriggerPaymentTests
         Assert.Contains("UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger", source, StringComparison.Ordinal);
         Assert.Contains("TryOpenUnitConquestPayReturnSelfToHandPaymentWindow", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, OgnVayneCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, IcevaleArcherCardNo", source, StringComparison.Ordinal);

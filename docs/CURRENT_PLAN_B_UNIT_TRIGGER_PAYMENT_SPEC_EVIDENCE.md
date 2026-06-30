@@ -7,6 +7,8 @@ This file records evidence for routing the existing Jax and Fiora unit trigger-p
 
 2026-06-30 supplement: Icevale Archer / 冰谷弓箭手 attack-payment now has its own `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec slice. See `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`.
 
+2026-06-30 follow-up: Jax and Fiora pending-payment reason parsing and runtime trigger payloads now validate through `UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(...)` and `TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(...)`. `CoreRuleEngine` no longer owns `JaxWeaponAttachPayOneDrawEffectKind`, `SfdFioraPowerfulReadyEffectKind`, or the literal Jax / Fiora wire strings.
+
 ## 1. Official Rule Evidence
 
 - Official catalog entry `SFD·119/221` and `SFD·119a/221`: “当你为我贴附武装时，可以选择支付{{1}}，以此抽一张牌。”
@@ -35,8 +37,11 @@ These entries are sourced from `data/official/card-catalog.zh-CN.json`; no offic
 - `TriggerSpec` now carries `PowerCostTrait`, and DevUi catalog typing mirrors that field for shared catalog payload compatibility.
 - `UnitTriggerPaymentSpecRules` builds a catalog-backed map and exposes:
   - `TryGetUnitArmamentAttachedPayDrawTrigger(...)`
+  - `TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(...)`
   - `TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(...)`
+  - `TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(...)`
 - `CoreRuleEngine.TryGetJaxWeaponAttachSource(...)` and `TryGetSfdFioraPowerfulReadySource(...)` now require the relevant `TriggerSpec` and keep the previous public-field, visible, non-standby, current-controller / legacy-owned source guards.
+- `CoreRuleEngine` builds pending-payment reasons, validates submitted payment reasons, and emits trigger/reason payload fields from the runtime trigger effect kind derived from `TriggerSpec`.
 - Jax payment-window cost and draw resolution now read `ManaCost` / `DrawCount` from `TriggerSpec`.
 - Fiora payment-window cost, typed trait and threshold now read `PowerCost` / `PowerCostTrait` / `RequiredPowerThreshold` from `TriggerSpec`.
 - The wire-compatible trigger/effect strings are intentionally preserved: `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` and `SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY`.
@@ -52,7 +57,7 @@ Focused test file:
 Coverage:
 
 - `BehaviorSpecCatalogParsesUnitTriggerPaymentTriggers` proves the official Jax and Fiora card entries produce the expected `TriggerSpec` rows.
-- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now blocks reintroducing the old Jax / Fiora source-effect constants and helper methods in `CoreRuleEngine`, while requiring the new `UnitTriggerPaymentSpecRules` calls.
+- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now blocks reintroducing the old Jax / Fiora source-effect constants, runtime wire constants, and helper methods in `CoreRuleEngine`, while requiring the new `UnitTriggerPaymentSpecRules` calls.
 - Existing Jax and Fiora trigger-payment runtime tests verify prompt opening, pay, decline, insufficient payment and hidden/source guard behavior remains intact.
 
 ## 4. Verification
@@ -81,11 +86,27 @@ Result: 40/40 passed.
 
 Result: 3175/3175 passed.
 
+2026-06-30 follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~SfdFiora|FullyQualifiedName~TriggerPayment|FullyQualifiedName~PaymentEngine|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 3187/3187 passed.
+
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
 Result: 8813/8813 passed.
+
+2026-06-30 follow-up backend full:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 9038/9038 passed.
 
 ```sh
 /opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build

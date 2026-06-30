@@ -7,6 +7,8 @@
 
 2026-06-30 补充：Icevale Archer / 冰谷弓箭手 attack-payment representative 已进一步迁移到 `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec 路径；审计入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`。本文件的 Jax / Fiora 验收口径不变。
 
+2026-06-30 follow-up：Jax / Fiora pending-payment wire strings now also come from `BehaviorSpec.Triggers` / `UnitTriggerPaymentSpecRules` instead of Core-local `JaxWeaponAttachPayOneDrawEffectKind` and `SfdFioraPowerfulReadyEffectKind` constants. Focused source guard 2/2, adjacent trigger-payment / payment / recovery 3187/3187, and backend full 9038/9038 passed. Runtime payload strings remain unchanged.
+
 ## 1. Scope
 
 Changed:
@@ -45,8 +47,8 @@ Not changed:
 |---|---|---|
 | Jax trigger payment source / cost / draw shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitArmamentAttachedPayDraw`, `Timing=UNIT_ARMAMENT_ATTACHED`, `TargetScope=FRIENDLY_EQUIPMENT`, `ManaCost=1`, `DrawCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger(...)` | Accepted |
 | Fiora trigger payment source / cost / ready shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitControlledUnitPowerfulPayPowerReady`, `Timing=CONTROLLED_UNIT_BECAME_POWERFUL`, `TargetScope=CONTROLLED_UNIT_ON_FIELD`, `PowerCost=1`, `PowerCostTrait=yellow`, `RequiredPowerThreshold=5`, `UnitReadyCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(...)` | Accepted |
-| Core no longer duplicates Jax / Fiora trigger-payment source-effect selectors | `SfdJaxWeaponAttachSourceEffectKind`, `SfdJaxWeaponAttachAltSourceEffectKind`, `IsJaxWeaponAttachSourceBehavior`, `SfdFioraPowerfulReadySourceEffectKind`, `SfdFioraPowerfulReadyAltSourceEffectKind`, and `IsSfdFioraPowerfulReadySourceBehavior` were removed from `CoreRuleEngine` | Accepted |
-| Existing wire/event compatibility is preserved | trigger/effect strings remain `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` and `SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY`; prompt/event payload shape is unchanged | Accepted |
+| Core no longer duplicates Jax / Fiora trigger-payment source-effect selectors | `SfdJaxWeaponAttachSourceEffectKind`, `SfdJaxWeaponAttachAltSourceEffectKind`, `IsJaxWeaponAttachSourceBehavior`, `SfdFioraPowerfulReadySourceEffectKind`, `SfdFioraPowerfulReadyAltSourceEffectKind`, `IsSfdFioraPowerfulReadySourceBehavior`, `JaxWeaponAttachPayOneDrawEffectKind`, and `SfdFioraPowerfulReadyEffectKind` were removed from `CoreRuleEngine` | Accepted |
+| Existing wire/event compatibility is preserved | trigger/effect strings remain `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` and `SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY`, now sourced through `TriggerSpec.Kind` / `TriggerSpec.EffectKind`; prompt/event payload shape is unchanged | Accepted |
 | Frontend shared catalog type stays aligned | `src/Riftbound.DevUi/src/types/catalog.ts` now includes `powerCostTrait?: string | null` | Accepted |
 | Full official breadth | complete Jax/Fiora timing, multiplicity, ordering, target selection, equipment lifecycle and payment edge cases remain residual | Residual, no full-official claim |
 
@@ -78,11 +80,27 @@ Result: 40/40 passed.
 
 Result: 3175/3175 passed.
 
+2026-06-30 follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~JaxWeaponAttach|FullyQualifiedName~SfdFiora|FullyQualifiedName~TriggerPayment|FullyQualifiedName~PaymentEngine|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 3187/3187 passed.
+
 ```sh
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
 ```
 
 Result: 8813/8813 passed.
+
+2026-06-30 follow-up backend full:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 9038/9038 passed.
 
 ```sh
 /opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build

@@ -107,7 +107,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
@@ -140,7 +139,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendIdentityId = LegendIdentityCatalog.SettLegendIdentityId;
     private const int SettLegendManaCost = 1;
     private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
-    private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -810,6 +808,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (TryReadSfdFioraPowerfulReadyPaymentContext(
                 pendingPayment,
+                out var fioraEffectKind,
                 out var fioraSourceObjectId,
                 out var fioraTargetObjectId))
         {
@@ -818,6 +817,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent,
                 pendingPayment,
                 submittedChoices,
+                fioraEffectKind,
                 fioraSourceObjectId,
                 fioraTargetObjectId);
         }
@@ -939,6 +939,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (TryReadJaxWeaponAttachPaymentContext(
                 pendingPayment,
+                out var jaxEffectKind,
                 out var jaxSourceObjectId,
                 out var jaxEquipmentObjectId))
         {
@@ -947,6 +948,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent,
                 pendingPayment,
                 submittedChoices,
+                jaxEffectKind,
                 jaxSourceObjectId,
                 jaxEquipmentObjectId);
         }
@@ -1702,12 +1704,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PendingPaymentState pendingPayment,
         IReadOnlyList<string> submittedChoices,
+        string effectKind,
         string sourceObjectId,
         string equipmentObjectId)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
+            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
             || !TryGetAttachedArmamentForJax(cardObjects, playerZones, intent.PlayerId, sourceObjectId, equipmentObjectId, out var equipmentState))
         {
             return RejectWithCorePrompts(
@@ -1720,7 +1724,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            JaxWeaponAttachPayOneDrawEffectKind,
+            effectKind,
             sourceObjectId);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
         if (!paymentCommit.Accepted)
@@ -1747,7 +1751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = JaxWeaponAttachPayOneDrawEffectKind
+                        ["reason"] = effectKind
                     })),
             new(
                 "TRIGGER_RESOLVED",
@@ -1755,7 +1759,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["trigger"] = JaxWeaponAttachPayOneDrawEffectKind,
+                    ["trigger"] = effectKind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["equipmentObjectId"] = equipmentObjectId,
                     ["equipmentCardNo"] = equipmentState.CardNo,
@@ -1795,6 +1799,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PendingPaymentState pendingPayment,
         IReadOnlyList<string> submittedChoices,
+        string effectKind,
         string sourceObjectId,
         string targetObjectId)
     {
@@ -1802,6 +1807,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
+            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
             || !TryGetControlledVisibleFieldUnit(
                 playerZones,
                 cardObjects,
@@ -1864,7 +1870,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            SfdFioraPowerfulReadyEffectKind,
+            effectKind,
             sourceObjectId,
             paymentResourceActions: paymentResourceActions);
         var paymentEvents = new List<GameEvent>();
@@ -1939,7 +1945,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                             .SelectMany(resource => resource.ConsumedPowerByTrait)
                             .GroupBy(entry => entry.Key, StringComparer.Ordinal)
                             .ToDictionary(group => group.Key, group => group.Sum(entry => entry.Value), StringComparer.Ordinal),
-                        ["reason"] = SfdFioraPowerfulReadyEffectKind,
+                        ["reason"] = effectKind,
                         ["targetObjectId"] = targetObjectId
                     })),
             new(
@@ -1948,7 +1954,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["trigger"] = SfdFioraPowerfulReadyEffectKind,
+                    ["trigger"] = effectKind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["paymentId"] = pendingPayment.PaymentId,
@@ -1964,7 +1970,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = targetObjectId,
                     ["wasExhausted"] = wasExhausted,
                     ["isExhausted"] = false,
-                    ["reason"] = SfdFioraPowerfulReadyEffectKind
+                    ["reason"] = effectKind
                 })
         ]);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -2125,19 +2131,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (TryReadJaxWeaponAttachPaymentContext(
                      pendingPayment,
+                     out effectKind,
                      out sourceObjectId,
                      out var equipmentObjectId))
         {
-            payload["trigger"] = JaxWeaponAttachPayOneDrawEffectKind;
+            payload["trigger"] = effectKind;
             payload["sourceObjectId"] = sourceObjectId;
             payload["equipmentObjectId"] = equipmentObjectId;
         }
         else if (TryReadSfdFioraPowerfulReadyPaymentContext(
                      pendingPayment,
+                     out effectKind,
                      out sourceObjectId,
                      out var fioraTargetObjectId))
         {
-            payload["trigger"] = SfdFioraPowerfulReadyEffectKind;
+            payload["trigger"] = effectKind;
             payload["sourceObjectId"] = sourceObjectId;
             payload["targetObjectId"] = fioraTargetObjectId;
         }
@@ -3014,22 +3022,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static string RuntimeTriggerEffectKind(TriggerSpec trigger)
+    {
+        return string.IsNullOrWhiteSpace(trigger.EffectKind)
+            ? trigger.Kind
+            : trigger.EffectKind!;
+    }
+
     private static string BuildJaxWeaponAttachPaymentReason(
+        string effectKind,
         string sourceObjectId,
         string equipmentObjectId)
     {
         return string.Join(
             '|',
-            JaxWeaponAttachPayOneDrawEffectKind,
+            effectKind,
             sourceObjectId,
             equipmentObjectId);
     }
 
     private static bool TryReadJaxWeaponAttachPaymentContext(
         PendingPaymentState pendingPayment,
+        out string effectKind,
         out string sourceObjectId,
         out string equipmentObjectId)
     {
+        effectKind = string.Empty;
         sourceObjectId = string.Empty;
         equipmentObjectId = string.Empty;
         if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
@@ -3040,34 +3058,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 3
-            || !string.Equals(parts[0], JaxWeaponAttachPayOneDrawEffectKind, StringComparison.Ordinal)
+            || !UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(parts[0], out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2]))
         {
             return false;
         }
 
+        effectKind = parts[0];
         sourceObjectId = parts[1];
         equipmentObjectId = parts[2];
         return true;
     }
 
     private static string BuildSfdFioraPowerfulReadyPaymentReason(
+        string effectKind,
         string sourceObjectId,
         string targetObjectId)
     {
         return string.Join(
             '|',
-            SfdFioraPowerfulReadyEffectKind,
+            effectKind,
             sourceObjectId,
             targetObjectId);
     }
 
     private static bool TryReadSfdFioraPowerfulReadyPaymentContext(
         PendingPaymentState pendingPayment,
+        out string effectKind,
         out string sourceObjectId,
         out string targetObjectId)
     {
+        effectKind = string.Empty;
         sourceObjectId = string.Empty;
         targetObjectId = string.Empty;
         if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
@@ -3078,13 +3100,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 3
-            || !string.Equals(parts[0], SfdFioraPowerfulReadyEffectKind, StringComparison.Ordinal)
+            || !UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(parts[0], out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2]))
         {
             return false;
         }
 
+        effectKind = parts[0];
         sourceObjectId = parts[1];
         targetObjectId = parts[2];
         return true;
@@ -25439,6 +25462,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
         var manaCost = trigger.ManaCost.GetValueOrDefault();
+        var effectKind = RuntimeTriggerEffectKind(trigger);
 
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -25451,7 +25475,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             manaCost: manaCost,
             legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildJaxWeaponAttachPaymentReason(sourceObjectId, equipmentObjectId));
+            reason: BuildJaxWeaponAttachPaymentReason(effectKind, sourceObjectId, equipmentObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 的贾克斯贴附武装后等待支付抽牌触发费用",
@@ -25460,7 +25484,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["paymentId"] = paymentId,
                 ["paymentWindow"] = TriggerPaymentWindow,
                 ["playerId"] = playerId,
-                ["trigger"] = JaxWeaponAttachPayOneDrawEffectKind,
+                ["trigger"] = effectKind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["equipmentCardNo"] = equipmentState.CardNo,
@@ -25473,7 +25497,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
                 ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = JaxWeaponAttachPayOneDrawEffectKind
+                ["reason"] = effectKind
             }));
         return true;
     }
@@ -25556,13 +25580,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         var powerCost = trigger.PowerCost.GetValueOrDefault();
         var powerCostTrait = trigger.PowerCostTrait ?? RuneTrait.Yellow;
+        var effectKind = RuntimeTriggerEffectKind(trigger);
 
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
             TriggerPaymentWindow,
             playerId,
             sourceObjectId: sourceObjectId,
-            reason: SfdFioraPowerfulReadyEffectKind);
+            reason: effectKind);
         var powerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
         {
             [powerCostTrait] = powerCost
@@ -25579,7 +25604,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             powerCostByTrait: powerCostByTrait,
             legalPaymentChoiceIds: [SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildSfdFioraPowerfulReadyPaymentReason(sourceObjectId, targetObjectId),
+            reason: BuildSfdFioraPowerfulReadyPaymentReason(effectKind, sourceObjectId, targetObjectId),
             paymentResourceActionIds: paymentResourceActionIds);
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
@@ -25589,7 +25614,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["paymentId"] = paymentId,
                 ["paymentWindow"] = TriggerPaymentWindow,
                 ["playerId"] = playerId,
-                ["trigger"] = SfdFioraPowerfulReadyEffectKind,
+                ["trigger"] = effectKind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId,
                 ["previousPower"] = previousPower,
@@ -25605,7 +25630,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 },
                 ["paymentChoices"] = new[] { SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId },
                 ["paymentResourceActions"] = paymentResourceActionIds.ToArray(),
-                ["reason"] = SfdFioraPowerfulReadyEffectKind
+                ["reason"] = effectKind
             }));
         return true;
     }
