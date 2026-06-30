@@ -8541,6 +8541,17 @@ public static class CardBehaviorRegistry
             && string.Equals(definition.EffectKind, effectKind.Trim(), StringComparison.Ordinal);
     }
 
+    public static bool IsOnPlaySourcePowerTriggerSource(string? cardNo, string? effectKind)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && !string.IsNullOrWhiteSpace(effectKind)
+            && TryGetByCardNo(cardNo.Trim(), out var definition)
+            && string.Equals(definition.EffectKind, effectKind.Trim(), StringComparison.Ordinal)
+            && definition.PlaysSourceToBaseAsUnit
+            && definition.AppliesPowerModifierToSourceUnit
+            && definition.PowerModifierAmount != 0;
+    }
+
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
         return Definitions.Select(ApplyLifecycleKeywordDefaults).ToArray();

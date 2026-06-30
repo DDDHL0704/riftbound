@@ -937,10 +937,8 @@ public static class MatchRecoveryValidator
     private const string TeemoAltAOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_A_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string TeemoAltBOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_B_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string FndTeemoOnPlaySelfPowerEffectKindForRecovery = "FND_TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
-    private const string TeemoOnPlaySelfPowerCardNoForRecovery = "OGN·197/298";
-    private const string TeemoAltAOnPlaySelfPowerCardNoForRecovery = "OGN·197a/298";
-    private const string TeemoAltBOnPlaySelfPowerCardNoForRecovery = "OGN·197b/298";
-    private const string FndTeemoOnPlaySelfPowerCardNoForRecovery = "FND-196/298";
+    private const string OnPlaySourcePowerSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec on-play source-unit power modifier trigger";
     private const int PowerfulUnitPowerThresholdForRecovery = 5;
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string SadPoroLastBreathDrawEffectKindForRecovery = "SAD_PORO_LAST_BREATH_DRAW_1";
@@ -21091,21 +21089,18 @@ public static class MatchRecoveryValidator
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && objectCardNos is not null
-            && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
+            && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
+            && !CardBehaviorRegistry.IsOnPlaySourcePowerTriggerSource(sourceCardNo, expectedEffectKind))
         {
-            var expectedSourceCardNo = GetTeemoOnPlaySelfPowerCardNoForRecovery(expectedEffectKind);
-            if (!string.Equals(sourceCardNo, expectedSourceCardNo, StringComparison.Ordinal))
-            {
-                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                AddTriggerQueueSourceCardNoMismatch(
-                    payloadLabel,
-                    "teemo on-play self-power",
-                    sourceObjectId,
-                    sourceCardNoLabel,
-                    expectedSourceCardNo,
-                    objectCardNoLabel,
-                    errors);
-            }
+            var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+            AddTriggerQueueSourceCardSpecMismatch(
+                payloadLabel,
+                "teemo on-play self-power",
+                sourceObjectId,
+                sourceCardNoLabel,
+                OnPlaySourcePowerSourceTriggerSpecLabelForRecovery,
+                objectCardNoLabel,
+                errors);
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -21246,18 +21241,6 @@ public static class MatchRecoveryValidator
             || string.Equals(effectKind, TeemoAltAOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal)
             || string.Equals(effectKind, TeemoAltBOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal)
             || string.Equals(effectKind, FndTeemoOnPlaySelfPowerEffectKindForRecovery, StringComparison.Ordinal);
-    }
-
-    private static string GetTeemoOnPlaySelfPowerCardNoForRecovery(string effectKind)
-    {
-        return effectKind switch
-        {
-            TeemoOnPlaySelfPowerEffectKindForRecovery => TeemoOnPlaySelfPowerCardNoForRecovery,
-            TeemoAltAOnPlaySelfPowerEffectKindForRecovery => TeemoAltAOnPlaySelfPowerCardNoForRecovery,
-            TeemoAltBOnPlaySelfPowerEffectKindForRecovery => TeemoAltBOnPlaySelfPowerCardNoForRecovery,
-            FndTeemoOnPlaySelfPowerEffectKindForRecovery => FndTeemoOnPlaySelfPowerCardNoForRecovery,
-            _ => string.Empty
-        };
     }
 
     private static void ValidateTriggerQueueWatchfulSentinelLastBreathDrawContext(

@@ -8543,7 +8543,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in objects; expected OGN·197/298 but got WRONG-CARD",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must reference BehaviorSpec on-play source-unit power modifier trigger in objects; expected BehaviorSpec on-play source-unit power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -31620,7 +31620,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 card no WRONG-CARD must reference BehaviorSpec on-play source-unit power modifier trigger in authoritative state object registry; expected BehaviorSpec on-play source-unit power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -145397,7 +145397,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must reference BehaviorSpec on-play source-unit power modifier trigger in authoritative state object registry; expected BehaviorSpec on-play source-unit power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -145509,7 +145509,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must reference BehaviorSpec on-play source-unit power modifier trigger in authoritative state object registry; expected BehaviorSpec on-play source-unit power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

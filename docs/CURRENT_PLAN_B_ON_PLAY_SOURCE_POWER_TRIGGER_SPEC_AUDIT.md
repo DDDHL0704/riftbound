@@ -1,8 +1,22 @@
 # Plan B On-Play Source-Power Trigger Spec Audit
 
 Date: 2026-06-29
+Last updated: 2026-06-30
 
 Project status: **NOT READY**.
+
+## 2026-06-30 Recovery Follow-Up
+
+This follow-up removes the recovery validator's separate Teemo source-card mapping for on-play source-unit power triggers. Recovered snapshot, authoritative-state and spectator replay trigger source validation now call `CardBehaviorRegistry.IsOnPlaySourcePowerTriggerSource(cardNo, effectKind)`.
+
+The shared predicate requires the same behavior metadata shape used by the runtime queue route:
+
+- `definition.EffectKind == effectKind`
+- `PlaysSourceToBaseAsUnit`
+- `AppliesPowerModifierToSourceUnit`
+- `PowerModifierAmount != 0`
+
+`MatchRecovery` no longer maintains `TeemoOnPlaySelfPowerCardNoForRecovery`, the alternate Teemo card-number constants, or `GetTeemoOnPlaySelfPowerCardNoForRecovery`. Mismatch diagnostics now report a missing `BehaviorSpec on-play source-unit power modifier trigger` instead of a fixed Teemo card number. Public effect ids, trigger ids, event kinds, snapshot redaction and hidden-information boundaries are unchanged.
 
 ## Scope
 
@@ -37,6 +51,10 @@ The existing Teemo representatives remain the same official cards and effect ids
 - Green focused source guard: `OnPlaySourcePowerTriggerSourceGuardTests` passed `1/1`.
 - Adjacent Teemo / trigger queue / recovery filter passed `2097/2097`.
 - Backend full conformance passed `9024/9024`.
+- 2026-06-30 recovery follow-up red guard: `OnPlaySourcePowerTriggerSourceGuardTests.RecoveryValidatorUsesBehaviorFieldsForOnPlaySourcePowerSourceCardValidation` failed before implementation because recovery still had Teemo card-number constants.
+- 2026-06-30 focused recovery follow-up passed `6/6`.
+- 2026-06-30 adjacent `OnPlaySourcePowerTriggerSourceGuardTests|Teemo|TriggerQueue|MatchRecovery` passed `2098/2098`.
+- 2026-06-30 backend full conformance passed `9050/9050`.
 
 ## Holdbacks
 

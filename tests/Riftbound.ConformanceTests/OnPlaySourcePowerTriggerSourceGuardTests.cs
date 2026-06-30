@@ -32,6 +32,31 @@ public sealed class OnPlaySourcePowerTriggerSourceGuardTests
         Assert.DoesNotContain("PLAY_UNIT_SELF_POWER_PLUS_3", methodSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void RecoveryValidatorUsesBehaviorFieldsForOnPlaySourcePowerSourceCardValidation()
+    {
+        var matchRecoveryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs");
+        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+
+        Assert.Contains(
+            "OnPlaySourcePowerSourceTriggerSpecLabelForRecovery",
+            matchRecoverySource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "CardBehaviorRegistry.IsOnPlaySourcePowerTriggerSource",
+            matchRecoverySource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("TeemoOnPlaySelfPowerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TeemoAltAOnPlaySelfPowerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TeemoAltBOnPlaySelfPowerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("FndTeemoOnPlaySelfPowerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("GetTeemoOnPlaySelfPowerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var directory = AppContext.BaseDirectory;
