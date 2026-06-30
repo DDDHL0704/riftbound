@@ -45,7 +45,9 @@ public partial class Main : Control
     private string _authenticatedHandle = string.Empty;
     private bool _autoSmoke;
     private bool _autoSmokeMulligan;
+    private bool _autoSmokeTapRune;
     private bool _autoSmokeSubmitted;
+    private bool _autoSmokeTapRuneSubmitted;
     private bool _ephemeralSession;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
@@ -59,6 +61,7 @@ public partial class Main : Control
         var args = CommandLineArgs();
         _autoSmoke = args.Contains("--riftbound-smoke-auto-ready");
         _autoSmokeMulligan = args.Contains("--riftbound-smoke-auto-mulligan");
+        _autoSmokeTapRune = args.Contains("--riftbound-smoke-auto-tap-rune");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -444,6 +447,13 @@ public partial class Main : Control
         Godot.Collections.Dictionary action,
         IReadOnlyList<PromptSelector> selectors)
     {
+        await SubmitPromptTemplateAsync(action, PromptSelection.FromSelectors(selectors));
+    }
+
+    private async Task SubmitPromptTemplateAsync(
+        Godot.Collections.Dictionary action,
+        PromptSelection selection)
+    {
         if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
         {
             AppendLog("[color=yellow]Prompt template skipped: not connected/authenticated.[/color]");
@@ -463,7 +473,6 @@ public partial class Main : Control
         try
         {
             using var document = JsonDocument.Parse(candidateJson);
-            var selection = PromptSelection.FromSelectors(selectors);
             var payload = CommandFromTemplate(document.RootElement, selection, promptId, snapshotTick);
             if (payload is null)
             {
@@ -795,7 +804,7 @@ public partial class Main : Control
 
     private async Task RunAutoSmokePromptAsync(Godot.Collections.Dictionary view)
     {
-        if (!_autoSmokeMulligan
+        if ((!_autoSmokeMulligan && !_autoSmokeTapRune)
             || !view.TryGetValue("actions", out var actionsValue)
             || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
         {
@@ -806,23 +815,76 @@ public partial class Main : Control
         {
             var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
             var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-            if (!enabled || !string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
+            if (!enabled)
             {
                 continue;
             }
 
-            var promptId = action.TryGetValue("promptId", out var promptValue) ? promptValue.AsString() : string.Empty;
-            var snapshotTick = action.TryGetValue("snapshotTick", out var tickValue) ? tickValue.AsInt64() : -1L;
-            var key = $"{_session.RoomId}:{_authenticatedHandle}:{promptId}:{snapshotTick}:{actionName}";
-            if (!_autoSmokePromptSubmissions.Add(key))
+            if (_autoSmokeMulligan && string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
             {
+                var key = AutoSmokePromptKey(action, actionName);
+                if (!_autoSmokePromptSubmissions.Add(key))
+                {
+                    return;
+                }
+
+                AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
+                await SubmitMulliganAsync(action, Array.Empty<string>());
                 return;
             }
 
-            AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
-            await SubmitMulliganAsync(action, Array.Empty<string>());
-            return;
+            if (_autoSmokeTapRune
+                && !_autoSmokeTapRuneSubmitted
+                && string.Equals(actionName, "TAP_RUNE", StringComparison.Ordinal)
+                && action.TryGetValue("hasTemplate", out var templateValue)
+                && templateValue.AsBool())
+            {
+                var sourceObjectId = FirstPromptChoiceId(action, "sourceChoices");
+                if (string.IsNullOrWhiteSpace(sourceObjectId))
+                {
+                    AppendLog("[color=yellow]Auto smoke: TAP_RUNE has no server-provided source choice.[/color]");
+                    continue;
+                }
+
+                var key = AutoSmokePromptKey(action, $"{actionName}:{sourceObjectId}");
+                if (!_autoSmokePromptSubmissions.Add(key))
+                {
+                    return;
+                }
+
+                _autoSmokeTapRuneSubmitted = true;
+                AppendLog($"Auto smoke: submitting TAP_RUNE from server source {Escape(sourceObjectId)}.");
+                await SubmitPromptTemplateAsync(action, PromptSelection.SourceOnly(sourceObjectId));
+                return;
+            }
         }
+    }
+
+    private string AutoSmokePromptKey(Godot.Collections.Dictionary action, string actionName)
+    {
+        var promptId = action.TryGetValue("promptId", out var promptValue) ? promptValue.AsString() : string.Empty;
+        var snapshotTick = action.TryGetValue("snapshotTick", out var tickValue) ? tickValue.AsInt64() : -1L;
+        return $"{_session.RoomId}:{_authenticatedHandle}:{promptId}:{snapshotTick}:{actionName}";
+    }
+
+    private static string FirstPromptChoiceId(Godot.Collections.Dictionary action, string propertyName)
+    {
+        if (!action.TryGetValue(propertyName, out var choicesValue)
+            || choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } choices)
+        {
+            return string.Empty;
+        }
+
+        foreach (var choice in choices)
+        {
+            var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+            if (!string.IsNullOrWhiteSpace(choiceId))
+            {
+                return choiceId;
+            }
+        }
+
+        return string.Empty;
     }
 
     private static Godot.Collections.Dictionary BuildPromptView(JsonElement prompt)
@@ -2207,6 +2269,16 @@ public partial class Main : Control
         string? Mode,
         IReadOnlyList<string> OptionalCostIds)
     {
+        public static PromptSelection SourceOnly(string sourceId)
+        {
+            return new PromptSelection(
+                sourceId,
+                Array.Empty<string>(),
+                null,
+                null,
+                Array.Empty<string>());
+        }
+
         public static PromptSelection FromSelectors(IEnumerable<PromptSelector> selectors)
         {
             string? sourceId = null;

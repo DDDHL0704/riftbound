@@ -40,6 +40,7 @@ room="godot-dual-$(date +%H%M%S)"
 /Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 1800 -- \
   --riftbound-smoke-auto-ready \
   --riftbound-smoke-auto-mulligan \
+  --riftbound-smoke-auto-tap-rune \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -51,6 +52,7 @@ pid_a=$!
 /Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 1800 -- \
   --riftbound-smoke-auto-ready \
   --riftbound-smoke-auto-mulligan \
+  --riftbound-smoke-auto-tap-rune \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -67,7 +69,9 @@ Expected G1/G2 evidence: each client logs accepted `SubmitDeck` and `Ready`
 receipts; after both are ready, the server pushes `START`, `Snapshot`, and
 `Prompt` messages. With `--riftbound-smoke-auto-mulligan`, each active opening
 prompt also confirms a 0-card `MULLIGAN`, proving the Godot client can submit
-the server-stamped mulligan command without learning any rules locally.
+the server-stamped mulligan command without learning any rules locally. With
+`--riftbound-smoke-auto-tap-rune`, the first post-mulligan `TAP_RUNE` candidate
+is submitted from the server-provided source choice and server command template.
 
 ## Official Card Images
 
