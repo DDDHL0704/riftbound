@@ -4753,12 +4753,20 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var matchRecoveryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs");
+        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OgsLuxHighCostSpellCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]

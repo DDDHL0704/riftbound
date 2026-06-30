@@ -10,6 +10,8 @@ This slice removes the OGS Lux high-cost spell power emitted-effect constant fro
 
 The public compatibility effect id `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` is preserved for trigger queue, event, fixture, and recovery compatibility, but it now lives on the `OGS·006/024` behavior row and is projected into `TriggerSpec.EffectKind`. Core reads the effect id from the parsed trigger spec instead of owning an OGS Lux-specific constant.
 
+2026-06-30 follow-up: `MatchRecovery` no longer owns `OgsLuxHighCostSpellCardNoForRecovery`. Recovered snapshot, authoritative-state, and spectator replay source-card validation now use `SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceCardNo, out _)`, matching the runtime TriggerSpec source selector while preserving the public effect id.
+
 ## Authority
 
 - `data/official/card-catalog.zh-CN.json` row `OGS·006/024` 拉克丝: when the controller plays a spell costing at least 5 mana, the source gets +3 power this turn.
@@ -33,7 +35,10 @@ The public compatibility effect id `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` is pre
 - Adjacent / hidden-info gate: `SpellPlayed|HighCostSpell|LuxHighCost|CardCatalogBaselineTests|MatchRecovery` passed `2330/2330`.
 - Backend full conformance passed `9035/9035`.
 - DevUi build passed.
+- 2026-06-30 recovery follow-up focused guard and drift filter `HighCostSpellTriggersDoNotUseLuxSpecificResolver|OgsLuxHighCostSpellSourceCardContextDrift` passed `5/5`.
+- 2026-06-30 recovery follow-up adjacent / hidden-info gate `SpellPlayed|HighCostSpell|LuxHighCost|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard` passed `2356/2356`.
+- 2026-06-30 recovery follow-up backend full conformance passed `9049/9049`.
 
 ## Holdbacks
 
-This does not close complete spell-play trigger breadth, complete high-cost paid-mana override breadth, complete `ORDER_TRIGGERS` / APNAP ordering, MatchRecovery generic effectKind migration, P0 full objective, P1, or READY.
+This does not close complete spell-play trigger breadth, complete high-cost paid-mana override breadth, complete `ORDER_TRIGGERS` / APNAP ordering, complete MatchRecovery generic trigger/effect migration, P0 full objective, P1, or READY.

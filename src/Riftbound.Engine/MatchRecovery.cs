@@ -929,8 +929,9 @@ public static class MatchRecoveryValidator
     private const string KogmawLastBreathAoeSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit last-breath source-battlefield AoE damage trigger";
     private const string KogmawTriggerBattlefieldMarkerForRecovery = "::BATTLEFIELD::";
-    private const string OgsLuxHighCostSpellCardNoForRecovery = "OGS·006/024";
     private const string OgsLuxHighCostSpellPowerEffectKindForRecovery = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
+    private const string OgsLuxHighCostSpellSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit high-cost spell power modifier trigger";
     private const string StandardTriggerIdPrefixForRecovery = "TRIGGER-";
     private const string TeemoOnPlaySelfPowerEffectKindForRecovery = "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string TeemoAltAOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_A_PLAY_UNIT_SELF_POWER_PLUS_3";
@@ -20894,15 +20895,15 @@ public static class MatchRecoveryValidator
 
             if (objectCardNos is not null
                 && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
-                && !string.Equals(sourceCardNo, OgsLuxHighCostSpellCardNoForRecovery, StringComparison.Ordinal))
+                && !SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceCardNo, out _))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                AddTriggerQueueSourceCardNoMismatch(
+                AddTriggerQueueSourceCardSpecMismatch(
                     payloadLabel,
                     "ogs lux high cost spell",
                     sourceObjectId,
                     sourceCardNoLabel,
-                    OgsLuxHighCostSpellCardNoForRecovery,
+                    OgsLuxHighCostSpellSourceTriggerSpecLabelForRecovery,
                     objectCardNoLabel,
                     errors);
             }

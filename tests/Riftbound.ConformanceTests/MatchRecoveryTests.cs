@@ -7906,7 +7906,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in objects; expected OGS·006/024 but got WRONG-CARD",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit high-cost spell power modifier trigger in objects; expected BehaviorSpec unit high-cost spell power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -31149,7 +31149,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit high-cost spell power modifier trigger in authoritative state object registry; expected BehaviorSpec unit high-cost spell power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -143410,7 +143410,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit high-cost spell power modifier trigger in authoritative state object registry; expected BehaviorSpec unit high-cost spell power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -143538,7 +143538,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit high-cost spell power modifier trigger in authoritative state object registry; expected BehaviorSpec unit high-cost spell power modifier trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
