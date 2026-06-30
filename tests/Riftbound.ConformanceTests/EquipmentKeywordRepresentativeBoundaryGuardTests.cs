@@ -6,7 +6,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
 {
     [Fact]
-    public void EquipmentKeywordRepresentativeBoundariesUseSourceRowsNotCardNumberHelpers()
+    public void EquipmentKeywordRepresentativeBoundariesUseBehaviorSpecDerivedRowsNotCardNumberSourceRows()
     {
         var rulesPath = Path.Combine(
             RepositoryRoot(),
@@ -29,6 +29,11 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
             "new(\"SFD·056/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
             "new(\"SFD·064/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
             "new(\"SFD·186/221\", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach)",
+            "new(\"SFD·002/221\", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach)",
+            "new(\"SFD·008/221\", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach)",
+            "new(\"SFD·119/221\", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach)",
+            "new(\"SFD·119a/221\", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach)",
+            "new(\"SFD·186/221\", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment)",
             "new(\"SFD·085/221\", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower)",
             "new(\"SFD·085a/221\", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower)"
         })
@@ -41,10 +46,17 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
         Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·064/221"));
         Assert.True(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·186/221"));
         Assert.False(CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary("SFD·033/221"));
+        Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·002/221"));
         Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·008/221"));
+        Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·085/221"));
+        Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·119/221"));
+        Assert.True(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·119a/221"));
         Assert.False(CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary("SFD·033/221"));
+        Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·022/221"));
+        Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·056/221"));
+        Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·064/221"));
         Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·186/221"));
-        Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·022/221"));
+        Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·190/221"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085/221"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085a/221"));
         Assert.False(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·033/221"));

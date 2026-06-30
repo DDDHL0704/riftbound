@@ -14,6 +14,7 @@ public sealed class AkshanGuardTests
     private const string VengeanceObjectId = "P1-SPELL-VENGEANCE";
     private const string EnemyWeaponObjectId = "P2-EQUIPMENT-WEAPON";
     private const string EnemyNonWeaponObjectId = "P2-EQUIPMENT-NON-WEAPON";
+    private const string FriendlyEquipmentObjectId = "P1-EQUIPMENT-FRIENDLY";
     private const string OrangeRuneObjectId = "P1-RUNE-ORANGE";
     private const string PayOrangePower = "orange";
 
@@ -314,7 +315,7 @@ public sealed class AkshanGuardTests
     }
 
     [Fact]
-    public void AkshanPromptExposesOnlyLegalEnemyEquipmentWhenOrangeCostPayable()
+    public void AkshanPromptExposesLegalTemperedAndEnemyEquipmentChoicesWhenOrangeCostPayable()
     {
         var state = BuildAkshanStealState();
 
@@ -323,7 +324,7 @@ public sealed class AkshanGuardTests
             requirement["optionalCostChoices"]);
 
         Assert.Equal(
-            [StealCost(EnemyNonWeaponObjectId), StealCost(EnemyWeaponObjectId)],
+            [TemperedAttachCost(FriendlyEquipmentObjectId), StealCost(EnemyNonWeaponObjectId), StealCost(EnemyWeaponObjectId)],
             optionalCostChoices.Select(choice => choice.Id).ToArray());
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
@@ -333,7 +334,9 @@ public sealed class AkshanGuardTests
         var noOrangeRequirement = AkshanSourceRequirement(BuildAkshanStealState(orangePower: 1));
         var noOrangeChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             noOrangeRequirement["optionalCostChoices"]);
-        Assert.Empty(noOrangeChoices);
+        Assert.Equal(
+            [TemperedAttachCost(FriendlyEquipmentObjectId)],
+            noOrangeChoices.Select(choice => choice.Id).ToArray());
     }
 
     [Fact]
@@ -381,6 +384,42 @@ public sealed class AkshanGuardTests
             && string.Equals(gameEvent.Payload["reason"] as string, AkshanStealReason, StringComparison.Ordinal));
         Assert.Equal(EnemyWeaponObjectId, attachedEvent.Payload["equipmentObjectId"]);
         Assert.Equal(AkshanObjectId, attachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task AkshanCanPayTemperedAttachAndOrangeStealTogether()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildAkshanStealState();
+        var optionalCosts = new[] { TemperedAttachCost(FriendlyEquipmentObjectId), StealCost(EnemyWeaponObjectId) };
+
+        var played = await PlayAkshanAsync(engine, state, AkshanObjectId, [], optionalCosts);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Equal(0, played.State.RunePools["P1"].Mana);
+        Assert.Equal(0, played.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(PayOrangePower));
+        var stackItem = Assert.Single(played.State.StackItems);
+        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+
+        var costEvent = Assert.Single(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(2, powerByTrait[PayOrangePower]);
+
+        var resolved = await ResolveTopStackAsync(engine, played.State);
+
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        Assert.Equal(AkshanObjectId, resolved.State.CardObjects[FriendlyEquipmentObjectId].AttachedToObjectId);
+        Assert.Equal(AkshanObjectId, resolved.State.CardObjects[EnemyWeaponObjectId].AttachedToObjectId);
+        Assert.Equal("P1", resolved.State.CardObjects[EnemyWeaponObjectId].ControllerId);
+        Assert.Contains(resolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "TEMPERED_OPTIONAL_ATTACH", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, FriendlyEquipmentObjectId, StringComparison.Ordinal));
+        Assert.Contains(resolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, AkshanStealReason, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, EnemyWeaponObjectId, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -922,14 +961,14 @@ public sealed class AkshanGuardTests
             ? new[] { AkshanObjectId, VengeanceObjectId }
             : [AkshanObjectId];
         var p1Base = includeOrangeRune
-            ? new[] { "P1-EQUIPMENT-FRIENDLY", OrangeRuneObjectId }
-            : ["P1-EQUIPMENT-FRIENDLY"];
+            ? new[] { FriendlyEquipmentObjectId, OrangeRuneObjectId }
+            : [FriendlyEquipmentObjectId];
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
             [AkshanObjectId] = Akshan(AkshanObjectId),
             [EnemyWeaponObjectId] = Equipment(EnemyWeaponObjectId, "P2", "P2", weapon: true),
             [EnemyNonWeaponObjectId] = Equipment(EnemyNonWeaponObjectId, "P2", "P2", weapon: false),
-            ["P1-EQUIPMENT-FRIENDLY"] = Equipment("P1-EQUIPMENT-FRIENDLY", "P1", "P1", weapon: true),
+            [FriendlyEquipmentObjectId] = Equipment(FriendlyEquipmentObjectId, "P1", "P1", weapon: true),
             ["P2-NON-EQUIPMENT"] = new(
                 "P2-NON-EQUIPMENT",
                 cardNo: "SFD·125/221",
@@ -1145,6 +1184,11 @@ public sealed class AkshanGuardTests
     private static string StealCost(string equipmentObjectId)
     {
         return $"{AkshanStealPrefix}{equipmentObjectId}";
+    }
+
+    private static string TemperedAttachCost(string equipmentObjectId)
+    {
+        return $"TEMPERED_ATTACH:{equipmentObjectId}";
     }
 
     private static string RecycleOrangeRuneCost()

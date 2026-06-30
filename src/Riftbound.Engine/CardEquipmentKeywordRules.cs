@@ -69,15 +69,6 @@ public static class CardEquipmentKeywordRules
     private static readonly Lazy<IReadOnlyList<CardEquipmentRepresentativeBoundary>> RepresentativeBoundaries =
         new(BuildRepresentativeBoundaries, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    private static readonly IReadOnlyList<CardEquipmentRepresentativeBoundary> ExplicitRepresentativeBoundaries =
-    [
-        new("SFD·002/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
-        new("SFD·008/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
-        new("SFD·119/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
-        new("SFD·119a/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
-        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment)
-    ];
-
     public static IReadOnlyList<CardEquipmentRepresentativeBoundary> EquipmentRepresentativeBoundaries =>
         RepresentativeBoundaries.Value;
 
@@ -250,7 +241,6 @@ public static class CardEquipmentKeywordRules
     private static IReadOnlyList<CardEquipmentRepresentativeBoundary> BuildRepresentativeBoundaries()
     {
         return BuildBehaviorSpecRepresentativeBoundaries()
-            .Concat(ExplicitRepresentativeBoundaries)
             .Concat(EquipmentStateRepresentatives.Select(representative => new CardEquipmentRepresentativeBoundary(
                 representative.CardNo,
                 EquipmentRepresentativeBoundaryKinds.EquipmentState)))
@@ -288,6 +278,20 @@ public static class CardEquipmentKeywordRules
                     EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach));
             }
 
+            if (IsTemperedOptionalAttachRepresentative(spec, behavior))
+            {
+                boundaries.Add(new CardEquipmentRepresentativeBoundary(
+                    spec.CardNo,
+                    EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach));
+            }
+
+            if (IsTemperedOptionalAttachEquipmentRepresentative(spec, behavior))
+            {
+                boundaries.Add(new CardEquipmentRepresentativeBoundary(
+                    spec.CardNo,
+                    EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttachEquipment));
+            }
+
             if (IsFriendlyEquipmentStaticPowerRepresentative(spec, behavior))
             {
                 boundaries.Add(new CardEquipmentRepresentativeBoundary(
@@ -308,6 +312,27 @@ public static class CardEquipmentKeywordRules
             && behavior.PlaysSourceToBaseAsEquipment
             && HasExactKeyword(ParseDelimitedValues(behavior.SourceEquipmentTags), CardEquipmentKeywordNames.Agile)
             && HasOwnKeywordLine(spec, CardEquipmentKeywordNames.Agile)
+            && AssembleEquipmentProfileCatalog.HasImplementedRepresentative(spec.CardNo);
+    }
+
+    private static bool IsTemperedOptionalAttachRepresentative(
+        BehaviorSpec spec,
+        CardBehaviorDefinition? behavior)
+    {
+        return behavior is not null
+            && behavior.PlaysSourceToBaseAsUnit
+            && HasExactKeyword(ParseDelimitedValues(behavior.SourceUnitTags), CardEquipmentKeywordNames.Tempered)
+            && HasOwnKeywordLine(spec, CardEquipmentKeywordNames.Tempered);
+    }
+
+    private static bool IsTemperedOptionalAttachEquipmentRepresentative(
+        BehaviorSpec spec,
+        CardBehaviorDefinition? behavior)
+    {
+        return behavior is not null
+            && IsEquipmentCard(spec)
+            && behavior.PlaysSourceToBaseAsEquipment
+            && HasExactKeyword(ParseDelimitedValues(behavior.SourceEquipmentTags), CardEquipmentKeywordNames.Weapon)
             && AssembleEquipmentProfileCatalog.HasImplementedRepresentative(spec.CardNo);
     }
 

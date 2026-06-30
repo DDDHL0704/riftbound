@@ -32623,6 +32623,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildTemperedSourceStealEnemyEquipmentOptionalCost(
+                state,
+                playerId,
+                normalizedOptionalCosts,
+                behavior,
+                out var temperedSourceStealEnemyEquipmentExtraPowerCostByTrait))
+        {
+            extraPowerCostByTrait = temperedSourceStealEnemyEquipmentExtraPowerCostByTrait;
+            return true;
+        }
+
         if (TryBuildTemperedOptionalAttachCost(
                 state,
                 playerId,
@@ -32911,6 +32922,52 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
         }
 
+        return true;
+    }
+
+    private static bool TryBuildTemperedSourceStealEnemyEquipmentOptionalCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
+        if (!IsTemperedOptionalAttachRepresentative(behavior)
+            || !HasSourceStealEnemyEquipmentOptionalCost(behavior)
+            || string.IsNullOrWhiteSpace(requiredTrait)
+            || normalizedOptionalCosts.Count != 2)
+        {
+            return false;
+        }
+
+        var temperedEquipmentObjectIds = normalizedOptionalCosts
+            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
+                ? equipmentObjectId
+                : string.Empty)
+            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var stolenEquipmentObjectIds = normalizedOptionalCosts
+            .Select(optionalCost => TryParseSourceStealEnemyEquipmentOptionalCost(optionalCost, behavior, out var equipmentObjectId)
+                ? equipmentObjectId
+                : string.Empty)
+            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (temperedEquipmentObjectIds.Length != 1
+            || stolenEquipmentObjectIds.Length != 1
+            || !IsLegalTemperedOptionalAttachChoice(state, playerId, temperedEquipmentObjectIds[0])
+            || !IsLegalAkshanStealEquipmentChoice(state, playerId, stolenEquipmentObjectIds[0]))
+        {
+            return false;
+        }
+
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [requiredTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
+        };
         return true;
     }
 

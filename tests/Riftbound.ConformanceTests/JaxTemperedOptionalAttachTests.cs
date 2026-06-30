@@ -707,8 +707,8 @@ public sealed class JaxTemperedOptionalAttachTests
                     controllerId: "P1"),
                 ["P1-WRONG-CARD-EQUIPMENT"] = new(
                     "P1-WRONG-CARD-EQUIPMENT",
-                    cardNo: "SFD·022/221",
-                    tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon],
+                    cardNo: "SFD·190/221",
+                    tags: [CardObjectTags.EquipmentCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-WRONG-CONTROLLER-SPINNING-AXE"] = SpinningAxe(

@@ -11,6 +11,8 @@ public sealed class TemperedEquipmentOptionalAttachTests
     private const string SentinelCardNo = "SFD·008/221";
     private const string SpinningAxeObjectId = "P1-EQUIPMENT-SPINNING-AXE";
     private const string SpinningAxeCardNo = "SFD·186/221";
+    private const string LongSwordObjectId = "P1-EQUIPMENT-LONG-SWORD";
+    private const string LongSwordCardNo = "SFD·022/221";
 
     [Fact]
     public void PromptExposesOnlyLegalTemperedAttachChoiceForSentinelAdept()
@@ -31,7 +33,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
             requirement["optionalCostChoices"]);
 
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId)],
+            [TemperedAttachCost(LongSwordObjectId), TemperedAttachCost(SpinningAxeObjectId)],
             optionalCostChoices.Select(choice => choice.Id).ToArray());
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
@@ -68,7 +70,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["optionalCostChoices"]);
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId)],
+            [TemperedAttachCost(LongSwordObjectId), TemperedAttachCost(SpinningAxeObjectId)],
             optionalCostChoices.Select(choice => choice.Id).ToArray());
 
         Assert.False(p2Prompt.Actionable);
@@ -118,6 +120,31 @@ public sealed class TemperedEquipmentOptionalAttachTests
         Assert.Equal(SpinningAxeCardNo, attachedEvent.Payload["equipmentCardNo"]);
         Assert.Equal(SentinelCardNo, attachedEvent.Payload["unitCardNo"]);
         Assert.Equal("TEMPERED_OPTIONAL_ATTACH", attachedEvent.Payload["reason"]);
+        Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
+    }
+
+    [Fact]
+    public async Task LegalTemperedOptionalAttachAcceptsBehaviorSpecWeaponEquipment()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildTemperedState();
+        var optionalCosts = new[] { TemperedAttachCost(LongSwordObjectId) };
+
+        var played = await PlaySentinelAdeptAsync(engine, state, optionalCosts);
+        var p1Pass = await PassPriorityAsync(engine, played.State, "P1", "intent-tempered-longsword-p1-pass");
+        var p2Pass = await PassPriorityAsync(engine, p1Pass.State, "P2", "intent-tempered-longsword-p2-pass");
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(SentinelObjectId, p2Pass.State.CardObjects[LongSwordObjectId].AttachedToObjectId);
+        Assert.Null(p2Pass.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
+
+        var attachedEvent = Assert.Single(
+            p2Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal(LongSwordObjectId, attachedEvent.Payload["equipmentObjectId"]);
+        Assert.Equal(LongSwordCardNo, attachedEvent.Payload["equipmentCardNo"]);
         Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
     }
 
@@ -447,6 +474,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
                     Base =
                     [
                         SpinningAxeObjectId,
+                        LongSwordObjectId,
                         "P1-NON-EQUIPMENT-SPINNING-AXE",
                         "P1-FACE-DOWN-SPINNING-AXE",
                         "P1-WRONG-CARD-EQUIPMENT",
@@ -462,6 +490,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
             {
                 [SentinelObjectId] = UnitCard(SentinelObjectId, SentinelCardNo, ownerId: "P1", controllerId: "P1"),
                 [SpinningAxeObjectId] = SpinningAxe(SpinningAxeObjectId, "P1", "P1"),
+                [LongSwordObjectId] = LongSword(LongSwordObjectId, "P1", "P1"),
                 ["P1-HAND-SPINNING-AXE"] = SpinningAxe("P1-HAND-SPINNING-AXE", "P1", "P1"),
                 ["P1-STALE-SPINNING-AXE"] = SpinningAxe("P1-STALE-SPINNING-AXE", "P1", "P1"),
                 ["P1-FACE-DOWN-SPINNING-AXE"] = SpinningAxe("P1-FACE-DOWN-SPINNING-AXE", "P1", "P1", isFaceDown: true),
@@ -473,8 +502,8 @@ public sealed class TemperedEquipmentOptionalAttachTests
                     controllerId: "P1"),
                 ["P1-WRONG-CARD-EQUIPMENT"] = new(
                     "P1-WRONG-CARD-EQUIPMENT",
-                    cardNo: "SFD·022/221",
-                    tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon],
+                    cardNo: "SFD·190/221",
+                    tags: [CardObjectTags.EquipmentCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-WRONG-CONTROLLER-SPINNING-AXE"] = SpinningAxe(
@@ -573,6 +602,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
         Assert.Equal(
             [
                 SpinningAxeObjectId,
+                LongSwordObjectId,
                 "P1-NON-EQUIPMENT-SPINNING-AXE",
                 "P1-FACE-DOWN-SPINNING-AXE",
                 "P1-WRONG-CARD-EQUIPMENT",
@@ -643,6 +673,19 @@ public sealed class TemperedEquipmentOptionalAttachTests
             objectId,
             cardNo: SpinningAxeCardNo,
             isFaceDown: isFaceDown,
+            tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon, CardEquipmentKeywordNames.Agile],
+            ownerId: ownerId,
+            controllerId: controllerId);
+    }
+
+    private static CardObjectState LongSword(
+        string objectId,
+        string ownerId,
+        string controllerId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: LongSwordCardNo,
             tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon, CardEquipmentKeywordNames.Agile],
             ownerId: ownerId,
             controllerId: controllerId);
