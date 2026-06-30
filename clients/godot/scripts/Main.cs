@@ -2070,8 +2070,35 @@ public partial class Main : Control
         IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
     {
         var sections = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var wireTable = await BuildWireTableSectionAsync(snapshot, table, objectIndex);
+        sections.Add(wireTable.Section);
+        return (sections, wireTable.CardCount, wireTable.OfficialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildWireTableSectionAsync(
+        JsonElement snapshot,
+        JsonElement table,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var viewerPlayerId = ReadString(table, "viewerPlayerId");
+        var runeDeckSize = Math.Max(12, ReadInt(table, "runeDeckSize"));
         var cardCount = 0;
         var officialImageCount = 0;
+
+        var self = new Godot.Collections.Dictionary
+        {
+            ["side"] = "self",
+            ["label"] = "P1 我方",
+            ["missing"] = true,
+            ["runeDeckSize"] = runeDeckSize
+        };
+        var opponent = new Godot.Collections.Dictionary
+        {
+            ["side"] = "opponent",
+            ["label"] = "P2 对手",
+            ["missing"] = true,
+            ["runeDeckSize"] = runeDeckSize
+        };
 
         if (table.ValueKind == JsonValueKind.Object
             && table.TryGetProperty("players", out var players)
@@ -2079,13 +2106,22 @@ public partial class Main : Control
         {
             foreach (var player in players.EnumerateArray())
             {
-                var section = await BuildPlayerSectionAsync(player, objectIndex);
-                sections.Add(section.Section);
-                cardCount += section.CardCount;
-                officialImageCount += section.OfficialImageCount;
+                var side = WirePlayerSide(player, viewerPlayerId);
+                var entry = await BuildWirePlayerAsync(snapshot, player, side, objectIndex, runeDeckSize);
+                cardCount += entry.CardCount;
+                officialImageCount += entry.OfficialImageCount;
+                if (side == "self")
+                {
+                    self = entry.Player;
+                }
+                else
+                {
+                    opponent = entry.Player;
+                }
             }
         }
 
+        var lanes = new Godot.Collections.Array<Godot.Collections.Dictionary>();
         if (table.ValueKind == JsonValueKind.Object
             && table.TryGetProperty("battlefields", out var battlefields)
             && battlefields.ValueKind == JsonValueKind.Array)
@@ -2094,26 +2130,310 @@ public partial class Main : Control
                 .EnumerateArray()
                 .OrderBy(field => ReadInt(field, "index")))
             {
-                var section = await BuildBattlefieldSectionAsync(battlefield, objectIndex);
-                sections.Add(section.Section);
-                cardCount += section.CardCount;
-                officialImageCount += section.OfficialImageCount;
+                var lane = await BuildWireBattlefieldLaneAsync(battlefield, ReadInt(battlefield, "index"), viewerPlayerId, objectIndex);
+                lanes.Add(lane.Lane);
+                cardCount += lane.CardCount;
+                officialImageCount += lane.OfficialImageCount;
             }
         }
 
-        if (sections.Count == 0)
+        for (var index = lanes.Count; index < 2; index++)
         {
-            sections.Add(new Godot.Collections.Dictionary
-            {
-                ["title"] = "Snapshot table",
-                ["zones"] = new Godot.Collections.Array<Godot.Collections.Dictionary>
-                {
-                    CountZone("No server table projection yet", 0)
-                }
-            });
+            lanes.Add(EmptyWireBattlefieldLane(index));
         }
 
-        return (sections, cardCount, officialImageCount);
+        return (new Godot.Collections.Dictionary
+        {
+            ["kind"] = "wireTable",
+            ["viewerPlayerId"] = viewerPlayerId,
+            ["runeDeckSize"] = runeDeckSize,
+            ["self"] = self,
+            ["opponent"] = opponent,
+            ["lanes"] = lanes
+        }, cardCount, officialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Player, int CardCount, int OfficialImageCount)> BuildWirePlayerAsync(
+        JsonElement snapshot,
+        JsonElement player,
+        string side,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex,
+        int runeDeckSize)
+    {
+        var playerId = ReadString(player, "playerId");
+        var zones = player.TryGetProperty("zones", out var zoneElement) && zoneElement.ValueKind == JsonValueKind.Object
+            ? zoneElement
+            : default;
+        var cardCount = 0;
+        var officialImageCount = 0;
+
+        var legend = await BuildWireCardsAsync(ReadStringArray(zones, "legendZone"), objectIndex);
+        var hero = await BuildWireCardsAsync(ReadStringArray(zones, "championZone"), objectIndex);
+        var baseCards = ReadStringArray(zones, "baseCards");
+        if (baseCards.Count == 0)
+        {
+            var baseRuneSet = new HashSet<string>(ReadStringArray(zones, "baseRunes"), StringComparer.Ordinal);
+            baseCards = ReadStringArray(zones, "base")
+                .Where(objectId => !baseRuneSet.Contains(objectId))
+                .ToArray();
+        }
+
+        var baseCardViews = await BuildWireCardsAsync(baseCards, objectIndex);
+        var baseRunes = await BuildWireCardsAsync(ReadStringArray(zones, "baseRunes"), objectIndex);
+        var graveyard = await BuildWireCardsAsync(ReadStringArray(zones, "graveyard"), objectIndex);
+        var banished = await BuildWireCardsAsync(ReadStringArray(zones, "banished"), objectIndex);
+        var handIds = side == "self" ? ReadStringArray(zones, "hand") : [];
+        var hand = await BuildWireCardsAsync(handIds, objectIndex);
+
+        foreach (var result in new[] { legend, hero, baseCardViews, baseRunes, graveyard, banished, hand })
+        {
+            cardCount += result.CardCount;
+            officialImageCount += result.OfficialImageCount;
+        }
+
+        var hiddenHandCount = side == "opponent"
+            ? Math.Max(ReadInt(zones, "handHidden"), ReadArrayCount(zones, "hand"))
+            : 0;
+
+        return (new Godot.Collections.Dictionary
+        {
+            ["side"] = side,
+            ["playerId"] = playerId,
+            ["label"] = $"{(side == "self" ? "P1 我方" : "P2 对手")} · {playerId}",
+            ["missing"] = false,
+            ["score"] = ReadSnapshotPlayerScore(snapshot, playerId),
+            ["mainDeckCount"] = Math.Max(0, ReadInt(zones, "mainDeckCount")),
+            ["runeDeckCount"] = Math.Max(0, ReadInt(zones, "runeDeckCount")),
+            ["runeDeckSize"] = runeDeckSize,
+            ["handHiddenCount"] = hiddenHandCount,
+            ["legend"] = legend.Cards,
+            ["hero"] = hero.Cards,
+            ["base"] = baseCardViews.Cards,
+            ["baseRunes"] = baseRunes.Cards,
+            ["graveyard"] = graveyard.Cards,
+            ["banished"] = banished.Cards,
+            ["hand"] = hand.Cards
+        }, cardCount, officialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Lane, int CardCount, int OfficialImageCount)> BuildWireBattlefieldLaneAsync(
+        JsonElement battlefield,
+        int fallbackIndex,
+        string viewerPlayerId,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var index = Math.Max(0, ReadInt(battlefield, "index"));
+        if (index == 0 && fallbackIndex > 0)
+        {
+            index = fallbackIndex;
+        }
+
+        var battlefieldId = ReadString(battlefield, "battlefieldObjectId");
+        var cardNo = ReadString(battlefield, "cardNo");
+        var cardCount = 0;
+        var officialImageCount = 0;
+        var siteCards = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        if (!string.IsNullOrWhiteSpace(battlefieldId) && !string.IsNullOrWhiteSpace(cardNo))
+        {
+            var siteView = await BuildCardViewAsync(new SnapshotCardRef(battlefieldId, cardNo, true, false, ReadString(battlefield, "controllerId")));
+            siteView["rotated"] = true;
+            siteCards.Add(siteView);
+            cardCount++;
+            if (siteView.ContainsKey("image"))
+            {
+                officialImageCount++;
+            }
+        }
+
+        var occupants = ReadStringArray(battlefield, "occupantObjectIds");
+        var ownOccupants = Array.Empty<string>();
+        var opposingOccupants = Array.Empty<string>();
+        if (battlefield.TryGetProperty("unitsBySide", out var unitsBySide)
+            && unitsBySide.ValueKind == JsonValueKind.Object)
+        {
+            var occupantSet = new HashSet<string>(occupants, StringComparer.Ordinal);
+            ownOccupants = unitsBySide.TryGetProperty(viewerPlayerId, out var ownSide)
+                ? ReadStringArray(ownSide).Where(occupantSet.Contains).ToArray()
+                : [];
+            var ownSet = new HashSet<string>(ownOccupants, StringComparer.Ordinal);
+            opposingOccupants = occupants.Where(objectId => !ownSet.Contains(objectId)).ToArray();
+        }
+        else
+        {
+            ownOccupants = occupants
+                .Where(objectId => objectIndex.TryGetValue(objectId, out var card)
+                    && string.Equals(card.ControllerOrOwner, viewerPlayerId, StringComparison.Ordinal))
+                .ToArray();
+            var ownSet = new HashSet<string>(ownOccupants, StringComparer.Ordinal);
+            opposingOccupants = occupants.Where(objectId => !ownSet.Contains(objectId)).ToArray();
+        }
+
+        var selfUnits = await BuildWireCardsAsync(ownOccupants, objectIndex);
+        var opponentUnits = await BuildWireCardsAsync(opposingOccupants, objectIndex);
+        var standby = await BuildWireStandbyCardsAsync(battlefield, viewerPlayerId, objectIndex);
+
+        foreach (var result in new[] { selfUnits, opponentUnits, standby.Self, standby.Opponent })
+        {
+            cardCount += result.CardCount;
+            officialImageCount += result.OfficialImageCount;
+        }
+
+        return (new Godot.Collections.Dictionary
+        {
+            ["index"] = index,
+            ["battlefieldId"] = battlefieldId,
+            ["site"] = siteCards,
+            ["selfUnits"] = selfUnits.Cards,
+            ["opponentUnits"] = opponentUnits.Cards,
+            ["selfStandby"] = standby.Self.Cards,
+            ["opponentStandby"] = standby.Opponent.Cards,
+            ["hiddenStandbyCount"] = Math.Max(ReadInt(battlefield, "hiddenStandbyCount"), ReadInt(battlefield, "faceDownStandbyCount")),
+            ["controllerId"] = ReadString(battlefield, "controllerId"),
+            ["scoredThisTurn"] = ReadBool(battlefield, "scoredThisTurn")
+        }, cardCount, officialImageCount);
+    }
+
+    private Godot.Collections.Dictionary EmptyWireBattlefieldLane(int index)
+    {
+        return new Godot.Collections.Dictionary
+        {
+            ["index"] = index,
+            ["battlefieldId"] = $"empty-battlefield-{index}",
+            ["site"] = new Godot.Collections.Array<Godot.Collections.Dictionary>(),
+            ["selfUnits"] = new Godot.Collections.Array<Godot.Collections.Dictionary>(),
+            ["opponentUnits"] = new Godot.Collections.Array<Godot.Collections.Dictionary>(),
+            ["selfStandby"] = new Godot.Collections.Array<Godot.Collections.Dictionary>(),
+            ["opponentStandby"] = new Godot.Collections.Array<Godot.Collections.Dictionary>(),
+            ["hiddenStandbyCount"] = 0,
+            ["controllerId"] = string.Empty,
+            ["scoredThisTurn"] = false
+        };
+    }
+
+    private async Task<(Godot.Collections.Array<Godot.Collections.Dictionary> Cards, int CardCount, int OfficialImageCount)> BuildWireStandbySideCardsAsync(
+        IEnumerable<SnapshotCardRef> cards)
+    {
+        var refs = cards.ToArray();
+        var views = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var officialImageCount = 0;
+        foreach (var card in refs)
+        {
+            var view = await BuildCardViewAsync(card);
+            view["standby"] = true;
+            if (view.ContainsKey("image"))
+            {
+                officialImageCount++;
+            }
+
+            views.Add(view);
+        }
+
+        return (views, views.Count, officialImageCount);
+    }
+
+    private async Task<(
+        (Godot.Collections.Array<Godot.Collections.Dictionary> Cards, int CardCount, int OfficialImageCount) Self,
+        (Godot.Collections.Array<Godot.Collections.Dictionary> Cards, int CardCount, int OfficialImageCount) Opponent)> BuildWireStandbyCardsAsync(
+        JsonElement battlefield,
+        string viewerPlayerId,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var self = new List<SnapshotCardRef>();
+        var opponent = new List<SnapshotCardRef>();
+        if (battlefield.TryGetProperty("standbySlots", out var slots)
+            && slots.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var slot in slots.EnumerateArray())
+            {
+                var visible = ReadBool(slot, "visible");
+                var objectId = ReadString(slot, "objectId");
+                var slotId = ReadString(slot, "slotId");
+                var card = visible && objectIndex.TryGetValue(objectId, out var visibleCard)
+                    ? visibleCard
+                    : new SnapshotCardRef(string.IsNullOrWhiteSpace(slotId) ? objectId : slotId, string.Empty, false, true);
+                var sidePlayerId = ReadString(slot, "sidePlayerId");
+                if (string.IsNullOrWhiteSpace(sidePlayerId))
+                {
+                    sidePlayerId = ReadString(slot, "controllerId");
+                }
+
+                if (string.Equals(sidePlayerId, viewerPlayerId, StringComparison.Ordinal))
+                {
+                    self.Add(card);
+                }
+                else
+                {
+                    opponent.Add(card);
+                }
+            }
+        }
+        else
+        {
+            foreach (var objectId in ReadStringArray(battlefield, "standbyObjectIds"))
+            {
+                var card = objectIndex.TryGetValue(objectId, out var visibleCard)
+                    ? visibleCard
+                    : new SnapshotCardRef(objectId, string.Empty, false, true);
+                if (string.Equals(card.ControllerOrOwner, viewerPlayerId, StringComparison.Ordinal))
+                {
+                    self.Add(card);
+                }
+                else
+                {
+                    opponent.Add(card);
+                }
+            }
+        }
+
+        return (await BuildWireStandbySideCardsAsync(self), await BuildWireStandbySideCardsAsync(opponent));
+    }
+
+    private async Task<(Godot.Collections.Array<Godot.Collections.Dictionary> Cards, int CardCount, int OfficialImageCount)> BuildWireCardsAsync(
+        IReadOnlyList<string> objectIds,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var views = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var officialImageCount = 0;
+        foreach (var objectId in objectIds)
+        {
+            var view = await BuildCardViewAsync(objectIndex.TryGetValue(objectId, out var card)
+                ? card
+                : new SnapshotCardRef(objectId, string.Empty, false, true));
+            if (view.ContainsKey("image"))
+            {
+                officialImageCount++;
+            }
+
+            views.Add(view);
+        }
+
+        return (views, views.Count, officialImageCount);
+    }
+
+    private static string WirePlayerSide(JsonElement player, string viewerPlayerId)
+    {
+        var perspective = ReadString(player, "perspective");
+        if (perspective == "self" || perspective == "opponent")
+        {
+            return perspective;
+        }
+
+        return string.Equals(ReadString(player, "playerId"), viewerPlayerId, StringComparison.Ordinal)
+            ? "self"
+            : "opponent";
+    }
+
+    private static int ReadSnapshotPlayerScore(JsonElement snapshot, string playerId)
+    {
+        if (!snapshot.TryGetProperty("players", out var players)
+            || players.ValueKind != JsonValueKind.Object
+            || !players.TryGetProperty(playerId, out var player)
+            || player.ValueKind != JsonValueKind.Object)
+        {
+            return 0;
+        }
+
+        return ReadInt(player, "score");
     }
 
     private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildPlayerSectionAsync(
@@ -2433,7 +2753,13 @@ public partial class Main : Control
     {
         var faceDown = ReadBool(card, "isFaceDown");
         var cardNo = faceDown ? string.Empty : ReadString(card, "cardNo");
-        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown);
+        var controllerOrOwner = ReadString(card, "controllerId");
+        if (string.IsNullOrWhiteSpace(controllerOrOwner))
+        {
+            controllerOrOwner = ReadString(card, "ownerId");
+        }
+
+        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown, controllerOrOwner);
     }
 
     private async Task<Godot.Collections.Dictionary> BuildCardViewAsync(SnapshotCardRef card)

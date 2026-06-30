@@ -4,4 +4,5 @@ public sealed record SnapshotCardRef(
     string ObjectId,
     string CardNo,
     bool Visible,
-    bool FaceDown);
+    bool FaceDown,
+    string ControllerOrOwner = "");
