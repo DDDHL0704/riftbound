@@ -71,7 +71,15 @@ public static class PreconstructedDeckCatalog
             "UNL-203/219",
             "UNL-116/219",
             ["OGN·135/298"],
-            ["OGN·278/298"])
+            ["OGN·278/298"]),
+        new(
+            "poppy-demacia",
+            "德玛西亚阵线 · 波比",
+            "加入盖伦、德玛西亚使节与强化阵地，覆盖服务端静态光环和防守坚守路径。",
+            "UNL-203/219",
+            "UNL-116/219",
+            ["OGS·013/024", "UNL-092/219"],
+            ["OGN·279/298"])
     ];
 
     public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)

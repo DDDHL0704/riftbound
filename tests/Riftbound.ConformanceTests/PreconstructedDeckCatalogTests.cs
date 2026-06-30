@@ -27,8 +27,12 @@ public sealed class PreconstructedDeckCatalogTests
     private const string TrifarianTrainingGroundsCardNo = "OGN·294/298";
     private const string WindHillCardNo = "OGN·297/298";
     private const string PoppyStandbyDeckId = "poppy-standby";
+    private const string PoppyDemaciaDeckId = "poppy-demacia";
     private const string PoppyLegendCardNo = "UNL-203/219";
     private const string PoppyChampionCardNo = "UNL-116/219";
+    private const string GarenCardNo = "OGS·013/024";
+    private const string DemaciaEnvoyCardNo = "UNL-092/219";
+    private const string FortifiedPositionCardNo = "OGN·279/298";
     private const string PakaaCubCardNo = "OGN·135/298";
     private const string BandleTreeCardNo = "OGN·278/298";
 
@@ -142,6 +146,22 @@ public sealed class PreconstructedDeckCatalogTests
         Assert.Equal(PoppyChampionCardNo, deck.Decklist.ChampionCardNo);
         Assert.Contains(PakaaCubCardNo, deck.Decklist.MainDeck);
         Assert.Contains(BandleTreeCardNo, deck.Decklist.Battlefields);
+    }
+
+    [Fact]
+    public async Task BuildIncludesPoppyDemaciaDeckForStaticAuraAndDefendSteadfastCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, PoppyDemaciaDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(PoppyLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(PoppyChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(GarenCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(DemaciaEnvoyCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(FortifiedPositionCardNo, deck.Decklist.Battlefields);
     }
 
     [Fact]
