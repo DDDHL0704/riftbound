@@ -3235,10 +3235,19 @@
 
 - 审计入口：`docs/CURRENT_PLAN_B_P4_ACTIVATED_ABILITY_SOURCE_GROUP_CATALOG_AUDIT.md`。
 - 证据入口：`docs/CURRENT_PLAN_B_P4_ACTIVATED_ABILITY_SOURCE_GROUP_CATALOG_EVIDENCE.md`。
-- 本批将 `P4ActivatedAbilityCatalog.SourceCardNosForAbility` 从 ability-id switch 改为读取 `data/official/card-catalog.zh-CN.json` 的 normalized official rules identity source map，覆盖 Vi、Renata Glasc、Azir、Ezreal、Jhin 与 Blue Sentinel 的 alternate / promo source rows。
+- 本批将 `P4ActivatedAbilityCatalog.SourceCardNosForAbility` 从 ability-id switch 改为通过共享 `OfficialCardSourceIdentityGroups` 读取 `data/official/card-catalog.zh-CN.json` 的 normalized official rules identity source map，覆盖 Vi、Renata Glasc、Azir、Ezreal、Jhin 与 Blue Sentinel 的 alternate / promo source rows。
 - Sigil 与 Gold token 行继续保持 distinct runtime ability id 边界：同一 normalized official source group 中若出现多个 P4 runtime source definitions，则回退为单卡 source group，避免误合并。
-- 验证：red focused source guard failed on old ability-id switch；focused `ActivatedAbilitySourceIdentityGuardTests` 11/11 passed；adjacent ActivatedAbility / ResourceSkill / P4Activate / PaymentEngineCoverageAuditTests / MatchRecovery / CardCatalogBaselineTests 3570/3570 passed；backend full conformance 9047/9047 passed。
+- 验证：red focused source guard failed on old ability-id switch；focused `ActivatedAbilitySourceIdentityGuardTests` 11/11 passed；adjacent ActivatedAbility / ResourceSkill / P4Activate / PaymentEngineCoverageAuditTests / MatchRecovery / CardCatalogBaselineTests 3570/3570 passed；shared-helper follow-up backend full conformance 9048/9048 passed。
 - 该证据只关闭 P4 activated ability source-card group selector 数据化；不关闭完整 P4 ability definition BehaviorSpec migration、完整 payment / target timing breadth、P1 或 READY。
+
+## Plan B Legend Action Source Group Catalog Evidence
+
+- 审计入口：`docs/CURRENT_PLAN_B_LEGEND_ACTION_SOURCE_GROUP_CATALOG_AUDIT.md`。
+- 证据入口：`docs/CURRENT_PLAN_B_LEGEND_ACTION_SOURCE_GROUP_CATALOG_EVIDENCE.md`。
+- 本批将 `LegendActionAbilityCatalog` 从完整 abilityId -> cardNo array 改为 abilityId -> representative source cardNo，并通过共享 `OfficialCardSourceIdentityGroups` 从官方 catalog normalized rules identity 推导完整 source group。
+- 该共享 helper 同时服务 P4 activated abilities 与 legend actions；source identity grouping 忽略印刷/变体/不完整 region 元数据，保留规则身份字段与 reminder-stripped rules text。
+- 验证：red focused guard failed on old `SourceCardNosByAbilityId` array；focused ActivatedAbilitySourceIdentityGuardTests / LegendActionSourceIdentityGuardTests 23/23 passed；adjacent LegendAction / LegendAct / ActivatedAbility / ResourceSkill / P4Activate / PaymentEngineCoverageAuditTests / MatchRecovery / CardCatalogBaselineTests 3671/3671 passed；backend full conformance 9048/9048 passed。
+- 该证据只关闭 legend-action source-card group selector 数据化；不关闭完整 legend-action effect BehaviorSpec migration、完整 payment / target timing breadth、P1 或 READY。
 
 ## 7. 索引维护规则
 

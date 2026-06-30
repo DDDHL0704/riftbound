@@ -25,9 +25,10 @@ These rows are official alternate / promo source rows for already implemented P4
 
 ## Implementation
 
-- `P4ActivatedAbilityCatalog.SourceCardNosForAbility` now reads a lazy source-card map built from `OfficialCardCatalog.LoadDefaultAsync()`.
+- `P4ActivatedAbilityCatalog.SourceCardNosForAbility` now reads a lazy source-card map built through shared `OfficialCardSourceIdentityGroups`.
 - The map groups source rows by normalized official rules identity: category, name, subtitle, colors, hero, tags, reminder-stripped rules text, mana cost, return energy, power, and group limit.
 - The grouping deliberately ignores print-only / variant metadata such as extend type, rarity, product, image, and region. `UNL-087a/219` lacks the base row region value, so region cannot be part of the runtime source key.
+- Legend action source groups now reuse the same helper, keeping P4 and legend-action source identity on one official-catalog path.
 - If one official rules-identity group contains multiple P4 runtime definition source cards, the map falls back to one-card groups for those definitions. This keeps distinct Sigil and Gold token ability ids from being merged.
 - Existing `IsSourceCardNoForAbility(...)` and `IsSourceCardNoForAbilityId(...)` call sites are unchanged; prompt legality, command revalidation, recovery diagnostics, and stack payloads continue through the shared catalog method.
 
@@ -36,7 +37,7 @@ These rows are official alternate / promo source rows for already implemented P4
 - Red focused guard: `ActivatedAbilitySourceIdentityGuardTests.P4ActivatedAbilitySourceCardGroupsDoNotUseAbilityIdSwitches` failed before implementation because `SourceCardNosForAbility` still contained `string.Equals(definition.AbilityId, ...)` branches.
 - Focused gate: `ActivatedAbilitySourceIdentityGuardTests` passed `11/11`.
 - Adjacent / hidden-info gate: `ActivatedAbility|ResourceSkill|P4Activate|PaymentEngineCoverageAuditTests|MatchRecovery|CardCatalogBaselineTests` passed `3570/3570`.
-- Backend full conformance passed `9047/9047`.
+- Backend full conformance passed `9048/9048` after the shared-helper follow-up.
 
 ## Holdbacks
 

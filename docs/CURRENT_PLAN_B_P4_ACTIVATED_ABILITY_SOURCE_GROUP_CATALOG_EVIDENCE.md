@@ -26,8 +26,9 @@ Before this slice:
 
 After this slice:
 
-- `SourceCardNosForAbility` resolves source groups from a lazy map built from `OfficialCardCatalog.LoadDefaultAsync()`.
+- `SourceCardNosForAbility` resolves source groups from a lazy map built by shared `OfficialCardSourceIdentityGroups`.
 - The map normalizes official row identity and strips parenthetical reminder text before grouping.
+- Legend action source groups reuse the same helper after the follow-up catalog slice.
 - Groups with multiple P4 runtime source definitions fall back to one-card groups, preventing SFD / OGN Sigil rows or UNL / SFD Gold token rows from sharing the wrong ability id.
 - Existing P4 ability definitions, effect kinds, costs, payment resources, prompt actions, stack items, recovery expectations, and hidden-information boundaries are unchanged.
 
@@ -39,7 +40,7 @@ After this slice:
 - Red focused guard failed before implementation on the old ability-id switch.
 - Focused gate passed `11/11`.
 - Adjacent / hidden-info gate passed `3570/3570`.
-- Backend full conformance passed `9047/9047`.
+- Backend full conformance passed `9048/9048` after the shared-helper follow-up.
 
 ## Non-Claims
 

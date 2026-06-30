@@ -268,10 +268,10 @@ public sealed class LegendActionSourceIdentityGuardTests
     [Fact]
     public void AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog()
     {
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·197/221", "SFD·247/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AzirLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-189/219", "UNL-230/219", "UNL-230*/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.LilliaLegendAbilityId));
         Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
@@ -308,25 +308,25 @@ public sealed class LegendActionSourceIdentityGuardTests
     [Fact]
     public void ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog()
     {
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["OGN·253/298", "OGN·302/298", "OGN·302*/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.DariusLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.DianaLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KaisaLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·189/221", "SFD·244/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OrnnLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·199/221", "SFD·248/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.EzrealLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·195/221", "SFD·195a/221·P", "SFD·246/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.IreliaLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["OGN·263/298", "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TeemoLegendAbilityId));
         Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
@@ -366,34 +366,34 @@ public sealed class LegendActionSourceIdentityGuardTests
     [Fact]
     public void MainLegendActionSourceGroupsUseSharedCatalog()
     {
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["FND-259/298", "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.YasuoLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["OGN·257/298", "OGN·304*/298", "OGN·304/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.LeeSinLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-203/219", "UNL-237*/219", "UNL-237/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.PoppyLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["FND-265/298", "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ViktorLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["OGN·267/298", "OGN·309/298", "OGN·309*/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MissFortuneLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KhazixLegendBoonAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-201/219", "UNL-236/219", "UNL-236*/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KhazixLegendMoveAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["UNL-185/219", "UNL-228/219", "UNL-228*/219"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.PykeLegendAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·193/221", "SFD·245/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JaxLegendAttachAbilityId));
-        Assert.Equal(
+        AssertSourceCardNosEquivalent(
             ["SFD·193/221", "SFD·245/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JaxLegendReattachAbilityId));
         Assert.True(LegendActionAbilityCatalog.IsSourceCardNoForAbility(
@@ -432,6 +432,33 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("[JaxSpiritforgedLegendCardNo, \"SFD·245/221\"]", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void LegendActionAbilityCatalogSourceGroupsDoNotHardcodeCardNumberArrays()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "LegendActionAbilityCatalog.cs"));
+
+        Assert.DoesNotContain(
+            "IReadOnlyDictionary<string, IReadOnlyList<string>> SourceCardNosByAbilityId",
+            source,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "[YasuoLegendAbilityId] = [\"FND-259/298\", \"OGN·259/298\", \"OGN·305*/298\", \"OGN·305/298\"]",
+            source,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "[TeemoLegendAbilityId] = [\"OGN·263/298\", \"OGN·263a/298\", \"OGN·307/298\", \"OGN·307*/298\"]",
+            source,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "OfficialCardSourceIdentityGroups",
+            source,
+            StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
@@ -447,5 +474,14 @@ public sealed class LegendActionSourceIdentityGuardTests
         }
 
         throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
+    }
+
+    private static void AssertSourceCardNosEquivalent(
+        IReadOnlyList<string> expected,
+        IReadOnlyList<string> actual)
+    {
+        Assert.Equal(
+            expected.Order(StringComparer.Ordinal),
+            actual.Order(StringComparer.Ordinal));
     }
 }

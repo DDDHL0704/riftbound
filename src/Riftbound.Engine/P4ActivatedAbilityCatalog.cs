@@ -1,5 +1,3 @@
-using Riftbound.CardCatalog;
-
 namespace Riftbound.Engine;
 
 public sealed record P4ActivatedAbilityDefinition(
@@ -779,7 +777,7 @@ public static class P4ActivatedAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
-        var sourceCardNo = NormalizeSourceIdentityValue(definition.SourceCardNo);
+        var sourceCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(definition.SourceCardNo);
         return SourceCardNosByRepresentativeCardNo.Value.TryGetValue(sourceCardNo, out var sourceCardNos)
             ? sourceCardNos
             : [sourceCardNo];
@@ -926,91 +924,7 @@ public static class P4ActivatedAbilityCatalog
 
     private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildSourceCardNosByRepresentativeCardNo()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
-        var definitionSourceCardNos = Definitions
-            .Select(definition => NormalizeSourceIdentityValue(definition.SourceCardNo))
-            .Where(cardNo => !string.IsNullOrWhiteSpace(cardNo))
-            .Distinct(StringComparer.Ordinal)
-            .ToHashSet(StringComparer.Ordinal);
-        var sourceCardNosByRepresentative = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-
-        foreach (var group in catalog.Cards.GroupBy(SourceCardIdentitySignature, StringComparer.Ordinal))
-        {
-            var groupCardNos = group
-                .Select(card => NormalizeSourceIdentityValue(card.CardNo))
-                .Where(cardNo => !string.IsNullOrWhiteSpace(cardNo))
-                .Distinct(StringComparer.Ordinal)
-                .Order(StringComparer.Ordinal)
-                .ToArray();
-            var groupDefinitionSources = groupCardNos
-                .Where(definitionSourceCardNos.Contains)
-                .ToArray();
-
-            if (groupDefinitionSources.Length == 1)
-            {
-                sourceCardNosByRepresentative[groupDefinitionSources[0]] = groupCardNos;
-            }
-            else
-            {
-                foreach (var sourceCardNo in groupDefinitionSources)
-                {
-                    sourceCardNosByRepresentative[sourceCardNo] = [sourceCardNo];
-                }
-            }
-        }
-
-        return sourceCardNosByRepresentative;
-    }
-
-    private static string SourceCardIdentitySignature(OfficialCard card)
-    {
-        return string.Join(
-            "\u001F",
-            NormalizeSourceIdentityValue(card.CardCategoryName),
-            NormalizeSourceIdentityValue(card.CardName),
-            NormalizeSourceIdentityValue(card.SubTitle),
-            string.Join(",", card.CardColorList.Select(NormalizeSourceIdentityValue).Order(StringComparer.Ordinal)),
-            NormalizeSourceIdentityValue(card.Hero),
-            NormalizeSourceIdentityValue(card.Tag),
-            NormalizeSourceRulesText(card.CardEffect),
-            NormalizeSourceIdentityValue(card.Energy),
-            NormalizeSourceIdentityValue(card.ReturnEnergy),
-            NormalizeSourceIdentityValue(card.Power),
-            NormalizeSourceIdentityValue(card.CardGroupLimit));
-    }
-
-    private static string NormalizeSourceRulesText(string? value)
-    {
-        var normalized = NormalizeSourceIdentityValue(value)
-            .Replace("\r\n", "\n", StringComparison.Ordinal)
-            .Replace("\n ", "\n", StringComparison.Ordinal)
-            .Replace(" \n", "\n", StringComparison.Ordinal);
-        normalized = System.Text.RegularExpressions.Regex.Replace(
-            normalized,
-            "（[^）]*）",
-            string.Empty,
-            System.Text.RegularExpressions.RegexOptions.CultureInvariant);
-        normalized = normalized
-            .Replace(" — ", "—", StringComparison.Ordinal)
-            .Replace(" —", "—", StringComparison.Ordinal)
-            .Replace("— ", "—", StringComparison.Ordinal);
-        return System.Text.RegularExpressions.Regex.Replace(
-                normalized,
-                @"\s+",
-                " ",
-                System.Text.RegularExpressions.RegexOptions.CultureInvariant)
-            .Trim();
-    }
-
-    private static string NormalizeSourceIdentityValue(object? value)
-    {
-        return System.Text.RegularExpressions.Regex.Replace(
-                (Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty)
-                    .Normalize()
-                    .Trim(),
-                @"\s+",
-                " ",
-                System.Text.RegularExpressions.RegexOptions.CultureInvariant)
-            .Trim();
+        return OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(
+            Definitions.Select(definition => definition.SourceCardNo));
     }
 }

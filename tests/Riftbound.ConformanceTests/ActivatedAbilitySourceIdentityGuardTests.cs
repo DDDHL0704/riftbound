@@ -72,7 +72,7 @@ public sealed class ActivatedAbilitySourceIdentityGuardTests
             catalogSource,
             StringComparison.Ordinal);
         Assert.Contains(
-            "OfficialCardCatalog.LoadDefaultAsync",
+            "OfficialCardSourceIdentityGroups",
             catalogSource,
             StringComparison.Ordinal);
     }
