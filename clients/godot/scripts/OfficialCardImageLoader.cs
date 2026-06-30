@@ -23,11 +23,23 @@ public sealed class OfficialCardImageLoader
         }
 
         var cachePath = CachePathFor(card.FrontImage);
-        if (!File.Exists(cachePath))
+        try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
-            var bytes = await HttpClient.GetByteArrayAsync(card.FrontImage, cancellationToken);
-            await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
+            if (!File.Exists(cachePath))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
+                var bytes = await HttpClient.GetByteArrayAsync(card.FrontImage, cancellationToken);
+                await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException)
+        {
+            GD.PushWarning($"Unable to cache official card image {card.CardNo} from {card.FrontImage}: {ex.Message}");
+            return null;
         }
 
         return LoadImage(cachePath);

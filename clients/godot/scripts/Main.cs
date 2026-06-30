@@ -22,6 +22,11 @@ public partial class Main : Control
         "MOVE_UNIT",
         "DECLARE_BATTLE"
     ];
+    private static readonly string[] AutoSmokeSpecialActions =
+    [
+        "ORDER_TRIGGERS",
+        "ASSIGN_COMBAT_DAMAGE"
+    ];
     private static readonly string[] AutoSmokeTempoActions =
     [
         "PASS_PRIORITY",
@@ -414,6 +419,41 @@ public partial class Main : Control
             _session.RoomId,
             _authenticatedHandle,
             NewIntentId($"prompt-{cmdType.ToLowerInvariant()}"),
+            cmd,
+            _shutdown.Token);
+        AppendReceipt(label, receipt);
+    }
+
+    private async Task SubmitPromptPayloadAsync(
+        Godot.Collections.Dictionary action,
+        Dictionary<string, object?> payload,
+        string intentSuffix)
+    {
+        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        {
+            AppendLog("[color=yellow]Prompt command skipped: not connected/authenticated.[/color]");
+            return;
+        }
+
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Prompt action";
+        var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
+        var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
+        if (!string.IsNullOrWhiteSpace(promptId))
+        {
+            payload["promptId"] = promptId;
+        }
+
+        if (snapshotTick >= 0)
+        {
+            payload["snapshotTick"] = snapshotTick;
+        }
+
+        var cmd = JsonSerializer.SerializeToElement(payload);
+        var receipt = await _connection!.InvokeAsync<CommandReceiptDto>(
+            "SubmitIntent",
+            _session.RoomId,
+            _authenticatedHandle,
+            NewIntentId($"prompt-{intentSuffix}"),
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
@@ -848,6 +888,17 @@ public partial class Main : Control
             return;
         }
 
+        if (_autoSmokeFollowups)
+        {
+            foreach (var actionName in AutoSmokeSpecialActions)
+            {
+                if (await TryRunAutoSmokeSpecialActionAsync(actions, actionName))
+                {
+                    return;
+                }
+            }
+        }
+
         if (_autoSmokePlayCard
             && !_autoSmokePlayCardSubmitted
             && (!_autoSmokeTapRune || _autoSmokeTapRuneSubmissions > 0)
@@ -944,6 +995,34 @@ public partial class Main : Control
         _autoSmokeActionSubmissions[actionName] = _autoSmokeActionSubmissions.GetValueOrDefault(actionName) + 1;
         AppendLog($"Auto smoke: submitting {Escape(actionName)} with server selection {Escape(selectionKey)}.");
         await SubmitPromptTemplateAsync(action, selection);
+        return true;
+    }
+
+    private async Task<bool> TryRunAutoSmokeSpecialActionAsync(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+        string actionName)
+    {
+        if (_autoSmokeActionSubmissions.GetValueOrDefault(actionName) >= AutoSmokeActionLimitFor(actionName)
+            || !TryGetEnabledPromptAction(actions, actionName, requireTemplate: false, out var action))
+        {
+            return false;
+        }
+
+        if (!TryBuildSpecialPromptCommand(action, out var payload, out var payloadKey, out var reason))
+        {
+            AppendLog($"[color=yellow]Auto smoke: {Escape(actionName)} skipped: {Escape(reason)}[/color]");
+            return false;
+        }
+
+        var key = AutoSmokePromptKey(action, $"{actionName}:{payloadKey}");
+        if (!_autoSmokePromptSubmissions.Add(key))
+        {
+            return false;
+        }
+
+        _autoSmokeActionSubmissions[actionName] = _autoSmokeActionSubmissions.GetValueOrDefault(actionName) + 1;
+        AppendLog($"Auto smoke: submitting {Escape(actionName)} with server metadata {Escape(payloadKey)}.");
+        await SubmitPromptPayloadAsync(action, payload, actionName.ToLowerInvariant());
         return true;
     }
 
@@ -1101,6 +1180,342 @@ public partial class Main : Control
             var hasTemplate = action.TryGetValue("hasTemplate", out var templateValue) && templateValue.AsBool();
             return $"{name}:{(enabled ? "on" : "off")}{(hasTemplate ? ":template" : string.Empty)}";
         }));
+    }
+
+    private static bool TryBuildSpecialPromptCommand(
+        Godot.Collections.Dictionary action,
+        out Dictionary<string, object?> payload,
+        out string payloadKey,
+        out string reason)
+    {
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal);
+        payloadKey = string.Empty;
+        reason = string.Empty;
+
+        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+        var candidateJson = action.TryGetValue("candidateJson", out var candidateValue) ? candidateValue.AsString() : string.Empty;
+        if (string.IsNullOrWhiteSpace(candidateJson))
+        {
+            reason = "candidate JSON is missing";
+            return false;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(candidateJson);
+            if (string.Equals(actionName, "ORDER_TRIGGERS", StringComparison.Ordinal))
+            {
+                return TryBuildOrderTriggersCommand(document.RootElement, out payload, out payloadKey, out reason);
+            }
+
+            if (string.Equals(actionName, "ASSIGN_COMBAT_DAMAGE", StringComparison.Ordinal))
+            {
+                return TryBuildAssignCombatDamageCommand(document.RootElement, out payload, out payloadKey, out reason);
+            }
+        }
+        catch (JsonException ex)
+        {
+            reason = $"malformed candidate JSON: {ex.Message}";
+            return false;
+        }
+
+        reason = $"unsupported special action {actionName}";
+        return false;
+    }
+
+    private static bool TryBuildOrderTriggersCommand(
+        JsonElement candidate,
+        out Dictionary<string, object?> payload,
+        out string payloadKey,
+        out string reason)
+    {
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal);
+        payloadKey = string.Empty;
+        reason = string.Empty;
+
+        var metadata = MetadataElement(candidate);
+        var orderedTriggerIds = metadata is null
+            ? Array.Empty<string>()
+            : FirstMetadataStringArray(metadata.Value, "orderedTriggerIds", "triggerIds");
+        if (orderedTriggerIds.Length == 0 && metadata is { } metadataElement)
+        {
+            orderedTriggerIds = ChoiceIds(metadataElement, "triggerChoices");
+        }
+
+        if (orderedTriggerIds.Length == 0)
+        {
+            reason = "no server-provided trigger order";
+            return false;
+        }
+
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["cmdType"] = "ORDER_TRIGGERS",
+            ["orderedTriggerIds"] = orderedTriggerIds,
+            ["triggerIds"] = orderedTriggerIds
+        };
+        payloadKey = string.Join(",", orderedTriggerIds);
+        return true;
+    }
+
+    private static bool TryBuildAssignCombatDamageCommand(
+        JsonElement candidate,
+        out Dictionary<string, object?> payload,
+        out string payloadKey,
+        out string reason)
+    {
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal);
+        payloadKey = string.Empty;
+        reason = string.Empty;
+
+        if (MetadataElement(candidate) is not { } metadata)
+        {
+            reason = "damage metadata is missing";
+            return false;
+        }
+
+        var battleId = ReadString(metadata, "battleId");
+        var battlefieldId = FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"));
+        var damageBySource = FirstMetadataIntMap(metadata, "assignableDamagePool", "damagePool", "damagePoolBySource");
+        var assignments = DefaultDamageAssignments(metadata, damageBySource);
+        if (string.IsNullOrWhiteSpace(battleId))
+        {
+            reason = "battleId is missing";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(battlefieldId))
+        {
+            reason = "battlefieldId is missing";
+            return false;
+        }
+
+        if (assignments.Count == 0)
+        {
+            reason = "no server-provided damage assignment choices";
+            return false;
+        }
+
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["cmdType"] = "ASSIGN_COMBAT_DAMAGE",
+            ["battleId"] = battleId,
+            ["battlefieldId"] = battlefieldId,
+            ["assignments"] = assignments
+        };
+        payloadKey = string.Join(",", assignments.Select(assignment =>
+            $"{assignment["sourceObjectId"]}->{assignment["targetObjectId"]}:{assignment["damage"]}"));
+        return true;
+    }
+
+    private static List<Dictionary<string, object?>> DefaultDamageAssignments(
+        JsonElement metadata,
+        IReadOnlyDictionary<string, int> damageBySource)
+    {
+        var assignments = RequiredDamageAssignments(metadata);
+        if (assignments.Count > 0)
+        {
+            return assignments;
+        }
+
+        var chosenTargets = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (sourceObjectId, targetObjectId) in AssignmentChoicePairs(metadata))
+        {
+            chosenTargets.TryAdd(sourceObjectId, targetObjectId);
+        }
+
+        if (chosenTargets.Count == 0)
+        {
+            foreach (var (sourceObjectId, targetObjectIds) in StringListMap(metadata, "legalTargets", "legalTargetsBySource"))
+            {
+                var targetObjectId = targetObjectIds.FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(targetObjectId))
+                {
+                    chosenTargets.TryAdd(sourceObjectId, targetObjectId);
+                }
+            }
+        }
+
+        return chosenTargets
+            .Select(entry => new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["sourceObjectId"] = entry.Key,
+                ["targetObjectId"] = entry.Value,
+                ["damage"] = Math.Max(1, damageBySource.GetValueOrDefault(entry.Key, 1))
+            })
+            .ToList();
+    }
+
+    private static List<Dictionary<string, object?>> RequiredDamageAssignments(JsonElement metadata)
+    {
+        var result = new List<Dictionary<string, object?>>();
+        if (!metadata.TryGetProperty("requiredAssignments", out var assignments)
+            || assignments.ValueKind != JsonValueKind.Array)
+        {
+            return result;
+        }
+
+        foreach (var assignment in assignments.EnumerateArray())
+        {
+            if (assignment.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var sourceObjectId = ReadString(assignment, "sourceObjectId");
+            var targetObjectId = ReadString(assignment, "targetObjectId");
+            var damage = ReadInt(assignment, "damage");
+            if (damage <= 0)
+            {
+                damage = ReadInt(assignment, "requiredDamage");
+            }
+            if (string.IsNullOrWhiteSpace(sourceObjectId)
+                || string.IsNullOrWhiteSpace(targetObjectId)
+                || damage <= 0)
+            {
+                continue;
+            }
+
+            result.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["damage"] = damage
+            });
+        }
+
+        return result;
+    }
+
+    private static IEnumerable<(string SourceObjectId, string TargetObjectId)> AssignmentChoicePairs(JsonElement metadata)
+    {
+        if (!metadata.TryGetProperty("assignmentChoices", out var choices)
+            || choices.ValueKind != JsonValueKind.Array)
+        {
+            yield break;
+        }
+
+        foreach (var choice in choices.EnumerateArray())
+        {
+            var id = ReadString(choice, "id");
+            var parts = id.Split("->", 2, StringSplitOptions.TrimEntries);
+            if (parts.Length == 2
+                && !string.IsNullOrWhiteSpace(parts[0])
+                && !string.IsNullOrWhiteSpace(parts[1]))
+            {
+                yield return (parts[0], parts[1]);
+                continue;
+            }
+
+            var sourceObjectId = ReadString(choice, "sourceObjectId");
+            var targetObjectId = ReadString(choice, "targetObjectId");
+            if (!string.IsNullOrWhiteSpace(sourceObjectId)
+                && !string.IsNullOrWhiteSpace(targetObjectId))
+            {
+                yield return (sourceObjectId, targetObjectId);
+            }
+        }
+    }
+
+    private static string FirstNonEmpty(params string[] values)
+    {
+        return values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? string.Empty;
+    }
+
+    private static string[] FirstMetadataStringArray(JsonElement metadata, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            var values = ReadStringArray(metadata, propertyName)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (values.Length > 0)
+            {
+                return values;
+            }
+        }
+
+        return [];
+    }
+
+    private static string[] ChoiceIds(JsonElement metadata, string propertyName)
+    {
+        if (!metadata.TryGetProperty(propertyName, out var choices)
+            || choices.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return choices
+            .EnumerateArray()
+            .Select(choice => ReadString(choice, "id"))
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> FirstMetadataIntMap(JsonElement metadata, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            var values = IntMap(metadata, propertyName);
+            if (values.Count > 0)
+            {
+                return values;
+            }
+        }
+
+        return new Dictionary<string, int>(StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> IntMap(JsonElement metadata, string propertyName)
+    {
+        var result = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!metadata.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Object)
+        {
+            return result;
+        }
+
+        foreach (var item in property.EnumerateObject())
+        {
+            var value = item.Value.ValueKind switch
+            {
+                JsonValueKind.Number when item.Value.TryGetInt32(out var number) => number,
+                JsonValueKind.String when int.TryParse(item.Value.GetString(), out var number) => number,
+                _ => 0
+            };
+            if (!string.IsNullOrWhiteSpace(item.Name) && value > 0)
+            {
+                result[item.Name] = value;
+            }
+        }
+
+        return result;
+    }
+
+    private static IEnumerable<(string SourceObjectId, IReadOnlyList<string> TargetObjectIds)> StringListMap(
+        JsonElement metadata,
+        params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!metadata.TryGetProperty(propertyName, out var property)
+                || property.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            foreach (var item in property.EnumerateObject())
+            {
+                var values = ReadStringArray(item.Value);
+                if (!string.IsNullOrWhiteSpace(item.Name) && values.Count > 0)
+                {
+                    yield return (item.Name, values);
+                }
+            }
+        }
     }
 
     private string AutoSmokePromptKey(Godot.Collections.Dictionary action, string actionName)
@@ -2149,6 +2564,12 @@ public partial class Main : Control
             return PromptMulliganActionNode(action);
         }
 
+        if (string.Equals(actionName, "ORDER_TRIGGERS", StringComparison.Ordinal)
+            || string.Equals(actionName, "ASSIGN_COMBAT_DAMAGE", StringComparison.Ordinal))
+        {
+            return PromptSpecialActionNode(action);
+        }
+
         var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
         var selectors = new List<PromptSelector>();
 
@@ -2188,6 +2609,42 @@ public partial class Main : Control
             Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {(hasTemplate ? "template" : submitKind)} · {reason}"
         });
         return row;
+    }
+
+    private Control PromptSpecialActionNode(Godot.Collections.Dictionary action)
+    {
+        var row = new VBoxContainer();
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Prompt action";
+        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
+        var canBuild = TryBuildSpecialPromptCommand(action, out _, out var payloadKey, out var buildReason);
+        var button = new Button
+        {
+            Disabled = !enabled || !canBuild,
+            Text = canBuild ? label : $"{label} (waiting for server metadata)",
+            TooltipText = !canBuild ? buildReason : string.IsNullOrWhiteSpace(reason) ? actionName : reason
+        };
+        button.Pressed += () => _ = SubmitSpecialPromptAsync(action);
+        row.AddChild(button);
+        row.AddChild(new Label
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · server metadata · {(canBuild ? payloadKey : buildReason)}"
+        });
+        return row;
+    }
+
+    private async Task SubmitSpecialPromptAsync(Godot.Collections.Dictionary action)
+    {
+        if (!TryBuildSpecialPromptCommand(action, out var payload, out _, out var reason))
+        {
+            AppendLog($"[color=yellow]Prompt action requires server metadata: {Escape(reason)}[/color]");
+            return;
+        }
+
+        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : "special";
+        await SubmitPromptPayloadAsync(action, payload, actionName.ToLowerInvariant());
     }
 
     private Control PromptMulliganActionNode(Godot.Collections.Dictionary action)

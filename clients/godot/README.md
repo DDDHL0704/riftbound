@@ -84,6 +84,9 @@ With `--riftbound-smoke-auto-followups`, the smoke runner then tries the first
 server-template follow-up choices for movement, battle declaration, pass, and
 end-turn actions. It still does not decide legality locally; it only submits the
 server-provided required selections.
+The same follow-up smoke path also handles server-metadata `ORDER_TRIGGERS` and
+`ASSIGN_COMBAT_DAMAGE` prompts when they appear, submitting the default trigger
+order or first legal damage assignments exposed by the server.
 
 ## Official Card Images
 
