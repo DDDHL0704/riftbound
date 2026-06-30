@@ -72,6 +72,30 @@ text = "Connect"
 layout_mode = 2
 text = "Reconnect"
 
+[node name="MatchmakingRow" type="HBoxContainer" parent="Controls"]
+layout_mode = 2
+
+[node name="MatchmakingLabel" type="Label" parent="Controls/MatchmakingRow"]
+layout_mode = 2
+text = "Lobby"
+
+[node name="MatchmakingStatus" type="Label" parent="Controls/MatchmakingRow"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+text = "Idle"
+
+[node name="CreatePublicMatchButton" type="Button" parent="Controls/MatchmakingRow"]
+layout_mode = 2
+text = "Create Public Match"
+
+[node name="QueueMatchmakingButton" type="Button" parent="Controls/MatchmakingRow"]
+layout_mode = 2
+text = "Quick Match"
+
+[node name="CancelMatchmakingButton" type="Button" parent="Controls/MatchmakingRow"]
+layout_mode = 2
+text = "Cancel Queue"
+
 [node name="DeckRow" type="HBoxContainer" parent="Controls"]
 layout_mode = 2
 

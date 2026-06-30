@@ -17,6 +17,11 @@ public partial class Main : Control
     private const int AutoSmokePlayCardTapRuneLimit = 4;
     private const int AutoSmokeBoardActionLimit = 4;
     private const int AutoSmokeTempoActionLimit = 24;
+    private const string MatchmakingQueued = "QUEUED";
+    private const string MatchmakingMatched = "MATCHED";
+    private const string MatchmakingCancelled = "CANCELLED";
+    private const string MatchmakingIdle = "IDLE";
+    private const string MatchmakingRejected = "REJECTED";
     private static readonly string[] AutoSmokePostPlayActions =
     [
         "MOVE_UNIT",
@@ -40,6 +45,7 @@ public partial class Main : Control
     [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
     [Export] public string PreviewCardNo { get; set; } = "UNL-181/219";
 
+    private static readonly JsonSerializerOptions ClientJsonOptions = CreateClientJsonOptions();
     private readonly CancellationTokenSource _shutdown = new();
     private readonly PlayerSessionStore _sessionStore = new();
     private readonly List<PreconstructedDeck> _decks = [];
@@ -56,9 +62,13 @@ public partial class Main : Control
     private VBoxContainer? _promptActions;
     private LineEdit? _handleInput;
     private LineEdit? _roomInput;
+    private Label? _matchmakingStatus;
     private OptionButton? _deckSelect;
     private Button? _connectButton;
     private Button? _reconnectButton;
+    private Button? _createPublicMatchButton;
+    private Button? _queueMatchmakingButton;
+    private Button? _cancelMatchmakingButton;
     private Button? _loadDecksButton;
     private Button? _submitDeckButton;
     private Button? _readyButton;
@@ -69,11 +79,14 @@ public partial class Main : Control
     private bool _autoSmokeTapRune;
     private bool _autoSmokePlayCard;
     private bool _autoSmokeFollowups;
+    private bool _autoSmokeQuickMatch;
+    private bool _autoSmokePublicMatch;
     private bool _autoSmokeSubmitted;
     private int _autoSmokeTapRuneSubmissions;
     private bool _autoSmokePlayCardSubmitted;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
+    private string _lastJoinedMatchmakingRoom = string.Empty;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
@@ -90,6 +103,8 @@ public partial class Main : Control
         _autoSmokeTapRune = args.Contains("--riftbound-smoke-auto-tap-rune");
         _autoSmokePlayCard = args.Contains("--riftbound-smoke-auto-play-card");
         _autoSmokeFollowups = args.Contains("--riftbound-smoke-auto-followups");
+        _autoSmokeQuickMatch = args.Contains("--riftbound-smoke-auto-quick-match");
+        _autoSmokePublicMatch = args.Contains("--riftbound-smoke-auto-public-match");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -99,9 +114,19 @@ public partial class Main : Control
         _officialCatalogLoadTask = LoadOfficialCardPreviewAsync();
         _ = LoadDecksAsync();
 
-        if (AutoConnectOnReady)
+        if (AutoConnectOnReady && !_autoSmokeQuickMatch && !_autoSmokePublicMatch)
         {
             await ConnectAndRequestSnapshotAsync(useReconnectToken: true);
+        }
+
+        if (_autoSmokePublicMatch)
+        {
+            await CreatePublicMatchAsync();
+        }
+
+        if (_autoSmokeQuickMatch)
+        {
+            await QueueMatchmakingAsync();
         }
     }
 
@@ -125,9 +150,13 @@ public partial class Main : Control
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
         _roomInput = GetNode<LineEdit>("Controls/SessionRow/RoomInput");
+        _matchmakingStatus = GetNode<Label>("Controls/MatchmakingRow/MatchmakingStatus");
         _deckSelect = GetNode<OptionButton>("Controls/DeckRow/DeckSelect");
         _connectButton = GetNode<Button>("Controls/SessionRow/ConnectButton");
         _reconnectButton = GetNode<Button>("Controls/SessionRow/ReconnectButton");
+        _createPublicMatchButton = GetNode<Button>("Controls/MatchmakingRow/CreatePublicMatchButton");
+        _queueMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/QueueMatchmakingButton");
+        _cancelMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/CancelMatchmakingButton");
         _loadDecksButton = GetNode<Button>("Controls/DeckRow/LoadDecksButton");
         _submitDeckButton = GetNode<Button>("Controls/DeckRow/SubmitDeckButton");
         _readyButton = GetNode<Button>("Controls/DeckRow/ReadyButton");
@@ -137,6 +166,9 @@ public partial class Main : Control
     {
         _connectButton!.Pressed += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
         _reconnectButton!.Pressed += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
+        _createPublicMatchButton!.Pressed += () => _ = CreatePublicMatchAsync();
+        _queueMatchmakingButton!.Pressed += () => _ = QueueMatchmakingAsync();
+        _cancelMatchmakingButton!.Pressed += () => _ = CancelMatchmakingAsync();
         _loadDecksButton!.Pressed += () => _ = LoadDecksAsync();
         _submitDeckButton!.Pressed += () => _ = SubmitSelectedDeckAsync();
         _readyButton!.Pressed += () => _ = ReadyAsync();
@@ -231,58 +263,12 @@ public partial class Main : Control
     {
         try
         {
-            _session = PlayerSessionSettings.WithUsableKey(ReadSessionFromInputs());
-            await SaveSessionAsync();
-
-            SetStatus("Connecting");
-            if (_connection is null || _connection.State == HubConnectionState.Disconnected)
+            if (!await EnsureAuthenticatedConnectionAsync())
             {
-                _connection = BuildConnection();
-                RegisterServerHandlers(_connection);
-                await _connection.StartAsync(_shutdown.Token);
-            }
-
-            SetStatus("Connected");
-            AppendLog($"Connected to {ServerUrl}/hubs/game.");
-
-            var auth = await _connection.InvokeAsync<AuthResultDto>(
-                "Authenticate",
-                _session.Handle,
-                _session.PlayerKey,
-                _shutdown.Token);
-            AppendLog($"Authenticate: {auth.Status} ({auth.Handle}).");
-            if (!auth.Authenticated)
-            {
-                SetStatus($"Authentication rejected: {auth.Status}");
                 return;
             }
 
-            _authenticatedHandle = auth.Handle;
-            var shouldReconnect = useReconnectToken && !string.IsNullOrWhiteSpace(_session.ReconnectToken);
-            if (shouldReconnect)
-            {
-                await _connection.InvokeAsync(
-                    "Reconnect",
-                    _session.RoomId,
-                    _authenticatedHandle,
-                    _session.ReconnectToken,
-                    _shutdown.Token);
-                AppendLog($"Reconnect requested: room={_session.RoomId}, player={_authenticatedHandle}.");
-            }
-            else
-            {
-                await _connection.InvokeAsync(
-                    "JoinRoom",
-                    _session.RoomId,
-                    _authenticatedHandle,
-                    null,
-                    _shutdown.Token);
-                AppendLog($"JoinRoom requested: room={_session.RoomId}, player={_authenticatedHandle}.");
-            }
-
-            await _connection.InvokeAsync("RequestSnapshot", _session.RoomId, _authenticatedHandle, _shutdown.Token);
-            AppendLog("RequestSnapshot submitted.");
-
+            await JoinCurrentRoomAndRequestSnapshotAsync(useReconnectToken);
             await RunAutoSmokeSetupIfReadyAsync();
         }
         catch (OperationCanceledException)
@@ -294,6 +280,215 @@ public partial class Main : Control
             AppendLog($"[color=red]{Escape(ex.GetType().Name)}: {Escape(ex.Message)}[/color]");
             GD.PushError(ex.ToString());
         }
+    }
+
+    private async Task<bool> EnsureAuthenticatedConnectionAsync()
+    {
+        _session = PlayerSessionSettings.WithUsableKey(ReadSessionFromInputs());
+        await SaveSessionAsync();
+
+        SetStatus("Connecting");
+        if (_connection is null || _connection.State == HubConnectionState.Disconnected)
+        {
+            _connection = BuildConnection();
+            RegisterServerHandlers(_connection);
+            await _connection.StartAsync(_shutdown.Token);
+            AppendLog($"Connected to {ServerUrl}/hubs/game.");
+        }
+
+        SetStatus("Connected");
+        var auth = await _connection!.InvokeAsync<AuthResultDto>(
+            "Authenticate",
+            _session.Handle,
+            _session.PlayerKey,
+            _shutdown.Token);
+        AppendLog($"Authenticate: {auth.Status} ({auth.Handle}).");
+        if (!auth.Authenticated)
+        {
+            SetStatus($"Authentication rejected: {auth.Status}");
+            return false;
+        }
+
+        _authenticatedHandle = auth.Handle;
+        return true;
+    }
+
+    private async Task CreatePublicMatchAsync()
+    {
+        try
+        {
+            if (!await EnsureAuthenticatedConnectionAsync())
+            {
+                return;
+            }
+
+            SetMatchmakingStatus("Creating public match...");
+            var result = await _connection!.InvokeAsync<CreatePublicMatchResultDto?>(
+                "CreatePublicMatch",
+                _authenticatedHandle,
+                _shutdown.Token);
+            if (result is null)
+            {
+                SetMatchmakingStatus("Create public match rejected");
+                AppendLog("[color=yellow]Create public match returned no room.[/color]");
+                return;
+            }
+
+            ApplyPublicMatchResult(result);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            SetMatchmakingStatus("Create public match error");
+            AppendLog($"[color=red]Create public match failed: {Escape(ex.Message)}[/color]");
+            GD.PushError(ex.ToString());
+        }
+    }
+
+    private async Task QueueMatchmakingAsync()
+    {
+        try
+        {
+            if (!await EnsureAuthenticatedConnectionAsync())
+            {
+                return;
+            }
+
+            SetMatchmakingStatus("Queueing...");
+            var status = await _connection!.InvokeAsync<MatchmakingStatusDto>(
+                "EnqueueMatchmaking",
+                _authenticatedHandle,
+                _shutdown.Token);
+            await ApplyMatchmakingStatusAsync(status, "EnqueueMatchmaking");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            SetMatchmakingStatus("Queue error");
+            AppendLog($"[color=red]Queue matchmaking failed: {Escape(ex.Message)}[/color]");
+            GD.PushError(ex.ToString());
+        }
+    }
+
+    private async Task CancelMatchmakingAsync()
+    {
+        try
+        {
+            if (!await EnsureAuthenticatedConnectionAsync())
+            {
+                return;
+            }
+
+            SetMatchmakingStatus("Cancelling queue...");
+            var status = await _connection!.InvokeAsync<MatchmakingStatusDto>(
+                "CancelMatchmaking",
+                _authenticatedHandle,
+                _shutdown.Token);
+            await ApplyMatchmakingStatusAsync(status, "CancelMatchmaking");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            SetMatchmakingStatus("Cancel queue error");
+            AppendLog($"[color=red]Cancel matchmaking failed: {Escape(ex.Message)}[/color]");
+            GD.PushError(ex.ToString());
+        }
+    }
+
+    private void ApplyPublicMatchResult(CreatePublicMatchResultDto result)
+    {
+        var roomId = result.Match.RoomId;
+        _lastJoinedMatchmakingRoom = roomId;
+        _session = _session with
+        {
+            RoomId = roomId,
+            ReconnectToken = result.PlayerSession.ReconnectToken
+        };
+        QueueMainThread(nameof(ApplyRoomInput), roomId);
+        _ = SaveSessionAsync();
+
+        SetMatchmakingStatus(
+            $"Public room {roomId} · {result.Match.SeatCount}/{result.Match.Capacity} seats · {result.Match.Status}");
+        AppendLog($"Public match created: room={Escape(roomId)}, seat={Escape(result.PlayerSession.Seat)}.");
+        _ = RunAutoSmokeSetupIfReadyAsync();
+    }
+
+    private async Task ApplyMatchmakingStatusAsync(MatchmakingStatusDto status, string source)
+    {
+        var summary = MatchmakingSummary(status);
+        SetMatchmakingStatus(summary);
+        AppendLog($"{Escape(source)}: {Escape(summary)}.");
+
+        if (!string.Equals(status.State, MatchmakingMatched, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(status.RoomId)
+            || string.Equals(_lastJoinedMatchmakingRoom, status.RoomId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _lastJoinedMatchmakingRoom = status.RoomId;
+        _session = _session with
+        {
+            RoomId = status.RoomId,
+            ReconnectToken = status.PlayerSession?.ReconnectToken ?? _session.ReconnectToken
+        };
+        QueueMainThread(nameof(ApplyRoomInput), status.RoomId);
+        await SaveSessionAsync();
+        await JoinCurrentRoomAndRequestSnapshotAsync(useReconnectToken: false);
+        await RunAutoSmokeSetupIfReadyAsync();
+    }
+
+    private async Task JoinCurrentRoomAndRequestSnapshotAsync(bool useReconnectToken)
+    {
+        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        {
+            AppendLog("[color=yellow]Join skipped: not connected/authenticated.[/color]");
+            return;
+        }
+
+        var shouldReconnect = useReconnectToken && !string.IsNullOrWhiteSpace(_session.ReconnectToken);
+        if (shouldReconnect)
+        {
+            await _connection!.InvokeAsync(
+                "Reconnect",
+                _session.RoomId,
+                _authenticatedHandle,
+                _session.ReconnectToken,
+                _shutdown.Token);
+            AppendLog($"Reconnect requested: room={_session.RoomId}, player={_authenticatedHandle}.");
+        }
+        else
+        {
+            await _connection!.InvokeAsync(
+                "JoinRoom",
+                _session.RoomId,
+                _authenticatedHandle,
+                null,
+                _shutdown.Token);
+            AppendLog($"JoinRoom requested: room={_session.RoomId}, player={_authenticatedHandle}.");
+        }
+
+        await _connection!.InvokeAsync("RequestSnapshot", _session.RoomId, _authenticatedHandle, _shutdown.Token);
+        AppendLog("RequestSnapshot submitted.");
+    }
+
+    private static string MatchmakingSummary(MatchmakingStatusDto status)
+    {
+        return status.State switch
+        {
+            MatchmakingQueued => $"Queued · {status.PlayerId}",
+            MatchmakingMatched => $"Matched · room {status.RoomId ?? "?"} · opponent {status.OpponentPlayerId ?? "?"}",
+            MatchmakingCancelled => $"Queue cancelled · {status.PlayerId}",
+            MatchmakingIdle => $"Queue idle · {status.PlayerId}",
+            MatchmakingRejected => $"Rejected · {status.ErrorCode ?? "UNKNOWN"} · {status.Message ?? string.Empty}",
+            _ => $"{status.State} · {status.PlayerId}"
+        };
     }
 
     private async Task SubmitSelectedDeckAsync()
@@ -840,9 +1035,34 @@ public partial class Main : Control
         {
             RenderPrompt(message);
         }
+        else if (channel == "Matchmaking")
+        {
+            _ = HandleMatchmakingMessageAsync(message);
+        }
 
         AppendLog(
             $"[b]{Escape(channel)}[/b] type={message.Type} room={Escape(message.RoomId)} player={Escape(message.PlayerId)} tick={message.ServerTick} payload={PayloadSummary(message.Payload)}");
+    }
+
+    private async Task HandleMatchmakingMessageAsync(WsServerMessage message)
+    {
+        if (message.Payload is not JsonElement element || element.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        try
+        {
+            var status = element.Deserialize<MatchmakingStatusDto>(ClientJsonOptions);
+            if (status is not null)
+            {
+                await ApplyMatchmakingStatusAsync(status, "Matchmaking");
+            }
+        }
+        catch (JsonException ex)
+        {
+            AppendLog($"[color=yellow]Matchmaking payload skipped: {Escape(ex.Message)}[/color]");
+        }
     }
 
     private void RenderPrompt(WsServerMessage message)
@@ -1936,12 +2156,18 @@ public partial class Main : Control
         }
 
         var token = ReadString(element, "reconnectToken");
-        if (string.IsNullOrWhiteSpace(token))
+        var roomId = string.IsNullOrWhiteSpace(message.RoomId) ? _session.RoomId : message.RoomId;
+        if (string.IsNullOrWhiteSpace(token) && string.Equals(roomId, _session.RoomId, StringComparison.Ordinal))
         {
             return;
         }
 
-        _session = _session with { ReconnectToken = token };
+        _session = _session with
+        {
+            RoomId = roomId,
+            ReconnectToken = string.IsNullOrWhiteSpace(token) ? _session.ReconnectToken : token
+        };
+        QueueMainThread(nameof(ApplyRoomInput), roomId);
         _ = SaveSessionAsync();
     }
 
@@ -1995,6 +2221,13 @@ public partial class Main : Control
         return OS.GetCmdlineArgs()
             .Concat(OS.GetCmdlineUserArgs())
             .ToArray();
+    }
+
+    private static JsonSerializerOptions CreateClientJsonOptions()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        options.Converters.Add(new JsonStringEnumConverter());
+        return options;
     }
 
     private static string ReadString(JsonElement element, string propertyName)
@@ -2140,6 +2373,11 @@ public partial class Main : Control
         QueueMainThread(nameof(ApplyStatus), text);
     }
 
+    private void SetMatchmakingStatus(string text)
+    {
+        QueueMainThread(nameof(ApplyMatchmakingStatus), text);
+    }
+
     private void AppendLog(string text)
     {
         GD.Print($"[Riftbound] {text}");
@@ -2151,6 +2389,22 @@ public partial class Main : Control
         if (_status is not null)
         {
             _status.Text = text;
+        }
+    }
+
+    public void ApplyMatchmakingStatus(string text)
+    {
+        if (_matchmakingStatus is not null)
+        {
+            _matchmakingStatus.Text = text;
+        }
+    }
+
+    public void ApplyRoomInput(string roomId)
+    {
+        if (_roomInput is not null)
+        {
+            _roomInput.Text = roomId;
         }
     }
 

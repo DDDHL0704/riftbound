@@ -91,6 +91,40 @@ The same follow-up smoke path also handles server-metadata `ORDER_TRIGGERS` and
 `ASSIGN_COMBAT_DAMAGE` prompts when they appear, submitting the default trigger
 order or first legal damage assignments exposed by the server.
 
+Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
+manual room id:
+
+```sh
+stamp="godot-mm-$(date +%H%M%S)"
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 2200 -- \
+  --riftbound-smoke-auto-quick-match \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-handle="godot-mm-a-${stamp}" \
+  --riftbound-player-key="pk_${stamp}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" \
+  > /tmp/riftbound-godot-mm-a.log 2>&1 &
+pid_a=$!
+
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 2200 -- \
+  --riftbound-smoke-auto-quick-match \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-handle="godot-mm-b-${stamp}" \
+  --riftbound-player-key="pk_${stamp}_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" \
+  > /tmp/riftbound-godot-mm-b.log 2>&1 &
+pid_b=$!
+
+wait "$pid_a" "$pid_b"
+cat /tmp/riftbound-godot-mm-a.log /tmp/riftbound-godot-mm-b.log
+```
+
+Expected quick-match evidence: both clients log `Queued`/`Matched`, receive a
+server room id from `MatchmakingStatusDto`, join that matched room, and then
+submit accepted `SubmitDeck` and `Ready` receipts without computing any
+matchmaking or game legality locally.
+
 ## Official Card Images
 
 Card faces prefer official `frontImage` URLs from
