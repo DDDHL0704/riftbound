@@ -1,6 +1,7 @@
 # Plan B / Unit Destroyed Trigger Spec Audit
 
 Date: 2026-06-25
+Updated: 2026-06-30
 
 Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, destroyed non-minion create-minion, last-breath draw-if-alone, last-breath draw-if-not-alone, last-breath draw-one, last-breath call-rune, and last-breath create-base-unit TriggerSpec slices accepted; project remains **NOT READY**.
 
@@ -108,6 +109,7 @@ This slice also moves the implemented Watchful Sentinel last-breath draw trigger
 - `CoreRuleEngine.ResolveWatchfulSentinelLastBreathDrawPlayerId` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path while preserving the existing destroyed-unit / graveyard / visible-cleanup checks.
 - `CoreRuleEngine` explicit-destroy and state-based-cleanup trigger construction now emits the effect id from `BehaviorSpec.Triggers`, and stack resolution reads the draw count from `TriggerSpec.DrawCount`.
 - The old `WatchfulSentinelCardNo` and `WatchfulSentinelLastBreathDrawEffectKind` Core constants are removed from `CoreRuleEngine`.
+- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `WatchfulSentinelCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _)`.
 - Current source-helper count for `private static bool Is*CardNo(...)` remains `36` total / `33` in `CoreRuleEngine`; this slice removes direct Core card-number/effect-kind constants rather than an `Is*CardNo(...)` helper.
 
 This slice also moves the implemented unit last-breath call-rune trigger away from Scouting Warhawk card-number branching:

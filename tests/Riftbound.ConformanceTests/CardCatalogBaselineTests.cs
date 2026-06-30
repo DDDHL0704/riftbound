@@ -5147,9 +5147,17 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var matchRecoveryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs");
+        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("WatchfulSentinelCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WatchfulSentinelLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("WatchfulSentinelCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]

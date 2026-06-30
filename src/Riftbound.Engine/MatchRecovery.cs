@@ -941,7 +941,6 @@ public static class MatchRecoveryValidator
     private const string TeemoAltAOnPlaySelfPowerCardNoForRecovery = "OGN·197a/298";
     private const string TeemoAltBOnPlaySelfPowerCardNoForRecovery = "OGN·197b/298";
     private const string FndTeemoOnPlaySelfPowerCardNoForRecovery = "FND-196/298";
-    private const string WatchfulSentinelCardNoForRecovery = "OGN·096/298";
     private const string SadPoroOriginalCardNoForRecovery = "SFD·036/221";
     private const string SadPoroUnleashedCardNoForRecovery = "UNL-221/219";
     private const string LoyalPoroCardNoForRecovery = "UNL-156/219";
@@ -973,6 +972,8 @@ public static class MatchRecoveryValidator
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
+    private const string WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath draw-one trigger";
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
@@ -23306,21 +23307,39 @@ public static class MatchRecoveryValidator
         if (objectCardNos is not null
             && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
         {
-            var expectedSourceCardNos = GetStandardLastBreathSourceCardNosForRecovery(expectedEffectKind);
-            if (expectedSourceCardNos.Length > 0
-                && !Array.Exists(
-                    expectedSourceCardNos,
-                    expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+            if (IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind))
             {
-                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                AddTriggerQueueSourceCardNoMismatch(
-                    payloadLabel,
-                    diagnosticName,
-                    sourceObjectId,
-                    sourceCardNoLabel,
-                    FormatExpectedCardNosForRecovery(expectedSourceCardNos),
-                    objectCardNoLabel,
-                    errors);
+                if (!UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _))
+                {
+                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                    AddTriggerQueueSourceCardSpecMismatch(
+                        payloadLabel,
+                        diagnosticName,
+                        sourceObjectId,
+                        sourceCardNoLabel,
+                        WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery,
+                        objectCardNoLabel,
+                        errors);
+                }
+            }
+            else
+            {
+                var expectedSourceCardNos = GetStandardLastBreathSourceCardNosForRecovery(expectedEffectKind);
+                if (expectedSourceCardNos.Length > 0
+                    && !Array.Exists(
+                        expectedSourceCardNos,
+                        expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+                {
+                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                    AddTriggerQueueSourceCardNoMismatch(
+                        payloadLabel,
+                        diagnosticName,
+                        sourceObjectId,
+                        sourceCardNoLabel,
+                        FormatExpectedCardNosForRecovery(expectedSourceCardNos),
+                        objectCardNoLabel,
+                        errors);
+                }
             }
         }
 
@@ -23478,7 +23497,6 @@ public static class MatchRecoveryValidator
     {
         return effectKind switch
         {
-            WatchfulSentinelLastBreathDrawEffectKindForRecovery => [WatchfulSentinelCardNoForRecovery],
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery => [UnsungHeroCardNoForRecovery],
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery => [ScoutingWarhawkCardNoForRecovery],
             SadPoroLastBreathDrawEffectKindForRecovery => [SadPoroOriginalCardNoForRecovery, SadPoroUnleashedCardNoForRecovery],

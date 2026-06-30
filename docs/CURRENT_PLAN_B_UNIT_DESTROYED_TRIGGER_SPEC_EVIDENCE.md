@@ -1,6 +1,7 @@
 # Plan B / Unit Destroyed Trigger Spec Evidence
 
 Date: 2026-06-25
+Updated: 2026-06-30
 
 Project status: **NOT READY**.
 
@@ -35,7 +36,7 @@ Project status: **NOT READY**.
 - `BehaviorSpecCatalogParsesUnitLastBreathDrawIfNotAloneTrigger` verifies that 忠忠魄罗 parses to `TriggerSpec.Kind = LOYAL_PORO_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RequiresOtherFriendlyUnitAtSamePosition = true`.
 - `UnitLastBreathDrawIfNotAloneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `LoyalPoroCardNo` or `LoyalPoroLastBreathDrawEffectKind`.
 - `BehaviorSpecCatalogParsesUnitLastBreathDrawOneTrigger` verifies that 警觉的哨兵 parses to `TriggerSpec.Kind = WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, and `DrawCount = 1`.
-- `UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `WatchfulSentinelCardNo` or `WatchfulSentinelLastBreathDrawEffectKind`.
+- `UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `WatchfulSentinelCardNo` or `WatchfulSentinelLastBreathDrawEffectKind`, and that `MatchRecovery` no longer contains `WatchfulSentinelCardNoForRecovery`.
 - `BehaviorSpecCatalogParsesUnitLastBreathCallRuneTrigger` verifies that both 侦察飞鹰 and 黑色玫瑰要员 parse to `TriggerSpec.Kind = SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, and `RuneCallCount = 1`.
 - `UnitLastBreathCallRuneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ScoutingWarhawkCardNo` or `ScoutingWarhawkLastBreathCallRuneEffectKind`.
 - `BehaviorSpecCatalogParsesUnitLastBreathCreateBaseUnitTrigger` verifies that Mechanical Trickster, Ironclad Vanguard, and Muddy Dredger parse to `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount`, `CreatedTokenName`, `CreatedTokenPower`, and `CreatedTokenDestination = OWNER_BASE`, with Muddy Dredger also carrying `CreatedTokenKeywords = [法盾]`.
@@ -65,6 +66,8 @@ Project status: **NOT READY**.
 - `StateBasedCleanupWatchfulSentinelTriggersOrderAndResolveThroughStack` verifies both visible Watchful Sentinel cleanup triggers still enqueue and resolve through the stack.
 - `StateBasedCleanupHiddenWatchfulSentinelsDoNotEnqueueTriggers` verifies hidden / standby source filtering remains intact.
 - `CoreRuleEngineQueuesWatchfulSentinelLastBreathDrawWhenDestroyed` keeps the representative fixture route green.
+- `MatchRecovery` source-card validation for `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1` now calls `UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(...)` instead of comparing against `WatchfulSentinelCardNoForRecovery`.
+- `RecoveryValidatorRejectsSnapshotTimingTriggerQueueStandardLastBreathSourceCardContextDrift`, `RecoveryValidatorRejectsAuthoritativeStateTriggerQueueStandardLastBreathSourceCardContextDrift`, `RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceCardContextDriftWithoutCountMismatch`, and `RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceCardContextDriftWithCountMismatch` now expect a BehaviorSpec trigger-shape mismatch for Watchful Sentinel instead of a fixed `OGN·096/298` card-number mismatch.
 - `P79ScoutingWarhawkCallsSleepingRuneWhenDestroyed` now covers both 侦察飞鹰 and 黑色玫瑰要员 through the same last-breath call-rune TriggerSpec route; each visible source queues `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, resolves it, calls one dormant rune, exhausts that rune, and moves the source unit to graveyard.
 - Existing `ScoutingWarhawk` real trigger queue and state-based cleanup tests verify the migrated route still supports APNAP trigger ordering, stack resolution, hidden / standby source filtering, and unchanged recovery-visible effect-kind payloads.
 - `P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed`, `P79IroncladVanguardCreatesTwoRobotsWhenDestroyed`, and existing Muddy Dredger trigger-queue representatives now cover the same last-breath create-base-unit TriggerSpec route; visible sources queue their existing effect kinds and stack resolution creates base units from `TriggerSpec` token count / name / power / keyword / destination data.
@@ -96,6 +99,9 @@ Project status: **NOT READY**.
 - `FullGameEndToEnd`: `15/15` passing.
 - `MatchRecovery`: `1989/1989` passing.
 - Backend full conformance: `8523/8523` passing.
+- 2026-06-30 recovery follow-up focused guard and drift filter `UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList|StandardLastBreathSourceCardContextDrift`: `5/5` passing.
+- 2026-06-30 recovery follow-up adjacent / hidden-info gate `WatchfulSentinel|LastBreath|StateBasedCleanup|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard`: `2392/2392` passing.
+- 2026-06-30 recovery follow-up backend full conformance: `9049/9049` passing.
 - DevUi catalog TypeScript shape did not change in the last-breath create-base-unit slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
 
 ## Residual Risk

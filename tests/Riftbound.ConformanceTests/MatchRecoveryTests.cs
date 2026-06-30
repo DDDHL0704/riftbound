@@ -9250,7 +9250,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in objects; expected OGN·096/298 but got WRONG-CARD",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit last-breath draw-one trigger in objects; expected BehaviorSpec unit last-breath draw-one trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -32075,7 +32075,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit last-breath draw-one trigger in authoritative state object registry; expected BehaviorSpec unit last-breath draw-one trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -147576,7 +147576,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit last-breath draw-one trigger in authoritative state object registry; expected BehaviorSpec unit last-breath draw-one trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -147681,7 +147681,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit last-breath draw-one trigger in authoritative state object registry; expected BehaviorSpec unit last-breath draw-one trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
