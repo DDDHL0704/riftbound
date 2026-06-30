@@ -89,15 +89,22 @@ internal static class StaticAuraSpecRules
         out StaticAuraSpec aura)
     {
         aura = default!;
-        if (string.IsNullOrWhiteSpace(keyword)
-            || !TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var candidate)
-            || !string.Equals(candidate.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            || !string.Equals(candidate.GrantedKeyword, keyword, StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(keyword))
         {
             return false;
         }
 
-        aura = candidate;
+        var match = GetStaticAuras(cardNo)
+            .FirstOrDefault(candidate =>
+                IsBattlefieldKeywordStaticAura(candidate)
+                && string.Equals(candidate.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
+                && string.Equals(candidate.GrantedKeyword, keyword, StringComparison.Ordinal));
+        if (match is null)
+        {
+            return false;
+        }
+
+        aura = match;
         return true;
     }
 
@@ -255,10 +262,35 @@ internal static class StaticAuraSpecRules
         return GetStaticAuras(cardNo).Any(IsBattlefieldPowerStaticAura);
     }
 
+    public static bool HasBattlefieldKeywordStaticAura(string? cardNo)
+    {
+        return GetStaticAuras(cardNo).Any(IsBattlefieldKeywordStaticAura);
+    }
+
     public static bool IsBattlefieldPowerStaticAura(StaticAuraSpec aura)
     {
         if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             || aura.PowerDeltaPerParticipant == 0)
+        {
+            return false;
+        }
+
+        return (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    StringComparison.Ordinal));
+    }
+
+    public static bool IsBattlefieldKeywordStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
         {
             return false;
         }

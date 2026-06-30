@@ -6,6 +6,20 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-06-30 Supplement: Battlefield RULE_TEXT Keyword Aura Scope Router
+
+This follow-up merges the battlefield all-units RULE_TEXT keyword aura and battlefield filtered-units RULE_TEXT keyword aura combat/projection selectors into shared `StaticAuraSpec` scope routing.
+
+`CoreRuleEngine` now computes battlefield keyword bonuses through `ResolveBattlefieldKeywordStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and filtering with `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura`. The actual participant applicability is derived from the same all-units / filtered-units target and participant scope pair used by the POWER router, while filtered scopes still use `StaticAuraSpecRules.TargetMatchesFilter`.
+
+`MatchSession` now projects battlefield keyword continuous effects through `BuildBattlefieldKeywordAuraEffects`, enumerating each source battlefield's `BehaviorSpec.StaticAuras` instead of calling kind-specific `TryGetBattlefieldAllUnitsKeywordAura` / `TryGetBattlefieldFilteredUnitsKeywordAura` helpers. Existing `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` and `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD` effect id shapes are preserved.
+
+`StaticAuraSpecRules.HasBattlefieldKeywordStaticAura` now backs battlefield-card recognition for battlefield keyword aura sources. Roam prompt / movement permission still uses the existing `TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` query, but that query now also reads the shared battlefield keyword aura predicate.
+
+Validation: red/green focused `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; battlefield keyword / Roam focused regression 63/63; StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery adjacent 2329/2329; backend full conformance 9060/9060.
+
+Non-closure: this slice only consolidates battlefield all-units/filtered keyword aura combat and projection routing. Other RULE_TEXT aura families, movement timing breadth, complete B2 keyword breadth, full LayerEngine timestamp/order semantics, full B1/B2, P0, and READY remain open.
+
 ## 2026-06-30 Supplement: Battlefield POWER Static Aura Scope Router
 
 This follow-up merges the battlefield all-units POWER aura and battlefield filtered-units POWER aura runtime/projection selectors into shared `StaticAuraSpec` scope routing.

@@ -19955,14 +19955,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 combatKeyword));
         keywordBonus = Math.Max(
             keywordBonus,
-            ResolveBattlefieldAllUnitsKeywordBonus(
-                state,
-                playerZones,
-                battlefieldId,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveBattlefieldFilteredUnitsKeywordBonus(
+            ResolveBattlefieldKeywordStaticAuraBonus(
                 state,
                 playerZones,
                 battlefieldId,
@@ -20131,11 +20124,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
             .Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura)
-            .Where(aura => BattlefieldPowerStaticAuraAppliesToParticipant(aura, cardObject))
+            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(aura, cardObject))
             .Sum(aura => aura.PowerDeltaPerParticipant);
     }
 
-    private static bool BattlefieldPowerStaticAuraAppliesToParticipant(StaticAuraSpec aura, CardObjectState cardObject)
+    private static bool BattlefieldStaticAuraAppliesToParticipant(StaticAuraSpec aura, CardObjectState cardObject)
     {
         if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
         {
@@ -20146,37 +20139,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
     }
 
-    private static int ResolveBattlefieldFilteredUnitsKeywordBonus(
+    private static int ResolveBattlefieldKeywordStaticAuraBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string battlefieldId,
         CardObjectState cardObject,
         string combatKeyword)
     {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && !battlefieldState.IsFaceDown
-            && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefieldState.CardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
-            ? GrantedCombatKeywordAmount(aura, combatKeyword)
-            : 0;
-    }
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            || battlefieldState.IsFaceDown)
+        {
+            return 0;
+        }
 
-    private static int ResolveBattlefieldAllUnitsKeywordBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string battlefieldId,
-        string combatKeyword)
-    {
-        return TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && !battlefieldState.IsFaceDown
-            && StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefieldState.CardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            ? GrantedCombatKeywordAmount(aura, combatKeyword)
-            : 0;
+        return StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
+            .Where(StaticAuraSpecRules.IsBattlefieldKeywordStaticAura)
+            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(aura, cardObject))
+            .Select(aura => GrantedCombatKeywordAmount(aura, combatKeyword))
+            .DefaultIfEmpty(0)
+            .Max();
     }
 
     private static int ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(
@@ -26486,7 +26470,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasImplementedBattlefieldRuleSpec(string? cardNo)
     {
-        return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
+        return StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)

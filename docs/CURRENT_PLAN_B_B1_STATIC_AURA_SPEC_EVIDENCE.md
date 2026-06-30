@@ -6,6 +6,18 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-06-30 Supplement Evidence: Battlefield RULE_TEXT Keyword Aura Scope Router
+
+- `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura` is now the shared predicate for battlefield RULE_TEXT keyword auras whose target/participant scope is either all public units at the source battlefield or filtered public units at the source battlefield.
+- `StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardNo)` is now the shared battlefield-rule recognition query for those keyword aura shapes.
+- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` now uses the shared battlefield keyword aura predicate before checking all-units target scope and the requested granted keyword.
+- `CoreRuleEngine.ResolveBattlefieldKeywordStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and takes the max matching granted combat keyword amount instead of calling separate all-units and filtered-units keyword helper selectors.
+- `MatchSession.BuildBattlefieldKeywordAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)` and projects matching battlefield keyword auras from their `StaticAuraSpec` scopes instead of separate all-units and filtered-units projection builders.
+- Existing public effect id shapes remain compatible: `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` and `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD`.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing direct `StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura` / `TryGetBattlefieldFilteredUnitsKeywordAura` calls in CoreRuleEngine or MatchSession battlefield keyword execution/projection routing.
+- Validation passed: red/green focused keyword guard 1/1; battlefield keyword / Roam focused regression 63/63; StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery adjacent 2329/2329; backend full conformance 9060/9060.
+- Non-closure: this does not finish other RULE_TEXT aura families, full Roam/movement timing breadth, complete B2 keyword breadth, complete LayerEngine timestamp/order behavior, full B1/B2, P0, or READY.
+
 ## 2026-06-30 Supplement Evidence: Battlefield POWER Static Aura Scope Router
 
 - `StaticAuraSpecRules.IsBattlefieldPowerStaticAura` is now the shared predicate for battlefield POWER static auras whose target/participant scope is either all public units at the source battlefield or filtered public units at the source battlefield.
@@ -108,6 +120,10 @@ Recovery:
 
 ## Validation Evidence
 
+- Latest battlefield RULE_TEXT keyword aura scope-router guard focused representative: 1/1 passed.
+- Latest battlefield RULE_TEXT keyword aura scope-router focused behavior representative: 63/63 passed.
+- Latest battlefield RULE_TEXT keyword aura scope-router adjacent StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery representative: 2329/2329 passed.
+- Latest backend full conformance after battlefield RULE_TEXT keyword aura scope-router: 9060/9060 passed.
 - Latest battlefield POWER static-aura scope-router guard focused representative: 1/1 passed.
 - Latest battlefield POWER static-aura scope-router focused behavior representative: 34/34 passed.
 - Latest battlefield POWER static-aura scope-router adjacent StaticAura / StaticPower / Battlefield / FullGameEndToEnd / MatchRecovery representative: 2843/2843 passed.

@@ -29,6 +29,31 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
         Assert.Contains("StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)", matchSessionSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveBattlefieldKeywordStaticAuraBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildBattlefieldKeywordAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsBattlefieldKeywordStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsBattlefieldKeywordStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

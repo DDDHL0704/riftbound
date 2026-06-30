@@ -2031,8 +2031,7 @@ public sealed record MatchState
         }
 
         effects.AddRange(BuildBattlefieldPowerStaticAuraEffects(state));
-        effects.AddRange(BuildBattlefieldAllUnitsKeywordAuraEffects(state));
-        effects.AddRange(BuildBattlefieldFilteredUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildBattlefieldKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
@@ -3050,7 +3049,7 @@ public sealed record MatchState
 
             foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo).Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura))
             {
-                var participantObjectIds = BattlefieldPowerStaticAuraParticipantObjectIds(
+                var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
                     state,
                     battlefieldObjectId,
                     aura);
@@ -3090,7 +3089,7 @@ public sealed record MatchState
         return effects;
     }
 
-    private static IReadOnlyList<string> BattlefieldPowerStaticAuraParticipantObjectIds(
+    private static IReadOnlyList<string> BattlefieldScopedStaticAuraParticipantObjectIds(
         MatchState state,
         string battlefieldObjectId,
         StaticAuraSpec aura)
@@ -3146,7 +3145,7 @@ public sealed record MatchState
             "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS");
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsKeywordAuraEffects(MatchState state)
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldKeywordAuraEffects(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
         foreach (var battlefieldObjectId in state.PlayerZones
@@ -3156,68 +3155,49 @@ public sealed record MatchState
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
                 || battlefield.IsFaceDown
-                || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefield.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
             {
                 continue;
             }
 
-            var participantObjectIds = BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
-            foreach (var participantObjectId in participantObjectIds)
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo).Where(StaticAuraSpecRules.IsBattlefieldKeywordStaticAura))
             {
-                effects.Add(new ContinuousEffectState(
-                    $"RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
-                    "OBJECT",
-                    ContinuousEffectLayers.RuleText,
-                    aura.Duration,
-                    participantObjectId,
-                    battlefieldObjectId));
+                var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
+                    state,
+                    battlefieldObjectId,
+                    aura);
+                var effectIdPrefix = BattlefieldKeywordStaticAuraEffectIdPrefix(aura);
+
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    effects.Add(new ContinuousEffectState(
+                        $"{effectIdPrefix}:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                        "OBJECT",
+                        ContinuousEffectLayers.RuleText,
+                        aura.Duration,
+                        participantObjectId,
+                        battlefieldObjectId));
+                }
             }
         }
 
         return effects;
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldFilteredUnitsKeywordAuraEffects(MatchState state)
+    private static string BattlefieldKeywordStaticAuraEffectIdPrefix(StaticAuraSpec aura)
     {
-        var effects = new List<ContinuousEffectState>();
-        foreach (var battlefieldObjectId in state.PlayerZones
-            .SelectMany(entry => entry.Value.Battlefields)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
         {
-            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
-                || battlefield.IsFaceDown
-                || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefield.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
-                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
-                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
-            {
-                continue;
-            }
-
-            var participantObjectIds = BattlefieldFilteredStaticAuraParticipantObjectIds(
-                state,
-                battlefieldObjectId,
-                aura);
-
-            foreach (var participantObjectId in participantObjectIds)
-            {
-                effects.Add(new ContinuousEffectState(
-                    $"RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
-                    "OBJECT",
-                    ContinuousEffectLayers.RuleText,
-                    aura.Duration,
-                    participantObjectId,
-                    battlefieldObjectId));
-            }
+            return "RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD";
         }
 
-        return effects;
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal))
+        {
+            return "RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD";
+        }
+
+        return $"RULE_TEXT:{aura.Kind}";
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(MatchState state)
@@ -17844,7 +17824,7 @@ internal static class ActionPromptBuilder
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
-            || StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardObject.CardNo, out _)
+            || StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardObject.CardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardObject.CardNo, out _)
