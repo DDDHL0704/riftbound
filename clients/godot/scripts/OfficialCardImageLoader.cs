@@ -23,14 +23,10 @@ public sealed class OfficialCardImageLoader
         }
 
         var cachePath = CachePathFor(card.FrontImage);
+        var extension = Path.GetExtension(cachePath);
         try
         {
-            if (!File.Exists(cachePath))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
-                var bytes = await HttpClient.GetByteArrayAsync(card.FrontImage, cancellationToken);
-                await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
-            }
+            return await LoadCachedOrDownloadAsync(card, cachePath, extension, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -41,21 +37,69 @@ public sealed class OfficialCardImageLoader
             GD.PushWarning($"Unable to cache official card image {card.CardNo} from {card.FrontImage}: {ex.Message}");
             return null;
         }
-
-        return LoadImage(cachePath);
     }
 
-    private static Image? LoadImage(string path)
+    private static async Task<Image?> LoadCachedOrDownloadAsync(
+        CardCatalogEntry card,
+        string cachePath,
+        string extension,
+        CancellationToken cancellationToken)
+    {
+        if (File.Exists(cachePath))
+        {
+            var cachedBytes = await File.ReadAllBytesAsync(cachePath, cancellationToken);
+            var cachedImage = LoadImageBytes(cachedBytes, extension);
+            if (cachedImage is not null)
+            {
+                return cachedImage;
+            }
+
+            TryDeleteBadCache(cachePath);
+            GD.PushWarning($"Removed invalid official card image cache for {card.CardNo}: {cachePath}");
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
+        var bytes = await HttpClient.GetByteArrayAsync(card.FrontImage, cancellationToken);
+        var image = LoadImageBytes(bytes, extension);
+        if (image is null)
+        {
+            GD.PushWarning($"Unable to decode official card image {card.CardNo} from {card.FrontImage}");
+            return null;
+        }
+
+        await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
+        return image;
+    }
+
+    private static Image? LoadImageBytes(byte[] bytes, string extension)
     {
         var image = new Image();
-        var error = image.Load(path);
+        var error = extension.ToLowerInvariant() switch
+        {
+            ".png" => image.LoadPngFromBuffer(bytes),
+            ".jpg" or ".jpeg" => image.LoadJpgFromBuffer(bytes),
+            ".webp" => image.LoadWebpFromBuffer(bytes),
+            _ => Error.Unavailable
+        };
         if (error != Error.Ok)
         {
-            GD.PushWarning($"Unable to load official card image {path}: {error}");
+            GD.PushWarning($"Unable to decode official card image bytes: {error}");
             return null;
         }
 
         return image;
+    }
+
+    private static void TryDeleteBadCache(string cachePath)
+    {
+        try
+        {
+            File.Delete(cachePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            GD.PushWarning($"Unable to delete invalid official card cache {cachePath}: {ex.Message}");
+        }
     }
 
     private static string CachePathFor(string url)

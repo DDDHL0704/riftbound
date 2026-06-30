@@ -6,6 +6,9 @@ The server remains authoritative. This client renders server snapshots and submi
 commands; it must not reimplement legality, payment, timing, scoring, hidden
 information, or win-condition rules locally.
 
+Reference notes for Godot card-client architecture live in
+`docs/CARD_CLIENT_REFERENCE_NOTES.md`.
+
 ## Local Smoke
 
 Start the API in memory mode from the repository root:
