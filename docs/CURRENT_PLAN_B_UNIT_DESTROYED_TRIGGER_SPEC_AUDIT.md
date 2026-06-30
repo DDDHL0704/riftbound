@@ -7,6 +7,19 @@ Status: focused friendly-destroyed gain-experience, power-until-end, first-frien
 
 ## Scope
 
+2026-06-30 standard last-breath recovery follow-up:
+
+- `MatchRecovery` no longer owns standard last-breath source-card recovery constants for Sad Poro, Loyal Poro, Unsung Hero, Scouting Warhawk, Honest Broker, Undercover Agent, Mechanical Trickster, Ironclad Vanguard, or Muddy Dredger.
+- Recovered snapshot, authoritative-state, and spectator replay source-card validation now reads `BehaviorSpec.Triggers` through `UnitDestroyedTriggerSpecRules`:
+  - `TryGetLastBreathDrawIfAloneTrigger(sourceCardNo, out _)`
+  - `TryGetLastBreathDrawIfNotAloneTrigger(sourceCardNo, out _)`
+  - `TryGetLastBreathPowerfulDrawTrigger(sourceCardNo, out _)`
+  - `TryGetLastBreathCallRuneOneTrigger(sourceCardNo, out _)`
+  - `TryGetLastBreathCreateDormantGoldTrigger(sourceCardNo, out _)`
+  - `TryGetLastBreathDiscardDrawTrigger(sourceCardNo, out _)`
+  - exact `TryGetTrigger(sourceCardNo, expectedEffectKind, out _)` for `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`, `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, and `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`.
+- The old `GetStandardLastBreathSourceCardNosForRecovery` helper is removed. Public effect strings and trigger id suffixes remain unchanged.
+
 This slice moves the implemented friendly-destroyed experience trigger away from engine card-number branching:
 
 - `UNL-129/219` 凶残颚鱼 official text from `data/official/card-catalog.zh-CN.json`: `当另一名友方单位被摧毁时，获得1经验。`

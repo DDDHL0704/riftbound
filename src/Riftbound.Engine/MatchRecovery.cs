@@ -941,17 +941,7 @@ public static class MatchRecoveryValidator
     private const string TeemoAltAOnPlaySelfPowerCardNoForRecovery = "OGN·197a/298";
     private const string TeemoAltBOnPlaySelfPowerCardNoForRecovery = "OGN·197b/298";
     private const string FndTeemoOnPlaySelfPowerCardNoForRecovery = "FND-196/298";
-    private const string SadPoroOriginalCardNoForRecovery = "SFD·036/221";
-    private const string SadPoroUnleashedCardNoForRecovery = "UNL-221/219";
-    private const string LoyalPoroCardNoForRecovery = "UNL-156/219";
-    private const string UnsungHeroCardNoForRecovery = "SFD·167/221";
     private const int PowerfulUnitPowerThresholdForRecovery = 5;
-    private const string ScoutingWarhawkCardNoForRecovery = "OGN·216/298";
-    private const string HonestBrokerCardNoForRecovery = "SFD·155/221";
-    private const string MechanicalTricksterCardNoForRecovery = "OGN·239/298";
-    private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
-    private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
-    private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string SadPoroLastBreathDrawEffectKindForRecovery = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroLastBreathDrawEffectKindForRecovery = "LOYAL_PORO_LAST_BREATH_DRAW_1";
@@ -976,6 +966,20 @@ public static class MatchRecoveryValidator
         "BehaviorSpec unit destroyed non-minion create-minion trigger";
     private const string WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit last-breath draw-one trigger";
+    private const string SadPoroLastBreathDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath draw-if-alone trigger";
+    private const string LoyalPoroLastBreathDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath draw-if-not-alone trigger";
+    private const string UnsungHeroLastBreathPowerfulDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath powerful-draw trigger";
+    private const string ScoutingWarhawkLastBreathCallRuneSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath call-rune trigger";
+    private const string HonestBrokerLastBreathCreateGoldSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath create-dormant-gold trigger";
+    private const string UndercoverAgentLastBreathDiscardDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath discard-draw trigger";
+    private const string UnitLastBreathCreateBaseUnitSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit last-breath create-base-unit trigger";
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
@@ -23365,39 +23369,20 @@ public static class MatchRecoveryValidator
         if (objectCardNos is not null
             && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
         {
-            if (IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind))
+            if (!IsStandardLastBreathSourceTriggerSpecForRecovery(
+                    expectedEffectKind,
+                    sourceCardNo,
+                    out var expectedTriggerSpecLabel))
             {
-                if (!UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _))
-                {
-                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                    AddTriggerQueueSourceCardSpecMismatch(
-                        payloadLabel,
-                        diagnosticName,
-                        sourceObjectId,
-                        sourceCardNoLabel,
-                        WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery,
-                        objectCardNoLabel,
-                        errors);
-                }
-            }
-            else
-            {
-                var expectedSourceCardNos = GetStandardLastBreathSourceCardNosForRecovery(expectedEffectKind);
-                if (expectedSourceCardNos.Length > 0
-                    && !Array.Exists(
-                        expectedSourceCardNos,
-                        expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
-                {
-                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                    AddTriggerQueueSourceCardNoMismatch(
-                        payloadLabel,
-                        diagnosticName,
-                        sourceObjectId,
-                        sourceCardNoLabel,
-                        FormatExpectedCardNosForRecovery(expectedSourceCardNos),
-                        objectCardNoLabel,
-                        errors);
-                }
+                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                AddTriggerQueueSourceCardSpecMismatch(
+                    payloadLabel,
+                    diagnosticName,
+                    sourceObjectId,
+                    sourceCardNoLabel,
+                    expectedTriggerSpecLabel,
+                    objectCardNoLabel,
+                    errors);
             }
         }
 
@@ -23551,28 +23536,63 @@ public static class MatchRecoveryValidator
         return string.Equals(effectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal);
     }
 
-    private static string[] GetStandardLastBreathSourceCardNosForRecovery(string effectKind)
+    private static bool IsStandardLastBreathSourceTriggerSpecForRecovery(
+        string expectedEffectKind,
+        string? sourceCardNo,
+        out string expectedTriggerSpecLabel)
     {
-        return effectKind switch
+        if (string.Equals(expectedEffectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
         {
-            UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery => [UnsungHeroCardNoForRecovery],
-            ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery => [ScoutingWarhawkCardNoForRecovery],
-            SadPoroLastBreathDrawEffectKindForRecovery => [SadPoroOriginalCardNoForRecovery, SadPoroUnleashedCardNoForRecovery],
-            LoyalPoroLastBreathDrawEffectKindForRecovery => [LoyalPoroCardNoForRecovery],
-            HonestBrokerLastBreathCreateGoldEffectKindForRecovery => [HonestBrokerCardNoForRecovery],
-            MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery => [MechanicalTricksterCardNoForRecovery],
-            UndercoverAgentLastBreathEffectKindForRecovery => [UndercoverAgentCardNoForRecovery],
-            IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery => [IroncladVanguardCardNoForRecovery],
-            MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery => [MuddyDredgerCardNoForRecovery],
-            _ => []
-        };
-    }
+            expectedTriggerSpecLabel = WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _);
+        }
 
-    private static string FormatExpectedCardNosForRecovery(string[] cardNos)
-    {
-        return cardNos.Length == 1
-            ? cardNos[0]
-            : $"one of {string.Join(", ", cardNos)}";
+        if (string.Equals(expectedEffectKind, SadPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = SadPoroLastBreathDrawSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = LoyalPoroLastBreathDrawSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = UnsungHeroLastBreathPowerfulDrawSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = ScoutingWarhawkLastBreathCallRuneSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, HonestBrokerLastBreathCreateGoldEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = HonestBrokerLastBreathCreateGoldSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, UndercoverAgentLastBreathEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = UndercoverAgentLastBreathDiscardDrawSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(sourceCardNo, out _);
+        }
+
+        if (string.Equals(expectedEffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(expectedEffectKind, IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(expectedEffectKind, MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            expectedTriggerSpecLabel = UnitLastBreathCreateBaseUnitSourceTriggerSpecLabelForRecovery;
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, expectedEffectKind, out _);
+        }
+
+        expectedTriggerSpecLabel = string.Empty;
+        return true;
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
