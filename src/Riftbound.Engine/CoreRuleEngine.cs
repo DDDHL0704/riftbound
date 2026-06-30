@@ -20015,8 +20015,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObject);
         staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
-        staticPowerBonus += ResolveSourceObjectPowerBonus(state, cardObject);
-        staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
+        staticPowerBonus += ResolveSourceObjectPowerStaticAuraBonus(state, cardObject);
         staticPowerBonus += ResolveSourceLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldPowerStaticAuraBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(
@@ -20051,17 +20050,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : 0;
     }
 
-    private static int ResolveSourceObjectFilteredPowerBonus(CardObjectState cardObject)
-    {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(cardObject.CardNo, out var aura)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
-    }
-
     private static int ResolveSourceObjectFilteredKeywordBonus(CardObjectState cardObject, string combatKeyword)
     {
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -20074,17 +20062,53 @@ public sealed class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static int ResolveSourceObjectPowerBonus(MatchState state, CardObjectState cardObject)
+    private static int ResolveSourceObjectPowerStaticAuraBonus(MatchState state, CardObjectState cardObject)
     {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !string.IsNullOrWhiteSpace(cardObject.ControllerId)
-            && StaticAuraSpecRules.TryGetSourceObjectPowerAura(cardObject.CardNo, out var aura)
-            && StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)
-            && !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || cardObject.IsFaceDown)
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectPowerStaticAura))
+        {
+            if (!SourceObjectPowerStaticAuraApplies(state, cardObject, aura))
+            {
+                continue;
+            }
+
+            bonus += aura.PowerDeltaPerParticipant;
+        }
+
+        return bonus;
+    }
+
+    private static bool SourceObjectPowerStaticAuraApplies(
+        MatchState state,
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
+    {
+        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
+            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+        {
+            return false;
+        }
+
+        if (aura.RequiredPlayerExperience.HasValue
+            || string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                || !StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId))
+            {
+                return false;
+            }
+        }
+
+        return !string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
+            || !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura);
     }
 
     private static int ResolveSourceAttackingReadyEnemyUnitPowerBonus(

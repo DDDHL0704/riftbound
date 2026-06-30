@@ -4,7 +4,7 @@
 > 目标：推进「自动处理结算效果」的真实引擎缺口，复用现有基础设施，不重造、不打单卡补丁。
 > 红线依据：`AGENTS.md`（通用机制改共享引擎）、官方 PDF/FAQ + `docs/rules-evidence-index.md`。
 
-2026-06-30 执行校正：`BehaviorSpec.StaticAuras`、`StaticAuraSpecRules` 与多条静态光环执行/投影路径已经落地。最新小步把 battlefield all-units / filtered-units 的 POWER 与 RULE_TEXT keyword 光环、same-battlefield other-friendly normal / filtered POWER 光环、以及 public-field friendly / other-friendly / friendly-filtered POWER 光环路由合并为 `StaticAuraSpecRules.GetStaticAuras(...)` + shared scope/participant-scope predicates；验证见 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`。本计划中的“硬编码待通用化”条目保留为历史问题说明；当前后续工作应从剩余未合并的 aura families / full keyword breadth / LayerEngine ordering breadth 继续推进。
+2026-06-30 执行校正：`BehaviorSpec.StaticAuras`、`StaticAuraSpecRules` 与多条静态光环执行/投影路径已经落地。最新小步把 battlefield all-units / filtered-units 的 POWER 与 RULE_TEXT keyword 光环、same-battlefield other-friendly normal / filtered POWER 光环、public-field friendly / other-friendly / friendly-filtered POWER 光环、以及 source-object / source-object-filtered POWER 光环路由合并为 `StaticAuraSpecRules.GetStaticAuras(...)` + shared scope/participant-scope predicates；验证见 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`。本计划中的“硬编码待通用化”条目保留为历史问题说明；当前后续工作应从剩余未合并的 aura families / full keyword breadth / LayerEngine ordering breadth 继续推进。
 
 ## 1. 现状校正（重要）
 

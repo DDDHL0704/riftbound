@@ -6,6 +6,16 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-06-30 Supplement Evidence: Source-Object POWER Aura Scope Router
+
+- `StaticAuraSpecRules.IsSourceObjectPowerStaticAura` is now the shared predicate for source-object POWER static auras whose target/participant scope is the source object itself.
+- `CoreRuleEngine.ResolveSourceObjectPowerStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and sums matching `PowerDeltaPerParticipant` values instead of calling separate source-object filtered and source-object level/experience POWER resolvers.
+- `MatchSession.BuildSourceObjectPowerStaticAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and projects matching source-object POWER static auras from their `StaticAuraSpec` scopes instead of separate filtered and level/experience projection builders.
+- Existing recovery-sensitive metadata remains compatible for the current representatives: `SOURCE_OBJECT_FILTERED_POWER` and `SOURCE_OBJECT_POWER` still project the same effect id prefixes, source paths, conditions and lifecycle strings.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceObjectPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing direct `StaticAuraSpecRules.TryGetSourceObjectPowerAura` / `TryGetSourceObjectFilteredPowerAura` calls in CoreRuleEngine or MatchSession source-object POWER execution/projection routing.
+- Validation passed: red/green focused guard 1/1; source-object focused regression 16/16; SourceObject / StaticAura / StaticPower / ContinuousEffect / Experience / FullGameEndToEnd / MatchRecovery adjacent 2266/2266; backend full conformance 9063/9063.
+- Non-closure: this does not finish source-object RULE_TEXT keyword routing, conditional battle-state source-object POWER families, friendly-equipment count-to-source power, complete LayerEngine timestamp/order behavior, full B1, P0, or READY.
+
 ## 2026-06-30 Supplement Evidence: Public-Field Friendly POWER Aura Scope Router
 
 - `StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura` is now the shared predicate for public-field friendly POWER static auras whose target/participant scope is friendly public units, other friendly public units, or friendly filtered public units.

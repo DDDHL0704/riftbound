@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-06-30 Supplement: Source-Object POWER Aura Scope Router
+
+This follow-up merges source-object POWER aura families into shared `StaticAuraSpec` scope routing: source-object filtered POWER and source-object level/experience POWER.
+
+`CoreRuleEngine` now computes source-object POWER bonuses through `ResolveSourceObjectPowerStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and filtering with `StaticAuraSpecRules.IsSourceObjectPowerStaticAura`. Filtered source-object POWER still requires `StaticAuraSpecRules.TargetMatchesFilter`, while experience-gated source-object POWER still checks `StaticAuraSpec.RequiredPlayerExperience` and the materialized-level-power guard.
+
+`MatchSession` now projects source-object POWER auras through `BuildSourceObjectPowerStaticAuraEffects`, again enumerating the source object's `BehaviorSpec.StaticAuras` instead of separate filtered and level/experience projection helpers. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+Validation: red/green focused `SourceObjectPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; source-object focused regression 16/16; SourceObject / StaticAura / StaticPower / ContinuousEffect / Experience / FullGameEndToEnd / MatchRecovery adjacent 2266/2266; backend full conformance 9063/9063.
+
+Non-closure: this slice only consolidates source-object POWER scope routing. Source-object RULE_TEXT keyword routing, conditional battle-state source-object POWER families, friendly-equipment count-to-source power, full LayerEngine timestamp/order semantics, full B1, P0, and READY remain open.
+
 ## 2026-06-30 Supplement: Public-Field Friendly POWER Aura Scope Router
 
 This follow-up merges the public-field friendly POWER aura families into shared `StaticAuraSpec` scope routing: friendly units, other friendly units, and friendly filtered units.

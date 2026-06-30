@@ -1894,17 +1894,12 @@ public sealed record MatchState
                 effects.Add(friendlyEquipmentEffect);
             }
 
-            if (TryBuildSourceObjectFilteredPowerStaticAuraEffect(state, objectId, cardObject, out var sourceObjectFilteredEffect))
-            {
-                effects.Add(sourceObjectFilteredEffect);
-            }
-
             if (TryBuildSourceObjectFilteredKeywordStaticAuraEffect(state, objectId, cardObject, out var sourceObjectFilteredKeywordEffect))
             {
                 effects.Add(sourceObjectFilteredKeywordEffect);
             }
 
-            if (TryBuildSourceObjectPowerStaticAuraEffect(state, objectId, cardObject, out var sourceObjectPowerEffect))
+            foreach (var sourceObjectPowerEffect in BuildSourceObjectPowerStaticAuraEffects(state, objectId, cardObject))
             {
                 effects.Add(sourceObjectPowerEffect);
             }
@@ -2135,48 +2130,114 @@ public sealed record MatchState
         return true;
     }
 
-    private static bool TryBuildSourceObjectFilteredPowerStaticAuraEffect(
+    private static IReadOnlyList<ContinuousEffectState> BuildSourceObjectPowerStaticAuraEffects(
         MatchState state,
         string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
+        CardObjectState cardObject)
     {
-        effect = default!;
+        var effects = new List<ContinuousEffectState>();
         if (string.IsNullOrWhiteSpace(cardObject.CardNo)
             || cardObject.IsFaceDown
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(cardObject.CardNo, out var aura)
-            || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
             || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
+        {
+            return effects;
+        }
+
+        var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectPowerStaticAura))
+        {
+            if (!SourceObjectPowerStaticAuraApplies(state, objectId, cardObject, aura))
+            {
+                continue;
+            }
+
+            var metadata = SourceObjectPowerStaticAuraProjectionMetadata(aura);
+            effects.Add(new ContinuousEffectState(
+                $"{metadata.EffectIdPrefix}:{objectId}",
+                "OBJECT",
+                ContinuousEffectLayers.StaticAura,
+                aura.Duration,
+                objectId,
+                objectId,
+                aura.PowerDeltaPerParticipant,
+                cardObject.Power,
+                cardObject.Power + aura.PowerDeltaPerParticipant,
+                aura.Kind,
+                cardObject.CardNo,
+                metadata.SourcePath,
+                true,
+                LayerEngineFoundationResiduals(),
+                Condition: metadata.Condition,
+                Lifecycle: metadata.Lifecycle,
+                ParticipantObjectIds: [objectId],
+                SourceDependencyObjectIds: dependencyObjectIds,
+                TargetDependencyObjectIds: dependencyObjectIds,
+                ParticipantDependencyObjectIds: dependencyObjectIds));
+        }
+
+        return effects;
+    }
+
+    private static bool SourceObjectPowerStaticAuraApplies(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
+    {
+        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
+            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
         {
             return false;
         }
 
-        var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        effect = new ContinuousEffectState(
-            $"STATIC_AURA:SOURCE_OBJECT_FILTERED_POWER:{objectId}",
-            "OBJECT",
-            ContinuousEffectLayers.StaticAura,
-            aura.Duration,
-            objectId,
-            objectId,
-            aura.PowerDeltaPerParticipant,
-            cardObject.Power,
-            cardObject.Power + aura.PowerDeltaPerParticipant,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.ResolveSourceObjectFilteredPowerBonus",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS",
-            ParticipantObjectIds: [objectId],
-            SourceDependencyObjectIds: dependencyObjectIds,
-            TargetDependencyObjectIds: dependencyObjectIds,
-            ParticipantDependencyObjectIds: dependencyObjectIds);
-        return true;
+        if (aura.RequiredPlayerExperience.HasValue
+            || string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+        {
+            var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
+            if (string.IsNullOrWhiteSpace(controllerId)
+                || !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId))
+            {
+                return false;
+            }
+        }
+
+        return !string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
+            || !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura);
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) SourceObjectPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SOURCE_OBJECT_FILTERED_POWER",
+                "CoreRuleEngine.ResolveSourceObjectFilteredPowerBonus",
+                "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
+                "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SOURCE_OBJECT_POWER",
+                "CoreRuleEngine.ResolveSourceObjectPowerBonus",
+                "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
+        }
+
+        return (
+            $"STATIC_AURA:{aura.Kind}",
+            "CoreRuleEngine.ResolveSourceObjectPowerStaticAuraBonus",
+            "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_SOURCE_OBJECT_SCOPE",
+            "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_STATE");
     }
 
     private static bool TryBuildSourceObjectFilteredKeywordStaticAuraEffect(
@@ -2218,57 +2279,6 @@ public sealed record MatchState
             LayerEngineFoundationResiduals(),
             Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
             Lifecycle: "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS",
-            ParticipantObjectIds: [objectId],
-            SourceDependencyObjectIds: dependencyObjectIds,
-            TargetDependencyObjectIds: dependencyObjectIds,
-            ParticipantDependencyObjectIds: dependencyObjectIds);
-        return true;
-    }
-
-    private static bool TryBuildSourceObjectPowerStaticAuraEffect(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
-    {
-        effect = default!;
-        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSourceObjectPowerAura(cardObject.CardNo, out var aura)
-            || StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura)
-            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
-            || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
-        {
-            return false;
-        }
-
-        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId)
-            || !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId))
-        {
-            return false;
-        }
-
-        var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        effect = new ContinuousEffectState(
-            $"STATIC_AURA:SOURCE_OBJECT_POWER:{objectId}",
-            "OBJECT",
-            ContinuousEffectLayers.StaticAura,
-            aura.Duration,
-            objectId,
-            objectId,
-            aura.PowerDeltaPerParticipant,
-            cardObject.Power,
-            cardObject.Power + aura.PowerDeltaPerParticipant,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.ResolveSourceObjectPowerBonus",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
             ParticipantObjectIds: [objectId],
             SourceDependencyObjectIds: dependencyObjectIds,
             TargetDependencyObjectIds: dependencyObjectIds,
