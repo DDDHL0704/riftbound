@@ -90,6 +90,17 @@ server-provided required selections.
 The same follow-up smoke path also handles server-metadata `ORDER_TRIGGERS` and
 `ASSIGN_COMBAT_DAMAGE` prompts when they appear, submitting the default trigger
 order or first legal damage assignments exposed by the server.
+With `--riftbound-smoke-auto-surrender`, the client submits `SURRENDER` only
+after the current server prompt exposes it as enabled. The result panel then
+waits for the authoritative `MATCH_WON` event before displaying the winner.
+
+Result smoke can be layered onto the dual-client script by adding
+`--riftbound-smoke-auto-surrender`, usually together with
+`--riftbound-smoke-auto-mulligan` so the match reaches an actionable state first.
+For deterministic headless regression, pass the surrender flag to both clients:
+only the client with a server-enabled `SURRENDER` prompt will submit it. Expected
+evidence: one client logs an accepted `SURRENDER` receipt, both clients receive
+`MATCH_WON`, and the result panel prints the server winner and reason.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:

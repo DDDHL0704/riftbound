@@ -142,6 +142,23 @@ text = "Ready"
 layout_mode = 2
 text = "No snapshot"
 
+[node name="ResultFrame" type="PanelContainer" parent="Controls"]
+visible = false
+layout_mode = 2
+
+[node name="ResultBox" type="HBoxContainer" parent="Controls/ResultFrame"]
+layout_mode = 2
+
+[node name="ResultSummary" type="Label" parent="Controls/ResultFrame/ResultBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "No result"
+
+[node name="ReturnLobbyButton" type="Button" parent="Controls/ResultFrame/ResultBox"]
+layout_mode = 2
+text = "Return lobby"
+
 [node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
 custom_minimum_size = Vector2(0, 236)
 layout_mode = 2

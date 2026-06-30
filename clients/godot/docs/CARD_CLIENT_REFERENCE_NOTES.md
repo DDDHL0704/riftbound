@@ -15,6 +15,16 @@ Riftbound Godot client. It is intentionally not a vendored dependency list.
   - Adoption: use the manager/factory/container vocabulary for our own C# code.
     Do not import the addon because our authoritative server already owns rules,
     zones, legality, and hidden information.
+- Godot Card Game Framework: https://github.com/db0/godot-card-game-framework
+  - Useful pattern: mature card UI affordances such as hover focus, larger card
+    viewer, multiple hands/piles, grid/free-form board placement, card rotation,
+    face-down state, targeting arrows, tokens, and GUT regression tests.
+  - Fresh check: its README explicitly includes a card scripting/rules engine,
+    rich manipulation buttons, deck builder, card library, and broad tabletop
+    interactions.
+  - Adoption: borrow UI affordance ideas and regression-test discipline only.
+    Do not import or mirror the scripting engine because Riftbound legality,
+    timing, scoring, and victory remain server-authoritative.
 - Godot Card Pile Framework: https://github.com/Ggross98/Godot-CardPileFramework
   - Useful pattern: C# card objects as `Control` nodes, typed pile managers, JSON
     save/load boundaries, and animation hooks around draw/use/discard actions.
@@ -54,6 +64,9 @@ Riftbound Godot client. It is intentionally not a vendored dependency list.
 - Drag/drop should be a late affordance over prompts: card remembers its home
   zone, candidate zones are highlighted from the current prompt, legal drops
   submit the server command template, and everything else snaps back.
+- Result/settlement UI should be event-driven. The client displays a winner only
+  from authoritative server events such as `MATCH_WON` or equivalent snapshot
+  state, never from local score arithmetic.
 
 ## Project-Specific Decisions
 
@@ -74,8 +87,9 @@ Riftbound Godot client. It is intentionally not a vendored dependency list.
 
 1. Continue extracting data-driven planners from `Main.cs` before adding visual
    complexity.
-2. Build reusable card/zone controls only after the prompt and snapshot models
-   are clean enough to feed them.
+2. Build reusable card/zone/result controls only after the prompt, snapshot, and
+   event models are clean enough to feed them.
 3. Add manual UI for complex prompt choices before adding drag/drop shortcuts.
 4. Keep smoke automation server-driven: it may choose the first exposed legal
-   candidate, but must not compute legality locally.
+   candidate, including surrender for result smoke, but must not compute
+   legality locally.

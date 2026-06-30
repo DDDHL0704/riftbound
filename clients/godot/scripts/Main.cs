@@ -57,6 +57,8 @@ public partial class Main : Control
     private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
+    private PanelContainer? _resultFrame;
+    private Label? _resultSummary;
     private Label? _promptSummary;
     private VBoxContainer? _promptActions;
     private LineEdit? _handleInput;
@@ -74,6 +76,7 @@ public partial class Main : Control
     private Button? _loadDecksButton;
     private Button? _submitDeckButton;
     private Button? _readyButton;
+    private Button? _returnLobbyButton;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
     private bool _autoSmoke;
@@ -84,9 +87,12 @@ public partial class Main : Control
     private bool _autoSmokeQuickMatch;
     private bool _autoSmokePublicMatch;
     private bool _autoSmokeJoinPublicMatch;
+    private bool _autoSmokeSurrender;
     private bool _autoSmokeSubmitted;
     private int _autoSmokeTapRuneSubmissions;
     private bool _autoSmokePlayCardSubmitted;
+    private bool _autoSmokeSurrenderSubmitted;
+    private bool _matchFinished;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
     private string _lastJoinedMatchmakingRoom = string.Empty;
@@ -109,6 +115,7 @@ public partial class Main : Control
         _autoSmokeQuickMatch = args.Contains("--riftbound-smoke-auto-quick-match");
         _autoSmokePublicMatch = args.Contains("--riftbound-smoke-auto-public-match");
         _autoSmokeJoinPublicMatch = args.Contains("--riftbound-smoke-auto-join-public-match");
+        _autoSmokeSurrender = args.Contains("--riftbound-smoke-auto-surrender");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -156,6 +163,8 @@ public partial class Main : Control
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
+        _resultFrame = GetNode<PanelContainer>("Controls/ResultFrame");
+        _resultSummary = GetNode<Label>("Controls/ResultFrame/ResultBox/ResultSummary");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
@@ -173,6 +182,7 @@ public partial class Main : Control
         _loadDecksButton = GetNode<Button>("Controls/DeckRow/LoadDecksButton");
         _submitDeckButton = GetNode<Button>("Controls/DeckRow/SubmitDeckButton");
         _readyButton = GetNode<Button>("Controls/DeckRow/ReadyButton");
+        _returnLobbyButton = GetNode<Button>("Controls/ResultFrame/ResultBox/ReturnLobbyButton");
     }
 
     private void WireButtons()
@@ -187,6 +197,7 @@ public partial class Main : Control
         _loadDecksButton!.Pressed += () => _ = LoadDecksAsync();
         _submitDeckButton!.Pressed += () => _ = SubmitSelectedDeckAsync();
         _readyButton!.Pressed += () => _ = ReadyAsync();
+        _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
 
     private void ApplySessionToInputs()
@@ -660,6 +671,15 @@ public partial class Main : Control
         AppendReceipt("Ready", receipt);
     }
 
+    private async Task ReturnToLobbyAsync()
+    {
+        SetStatus("Lobby");
+        SetMatchmakingStatus("Returned to lobby");
+        QueueMainThread(nameof(ClearMatchResult));
+        await DisconnectAsync();
+        await LoadPublicMatchesAsync();
+    }
+
     private async Task SubmitPromptActionAsync(
         string submitKind,
         string cmdType,
@@ -1102,6 +1122,10 @@ public partial class Main : Control
         {
             RenderPrompt(message);
         }
+        else if (channel == "Events")
+        {
+            RenderEvents(message);
+        }
         else if (channel == "Matchmaking")
         {
             _ = HandleMatchmakingMessageAsync(message);
@@ -1154,11 +1178,108 @@ public partial class Main : Control
         }
     }
 
+    private void RenderEvents(WsServerMessage message)
+    {
+        if (message.Payload is not JsonElement element || element.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        var eventKinds = new List<string>();
+        foreach (var eventElement in element.EnumerateArray())
+        {
+            if (eventElement.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var kind = ReadString(eventElement, "kind");
+            if (!string.IsNullOrWhiteSpace(kind))
+            {
+                eventKinds.Add(kind);
+            }
+
+            if (string.Equals(kind, "MATCH_WON", StringComparison.Ordinal)
+                && MatchResultView(eventElement, message.ServerTick) is { } result)
+            {
+                _matchFinished = true;
+                var summary = result.TryGetValue("summary", out var summaryValue)
+                    ? summaryValue.AsString().Replace('\n', ' ')
+                    : "Match finished";
+                AppendLog($"Match result rendered: {Escape(summary)}");
+                QueueMainThread(nameof(ApplyMatchResult), result);
+            }
+        }
+
+        if (eventKinds.Count > 0)
+        {
+            AppendLog($"Events received: {Escape(string.Join(", ", eventKinds))}.");
+        }
+    }
+
+    private static Godot.Collections.Dictionary? MatchResultView(JsonElement eventElement, long serverTick)
+    {
+        var payload = eventElement.TryGetProperty("payload", out var payloadElement)
+            ? payloadElement
+            : default;
+        var winnerPlayerId = ReadObjectString(payload, "winnerPlayerId");
+        var surrenderedPlayerId = ReadObjectString(payload, "surrenderedPlayerId");
+        var reason = ReadObjectString(payload, "reason");
+        var winningScore = ReadObjectInt(payload, "winningScore");
+        var description = ReadString(eventElement, "description");
+
+        if (string.IsNullOrWhiteSpace(winnerPlayerId) && string.IsNullOrWhiteSpace(description))
+        {
+            return null;
+        }
+
+        var lines = new List<string>
+        {
+            string.IsNullOrWhiteSpace(winnerPlayerId)
+                ? "Match finished"
+                : $"Match finished · winner {winnerPlayerId}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            lines.Add(description);
+        }
+
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            lines.Add($"Reason: {reason}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(surrenderedPlayerId))
+        {
+            lines.Add($"Surrendered: {surrenderedPlayerId}");
+        }
+
+        if (winningScore > 0)
+        {
+            lines.Add($"Winning score: {winningScore}");
+        }
+
+        lines.Add($"Server tick: {serverTick}");
+
+        return new Godot.Collections.Dictionary
+        {
+            ["summary"] = string.Join("\n", lines),
+            ["winnerPlayerId"] = winnerPlayerId,
+            ["reason"] = reason
+        };
+    }
+
     private async Task RunAutoSmokePromptAsync(Godot.Collections.Dictionary view)
     {
-        if ((!_autoSmokeMulligan && !_autoSmokeTapRune && !_autoSmokePlayCard && !_autoSmokeFollowups)
+        if ((!_autoSmokeMulligan && !_autoSmokeTapRune && !_autoSmokePlayCard && !_autoSmokeFollowups && !_autoSmokeSurrender)
             || !view.TryGetValue("actions", out var actionsValue)
             || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
+        {
+            return;
+        }
+
+        if (_matchFinished)
         {
             return;
         }
@@ -1174,6 +1295,25 @@ public partial class Main : Control
 
             AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
             await SubmitMulliganAsync(mulliganAction, Array.Empty<string>());
+            return;
+        }
+
+        if (_autoSmokeSurrender
+            && !_autoSmokeSurrenderSubmitted
+            && TryGetEnabledPromptAction(actions, "SURRENDER", requireTemplate: false, out var surrenderAction))
+        {
+            var label = surrenderAction.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Surrender";
+            var promptId = surrenderAction.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
+            var snapshotTick = surrenderAction.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
+            var key = AutoSmokePromptKey(surrenderAction, "SURRENDER");
+            if (!_autoSmokePromptSubmissions.Add(key))
+            {
+                return;
+            }
+
+            _autoSmokeSurrenderSubmitted = true;
+            AppendLog("Auto smoke: submitting SURRENDER from a server-enabled prompt.");
+            await SubmitPromptCommandAsync("SURRENDER", promptId, snapshotTick, label);
             return;
         }
 
@@ -1781,6 +1921,16 @@ public partial class Main : Control
             QueueMainThread(nameof(ApplyBoardSummary), summary);
             QueueMainThread(nameof(ApplyHandCards), views);
             QueueMainThread(nameof(ApplySnapshotSections), tableSections.Sections);
+            if (!_matchFinished && SnapshotMatchResultView(element) is { } matchResult)
+            {
+                _matchFinished = true;
+                var resultSummary = matchResult.TryGetValue("summary", out var summaryValue)
+                    ? summaryValue.AsString().Replace('\n', ' ')
+                    : "Match finished";
+                AppendLog($"Match result rendered from snapshot: {Escape(resultSummary)}");
+                QueueMainThread(nameof(ApplyMatchResult), matchResult);
+            }
+
             AppendLog(
                 $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
         }
@@ -1809,6 +1959,36 @@ public partial class Main : Control
 
         var playerSummary = players.Length == 0 ? "players: unknown" : string.Join(" | ", players);
         return $"tick {tick} / turn {turn} / state {turnState} / active {active} / {playerSummary}";
+    }
+
+    private static Godot.Collections.Dictionary? SnapshotMatchResultView(JsonElement snapshot)
+    {
+        if (!snapshot.TryGetProperty("timing", out var timing)
+            || timing.ValueKind != JsonValueKind.Object
+            || !string.Equals(ReadString(timing, "roomStatus"), "FINISHED", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(ReadString(timing, "winnerPlayerId")))
+        {
+            return null;
+        }
+
+        var winnerPlayerId = ReadString(timing, "winnerPlayerId");
+        var winningScore = ReadInt(timing, "winningScore");
+        var lines = new List<string>
+        {
+            $"Match finished · winner {winnerPlayerId}",
+            "Source: snapshot timing"
+        };
+        if (winningScore > 0)
+        {
+            lines.Add($"Winning score: {winningScore}");
+        }
+
+        return new Godot.Collections.Dictionary
+        {
+            ["summary"] = string.Join("\n", lines),
+            ["winnerPlayerId"] = winnerPlayerId,
+            ["reason"] = string.Empty
+        };
     }
 
     private static string PlayerSummary(JsonElement player)
@@ -2304,6 +2484,13 @@ public partial class Main : Control
             : string.Empty;
     }
 
+    private static string ReadObjectString(JsonElement element, string propertyName)
+    {
+        return element.ValueKind == JsonValueKind.Object
+            ? ReadString(element, propertyName)
+            : string.Empty;
+    }
+
     private static int ReadInt(JsonElement element, string propertyName)
     {
         if (!element.TryGetProperty(propertyName, out var property))
@@ -2317,6 +2504,13 @@ public partial class Main : Control
             JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
             _ => 0
         };
+    }
+
+    private static int ReadObjectInt(JsonElement element, string propertyName)
+    {
+        return element.ValueKind == JsonValueKind.Object
+            ? ReadInt(element, propertyName)
+            : 0;
     }
 
     private static long ReadLong(JsonElement element, string propertyName)
@@ -2490,6 +2684,36 @@ public partial class Main : Control
         if (_boardSummary is not null)
         {
             _boardSummary.Text = text;
+        }
+    }
+
+    public void ApplyMatchResult(Godot.Collections.Dictionary result)
+    {
+        if (_resultFrame is not null)
+        {
+            _resultFrame.Visible = true;
+        }
+
+        if (_resultSummary is not null)
+        {
+            _resultSummary.Text = result.TryGetValue("summary", out var summary)
+                ? summary.AsString()
+                : "Match finished";
+        }
+    }
+
+    public void ClearMatchResult()
+    {
+        _matchFinished = false;
+        _autoSmokeSurrenderSubmitted = false;
+        if (_resultFrame is not null)
+        {
+            _resultFrame.Visible = false;
+        }
+
+        if (_resultSummary is not null)
+        {
+            _resultSummary.Text = "No result";
         }
     }
 
