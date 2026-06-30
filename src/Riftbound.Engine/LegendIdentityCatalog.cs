@@ -24,43 +24,55 @@ public static class LegendIdentityCatalog
     public const string SivirLegendIdentityId = "LEGEND_IDENTITY_SIVIR";
     public const string JhinLegendIdentityId = "LEGEND_IDENTITY_JHIN";
 
-    private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> SourceCardNosByIdentityId =
+    private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> RepresentativeSourceCardNosByIdentityId =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
         {
-            [AhriLegendIdentityId] = ["OGN·255/298", "OGN·303/298", "OGN·303*/298"],
-            [LucianLegendIdentityId] = ["SFD·183/221", "SFD·241/221"],
-            [MasterYiLevelLegendIdentityId] = ["UNL-191/219", "UNL-231/219", "UNL-231*/219"],
-            [DravenLegendIdentityId] = ["SFD·185/221", "SFD·242/221"],
+            [AhriLegendIdentityId] = ["OGN·255/298"],
+            [LucianLegendIdentityId] = ["SFD·183/221"],
+            [MasterYiLevelLegendIdentityId] = ["UNL-191/219"],
+            [DravenLegendIdentityId] = ["SFD·185/221"],
             [GarenIntroLegendIdentityId] = ["OGS·023/024"],
             [LuxIntroLegendIdentityId] = ["OGS·021/024"],
             [AnnieLegendIdentityId] = ["OGS·017/024"],
-            [JinxLegendIdentityId] = ["FND-251/298", "OGN·251/298", "OGN·301/298", "OGN·301*/298"],
-            [RumbleLegendIdentityId] = ["SFD·181/221", "SFD·240/221"],
-            [PowerfulUnitRuneLegendIdentityId] = ["FND-249/298", "OGN·249/298", "OGN·300/298", "OGN·300*/298", "SFD·205/221", "SFD·251/221"],
-            [SettLegendIdentityId] = ["OGN·269/298", "OGN·310/298", "OGN·310*/298"],
-            [ViLegendIdentityId] = ["UNL-187/219", "UNL-229/219", "UNL-229*/219"],
-            [VexLegendIdentityId] = ["UNL-193/219", "UNL-232/219", "UNL-232*/219"],
-            [RenataLegendIdentityId] = ["SFD·201/221", "SFD·249/221"],
-            [ReksaiLegendIdentityId] = ["SFD·187/221", "SFD·243/221"],
-            [IvernLegendIdentityId] = ["UNL-195/219", "UNL-233/219", "UNL-233*/219"],
-            [LeblancLegendIdentityId] = ["UNL-199/219", "UNL-235/219", "UNL-235*/219"],
-            [RengarLegendIdentityId] = ["UNL-183/219", "UNL-227/219", "UNL-227*/219"],
-            [LeonaLegendIdentityId] = ["OGN·261/298", "OGN·306/298", "OGN·306*/298"],
-            [SivirLegendIdentityId] = ["SFD·203/221", "SFD·250/221"],
-            [JhinLegendIdentityId] = ["UNL-181/219", "UNL-226/219", "UNL-226*/219"]
+            [JinxLegendIdentityId] = ["FND-251/298"],
+            [RumbleLegendIdentityId] = ["SFD·181/221"],
+            [PowerfulUnitRuneLegendIdentityId] = ["FND-249/298", "SFD·205/221"],
+            [SettLegendIdentityId] = ["OGN·269/298"],
+            [ViLegendIdentityId] = ["UNL-187/219"],
+            [VexLegendIdentityId] = ["UNL-193/219"],
+            [RenataLegendIdentityId] = ["SFD·201/221"],
+            [ReksaiLegendIdentityId] = ["SFD·187/221"],
+            [IvernLegendIdentityId] = ["UNL-195/219"],
+            [LeblancLegendIdentityId] = ["UNL-199/219"],
+            [RengarLegendIdentityId] = ["UNL-183/219"],
+            [LeonaLegendIdentityId] = ["OGN·261/298"],
+            [SivirLegendIdentityId] = ["SFD·203/221"],
+            [JhinLegendIdentityId] = ["UNL-181/219"]
         };
+
+    private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
+        new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
 
     public static IReadOnlyList<string> SourceCardNosForIdentity(string? identityId)
     {
-        return !string.IsNullOrWhiteSpace(identityId)
-            && SourceCardNosByIdentityId.TryGetValue(identityId.Trim(), out var sourceCardNos)
-                ? sourceCardNos
-                : [];
+        if (string.IsNullOrWhiteSpace(identityId)
+            || !RepresentativeSourceCardNosByIdentityId.TryGetValue(identityId.Trim(), out var representativeCardNos))
+        {
+            return [];
+        }
+
+        return representativeCardNos
+            .SelectMany(SourceCardNosForRepresentative)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
     }
 
     public static string PrimarySourceCardNoForIdentity(string? identityId)
     {
-        return SourceCardNosForIdentity(identityId).FirstOrDefault() ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(identityId)
+            && RepresentativeSourceCardNosByIdentityId.TryGetValue(identityId.Trim(), out var representativeCardNos)
+                ? representativeCardNos.FirstOrDefault() ?? string.Empty
+                : string.Empty;
     }
 
     public static bool IsSourceCardNoForIdentity(
@@ -69,5 +81,19 @@ public static class LegendIdentityCatalog
     {
         return !string.IsNullOrWhiteSpace(cardNo)
             && SourceCardNosForIdentity(identityId).Contains(cardNo.Trim(), StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> SourceCardNosForRepresentative(string representativeCardNo)
+    {
+        var normalized = OfficialCardSourceIdentityGroups.NormalizeCardNo(representativeCardNo);
+        return SourceCardNosByRepresentativeCardNo.Value.TryGetValue(normalized, out var sourceCardNos)
+            ? sourceCardNos
+            : [normalized];
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildSourceCardNosByRepresentativeCardNo()
+    {
+        return OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(
+            RepresentativeSourceCardNosByIdentityId.Values.SelectMany(cardNos => cardNos));
     }
 }

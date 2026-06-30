@@ -3249,6 +3249,15 @@
 - 验证：red focused guard failed on old `SourceCardNosByAbilityId` array；focused ActivatedAbilitySourceIdentityGuardTests / LegendActionSourceIdentityGuardTests 23/23 passed；adjacent LegendAction / LegendAct / ActivatedAbility / ResourceSkill / P4Activate / PaymentEngineCoverageAuditTests / MatchRecovery / CardCatalogBaselineTests 3671/3671 passed；backend full conformance 9048/9048 passed。
 - 该证据只关闭 legend-action source-card group selector 数据化；不关闭完整 legend-action effect BehaviorSpec migration、完整 payment / target timing breadth、P1 或 READY。
 
+## Plan B Legend Identity Source Group Catalog Evidence
+
+- 审计入口：`docs/CURRENT_PLAN_B_LEGEND_IDENTITY_SOURCE_GROUP_CATALOG_AUDIT.md`。
+- 证据入口：`docs/CURRENT_PLAN_B_LEGEND_IDENTITY_SOURCE_GROUP_CATALOG_EVIDENCE.md`。
+- 本批将 `LegendIdentityCatalog` 从完整 identityId -> cardNo array 改为 identityId -> representative source cardNo(s)，并通过共享 `OfficialCardSourceIdentityGroups` 从官方 catalog normalized rules identity 推导完整 source group。
+- `PowerfulUnitRuneLegendIdentityId` 保留 Volibear 与 Fiora 两个代表源，因为它们是两个不同官方 rules identity，但共享既有 runtime identity family。
+- 验证：red focused guard failed on old `SourceCardNosByIdentityId` array；focused `LegendActionSourceIdentityGuardTests` 13/13 passed；adjacent Legend identity / legend action / representative legend / MatchRecovery / CardCatalogBaselineTests 2753/2753 passed；backend full conformance 9049/9049 passed。
+- 该证据只关闭 legend-identity source-card group selector 数据化；不关闭完整 legend identity effect BehaviorSpec migration、完整 payment / target timing breadth、P1 或 READY。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。
