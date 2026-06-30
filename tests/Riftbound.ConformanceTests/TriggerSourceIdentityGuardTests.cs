@@ -44,7 +44,7 @@ public sealed class TriggerSourceIdentityGuardTests
     }
 
     [Fact]
-    public void CoreRuleEngineTriggerSourceSelectionUsesCatalogEffectKindIdentity()
+    public void CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable()
     {
         var coreRuleEnginePath = Path.Combine(
             RepositoryRoot(),
@@ -64,6 +64,8 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string EmberMonkCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string SharpshooterPirateCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ArenaServiceCrewEquipmentTriggerSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, KogmawCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UndercoverAgentCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, HonestBrokerCardNo", source, StringComparison.Ordinal);
@@ -71,6 +73,7 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.Contains("IsControlledFaceUpFieldUnitWithEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.TryGetByEffectKind(EclipseVanguardStunTriggerSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.Contains("SourceReadiesWhenControllerPlaysEquipment", source, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

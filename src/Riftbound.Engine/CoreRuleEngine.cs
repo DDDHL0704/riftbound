@@ -114,13 +114,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
-    private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
     private const int EclipseVanguardStunTriggerPowerModifier = 1;
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
-    private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
@@ -5242,7 +5240,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             stackItem,
             plan.TotalManaCost,
             events);
-        ResolveArenaServiceCrewEquipmentPlayedTriggers(
+        ResolveSourceReadyOnEquipmentPlayedTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -33795,7 +33793,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && trigger.PowerDelta.GetValueOrDefault() != 0;
     }
 
-    private static void ResolveArenaServiceCrewEquipmentPlayedTriggers(
+    private static void ResolveSourceReadyOnEquipmentPlayedTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -33808,14 +33806,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && IsControlledFaceUpFieldUnitWithEffectKind(
-                    sourceState,
-                    ArenaServiceCrewEquipmentTriggerSourceEffectKind))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        foreach (var source in SourceReadyOnEquipmentPlayedTriggers(playerZones, cardObjects, playerId)
+            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
         {
+            var sourceObjectId = source.ObjectId;
+            var sourceBehavior = source.Behavior;
             var sourceState = cardObjects[sourceObjectId];
+            var effectKind = string.IsNullOrWhiteSpace(sourceBehavior.SourceReadyOnEquipmentPlayedEffectKind)
+                ? sourceBehavior.EffectKind
+                : sourceBehavior.SourceReadyOnEquipmentPlayedEffectKind;
+            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
+                ? sourceObjectId
+                : sourceBehavior.DisplayName;
             var wasExhausted = sourceState.IsExhausted;
             cardObjects[sourceObjectId] = sourceState with
             {
@@ -33823,11 +33825,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{playerId} 的竞技场勤务小队因装备打出变为活跃状态",
+                $"{playerId} 的{sourceDisplayName}因装备打出变为活跃状态",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["trigger"] = ArenaServiceCrewEquipmentReadyEffectKind,
+                    ["trigger"] = effectKind,
                     ["triggerSourceObjectId"] = sourceObjectId,
                     ["playedCardNo"] = stackItem.CardNo,
                     ["playedSourceObjectId"] = stackItem.SourceObjectId,
@@ -33843,10 +33845,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = sourceObjectId,
                     ["wasExhausted"] = wasExhausted,
                     ["isExhausted"] = false,
-                    ["reason"] = ArenaServiceCrewEquipmentReadyEffectKind,
+                    ["reason"] = effectKind,
                     ["playedCardNo"] = stackItem.CardNo,
                     ["playedSourceObjectId"] = stackItem.SourceObjectId
                 }));
+        }
+    }
+
+    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceReadyOnEquipmentPlayedTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        foreach (var objectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var sourceState)
+                || !IsFaceUpNonStandbyUnit(sourceState)
+                || !CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo ?? "", out var sourceBehavior)
+                || !sourceBehavior.SourceReadiesWhenControllerPlaysEquipment)
+            {
+                continue;
+            }
+
+            yield return (objectId, sourceBehavior);
         }
     }
 

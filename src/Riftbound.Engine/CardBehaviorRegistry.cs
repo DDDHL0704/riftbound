@@ -218,7 +218,9 @@ public sealed record CardBehaviorDefinition(
     string StaticUnitCostReductionRequiredUnitTag = "",
     int StaticUnitCostReductionMinimumManaCost = 0,
     int StaticSpellCostReductionMana = 0,
-    int StaticSpellCostReductionMinimumManaCost = 0);
+    int StaticSpellCostReductionMinimumManaCost = 0,
+    bool SourceReadiesWhenControllerPlaysEquipment = false,
+    string SourceReadyOnEquipmentPlayedEffectKind = "");
 
 public static class CardDamageConditionKinds
 {
@@ -4170,7 +4172,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            SourceReadiesWhenControllerPlaysEquipment: true,
+            SourceReadyOnEquipmentPlayedEffectKind: "ARENA_SERVICE_CREW_EQUIPMENT_READY"),
         new(
             "OGN·031/298",
             "狂暴龙怪",

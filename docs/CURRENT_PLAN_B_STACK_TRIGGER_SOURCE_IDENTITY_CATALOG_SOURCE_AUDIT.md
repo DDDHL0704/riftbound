@@ -11,6 +11,10 @@
 
 Validation passed for this follow-up: source identity guard 23/23; Eclipse Vanguard / Arena Service Crew representative trigger paths 6/6; MatchRecovery hidden-info/recovery boundary 1989/1989; backend full conformance 8873/8873. This follow-up remains source-row cleanup only; it does not close full TriggerSpec, complete `ORDER_TRIGGERS`, APNAP ordering, high-cost spell/equipment trigger breadth, P0 full objective, or READY.
 
+## 2026-06-30 Follow-up: Arena Service Crew Uses Behavior Fields
+
+The Arena Service Crew equipment-played ready selector has moved beyond catalog effect-kind identity. `CoreRuleEngine.ResolveSourceReadyOnEquipmentPlayedTriggers(...)` now derives matching sources from `SourceReadiesWhenControllerPlaysEquipment=true` and emits `SourceReadyOnEquipmentPlayedEffectKind=ARENA_SERVICE_CREW_EQUIPMENT_READY`; the row identity effect id `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT` remains catalog / fixture / matrix evidence data only. See `docs/CURRENT_PLAN_B_SOURCE_READY_ON_EQUIPMENT_PLAYED_BEHAVIOR_FIELDS_AUDIT.md`.
+
 ## Scope
 
 Changed:

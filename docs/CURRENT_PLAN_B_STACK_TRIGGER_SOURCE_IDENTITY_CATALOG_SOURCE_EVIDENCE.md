@@ -14,6 +14,13 @@ This file records concrete evidence for removing direct source card-number check
 
 Validation passed for this follow-up: `TriggerSourceIdentityGuardTests` 23/23; `P79EclipseVanguard|P79ArenaServiceCrew` 6/6; `MatchRecovery` 1989/1989; backend full conformance 8873/8873.
 
+## 2026-06-30 Follow-up Evidence
+
+- `CoreRuleEngine.ResolveSourceReadyOnEquipmentPlayedTriggers(...)` no longer checks `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT`.
+- `CardBehaviorRegistry` stores `SourceReadiesWhenControllerPlaysEquipment=true` and `SourceReadyOnEquipmentPlayedEffectKind=ARENA_SERVICE_CREW_EQUIPMENT_READY` on `OGN·091/298`.
+- `TriggerSourceIdentityGuardTests.CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable` now blocks reintroducing the Arena Service Crew runtime effect-kind selector.
+- The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SOURCE_READY_ON_EQUIPMENT_PLAYED_BEHAVIOR_FIELDS_EVIDENCE.md`.
+
 ## Runtime Evidence
 
 - `CoreRuleEngine.IsControlledFaceUpFieldUnitWithEffectKind(...)` is the shared source predicate for this slice.
@@ -25,7 +32,7 @@ Validation passed for this follow-up: `TriggerSourceIdentityGuardTests` 23/23; `
 - `ResolveEclipseVanguardStunTriggers(...)` now uses source effect kind `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT`.
 - `ResolveRavenbloomStudentSpellPlayedTriggers(...)` now uses source effect kind `RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT`.
 - `ResolveOgsLuxHighCostSpellPlayedTriggers(...)` now uses source effect kind `OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT`.
-- `ResolveArenaServiceCrewEquipmentPlayedTriggers(...)` now uses source effect kind `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT`.
+- Historically this slice recorded `ResolveArenaServiceCrewEquipmentPlayedTriggers(...)` using source effect kind `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT`; the 2026-06-30 behavior-field follow-up supersedes that path with `ResolveSourceReadyOnEquipmentPlayedTriggers(...)`.
 - Trigger stack items now use the actual matched source object's `CardNo`; the Eclipse Vanguard ready/+1 trigger falls back to the registered source behavior row instead of a Core-owned representative constant.
 
 ## Test Evidence

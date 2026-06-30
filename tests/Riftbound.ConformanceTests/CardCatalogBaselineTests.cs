@@ -140,6 +140,16 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void ArenaServiceCrewEquipmentReadyCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·091/298", out var behavior));
+
+        Assert.Equal("竞技场勤务小队", behavior.DisplayName);
+        Assert.True(behavior.SourceReadiesWhenControllerPlaysEquipment);
+        Assert.Equal("ARENA_SERVICE_CREW_EQUIPMENT_READY", behavior.SourceReadyOnEquipmentPlayedEffectKind);
+    }
+
+    [Fact]
     public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
