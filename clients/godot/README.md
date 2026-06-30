@@ -27,14 +27,47 @@ Build and run the Godot client:
 /Applications/Godot_dotnet.app/Contents/MacOS/Godot --path clients/godot
 ```
 
+Pass `--riftbound-server=http://127.0.0.1:5088` after Godot's `--` separator
+to point a headless or editor run at a non-default local API port.
+
 Headless smoke:
 
 ```sh
-/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 600
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 600 -- \
+  --riftbound-server=http://127.0.0.1:5088
 ```
 
 Expected G0 evidence: the log shows `Connected`, `Authenticate`, `Joined`,
 `Snapshot`, and `Prompt` messages from `/hubs/game`.
+
+## Visual Smoke
+
+For view/layout work, do not rely on headless smoke alone. Run at least one
+visible Godot window against the real memory-mode API and save a screenshot
+after the log reports visible cards:
+
+```sh
+room="godot-visual-$(date +%H%M%S)"
+server="http://127.0.0.1:5088"
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot \
+  --windowed --always-on-top --resolution 1600x900 --position 30,60 \
+  --path clients/godot --quit-after 0 -- \
+  --riftbound-server="${server}" \
+  --riftbound-smoke-auto-ready \
+  --riftbound-smoke-auto-mulligan \
+  --riftbound-smoke-preview-first-card \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-room="${room}" \
+  --riftbound-handle="godot-a-${room}" \
+  --riftbound-player-key="pk_${room}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+```
+
+Pair it with a second Godot or DevUi opponent. Evidence should include both the
+logs (`Snapshot table rendered: visibleHand=... tableCards=...`) and a screenshot
+where cards, prompt UI, and the preview panel are actually visible. A protocol
+smoke that passes while the visible window is blank, clipped, or unreadable does
+not count as view/layout validation.
 
 G1/G2 dual-client smoke can be run against the same memory-mode API:
 

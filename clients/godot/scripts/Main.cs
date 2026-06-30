@@ -50,6 +50,7 @@ public partial class Main : Control
     private readonly List<PublicMatchDto> _publicMatches = [];
     private readonly OfficialCardImageLoader _cardImageLoader = new();
     private readonly CardViewFactory _cardViewFactory;
+    private readonly CardControlRenderer _cardControlRenderer;
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
     private Label? _status;
@@ -109,6 +110,7 @@ public partial class Main : Control
     public Main()
     {
         _cardViewFactory = new CardViewFactory(_cardImageLoader);
+        _cardControlRenderer = new CardControlRenderer(ApplyCardPreview);
     }
 
     public override async void _Ready()
@@ -116,6 +118,7 @@ public partial class Main : Control
         BindNodes();
         WireButtons();
         var args = CommandLineArgs();
+        ServerUrl = ArgValue(args, "--riftbound-server=") ?? ServerUrl;
         _autoSmoke = args.Contains("--riftbound-smoke-auto-ready");
         _autoSmokeMulligan = args.Contains("--riftbound-smoke-auto-mulligan");
         _autoSmokeTapRune = args.Contains("--riftbound-smoke-auto-tap-rune");
@@ -1985,7 +1988,7 @@ public partial class Main : Control
             }
 
             _autoSmokePreviewRendered = true;
-            var summary = PreviewSummary(card);
+            var summary = CardControlRenderer.PreviewSummary(card);
             QueueMainThread(nameof(ApplyCardPreview), card);
             AppendLog($"Auto smoke: previewing first visible card: {Escape(summary.Replace('\n', ' '))}");
             return;
@@ -2759,15 +2762,7 @@ public partial class Main : Control
             return;
         }
 
-        foreach (var child in _handRow.GetChildren())
-        {
-            child.QueueFree();
-        }
-
-        foreach (var card in cards)
-        {
-            _handRow.AddChild(CardNode(card));
-        }
+        _cardControlRenderer.RenderHandCards(_handRow, cards);
     }
 
     public void ApplyPrompt(Godot.Collections.Dictionary view)
@@ -3063,149 +3058,14 @@ public partial class Main : Control
             return;
         }
 
-        foreach (var child in _snapshotRows.GetChildren())
-        {
-            child.QueueFree();
-        }
-
-        foreach (var section in sections)
-        {
-            _snapshotRows.AddChild(SectionNode(section));
-        }
-    }
-
-    private Control SectionNode(Godot.Collections.Dictionary section)
-    {
-        var frame = new PanelContainer
-        {
-            CustomMinimumSize = new Vector2(0, 0)
-        };
-        var rows = new VBoxContainer();
-        rows.AddChild(new Label
-        {
-            Text = section.TryGetValue("title", out var title) ? title.AsString() : "Section"
-        });
-
-        var zones = section.TryGetValue("zones", out var zoneValue)
-            ? zoneValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
-            : [];
-        foreach (var zone in zones)
-        {
-            rows.AddChild(ZoneNode(zone));
-        }
-
-        frame.AddChild(rows);
-        return frame;
-    }
-
-    private Control ZoneNode(Godot.Collections.Dictionary zone)
-    {
-        var row = new HBoxContainer
-        {
-            CustomMinimumSize = new Vector2(0, 104)
-        };
-        row.AddChild(new Label
-        {
-            CustomMinimumSize = new Vector2(112, 0),
-            Text = ZoneLabel(zone),
-            VerticalAlignment = VerticalAlignment.Center
-        });
-
-        var scroll = new ScrollContainer
-        {
-            CustomMinimumSize = new Vector2(0, 104),
-            HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways,
-            VerticalScrollMode = ScrollContainer.ScrollMode.Disabled,
-            SizeFlagsHorizontal = SizeFlags.ExpandFill
-        };
-        var cards = new HBoxContainer();
-        var cardViews = zone.TryGetValue("cards", out var cardsValue)
-            ? cardsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
-            : [];
-
-        if (cardViews.Count == 0)
-        {
-            cards.AddChild(new Label
-            {
-                CustomMinimumSize = new Vector2(88, 96),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Text = "empty"
-            });
-        }
-        else
-        {
-            foreach (var card in cardViews)
-            {
-                cards.AddChild(CardNode(card, new Vector2(64, 90), new Vector2(58, 82)));
-            }
-        }
-
-        scroll.AddChild(cards);
-        row.AddChild(scroll);
-        return row;
-    }
-
-    private static string ZoneLabel(Godot.Collections.Dictionary zone)
-    {
-        var label = zone.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Zone";
-        if (zone.TryGetValue("count", out var countValue))
-        {
-            return $"{label} {countValue.AsInt32()}";
-        }
-
-        return label;
-    }
-
-    private Control CardNode(Godot.Collections.Dictionary card)
-    {
-        return CardNode(card, new Vector2(92, 128), new Vector2(84, 120));
-    }
-
-    private Control CardNode(Godot.Collections.Dictionary card, Vector2 frameSize, Vector2 contentSize)
-    {
-        var frame = new PanelContainer
-        {
-            CustomMinimumSize = frameSize,
-            MouseDefaultCursorShape = CursorShape.PointingHand,
-            TooltipText = PreviewSummary(card)
-        };
-        frame.GuiInput += input =>
-        {
-            if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
-            {
-                ApplyCardPreview(card);
-            }
-        };
-
-        var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
-        if (image is not null)
-        {
-            frame.AddChild(new TextureRect
-            {
-                CustomMinimumSize = contentSize,
-                Texture = ImageTexture.CreateFromImage(image),
-                ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
-                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
-            });
-            return frame;
-        }
-
-        frame.AddChild(new Label
-        {
-            CustomMinimumSize = contentSize,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Text = card.TryGetValue("label", out var label) ? label.AsString() : "Card"
-        });
-        return frame;
+        _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
     }
 
     public void ApplyCardPreview(Godot.Collections.Dictionary card)
     {
         if (_officialCardPreviewSummary is not null)
         {
-            _officialCardPreviewSummary.Text = PreviewSummary(card);
+            _officialCardPreviewSummary.Text = CardControlRenderer.PreviewSummary(card);
         }
 
         if (_officialCardPreview is null)
@@ -3217,20 +3077,6 @@ public partial class Main : Control
         _officialCardPreview.Texture = image is null
             ? null
             : ImageTexture.CreateFromImage(image);
-    }
-
-    private static string PreviewSummary(Godot.Collections.Dictionary card)
-    {
-        if (card.TryGetValue("previewSummary", out var summaryValue))
-        {
-            var summary = summaryValue.AsString();
-            if (!string.IsNullOrWhiteSpace(summary))
-            {
-                return summary;
-            }
-        }
-
-        return "Card";
     }
 
     public void ApplyDeckOptions()
