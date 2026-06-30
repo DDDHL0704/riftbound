@@ -15,6 +15,20 @@ namespace Riftbound.GodotClient;
 public partial class Main : Control
 {
     private const int AutoSmokePlayCardTapRuneLimit = 4;
+    private const int AutoSmokeBoardActionLimit = 4;
+    private const int AutoSmokeTempoActionLimit = 24;
+    private static readonly string[] AutoSmokePostPlayActions =
+    [
+        "MOVE_UNIT",
+        "DECLARE_BATTLE"
+    ];
+    private static readonly string[] AutoSmokeTempoActions =
+    [
+        "PASS_PRIORITY",
+        "PASS_FOCUS",
+        "PASS",
+        "END_TURN"
+    ];
 
     [Export] public string ServerUrl { get; set; } = "http://127.0.0.1:5088";
     [Export] public bool AutoConnectOnReady { get; set; } = true;
@@ -49,11 +63,13 @@ public partial class Main : Control
     private bool _autoSmokeMulligan;
     private bool _autoSmokeTapRune;
     private bool _autoSmokePlayCard;
+    private bool _autoSmokeFollowups;
     private bool _autoSmokeSubmitted;
     private int _autoSmokeTapRuneSubmissions;
     private bool _autoSmokePlayCardSubmitted;
     private bool _ephemeralSession;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
@@ -67,6 +83,7 @@ public partial class Main : Control
         _autoSmokeMulligan = args.Contains("--riftbound-smoke-auto-mulligan");
         _autoSmokeTapRune = args.Contains("--riftbound-smoke-auto-tap-rune");
         _autoSmokePlayCard = args.Contains("--riftbound-smoke-auto-play-card");
+        _autoSmokeFollowups = args.Contains("--riftbound-smoke-auto-followups");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -799,6 +816,7 @@ public partial class Main : Control
             QueueMainThread(nameof(ApplyPrompt), view);
             AppendLog(
                 $"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct, {view["templateCount"].AsInt32()} templates.");
+            AppendLog($"Prompt actions: {PromptActionSummary(view)}");
             _ = RunAutoSmokePromptAsync(view);
         }
         catch (Exception ex)
@@ -809,7 +827,7 @@ public partial class Main : Control
 
     private async Task RunAutoSmokePromptAsync(Godot.Collections.Dictionary view)
     {
-        if ((!_autoSmokeMulligan && !_autoSmokeTapRune && !_autoSmokePlayCard)
+        if ((!_autoSmokeMulligan && !_autoSmokeTapRune && !_autoSmokePlayCard && !_autoSmokeFollowups)
             || !view.TryGetValue("actions", out var actionsValue)
             || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
         {
@@ -854,6 +872,17 @@ public partial class Main : Control
             return;
         }
 
+        if (_autoSmokeFollowups && _autoSmokePlayCardSubmitted)
+        {
+            foreach (var actionName in AutoSmokePostPlayActions)
+            {
+                if (await TryRunAutoSmokeTemplateActionAsync(actions, actionName))
+                {
+                    return;
+                }
+            }
+        }
+
         var tapRuneLimit = _autoSmokePlayCard ? AutoSmokePlayCardTapRuneLimit : 1;
         if (_autoSmokeTapRune
             && _autoSmokeTapRuneSubmissions < tapRuneLimit
@@ -877,6 +906,53 @@ public partial class Main : Control
             await SubmitPromptTemplateAsync(tapRuneAction, PromptSelection.SourceOnly(sourceObjectId));
             return;
         }
+
+        if (_autoSmokeFollowups)
+        {
+            foreach (var actionName in AutoSmokeTempoActions)
+            {
+                if (await TryRunAutoSmokeTemplateActionAsync(actions, actionName))
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    private async Task<bool> TryRunAutoSmokeTemplateActionAsync(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+        string actionName)
+    {
+        if (_autoSmokeActionSubmissions.GetValueOrDefault(actionName) >= AutoSmokeActionLimitFor(actionName)
+            || !TryGetEnabledPromptAction(actions, actionName, requireTemplate: true, out var action))
+        {
+            return false;
+        }
+
+        if (!TryBuildFirstServerPromptSelection(action, out var selection, out var selectionKey, out var reason))
+        {
+            AppendLog($"[color=yellow]Auto smoke: {Escape(actionName)} skipped: {Escape(reason)}[/color]");
+            return false;
+        }
+
+        var key = AutoSmokePromptKey(action, $"{actionName}:{selectionKey}");
+        if (!_autoSmokePromptSubmissions.Add(key))
+        {
+            return false;
+        }
+
+        _autoSmokeActionSubmissions[actionName] = _autoSmokeActionSubmissions.GetValueOrDefault(actionName) + 1;
+        AppendLog($"Auto smoke: submitting {Escape(actionName)} with server selection {Escape(selectionKey)}.");
+        await SubmitPromptTemplateAsync(action, selection);
+        return true;
+    }
+
+    private static int AutoSmokeActionLimitFor(string actionName)
+    {
+        return string.Equals(actionName, "MOVE_UNIT", StringComparison.Ordinal)
+            || string.Equals(actionName, "DECLARE_BATTLE", StringComparison.Ordinal)
+            ? AutoSmokeBoardActionLimit
+            : AutoSmokeTempoActionLimit;
     }
 
     private static bool TryGetEnabledPromptAction(
@@ -901,6 +977,130 @@ public partial class Main : Control
         }
 
         return false;
+    }
+
+    private static bool TryBuildFirstServerPromptSelection(
+        Godot.Collections.Dictionary action,
+        out PromptSelection selection,
+        out string selectionKey,
+        out string reason)
+    {
+        selection = PromptSelection.Empty;
+        selectionKey = "none";
+        reason = string.Empty;
+
+        if (!action.TryGetValue("selectionSteps", out var stepsValue)
+            || stepsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } steps
+            || steps.Count == 0)
+        {
+            selection = PromptSelection.Empty;
+            return true;
+        }
+
+        var sourceId = string.Empty;
+        var destinationId = string.Empty;
+        var mode = string.Empty;
+        var targets = new List<string>();
+        var optionalCosts = new List<string>();
+        var keyParts = new List<string>();
+
+        foreach (var step in steps)
+        {
+            var role = step.TryGetValue("role", out var roleValue) ? roleValue.AsString() : string.Empty;
+            var required = step.TryGetValue("required", out var requiredValue) && requiredValue.AsBool();
+            var choiceId = FirstPromptStepChoiceId(step);
+            if (string.IsNullOrWhiteSpace(choiceId))
+            {
+                if (required)
+                {
+                    reason = $"required {role} choice is missing";
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (!required && string.Equals(role, "optionalCost", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            switch (role)
+            {
+                case "source":
+                    sourceId = string.IsNullOrWhiteSpace(sourceId) ? choiceId : sourceId;
+                    break;
+                case "target":
+                    targets.Add(choiceId);
+                    break;
+                case "destination":
+                    destinationId = string.IsNullOrWhiteSpace(destinationId) ? choiceId : destinationId;
+                    break;
+                case "mode":
+                    mode = string.IsNullOrWhiteSpace(mode) ? choiceId : mode;
+                    break;
+                case "optionalCost":
+                    optionalCosts.Add(choiceId);
+                    break;
+                default:
+                    if (required)
+                    {
+                        reason = $"unsupported required selection role {role}";
+                        return false;
+                    }
+
+                    continue;
+            }
+
+            keyParts.Add($"{role}={choiceId}");
+        }
+
+        selection = new PromptSelection(
+            string.IsNullOrWhiteSpace(sourceId) ? null : sourceId,
+            targets,
+            string.IsNullOrWhiteSpace(destinationId) ? null : destinationId,
+            string.IsNullOrWhiteSpace(mode) ? null : mode,
+            optionalCosts);
+        selectionKey = keyParts.Count == 0 ? "none" : string.Join(",", keyParts);
+        return true;
+    }
+
+    private static string FirstPromptStepChoiceId(Godot.Collections.Dictionary step)
+    {
+        if (!step.TryGetValue("choices", out var choicesValue)
+            || choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } choices)
+        {
+            return string.Empty;
+        }
+
+        foreach (var choice in choices)
+        {
+            var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+            if (!string.IsNullOrWhiteSpace(choiceId))
+            {
+                return choiceId;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string PromptActionSummary(Godot.Collections.Dictionary view)
+    {
+        if (!view.TryGetValue("actions", out var actionsValue)
+            || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions
+            || actions.Count == 0)
+        {
+            return "none";
+        }
+
+        return string.Join(", ", actions.Select(action =>
+        {
+            var name = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : "?";
+            var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+            var hasTemplate = action.TryGetValue("hasTemplate", out var templateValue) && templateValue.AsBool();
+            return $"{name}:{(enabled ? "on" : "off")}{(hasTemplate ? ":template" : string.Empty)}";
+        }));
     }
 
     private string AutoSmokePromptKey(Godot.Collections.Dictionary action, string actionName)
@@ -2312,6 +2512,13 @@ public partial class Main : Control
         string? Mode,
         IReadOnlyList<string> OptionalCostIds)
     {
+        public static PromptSelection Empty { get; } = new(
+            null,
+            Array.Empty<string>(),
+            null,
+            null,
+            Array.Empty<string>());
+
         public static PromptSelection SourceOnly(string sourceId)
         {
             return new PromptSelection(

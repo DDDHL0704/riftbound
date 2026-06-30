@@ -42,6 +42,7 @@ room="godot-dual-$(date +%H%M%S)"
   --riftbound-smoke-auto-mulligan \
   --riftbound-smoke-auto-tap-rune \
   --riftbound-smoke-auto-play-card \
+  --riftbound-smoke-auto-followups \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -55,6 +56,7 @@ pid_a=$!
   --riftbound-smoke-auto-mulligan \
   --riftbound-smoke-auto-tap-rune \
   --riftbound-smoke-auto-play-card \
+  --riftbound-smoke-auto-followups \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -78,6 +80,10 @@ With `--riftbound-smoke-auto-play-card`, the first post-rune `PLAY_CARD`
 candidate is submitted from the server-provided source choice and template,
 tapping additional server-provided rune candidates first if no playable source
 has appeared yet.
+With `--riftbound-smoke-auto-followups`, the smoke runner then tries the first
+server-template follow-up choices for movement, battle declaration, pass, and
+end-turn actions. It still does not decide legality locally; it only submits the
+server-provided required selections.
 
 ## Official Card Images
 
