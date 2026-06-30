@@ -9707,7 +9707,7 @@ internal static class ActionPromptBuilder
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
-                && BattlefieldSourceGrantsRoam(cardObject.CardNo)
+                && StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -9745,13 +9745,6 @@ internal static class ActionPromptBuilder
             && StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState)
             && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
             && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0;
-    }
-
-    private static bool BattlefieldSourceGrantsRoam(string? cardNo)
-    {
-        return StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && string.Equals(aura.GrantedKeyword, MoveUnitRoamKeyword, StringComparison.Ordinal);
     }
 
     private static bool TryMoveUnitPreciseBattlefieldOrigin(
@@ -17885,7 +17878,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
-            || BattlefieldSourceGrantsRoam(cardObject.CardNo)
+            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardObject.CardNo, out _)

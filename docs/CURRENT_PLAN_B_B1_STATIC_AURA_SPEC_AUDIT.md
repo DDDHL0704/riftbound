@@ -6,6 +6,14 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-06-30 Supplement: Shared Battlefield All-Units Keyword Aura Query
+
+This follow-up removes the remaining duplicated `BattlefieldSourceGrantsRoam` private selector from `CoreRuleEngine` and `MatchSession`. Both runtime and prompt paths now call `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` for Wind Hill-style battlefield all-units `RULE_TEXT` keyword permission.
+
+The change is source-selector only: `OGN·297/298` 疾风山丘 still parses as `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` with `GrantedKeyword=游走`, battlefield keyword sources must remain face-up, and existing movement / Roam command semantics are unchanged.
+
+Validation: focused guard red/green `StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList` 1/1; StaticAura / BattlefieldStaticRoam / BattlefieldAllUnits / Roam / MoveUnit / CardCatalogBaseline / MatchRecovery adjacent 2490/2490; backend full conformance 9049/9049.
+
 Implemented in this slice:
 
 - `BehaviorSpec.StaticAuras` protocol/catalog surface.

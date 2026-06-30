@@ -3922,6 +3922,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsBattlefieldAllUnitsPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldStaticRoamCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldSourceGrantsRoam", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UNL-154/219", coreRuleEngineSource, StringComparison.Ordinal);
@@ -3934,6 +3936,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ResolveMasterYiLevelLegendPowerBonus", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("MasterYiIntroLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("MasterYiLevelPowerThreshold", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldSourceGrantsRoam", source, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura", source, StringComparison.Ordinal);
 
         var equipmentKeywordRulesPath = Path.Combine(
             RepositoryRoot(),

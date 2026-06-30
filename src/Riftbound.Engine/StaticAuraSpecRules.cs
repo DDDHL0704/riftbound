@@ -83,6 +83,24 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetBattlefieldAllUnitsGrantedKeywordAura(
+        string? cardNo,
+        string keyword,
+        out StaticAuraSpec aura)
+    {
+        aura = default!;
+        if (string.IsNullOrWhiteSpace(keyword)
+            || !TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var candidate)
+            || !string.Equals(candidate.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || !string.Equals(candidate.GrantedKeyword, keyword, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        aura = candidate;
+        return true;
+    }
+
     public static bool TryGetBattlefieldFilteredUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(

@@ -26528,7 +26528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
-            || BattlefieldSourceGrantsRoam(cardNo)
+            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardNo, out _)
@@ -30997,13 +30997,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && GrantedCombatKeywordAmount(aura, keyword) > 0;
     }
 
-    private static bool BattlefieldSourceGrantsRoam(string? cardNo)
-    {
-        return StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && string.Equals(aura.GrantedKeyword, MoveUnitRoamKeyword, StringComparison.Ordinal);
-    }
-
     private static bool HasBattlefieldStaticRoamPermission(MatchState state, string playerId, string sourceObjectId)
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -31015,7 +31008,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !cardObject.IsFaceDown
-            && BattlefieldSourceGrantsRoam(cardObject.CardNo)
+            && StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 

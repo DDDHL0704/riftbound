@@ -6,6 +6,16 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-06-30 Supplement Evidence: Shared Battlefield All-Units Keyword Aura Query
+
+- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` is now the shared engine query for battlefield all-units `RULE_TEXT` keyword auras.
+- `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `MatchSession.HasMoveUnitPromptRoamPermission` now consume that shared query for `MoveUnitRoamKeyword`.
+- `CoreRuleEngine.HasImplementedBattlefieldRuleSpec` and `MatchSession.IsBattlefieldCardObject` now also recognize Wind Hill-style battlefield all-units keyword sources through the shared query.
+- The duplicated private `BattlefieldSourceGrantsRoam` helpers were removed from `CoreRuleEngine` and `MatchSession`.
+- `CardCatalogBaselineTests.StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList` now blocks reintroducing `BattlefieldSourceGrantsRoam` and requires `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura`.
+- Validation passed: focused guard red/green 1/1; StaticAura / BattlefieldStaticRoam / BattlefieldAllUnits / Roam / MoveUnit / CardCatalogBaseline / MatchRecovery adjacent 2490/2490; backend full conformance 9049/9049.
+- Non-closure: this does not expand complete Roam timing, movement lifecycle, full battlefield keyword aura breadth, B1/B2 completion, frontend validation, or READY.
+
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` defines `StaticAuraSpec`, `StaticAuraKinds`, `StaticAuraTargetScopes`, and `StaticAuraParticipantScopes`.
