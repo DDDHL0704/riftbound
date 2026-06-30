@@ -267,6 +267,32 @@ internal static class StaticAuraSpecRules
         return GetStaticAuras(cardNo).Any(IsBattlefieldKeywordStaticAura);
     }
 
+    public static bool IsSameBattlefieldOtherFriendlyPowerStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || aura.PowerDeltaPerParticipant == 0)
+        {
+            return false;
+        }
+
+        return (string.Equals(
+                    aura.TargetScope,
+                    StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                    StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(
+                    aura.TargetScope,
+                    StaticAuraTargetScopes.SameBattlefieldOtherFriendlyFilteredUnits,
+                    StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyFilteredPublicUnits,
+                    StringComparison.Ordinal));
+    }
+
     public static bool IsBattlefieldPowerStaticAura(StaticAuraSpec aura)
     {
         if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)

@@ -6,6 +6,16 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-06-30 Supplement Evidence: Same-Battlefield Other-Friendly POWER Aura Scope Router
+
+- `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyPowerStaticAura` is now the shared predicate for same-battlefield other-friendly POWER static auras whose target/participant scope is either all other friendly public units at the source battlefield or filtered other friendly public units at the source battlefield.
+- `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and sums matching `PowerDeltaPerParticipant` values instead of calling separate normal and filtered same-battlefield other-friendly POWER helper selectors.
+- `MatchSession.BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(source.CardNo)` and projects matching same-battlefield other-friendly POWER static auras from their `StaticAuraSpec` scopes instead of separate normal and filtered projection builders.
+- Existing recovery-sensitive metadata remains compatible for the current representatives: `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` still projects the same effect id prefix, source path, condition and lifecycle; `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER` does the same for filtered same-battlefield other-friendly static power.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SameBattlefieldOtherFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing `StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura` / `TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura` calls in CoreRuleEngine or MatchSession same-battlefield other-friendly POWER execution/projection routing.
+- Validation passed: red/green focused guard 1/1; same-battlefield static-power focused regression 12/12; StaticAura / StaticPower / SameBattlefield / FullGameEndToEnd / MatchRecovery adjacent 2217/2217; backend full conformance 9061/9061.
+- Non-closure: this does not finish same-battlefield other-friendly RULE_TEXT keyword routing, non-local other-friendly POWER routing, friendly-filtered/friendly-units routing, complete LayerEngine timestamp/order behavior, full B1, P0, or READY.
+
 ## 2026-06-30 Supplement Evidence: Battlefield RULE_TEXT Keyword Aura Scope Router
 
 - `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura` is now the shared predicate for battlefield RULE_TEXT keyword auras whose target/participant scope is either all public units at the source battlefield or filtered public units at the source battlefield.
@@ -120,6 +130,10 @@ Recovery:
 
 ## Validation Evidence
 
+- Latest same-battlefield other-friendly POWER static-aura scope-router guard focused representative: 1/1 passed.
+- Latest same-battlefield other-friendly POWER static-aura scope-router focused behavior representative: 12/12 passed.
+- Latest same-battlefield other-friendly POWER static-aura scope-router adjacent StaticAura / StaticPower / SameBattlefield / FullGameEndToEnd / MatchRecovery representative: 2217/2217 passed.
+- Latest backend full conformance after same-battlefield other-friendly POWER static-aura scope-router: 9061/9061 passed.
 - Latest battlefield RULE_TEXT keyword aura scope-router guard focused representative: 1/1 passed.
 - Latest battlefield RULE_TEXT keyword aura scope-router focused behavior representative: 63/63 passed.
 - Latest battlefield RULE_TEXT keyword aura scope-router adjacent StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery representative: 2329/2329 passed.

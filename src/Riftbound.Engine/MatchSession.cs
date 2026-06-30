@@ -2034,8 +2034,7 @@ public sealed record MatchState
         effects.AddRange(BuildBattlefieldKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
-        effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
-        effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects(state));
         effects.AddRange(BuildFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
@@ -2604,7 +2603,7 @@ public sealed record MatchState
         return effects;
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(MatchState state)
+    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
         foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -2615,7 +2614,6 @@ public sealed record MatchState
                 || source.IsFaceDown
                 || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(source.CardNo, out var aura)
                 || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
             {
                 continue;
@@ -2627,114 +2625,116 @@ public sealed record MatchState
                 continue;
             }
 
-            var participantObjectIds = SameBattlefieldOtherFriendlyUnitObjectIds(
-                state,
-                sourceObjectId,
-                battlefieldObjectId,
-                controllerId);
-            if (participantObjectIds.Count == 0)
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(source.CardNo)
+                .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyPowerStaticAura))
             {
-                continue;
-            }
-
-            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [sourceObjectId]);
-            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-            foreach (var participantObjectId in participantObjectIds)
-            {
-                var participant = state.CardObjects[participantObjectId];
-                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                effects.Add(new ContinuousEffectState(
-                    $"STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE:{sourceObjectId}:{participantObjectId}",
-                    "BATTLEFIELD",
-                    ContinuousEffectLayers.StaticAura,
-                    aura.Duration,
-                    participantObjectId,
+                var participantObjectIds = SameBattlefieldOtherFriendlyPowerStaticAuraParticipantObjectIds(
+                    state,
                     sourceObjectId,
-                    aura.PowerDeltaPerParticipant,
-                    participant.Power,
-                    participant.Power + aura.PowerDeltaPerParticipant,
-                    aura.Kind,
-                    source.CardNo,
-                    "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus",
-                    true,
-                    LayerEngineFoundationResiduals(),
-                    Condition: "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
-                    Lifecycle: "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FRIENDLY_UNIT_LOCATIONS",
-                    ParticipantObjectIds: participantObjectIds,
-                    SourceDependencyObjectIds: sourceDependencyObjectIds,
-                    TargetDependencyObjectIds: targetDependencyObjectIds,
-                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
+                    battlefieldObjectId,
+                    controllerId,
+                    aura);
+                if (participantObjectIds.Count == 0)
+                {
+                    continue;
+                }
+
+                var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [sourceObjectId]);
+                var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+                var metadata = SameBattlefieldOtherFriendlyPowerStaticAuraProjectionMetadata(aura);
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    var participant = state.CardObjects[participantObjectId];
+                    var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                    effects.Add(new ContinuousEffectState(
+                        $"{metadata.EffectIdPrefix}:{sourceObjectId}:{participantObjectId}",
+                        "BATTLEFIELD",
+                        ContinuousEffectLayers.StaticAura,
+                        aura.Duration,
+                        participantObjectId,
+                        sourceObjectId,
+                        aura.PowerDeltaPerParticipant,
+                        participant.Power,
+                        participant.Power + aura.PowerDeltaPerParticipant,
+                        aura.Kind,
+                        source.CardNo,
+                        metadata.SourcePath,
+                        true,
+                        LayerEngineFoundationResiduals(),
+                        Condition: metadata.Condition,
+                        Lifecycle: metadata.Lifecycle,
+                        ParticipantObjectIds: participantObjectIds,
+                        SourceDependencyObjectIds: sourceDependencyObjectIds,
+                        TargetDependencyObjectIds: targetDependencyObjectIds,
+                        ParticipantDependencyObjectIds: participantDependencyObjectIds));
+                }
             }
         }
 
         return effects;
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(MatchState state)
+    private static IReadOnlyList<string> SameBattlefieldOtherFriendlyPowerStaticAuraParticipantObjectIds(
+        MatchState state,
+        string sourceObjectId,
+        string battlefieldObjectId,
+        string controllerId,
+        StaticAuraSpec aura)
     {
-        var effects = new List<ContinuousEffectState>();
-        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits, StringComparison.Ordinal))
         {
-            var sourceObjectId = entry.Key;
-            var source = entry.Value;
-            if (string.IsNullOrWhiteSpace(source.CardNo)
-                || source.IsFaceDown
-                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura(source.CardNo, out var aura)
-                || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
-            {
-                continue;
-            }
+            return SameBattlefieldOtherFriendlyUnitObjectIds(
+                state,
+                sourceObjectId,
+                battlefieldObjectId,
+                controllerId);
+        }
 
-            var controllerId = EffectiveFieldControllerId(state, sourceObjectId, source);
-            if (string.IsNullOrWhiteSpace(controllerId))
-            {
-                continue;
-            }
-
-            var participantObjectIds = SameBattlefieldOtherFriendlyFilteredUnitObjectIds(
+        if (string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldOtherFriendlyFilteredUnits,
+                StringComparison.Ordinal))
+        {
+            return SameBattlefieldOtherFriendlyFilteredUnitObjectIds(
                 state,
                 sourceObjectId,
                 battlefieldObjectId,
                 controllerId,
                 aura);
-            if (participantObjectIds.Count == 0)
-            {
-                continue;
-            }
-
-            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [sourceObjectId]);
-            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-            foreach (var participantObjectId in participantObjectIds)
-            {
-                var participant = state.CardObjects[participantObjectId];
-                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                effects.Add(new ContinuousEffectState(
-                    $"STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER:{sourceObjectId}:{participantObjectId}",
-                    "BATTLEFIELD",
-                    ContinuousEffectLayers.StaticAura,
-                    aura.Duration,
-                    participantObjectId,
-                    sourceObjectId,
-                    aura.PowerDeltaPerParticipant,
-                    participant.Power,
-                    participant.Power + aura.PowerDeltaPerParticipant,
-                    aura.Kind,
-                    source.CardNo,
-                    "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus",
-                    true,
-                    LayerEngineFoundationResiduals(),
-                    Condition: "SOURCE_AND_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
-                    Lifecycle: "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS",
-                    ParticipantObjectIds: participantObjectIds,
-                    SourceDependencyObjectIds: sourceDependencyObjectIds,
-                    TargetDependencyObjectIds: targetDependencyObjectIds,
-                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
-            }
         }
 
-        return effects;
+        return [];
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) SameBattlefieldOtherFriendlyPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (string.Equals(aura.Kind, StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE",
+                "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus",
+                "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FRIENDLY_UNIT_LOCATIONS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SameBattlefieldOtherFriendlyFilteredUnitsPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER",
+                "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus",
+                "SOURCE_AND_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS");
+        }
+
+        return (
+            $"STATIC_AURA:{aura.Kind}",
+            "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus",
+            $"SOURCE_{aura.TargetScope}_AT_SAME_BATTLEFIELD",
+            "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FRIENDLY_UNIT_LOCATIONS");
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildOtherFriendlyUnitsStaticAuraEffects(MatchState state)

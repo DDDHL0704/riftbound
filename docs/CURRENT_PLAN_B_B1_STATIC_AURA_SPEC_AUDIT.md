@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-06-30 Supplement: Same-Battlefield Other-Friendly POWER Aura Scope Router
+
+This follow-up merges the same-battlefield other-friendly POWER aura and same-battlefield other-friendly filtered POWER aura runtime/projection selectors into shared `StaticAuraSpec` scope routing.
+
+`CoreRuleEngine` now computes these same-battlefield other-friendly POWER bonuses through `ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filtering with `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyPowerStaticAura`. The participant applicability is derived from `StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits` / `SameBattlefieldOtherFriendlyFilteredUnits`; filtered scopes continue using `StaticAuraSpecRules.TargetMatchesFilter`.
+
+`MatchSession` now projects both same-battlefield other-friendly POWER aura families through `BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects`, again enumerating the source unit's `BehaviorSpec.StaticAuras` instead of calling kind-specific `TryGetSameBattlefieldOtherFriendlyUnitsPowerAura` / `TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura` helpers. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+Validation: red/green focused `SameBattlefieldOtherFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; same-battlefield static-power focused regression 12/12; StaticAura / StaticPower / SameBattlefield / FullGameEndToEnd / MatchRecovery adjacent 2217/2217; backend full conformance 9061/9061.
+
+Non-closure: this slice only consolidates the same-battlefield other-friendly POWER normal/filtered scope router. Same-battlefield other-friendly RULE_TEXT keyword routing, other-friendly non-local POWER routing, friendly-filtered/friendly-units routing, full LayerEngine timestamp/order semantics, full B1, P0, and READY remain open.
+
 ## 2026-06-30 Supplement: Battlefield RULE_TEXT Keyword Aura Scope Router
 
 This follow-up merges the battlefield all-units RULE_TEXT keyword aura and battlefield filtered-units RULE_TEXT keyword aura combat/projection selectors into shared `StaticAuraSpec` scope routing.
