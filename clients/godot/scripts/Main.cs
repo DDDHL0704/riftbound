@@ -49,6 +49,7 @@ public partial class Main : Control
     private readonly List<PreconstructedDeck> _decks = [];
     private readonly List<PublicMatchDto> _publicMatches = [];
     private readonly OfficialCardImageLoader _cardImageLoader = new();
+    private readonly CardViewFactory _cardViewFactory;
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
     private Label? _status;
@@ -104,6 +105,11 @@ public partial class Main : Control
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
+
+    public Main()
+    {
+        _cardViewFactory = new CardViewFactory(_cardImageLoader);
+    }
 
     public override async void _Ready()
     {
@@ -298,18 +304,17 @@ public partial class Main : Control
             }
 
             QueueMainThread(nameof(ApplyOfficialCardPreview), image);
-            QueueMainThread(
-                nameof(ApplyOfficialCardPreviewSummary),
-                PreviewSummary(new Godot.Collections.Dictionary
-                {
-                    ["cardNo"] = card.CardNo,
-                    ["cardName"] = card.CardName,
-                    ["category"] = card.CardCategoryName,
-                    ["energy"] = card.Energy ?? -1,
-                    ["power"] = card.Power ?? -1,
-                    ["visible"] = true,
-                    ["faceDown"] = false
-                }));
+            var preview = new CardViewData(
+                string.Empty,
+                card.CardNo,
+                card.CardName,
+                card.CardCategoryName,
+                card.Energy ?? -1,
+                card.Power ?? -1,
+                Visible: true,
+                FaceDown: false,
+                image);
+            QueueMainThread(nameof(ApplyOfficialCardPreviewSummary), preview.PreviewSummary);
             AppendLog($"Official card image loaded: {Escape(card.CardNo)} {Escape(card.CardName)}.");
         }
         catch (OperationCanceledException)
@@ -2421,35 +2426,8 @@ public partial class Main : Control
 
     private async Task<Godot.Collections.Dictionary> BuildCardViewAsync(SnapshotCardRef card)
     {
-        var view = new Godot.Collections.Dictionary
-        {
-            ["label"] = string.IsNullOrWhiteSpace(card.CardNo) ? "Hidden" : card.CardNo,
-            ["objectId"] = card.ObjectId,
-            ["cardNo"] = card.CardNo,
-            ["visible"] = card.Visible,
-            ["faceDown"] = card.FaceDown,
-            ["category"] = string.Empty,
-            ["energy"] = -1,
-            ["power"] = -1
-        };
-
-        if (!card.Visible || !_officialCatalog.TryGetValue(card.CardNo, out var entry))
-        {
-            return view;
-        }
-
-        view["label"] = $"{entry.CardNo}\n{entry.CardName}";
-        view["cardName"] = entry.CardName;
-        view["category"] = entry.CardCategoryName;
-        view["energy"] = entry.Energy ?? -1;
-        view["power"] = entry.Power ?? -1;
-
-        if (await _cardImageLoader.LoadOfficialFrontImageAsync(entry, _shutdown.Token) is { } image)
-        {
-            view["image"] = image;
-        }
-
-        return view;
+        var view = await _cardViewFactory.BuildAsync(card, _officialCatalog, _shutdown.Token);
+        return view.ToGodotDictionary();
     }
 
     private void UpdateJoinedSession(WsServerMessage message)
@@ -3243,52 +3221,16 @@ public partial class Main : Control
 
     private static string PreviewSummary(Godot.Collections.Dictionary card)
     {
-        var isVisible = card.TryGetValue("visible", out var visibleValue) && visibleValue.AsBool();
-        var isFaceDown = card.TryGetValue("faceDown", out var faceDownValue) && faceDownValue.AsBool();
-        if (!isVisible || isFaceDown)
+        if (card.TryGetValue("previewSummary", out var summaryValue))
         {
-            return "Hidden card\nIdentity is hidden by the server snapshot.";
+            var summary = summaryValue.AsString();
+            if (!string.IsNullOrWhiteSpace(summary))
+            {
+                return summary;
+            }
         }
 
-        var cardNo = card.TryGetValue("cardNo", out var cardNoValue) ? cardNoValue.AsString() : string.Empty;
-        var cardName = card.TryGetValue("cardName", out var nameValue) ? nameValue.AsString() : string.Empty;
-        var category = card.TryGetValue("category", out var categoryValue) ? categoryValue.AsString() : string.Empty;
-        var energy = card.TryGetValue("energy", out var energyValue) ? energyValue.AsInt32() : -1;
-        var power = card.TryGetValue("power", out var powerValue) ? powerValue.AsInt32() : -1;
-        var title = string.IsNullOrWhiteSpace(cardName)
-            ? cardNo
-            : string.IsNullOrWhiteSpace(cardNo)
-                ? cardName
-                : $"{cardNo} · {cardName}";
-
-        var lines = new List<string>();
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            lines.Add(title);
-        }
-
-        if (!string.IsNullOrWhiteSpace(category))
-        {
-            lines.Add(category);
-        }
-
-        var stats = new List<string>();
-        if (energy >= 0)
-        {
-            stats.Add($"Cost {energy}");
-        }
-
-        if (power >= 0)
-        {
-            stats.Add($"Power {power}");
-        }
-
-        if (stats.Count > 0)
-        {
-            lines.Add(string.Join(" · ", stats));
-        }
-
-        return lines.Count == 0 ? "Visible card" : string.Join("\n", lines);
+        return "Card";
     }
 
     public void ApplyDeckOptions()

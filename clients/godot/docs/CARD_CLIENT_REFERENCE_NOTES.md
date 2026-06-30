@@ -25,6 +25,27 @@ Riftbound Godot client. It is intentionally not a vendored dependency list.
   - Adoption: borrow UI affordance ideas and regression-test discipline only.
     Do not import or mirror the scripting engine because Riftbound legality,
     timing, scoring, and victory remain server-authoritative.
+- Simple CardPileUI:
+  https://github.com/insideout-andrew/simple-card-pile-ui
+  - Useful pattern: explicit `CardPileUI`, `CardUIData`, `CardUI`, and
+    `CardDropzone` concepts with draw, hand, discard, dropzone, hover, click,
+    and card-movement signals.
+  - Fresh check: its README emphasizes configurable pile positions, stack
+    display gaps, hand spread, hover behavior, JSON card data, and signals for
+    pile/dropzone mutations.
+  - Adoption: mirror the pile/dropzone vocabulary for client-side rendering
+    nodes. Server prompts still decide whether a drop/click is legal.
+- Deckbuilder Framework:
+  https://github.com/insideout-andrew/deckbuilder-framework
+  - Useful pattern: cards are instantiated from data resources, decks emit
+    card-level signals, and deck behavior is configured with spread, stack,
+    drag, rotation, and vertical hand curves.
+  - Fresh check: its README separates `CardData`, `Card`, and `Deck` and notes
+    that game code can listen to deck signals instead of wiring every card
+    individually.
+  - Adoption: build our own C# `CardViewData -> CardNode -> Zone/Deck
+    renderer` boundary so visible/hidden card behavior is consistent across
+    hand, battlefield, base, discard, and preview surfaces.
 - Godot Card Pile Framework: https://github.com/Ggross98/Godot-CardPileFramework
   - Useful pattern: C# card objects as `Control` nodes, typed pile managers, JSON
     save/load boundaries, and animation hooks around draw/use/discard actions.
