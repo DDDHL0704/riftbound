@@ -74,9 +74,11 @@ public sealed class TriggerPaymentTests
         Assert.Contains("TryOpenUnitConquestPayReturnSelfToHandPaymentWindow", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, OgnVayneCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, IcevaleArcherCardNo", source, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("IcevaleArcherAttackPaymentSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT", source, StringComparison.Ordinal);
     }
 
     [Fact]

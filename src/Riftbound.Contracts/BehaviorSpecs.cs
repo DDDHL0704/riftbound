@@ -168,6 +168,8 @@ public static class TriggerKinds
         "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     public const string UnitControlledUnitPowerfulPayPowerReady =
         "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
+    public const string UnitAttackPayPowerModifier =
+        "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -223,6 +225,7 @@ public static class TriggerTimings
     public const string UnitBoonGranted = "UNIT_BOON_GRANTED";
     public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
     public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
+    public const string UnitAttack = "UNIT_ATTACK";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";

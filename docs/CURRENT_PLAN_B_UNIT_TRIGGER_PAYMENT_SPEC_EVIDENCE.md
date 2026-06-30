@@ -5,6 +5,8 @@
 
 This file records evidence for routing the existing Jax and Fiora unit trigger-payment representatives through `BehaviorSpec.Triggers` instead of `CoreRuleEngine` source-effect selector branches.
 
+2026-06-30 supplement: Icevale Archer / 冰谷弓箭手 attack-payment now has its own `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec slice. See `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`.
+
 ## 1. Official Rule Evidence
 
 - Official catalog entry `SFD·119/221` and `SFD·119a/221`: “当你为我贴附武装时，可以选择支付{{1}}，以此抽一张牌。”
@@ -93,4 +95,4 @@ Result: passed. npm emitted existing config warnings and Vite emitted the existi
 
 ## 5. Non-Closure Statement
 
-This evidence does not close complete trigger-payment official breadth, Jax full official behavior, Fiora full official behavior, complete equipment lifecycle, full PaymentEngine / PAY_COST breadth, card matrix full-official, frontend final validation, formal E2E or READY.
+This evidence does not close complete trigger-payment official breadth, Jax full official behavior, Fiora full official behavior, complete Icevale attack-trigger family breadth, complete equipment lifecycle, full PaymentEngine / PAY_COST breadth, card matrix full-official, frontend final validation, formal E2E or READY.

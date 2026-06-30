@@ -5,6 +5,8 @@
 
 本文件记录 Plan B 小切片：把 `SFD·119/221` / `SFD·119a/221` Jax 武装贴附后支付 1 抽 1，以及 `SFD·180/221` / `SFD·180a/221` Fiora 己方单位变为强力后支付黄色使其活跃，从 `CoreRuleEngine` 的 trigger-payment source-effect 分支进一步迁移到官方文本解析出的 `BehaviorSpec.Triggers`。该切片只收窄 Jax / Fiora 两条已实现 trigger-payment representative 的 source / cost / effect shape 来源，不关闭完整 trigger-payment family、完整装备贴附生命周期、Fiora full official、Jax full official、完整 PaymentEngine / PAY_COST breadth、P0 full objective 或 READY。
 
+2026-06-30 补充：Icevale Archer / 冰谷弓箭手 attack-payment representative 已进一步迁移到 `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec 路径；审计入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`。本文件的 Jax / Fiora 验收口径不变。
+
 ## 1. Scope
 
 Changed:
@@ -92,5 +94,5 @@ Result: passed. npm emitted existing config warnings and Vite emitted the existi
 
 - This does not broaden Jax attach / detach / reattach lifecycle semantics.
 - This does not broaden Fiora full official timing, optionality, simultaneous trigger ordering, or multi-source payment edge cases.
-- This does not migrate Icevale Archer attack-payment from catalog source-effect selection to `TriggerSpec`.
+- Icevale Archer attack-payment is now covered by the 2026-06-30 `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec slice, but complete attack-trigger family breadth and battle lifecycle remain residual.
 - This does not close full PaymentEngine / PAY_COST breadth, card matrix full-official, frontend final validation, formal E2E, P0 full objective or READY.

@@ -142,8 +142,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendIdentityId = LegendIdentityCatalog.SettLegendIdentityId;
     private const int SettLegendManaCost = 1;
     private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
-    private const string IcevaleArcherAttackPaymentSourceEffectKind = "ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT";
-    private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
@@ -925,6 +923,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (TryReadIcevaleArcherAttackPaymentContext(
                 pendingPayment,
+                out var icevaleEffectKind,
                 out var icevaleBattlefieldId,
                 out var icevaleSourceObjectId,
                 out var icevaleTargetObjectId))
@@ -934,6 +933,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent,
                 pendingPayment,
                 submittedChoices,
+                icevaleEffectKind,
                 icevaleBattlefieldId,
                 icevaleSourceObjectId,
                 icevaleTargetObjectId);
@@ -1580,13 +1580,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PendingPaymentState pendingPayment,
         IReadOnlyList<string> submittedChoices,
+        string effectKind,
         string battlefieldId,
         string sourceObjectId,
         string targetObjectId)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var sourceState)
+        if (!TryGetIcevaleArcherAttackSource(
+                cardObjects,
+                playerZones,
+                intent.PlayerId,
+                sourceObjectId,
+                out var sourceState,
+                out var triggerSpec)
+            || !string.Equals(triggerSpec.EffectKind, effectKind, StringComparison.Ordinal)
             || !TryGetIcevaleArcherAttackTarget(
                 cardObjects,
                 playerZones,
@@ -1604,7 +1612,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            effectKind,
             sourceObjectId);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
         if (!paymentCommit.Accepted)
@@ -1617,7 +1625,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var runePools = paymentCommit.RunePools;
         var previousPower = targetState.Power;
-        var rawResultingPower = previousPower - 1;
+        var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+        var rawResultingPower = previousPower + powerDelta;
         var resultingPower = Math.Max(0, rawResultingPower);
         var appliedPowerDelta = resultingPower - previousPower;
         cardObjects[targetObjectId] = ApplyDirectUntilEndPowerModifier(
@@ -1625,9 +1634,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetObjectId,
             sourceObjectId,
             sourceState.CardNo,
-            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            effectKind,
             "CoreRuleEngine.ResolveIcevaleArcherAttackTriggerPayment",
-            -1,
+            powerDelta,
             resultingPower);
 
         var events = new List<GameEvent>
@@ -1645,7 +1654,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+                        ["reason"] = effectKind
                     })),
             new(
                 "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -1654,12 +1663,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldId"] = battlefieldId,
-                    ["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+                    ["trigger"] = effectKind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow,
-                    ["powerDelta"] = -1,
+                    ["powerDelta"] = powerDelta,
                     ["appliedPowerDelta"] = appliedPowerDelta,
                     ["minimumPower"] = 0,
                     ["resultingPower"] = resultingPower
@@ -1671,11 +1680,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["sourceObjectId"] = sourceObjectId,
                     ["targetObjectId"] = targetObjectId,
-                    ["powerDelta"] = -1,
+                    ["powerDelta"] = powerDelta,
                     ["appliedPowerDelta"] = appliedPowerDelta,
                     ["minimumPower"] = 0,
                     ["resultingPower"] = resultingPower,
-                    ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+                    ["reason"] = effectKind
                 })
         };
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -2106,11 +2115,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (TryReadIcevaleArcherAttackPaymentContext(
                      pendingPayment,
+                     out var effectKind,
                      out battlefieldId,
                      out sourceObjectId,
                      out var targetObjectId))
         {
-            payload["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind;
+            payload["trigger"] = effectKind;
             payload["battlefieldId"] = battlefieldId;
             payload["sourceObjectId"] = sourceObjectId;
             payload["targetObjectId"] = targetObjectId;
@@ -2959,13 +2969,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static string BuildIcevaleArcherAttackPaymentReason(
+        string effectKind,
         string battlefieldId,
         string sourceObjectId,
         string targetObjectId)
     {
         return string.Join(
             '|',
-            IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+            effectKind,
             battlefieldId,
             sourceObjectId,
             targetObjectId);
@@ -2973,10 +2984,12 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryReadIcevaleArcherAttackPaymentContext(
         PendingPaymentState pendingPayment,
+        out string effectKind,
         out string battlefieldId,
         out string sourceObjectId,
         out string targetObjectId)
     {
+        effectKind = string.Empty;
         battlefieldId = string.Empty;
         sourceObjectId = string.Empty;
         targetObjectId = string.Empty;
@@ -2988,7 +3001,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
-            || !string.Equals(parts[0], IcevaleArcherAttackPayOnePowerMinusOneEffectKind, StringComparison.Ordinal)
+            || !UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTriggerByEffectKind(parts[0], out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -2996,6 +3009,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        effectKind = parts[0];
         battlefieldId = parts[1];
         sourceObjectId = parts[2];
         targetObjectId = parts[3];
@@ -24151,7 +24165,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         targetObjectId = string.Empty;
         rejection = default!;
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        if (!TryGetIcevaleArcherAttackSource(state.CardObjects, playerZones, playerId, attackerObjectId, out _))
+        if (!TryGetIcevaleArcherAttackSource(state.CardObjects, playerZones, playerId, attackerObjectId, out _, out _))
         {
             return true;
         }
@@ -25352,7 +25366,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         out PendingPaymentState? pendingPayment)
     {
         pendingPayment = null;
-        if (!TryGetIcevaleArcherAttackSource(cardObjects, playerZones, playerId, sourceObjectId, out _)
+        if (!TryGetIcevaleArcherAttackSource(
+                cardObjects,
+                playerZones,
+                playerId,
+                sourceObjectId,
+                out _,
+                out var triggerSpec)
             || !TryGetIcevaleArcherAttackTarget(
                 cardObjects,
                 playerZones,
@@ -25364,6 +25384,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var effectKind = triggerSpec.EffectKind ?? string.Empty;
+        var manaCost = triggerSpec.ManaCost.GetValueOrDefault();
+        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
             TriggerPaymentWindow,
@@ -25373,9 +25396,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             TriggerPaymentWindow,
             playerId,
-            manaCost: 1,
-            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildIcevaleArcherAttackPaymentReason(battlefieldId, sourceObjectId, targetObjectId));
+            manaCost: manaCost,
+            legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
+            reason: BuildIcevaleArcherAttackPaymentReason(effectKind, battlefieldId, sourceObjectId, targetObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 的冰谷弓箭手进攻后等待支付降低战力触发费用",
@@ -25385,19 +25408,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["paymentWindow"] = TriggerPaymentWindow,
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
-                ["trigger"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind,
+                ["trigger"] = effectKind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId,
-                ["mana"] = 1,
+                ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
                 {
-                    ["mana"] = 1,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
-                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = IcevaleArcherAttackPayOnePowerMinusOneEffectKind
+                ["paymentChoices"] = new[] { spendManaChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = effectKind
             }));
         return true;
     }
@@ -25763,36 +25786,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string playerId,
         string sourceObjectId,
-        out CardObjectState sourceState)
+        out CardObjectState sourceState,
+        out TriggerSpec triggerSpec)
     {
         sourceState = default!;
+        triggerSpec = default!;
         if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
         {
             return false;
         }
 
         sourceState = candidate;
-        return IsControlledVisibleFieldUnitWithEffectKind(
-            sourceState,
-            playerZones,
-            playerId,
-            sourceObjectId,
-            IcevaleArcherAttackPaymentSourceEffectKind);
-    }
-
-    private static bool IsControlledVisibleFieldUnitWithEffectKind(
-        CardObjectState sourceState,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string playerId,
-        string sourceObjectId,
-        string sourceEffectKind)
-    {
-        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+        return UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger(sourceState.CardNo, out triggerSpec)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            && IsObjectOnField(playerZones, sourceObjectId)
-            && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind);
+            && IsObjectOnField(playerZones, sourceObjectId);
     }
 
     private static bool TryGetIcevaleArcherAttackTarget(

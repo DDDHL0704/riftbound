@@ -30,6 +30,48 @@ internal static class UnitTriggerPaymentSpecRules
             && trigger.UnitReadyCount is > 0;
     }
 
+    public static bool TryGetUnitAttackPayPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(cardNo, TriggerKinds.UnitAttackPayPowerModifier, out trigger)
+            && IsUnitAttackPayPowerModifierTrigger(trigger);
+    }
+
+    public static bool TryGetUnitAttackPayPowerModifierTriggerByEffectKind(
+        string? effectKind,
+        out TriggerSpec trigger)
+    {
+        trigger = default!;
+        if (string.IsNullOrWhiteSpace(effectKind))
+        {
+            return false;
+        }
+
+        var match = TriggersByCardNo.Value
+            .SelectMany(entry => entry.Value)
+            .FirstOrDefault(candidate =>
+                IsUnitAttackPayPowerModifierTrigger(candidate)
+                && string.Equals(candidate.EffectKind, effectKind.Trim(), StringComparison.Ordinal));
+        if (match is null)
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
+    }
+
+    private static bool IsUnitAttackPayPowerModifierTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitAttackPayPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitAttack, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.Optional == true
+            && trigger.ManaCost is > 0
+            && trigger.PowerDelta is < 0
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(trigger.EffectKind);
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;
@@ -61,7 +103,8 @@ internal static class UnitTriggerPaymentSpecRules
             .Select(behavior => new ImplementedCardBehavior(
                 behavior.CardNo,
                 behavior.EffectKind,
-                behavior.DisplayName))
+                behavior.DisplayName,
+                CardBehaviorRegistry.TriggerEffectKinds(behavior)))
             .ToArray();
         var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
             catalog.Cards,

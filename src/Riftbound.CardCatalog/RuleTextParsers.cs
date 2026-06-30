@@ -1119,6 +1119,24 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitAttackPayPowerModifierMatch = Regex.Match(
+            segment,
+            @"当我进攻时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此让此处的一名单位在本回合内\{\{S\}\}-([0-9一两二三四五六七八九十]+)。?$",
+            RegexOptions.CultureInvariant);
+        if (unitAttackPayPowerModifierMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitAttackPayPowerModifier,
+                TriggerTimings.UnitAttack,
+                segment,
+                "Unit attack pay-power-modifier trigger parsed for trigger-payment routing; execution is available through shared unit trigger-payment TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.UnitAtThisBattlefield,
+                PowerDelta: -ParseChineseNumber(unitAttackPayPowerModifierMatch.Groups[2].Value),
+                Duration: TriggerDurations.UntilEndOfTurn,
+                ManaCost: ParseChineseNumber(unitAttackPayPowerModifierMatch.Groups[1].Value),
+                Optional: true);
+        }
+
         var unitConquestDrawOrCallRuneMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌或召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",

@@ -231,6 +231,7 @@ public sealed record CardBehaviorDefinition(
     int SourceAttackDamageToFirstDefenderAmount = 0,
     string SourceAttackDamageToFirstDefenderEffectKind = "",
     string UnitHighCostSpellPowerModifierEffectKind = "",
+    string UnitAttackPayPowerModifierEffectKind = "",
     bool GrantsFreeStandbyHidePermission = false);
 
 public static class CardDamageConditionKinds
@@ -5414,7 +5415,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 2),
+            SourceUnitPower: 2,
+            UnitAttackPayPowerModifierEffectKind: "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1"),
         new(
             "SFD·100/221",
             "约德尔探险家",
@@ -8551,6 +8553,12 @@ public static class CardBehaviorRegistry
         {
             triggerEffectKinds[TriggerKinds.UnitHighCostSpellPowerModifier] =
                 definition.UnitHighCostSpellPowerModifierEffectKind;
+        }
+
+        if (!string.IsNullOrWhiteSpace(definition.UnitAttackPayPowerModifierEffectKind))
+        {
+            triggerEffectKinds[TriggerKinds.UnitAttackPayPowerModifier] =
+                definition.UnitAttackPayPowerModifierEffectKind;
         }
 
         return triggerEffectKinds;

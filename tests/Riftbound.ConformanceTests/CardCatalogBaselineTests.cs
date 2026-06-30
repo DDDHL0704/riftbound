@@ -8,6 +8,8 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class CardCatalogBaselineTests
 {
+    private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
+
     [Fact]
     public async Task OfficialCatalogLoadsAllSnapshotCards()
     {
@@ -1985,6 +1987,21 @@ public sealed class CardCatalogBaselineTests
             Assert.Contains("支付{{黄色}}", trigger.Text, StringComparison.Ordinal);
             Assert.Contains("让其变为活跃状态", trigger.Text, StringComparison.Ordinal);
         }
+
+        var icevale = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-065/219", StringComparison.Ordinal));
+        var icevaleTrigger = Assert.Single(
+            icevale.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitAttackPayPowerModifier, StringComparison.Ordinal));
+        Assert.Equal(TriggerTimings.UnitAttack, icevaleTrigger.Timing);
+        Assert.Equal(TriggerTargetScopes.UnitAtThisBattlefield, icevaleTrigger.TargetScope);
+        Assert.Equal(1, icevaleTrigger.ManaCost);
+        Assert.Equal(-1, icevaleTrigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, icevaleTrigger.Duration);
+        Assert.True(icevaleTrigger.Optional);
+        Assert.Equal(IcevaleTrigger, icevaleTrigger.EffectKind);
+        Assert.Contains("当我进攻时", icevaleTrigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", icevaleTrigger.Text, StringComparison.Ordinal);
+        Assert.Contains("{{S}}-1", icevaleTrigger.Text, StringComparison.Ordinal);
     }
 
     [Fact]

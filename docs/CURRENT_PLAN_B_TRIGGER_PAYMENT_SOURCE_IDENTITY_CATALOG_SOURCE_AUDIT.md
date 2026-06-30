@@ -7,9 +7,11 @@
 
 2026-06-26 补充：同一 trigger-payment source identity 口径扩展到 OGN Vayne conquer-recall 与 Icevale Archer attack-payment 代表路径。`TryGetOgnVayneConquerRecallSource` / `TryGetIcevaleArcherAttackSource` 当时不再直接比较 `sourceState.CardNo` 与 `OgnVayneCardNo` / `IcevaleArcherCardNo`，而是共用 `IsControlledVisibleFieldUnitWithEffectKind`，通过 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` 消费 `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` 与 `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`；仍要求来源为正面单位、非 standby、由当前玩家控制或 legacy-owned、且在场。本补充不关闭完整 Assault3、完整攻击触发支付目标选择、完整 battle lifecycle、完整 PaymentEngine / PAY_COST breadth 或 READY。
 
-2026-06-27 补充：Vayne conquer-recall representative source identity 已进一步迁移到 B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec / `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)` 路径；`OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` 不再作为 `CoreRuleEngine` 的 Vayne trigger-payment source selector。Icevale Archer attack-payment 仍保留本文件记录的 catalog source-effect route。
+2026-06-27 补充：Vayne conquer-recall representative source identity 已进一步迁移到 B3 unit-conquest `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` BehaviorSpec / `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)` 路径；`OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` 不再作为 `CoreRuleEngine` 的 Vayne trigger-payment source selector。
 
-2026-06-27 补充：Jax weapon-attach 与 Fiora powerful-ready representative source identity 也已进一步迁移到 unit trigger-payment `BehaviorSpec.Triggers` 路径，审计入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再使用 `SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` / `SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` 或 `SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT` / `SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT` 作为 Jax / Fiora trigger-payment source selectors；Icevale Archer attack-payment 仍保留本文件记录的 catalog source-effect route。
+2026-06-27 补充：Jax weapon-attach 与 Fiora powerful-ready representative source identity 也已进一步迁移到 unit trigger-payment `BehaviorSpec.Triggers` 路径，审计入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_UNIT_TRIGGER_PAYMENT_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再使用 `SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` / `SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT` 或 `SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT` / `SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT` 作为 Jax / Fiora trigger-payment source selectors。
+
+2026-06-30 补充：Icevale Archer attack-payment 也已迁移到 `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec 路径，审计入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再使用 `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT` 或 `IcevaleArcherAttackPaymentSourceEffectKind` 作为 Icevale source selector。
 
 ## 1. Scope
 
@@ -112,5 +114,5 @@ Result: 8554/8554 passed.
 
 - This does not broaden Jax attach / detach / reattach lifecycle semantics.
 - This does not broaden Fiora full official timing, optionality, or multi-source payment edge cases.
-- `CardBehaviorRegistry` remains the data source for currently implemented card behavior rows; missing official printings still require catalog/registry data, not engine rule branching.
+- `CardBehaviorRegistry` remains the data source for currently implemented card behavior rows and trigger effect metadata; missing official printings still require catalog/registry data, not engine rule branching.
 - Project remains **NOT READY**.
