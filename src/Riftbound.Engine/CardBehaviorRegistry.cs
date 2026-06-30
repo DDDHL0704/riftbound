@@ -202,7 +202,10 @@ public sealed record CardBehaviorDefinition(
     int SourceStealEnemyEquipmentAdditionalPowerCost = 0,
     string SourceStealEnemyEquipmentAdditionalPowerTrait = "",
     string SourceStealEnemyEquipmentOptionalCostPrefix = "",
-    string SourceStealEnemyEquipmentReason = "");
+    string SourceStealEnemyEquipmentReason = "",
+    string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
+    int ConditionalSourceUnitPowerBonus = 0,
+    string ConditionalSourceUnitTags = "");
 
 public static class CardDamageConditionKinds
 {
@@ -309,6 +312,14 @@ public static class CardSourceReadyConditionKinds
 {
     public const string None = "NONE";
     public const string ControllerPlayedSpellThisTurn = "CONTROLLER_PLAYED_SPELL_THIS_TURN";
+}
+
+public static class CardConditionalSourceUnitConditionKinds
+{
+    public const string None = "NONE";
+    public const string ControllerPlayedFourPlusCostSpellThisTurn = "CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN";
+    public const string ControllerGainedExperienceThisTurn = "CONTROLLER_GAINED_EXPERIENCE_THIS_TURN";
+    public const string ControllerDiscardedHandCardThisTurn = "CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN";
 }
 
 public static class CardTargetCountConditionKinds
@@ -4905,7 +4916,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 1),
+            SourceUnitPower: 1,
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn,
+            ConditionalSourceUnitPowerBonus: 4),
         new(
             "UNL-108/219",
             "狡猾的蝾螈",
@@ -4914,7 +4927,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn,
+            ConditionalSourceUnitPowerBonus: 1,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam),
         new(
             "OGN·019/298",
             "肆虐狂魂",
@@ -4924,7 +4940,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Assault + "|" + CardCombatKeywordNames.Roam),
         new(
             "OGN·232/298",
             "菲奥娜",

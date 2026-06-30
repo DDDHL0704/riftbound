@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for removing direct Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan card-number checks from current play-behavior representatives. The 2026-06-27 follow-up covers the Akshan orange-extra equipment-steal stack resolution source revalidation path. The 2026-06-29 follow-up further moves Crescent Guard's ready optional-cost selector and Akshan's orange-extra enemy-equipment steal selector from catalog effect ids to behavior fields. The 2026-06-30 follow-up moves Armed Assaulter's Haste + Tempered optional-cost selector from a runtime catalog effect id to Haste ready behavior fields plus the Tempered representative boundary.
+This file records concrete evidence for removing direct Raging Drake, Poro Herder, Balanced Disciple, Crescent Guard, Ascended Believer, Sly Salamander, Rampaging Soul, Armed Assaulter, and Akshan card-number checks from current play-behavior representatives. The 2026-06-27 follow-up covers the Akshan orange-extra equipment-steal stack resolution source revalidation path. The 2026-06-29 follow-up further moves Crescent Guard's ready optional-cost selector and Akshan's orange-extra enemy-equipment steal selector from catalog effect ids to behavior fields. The 2026-06-30 follow-up moves Armed Assaulter's Haste + Tempered optional-cost selector from a runtime catalog effect id to Haste ready behavior fields plus the Tempered representative boundary, and moves Ascended Believer / Sly Salamander / Rampaging Soul conditional source-unit power/tags selectors to conditional behavior fields.
 
 ## Runtime Evidence
 
@@ -18,11 +18,11 @@ This file records concrete evidence for removing direct Raging Drake, Poro Herde
 - The Crescent Guard payment branch still requires controller played-spell turn memory, still parses `SPEND_POWER:purple:1`, and still rejects the optional cost without the service-authoritative spell memory.
 - `MatchSession` now validates the Crescent Guard ActionPrompt optional-cost source branch through the same source-ready behavior fields.
 - The Crescent Guard prompt branch still requires `PromptPlayerPlayedSpellThisTurn` through `CardSourceReadyConditionKinds.ControllerPlayedSpellThisTurn` and still exposes purple payment metadata only when current or recyclable purple resources can pay the optional cost.
-- `CoreRuleEngine` now validates the Ascended Believer conditional power branch through `behavior.EffectKind` using `ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT`.
+- `CoreRuleEngine` now validates the Ascended Believer conditional power branch through `ConditionalSourceUnitConditionKind=CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN` and `ConditionalSourceUnitPowerBonus=4`.
 - The Ascended Believer branch still requires `PlayerPlayedFourPlusCostSpellThisTurn` before granting +4 power.
-- `CoreRuleEngine` now validates the Sly Salamander conditional power / keyword branch through `behavior.EffectKind` using `SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT`.
+- `CoreRuleEngine` now validates the Sly Salamander conditional power / keyword branch through `ConditionalSourceUnitConditionKind=CONTROLLER_GAINED_EXPERIENCE_THIS_TURN`, `ConditionalSourceUnitPowerBonus=1`, and `ConditionalSourceUnitTags=游走`.
 - The Sly Salamander branch still requires `PlayerGainedExperienceThisTurn` before granting +1 power and roam.
-- `CoreRuleEngine` now validates the Rampaging Soul conditional keyword branch through `behavior.EffectKind` using `RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT`.
+- `CoreRuleEngine` now validates the Rampaging Soul conditional keyword branch through `ConditionalSourceUnitConditionKind=CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN` and `ConditionalSourceUnitTags=强攻|游走`.
 - The Rampaging Soul branch still requires `PlayerDiscardedHandCardThisTurn` before granting assault and roam.
 - `CoreRuleEngine` now validates the Armed Assaulter haste / tempered optional-cost representative source branch through `PlaysSourceToBaseAsUnit`, `HasHasteReadyEntryCost(behavior)`, and `CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo)`.
 - The Armed Assaulter branch no longer contains `ArmedAssaulterHasteTemperedSourceEffectKind` or the `ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE` runtime selector; it still defers Haste math and Tempered choice legality to the existing optional-cost and equipment-choice checks.

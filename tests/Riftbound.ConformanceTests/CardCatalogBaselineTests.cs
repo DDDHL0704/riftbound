@@ -6966,6 +6966,33 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void ConditionalSourceUnitPowerAndTagsCarryOfficialTurnMemoryFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-004/219", out var ascendedBeliever));
+        Assert.Equal(
+            CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn,
+            ascendedBeliever.ConditionalSourceUnitConditionKind);
+        Assert.Equal(4, ascendedBeliever.ConditionalSourceUnitPowerBonus);
+        Assert.Equal(string.Empty, ascendedBeliever.ConditionalSourceUnitTags);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-108/219", out var slySalamander));
+        Assert.Equal(
+            CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn,
+            slySalamander.ConditionalSourceUnitConditionKind);
+        Assert.Equal(1, slySalamander.ConditionalSourceUnitPowerBonus);
+        Assert.Equal(CardCombatKeywordNames.Roam, slySalamander.ConditionalSourceUnitTags);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·019/298", out var rampagingSoul));
+        Assert.Equal(
+            CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn,
+            rampagingSoul.ConditionalSourceUnitConditionKind);
+        Assert.Equal(0, rampagingSoul.ConditionalSourceUnitPowerBonus);
+        Assert.Equal(
+            CardCombatKeywordNames.Assault + "|" + CardCombatKeywordNames.Roam,
+            rampagingSoul.ConditionalSourceUnitTags);
+    }
+
+    [Fact]
     public async Task P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

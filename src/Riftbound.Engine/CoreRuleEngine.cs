@@ -113,9 +113,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string AscendedBelieverConditionalSourceEffectKind = "ASCENDED_BELIEVER_NO_SPELL_VANILLA_PLAY_UNIT";
-    private const string SlySalamanderConditionalSourceEffectKind = "SLY_SALAMANDER_NO_EXPERIENCE_VANILLA_PLAY_UNIT";
-    private const string RampagingSoulConditionalSourceEffectKind = "RAMPAGING_SOUL_NO_DISCARD_SPIRIT_PLAY_UNIT";
     private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
@@ -40949,19 +40946,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
-        if (string.Equals(behavior.EffectKind, SlySalamanderConditionalSourceEffectKind, StringComparison.Ordinal)
-            && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId))
+        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects))
         {
-            return [CardCombatKeywordNames.Roam];
+            return [];
         }
 
-        if (string.Equals(behavior.EffectKind, RampagingSoulConditionalSourceEffectKind, StringComparison.Ordinal)
-            && PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId))
-        {
-            return [CardCombatKeywordNames.Assault, CardCombatKeywordNames.Roam];
-        }
-
-        return [];
+        return ParseDelimitedValues(behavior.ConditionalSourceUnitTags);
     }
 
     private static int ResolveConditionalSourceUnitPowerBonus(
@@ -40969,16 +40959,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
-        if (string.Equals(behavior.EffectKind, AscendedBelieverConditionalSourceEffectKind, StringComparison.Ordinal)
-            && PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId))
-        {
-            return 4;
-        }
+        return ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects)
+            ? behavior.ConditionalSourceUnitPowerBonus
+            : 0;
+    }
 
-        return string.Equals(behavior.EffectKind, SlySalamanderConditionalSourceEffectKind, StringComparison.Ordinal)
-            && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId)
-                ? 1
-                : 0;
+    private static bool ConditionalSourceUnitConditionApplies(
+        CardBehaviorDefinition behavior,
+        string controllerId,
+        IReadOnlyList<string> untilEndOfTurnEffects)
+    {
+        return behavior.ConditionalSourceUnitConditionKind switch
+        {
+            CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn =>
+                PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId),
+            CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn =>
+                PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId),
+            CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn =>
+                PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId),
+            _ => false
+        };
     }
 
     private static int ResolveFriendlyEquipmentStaticPowerBonus(
