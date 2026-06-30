@@ -80,7 +80,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
-    public void BalancedDiscipleOtherPowerDrawPlaySourceUsesCatalogEffectKind()
+    public void BalancedDiscipleOtherPowerDrawPlaySourceUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -90,11 +90,12 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
 
         Assert.DoesNotContain("BalancedDiscipleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, BalancedDiscipleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("BalancedDiscipleOtherPowerDrawSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, BalancedDiscipleOtherPowerDrawSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
+        Assert.DoesNotContain("BalancedDiscipleOtherPowerDrawSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceDrawConditionKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceDrawCount", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceDrawRequiredOtherControlledUnitPower", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardSourceDrawConditionKinds.OtherControlledUnitPowerAtLeast", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

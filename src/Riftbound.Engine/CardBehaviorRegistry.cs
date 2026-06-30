@@ -205,7 +205,10 @@ public sealed record CardBehaviorDefinition(
     string SourceStealEnemyEquipmentReason = "",
     string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
     int ConditionalSourceUnitPowerBonus = 0,
-    string ConditionalSourceUnitTags = "");
+    string ConditionalSourceUnitTags = "",
+    string SourceDrawConditionKind = CardSourceDrawConditionKinds.None,
+    int SourceDrawCount = 0,
+    int SourceDrawRequiredOtherControlledUnitPower = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -312,6 +315,12 @@ public static class CardSourceReadyConditionKinds
 {
     public const string None = "NONE";
     public const string ControllerPlayedSpellThisTurn = "CONTROLLER_PLAYED_SPELL_THIS_TURN";
+}
+
+public static class CardSourceDrawConditionKinds
+{
+    public const string None = "NONE";
+    public const string OtherControlledUnitPowerAtLeast = "OTHER_CONTROLLED_UNIT_POWER_AT_LEAST";
 }
 
 public static class CardConditionalSourceUnitConditionKinds
@@ -4960,7 +4969,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            SourceDrawConditionKind: CardSourceDrawConditionKinds.OtherControlledUnitPowerAtLeast,
+            SourceDrawCount: 1,
+            SourceDrawRequiredOtherControlledUnitPower: 5),
         new(
             "UNL-122/219",
             "新月禁卫",

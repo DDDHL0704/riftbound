@@ -113,7 +113,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string BalancedDiscipleOtherPowerDrawSourceEffectKind = "BALANCED_DISCIPLE_NO_OTHER_POWER_VANILLA_PLAY_UNIT";
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
@@ -34966,19 +34965,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 rngCursor = drawApplication.RngCursor;
             }
 
-            if (string.Equals(behavior.EffectKind, BalancedDiscipleOtherPowerDrawSourceEffectKind, StringComparison.Ordinal)
-                && SumOtherControlledUnitPower(
+            if (TryResolveSourceUnitConditionalDraw(
                     playerZones,
                     cardObjects,
-                    stackItem.ControllerId,
-                    stackItem.SourceObjectId) >= PowerfulUnitPowerThreshold)
+                    behavior,
+                    stackItem,
+                    out var conditionalSourceDrawCount))
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
                     playerZones,
                     playerScores,
                     stackItem.ControllerId,
-                    1,
+                    conditionalSourceDrawCount,
                     rngCursor,
                     events);
                 playerScores = drawApplication.PlayerScores;
@@ -40979,6 +40978,39 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId),
             _ => false
         };
+    }
+
+    private static bool TryResolveSourceUnitConditionalDraw(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        out int drawCount)
+    {
+        drawCount = 0;
+        if (behavior.SourceDrawCount <= 0)
+        {
+            return false;
+        }
+
+        var conditionApplies = behavior.SourceDrawConditionKind switch
+        {
+            CardSourceDrawConditionKinds.OtherControlledUnitPowerAtLeast =>
+                behavior.SourceDrawRequiredOtherControlledUnitPower > 0
+                && SumOtherControlledUnitPower(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    stackItem.SourceObjectId) >= behavior.SourceDrawRequiredOtherControlledUnitPower,
+            _ => false
+        };
+        if (!conditionApplies)
+        {
+            return false;
+        }
+
+        drawCount = behavior.SourceDrawCount;
+        return true;
     }
 
     private static int ResolveFriendlyEquipmentStaticPowerBonus(

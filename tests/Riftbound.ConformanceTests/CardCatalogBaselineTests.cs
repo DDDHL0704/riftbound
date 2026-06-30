@@ -6993,6 +6993,17 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BalancedDiscipleSourceDrawCarriesOfficialOtherPowerCondition()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-097/219", out var balancedDisciple));
+        Assert.Equal(
+            CardSourceDrawConditionKinds.OtherControlledUnitPowerAtLeast,
+            balancedDisciple.SourceDrawConditionKind);
+        Assert.Equal(1, balancedDisciple.SourceDrawCount);
+        Assert.Equal(5, balancedDisciple.SourceDrawRequiredOtherControlledUnitPower);
+    }
+
+    [Fact]
     public async Task P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
