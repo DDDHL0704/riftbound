@@ -44,21 +44,29 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
-    public void RagingDrakeNextSpellCostPlaySourceUsesCatalogEffectKind()
+    public void RagingDrakeNextSpellCostPlaySourceUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
 
         Assert.DoesNotContain("RagingDrakeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, RagingDrakeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("RagingDrakeNextSpellCostSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, RagingDrakeNextSpellCostSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
+        Assert.DoesNotContain("RagingDrakeNextSpellCostSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RagingDrakeNextSpellCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RagingDrakeNextSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceNextSpellCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceNextSpellCostReductionEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SourceNextSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("SourceNextSpellCostReductionEffectKind", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -168,6 +168,8 @@ public sealed record CardBehaviorDefinition(
     int LevelSourceUnitPowerBonus = 0,
     string LevelSourceUnitTags = "",
     int LevelDrawOnPlayCount = 0,
+    int SourceNextSpellCostReductionMana = 0,
+    string SourceNextSpellCostReductionEffectKind = "",
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
     string SourceBoonRequiredControlledUnitTag = "",
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
@@ -4168,7 +4170,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "龙"),
+            SourceUnitTags: "龙",
+            SourceNextSpellCostReductionMana: 5,
+            SourceNextSpellCostReductionEffectKind: "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION"),
         new(
             "OGN·056/298",
             "自适应机器人",
@@ -8531,6 +8535,26 @@ public static class CardBehaviorRegistry
             candidate.EffectKind,
             effectKind,
             StringComparison.Ordinal));
+        if (candidate is null)
+        {
+            definition = default!;
+            return false;
+        }
+
+        definition = ApplyLifecycleKeywordDefaults(candidate);
+        return true;
+    }
+
+    public static bool TryGetSourceNextSpellCostReductionByEffectKind(
+        string effectKind,
+        out CardBehaviorDefinition definition)
+    {
+        var candidate = Definitions.FirstOrDefault(candidate =>
+            candidate.SourceNextSpellCostReductionMana > 0
+            && string.Equals(
+                candidate.SourceNextSpellCostReductionEffectKind,
+                effectKind,
+                StringComparison.Ordinal));
         if (candidate is null)
         {
             definition = default!;

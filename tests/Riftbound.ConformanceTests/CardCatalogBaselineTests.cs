@@ -7029,6 +7029,16 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void RagingDrakeSourceNextSpellCostReductionCarriesOfficialAmount()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·031/298", out var ragingDrake));
+        Assert.Equal(5, ragingDrake.SourceNextSpellCostReductionMana);
+        Assert.Equal(
+            "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION",
+            ragingDrake.SourceNextSpellCostReductionEffectKind);
+    }
+
+    [Fact]
     public async Task P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

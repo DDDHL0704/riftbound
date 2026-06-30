@@ -161,8 +161,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
-    private const string RagingDrakeNextSpellCostSourceEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_PLAY_UNIT";
-    private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
     private const int DragonCallerUnitCostReductionMana = 2;
     private const int DragonCallerMinimumUnitManaCost = 1;
@@ -175,8 +173,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
     private const string BlueSentinelDelayedTriggerIdPrefix = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
-    private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
-    private const string RagingDrakeNextSpellCostReductionEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION";
     private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
     private const string BattlefieldDestroyedInBattleRecallEffectId =
         StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement;
@@ -5013,12 +5009,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 untilEndOfTurnEffects,
                 BuildBattlefieldHeldNextSpellEchoEffectId(intent.PlayerId));
         }
-        var nextSpellCostReductionConsumedEffectIds = IsSpellPlayBehavior(behavior)
-            ? RagingDrakeNextSpellCostReductionEffectIds(state, intent.PlayerId)
-            : Array.Empty<string>();
-        foreach (var effectId in nextSpellCostReductionConsumedEffectIds)
+        var nextSpellCostReductionConsumedEffects = IsSpellPlayBehavior(behavior)
+            ? SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+            : Array.Empty<SourceNextSpellCostReductionEffect>();
+        foreach (var effect in nextSpellCostReductionConsumedEffects)
         {
-            untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
+            untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effect.EffectId);
         }
         var nextState = state with
         {
@@ -5123,19 +5119,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectRepeatCount"] = plan.EffectRepeatCount
                 }));
         }
-        if (nextSpellCostReductionConsumedEffectIds.Count > 0)
+        if (nextSpellCostReductionConsumedEffects.Count > 0)
         {
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 的狂暴龙怪减免下一张法术",
+                $"{intent.PlayerId} 的下一张法术费用减免效果已应用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["trigger"] = RagingDrakeNextSpellCostReductionEffectKind,
+                    ["trigger"] = nextSpellCostReductionConsumedEffects[0].EffectKind,
                     ["playedCardNo"] = command.CardNo,
                     ["playedSourceObjectId"] = command.SourceObjectId,
                     ["costReductionMana"] = plan.NextSpellCostReductionMana,
-                    ["effectIds"] = nextSpellCostReductionConsumedEffectIds.ToArray()
+                    ["effectIds"] = nextSpellCostReductionConsumedEffects
+                        .Select(effect => effect.EffectId)
+                        .ToArray()
                 }));
         }
         IReadOnlyDictionary<string, int> playerScores = state.PlayerScores;
@@ -6372,11 +6370,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldHeldNextSpellEchoEffectPrefix}{playerId}";
     }
 
-    private static string BuildRagingDrakeNextSpellCostReductionEffectId(
+    private static string BuildSourceNextSpellCostReductionEffectId(
+        CardBehaviorDefinition behavior,
         string playerId,
         string sourceObjectId)
     {
-        return $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:{sourceObjectId}";
+        return $"{behavior.SourceNextSpellCostReductionEffectKind}:{playerId}:{sourceObjectId}";
     }
 
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
@@ -6439,16 +6438,93 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
-    private static IReadOnlyList<string> RagingDrakeNextSpellCostReductionEffectIds(
+    private static IReadOnlyList<SourceNextSpellCostReductionEffect> SourceNextSpellCostReductionEffects(
         MatchState state,
         string playerId)
     {
-        var effectPrefix = $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:";
         return state.UntilEndOfTurnEffects
-            .Where(effectId => effectId.StartsWith(effectPrefix, StringComparison.Ordinal))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .Select(effectId => TryParseSourceNextSpellCostReductionEffect(
+                state,
+                playerId,
+                effectId,
+                out var effect)
+                    ? effect
+                    : null)
+            .OfType<SourceNextSpellCostReductionEffect>()
+            .GroupBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderBy(effect => effect.EffectId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static bool TryParseSourceNextSpellCostReductionEffect(
+        MatchState state,
+        string playerId,
+        string effectId,
+        out SourceNextSpellCostReductionEffect effect)
+    {
+        effect = default!;
+        var firstSeparatorIndex = effectId.IndexOf(':', StringComparison.Ordinal);
+        if (firstSeparatorIndex <= 0)
+        {
+            return false;
+        }
+
+        var secondSeparatorIndex = effectId.IndexOf(':', firstSeparatorIndex + 1);
+        if (secondSeparatorIndex <= firstSeparatorIndex + 1
+            || secondSeparatorIndex >= effectId.Length - 1)
+        {
+            return false;
+        }
+
+        var effectKind = effectId[..firstSeparatorIndex];
+        var effectPlayerId = effectId[(firstSeparatorIndex + 1)..secondSeparatorIndex];
+        if (!string.Equals(effectPlayerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var sourceObjectId = effectId[(secondSeparatorIndex + 1)..];
+        if (!TryGetSourceNextSpellCostReductionBehavior(
+                state,
+                sourceObjectId,
+                effectKind,
+                out var behavior)
+            || behavior.SourceNextSpellCostReductionMana <= 0)
+        {
+            return false;
+        }
+
+        effect = new SourceNextSpellCostReductionEffect(
+            effectId,
+            effectKind,
+            sourceObjectId,
+            behavior.SourceNextSpellCostReductionMana);
+        return true;
+    }
+
+    private static bool TryGetSourceNextSpellCostReductionBehavior(
+        MatchState state,
+        string sourceObjectId,
+        string effectKind,
+        out CardBehaviorDefinition behavior)
+    {
+        if (state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            && !string.IsNullOrWhiteSpace(sourceState.CardNo)
+            && CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo, out var sourceBehavior)
+            && sourceBehavior.SourceNextSpellCostReductionMana > 0
+            && string.Equals(
+                sourceBehavior.SourceNextSpellCostReductionEffectKind,
+                effectKind,
+                StringComparison.Ordinal))
+        {
+            behavior = sourceBehavior;
+            return true;
+        }
+
+        return CardBehaviorRegistry.TryGetSourceNextSpellCostReductionByEffectKind(
+            effectKind,
+            out behavior);
     }
 
     private static IReadOnlyList<string> MarkRengarUnitPlayedTriggerTarget(
@@ -27556,7 +27632,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             behavior,
             costReductionMana + optionalCostManaReduction + battlefieldEquipmentCostReductionMana);
-        var nextSpellCostReductionMana = ResolveRagingDrakeNextSpellCostReductionMana(
+        var nextSpellCostReductionMana = ResolveSourceNextSpellCostReductionMana(
             state,
             intent.PlayerId,
             behavior,
@@ -33289,7 +33365,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && HasDelimitedTag(behavior.SourceUnitTags, "龙");
     }
 
-    private static int ResolveRagingDrakeNextSpellCostReductionMana(
+    private static int ResolveSourceNextSpellCostReductionMana(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
@@ -33301,15 +33377,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        var effectCount = RagingDrakeNextSpellCostReductionEffectIds(state, playerId).Count;
-        if (effectCount == 0)
+        var totalReductionMana = SourceNextSpellCostReductionEffects(state, playerId)
+            .Sum(effect => effect.Mana);
+        if (totalReductionMana == 0)
         {
             return 0;
         }
 
         var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
         return Math.Min(
-            effectCount * RagingDrakeNextSpellCostReductionMana,
+            totalReductionMana,
             baseManaAfterExistingReductions);
     }
 
@@ -34943,22 +35020,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem));
 
-            if (string.Equals(behavior.EffectKind, RagingDrakeNextSpellCostSourceEffectKind, StringComparison.Ordinal))
+            if (behavior.SourceNextSpellCostReductionMana > 0
+                && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))
             {
-                var effectId = BuildRagingDrakeNextSpellCostReductionEffectId(
+                var effectId = BuildSourceNextSpellCostReductionEffectId(
+                    behavior,
                     stackItem.ControllerId,
                     stackItem.SourceObjectId);
                 untilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId).ToList();
                 events.Add(new GameEvent(
                     "TRIGGER_RESOLVED",
-                    $"{stackItem.ControllerId} 的狂暴龙怪使下一张法术费用减少 5",
+                    $"{stackItem.ControllerId} 的{behavior.DisplayName}使下一张法术费用减少 {behavior.SourceNextSpellCostReductionMana}",
                     new Dictionary<string, object?>
                     {
                         ["playerId"] = stackItem.ControllerId,
                         ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["effectKind"] = RagingDrakeNextSpellCostReductionEffectKind,
+                        ["effectKind"] = behavior.SourceNextSpellCostReductionEffectKind,
                         ["effectId"] = effectId,
-                        ["amount"] = RagingDrakeNextSpellCostReductionMana
+                        ["amount"] = behavior.SourceNextSpellCostReductionMana
                     }));
             }
 
@@ -47473,6 +47552,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         int LuxSpellOnlyRemainingMana,
         string RengarUnitPlayedTargetObjectId,
         string LeonaStunBoonTargetObjectId);
+
+    private sealed record SourceNextSpellCostReductionEffect(
+        string EffectId,
+        string EffectKind,
+        string SourceObjectId,
+        int Mana);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

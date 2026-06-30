@@ -6717,7 +6717,6 @@ internal static class ActionPromptBuilder
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
     private const int DragonCallerUnitCostReductionMana = 2;
     private const int DragonCallerMinimumUnitManaCost = 1;
@@ -6739,6 +6738,12 @@ internal static class ActionPromptBuilder
         IReadOnlyList<string> RequiredOptionalCosts,
         bool Composable,
         string? UnsupportedReason);
+
+    private sealed record SourceNextSpellCostReductionPromptEffect(
+        string EffectId,
+        string EffectKind,
+        string SourceObjectId,
+        int Mana);
 
     private sealed record HideCardPromptRequirement(
         string SourceObjectId,
@@ -6894,7 +6899,6 @@ internal static class ActionPromptBuilder
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "");
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
-    private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
     private const string YasuoLegendAbilityId = LegendActionAbilityCatalog.YasuoLegendAbilityId;
@@ -15163,18 +15167,106 @@ internal static class ActionPromptBuilder
             return 0;
         }
 
-        var effectPrefix = $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:";
-        var effectCount = state.UntilEndOfTurnEffects
-            .Count(effectId => effectId.StartsWith(effectPrefix, StringComparison.Ordinal));
-        if (effectCount == 0)
+        var totalReductionMana = PromptSourceNextSpellCostReductionEffects(state, playerId)
+            .Sum(effect => effect.Mana);
+        if (totalReductionMana == 0)
         {
             return 0;
         }
 
         var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
         return Math.Min(
-            effectCount * RagingDrakeNextSpellCostReductionMana,
+            totalReductionMana,
             baseManaAfterExistingReductions);
+    }
+
+    private static IReadOnlyList<SourceNextSpellCostReductionPromptEffect> PromptSourceNextSpellCostReductionEffects(
+        MatchState state,
+        string playerId)
+    {
+        return state.UntilEndOfTurnEffects
+            .Select(effectId => TryParsePromptSourceNextSpellCostReductionEffect(
+                state,
+                playerId,
+                effectId,
+                out var effect)
+                    ? effect
+                    : null)
+            .OfType<SourceNextSpellCostReductionPromptEffect>()
+            .GroupBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool TryParsePromptSourceNextSpellCostReductionEffect(
+        MatchState state,
+        string playerId,
+        string effectId,
+        out SourceNextSpellCostReductionPromptEffect effect)
+    {
+        effect = default!;
+        var firstSeparatorIndex = effectId.IndexOf(':', StringComparison.Ordinal);
+        if (firstSeparatorIndex <= 0)
+        {
+            return false;
+        }
+
+        var secondSeparatorIndex = effectId.IndexOf(':', firstSeparatorIndex + 1);
+        if (secondSeparatorIndex <= firstSeparatorIndex + 1
+            || secondSeparatorIndex >= effectId.Length - 1)
+        {
+            return false;
+        }
+
+        var effectKind = effectId[..firstSeparatorIndex];
+        var effectPlayerId = effectId[(firstSeparatorIndex + 1)..secondSeparatorIndex];
+        if (!string.Equals(effectPlayerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var sourceObjectId = effectId[(secondSeparatorIndex + 1)..];
+        if (!TryGetPromptSourceNextSpellCostReductionBehavior(
+                state,
+                sourceObjectId,
+                effectKind,
+                out var sourceBehavior)
+            || sourceBehavior.SourceNextSpellCostReductionMana <= 0)
+        {
+            return false;
+        }
+
+        effect = new SourceNextSpellCostReductionPromptEffect(
+            effectId,
+            effectKind,
+            sourceObjectId,
+            sourceBehavior.SourceNextSpellCostReductionMana);
+        return true;
+    }
+
+    private static bool TryGetPromptSourceNextSpellCostReductionBehavior(
+        MatchState state,
+        string sourceObjectId,
+        string effectKind,
+        out CardBehaviorDefinition behavior)
+    {
+        if (state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            && !string.IsNullOrWhiteSpace(sourceState.CardNo)
+            && CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo, out var sourceBehavior)
+            && sourceBehavior.SourceNextSpellCostReductionMana > 0
+            && string.Equals(
+                sourceBehavior.SourceNextSpellCostReductionEffectKind,
+                effectKind,
+                StringComparison.Ordinal))
+        {
+            behavior = sourceBehavior;
+            return true;
+        }
+
+        return CardBehaviorRegistry.TryGetSourceNextSpellCostReductionByEffectKind(
+            effectKind,
+            out behavior);
     }
 
     private static int PromptBattlefieldSpellCostReductionMana(
