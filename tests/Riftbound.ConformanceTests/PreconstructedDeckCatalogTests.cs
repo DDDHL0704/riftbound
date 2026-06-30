@@ -19,6 +19,11 @@ public sealed class PreconstructedDeckCatalogTests
     private const string VexChampionCardNo = "UNL-055/219";
     private const string CardTrickCardNo = "OGN·183/298";
     private const string FlowingTimeMirrorCardNo = "OGN·180/298";
+    private const string PoppyStandbyDeckId = "poppy-standby";
+    private const string PoppyLegendCardNo = "UNL-203/219";
+    private const string PoppyChampionCardNo = "UNL-116/219";
+    private const string PakaaCubCardNo = "OGN·135/298";
+    private const string BandleTreeCardNo = "OGN·278/298";
 
     [Fact]
     public async Task BuildReturnsAtLeastThreeDistinctPreconstructedDecks()
@@ -82,6 +87,21 @@ public sealed class PreconstructedDeckCatalogTests
         Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
         Assert.Contains(CardTrickCardNo, deck.Decklist.MainDeck);
         Assert.Contains(FlowingTimeMirrorCardNo, deck.Decklist.MainDeck);
+    }
+
+    [Fact]
+    public async Task BuildIncludesPoppyStandbyDeckForStandbyAndBattlefieldDestinationCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, PoppyStandbyDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(PoppyLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(PoppyChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(PakaaCubCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(BandleTreeCardNo, deck.Decklist.Battlefields);
     }
 
     [Fact]

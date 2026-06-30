@@ -41,7 +41,15 @@ public static class PreconstructedDeckCatalog
             "加入迅捷与高费法术代表，覆盖服务端法术栈结算路径。",
             "UNL-232/219",
             "UNL-055/219",
-            ["OGN·183/298", "OGN·180/298"])
+            ["OGN·183/298", "OGN·180/298"]),
+        new(
+            "poppy-standby",
+            "班德尔待命 · 波比",
+            "加入待命单位与班德尔树，覆盖服务端待命布置路径。",
+            "UNL-203/219",
+            "UNL-116/219",
+            ["OGN·135/298"],
+            ["OGN·278/298"])
     ];
 
     public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)
@@ -60,7 +68,8 @@ public static class PreconstructedDeckCatalog
                 cardsByNo,
                 definition.LegendCardNo,
                 definition.ChampionCardNo,
-                definition.RequiredMainDeckCardNos ?? []);
+                definition.RequiredMainDeckCardNos ?? [],
+                definition.RequiredBattlefieldCardNos ?? []);
             var validation = OfficialDeckValidator.Validate(decklist, catalog);
             if (!validation.IsValid)
             {
@@ -79,7 +88,8 @@ public static class PreconstructedDeckCatalog
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         string legendCardNo,
         string championCardNo,
-        IReadOnlyList<string> requiredMainDeckCardNos)
+        IReadOnlyList<string> requiredMainDeckCardNos,
+        IReadOnlyList<string> requiredBattlefieldCardNos)
     {
         var legend = cardsByNo[legendCardNo];
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
@@ -153,16 +163,68 @@ public static class PreconstructedDeckCatalog
             .Take(OfficialDeckValidator.RuneDeckCount)
             .ToArray();
 
-        var battlefields = catalog.Cards
+        var battlefields = BuildBattlefields(catalog, cardsByNo, requiredBattlefieldCardNos);
+
+        return new OfficialDecklist(legendCardNo, championCardNo, mainDeck, runeDeck, battlefields);
+    }
+
+    private static string[] BuildBattlefields(
+        OfficialCardCatalog catalog,
+        IReadOnlyDictionary<string, OfficialCard> cardsByNo,
+        IReadOnlyList<string> requiredBattlefieldCardNos)
+    {
+        var selected = new List<OfficialCard>(OfficialDeckValidator.BattlefieldCount);
+        var selectedNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var cardNo in requiredBattlefieldCardNos)
+        {
+            if (!cardsByNo.TryGetValue(cardNo, out var requiredCard))
+            {
+                throw new InvalidOperationException($"Required preconstructed battlefield '{cardNo}' was not found.");
+            }
+
+            if (!string.Equals(requiredCard.CardCategoryName, "战场", StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"Required preconstructed battlefield '{cardNo}' is not a battlefield.");
+            }
+
+            if (!selectedNames.Add(requiredCard.CardName))
+            {
+                throw new InvalidOperationException(
+                    $"Required preconstructed battlefield '{cardNo}' duplicates battlefield name '{requiredCard.CardName}'.");
+            }
+
+            selected.Add(requiredCard);
+        }
+
+        foreach (var card in catalog.Cards
             .Where(card => string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
             .GroupBy(card => card.CardName, StringComparer.Ordinal)
             .Select(group => group.OrderBy(card => card.CardNo, StringComparer.Ordinal).First())
-            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal))
+        {
+            if (selected.Count >= OfficialDeckValidator.BattlefieldCount)
+            {
+                break;
+            }
+
+            if (!selectedNames.Add(card.CardName))
+            {
+                continue;
+            }
+
+            selected.Add(card);
+        }
+
+        if (selected.Count < OfficialDeckValidator.BattlefieldCount)
+        {
+            throw new InvalidOperationException(
+                $"Unable to fill a legal {OfficialDeckValidator.BattlefieldCount}-card battlefield deck.");
+        }
+
+        return selected
             .Take(OfficialDeckValidator.BattlefieldCount)
             .Select(card => card.CardNo)
             .ToArray();
-
-        return new OfficialDecklist(legendCardNo, championCardNo, mainDeck, runeDeck, battlefields);
     }
 
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
@@ -209,5 +271,6 @@ public static class PreconstructedDeckCatalog
         string Description,
         string LegendCardNo,
         string ChampionCardNo,
-        IReadOnlyList<string>? RequiredMainDeckCardNos = null);
+        IReadOnlyList<string>? RequiredMainDeckCardNos = null,
+        IReadOnlyList<string>? RequiredBattlefieldCardNos = null);
 }
