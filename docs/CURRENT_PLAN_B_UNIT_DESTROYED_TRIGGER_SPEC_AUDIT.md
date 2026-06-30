@@ -68,6 +68,8 @@ This slice also moves the implemented destroyed non-minion create-minion trigger
 - `CoreRuleEngine.BuildViktorDestroyedNonMinionTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveViktorDestroyedNonMinionStackItem` now validates the source through the same TriggerSpec path and reads token count / event reason from the `TriggerSpec`.
 - The old `ViktorDestroyedNonMinionArcCardNo` / `ViktorDestroyedNonMinionOgnCardNo` / `ViktorDestroyedNonMinionOgnAltACardNo` / `IsViktorDestroyedNonMinionCardNo` Core branch is removed from `CoreRuleEngine`.
+- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `ViktorDestroyedNonMinionArcCardNoForRecovery`, `ViktorDestroyedNonMinionOgnCardNoForRecovery`, or `ViktorDestroyedNonMinionOgnAltACardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger(sourceCardNo, out _)`.
+- The old friendly-destroyed recovery source-card allow-list helper is removed after Ghostly Centaur, Savage Jawfish, Resonant Soul, and Viktor all moved to TriggerSpec source validation.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `37` total / `34` in `CoreRuleEngine`.
 
 This slice also moves the implemented Sad Poro last-breath draw trigger away from engine card-number branching:

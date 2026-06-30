@@ -952,9 +952,6 @@ public static class MatchRecoveryValidator
     private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
     private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
     private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
-    private const string ViktorDestroyedNonMinionArcCardNoForRecovery = "ARC-006/006";
-    private const string ViktorDestroyedNonMinionOgnCardNoForRecovery = "OGN·246/298";
-    private const string ViktorDestroyedNonMinionOgnAltACardNoForRecovery = "OGN·246a/298";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string SadPoroLastBreathDrawEffectKindForRecovery = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroLastBreathDrawEffectKindForRecovery = "LOYAL_PORO_LAST_BREATH_DRAW_1";
@@ -975,6 +972,8 @@ public static class MatchRecoveryValidator
         "BehaviorSpec unit friendly-destroyed gain-experience trigger";
     private const string ResonantSoulFirstFriendlyDestroyedDrawSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit first-friendly-destroyed draw-one trigger";
+    private const string ViktorDestroyedNonMinionCreateMinionSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit destroyed non-minion create-minion trigger";
     private const string WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit last-breath draw-one trigger";
 
@@ -22486,21 +22485,20 @@ public static class MatchRecoveryValidator
                         errors);
                 }
             }
-            else
+            else if (string.Equals(
+                         expectedEffectKind,
+                         ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+                         StringComparison.Ordinal))
             {
-                var expectedSourceCardNos = GetFriendlyDestroyedSourceCardNosForRecovery(expectedEffectKind);
-                if (expectedSourceCardNos.Length > 0
-                    && !Array.Exists(
-                        expectedSourceCardNos,
-                        expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+                if (!UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger(sourceCardNo, out _))
                 {
                     var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                    AddTriggerQueueSourceCardNoMismatch(
+                    AddTriggerQueueSourceCardSpecMismatch(
                         payloadLabel,
                         diagnosticName,
                         sourceObjectId,
                         sourceCardNoLabel,
-                        FormatExpectedCardNosForRecovery(expectedSourceCardNos),
+                        ViktorDestroyedNonMinionCreateMinionSourceTriggerSpecLabelForRecovery,
                         objectCardNoLabel,
                         errors);
                 }
@@ -23566,20 +23564,6 @@ public static class MatchRecoveryValidator
             UndercoverAgentLastBreathEffectKindForRecovery => [UndercoverAgentCardNoForRecovery],
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery => [IroncladVanguardCardNoForRecovery],
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery => [MuddyDredgerCardNoForRecovery],
-            _ => []
-        };
-    }
-
-    private static string[] GetFriendlyDestroyedSourceCardNosForRecovery(string effectKind)
-    {
-        return effectKind switch
-        {
-            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery =>
-            [
-                ViktorDestroyedNonMinionArcCardNoForRecovery,
-                ViktorDestroyedNonMinionOgnCardNoForRecovery,
-                ViktorDestroyedNonMinionOgnAltACardNoForRecovery
-            ],
             _ => []
         };
     }

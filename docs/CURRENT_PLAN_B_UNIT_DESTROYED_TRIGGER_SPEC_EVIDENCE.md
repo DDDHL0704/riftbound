@@ -30,7 +30,7 @@ Project status: **NOT READY**.
 - `BehaviorSpecCatalogParsesUnitFirstFriendlyDestroyedDrawTrigger` verifies that 残响之魂's official text parses to `TriggerSpec.Kind = RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `DrawCount = 1`, and `OncePerTurn = true`.
 - `UnitFirstFriendlyDestroyedDrawTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ResonantSoulCardNo`, and that `MatchRecovery` no longer contains `ResonantSoulCardNoForRecovery`.
 - `BehaviorSpecCatalogParsesUnitDestroyedNonMinionCreateMinionTrigger` verifies that all three 维克托 destroyed-trigger prints parse to `TriggerSpec.Kind = VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `ExcludesTokens = true`, `CreatedTokenCount = 1`, `CreatedTokenName = 随从`, `CreatedTokenPower = 1`, and `CreatedTokenDestination = OWNER_BASE`.
-- `UnitDestroyedNonMinionCreateMinionTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ViktorDestroyedNonMinionArcCardNo`, `ViktorDestroyedNonMinionOgnCardNo`, `ViktorDestroyedNonMinionOgnAltACardNo`, or `IsViktorDestroyedNonMinionCardNo`.
+- `UnitDestroyedNonMinionCreateMinionTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ViktorDestroyedNonMinionArcCardNo`, `ViktorDestroyedNonMinionOgnCardNo`, `ViktorDestroyedNonMinionOgnAltACardNo`, or `IsViktorDestroyedNonMinionCardNo`, and that `MatchRecovery` no longer contains the corresponding Viktor destroyed-non-minion recovery source-card constants.
 - `BehaviorSpecCatalogParsesUnitLastBreathDrawIfAloneTrigger` verifies that both 哀哀魄罗 prints parse to `TriggerSpec.Kind = SAD_PORO_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RequiresNoOtherFriendlyUnitAtSamePosition = true`.
 - `UnitLastBreathDrawIfAloneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SadPoroOriginalCardNo`, `SadPoroUnleashedCardNo`, or `IsSadPoroCardNo`.
 - `BehaviorSpecCatalogParsesUnitLastBreathDrawIfNotAloneTrigger` verifies that 忠忠魄罗 parses to `TriggerSpec.Kind = LOYAL_PORO_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RequiresOtherFriendlyUnitAtSamePosition = true`.
@@ -60,6 +60,7 @@ Project status: **NOT READY**.
 - `RealViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves the Zaun minion token through the stack.
 - `StateBasedCleanupViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken` verifies the same TriggerSpec source route from state-based cleanup.
 - The broader `ViktorDestroyedNonMinion|FriendlyDestroyed|StateBasedCleanup` adjacent filter keeps the existing invalid-source, hidden-source, token-exclusion, and shared destroyed-trigger cleanup paths green.
+- `MatchRecovery` source-card validation for `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION` now calls `UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger(...)` instead of comparing against the old Viktor destroyed-non-minion recovery source-card allow-list; the shared friendly-destroyed recovery source-card allow-list helper is now removed.
 - `StateBasedCleanupSadPorosTriggerOrderAndDrawThroughStack` verifies both Sad Poro prints still enqueue APNAP ordered last-breath draw triggers and resolve through the stack.
 - `StateBasedCleanupSadPoroSkipsWhenNotIsolated` verifies the TriggerSpec source route preserves the existing "no other friendly unit at this position" condition.
 - `P79SadPoroDrawsWhenDestroyedWhileIsolated` and `P79SadPoroSkipsDrawWhenDestroyedWithAnotherFriendlyUnitAtSameBase` keep the representative fixture route green.
@@ -115,6 +116,9 @@ Project status: **NOT READY**.
 - 2026-06-30 Resonant Soul recovery follow-up focused guard `UnitFirstFriendlyDestroyedDrawTriggerDoesNotUseCardNumberAllowList`: `1/1` passing.
 - 2026-06-30 Resonant Soul recovery follow-up adjacent / hidden-info gate `ResonantSoul|FriendlyDestroyed|StateBasedCleanup|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard`: `2379/2379` passing.
 - 2026-06-30 Resonant Soul recovery follow-up backend full conformance: `9049/9049` passing.
+- 2026-06-30 Viktor destroyed non-minion recovery follow-up focused guard `UnitDestroyedNonMinionCreateMinionTriggerDoesNotUseCardNumberAllowList`: `1/1` passing.
+- 2026-06-30 Viktor destroyed non-minion recovery follow-up adjacent / hidden-info gate `ViktorDestroyedNonMinion|FriendlyDestroyed|StateBasedCleanup|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard`: `2378/2378` passing.
+- 2026-06-30 Viktor destroyed non-minion recovery follow-up backend full conformance: `9049/9049` passing.
 - DevUi catalog TypeScript shape did not change in the last-breath create-base-unit slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
 
 ## Residual Risk

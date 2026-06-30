@@ -5126,11 +5126,21 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var matchRecoveryPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs");
+        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsViktorDestroyedNonMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
