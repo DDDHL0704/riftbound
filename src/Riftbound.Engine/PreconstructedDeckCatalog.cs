@@ -4,8 +4,8 @@ namespace Riftbound.Engine;
 
 /// <summary>
 /// A named, server-validated preconstructed decklist players can submit without
-/// hand-building a deck. Each deck is built from the official catalog using only
-/// implemented low-curve units so a human match resolves through supported rules.
+/// hand-building a deck. Each deck is built from the official catalog and keeps
+/// its explicit representative cards limited to implemented play behavior.
 /// </summary>
 public sealed record PreconstructedDeck(
     string Id,
@@ -34,7 +34,14 @@ public static class PreconstructedDeckCatalog
             "加入百炼单位与武装装备，覆盖服务端装备结算路径。",
             "SFD·181/221",
             "SFD·026/221",
-            ["SFD·085/221", "SFD·008/221", "SFD·022/221"])
+            ["SFD·085/221", "SFD·008/221", "SFD·022/221"]),
+        new(
+            "vex-spells",
+            "暗影法术 · 薇古丝",
+            "加入迅捷与高费法术代表，覆盖服务端法术栈结算路径。",
+            "UNL-232/219",
+            "UNL-055/219",
+            ["OGN·183/298", "OGN·180/298"])
     ];
 
     public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)
@@ -164,16 +171,30 @@ public static class PreconstructedDeckCatalog
             && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
             && card.CardGroupLimit != 1
             && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
+            && !card.CardEffect.Contains("{{急速}}", StringComparison.Ordinal)
             && TraitsAllowed(card, allowedColors);
     }
 
     private static bool IsRequiredMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
     {
-        return card.CardCategoryName is "单位" or "英雄单位" or "装备"
+        return !string.IsNullOrWhiteSpace(card.CardNo)
             && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
             && card.CardGroupLimit != 1
             && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
-            && TraitsAllowed(card, allowedColors);
+            && TraitsAllowed(card, allowedColors)
+            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out var behavior)
+            && IsImplementedMainDeckPlayBehavior(card, behavior);
+    }
+
+    private static bool IsImplementedMainDeckPlayBehavior(OfficialCard card, CardBehaviorDefinition behavior)
+    {
+        return card.CardCategoryName is "单位" or "英雄单位"
+                ? behavior.PlaysSourceToBaseAsUnit
+            : string.Equals(card.CardCategoryName, "装备", StringComparison.Ordinal)
+                ? behavior.PlaysSourceToBaseAsEquipment
+            : string.Equals(card.CardCategoryName, "法术", StringComparison.Ordinal)
+                && !behavior.PlaysSourceToBaseAsUnit
+                && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
     private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)

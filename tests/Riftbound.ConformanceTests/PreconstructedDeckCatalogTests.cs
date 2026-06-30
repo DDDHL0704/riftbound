@@ -14,6 +14,11 @@ public sealed class PreconstructedDeckCatalogTests
     private const string OrnnCardNo = "SFD·085/221";
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string LongSwordCardNo = "SFD·022/221";
+    private const string VexSpellsDeckId = "vex-spells";
+    private const string VexLegendCardNo = "UNL-232/219";
+    private const string VexChampionCardNo = "UNL-055/219";
+    private const string CardTrickCardNo = "OGN·183/298";
+    private const string FlowingTimeMirrorCardNo = "OGN·180/298";
 
     [Fact]
     public async Task BuildReturnsAtLeastThreeDistinctPreconstructedDecks()
@@ -62,6 +67,21 @@ public sealed class PreconstructedDeckCatalogTests
         Assert.Contains(OrnnCardNo, deck.Decklist.MainDeck);
         Assert.Contains(SentinelAdeptCardNo, deck.Decklist.MainDeck);
         Assert.Contains(LongSwordCardNo, deck.Decklist.MainDeck);
+    }
+
+    [Fact]
+    public async Task BuildIncludesVexSpellsDeckForSpellStackCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, VexSpellsDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(VexLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(CardTrickCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(FlowingTimeMirrorCardNo, deck.Decklist.MainDeck);
     }
 
     [Fact]
@@ -145,8 +165,12 @@ public sealed class PreconstructedDeckCatalogTests
     public async Task PreconstructedDecksOnlyReferenceImplementedMainDeckCardsForPlayability()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var cardsByNo = catalog.Cards
+            .Where(card => !string.IsNullOrWhiteSpace(card.CardNo))
+            .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
         var implementedCardNos = CardBehaviorRegistry.GetAll()
-            .Where(behavior => behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
+            .Where(behavior => cardsByNo.TryGetValue(behavior.CardNo, out var card)
+                && IsImplementedMainDeckPlayBehavior(card, behavior))
             .Select(behavior => behavior.CardNo)
             .ToHashSet(StringComparer.Ordinal);
 
@@ -162,5 +186,16 @@ public sealed class PreconstructedDeckCatalogTests
                     implementedCardNos.Contains(cardNo),
                     $"{deck.Id} main-deck card {cardNo} is not an implemented playable card"));
         });
+    }
+
+    private static bool IsImplementedMainDeckPlayBehavior(OfficialCard card, CardBehaviorDefinition behavior)
+    {
+        return card.CardCategoryName is "单位" or "英雄单位"
+                ? behavior.PlaysSourceToBaseAsUnit
+            : string.Equals(card.CardCategoryName, "装备", StringComparison.Ordinal)
+                ? behavior.PlaysSourceToBaseAsEquipment
+            : string.Equals(card.CardCategoryName, "法术", StringComparison.Ordinal)
+                && !behavior.PlaysSourceToBaseAsUnit
+                && !behavior.PlaysSourceToBaseAsEquipment;
     }
 }

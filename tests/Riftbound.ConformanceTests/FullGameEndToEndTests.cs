@@ -283,6 +283,8 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(replayDecks.Count, replayDecks.Select(deck => deck.Id).Distinct(StringComparer.Ordinal).Count());
         Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(LongSwordEquipmentCardNo, StringComparer.Ordinal));
         Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(OrnnFriendlyEquipmentStaticAuraCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(CardTrickSpellCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(FlowingTimeMirrorSpellCardNo, StringComparer.Ordinal));
 
         foreach (var p1Deck in replayDecks)
         {
