@@ -2030,8 +2030,7 @@ public sealed record MatchState
             }
         }
 
-        effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
-        effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildBattlefieldPowerStaticAuraEffects(state));
         effects.AddRange(BuildBattlefieldAllUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
@@ -3033,7 +3032,7 @@ public sealed record MatchState
         return effects;
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsStaticAuraEffects(MatchState state)
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldPowerStaticAuraEffects(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
         foreach (var battlefieldObjectId in state.PlayerZones
@@ -3043,101 +3042,108 @@ public sealed record MatchState
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
                 || battlefield.IsFaceDown
-                || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefield.CardNo, out var aura)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
             {
                 continue;
             }
 
-            var participantObjectIds = BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
-            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
-            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-
-            foreach (var participantObjectId in participantObjectIds)
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo).Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura))
             {
-                var participant = state.CardObjects[participantObjectId];
-                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                effects.Add(new ContinuousEffectState(
-                    $"STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:{battlefieldObjectId}:{participantObjectId}",
-                    "BATTLEFIELD",
-                    ContinuousEffectLayers.StaticAura,
-                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
-                    participantObjectId,
+                var participantObjectIds = BattlefieldPowerStaticAuraParticipantObjectIds(
+                    state,
                     battlefieldObjectId,
-                    aura.PowerDeltaPerParticipant,
-                    participant.Power,
-                    participant.Power + aura.PowerDeltaPerParticipant,
-                    aura.Kind,
-                    battlefield.CardNo,
-                    "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
-                    true,
-                    LayerEngineFoundationResiduals(),
-                    Condition: "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
-                    Lifecycle: "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS",
-                    ParticipantObjectIds: participantObjectIds,
-                    SourceDependencyObjectIds: sourceDependencyObjectIds,
-                    TargetDependencyObjectIds: targetDependencyObjectIds,
-                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
+                    aura);
+                var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
+                var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+                var metadata = BattlefieldPowerStaticAuraProjectionMetadata(aura);
+
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    var participant = state.CardObjects[participantObjectId];
+                    var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                    effects.Add(new ContinuousEffectState(
+                        $"{metadata.EffectIdPrefix}:{battlefieldObjectId}:{participantObjectId}",
+                        "BATTLEFIELD",
+                        ContinuousEffectLayers.StaticAura,
+                        metadata.Duration,
+                        participantObjectId,
+                        battlefieldObjectId,
+                        aura.PowerDeltaPerParticipant,
+                        participant.Power,
+                        participant.Power + aura.PowerDeltaPerParticipant,
+                        aura.Kind,
+                        battlefield.CardNo,
+                        metadata.SourcePath,
+                        true,
+                        LayerEngineFoundationResiduals(),
+                        Condition: metadata.Condition,
+                        Lifecycle: metadata.Lifecycle,
+                        ParticipantObjectIds: participantObjectIds,
+                        SourceDependencyObjectIds: sourceDependencyObjectIds,
+                        TargetDependencyObjectIds: targetDependencyObjectIds,
+                        ParticipantDependencyObjectIds: participantDependencyObjectIds));
+                }
             }
         }
 
         return effects;
     }
 
-    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldFilteredUnitsStaticAuraEffects(MatchState state)
+    private static IReadOnlyList<string> BattlefieldPowerStaticAuraParticipantObjectIds(
+        MatchState state,
+        string battlefieldObjectId,
+        StaticAuraSpec aura)
     {
-        var effects = new List<ContinuousEffectState>();
-        foreach (var battlefieldObjectId in state.PlayerZones
-            .SelectMany(entry => entry.Value.Battlefields)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
         {
-            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
-                || battlefield.IsFaceDown
-                || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefield.CardNo, out var aura)
-                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
-                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
-            {
-                continue;
-            }
+            return BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
+        }
 
-            var participantObjectIds = BattlefieldFilteredStaticAuraParticipantObjectIds(
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal))
+        {
+            return BattlefieldFilteredStaticAuraParticipantObjectIds(
                 state,
                 battlefieldObjectId,
                 aura);
-            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
-            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-
-            foreach (var participantObjectId in participantObjectIds)
-            {
-                var participant = state.CardObjects[participantObjectId];
-                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                effects.Add(new ContinuousEffectState(
-                    $"STATIC_AURA:BATTLEFIELD_FILTERED_UNITS_POWER:{battlefieldObjectId}:{participantObjectId}",
-                    "BATTLEFIELD",
-                    ContinuousEffectLayers.StaticAura,
-                    aura.Duration,
-                    participantObjectId,
-                    battlefieldObjectId,
-                    aura.PowerDeltaPerParticipant,
-                    participant.Power,
-                    participant.Power + aura.PowerDeltaPerParticipant,
-                    aura.Kind,
-                    battlefield.CardNo,
-                    "CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus",
-                    true,
-                    LayerEngineFoundationResiduals(),
-                    Condition: "SOURCE_BATTLEFIELD_FILTERED_UNITS_POWER_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
-                    Lifecycle: "DERIVED_FROM_CURRENT_BATTLEFIELD_FILTERED_OBJECT_LOCATIONS",
-                    ParticipantObjectIds: participantObjectIds,
-                    SourceDependencyObjectIds: sourceDependencyObjectIds,
-                    TargetDependencyObjectIds: targetDependencyObjectIds,
-                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
-            }
         }
 
-        return effects;
+        return [];
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string Duration,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) BattlefieldPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (string.Equals(aura.Kind, StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
+                "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.BattlefieldFilteredUnitsPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:BATTLEFIELD_FILTERED_UNITS_POWER",
+                aura.Duration,
+                "CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus",
+                "SOURCE_BATTLEFIELD_FILTERED_UNITS_POWER_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                "DERIVED_FROM_CURRENT_BATTLEFIELD_FILTERED_OBJECT_LOCATIONS");
+        }
+
+        return (
+            $"STATIC_AURA:{aura.Kind}",
+            aura.Duration,
+            "CoreRuleEngine.ResolveBattlefieldPowerStaticAuraBonus",
+            $"SOURCE_BATTLEFIELD_{aura.TargetScope}_POWER_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+            "DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS");
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsKeywordAuraEffects(MatchState state)
@@ -17853,7 +17859,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardObject.CardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardObject.CardNo, out _)
+            || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardObject.CardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardObject.CardNo, out _)

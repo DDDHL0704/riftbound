@@ -1,10 +1,21 @@
 # Plan B B1 Static Aura Spec Evidence
 
-更新时间：2026-06-29
+更新时间：2026-06-30
 
 ## Evidence Summary
 
 This evidence records the current B1 static-aura data-driven slices.
+
+## 2026-06-30 Supplement Evidence: Battlefield POWER Static Aura Scope Router
+
+- `StaticAuraSpecRules.IsBattlefieldPowerStaticAura` is now the shared predicate for battlefield POWER static auras whose target/participant scope is either all public units at the source battlefield or filtered public units at the source battlefield.
+- `StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardNo)` is now the shared battlefield-rule recognition query for those POWER aura shapes.
+- `CoreRuleEngine.ResolveBattlefieldPowerStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and sums matching `PowerDeltaPerParticipant` values instead of calling separate all-units and filtered-units POWER helper selectors.
+- `MatchSession.BuildBattlefieldPowerStaticAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)` and projects matching battlefield POWER static auras from their `StaticAuraSpec` scopes instead of separate all-units and filtered-units projection builders.
+- Existing recovery-sensitive metadata remains compatible for the current representatives: `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` still projects the same effect id prefix, source path, condition and lifecycle; `BATTLEFIELD_FILTERED_UNITS_POWER` does the same for filtered battlefield static power.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing `StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura` / `TryGetBattlefieldFilteredUnitsPowerAura` calls in CoreRuleEngine or MatchSession battlefield POWER execution/projection routing.
+- Validation passed: red/green focused guard 1/1; battlefield/static-aura focused behavior regression 34/34; StaticAura / StaticPower / Battlefield / FullGameEndToEnd / MatchRecovery adjacent 2843/2843; backend full conformance 9059/9059.
+- Non-closure: this does not finish battlefield RULE_TEXT aura routing, object-source aura routing, friendly-equipment source-power routing, complete LayerEngine timestamp/order behavior, full B1, P0, or READY.
 
 ## 2026-06-30 Supplement Evidence: Shared Battlefield All-Units Keyword Aura Query
 
@@ -97,6 +108,10 @@ Recovery:
 
 ## Validation Evidence
 
+- Latest battlefield POWER static-aura scope-router guard focused representative: 1/1 passed.
+- Latest battlefield POWER static-aura scope-router focused behavior representative: 34/34 passed.
+- Latest battlefield POWER static-aura scope-router adjacent StaticAura / StaticPower / Battlefield / FullGameEndToEnd / MatchRecovery representative: 2843/2843 passed.
+- Latest backend full conformance after battlefield POWER static-aura scope-router: 9059/9059 passed.
 - Latest Ornn friendly-equipment runtime bridge removal focused static-aura / Ornn / catalog / equipment keyword representative: 42/42 passed.
 - Latest same-location source threshold focused static-aura / catalog representative: 5/5 passed.
 - Latest same-location source threshold adjacent StaticAura / StaticPower / ContinuousEffect / ReliableSiegeDog representative: 406/406 passed.

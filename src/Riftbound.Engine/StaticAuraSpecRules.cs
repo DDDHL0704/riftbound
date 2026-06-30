@@ -250,6 +250,31 @@ internal static class StaticAuraSpecRules
         return TargetMatchesFilter(aura.TargetFilter, target);
     }
 
+    public static bool HasBattlefieldPowerStaticAura(string? cardNo)
+    {
+        return GetStaticAuras(cardNo).Any(IsBattlefieldPowerStaticAura);
+    }
+
+    public static bool IsBattlefieldPowerStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            || aura.PowerDeltaPerParticipant == 0)
+        {
+            return false;
+        }
+
+        return (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    StringComparison.Ordinal));
+    }
+
     public static bool IsSourceObjectPowerAuraAlreadyMaterialized(
         CardObjectState cardObject,
         StaticAuraSpec aura)

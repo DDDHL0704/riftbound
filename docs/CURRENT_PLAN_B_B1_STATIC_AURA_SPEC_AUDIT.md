@@ -1,10 +1,24 @@
 # Plan B B1 Static Aura Spec Audit
 
-更新时间：2026-06-29
+更新时间：2026-06-30
 
 ## Scope
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
+
+## 2026-06-30 Supplement: Battlefield POWER Static Aura Scope Router
+
+This follow-up merges the battlefield all-units POWER aura and battlefield filtered-units POWER aura runtime/projection selectors into shared `StaticAuraSpec` scope routing.
+
+`CoreRuleEngine` now computes battlefield POWER static-aura bonuses through `ResolveBattlefieldPowerStaticAuraBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and filtering with `StaticAuraSpecRules.IsBattlefieldPowerStaticAura`. The actual participant applicability is derived from `StaticAuraTargetScopes.SameBattlefieldUnits` / `SameBattlefieldFilteredUnits` and the matching participant scope, with filtered scopes still using `StaticAuraSpecRules.TargetMatchesFilter`.
+
+`MatchSession` now projects those same battlefield POWER aura families through `BuildBattlefieldPowerStaticAuraEffects`, again enumerating the source battlefield card's `BehaviorSpec.StaticAuras` instead of calling kind-specific `TryGetBattlefieldAllUnitsPowerAura` / `TryGetBattlefieldFilteredUnitsPowerAura` helpers. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+`StaticAuraSpecRules.HasBattlefieldPowerStaticAura` now backs battlefield-card recognition in both Core and MatchSession, so adding a new supported battlefield POWER aura with the same target/participant scope shape no longer requires a second all-units-specific rule-card recognition branch.
+
+Validation: red/green focused `BattlefieldStaticAuraSpecRoutingGuardTests` 1/1; battlefield/static-aura focused behavior regression 34/34; StaticAura / StaticPower / Battlefield / FullGameEndToEnd / MatchRecovery adjacent 2843/2843; backend full conformance 9059/9059.
+
+Non-closure: this slice only consolidates the battlefield POWER static-aura all-units/filtered scope router. Battlefield RULE_TEXT aura routing, object-source aura families, friendly-equipment source power, full static-aura timestamp/order semantics, full B1, P0, and READY remain open.
 
 ## 2026-06-30 Supplement: Shared Battlefield All-Units Keyword Aura Query
 

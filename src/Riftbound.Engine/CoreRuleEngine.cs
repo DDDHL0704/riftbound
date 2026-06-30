@@ -20025,8 +20025,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveSourceObjectPowerBonus(state, cardObject);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
         staticPowerBonus += ResolveSourceLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
-        staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
-        staticPowerBonus += ResolveBattlefieldFilteredUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
+        staticPowerBonus += ResolveBattlefieldPowerStaticAuraBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
@@ -20115,37 +20114,36 @@ public sealed class CoreRuleEngine : IRuleEngine
             || cardObject.Tags.Contains("眩晕", StringComparer.Ordinal);
     }
 
-    private static int ResolveBattlefieldAllUnitsPowerBonus(
+    private static int ResolveBattlefieldPowerStaticAuraBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string battlefieldId,
         CardObjectState cardObject)
     {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && !battlefieldState.IsFaceDown
-            && StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefieldState.CardNo, out var aura)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            || battlefieldState.IsFaceDown)
+        {
+            return 0;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
+            .Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura)
+            .Where(aura => BattlefieldPowerStaticAuraAppliesToParticipant(aura, cardObject))
+            .Sum(aura => aura.PowerDeltaPerParticipant);
     }
 
-    private static int ResolveBattlefieldFilteredUnitsPowerBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string battlefieldId,
-        CardObjectState cardObject)
+    private static bool BattlefieldPowerStaticAuraAppliesToParticipant(StaticAuraSpec aura, CardObjectState cardObject)
     {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && !battlefieldState.IsFaceDown
-            && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefieldState.CardNo, out var aura)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
     }
 
     private static int ResolveBattlefieldFilteredUnitsKeywordBonus(
@@ -26503,7 +26501,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
+            || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
