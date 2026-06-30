@@ -279,21 +279,15 @@ public sealed class FullGameEndToEndTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var preconstructedDecks = PreconstructedDeckCatalog.Build(catalog);
-        var replayDecks = new[]
-        {
-            preconstructedDecks.Single(deck => string.Equals(deck.Id, "jhin-lowcurve", StringComparison.Ordinal)),
-            preconstructedDecks.Single(deck => string.Equals(deck.Id, "rumble-lowcurve", StringComparison.Ordinal)),
-            preconstructedDecks.Single(deck => string.Equals(deck.Id, "lillia-lowcurve", StringComparison.Ordinal))
-        };
-        Assert.Equal(replayDecks.Length, replayDecks.Select(deck => deck.Id).Distinct(StringComparer.Ordinal).Count());
+        var replayDecks = preconstructedDecks;
+        Assert.Equal(replayDecks.Count, replayDecks.Select(deck => deck.Id).Distinct(StringComparer.Ordinal).Count());
+        Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(LongSwordEquipmentCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(OrnnFriendlyEquipmentStaticAuraCardNo, StringComparer.Ordinal));
 
         foreach (var p1Deck in replayDecks)
         {
             foreach (var p2Deck in replayDecks.Where(deck => !string.Equals(deck.Id, p1Deck.Id, StringComparison.Ordinal)))
             {
-                Assert.NotEqual(p1Deck.Decklist.LegendCardNo, p2Deck.Decklist.LegendCardNo);
-                Assert.NotEqual(p1Deck.Decklist.ChampionCardNo, p2Deck.Decklist.ChampionCardNo);
-
                 await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
                     $"b0-full-game-preconstructed-catalog-replay-room-{p1Deck.Id}-vs-{p2Deck.Id}",
                     $"b0-full-preconstructed-catalog-replay-score-{p1Deck.Id}-vs-{p2Deck.Id}",

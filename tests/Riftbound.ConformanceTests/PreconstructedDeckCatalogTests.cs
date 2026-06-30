@@ -8,6 +8,13 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class PreconstructedDeckCatalogTests
 {
+    private const string RumbleArmamentsDeckId = "rumble-armaments";
+    private const string RumbleLegendCardNo = "SFD·181/221";
+    private const string RumbleChampionCardNo = "SFD·026/221";
+    private const string OrnnCardNo = "SFD·085/221";
+    private const string SentinelAdeptCardNo = "SFD·008/221";
+    private const string LongSwordCardNo = "SFD·022/221";
+
     [Fact]
     public async Task BuildReturnsAtLeastThreeDistinctPreconstructedDecks()
     {
@@ -39,6 +46,22 @@ public sealed class PreconstructedDeckCatalogTests
             Assert.Equal(OfficialDeckValidator.RuneDeckCount, deck.Decklist.RuneDeck.Count);
             Assert.Equal(OfficialDeckValidator.BattlefieldCount, deck.Decklist.Battlefields.Count);
         });
+    }
+
+    [Fact]
+    public async Task BuildIncludesRumbleArmamentsDeckForEquipmentAndTemperedCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, RumbleArmamentsDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(RumbleLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(RumbleChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(OrnnCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(SentinelAdeptCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(LongSwordCardNo, deck.Decklist.MainDeck);
     }
 
     [Fact]
@@ -119,11 +142,11 @@ public sealed class PreconstructedDeckCatalogTests
     }
 
     [Fact]
-    public async Task PreconstructedDecksOnlyReferenceImplementedMainDeckUnitsForPlayability()
+    public async Task PreconstructedDecksOnlyReferenceImplementedMainDeckCardsForPlayability()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
-        var implementedUnitCardNos = CardBehaviorRegistry.GetAll()
-            .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
+        var implementedCardNos = CardBehaviorRegistry.GetAll()
+            .Where(behavior => behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
             .Select(behavior => behavior.CardNo)
             .ToHashSet(StringComparer.Ordinal);
 
@@ -131,13 +154,13 @@ public sealed class PreconstructedDeckCatalogTests
 
         Assert.All(decks, deck =>
         {
-            var nonChampionUnits = deck.Decklist.MainDeck
+            var nonChampionCards = deck.Decklist.MainDeck
                 .Where(cardNo => !string.Equals(cardNo, deck.Decklist.ChampionCardNo, StringComparison.Ordinal))
                 .Distinct(StringComparer.Ordinal);
-            Assert.All(nonChampionUnits, cardNo =>
+            Assert.All(nonChampionCards, cardNo =>
                 Assert.True(
-                    implementedUnitCardNos.Contains(cardNo),
-                    $"{deck.Id} main-deck card {cardNo} is not an implemented playable unit"));
+                    implementedCardNos.Contains(cardNo),
+                    $"{deck.Id} main-deck card {cardNo} is not an implemented playable card"));
         });
     }
 }

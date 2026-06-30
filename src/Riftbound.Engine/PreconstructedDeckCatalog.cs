@@ -27,7 +27,14 @@ public static class PreconstructedDeckCatalog
     [
         new("jhin-lowcurve", "影焰枪手 · 烬", "低费单位起手，正面稳健铺场。", "UNL-181/219", "UNL-022/219"),
         new("rumble-lowcurve", "机械狂潮 · 兰博", "机械单位压制，节奏明快。", "SFD·181/221", "SFD·026/221"),
-        new("lillia-lowcurve", "梦境编织 · 莉莉娅", "灵动单位群进，灵活应对。", "UNL-189/219", "UNL-082/219")
+        new("lillia-lowcurve", "梦境编织 · 莉莉娅", "灵动单位群进，灵活应对。", "UNL-189/219", "UNL-082/219"),
+        new(
+            "rumble-armaments",
+            "锻炉武装 · 兰博",
+            "加入百炼单位与武装装备，覆盖服务端装备结算路径。",
+            "SFD·181/221",
+            "SFD·026/221",
+            ["SFD·085/221", "SFD·008/221", "SFD·022/221"])
     ];
 
     public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)
@@ -41,7 +48,12 @@ public static class PreconstructedDeckCatalog
         var decks = new List<PreconstructedDeck>(Definitions.Count);
         foreach (var definition in Definitions)
         {
-            var decklist = BuildLowCurveDeck(catalog, cardsByNo, definition.LegendCardNo, definition.ChampionCardNo);
+            var decklist = BuildLowCurveDeck(
+                catalog,
+                cardsByNo,
+                definition.LegendCardNo,
+                definition.ChampionCardNo,
+                definition.RequiredMainDeckCardNos ?? []);
             var validation = OfficialDeckValidator.Validate(decklist, catalog);
             if (!validation.IsValid)
             {
@@ -59,7 +71,8 @@ public static class PreconstructedDeckCatalog
         OfficialCardCatalog catalog,
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         string legendCardNo,
-        string championCardNo)
+        string championCardNo,
+        IReadOnlyList<string> requiredMainDeckCardNos)
     {
         var legend = cardsByNo[legendCardNo];
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
@@ -84,6 +97,24 @@ public static class PreconstructedDeckCatalog
         {
             [champion.CardName] = 1
         };
+        foreach (var cardNo in requiredMainDeckCardNos)
+        {
+            if (!cardsByNo.TryGetValue(cardNo, out var requiredCard))
+            {
+                throw new InvalidOperationException($"Required preconstructed card '{cardNo}' was not found.");
+            }
+
+            if (!IsRequiredMainDeckCandidate(requiredCard, allowedColors))
+            {
+                throw new InvalidOperationException(
+                    $"Required preconstructed card '{cardNo}' is not legal for legend '{legendCardNo}'.");
+            }
+
+            mainDeck.Add(cardNo);
+            nameCounts[requiredCard.CardName] = nameCounts.TryGetValue(requiredCard.CardName, out var current)
+                ? current + 1
+                : 1;
+        }
 
         foreach (var card in implementedLowCurveUnits)
         {
@@ -136,6 +167,15 @@ public static class PreconstructedDeckCatalog
             && TraitsAllowed(card, allowedColors);
     }
 
+    private static bool IsRequiredMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardCategoryName is "单位" or "英雄单位" or "装备"
+            && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+            && card.CardGroupLimit != 1
+            && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
+            && TraitsAllowed(card, allowedColors);
+    }
+
     private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)
     {
         return card.CardColorList.All(color => string.Equals(color, "colorless", StringComparison.Ordinal)
@@ -147,5 +187,6 @@ public static class PreconstructedDeckCatalog
         string Name,
         string Description,
         string LegendCardNo,
-        string ChampionCardNo);
+        string ChampionCardNo,
+        IReadOnlyList<string>? RequiredMainDeckCardNos = null);
 }
