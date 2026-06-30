@@ -19,6 +19,7 @@ This slice moves the implemented friendly-destroyed experience trigger away from
 - `CoreRuleEngine.BuildSavageJawfishFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(...)` and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveSavageJawfishFriendlyDestroyedExperienceStackItem` now validates the source through the same TriggerSpec path and reads the experience amount from `TriggerSpec.ExperienceCount`.
 - The old `SavageJawfishCardNo` / `IsSavageJawfishCardNo` branch is removed from `CoreRuleEngine`.
+- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `SavageJawfishCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(sourceCardNo, out _)`.
 
 This slice also moves the implemented friendly-destroyed power trigger away from engine card-number branching:
 

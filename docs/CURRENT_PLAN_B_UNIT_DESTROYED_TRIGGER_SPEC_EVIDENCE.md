@@ -24,7 +24,7 @@ Project status: **NOT READY**.
 ## BehaviorSpec Evidence
 
 - `BehaviorSpecCatalogParsesUnitFriendlyDestroyedGainExperienceTrigger` verifies that 凶残颚鱼's official text parses to `TriggerSpec.Kind = SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, and `ExperienceCount = 1`.
-- `UnitFriendlyDestroyedGainExperienceTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SavageJawfishCardNo` / `IsSavageJawfishCardNo`.
+- `UnitFriendlyDestroyedGainExperienceTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SavageJawfishCardNo` / `IsSavageJawfishCardNo`, and that `MatchRecovery` no longer contains `SavageJawfishCardNoForRecovery`.
 - `BehaviorSpecCatalogParsesUnitFriendlyDestroyedPowerUntilEndTrigger` verifies that 幽魂半人马's official text parses to `TriggerSpec.Kind = GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `Duration = UNTIL_END_OF_TURN`, and `PowerDelta = 2`.
 - `UnitFriendlyDestroyedPowerUntilEndTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `GhostlyCentaurCardNo`, and that `MatchRecovery` no longer contains `GhostlyCentaurCardNoForRecovery`.
 - `BehaviorSpecCatalogParsesUnitFirstFriendlyDestroyedDrawTrigger` verifies that 残响之魂's official text parses to `TriggerSpec.Kind = RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `DrawCount = 1`, and `OncePerTurn = true`.
@@ -47,6 +47,7 @@ Project status: **NOT READY**.
 - `RealSavageJawfishFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainExperienceThroughStack` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves experience through the stack.
 - `P79SavageJawfishGainsExperienceWhenAnotherFriendlyUnitDestroyed` keeps the representative fixture route green.
 - `StateBasedCleanupSavageJawfishTriggersOrderAndGainExperienceThroughStack`, `StateBasedCleanupHiddenSavageJawfishDoNotEnqueueTriggers`, and `StateBasedCleanupSavageJawfishSkipsWhenSourceAlsoDies` are covered by the adjacent `SavageJawfish|FriendlyDestroyed|StateBasedCleanup` filter and keep cleanup-trigger behavior, hidden-source filtering, and same-removal skip behavior green.
+- `MatchRecovery` source-card validation for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1` now calls `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(...)` instead of comparing against `SavageJawfishCardNoForRecovery`.
 - `RealGhostlyCentaurFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainPowerThroughStack` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves until-end-of-turn power through the stack.
 - `P79GhostlyCentaurGainsTemporaryPowerWhenAnotherFriendlyUnitDestroyed` keeps the representative fixture route green.
 - `StateBasedCleanupGhostlyCentaursTriggerOrderAndGainPowerThroughStack`, `StateBasedCleanupHiddenGhostlyCentaursDoNotEnqueueTriggers`, and `StateBasedCleanupGhostlyCentaurSkipsWhenSourceAlsoDies` are covered by the adjacent `GhostlyCentaur|FriendlyDestroyed|StateBasedCleanup` filter and keep cleanup-trigger behavior, hidden-source filtering, and same-removal skip behavior green.
@@ -107,6 +108,9 @@ Project status: **NOT READY**.
 - 2026-06-30 Ghostly Centaur recovery follow-up focused guard and drift filter `UnitFriendlyDestroyedPowerUntilEndTriggerDoesNotUseCardNumberAllowList|FriendlyDestroyedSourceCardContextDrift`: `5/5` passing.
 - 2026-06-30 Ghostly Centaur recovery follow-up adjacent / hidden-info gate `GhostlyCentaur|FriendlyDestroyed|StateBasedCleanup|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard`: `2379/2379` passing.
 - 2026-06-30 Ghostly Centaur recovery follow-up backend full conformance: `9049/9049` passing.
+- 2026-06-30 Savage Jawfish recovery follow-up focused guard `UnitFriendlyDestroyedGainExperienceTriggerDoesNotUseCardNumberAllowList`: `1/1` passing.
+- 2026-06-30 Savage Jawfish recovery follow-up adjacent / hidden-info gate `SavageJawfish|FriendlyDestroyed|StateBasedCleanup|CardCatalogBaselineTests|MatchRecovery|TriggerSourceIdentityGuard`: `2378/2378` passing.
+- 2026-06-30 Savage Jawfish recovery follow-up backend full conformance: `9049/9049` passing.
 - DevUi catalog TypeScript shape did not change in the last-breath create-base-unit slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
 
 ## Residual Risk
