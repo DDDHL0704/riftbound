@@ -109,11 +109,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
-    private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
-    private const int EclipseVanguardStunTriggerPowerModifier = 1;
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
@@ -29826,50 +29823,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
-        if (!CardBehaviorRegistry.TryGetByEffectKind(EclipseVanguardStunTriggerSourceEffectKind, out var sourceBehavior))
-        {
-            return [];
-        }
-
-        var triggerBehavior = sourceBehavior with
-        {
-            ManaCost = 0,
-            EffectKind = EclipseVanguardStunTriggerEffectKind,
-            PowerModifierAmount = EclipseVanguardStunTriggerPowerModifier
-        };
-
         var events = new List<GameEvent>();
-        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && IsControlledFaceUpFieldUnitWithEffectKind(
-                    sourceState,
-                    EclipseVanguardStunTriggerSourceEffectKind))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        foreach (var source in SourceReadyPowerOnControllerStunsEnemyUnitTriggers(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId)
+            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
         {
             foreach (var stunnedEnemyObjectId in stunnedEnemyObjectIds)
             {
+                var sourceObjectId = source.ObjectId;
+                var sourceBehavior = source.Behavior;
                 var sourceState = cardObjects[sourceObjectId];
+                var effectKind = sourceBehavior.SourceStunEnemyUnitTriggerEffectKind;
+                var powerDelta = sourceBehavior.SourcePowerOnControllerStunsEnemyUnitAmount;
+                var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
+                    ? sourceObjectId
+                    : sourceBehavior.DisplayName;
+                var triggerBehavior = sourceBehavior with
+                {
+                    ManaCost = 0,
+                    EffectKind = effectKind,
+                    PowerModifierAmount = powerDelta
+                };
                 var triggerStackItem = new StackItemState(
                     stackItemId: $"{sourceObjectId}:enemy-stunned-ready-power:{stunnedEnemyObjectId}",
                     controllerId: stackItem.ControllerId,
                     sourceObjectId: sourceObjectId,
-                    effectKind: EclipseVanguardStunTriggerEffectKind,
+                    effectKind: effectKind,
                     cardNo: sourceState.CardNo ?? triggerBehavior.CardNo);
                 events.Add(new GameEvent(
                     "TRIGGER_RESOLVED",
-                    $"{stackItem.ControllerId} 的星蚀先锋因眩晕敌方单位而触发",
+                    $"{stackItem.ControllerId} 的{sourceDisplayName}因眩晕敌方单位而触发",
                     new Dictionary<string, object?>
                     {
                         ["playerId"] = stackItem.ControllerId,
-                        ["trigger"] = EclipseVanguardStunTriggerEffectKind,
-                        ["effectKind"] = EclipseVanguardStunTriggerEffectKind,
+                        ["trigger"] = effectKind,
+                        ["effectKind"] = effectKind,
                         ["triggerSourceObjectId"] = sourceObjectId,
                         ["sourceObjectId"] = sourceObjectId,
                         ["playedCardNo"] = stackItem.CardNo,
                         ["triggeredByStackItemId"] = stackItem.StackItemId,
                         ["triggeredBySourceObjectId"] = stackItem.SourceObjectId,
                         ["stunnedEnemyObjectId"] = stunnedEnemyObjectId,
-                        ["powerDelta"] = triggerBehavior.PowerModifierAmount
+                        ["powerDelta"] = powerDelta
                     }));
                 var readiedState = ApplyReadyState(
                     sourceState,
@@ -29895,18 +29892,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         return events;
     }
 
-    private static bool IsControlledFaceUpFieldUnitWithEffectKind(
-        CardObjectState sourceState,
-        string sourceEffectKind)
-    {
-        return IsFaceUpNonStandbyUnitWithEffectKind(sourceState, sourceEffectKind);
-    }
-
     private static bool IsFaceUpNonStandbyUnit(CardObjectState sourceState)
     {
         return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+    }
+
+    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceReadyPowerOnControllerStunsEnemyUnitTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId))
+        {
+            if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || !IsFaceUpNonStandbyUnit(sourceState)
+                || !CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo ?? "", out var sourceBehavior)
+                || !sourceBehavior.SourceReadiesWhenControllerStunsEnemyUnit
+                || sourceBehavior.SourcePowerOnControllerStunsEnemyUnitAmount == 0
+                || string.IsNullOrWhiteSpace(sourceBehavior.SourceStunEnemyUnitTriggerEffectKind))
+            {
+                continue;
+            }
+
+            yield return (sourceObjectId, sourceBehavior);
+        }
     }
 
     private static bool IsFaceUpNonStandbyUnitWithEffectKind(

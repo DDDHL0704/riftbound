@@ -150,6 +150,17 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void EclipseVanguardStunReadyPowerCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·059/298", out var behavior));
+
+        Assert.Equal("星蚀先锋", behavior.DisplayName);
+        Assert.True(behavior.SourceReadiesWhenControllerStunsEnemyUnit);
+        Assert.Equal(1, behavior.SourcePowerOnControllerStunsEnemyUnitAmount);
+        Assert.Equal("ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", behavior.SourceStunEnemyUnitTriggerEffectKind);
+    }
+
+    [Fact]
     public void EmberMonkStandbyHiddenPowerCarriesOfficialBehaviorFields()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·167/298", out var behavior));

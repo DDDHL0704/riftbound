@@ -62,6 +62,11 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("private const string EclipseVanguardCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string ArenaServiceCrewCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("EclipseVanguardStunTriggerSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("EclipseVanguardStunTriggerEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("EclipseVanguardStunTriggerPowerModifier", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string EmberMonkCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string SharpshooterPirateCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("ArenaServiceCrewEquipmentTriggerSourceEffectKind", source, StringComparison.Ordinal);
@@ -78,9 +83,10 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UndercoverAgentCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, HonestBrokerCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UnsungHeroCardNo", source, StringComparison.Ordinal);
-        Assert.Contains("IsControlledFaceUpFieldUnitWithEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.TryGetByEffectKind(EclipseVanguardStunTriggerSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.Contains("SourceReadiesWhenControllerStunsEnemyUnit", source, StringComparison.Ordinal);
+        Assert.Contains("SourcePowerOnControllerStunsEnemyUnitAmount", source, StringComparison.Ordinal);
+        Assert.Contains("SourceStunEnemyUnitTriggerEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("SourceReadiesWhenControllerPlaysEquipment", source, StringComparison.Ordinal);
         Assert.Contains("SourcePowerOnControllerStandbyHiddenAmount", source, StringComparison.Ordinal);
         Assert.Contains("SourceAttackDamageToFirstDefenderAmount", source, StringComparison.Ordinal);

@@ -21,19 +21,26 @@ Validation passed for this follow-up: `TriggerSourceIdentityGuardTests` 23/23; `
 - `TriggerSourceIdentityGuardTests.CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable` now blocks reintroducing the Arena Service Crew runtime effect-kind selector.
 - The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SOURCE_READY_ON_EQUIPMENT_PLAYED_BEHAVIOR_FIELDS_EVIDENCE.md`.
 
+## 2026-06-30 Eclipse Vanguard Behavior-Field Follow-up Evidence
+
+- `CoreRuleEngine.ResolveEclipseVanguardStunTriggers(...)` no longer checks `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT`.
+- `CardBehaviorRegistry` stores `SourceReadiesWhenControllerStunsEnemyUnit=true`, `SourcePowerOnControllerStunsEnemyUnitAmount=1`, and `SourceStunEnemyUnitTriggerEffectKind=ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1` on `OGN·059/298`.
+- `TriggerSourceIdentityGuardTests.CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable` now blocks reintroducing the Eclipse Vanguard runtime effect-kind selector and emitted effect-kind / power constants.
+- The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SOURCE_STUN_READY_POWER_BEHAVIOR_FIELDS_EVIDENCE.md`.
+
 ## Runtime Evidence
 
-- `CoreRuleEngine.IsControlledFaceUpFieldUnitWithEffectKind(...)` is the shared source predicate for this slice.
-- The predicate requires:
+- Historically, `CoreRuleEngine.IsControlledFaceUpFieldUnitWithEffectKind(...)` was the shared source predicate for this slice.
+- Its source-identity predicate required:
   - `CardObjectTags.UnitCard`
   - `IsFaceDown == false`
   - no `CardObjectTags.Standby`
   - `CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind)`
-- `ResolveEclipseVanguardStunTriggers(...)` now uses source effect kind `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT`.
+- Historically this slice recorded `ResolveEclipseVanguardStunTriggers(...)` using source effect kind `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT`; the 2026-06-30 behavior-field follow-up supersedes that path with `SourceReadiesWhenControllerStunsEnemyUnit`.
 - `ResolveRavenbloomStudentSpellPlayedTriggers(...)` now uses source effect kind `RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT`.
 - `ResolveOgsLuxHighCostSpellPlayedTriggers(...)` now uses source effect kind `OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT`.
 - Historically this slice recorded `ResolveArenaServiceCrewEquipmentPlayedTriggers(...)` using source effect kind `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT`; the 2026-06-30 behavior-field follow-up supersedes that path with `ResolveSourceReadyOnEquipmentPlayedTriggers(...)`.
-- Trigger stack items now use the actual matched source object's `CardNo`; the Eclipse Vanguard ready/+1 trigger falls back to the registered source behavior row instead of a Core-owned representative constant.
+- Trigger stack items now use the actual matched source object's `CardNo`; historically the Eclipse Vanguard ready/+1 trigger fell back to the registered source behavior row instead of a Core-owned representative constant, and the 2026-06-30 follow-up now gets the emitted effect kind and amount from that card's behavior fields.
 
 ## Test Evidence
 

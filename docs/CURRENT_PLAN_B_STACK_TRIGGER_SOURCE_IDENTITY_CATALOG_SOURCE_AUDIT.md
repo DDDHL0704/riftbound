@@ -15,6 +15,10 @@ Validation passed for this follow-up: source identity guard 23/23; Eclipse Vangu
 
 The Arena Service Crew equipment-played ready selector has moved beyond catalog effect-kind identity. `CoreRuleEngine.ResolveSourceReadyOnEquipmentPlayedTriggers(...)` now derives matching sources from `SourceReadiesWhenControllerPlaysEquipment=true` and emits `SourceReadyOnEquipmentPlayedEffectKind=ARENA_SERVICE_CREW_EQUIPMENT_READY`; the row identity effect id `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT` remains catalog / fixture / matrix evidence data only. See `docs/CURRENT_PLAN_B_SOURCE_READY_ON_EQUIPMENT_PLAYED_BEHAVIOR_FIELDS_AUDIT.md`.
 
+## 2026-06-30 Follow-up: Eclipse Vanguard Uses Behavior Fields
+
+The Eclipse Vanguard enemy-stun ready/+1 selector has moved beyond catalog effect-kind identity. `CoreRuleEngine.ResolveEclipseVanguardStunTriggers(...)` now derives matching sources from `SourceReadiesWhenControllerStunsEnemyUnit=true`, emits `SourceStunEnemyUnitTriggerEffectKind=ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1`, and reads the +1 amount from `SourcePowerOnControllerStunsEnemyUnitAmount`; the row identity effect id `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT` remains catalog / fixture / matrix evidence data only. See `docs/CURRENT_PLAN_B_SOURCE_STUN_READY_POWER_BEHAVIOR_FIELDS_AUDIT.md`.
+
 ## Scope
 
 Changed:
