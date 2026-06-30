@@ -17,3 +17,9 @@ coverage/
 !.env.example
 appsettings.Local.json
 /*.pdf
+clients/godot/.godot/
+clients/godot/**/bin/
+clients/godot/**/obj/
+clients/godot/**/.mono/
+clients/godot/exports/
+clients/godot/export/

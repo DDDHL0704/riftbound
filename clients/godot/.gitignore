@@ -1,0 +1,11 @@
+.godot/
+.import/
+.mono/
+bin/
+obj/
+export/
+exports/
+*.tmp
+*.translation
+*.uid
+*.import
