@@ -222,7 +222,9 @@ public sealed record CardBehaviorDefinition(
     bool SourceReadiesWhenControllerPlaysEquipment = false,
     string SourceReadyOnEquipmentPlayedEffectKind = "",
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
-    string SourcePowerOnControllerStandbyHiddenEffectKind = "");
+    string SourcePowerOnControllerStandbyHiddenEffectKind = "",
+    int SourceAttackDamageToFirstDefenderAmount = 0,
+    string SourceAttackDamageToFirstDefenderEffectKind = "");
 
 public static class CardDamageConditionKinds
 {
@@ -4260,7 +4262,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "海盗"),
+            SourceUnitTags: "海盗",
+            SourceAttackDamageToFirstDefenderAmount: 1,
+            SourceAttackDamageToFirstDefenderEffectKind: "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1"),
         new(
             "OGN·131/298",
             "沙丘亚龙",

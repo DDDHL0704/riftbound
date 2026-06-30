@@ -160,6 +160,16 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void SharpshooterPirateAttackDamageCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·130/298", out var behavior));
+
+        Assert.Equal("神射海盗", behavior.DisplayName);
+        Assert.Equal(1, behavior.SourceAttackDamageToFirstDefenderAmount);
+        Assert.Equal("SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", behavior.SourceAttackDamageToFirstDefenderEffectKind);
+    }
+
+    [Fact]
     public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

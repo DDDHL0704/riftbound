@@ -36,8 +36,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
-    private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
-    private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
@@ -17418,7 +17416,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var defendingUnitCount = defenderAssignments.Count;
         var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
-        combatEvents.AddRange(ResolveSharpshooterPirateAttackDamageTrigger(
+        combatEvents.AddRange(ResolveSourceAttackDamageToFirstDefenderTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -19214,7 +19212,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSharpshooterPirateAttackDamageTrigger(
+    private static IReadOnlyList<GameEvent> ResolveSourceAttackDamageToFirstDefenderTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -19229,20 +19227,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var events = new List<GameEvent>();
-        foreach (var attackerObjectId in attackerObjectIds)
+        foreach (var source in SourceAttackDamageToFirstDefenderTriggers(
+                playerZones,
+                cardObjects,
+                playerId,
+                attackerObjectIds)
+            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
         {
-            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
-                || !IsControlledFaceUpFieldUnitWithEffectKind(
-                    attackerState,
-                    SharpshooterPirateAttackTriggerSourceEffectKind)
-                || !IsObjectOnField(playerZones, attackerObjectId)
-                || !string.Equals(
-                    EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),
-                    playerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
+            var attackerObjectId = source.ObjectId;
+            var sourceBehavior = source.Behavior;
+            var damageAmount = sourceBehavior.SourceAttackDamageToFirstDefenderAmount;
+            var effectKind = sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind;
+            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
+                ? attackerObjectId
+                : sourceBehavior.DisplayName;
 
             var targetObjectId = defenderAssignments
                 .Select(assignment => assignment.ObjectId)
@@ -19258,33 +19256,59 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
-                $"{playerId} 的神射海盗进攻触发",
+                $"{playerId} 的{sourceDisplayName}进攻触发",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = attackerObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["battlefieldId"] = battlefieldId,
-                    ["effectKind"] = SharpshooterPirateAttackDamageEffectKind,
+                    ["effectKind"] = effectKind,
                     ["triggeredByEventKind"] = "BATTLE_DECLARED",
-                    ["damageAmount"] = 1
+                    ["damageAmount"] = damageAmount
                 }));
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 targetObjectId,
-                1,
+                damageAmount,
                 damageTriggeredDestroyTargetObjectIds);
             var damagePayload = BuildDamagePayload(attackerObjectId, targetObjectId, damageApplication);
             damagePayload["battlefieldId"] = battlefieldId;
-            damagePayload["effectKind"] = SharpshooterPirateAttackDamageEffectKind;
+            damagePayload["effectKind"] = effectKind;
             damagePayload["reason"] = "ATTACK_TRIGGER";
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
-                "神射海盗进攻触发造成伤害",
+                $"{sourceDisplayName}进攻触发造成伤害",
                 damagePayload));
         }
 
         return events;
+    }
+
+    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceAttackDamageToFirstDefenderTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<string> attackerObjectIds)
+    {
+        foreach (var attackerObjectId in attackerObjectIds)
+        {
+            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
+                || !IsFaceUpNonStandbyUnit(attackerState)
+                || !IsObjectOnField(playerZones, attackerObjectId)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),
+                    playerId,
+                    StringComparison.Ordinal)
+                || !CardBehaviorRegistry.TryGetByCardNo(attackerState.CardNo ?? "", out var sourceBehavior)
+                || sourceBehavior.SourceAttackDamageToFirstDefenderAmount <= 0
+                || string.IsNullOrWhiteSpace(sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind))
+            {
+                continue;
+            }
+
+            yield return (attackerObjectId, sourceBehavior);
+        }
     }
 
     private static string? EventPayloadString(GameEvent gameEvent, string key)

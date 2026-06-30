@@ -70,6 +70,10 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT", source, StringComparison.Ordinal);
         Assert.DoesNotContain("EmberMonkStandbyHiddenPowerEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("EMBER_MONK_FACE_DOWN_STANDBY_POWER_2", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SharpshooterPirateAttackTriggerSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SharpshooterPirateAttackDamageEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, KogmawCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UndercoverAgentCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(destroyedState.CardNo, HonestBrokerCardNo", source, StringComparison.Ordinal);
@@ -79,6 +83,7 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.Contains("CardBehaviorRegistry.TryGetByEffectKind(EclipseVanguardStunTriggerSourceEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("SourceReadiesWhenControllerPlaysEquipment", source, StringComparison.Ordinal);
         Assert.Contains("SourcePowerOnControllerStandbyHiddenAmount", source, StringComparison.Ordinal);
+        Assert.Contains("SourceAttackDamageToFirstDefenderAmount", source, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

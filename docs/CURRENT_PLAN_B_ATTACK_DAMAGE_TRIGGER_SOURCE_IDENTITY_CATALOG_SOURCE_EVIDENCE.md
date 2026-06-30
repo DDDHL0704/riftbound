@@ -5,17 +5,24 @@
 
 This file records concrete evidence for removing the direct source card-number check from the current Sharpshooter Pirate / 神射海盗 attack-damage trigger representative.
 
+## 2026-06-30 Follow-up Evidence
+
+- `CoreRuleEngine.ResolveSourceAttackDamageToFirstDefenderTriggers(...)` no longer checks `SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT`.
+- `CardBehaviorRegistry` stores `SourceAttackDamageToFirstDefenderAmount=1` and `SourceAttackDamageToFirstDefenderEffectKind=SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1` on `OGN·130/298`.
+- `TriggerSourceIdentityGuardTests.CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable` now blocks reintroducing the Sharpshooter Pirate runtime effect-kind selector and emitted effect-kind constant.
+- The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SOURCE_ATTACK_DAMAGE_BEHAVIOR_FIELDS_EVIDENCE.md`.
+
 ## Runtime Evidence
 
-- `CoreRuleEngine.ResolveSharpshooterPirateAttackDamageTrigger(...)` now selects eligible attacking sources through `IsControlledFaceUpFieldUnitWithEffectKind(...)`.
-- The shared predicate requires:
+- Historically this slice recorded `CoreRuleEngine.ResolveSharpshooterPirateAttackDamageTrigger(...)` selecting eligible attacking sources through `IsControlledFaceUpFieldUnitWithEffectKind(...)`; the 2026-06-30 behavior-field follow-up supersedes that live runtime path with `ResolveSourceAttackDamageToFirstDefenderTriggers(...)`.
+- That historical shared predicate required:
   - `CardObjectTags.UnitCard`
   - `IsFaceDown == false`
   - no `CardObjectTags.Standby`
   - `CardBehaviorRegistry.IsImplementedUnitWithEffectKind(attackerState.CardNo, SharpshooterPirateAttackTriggerSourceEffectKind)`
-- The source effect kind is `SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT`, which is the registered catalog behavior row for `OGN·130/298`.
-- Existing controller and field-location checks remain in `ResolveSharpshooterPirateAttackDamageTrigger(...)`.
-- The emitted runtime damage effect remains `SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1` for event/replay compatibility.
+- The historical source effect kind was `SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT`, which remains the registered catalog behavior row for `OGN·130/298`.
+- Existing controller and field-location checks remain in `ResolveSourceAttackDamageToFirstDefenderTriggers(...)`.
+- The emitted runtime damage effect remains `SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1` for event/replay compatibility, but Core now reads that value from the behavior row.
 
 ## Test Evidence
 
@@ -28,7 +35,7 @@ Coverage:
 
 - `CardBehaviorRegistryIdentifiesCatalogTriggerSourceUnitsByEffectKind` accepts `OGN·130/298` with `SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT`.
 - `CardBehaviorRegistryRejectsNonMatchingCatalogTriggerSourceUnits` rejects Sharpshooter/Ember cross-effect source identity matches.
-- `CoreRuleEngineTriggerSourceSelectionUsesCatalogEffectKindIdentity` blocks reintroducing a direct `attackerState.CardNo` comparison against `SharpshooterPirateCardNo` and verifies the runtime path consumes `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`.
+- `CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable` blocks reintroducing a direct `attackerState.CardNo` comparison against `SharpshooterPirateCardNo` and blocks the old Sharpshooter Pirate runtime effect-kind selector.
 - `P79SharpshooterPirateDamagesEnemyUnitWhenAttackingBattlefield` proves the attacking visible Sharpshooter source emits the trigger and deals 1 damage to the same-battlefield enemy defender.
 - `P79SharpshooterPirateSkipsAttackDamageWhenDefending` proves the defensive case does not emit the attack-damage trigger.
 
