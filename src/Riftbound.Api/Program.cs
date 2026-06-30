@@ -233,7 +233,8 @@ static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors(IReadOnlyList
         .Select(definition => new ImplementedCardBehavior(
             definition.CardNo,
             definition.EffectKind,
-            definition.DisplayName))
+            definition.DisplayName,
+            CardBehaviorRegistry.TriggerEffectKinds(definition)))
         .ToArray();
 
     return OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(cards, playCardBehaviors);

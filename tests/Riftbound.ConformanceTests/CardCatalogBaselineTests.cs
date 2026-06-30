@@ -565,6 +565,23 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void GuerrillaWarfareFreeStandbyPermissionUsesBehaviorField()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·264/298", out var behavior));
+        Assert.True(behavior.GrantsFreeStandbyHidePermission);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var source = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("GuerrillaWarfareEffectKind", source, StringComparison.Ordinal);
+        Assert.Contains("behavior.GrantsFreeStandbyHidePermission", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2086,6 +2103,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(5, trigger.MinimumPaidMana);
         Assert.Equal(3, trigger.PowerDelta);
         Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Equal("OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3", trigger.EffectKind);
         Assert.Contains("每当你打出费用不低于{{5}}的法术时", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("本回合内{{S}}+3", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
@@ -4686,6 +4704,8 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
@@ -5100,6 +5120,7 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("HonestBrokerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldBehavior", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("HonestBrokerLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CreateBaseEquipmentTokensFromTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
@@ -7725,7 +7746,8 @@ public sealed class CardCatalogBaselineTests
             .Select(definition => new ImplementedCardBehavior(
                 definition.CardNo,
                 definition.EffectKind,
-                definition.DisplayName))
+                definition.DisplayName,
+                CardBehaviorRegistry.TriggerEffectKinds(definition)))
             .ToArray();
 
         return OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(cards, playCardBehaviors);

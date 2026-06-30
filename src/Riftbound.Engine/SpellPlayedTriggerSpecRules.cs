@@ -71,7 +71,8 @@ internal static class SpellPlayedTriggerSpecRules
             .Select(behavior => new ImplementedCardBehavior(
                 behavior.CardNo,
                 behavior.EffectKind,
-                behavior.DisplayName))
+                behavior.DisplayName,
+                CardBehaviorRegistry.TriggerEffectKinds(behavior)))
             .ToArray();
         var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
             catalog.Cards,

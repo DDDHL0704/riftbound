@@ -515,7 +515,8 @@ public sealed record TriggerSpec(
     int? KeywordBonus = null,
     int? ExperienceCount = null,
     bool? RequiresNoOtherFriendlyUnitAtSamePosition = null,
-    bool? RequiresOtherFriendlyUnitAtSamePosition = null);
+    bool? RequiresOtherFriendlyUnitAtSamePosition = null,
+    string? EffectKind = null);
 
 public sealed record ReplacementSpec(
     string Kind,

@@ -1,3 +1,5 @@
+using Riftbound.Contracts;
+
 namespace Riftbound.Engine;
 
 public sealed record CardBehaviorDefinition(
@@ -227,7 +229,9 @@ public sealed record CardBehaviorDefinition(
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
     string SourcePowerOnControllerStandbyHiddenEffectKind = "",
     int SourceAttackDamageToFirstDefenderAmount = 0,
-    string SourceAttackDamageToFirstDefenderEffectKind = "");
+    string SourceAttackDamageToFirstDefenderEffectKind = "",
+    string UnitHighCostSpellPowerModifierEffectKind = "",
+    bool GrantsFreeStandbyHidePermission = false);
 
 public static class CardDamageConditionKinds
 {
@@ -4052,7 +4056,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitHighCostSpellPowerModifierEffectKind: "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3"),
         new(
             "OGN·195/298",
             "裂魂者喇煞",
@@ -7443,7 +7448,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyGraveyardCard,
             MinTargetCount: 0,
             TargetRequiredTag: CardObjectTags.Standby,
-            ReturnsGraveyardTargetToHand: true),
+            ReturnsGraveyardTargetToHand: true,
+            GrantsFreeStandbyHidePermission: true),
         new(
             "UNL-070/219",
             "化为灰烬",
@@ -8536,6 +8542,18 @@ public static class CardBehaviorRegistry
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
         return Definitions.Select(ApplyLifecycleKeywordDefaults).ToArray();
+    }
+
+    public static IReadOnlyDictionary<string, string> TriggerEffectKinds(CardBehaviorDefinition definition)
+    {
+        var triggerEffectKinds = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!string.IsNullOrWhiteSpace(definition.UnitHighCostSpellPowerModifierEffectKind))
+        {
+            triggerEffectKinds[TriggerKinds.UnitHighCostSpellPowerModifier] =
+                definition.UnitHighCostSpellPowerModifierEffectKind;
+        }
+
+        return triggerEffectKinds;
     }
 
     public static bool TryGetByCardNoAndMode(

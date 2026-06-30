@@ -5,6 +5,10 @@
 
 本文件记录 Plan B 小切片：把 OGS Lux / 光辉女郎 high-cost spell 代表触发、Ravenbloom Student / 拉文布鲁姆学生 spell-play power 代表触发、Diana / 黛安娜主卡与 alt A 的 spell-play power 代表触发，以及 Jhin / 戏命师 high-cost spell banish completion 代表触发，迁移或接入 BehaviorSpec 驱动的 spell-play trigger 路径。该切片覆盖单位来源的高费法术本回合战力修正、intro legend 来源的高费法术抽牌、单位来源的无阈值 spell-play 本回合战力修正，以及 legend 来源的高费法术放逐四张后召符文/抽牌代表路径；不改变 OGS Lux trigger queue 兼容 effectKind、恢复校验 payload 形状、Diana 伏击 / 反应打出流程、Jhin optional yes/no prompt、完整 APNAP / `ORDER_TRIGGERS` 或完整 spell-play trigger breadth。
 
+## 2026-06-30 Follow-up: OGS Lux EffectKind Lives On TriggerSpec
+
+`CoreRuleEngine.ResolveUnitHighCostSpellPowerModifierTriggers(...)` no longer owns the OGS Lux emitted effect id. `TriggerSpec` now carries optional `EffectKind`, `CardBehaviorRegistry` records `UnitHighCostSpellPowerModifierEffectKind=OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` on `OGS·006/024`, and `BehaviorSpecCatalogBuilder` projects that value onto the parsed `UNIT_HIGH_COST_SPELL_POWER_MODIFIER` trigger. Public trigger queue / recovery compatibility effectKind remains unchanged. See `docs/CURRENT_PLAN_B_SPELL_PLAYED_TRIGGER_EFFECT_KIND_SPEC_AUDIT.md`.
+
 ## 1. Scope
 
 Changed:

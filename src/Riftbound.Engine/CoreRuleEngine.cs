@@ -38,10 +38,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
-    private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
-    private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
@@ -111,7 +109,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
-    private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
@@ -6799,9 +6796,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnitWithEffectKind(
-                destroyedState,
-                HonestBrokerLastBreathSourceEffectKind))
+            || !IsFaceUpNonStandbyUnit(destroyedState)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(
+                destroyedState.CardNo,
+                out var triggerSpec)
+            || !IsUnitLastBreathCreateDormantGoldTriggerSpec(triggerSpec))
         {
             return null;
         }
@@ -7246,6 +7245,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
             && trigger.RuneCallCount is > 0;
+    }
+
+    private static bool IsUnitLastBreathCreateDormantGoldTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathCreateDormantGold,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.CreatedTokenCount is > 0
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal)
+            && trigger.CreatedTokenExhausted == true;
     }
 
     private static bool IsUnitLastBreathCreateBaseUnitTriggerSpec(TriggerSpec trigger)
@@ -33809,25 +33825,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
+            var effectKind = triggerSpec.EffectKind ?? string.Empty;
             var triggerBehavior = new CardBehaviorDefinition(
                 sourceState.CardNo ?? string.Empty,
                 "高费法术触发",
                 0,
-                OgsLuxHighCostSpellPowerEffectKind,
+                effectKind,
                 0,
                 0,
                 PowerModifierAmount: powerDelta);
             var trigger = new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKind}",
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{effectKind}",
                 playerId,
                 sourceObjectId,
-                OgsLuxHighCostSpellPowerEffectKind,
+                effectKind,
                 "CARD_PLAYED");
             var triggerStackItem = new StackItemState(
                 stackItemId: trigger.TriggerId,
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
-                effectKind: OgsLuxHighCostSpellPowerEffectKind,
+                effectKind: effectKind,
                 cardNo: sourceState.CardNo);
 
             events.Add(BuildTriggerQueuedEvent(trigger));
@@ -33850,7 +33867,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
             && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
             && trigger.MinimumPaidMana.GetValueOrDefault() > 0
-            && trigger.PowerDelta.GetValueOrDefault() != 0;
+            && trigger.PowerDelta.GetValueOrDefault() != 0
+            && !string.IsNullOrWhiteSpace(trigger.EffectKind);
     }
 
     private static void ResolveSourceReadyOnEquipmentPlayedTriggers(
@@ -39056,13 +39074,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
     {
         if (UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(stackItem.CardNo, out trigger)
-            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal))
+            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal)
+            && IsUnitLastBreathCreateDormantGoldTriggerSpec(trigger))
         {
             return true;
         }
 
         return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
-            && string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal);
+            && IsUnitLastBreathCreateDormantGoldTriggerSpec(trigger);
     }
 
     private static bool TryGetLastBreathDiscardDrawTrigger(StackItemState stackItem, out TriggerSpec trigger)
@@ -42697,10 +42716,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool ShouldGrantFreeStandbyHidePermission(CardBehaviorDefinition behavior)
     {
-        return string.Equals(
-            behavior.EffectKind,
-            GuerrillaWarfareEffectKind,
-            StringComparison.Ordinal);
+        return behavior.GrantsFreeStandbyHidePermission;
     }
 
     private static bool ShouldApplyBanishPlayToTarget(CardBehaviorDefinition behavior, int targetIndex)

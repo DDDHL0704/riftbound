@@ -5,6 +5,15 @@
 
 This file records concrete evidence for routing OGS Lux high-cost spell, Ravenbloom Student spell-play power, Diana spell-play power, and Jhin high-cost spell banish completion representative triggers through BehaviorSpec instead of single-card Core resolvers.
 
+## 2026-06-30 Follow-up Evidence
+
+- `TriggerSpec` now carries optional `EffectKind`.
+- `CardBehaviorRegistry` stores `UnitHighCostSpellPowerModifierEffectKind=OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` on `OGS·006/024`.
+- `BehaviorSpecCatalogBuilder` projects the behavior-row effect id onto the parsed OGS Lux `UNIT_HIGH_COST_SPELL_POWER_MODIFIER` trigger.
+- `CoreRuleEngine.ResolveUnitHighCostSpellPowerModifierTriggers(...)` emits trigger ids, trigger queue effectKind, stack item effectKind, and power-modifier reason from `triggerSpec.EffectKind`.
+- `CoreRuleEngine` no longer defines `OgsLuxHighCostSpellPowerEffectKind`.
+- The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SPELL_PLAYED_TRIGGER_EFFECT_KIND_SPEC_EVIDENCE.md`.
+
 ## 1. Official Source
 
 - `data/official/card-catalog.zh-CN.json`: `OGS·006/024` 拉克丝 has official text `每当你打出费用不低于{{5}}的法术时，让我本回合内{{S}}+3。`

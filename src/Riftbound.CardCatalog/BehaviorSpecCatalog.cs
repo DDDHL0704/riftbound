@@ -5,7 +5,8 @@ namespace Riftbound.CardCatalog;
 public sealed record ImplementedCardBehavior(
     string CardNo,
     string EffectKind,
-    string DisplayName);
+    string DisplayName,
+    IReadOnlyDictionary<string, string>? TriggerEffectKinds = null);
 
 public sealed record BehaviorSpecCatalogReport(
     int OfficialEntries,
@@ -534,6 +535,7 @@ public static class BehaviorSpecCatalogBuilder
         var activatedAbilities = ApplyActivatedAbilityStatuses(parsed.ActivatedAbilities, status);
         var staticAbilities = ApplyStaticAbilityStatuses(parsed.StaticAbilities, status, implementation is not null);
         var staticAuras = ApplyStaticAuraStatuses(parsed.StaticAuras, status, implementation is not null);
+        var triggers = ApplyTriggerEffectKinds(parsed.Triggers, implementation);
         var templateIds = effects
             .Select(effect => effect.TemplateId)
             .Distinct(StringComparer.Ordinal)
@@ -553,7 +555,7 @@ public static class BehaviorSpecCatalogBuilder
             parsed.Cost,
             parsed.Keywords,
             parsed.Targets,
-            parsed.Triggers,
+            triggers,
             parsed.Replacements,
             activatedAbilities,
             staticAbilities,
@@ -564,6 +566,25 @@ public static class BehaviorSpecCatalogBuilder
             implementation?.CardNo,
             conformanceTier,
             conformanceReason);
+    }
+
+    private static IReadOnlyList<TriggerSpec> ApplyTriggerEffectKinds(
+        IReadOnlyList<TriggerSpec> triggers,
+        ImplementedCardBehavior? implementation)
+    {
+        if (implementation?.TriggerEffectKinds is null || implementation.TriggerEffectKinds.Count == 0)
+        {
+            return triggers;
+        }
+
+        return triggers
+            .Select(trigger =>
+                string.IsNullOrWhiteSpace(trigger.EffectKind)
+                && implementation.TriggerEffectKinds.TryGetValue(trigger.Kind, out var effectKind)
+                && !string.IsNullOrWhiteSpace(effectKind)
+                    ? trigger with { EffectKind = effectKind }
+                    : trigger)
+            .ToArray();
     }
 
     private static ImplementedCardBehavior? FindImplementation(

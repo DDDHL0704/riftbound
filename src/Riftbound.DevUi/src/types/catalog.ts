@@ -49,6 +49,7 @@ export type BehaviorSpec = {
     timing: string;
     text: string;
     reason: string;
+    effectKind?: string | null;
     targetScope?: string | null;
     powerDelta?: number | null;
     duration?: string | null;
