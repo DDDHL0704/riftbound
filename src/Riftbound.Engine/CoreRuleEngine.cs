@@ -32,7 +32,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
-    private const string ArmedAssaulterHasteTemperedSourceEffectKind = "ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE";
     private const string SourceStealEnemyEquipmentMarkerPrefix = "SOURCE_STOLEN_EQUIPMENT_BY:";
     private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
@@ -34380,7 +34379,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind, StringComparison.Ordinal);
+            && HasHasteReadyEntryCost(behavior)
+            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
     }
 
     private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)

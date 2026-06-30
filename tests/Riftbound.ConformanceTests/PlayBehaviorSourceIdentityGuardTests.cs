@@ -179,15 +179,17 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, AkshanCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("akshanState.CardNo, AkshanCardNo", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("ArmedAssaulterHasteTemperedSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ArmedAssaulterHasteTemperedSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ArmedAssaulterHasteTemperedSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ARMED_ASSAULTER_PLAY_UNIT_NO_OPTIONAL_HASTE", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AkshanOrangeExtraEquipmentStealSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, ArmedAssaulterHasteTemperedSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
+        Assert.Contains("HasHasteReadyEntryCost(behavior)", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo)", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo)", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", coreRuleEngineSource, StringComparison.Ordinal);
