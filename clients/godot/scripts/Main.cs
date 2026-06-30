@@ -22,10 +22,13 @@ public partial class Main : Control
     private readonly CancellationTokenSource _shutdown = new();
     private readonly PlayerSessionStore _sessionStore = new();
     private readonly List<PreconstructedDeck> _decks = [];
+    private readonly OfficialCardImageLoader _cardImageLoader = new();
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
     private Label? _status;
     private RichTextLabel? _log;
+    private Label? _boardSummary;
+    private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
     private LineEdit? _handleInput;
     private LineEdit? _roomInput;
@@ -40,6 +43,9 @@ public partial class Main : Control
     private bool _autoSmoke;
     private bool _autoSmokeSubmitted;
     private bool _ephemeralSession;
+    private Task? _officialCatalogLoadTask;
+    private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
+        new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
 
     public override async void _Ready()
     {
@@ -53,7 +59,7 @@ public partial class Main : Control
         _session = await _sessionStore.LoadAsync();
         _session = ApplyCommandLineOverrides(_session, args);
         ApplySessionToInputs();
-        _ = LoadOfficialCardPreviewAsync();
+        _officialCatalogLoadTask = LoadOfficialCardPreviewAsync();
         _ = LoadDecksAsync();
 
         if (AutoConnectOnReady)
@@ -73,6 +79,8 @@ public partial class Main : Control
     {
         _status = GetNode<Label>("Status");
         _log = GetNode<RichTextLabel>("Log");
+        _boardSummary = GetNode<Label>("Controls/BoardSummary");
+        _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
         _roomInput = GetNode<LineEdit>("Controls/SessionRow/RoomInput");
@@ -150,6 +158,7 @@ public partial class Main : Control
         {
             var catalog = await new OfficialCardCatalogService()
                 .LoadSnapshotAsync(OfficialCatalogSnapshotPath, _shutdown.Token);
+            _officialCatalog = catalog;
             AppendLog($"Official catalog loaded: {catalog.Count} cards.");
 
             if (!catalog.TryGetValue(PreviewCardNo, out var card))
@@ -158,7 +167,7 @@ public partial class Main : Control
                 return;
             }
 
-            var image = await new OfficialCardImageLoader().LoadOfficialFrontImageAsync(card, _shutdown.Token);
+            var image = await _cardImageLoader.LoadOfficialFrontImageAsync(card, _shutdown.Token);
             if (image is null)
             {
                 AppendLog($"[color=yellow]No official front image for {Escape(card.CardNo)} {Escape(card.CardName)}[/color]");
@@ -376,9 +385,184 @@ public partial class Main : Control
         {
             HandleServerError(message);
         }
+        else if (channel == "Snapshot")
+        {
+            _ = RenderSnapshotAsync(message);
+        }
 
         AppendLog(
             $"[b]{Escape(channel)}[/b] type={message.Type} room={Escape(message.RoomId)} player={Escape(message.PlayerId)} tick={message.ServerTick} payload={PayloadSummary(message.Payload)}");
+    }
+
+    private async Task RenderSnapshotAsync(WsServerMessage message)
+    {
+        if (message.Payload is not JsonElement element || element.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        try
+        {
+            var table = element.TryGetProperty("table", out var tableElement) && tableElement.ValueKind == JsonValueKind.Object
+                ? tableElement
+                : default;
+            var summary = BuildSnapshotSummary(element, table);
+            var handCards = VisibleHandCards(element, table);
+            if (_officialCatalogLoadTask is { IsCompleted: false } catalogLoadTask)
+            {
+                await catalogLoadTask;
+            }
+
+            var views = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+            var officialImageCount = 0;
+            foreach (var handCard in handCards.Take(12))
+            {
+                var view = await BuildCardViewAsync(handCard);
+                if (view.ContainsKey("image"))
+                {
+                    officialImageCount++;
+                }
+
+                views.Add(view);
+            }
+
+            QueueMainThread(nameof(ApplyBoardSummary), summary);
+            QueueMainThread(nameof(ApplyHandCards), views);
+            AppendLog($"Snapshot table rendered: visibleHand={views.Count}, officialImages={officialImageCount}.");
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Snapshot render skipped: {Escape(ex.Message)}[/color]");
+        }
+    }
+
+    private string BuildSnapshotSummary(JsonElement snapshot, JsonElement table)
+    {
+        var tick = ReadLong(snapshot, "tick");
+        var turn = ReadInt(snapshot, "turnNumber");
+        var turnState = ReadString(snapshot, "turnState");
+        var active = ReadString(snapshot, "activePlayerId");
+        var players = table.ValueKind == JsonValueKind.Object
+            && table.TryGetProperty("players", out var playersElement)
+            && playersElement.ValueKind == JsonValueKind.Array
+            ? playersElement.EnumerateArray().Select(PlayerSummary).ToArray()
+            : [];
+
+        var playerSummary = players.Length == 0 ? "players: unknown" : string.Join(" | ", players);
+        return $"tick {tick} / turn {turn} / state {turnState} / active {active} / {playerSummary}";
+    }
+
+    private static string PlayerSummary(JsonElement player)
+    {
+        var zones = player.TryGetProperty("zones", out var zonesElement) && zonesElement.ValueKind == JsonValueKind.Object
+            ? zonesElement
+            : default;
+        var id = ReadString(player, "playerId");
+        var seat = ReadString(player, "seat");
+        var hand = ReadArrayCount(zones, "hand");
+        var hidden = ReadInt(zones, "handHidden");
+        var main = ReadInt(zones, "mainDeckCount");
+        var rune = ReadInt(zones, "runeDeckCount");
+        return $"{id} {seat} hand {hand}+{hidden} deck {main} rune {rune}";
+    }
+
+    private IReadOnlyList<SnapshotCardRef> VisibleHandCards(JsonElement snapshot, JsonElement table)
+    {
+        if (table.ValueKind != JsonValueKind.Object
+            || !table.TryGetProperty("viewerPlayerId", out var viewerProperty)
+            || viewerProperty.ValueKind != JsonValueKind.String)
+        {
+            return [];
+        }
+
+        var viewer = viewerProperty.GetString() ?? string.Empty;
+        var handIds = ViewerHandIds(table, viewer);
+        if (handIds.Count == 0)
+        {
+            return [];
+        }
+
+        var objects = ViewerObjects(snapshot, viewer);
+        return handIds
+            .Select(objectId => CardRefFor(objectId, objects))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ViewerHandIds(JsonElement table, string viewer)
+    {
+        if (!table.TryGetProperty("players", out var playersElement) || playersElement.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        foreach (var player in playersElement.EnumerateArray())
+        {
+            if (!string.Equals(ReadString(player, "playerId"), viewer, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (player.TryGetProperty("zones", out var zones)
+                && zones.ValueKind == JsonValueKind.Object
+                && zones.TryGetProperty("hand", out var hand)
+                && hand.ValueKind == JsonValueKind.Array)
+            {
+                return hand
+                    .EnumerateArray()
+                    .Where(item => item.ValueKind == JsonValueKind.String)
+                    .Select(item => item.GetString() ?? string.Empty)
+                    .Where(item => item.Length > 0)
+                    .ToArray();
+            }
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyDictionary<string, JsonElement> ViewerObjects(JsonElement snapshot, string viewer)
+    {
+        if (!snapshot.TryGetProperty("players", out var players)
+            || players.ValueKind != JsonValueKind.Object
+            || !players.TryGetProperty(viewer, out var player)
+            || player.ValueKind != JsonValueKind.Object
+            || !player.TryGetProperty("objects", out var objects)
+            || objects.ValueKind != JsonValueKind.Object)
+        {
+            return new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+        }
+
+        return objects.EnumerateObject()
+            .ToDictionary(property => property.Name, property => property.Value, StringComparer.Ordinal);
+    }
+
+    private static SnapshotCardRef CardRefFor(string objectId, IReadOnlyDictionary<string, JsonElement> objects)
+    {
+        if (!objects.TryGetValue(objectId, out var card) || card.ValueKind != JsonValueKind.Object)
+        {
+            return new SnapshotCardRef(objectId, string.Empty, false, true);
+        }
+
+        var faceDown = ReadBool(card, "isFaceDown");
+        var cardNo = faceDown ? string.Empty : ReadString(card, "cardNo");
+        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown);
+    }
+
+    private async Task<Godot.Collections.Dictionary> BuildCardViewAsync(SnapshotCardRef card)
+    {
+        var view = new Godot.Collections.Dictionary
+        {
+            ["label"] = string.IsNullOrWhiteSpace(card.CardNo) ? "Hidden" : card.CardNo,
+            ["objectId"] = card.ObjectId
+        };
+
+        if (card.Visible
+            && _officialCatalog.TryGetValue(card.CardNo, out var entry)
+            && await _cardImageLoader.LoadOfficialFrontImageAsync(entry, _shutdown.Token) is { } image)
+        {
+            view["image"] = image;
+        }
+
+        return view;
     }
 
     private void UpdateJoinedSession(WsServerMessage message)
@@ -394,7 +578,7 @@ public partial class Main : Control
             return;
         }
 
-            _session = _session with { ReconnectToken = token };
+        _session = _session with { ReconnectToken = token };
         _ = SaveSessionAsync();
     }
 
@@ -455,6 +639,52 @@ public partial class Main : Control
         return element.TryGetProperty(propertyName, out var property) && property.ValueKind == JsonValueKind.String
             ? property.GetString() ?? string.Empty
             : string.Empty;
+    }
+
+    private static int ReadInt(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property))
+        {
+            return 0;
+        }
+
+        return property.ValueKind switch
+        {
+            JsonValueKind.Number when property.TryGetInt32(out var number) => number,
+            JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
+            _ => 0
+        };
+    }
+
+    private static long ReadLong(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property))
+        {
+            return 0;
+        }
+
+        return property.ValueKind switch
+        {
+            JsonValueKind.Number when property.TryGetInt64(out var number) => number,
+            JsonValueKind.String when long.TryParse(property.GetString(), out var number) => number,
+            _ => 0
+        };
+    }
+
+    private static bool ReadBool(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var property)
+            && property.ValueKind is JsonValueKind.True or JsonValueKind.False
+            && property.GetBoolean();
+    }
+
+    private static int ReadArrayCount(JsonElement element, string propertyName)
+    {
+        return element.ValueKind == JsonValueKind.Object
+            && element.TryGetProperty(propertyName, out var property)
+            && property.ValueKind == JsonValueKind.Array
+            ? property.GetArrayLength()
+            : 0;
     }
 
     private static string PayloadSummary(object? payload)
@@ -523,6 +753,61 @@ public partial class Main : Control
         }
 
         _log.AppendText($"{text}\n");
+    }
+
+    public void ApplyBoardSummary(string text)
+    {
+        if (_boardSummary is not null)
+        {
+            _boardSummary.Text = text;
+        }
+    }
+
+    public void ApplyHandCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
+    {
+        if (_handRow is null)
+        {
+            return;
+        }
+
+        foreach (var child in _handRow.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        foreach (var card in cards)
+        {
+            _handRow.AddChild(CardNode(card));
+        }
+    }
+
+    private static Control CardNode(Godot.Collections.Dictionary card)
+    {
+        var frame = new PanelContainer
+        {
+            CustomMinimumSize = new Vector2(92, 128)
+        };
+        var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
+        if (image is not null)
+        {
+            frame.AddChild(new TextureRect
+            {
+                CustomMinimumSize = new Vector2(84, 120),
+                Texture = ImageTexture.CreateFromImage(image),
+                ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
+            });
+            return frame;
+        }
+
+        frame.AddChild(new Label
+        {
+            CustomMinimumSize = new Vector2(84, 120),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Text = card.TryGetValue("label", out var label) ? label.AsString() : "Card"
+        });
+        return frame;
     }
 
     public void ApplyDeckOptions()

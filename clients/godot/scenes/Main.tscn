@@ -95,6 +95,19 @@ text = "Submit Deck"
 layout_mode = 2
 text = "Ready"
 
+[node name="BoardSummary" type="Label" parent="Controls"]
+layout_mode = 2
+text = "No snapshot"
+
+[node name="HandScroll" type="ScrollContainer" parent="Controls"]
+custom_minimum_size = Vector2(0, 136)
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="HandRow" type="HBoxContainer" parent="Controls/HandScroll"]
+layout_mode = 2
+
 [node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
@@ -118,7 +131,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 256.0
+offset_top = 392.0
 offset_right = -324.0
 offset_bottom = -24.0
 grow_horizontal = 2
