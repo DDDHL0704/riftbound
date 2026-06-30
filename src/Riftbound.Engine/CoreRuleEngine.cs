@@ -138,7 +138,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
     private const string SettLegendIdentityId = LegendIdentityCatalog.SettLegendIdentityId;
     private const int SettLegendManaCost = 1;
-    private const string UnitConquestPayReturnSelfToHandEffectKind = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
@@ -905,6 +904,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (TryReadUnitConquestPayReturnSelfToHandPaymentContext(
                 pendingPayment,
+                out var vayneEffectKind,
                 out var vayneBattlefieldId,
                 out var vayneBattlefieldObjectId,
                 out var vayneSourceObjectId))
@@ -914,6 +914,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent,
                 pendingPayment,
                 submittedChoices,
+                vayneEffectKind,
                 vayneBattlefieldId,
                 vayneBattlefieldObjectId,
                 vayneSourceObjectId);
@@ -1485,6 +1486,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PendingPaymentState pendingPayment,
         IReadOnlyList<string> submittedChoices,
+        string effectKind,
         string battlefieldId,
         string battlefieldObjectId,
         string sourceObjectId)
@@ -1493,7 +1495,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out _)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out _)
+            || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var sourceState)
+            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
             || !TryReturnTargetToHand(playerZones, cardObjects, sourceObjectId, out var ownerPlayerId, out _))
         {
             return RejectWithCorePrompts(
@@ -1505,7 +1509,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            UnitConquestPayReturnSelfToHandEffectKind,
+            effectKind,
             sourceObjectId);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
         if (!paymentCommit.Accepted)
@@ -1532,7 +1536,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
+                        ["reason"] = effectKind
                     })),
             new(
                 "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -1542,7 +1546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldId"] = battlefieldId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
-                    ["trigger"] = UnitConquestPayReturnSelfToHandEffectKind,
+                    ["trigger"] = effectKind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["returnedObjectId"] = sourceObjectId,
                     ["ownerPlayerId"] = ownerPlayerId,
@@ -1557,7 +1561,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["targetObjectId"] = sourceObjectId,
                     ["ownerPlayerId"] = ownerPlayerId,
-                    ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
+                    ["reason"] = effectKind
                 })
         };
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -2108,11 +2112,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (TryReadUnitConquestPayReturnSelfToHandPaymentContext(
                      pendingPayment,
+                     out var unitConquestEffectKind,
                      out battlefieldId,
                      out battlefieldObjectId,
                      out sourceObjectId))
         {
-            payload["trigger"] = UnitConquestPayReturnSelfToHandEffectKind;
+            payload["trigger"] = unitConquestEffectKind;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
@@ -2931,13 +2936,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static string BuildUnitConquestPayReturnSelfToHandPaymentReason(
+        string effectKind,
         string battlefieldId,
         string battlefieldObjectId,
         string sourceObjectId)
     {
         return string.Join(
             '|',
-            UnitConquestPayReturnSelfToHandEffectKind,
+            effectKind,
             battlefieldId,
             battlefieldObjectId,
             sourceObjectId);
@@ -2945,10 +2951,12 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryReadUnitConquestPayReturnSelfToHandPaymentContext(
         PendingPaymentState pendingPayment,
+        out string effectKind,
         out string battlefieldId,
         out string battlefieldObjectId,
         out string sourceObjectId)
     {
+        effectKind = string.Empty;
         battlefieldId = string.Empty;
         battlefieldObjectId = string.Empty;
         sourceObjectId = string.Empty;
@@ -2960,7 +2968,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
-            || !string.Equals(parts[0], UnitConquestPayReturnSelfToHandEffectKind, StringComparison.Ordinal)
+            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(parts[0], out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -2968,6 +2976,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        effectKind = parts[0];
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
@@ -25060,6 +25069,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var manaCost = trigger.ManaCost.Value;
+        var effectKind = RuntimeTriggerEffectKind(trigger);
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -25245,6 +25255,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var manaCost = trigger.ManaCost.Value;
+        var effectKind = RuntimeTriggerEffectKind(trigger);
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -25305,6 +25316,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var manaCost = trigger.ManaCost.Value;
+        var effectKind = RuntimeTriggerEffectKind(trigger);
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
@@ -25317,7 +25329,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             manaCost: manaCost,
             legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
-            reason: BuildUnitConquestPayReturnSelfToHandPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
+            reason: BuildUnitConquestPayReturnSelfToHandPaymentReason(effectKind, battlefieldId, battlefieldObjectId, sourceObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 征服战场后等待支付回手触发费用",
@@ -25328,7 +25340,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
-                ["trigger"] = UnitConquestPayReturnSelfToHandEffectKind,
+                ["trigger"] = effectKind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["mana"] = manaCost,
                 ["power"] = 0,
@@ -25339,7 +25351,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
                 ["paymentChoices"] = new[] { spendManaChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = UnitConquestPayReturnSelfToHandEffectKind
+                ["reason"] = effectKind
             }));
         return true;
     }

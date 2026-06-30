@@ -71,10 +71,12 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain("\"JAX_WEAPON_ATTACH_PAY_1_DRAW_1\"", source, StringComparison.Ordinal);
         Assert.DoesNotContain("IsJaxWeaponAttachSourceBehavior", source, StringComparison.Ordinal);
         Assert.DoesNotContain("OgnVayneConquerRecallSourceEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitConquestPayReturnSelfToHandEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("TryGetOgnVayneConquerRecallSource", source, StringComparison.Ordinal);
         Assert.DoesNotContain("TryOpenOgnVayneConquerRecallPaymentWindow", source, StringComparison.Ordinal);
         Assert.DoesNotContain("OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT", source, StringComparison.Ordinal);
         Assert.Contains("UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("TryOpenUnitConquestPayReturnSelfToHandPaymentWindow", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
         Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind", source, StringComparison.Ordinal);

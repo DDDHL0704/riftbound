@@ -4,6 +4,8 @@ Date: 2026-06-29
 
 Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, attack-overkill gain-score, pay-return-self-to-hand, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, official-deck midgame Treant replay, and official-deck-derived Vayne pay-return replay slices accepted; project remains **NOT READY**.
 
+2026-06-30 follow-up: Vayne pay-return pending-payment reason parsing and runtime trigger/reason payloads now also read the runtime effect kind from `BehaviorSpec.Triggers` through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(...)`. `CoreRuleEngine` no longer owns `UnitConquestPayReturnSelfToHandEffectKind`. Focused source guard / catalog representatives 5/5, adjacent Vayne / UnitConquest / TriggerPayment / PaymentEngine / MatchRecovery / CardCatalogBaseline representatives 3198/3198, and backend full 9038/9038 passed.
+
 ## Scope
 
 This slice moves implemented unit conquest effects away from engine card-number branching:
@@ -70,6 +72,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `ReturnDestinationZone = HAND`
   - `Optional = true`
 - `CoreRuleEngine` now opens and resolves the existing trigger-payment window for 薇恩's representative through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)`, reading the trigger id and mana cost from `BehaviorSpec.Triggers`. The old play-behavior source effect id `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` is no longer a Core source selector for this trigger.
+- The pending-payment reason parser, `PAYMENT_WINDOW_OPENED.trigger`, `COST_PAID.reason`, `BATTLEFIELD_TRIGGER_RESOLVED.trigger`, and `UNIT_RETURNED_TO_HAND.reason` now derive the same wire-compatible trigger id from `TriggerSpec` instead of a Core-local `UnitConquestPayReturnSelfToHandEffectKind` alias.
 - `FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash` now carries the same pay-return TriggerSpec through an official-deck-derived midgame battle state: legal official deck opening, official `OGN·035/298` 薇恩 and `OGN·096/298` Watchful Sentinel objects, `DECLARE_BATTLE`, `TRIGGER_PAYMENT` / `PAY_COST(SPEND_MANA:1)`, source return to owner hand, score victory, and action-log final-state replay.
 - No `OGN·035/298` / `SFD·223/221` / `SFD·223*/221` card-number branch was added.
 - `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 瑟提 official text from `data/official/card-catalog.zh-CN.json`: `当我被打出时、或当我征服一处战场时，给予我增益。`

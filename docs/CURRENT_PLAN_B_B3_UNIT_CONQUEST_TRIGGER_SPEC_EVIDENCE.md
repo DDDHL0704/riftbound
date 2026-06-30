@@ -4,6 +4,8 @@ Date: 2026-06-29
 
 Project status: **NOT READY**.
 
+2026-06-30 follow-up: Vayne pay-return pending-payment reason parsing and runtime trigger/reason payloads now validate through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(...)`. `CoreRuleEngine` no longer owns `UnitConquestPayReturnSelfToHandEffectKind`; the wire-compatible `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` payload remains unchanged.
+
 ## Rule Sources
 
 - `data/official/card-catalog.zh-CN.json`: `OGN·039/298` 卡莎 has official text `{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当我征服一处战场时，抽一张牌。`
@@ -50,7 +52,7 @@ Project status: **NOT READY**.
 - `UnitConquestGrantFriendlyBoonTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `FriendlyBoonUnitConquestCardNo` / `IsFriendlyBoonUnitConquestCardNo`.
 - `UnitConquestFriendlyPowerUntilEndTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `FriendlyPowerUnitConquestCardNo` / `IsFriendlyPowerUnitConquestCardNo`.
 - `UnitConquestDestroyEquipmentGrantSelfBoonTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `DestroyEquipmentBoonUnitConquestCardNo` / `IsDestroyEquipmentBoonUnitConquestCardNo`.
-- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now also verifies that `CoreRuleEngine` no longer contains the old Vayne source selector `OgnVayneConquerRecallSourceEffectKind` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT`, and instead routes the source through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger`.
+- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now also verifies that `CoreRuleEngine` no longer contains the old Vayne source selector `OgnVayneConquerRecallSourceEffectKind` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` or the Core-local `UnitConquestPayReturnSelfToHandEffectKind` runtime alias, and instead routes the source and effect-kind validation through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)` / `TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(...)`.
 
 ## Runtime Evidence
 
@@ -84,7 +86,10 @@ Project status: **NOT READY**.
 - Adjacent `FullGameEndToEnd` / `NaturalUnitConquestTrigger` / `UnitConquest` / `MatchRecovery` representatives: `2034/2034` passing.
 - Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `Score` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2589/2589` passing.
 - Adjacent `OfficialDeckMidgamePaysVayneConquestReturn` / `Vayne` / `UnitConquest` / `TriggerPayment` / `BattlefieldConquer` / `DeclareBattle` / `PaymentEngine` / `FullGameEndToEnd` / `MatchRecovery` / `CardCatalogBaseline` representatives: `3453/3453` passing.
+- 2026-06-30 follow-up focused trigger-payment source guard / catalog representatives: `5/5` passing.
+- 2026-06-30 follow-up adjacent Vayne / UnitConquest / TriggerPayment / PaymentEngine / MatchRecovery / CardCatalogBaseline representatives: `3198/3198` passing.
 - Backend full conformance: `9020/9020` passing.
+- 2026-06-30 follow-up backend full conformance: `9038/9038` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk

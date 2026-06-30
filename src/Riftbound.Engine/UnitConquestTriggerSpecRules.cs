@@ -50,10 +50,15 @@ internal static class UnitConquestTriggerSpecRules
 
     public static bool TryGetUnitConquestPayReturnSelfToHandTrigger(string? cardNo, out TriggerSpec trigger)
     {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestPayReturnSelfToHand,
-            out trigger);
+        return TryGetTrigger(cardNo, TriggerKinds.UnitConquestPayReturnSelfToHand, out trigger)
+            && IsUnitConquestPayReturnSelfToHandTrigger(trigger);
+    }
+
+    public static bool TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(
+        string? effectKind,
+        out TriggerSpec trigger)
+    {
+        return TryGetTriggerByEffectKind(effectKind, IsUnitConquestPayReturnSelfToHandTrigger, out trigger);
     }
 
     public static bool TryGetUnitConquestGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
@@ -102,6 +107,51 @@ internal static class UnitConquestTriggerSpecRules
             cardNo,
             TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon,
             out trigger);
+    }
+
+    private static bool IsUnitConquestPayReturnSelfToHandTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.ReturnCount is > 0
+            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && trigger.Optional == true;
+    }
+
+    private static bool TryGetTriggerByEffectKind(
+        string? effectKind,
+        Func<TriggerSpec, bool> predicate,
+        out TriggerSpec trigger)
+    {
+        trigger = default!;
+        if (string.IsNullOrWhiteSpace(effectKind))
+        {
+            return false;
+        }
+
+        var normalized = effectKind.Trim();
+        var match = TriggersByCardNo.Value
+            .SelectMany(entry => entry.Value)
+            .FirstOrDefault(candidate =>
+                predicate(candidate)
+                && string.Equals(RuntimeEffectKind(candidate), normalized, StringComparison.Ordinal));
+        if (match is null)
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
+    }
+
+    private static string RuntimeEffectKind(TriggerSpec trigger)
+    {
+        return string.IsNullOrWhiteSpace(trigger.EffectKind)
+            ? trigger.Kind
+            : trigger.EffectKind!;
     }
 
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
