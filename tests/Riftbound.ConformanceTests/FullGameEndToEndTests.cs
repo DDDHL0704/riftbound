@@ -288,6 +288,9 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(ShadowCardNo, StringComparer.Ordinal));
         Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(TeemoSelfPowerCardNo, StringComparer.Ordinal));
         Assert.Contains(replayDecks, deck => deck.Decklist.MainDeck.Contains(PakaaCubCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(LostLibraryBattlefieldHighCostSpellInsightCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo, StringComparer.Ordinal));
+        Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(WindHillBattlefieldAllUnitsStaticKeywordCardNo, StringComparer.Ordinal));
         Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(BandleTreeBattlefieldCardNo, StringComparer.Ordinal));
 
         foreach (var p1Deck in replayDecks)

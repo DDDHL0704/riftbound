@@ -43,6 +43,14 @@ public static class PreconstructedDeckCatalog
             "UNL-055/219",
             ["OGN·183/298", "OGN·180/298"]),
         new(
+            "vex-battlefields",
+            "失落战场 · 薇古丝",
+            "加入失落书库、崔法利兵营与疾风山丘，覆盖服务端战场规则路径。",
+            "UNL-232/219",
+            "UNL-055/219",
+            ["OGN·183/298", "OGN·180/298"],
+            ["UNL-211/219", "OGN·294/298", "OGN·297/298"]),
+        new(
             "vex-response",
             "暗影响应 · 薇古丝",
             "加入黑影与提莫代表，覆盖服务端战斗响应与待命反应路径。",

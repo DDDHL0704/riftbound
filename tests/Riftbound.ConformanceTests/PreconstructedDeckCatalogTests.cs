@@ -15,6 +15,7 @@ public sealed class PreconstructedDeckCatalogTests
     private const string SentinelAdeptCardNo = "SFD·008/221";
     private const string LongSwordCardNo = "SFD·022/221";
     private const string VexSpellsDeckId = "vex-spells";
+    private const string VexBattlefieldsDeckId = "vex-battlefields";
     private const string VexResponseDeckId = "vex-response";
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
@@ -22,6 +23,9 @@ public sealed class PreconstructedDeckCatalogTests
     private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string CardTrickCardNo = "OGN·183/298";
     private const string FlowingTimeMirrorCardNo = "OGN·180/298";
+    private const string LostLibraryCardNo = "UNL-211/219";
+    private const string TrifarianTrainingGroundsCardNo = "OGN·294/298";
+    private const string WindHillCardNo = "OGN·297/298";
     private const string PoppyStandbyDeckId = "poppy-standby";
     private const string PoppyLegendCardNo = "UNL-203/219";
     private const string PoppyChampionCardNo = "UNL-116/219";
@@ -90,6 +94,24 @@ public sealed class PreconstructedDeckCatalogTests
         Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
         Assert.Contains(CardTrickCardNo, deck.Decklist.MainDeck);
         Assert.Contains(FlowingTimeMirrorCardNo, deck.Decklist.MainDeck);
+    }
+
+    [Fact]
+    public async Task BuildIncludesVexBattlefieldsDeckForBattlefieldRuleCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+
+        var deck = Assert.Single(
+            PreconstructedDeckCatalog.Build(catalog),
+            candidate => string.Equals(candidate.Id, VexBattlefieldsDeckId, StringComparison.Ordinal));
+
+        Assert.Equal(VexLegendCardNo, deck.Decklist.LegendCardNo);
+        Assert.Equal(VexChampionCardNo, deck.Decklist.ChampionCardNo);
+        Assert.Contains(CardTrickCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(FlowingTimeMirrorCardNo, deck.Decklist.MainDeck);
+        Assert.Contains(LostLibraryCardNo, deck.Decklist.Battlefields);
+        Assert.Contains(TrifarianTrainingGroundsCardNo, deck.Decklist.Battlefields);
+        Assert.Contains(WindHillCardNo, deck.Decklist.Battlefields);
     }
 
     [Fact]
