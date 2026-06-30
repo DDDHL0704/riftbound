@@ -28,6 +28,7 @@ public partial class Main : Control
     private Label? _status;
     private RichTextLabel? _log;
     private Label? _boardSummary;
+    private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
     private LineEdit? _handleInput;
@@ -80,6 +81,7 @@ public partial class Main : Control
         _status = GetNode<Label>("Status");
         _log = GetNode<RichTextLabel>("Log");
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
+        _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
@@ -426,9 +428,13 @@ public partial class Main : Control
                 views.Add(view);
             }
 
+            var objectIndex = VisibleObjectIndex(element, table);
+            var tableSections = await BuildTableSectionsAsync(element, table, objectIndex);
             QueueMainThread(nameof(ApplyBoardSummary), summary);
             QueueMainThread(nameof(ApplyHandCards), views);
-            AppendLog($"Snapshot table rendered: visibleHand={views.Count}, officialImages={officialImageCount}.");
+            QueueMainThread(nameof(ApplySnapshotSections), tableSections.Sections);
+            AppendLog(
+                $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
         }
         catch (Exception ex)
         {
@@ -464,6 +470,251 @@ public partial class Main : Control
         var main = ReadInt(zones, "mainDeckCount");
         var rune = ReadInt(zones, "runeDeckCount");
         return $"{id} {seat} hand {hand}+{hidden} deck {main} rune {rune}";
+    }
+
+    private async Task<(Godot.Collections.Array<Godot.Collections.Dictionary> Sections, int CardCount, int OfficialImageCount)> BuildTableSectionsAsync(
+        JsonElement snapshot,
+        JsonElement table,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var sections = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var cardCount = 0;
+        var officialImageCount = 0;
+
+        if (table.ValueKind == JsonValueKind.Object
+            && table.TryGetProperty("players", out var players)
+            && players.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var player in players.EnumerateArray())
+            {
+                var section = await BuildPlayerSectionAsync(player, objectIndex);
+                sections.Add(section.Section);
+                cardCount += section.CardCount;
+                officialImageCount += section.OfficialImageCount;
+            }
+        }
+
+        if (table.ValueKind == JsonValueKind.Object
+            && table.TryGetProperty("battlefields", out var battlefields)
+            && battlefields.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var battlefield in battlefields
+                .EnumerateArray()
+                .OrderBy(field => ReadInt(field, "index")))
+            {
+                var section = await BuildBattlefieldSectionAsync(battlefield, objectIndex);
+                sections.Add(section.Section);
+                cardCount += section.CardCount;
+                officialImageCount += section.OfficialImageCount;
+            }
+        }
+
+        if (sections.Count == 0)
+        {
+            sections.Add(new Godot.Collections.Dictionary
+            {
+                ["title"] = "Snapshot table",
+                ["zones"] = new Godot.Collections.Array<Godot.Collections.Dictionary>
+                {
+                    CountZone("No server table projection yet", 0)
+                }
+            });
+        }
+
+        return (sections, cardCount, officialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildPlayerSectionAsync(
+        JsonElement player,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var zones = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var playerId = ReadString(player, "playerId");
+        var perspective = ReadString(player, "perspective");
+        var title = $"{PlayerPerspectiveLabel(perspective)} {playerId}";
+        var cardCount = 0;
+        var officialImageCount = 0;
+
+        if (player.TryGetProperty("zones", out var zoneElement) && zoneElement.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var zone in new[]
+            {
+                ("Legend", "legendZone"),
+                ("Champion", "championZone"),
+                ("Base", "baseCards"),
+                ("Base runes", "baseRunes"),
+                ("Graveyard", "graveyard"),
+                ("Banished", "banished")
+            })
+            {
+                var zoneView = await CardZoneAsync(zone.Item1, ReadStringArray(zoneElement, zone.Item2), objectIndex);
+                zones.Add(zoneView.Zone);
+                cardCount += zoneView.CardCount;
+                officialImageCount += zoneView.OfficialImageCount;
+            }
+
+            if (ReadBool(player, "isViewer"))
+            {
+                zones.Add(CountZone("Hand", ReadArrayCount(zoneElement, "hand")));
+            }
+            else
+            {
+                zones.Add(CountZone("Hidden hand", ReadInt(zoneElement, "handHidden")));
+            }
+
+            zones.Add(CountZone("Main deck", ReadInt(zoneElement, "mainDeckCount")));
+            zones.Add(CountZone("Rune deck", ReadInt(zoneElement, "runeDeckCount")));
+        }
+
+        return (new Godot.Collections.Dictionary
+        {
+            ["title"] = title,
+            ["zones"] = zones
+        }, cardCount, officialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildBattlefieldSectionAsync(
+        JsonElement battlefield,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var zones = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var cardCount = 0;
+        var officialImageCount = 0;
+        var index = ReadInt(battlefield, "index") + 1;
+        var battlefieldId = ReadString(battlefield, "battlefieldObjectId");
+        var cardNo = ReadString(battlefield, "cardNo");
+        var title = $"Battlefield {index} {battlefieldId}";
+
+        var site = new SnapshotCardRef(
+            battlefieldId,
+            cardNo,
+            !string.IsNullOrWhiteSpace(cardNo),
+            false);
+        var siteZone = await CardZoneAsync("Site", [site]);
+        zones.Add(siteZone.Zone);
+        cardCount += siteZone.CardCount;
+        officialImageCount += siteZone.OfficialImageCount;
+
+        if (battlefield.TryGetProperty("unitsBySide", out var unitsBySide)
+            && unitsBySide.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var side in unitsBySide.EnumerateObject().OrderBy(property => property.Name, StringComparer.Ordinal))
+            {
+                var zoneView = await CardZoneAsync($"Units {side.Name}", ReadStringArray(side.Value), objectIndex);
+                zones.Add(zoneView.Zone);
+                cardCount += zoneView.CardCount;
+                officialImageCount += zoneView.OfficialImageCount;
+            }
+        }
+        else
+        {
+            var zoneView = await CardZoneAsync("Units", ReadStringArray(battlefield, "occupantObjectIds"), objectIndex);
+            zones.Add(zoneView.Zone);
+            cardCount += zoneView.CardCount;
+            officialImageCount += zoneView.OfficialImageCount;
+        }
+
+        var standby = await StandbyZoneAsync(battlefield, objectIndex);
+        zones.Add(standby.Zone);
+        cardCount += standby.CardCount;
+        officialImageCount += standby.OfficialImageCount;
+
+        return (new Godot.Collections.Dictionary
+        {
+            ["title"] = title,
+            ["zones"] = zones
+        }, cardCount, officialImageCount);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Zone, int CardCount, int OfficialImageCount)> StandbyZoneAsync(
+        JsonElement battlefield,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        if (!battlefield.TryGetProperty("standbySlots", out var slots)
+            || slots.ValueKind != JsonValueKind.Array)
+        {
+            return await CardZoneAsync("Standby", ReadStringArray(battlefield, "standbyObjectIds"), objectIndex);
+        }
+
+        var cards = new List<SnapshotCardRef>();
+        foreach (var slot in slots.EnumerateArray())
+        {
+            if (ReadBool(slot, "visible"))
+            {
+                var objectId = ReadString(slot, "objectId");
+                cards.Add(objectIndex.TryGetValue(objectId, out var card)
+                    ? card
+                    : new SnapshotCardRef(objectId, string.Empty, false, ReadBool(slot, "isFaceDown")));
+            }
+            else
+            {
+                cards.Add(new SnapshotCardRef(
+                    ReadString(slot, "slotId"),
+                    string.Empty,
+                    false,
+                    true));
+            }
+        }
+
+        return await CardZoneAsync("Standby", cards);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Zone, int CardCount, int OfficialImageCount)> CardZoneAsync(
+        string label,
+        IReadOnlyList<string> objectIds,
+        IReadOnlyDictionary<string, SnapshotCardRef> objectIndex)
+    {
+        var cards = objectIds
+            .Select(objectId => objectIndex.TryGetValue(objectId, out var card)
+                ? card
+                : new SnapshotCardRef(objectId, string.Empty, false, true))
+            .ToArray();
+        return await CardZoneAsync(label, cards);
+    }
+
+    private async Task<(Godot.Collections.Dictionary Zone, int CardCount, int OfficialImageCount)> CardZoneAsync(
+        string label,
+        IReadOnlyList<SnapshotCardRef> cards)
+    {
+        var views = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var officialImageCount = 0;
+        foreach (var card in cards)
+        {
+            var view = await BuildCardViewAsync(card);
+            if (view.ContainsKey("image"))
+            {
+                officialImageCount++;
+            }
+
+            views.Add(view);
+        }
+
+        return (new Godot.Collections.Dictionary
+        {
+            ["label"] = label,
+            ["cards"] = views
+        }, views.Count, officialImageCount);
+    }
+
+    private static Godot.Collections.Dictionary CountZone(string label, int count)
+    {
+        return new Godot.Collections.Dictionary
+        {
+            ["label"] = label,
+            ["count"] = Math.Max(0, count),
+            ["cards"] = new Godot.Collections.Array<Godot.Collections.Dictionary>()
+        };
+    }
+
+    private static string PlayerPerspectiveLabel(string perspective)
+    {
+        return perspective switch
+        {
+            "self" => "Self",
+            "opponent" => "Opponent",
+            "spectator" => "Spectator",
+            _ => "Player"
+        };
     }
 
     private IReadOnlyList<SnapshotCardRef> VisibleHandCards(JsonElement snapshot, JsonElement table)
@@ -535,6 +786,47 @@ public partial class Main : Control
             .ToDictionary(property => property.Name, property => property.Value, StringComparer.Ordinal);
     }
 
+    private static IReadOnlyDictionary<string, SnapshotCardRef> VisibleObjectIndex(JsonElement snapshot, JsonElement table)
+    {
+        var index = new Dictionary<string, SnapshotCardRef>(StringComparer.Ordinal);
+        if (snapshot.TryGetProperty("players", out var players) && players.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var player in players.EnumerateObject())
+            {
+                if (player.Value.ValueKind != JsonValueKind.Object
+                    || !player.Value.TryGetProperty("objects", out var objects)
+                    || objects.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                foreach (var cardObject in objects.EnumerateObject())
+                {
+                    index[cardObject.Name] = CardRefFromObject(cardObject.Name, cardObject.Value);
+                }
+            }
+        }
+
+        if (table.ValueKind == JsonValueKind.Object
+            && table.TryGetProperty("battlefields", out var battlefields)
+            && battlefields.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var battlefield in battlefields.EnumerateArray())
+            {
+                var objectId = ReadString(battlefield, "battlefieldObjectId");
+                var cardNo = ReadString(battlefield, "cardNo");
+                if (string.IsNullOrWhiteSpace(objectId) || string.IsNullOrWhiteSpace(cardNo))
+                {
+                    continue;
+                }
+
+                index[objectId] = new SnapshotCardRef(objectId, cardNo, true, false);
+            }
+        }
+
+        return index;
+    }
+
     private static SnapshotCardRef CardRefFor(string objectId, IReadOnlyDictionary<string, JsonElement> objects)
     {
         if (!objects.TryGetValue(objectId, out var card) || card.ValueKind != JsonValueKind.Object)
@@ -542,6 +834,11 @@ public partial class Main : Control
             return new SnapshotCardRef(objectId, string.Empty, false, true);
         }
 
+        return CardRefFromObject(objectId, card);
+    }
+
+    private static SnapshotCardRef CardRefFromObject(string objectId, JsonElement card)
+    {
         var faceDown = ReadBool(card, "isFaceDown");
         var cardNo = faceDown ? string.Empty : ReadString(card, "cardNo");
         return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown);
@@ -687,6 +984,26 @@ public partial class Main : Control
             : 0;
     }
 
+    private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName)
+    {
+        return element.ValueKind == JsonValueKind.Object
+            && element.TryGetProperty(propertyName, out var property)
+            ? ReadStringArray(property)
+            : [];
+    }
+
+    private static IReadOnlyList<string> ReadStringArray(JsonElement element)
+    {
+        return element.ValueKind == JsonValueKind.Array
+            ? element
+                .EnumerateArray()
+                .Where(item => item.ValueKind == JsonValueKind.String)
+                .Select(item => item.GetString() ?? string.Empty)
+                .Where(item => item.Length > 0)
+                .ToArray()
+            : [];
+    }
+
     private static string PayloadSummary(object? payload)
     {
         return payload switch
@@ -781,18 +1098,124 @@ public partial class Main : Control
         }
     }
 
-    private static Control CardNode(Godot.Collections.Dictionary card)
+    public void ApplySnapshotSections(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
+    {
+        if (_snapshotRows is null)
+        {
+            return;
+        }
+
+        foreach (var child in _snapshotRows.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        foreach (var section in sections)
+        {
+            _snapshotRows.AddChild(SectionNode(section));
+        }
+    }
+
+    private static Control SectionNode(Godot.Collections.Dictionary section)
     {
         var frame = new PanelContainer
         {
-            CustomMinimumSize = new Vector2(92, 128)
+            CustomMinimumSize = new Vector2(0, 0)
+        };
+        var rows = new VBoxContainer();
+        rows.AddChild(new Label
+        {
+            Text = section.TryGetValue("title", out var title) ? title.AsString() : "Section"
+        });
+
+        var zones = section.TryGetValue("zones", out var zoneValue)
+            ? zoneValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+        foreach (var zone in zones)
+        {
+            rows.AddChild(ZoneNode(zone));
+        }
+
+        frame.AddChild(rows);
+        return frame;
+    }
+
+    private static Control ZoneNode(Godot.Collections.Dictionary zone)
+    {
+        var row = new HBoxContainer
+        {
+            CustomMinimumSize = new Vector2(0, 104)
+        };
+        row.AddChild(new Label
+        {
+            CustomMinimumSize = new Vector2(112, 0),
+            Text = ZoneLabel(zone),
+            VerticalAlignment = VerticalAlignment.Center
+        });
+
+        var scroll = new ScrollContainer
+        {
+            CustomMinimumSize = new Vector2(0, 104),
+            HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill
+        };
+        var cards = new HBoxContainer();
+        var cardViews = zone.TryGetValue("cards", out var cardsValue)
+            ? cardsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+
+        if (cardViews.Count == 0)
+        {
+            cards.AddChild(new Label
+            {
+                CustomMinimumSize = new Vector2(88, 96),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Text = "empty"
+            });
+        }
+        else
+        {
+            foreach (var card in cardViews)
+            {
+                cards.AddChild(CardNode(card, new Vector2(64, 90), new Vector2(58, 82)));
+            }
+        }
+
+        scroll.AddChild(cards);
+        row.AddChild(scroll);
+        return row;
+    }
+
+    private static string ZoneLabel(Godot.Collections.Dictionary zone)
+    {
+        var label = zone.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Zone";
+        if (zone.TryGetValue("count", out var countValue))
+        {
+            return $"{label} {countValue.AsInt32()}";
+        }
+
+        return label;
+    }
+
+    private static Control CardNode(Godot.Collections.Dictionary card)
+    {
+        return CardNode(card, new Vector2(92, 128), new Vector2(84, 120));
+    }
+
+    private static Control CardNode(Godot.Collections.Dictionary card, Vector2 frameSize, Vector2 contentSize)
+    {
+        var frame = new PanelContainer
+        {
+            CustomMinimumSize = frameSize
         };
         var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
         if (image is not null)
         {
             frame.AddChild(new TextureRect
             {
-                CustomMinimumSize = new Vector2(84, 120),
+                CustomMinimumSize = contentSize,
                 Texture = ImageTexture.CreateFromImage(image),
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
@@ -802,7 +1225,7 @@ public partial class Main : Control
 
         frame.AddChild(new Label
         {
-            CustomMinimumSize = new Vector2(84, 120),
+            CustomMinimumSize = contentSize,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Text = card.TryGetValue("label", out var label) ? label.AsString() : "Card"

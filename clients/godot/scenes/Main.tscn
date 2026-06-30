@@ -40,7 +40,7 @@ anchor_right = 1.0
 offset_left = 24.0
 offset_top = 102.0
 offset_right = -324.0
-offset_bottom = 244.0
+offset_bottom = 540.0
 grow_horizontal = 2
 
 [node name="SessionRow" type="HBoxContainer" parent="Controls"]
@@ -99,6 +99,15 @@ text = "Ready"
 layout_mode = 2
 text = "No snapshot"
 
+[node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
+custom_minimum_size = Vector2(0, 236)
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="SnapshotRows" type="VBoxContainer" parent="Controls/SnapshotScroll"]
+layout_mode = 2
+
 [node name="HandScroll" type="ScrollContainer" parent="Controls"]
 custom_minimum_size = Vector2(0, 136)
 layout_mode = 2
@@ -131,7 +140,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 392.0
+offset_top = 548.0
 offset_right = -324.0
 offset_bottom = -24.0
 grow_horizontal = 2
