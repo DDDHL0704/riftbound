@@ -25,7 +25,7 @@ public sealed class MovementSourceIdentityGuardTests
     }
 
     [Fact]
-    public void BilgewaterBullyBoonRoamSourceIdentityUsesCatalogEffectKind()
+    public void BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -42,8 +42,12 @@ public sealed class MovementSourceIdentityGuardTests
         Assert.DoesNotContain("BilgewaterBullyCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, BilgewaterBullyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, BilgewaterBullyCardNo", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BilgewaterBullyBoonRoamSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BilgewaterBullyBoonRoamSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

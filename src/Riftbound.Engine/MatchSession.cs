@@ -1899,6 +1899,11 @@ public sealed record MatchState
                 effects.Add(sourceObjectFilteredEffect);
             }
 
+            if (TryBuildSourceObjectFilteredKeywordStaticAuraEffect(state, objectId, cardObject, out var sourceObjectFilteredKeywordEffect))
+            {
+                effects.Add(sourceObjectFilteredKeywordEffect);
+            }
+
             if (TryBuildSourceObjectPowerStaticAuraEffect(state, objectId, cardObject, out var sourceObjectPowerEffect))
             {
                 effects.Add(sourceObjectPowerEffect);
@@ -2168,6 +2173,52 @@ public sealed record MatchState
             aura.Kind,
             cardObject.CardNo,
             "CoreRuleEngine.ResolveSourceObjectFilteredPowerBonus",
+            true,
+            LayerEngineFoundationResiduals(),
+            Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
+            Lifecycle: "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS",
+            ParticipantObjectIds: [objectId],
+            SourceDependencyObjectIds: dependencyObjectIds,
+            TargetDependencyObjectIds: dependencyObjectIds,
+            ParticipantDependencyObjectIds: dependencyObjectIds);
+        return true;
+    }
+
+    private static bool TryBuildSourceObjectFilteredKeywordStaticAuraEffect(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out ContinuousEffectState effect)
+    {
+        effect = default!;
+        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(cardObject.CardNo, out var aura)
+            || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+            || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+            || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
+        {
+            return false;
+        }
+
+        var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+        effect = new ContinuousEffectState(
+            $"RULE_TEXT:SOURCE_OBJECT_FILTERED_KEYWORD:{objectId}:{aura.GrantedKeyword}",
+            "OBJECT",
+            ContinuousEffectLayers.RuleText,
+            aura.Duration,
+            objectId,
+            objectId,
+            0,
+            ResolveBasePower(cardObject),
+            cardObject.Power,
+            aura.Kind,
+            cardObject.CardNo,
+            "CoreRuleEngine.HasSourceObjectFilteredStaticKeyword",
             true,
             LayerEngineFoundationResiduals(),
             Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
@@ -6666,7 +6717,6 @@ internal static class ActionPromptBuilder
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
     private const int DragonCallerUnitCostReductionMana = 2;
@@ -9648,7 +9698,7 @@ internal static class ActionPromptBuilder
 
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
-            || HasBilgewaterBullyBoonPromptRoamPermission(sourceState)
+            || HasSourceObjectFilteredPromptKeyword(sourceState, MoveUnitRoamKeyword)
             || HasFriendlyFilteredUnitsGrantedKeyword(
                 state,
                 sourceObjectId,
@@ -9685,12 +9735,16 @@ internal static class ActionPromptBuilder
             .Select(group => group.First());
     }
 
-    private static bool HasBilgewaterBullyBoonPromptRoamPermission(CardObjectState sourceState)
+    private static bool HasSourceObjectFilteredPromptKeyword(CardObjectState sourceState, string keyword)
     {
-        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
-                sourceState.CardNo,
-                BilgewaterBullyBoonRoamSourceEffectKind)
-            && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(sourceState.CardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState)
+            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+            && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0;
     }
 
     private static bool BattlefieldSourceGrantsRoam(string? cardNo)

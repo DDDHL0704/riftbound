@@ -2537,6 +2537,37 @@ public static class StaticAuraParser
                 }
             }
 
+            var sourceObjectFilteredKeywordMatch = Regex.Match(
+                segment,
+                @"如果我拥有([^，。]+)，则我(?:额外)?获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (sourceObjectFilteredKeywordMatch.Success)
+            {
+                var tag = sourceObjectFilteredKeywordMatch.Groups[1].Value
+                    .Replace("{{", string.Empty, StringComparison.Ordinal)
+                    .Replace("}}", string.Empty, StringComparison.Ordinal)
+                    .Trim();
+                var grantedKeyword = sourceObjectFilteredKeywordMatch.Groups[2].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(tag)
+                    && !string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.SourceObjectFilteredKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.SourceObject,
+                        StaticAuraParticipantScopes.SourceObject,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution is available when source-object filtered keyword checks read BehaviorSpec.StaticAuras.",
+                        StaticAuraTargetFilters.TagPrefix + tag,
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
             var sourceSameLocationOtherFriendlyUnitPowerMatch = Regex.Match(
                 segment,
                 @"如果你在此处有其他单位，则我获得\{\{S\}\}\+(\d+)",

@@ -1424,6 +1424,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("如果我拥有增益", wiseElderAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, wiseElderAura.Status);
 
+        var bilgewaterBully = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·125/298", StringComparison.Ordinal));
+        var bilgewaterBullyAura = Assert.Single(bilgewaterBully.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceObjectFilteredKeyword, bilgewaterBullyAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, bilgewaterBullyAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", bilgewaterBullyAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, bilgewaterBullyAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SourceObject, bilgewaterBullyAura.ParticipantScope);
+        Assert.Equal(0, bilgewaterBullyAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + "增益", bilgewaterBullyAura.TargetFilter);
+        Assert.Equal(CardCombatKeywordNames.Roam, bilgewaterBullyAura.GrantedKeyword);
+        Assert.Contains("如果我拥有增益", bilgewaterBullyAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, bilgewaterBullyAura.Status);
+
         var reliableSiegeDog = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·159/221", StringComparison.Ordinal));
         var reliableSiegeDogAura = Assert.Single(reliableSiegeDog.StaticAuras);
         Assert.Equal(StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, reliableSiegeDogAura.Kind);

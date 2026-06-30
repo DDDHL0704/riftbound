@@ -122,7 +122,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int EclipseVanguardStunTriggerPowerModifier = 1;
     private const string OgsLuxHighCostSpellPowerEffectKind = "OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
-    private const string BilgewaterBullyBoonRoamSourceEffectKind = "BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
@@ -19769,6 +19768,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         keywordBonus = CombatKeywordAmount(cardObject.Tags, combatKeyword);
         keywordBonus = Math.Max(
             keywordBonus,
+            ResolveSourceObjectFilteredKeywordBonus(
+                cardObject,
+                combatKeyword));
+        keywordBonus = Math.Max(
+            keywordBonus,
             ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -19888,6 +19892,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(cardObject.CardNo, out var aura)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             ? aura.PowerDeltaPerParticipant
+            : 0;
+    }
+
+    private static int ResolveSourceObjectFilteredKeywordBonus(CardObjectState cardObject, string combatKeyword)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(cardObject.CardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            ? GrantedCombatKeywordAmount(aura, combatKeyword)
             : 0;
     }
 
@@ -30772,7 +30788,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
-            || HasBilgewaterBullyBoonRoamPermission(sourceState)
+            || HasSourceObjectFilteredStaticKeyword(sourceState, MoveUnitRoamKeyword)
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 state.PlayerZones,
@@ -30782,12 +30798,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
     }
 
-    private static bool HasBilgewaterBullyBoonRoamPermission(CardObjectState sourceState)
+    private static bool HasSourceObjectFilteredStaticKeyword(CardObjectState sourceState, string keyword)
     {
-        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
-                sourceState.CardNo,
-                BilgewaterBullyBoonRoamSourceEffectKind)
-            && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(sourceState.CardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState)
+            && GrantedCombatKeywordAmount(aura, keyword) > 0;
     }
 
     private static bool BattlefieldSourceGrantsRoam(string? cardNo)
