@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Riftbound.Contracts;
 
 namespace Riftbound.GodotClient;
 
@@ -24,6 +25,14 @@ public sealed class RiftboundApiClient
     {
         var uri = new Uri($"{_serverUrl}/decks/preconstructed");
         return await HttpClient.GetFromJsonAsync<List<PreconstructedDeck>>(uri, JsonOptions, cancellationToken)
+            ?? [];
+    }
+
+    public async Task<IReadOnlyList<PublicMatchDto>> GetPublicMatchesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var uri = new Uri($"{_serverUrl}/matches");
+        return await HttpClient.GetFromJsonAsync<List<PublicMatchDto>>(uri, JsonOptions, cancellationToken)
             ?? [];
     }
 }

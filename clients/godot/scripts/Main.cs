@@ -47,6 +47,7 @@ public partial class Main : Control
     private readonly CancellationTokenSource _shutdown = new();
     private readonly PlayerSessionStore _sessionStore = new();
     private readonly List<PreconstructedDeck> _decks = [];
+    private readonly List<PublicMatchDto> _publicMatches = [];
     private readonly OfficialCardImageLoader _cardImageLoader = new();
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
@@ -61,12 +62,15 @@ public partial class Main : Control
     private LineEdit? _handleInput;
     private LineEdit? _roomInput;
     private Label? _matchmakingStatus;
+    private OptionButton? _publicMatchSelect;
     private OptionButton? _deckSelect;
     private Button? _connectButton;
     private Button? _reconnectButton;
     private Button? _createPublicMatchButton;
     private Button? _queueMatchmakingButton;
     private Button? _cancelMatchmakingButton;
+    private Button? _refreshPublicMatchesButton;
+    private Button? _joinPublicMatchButton;
     private Button? _loadDecksButton;
     private Button? _submitDeckButton;
     private Button? _readyButton;
@@ -79,6 +83,7 @@ public partial class Main : Control
     private bool _autoSmokeFollowups;
     private bool _autoSmokeQuickMatch;
     private bool _autoSmokePublicMatch;
+    private bool _autoSmokeJoinPublicMatch;
     private bool _autoSmokeSubmitted;
     private int _autoSmokeTapRuneSubmissions;
     private bool _autoSmokePlayCardSubmitted;
@@ -103,6 +108,7 @@ public partial class Main : Control
         _autoSmokeFollowups = args.Contains("--riftbound-smoke-auto-followups");
         _autoSmokeQuickMatch = args.Contains("--riftbound-smoke-auto-quick-match");
         _autoSmokePublicMatch = args.Contains("--riftbound-smoke-auto-public-match");
+        _autoSmokeJoinPublicMatch = args.Contains("--riftbound-smoke-auto-join-public-match");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -111,8 +117,9 @@ public partial class Main : Control
         ApplySessionToInputs();
         _officialCatalogLoadTask = LoadOfficialCardPreviewAsync();
         _ = LoadDecksAsync();
+        _ = LoadPublicMatchesAsync();
 
-        if (AutoConnectOnReady && !_autoSmokeQuickMatch && !_autoSmokePublicMatch)
+        if (AutoConnectOnReady && !_autoSmokeQuickMatch && !_autoSmokePublicMatch && !_autoSmokeJoinPublicMatch)
         {
             await ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         }
@@ -125,6 +132,11 @@ public partial class Main : Control
         if (_autoSmokeQuickMatch)
         {
             await QueueMatchmakingAsync();
+        }
+
+        if (_autoSmokeJoinPublicMatch)
+        {
+            await JoinFirstPublicMatchSmokeAsync();
         }
     }
 
@@ -149,12 +161,15 @@ public partial class Main : Control
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
         _roomInput = GetNode<LineEdit>("Controls/SessionRow/RoomInput");
         _matchmakingStatus = GetNode<Label>("Controls/MatchmakingRow/MatchmakingStatus");
+        _publicMatchSelect = GetNode<OptionButton>("Controls/PublicMatchRow/PublicMatchSelect");
         _deckSelect = GetNode<OptionButton>("Controls/DeckRow/DeckSelect");
         _connectButton = GetNode<Button>("Controls/SessionRow/ConnectButton");
         _reconnectButton = GetNode<Button>("Controls/SessionRow/ReconnectButton");
         _createPublicMatchButton = GetNode<Button>("Controls/MatchmakingRow/CreatePublicMatchButton");
         _queueMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/QueueMatchmakingButton");
         _cancelMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/CancelMatchmakingButton");
+        _refreshPublicMatchesButton = GetNode<Button>("Controls/PublicMatchRow/RefreshPublicMatchesButton");
+        _joinPublicMatchButton = GetNode<Button>("Controls/PublicMatchRow/JoinPublicMatchButton");
         _loadDecksButton = GetNode<Button>("Controls/DeckRow/LoadDecksButton");
         _submitDeckButton = GetNode<Button>("Controls/DeckRow/SubmitDeckButton");
         _readyButton = GetNode<Button>("Controls/DeckRow/ReadyButton");
@@ -167,6 +182,8 @@ public partial class Main : Control
         _createPublicMatchButton!.Pressed += () => _ = CreatePublicMatchAsync();
         _queueMatchmakingButton!.Pressed += () => _ = QueueMatchmakingAsync();
         _cancelMatchmakingButton!.Pressed += () => _ = CancelMatchmakingAsync();
+        _refreshPublicMatchesButton!.Pressed += () => _ = LoadPublicMatchesAsync();
+        _joinPublicMatchButton!.Pressed += () => _ = JoinSelectedPublicMatchAsync();
         _loadDecksButton!.Pressed += () => _ = LoadDecksAsync();
         _submitDeckButton!.Pressed += () => _ = SubmitSelectedDeckAsync();
         _readyButton!.Pressed += () => _ = ReadyAsync();
@@ -220,6 +237,25 @@ public partial class Main : Control
         catch (Exception ex)
         {
             AppendLog($"[color=yellow]Unable to load preconstructed decks: {Escape(ex.Message)}[/color]");
+        }
+    }
+
+    private async Task LoadPublicMatchesAsync()
+    {
+        try
+        {
+            var matches = await new RiftboundApiClient(ServerUrl).GetPublicMatchesAsync(_shutdown.Token);
+            _publicMatches.Clear();
+            _publicMatches.AddRange(matches);
+            QueueMainThread(nameof(ApplyPublicMatchOptions));
+            AppendLog($"Public matches loaded: {_publicMatches.Count}.");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Unable to load public matches: {Escape(ex.Message)}[/color]");
         }
     }
 
@@ -406,6 +442,69 @@ public partial class Main : Control
             AppendLog($"[color=red]Cancel matchmaking failed: {Escape(ex.Message)}[/color]");
             GD.PushError(ex.ToString());
         }
+    }
+
+    private async Task JoinSelectedPublicMatchAsync()
+    {
+        try
+        {
+            var match = SelectedPublicMatch();
+            if (match is null)
+            {
+                SetMatchmakingStatus("No public match selected");
+                AppendLog("[color=yellow]Join public match skipped: no open public match selected.[/color]");
+                return;
+            }
+
+            await JoinPublicMatchAsync(match);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            SetMatchmakingStatus("Join public match error");
+            AppendLog($"[color=red]Join public match failed: {Escape(ex.Message)}[/color]");
+            GD.PushError(ex.ToString());
+        }
+    }
+
+    private async Task JoinFirstPublicMatchSmokeAsync()
+    {
+        for (var attempt = 1; attempt <= 20 && !_shutdown.IsCancellationRequested; attempt++)
+        {
+            await LoadPublicMatchesAsync();
+            var match = _publicMatches.FirstOrDefault();
+            if (match is not null)
+            {
+                AppendLog($"Auto smoke: joining public match {Escape(match.RoomId)}.");
+                await JoinPublicMatchAsync(match);
+                return;
+            }
+
+            SetMatchmakingStatus($"Waiting for public match... {attempt}/20");
+            await Task.Delay(TimeSpan.FromMilliseconds(500), _shutdown.Token);
+        }
+
+        AppendLog("[color=yellow]Auto smoke: no public match became available.[/color]");
+    }
+
+    private async Task JoinPublicMatchAsync(PublicMatchDto match)
+    {
+        if (!await EnsureAuthenticatedConnectionAsync())
+        {
+            return;
+        }
+
+        _session = _session with { RoomId = match.RoomId, ReconnectToken = null };
+        QueueMainThread(nameof(ApplyRoomInput), match.RoomId);
+        await SaveSessionAsync();
+
+        SetMatchmakingStatus($"Joining public room {match.RoomId}...");
+        await JoinCurrentRoomAndRequestSnapshotAsync(useReconnectToken: false);
+        SetMatchmakingStatus($"Joined public room {match.RoomId} · host {match.HostPlayerId}");
+        AppendLog($"Public match joined: room={Escape(match.RoomId)}, host={Escape(match.HostPlayerId)}.");
+        await RunAutoSmokeSetupIfReadyAsync();
     }
 
     private void ApplyPublicMatchResult(CreatePublicMatchResultDto result)
@@ -972,6 +1071,17 @@ public partial class Main : Control
 
         var selected = _deckSelect is null ? 0 : Math.Max(0, _deckSelect.Selected);
         return selected < _decks.Count ? _decks[selected] : _decks[0];
+    }
+
+    private PublicMatchDto? SelectedPublicMatch()
+    {
+        if (_publicMatches.Count == 0)
+        {
+            return null;
+        }
+
+        var selected = _publicMatchSelect is null ? 0 : Math.Max(0, _publicMatchSelect.Selected);
+        return selected < _publicMatches.Count ? _publicMatches[selected] : _publicMatches[0];
     }
 
     private void LogMessage(string channel, WsServerMessage message)
@@ -2838,6 +2948,30 @@ public partial class Main : Control
             {
                 _deckSelect.Select(i);
             }
+        }
+    }
+
+    public void ApplyPublicMatchOptions()
+    {
+        if (_publicMatchSelect is null)
+        {
+            return;
+        }
+
+        _publicMatchSelect.Clear();
+        if (_publicMatches.Count == 0)
+        {
+            _publicMatchSelect.AddItem("No open public matches", 0);
+            _publicMatchSelect.SetItemDisabled(0, true);
+            return;
+        }
+
+        for (var i = 0; i < _publicMatches.Count; i++)
+        {
+            var match = _publicMatches[i];
+            _publicMatchSelect.AddItem(
+                $"{match.RoomId} · host {match.HostPlayerId} · {match.SeatCount}/{match.Capacity} · {match.Status}",
+                i);
         }
     }
 

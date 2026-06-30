@@ -125,6 +125,38 @@ server room id from `MatchmakingStatusDto`, join that matched room, and then
 submit accepted `SubmitDeck` and `Ready` receipts without computing any
 matchmaking or game legality locally.
 
+Public-match listing smoke covers the `/matches` directory and join path:
+
+```sh
+stamp="godot-public-list-$(date +%H%M%S)"
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 2200 -- \
+  --riftbound-smoke-auto-public-match \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-handle="godot-host-${stamp}" \
+  --riftbound-player-key="pk_${stamp}_hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" \
+  > /tmp/riftbound-godot-public-host.log 2>&1 &
+pid_host=$!
+
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 2200 -- \
+  --riftbound-smoke-auto-join-public-match \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-handle="godot-join-${stamp}" \
+  --riftbound-player-key="pk_${stamp}_jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj" \
+  > /tmp/riftbound-godot-public-join.log 2>&1 &
+pid_join=$!
+
+wait "$pid_host" "$pid_join"
+cat /tmp/riftbound-godot-public-host.log /tmp/riftbound-godot-public-join.log
+```
+
+Expected public-list evidence: the host logs `Public match created`, the joiner
+logs public-match list loading plus `Public match joined`, and both clients then
+submit accepted `SubmitDeck` and `Ready` receipts in the same server room.
+
 ## Official Card Images
 
 Card faces prefer official `frontImage` URLs from

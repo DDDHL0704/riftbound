@@ -96,6 +96,25 @@ text = "Quick Match"
 layout_mode = 2
 text = "Cancel Queue"
 
+[node name="PublicMatchRow" type="HBoxContainer" parent="Controls"]
+layout_mode = 2
+
+[node name="PublicMatchLabel" type="Label" parent="Controls/PublicMatchRow"]
+layout_mode = 2
+text = "Public"
+
+[node name="PublicMatchSelect" type="OptionButton" parent="Controls/PublicMatchRow"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="RefreshPublicMatchesButton" type="Button" parent="Controls/PublicMatchRow"]
+layout_mode = 2
+text = "Refresh"
+
+[node name="JoinPublicMatchButton" type="Button" parent="Controls/PublicMatchRow"]
+layout_mode = 2
+text = "Join Public Match"
+
 [node name="DeckRow" type="HBoxContainer" parent="Controls"]
 layout_mode = 2
 
