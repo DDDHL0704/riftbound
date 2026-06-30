@@ -5,9 +5,12 @@
 
 This file records concrete evidence for consolidating representative `ASSEMBLE_EQUIPMENT` profile metadata into one shared engine catalog.
 
+2026-06-30 follow-up evidence records the next Plan B step: the shared catalog now derives those representative profiles from official catalog-backed `BehaviorSpec` rows instead of a hand-written cardNo/profile dictionary.
+
 ## 1. Runtime Evidence
 
-- `AssembleEquipmentProfileCatalog` now defines the shared `AssembleEquipmentProfile` record and representative profile rows.
+- `AssembleEquipmentProfileCatalog` defines the shared `AssembleEquipmentProfile` record and builds profile rows from `OfficialCardCatalog.LoadDefaultAsync(...)` plus `BehaviorSpecCatalogBuilder.Build(...)`.
+- The profile extractor reads `BehaviorSpec.OfficialText` and `Keywords=装配` for currently implemented equipment cards, then derives the existing representative costs: typed rune power, any power, `3A` with target-power mana reduction, experience cost, destroy-friendly-unit additional cost, and graveyard recycle additional cost.
 - `CoreRuleEngine` now calls `AssembleEquipmentProfileCatalog.TryGet(...)` when validating and resolving representative assemble commands.
 - `ActionPromptBuilder` now calls `AssembleEquipmentProfileCatalog.TryGet(...)` when exposing `ASSEMBLE_EQUIPMENT.sourceRequirements`.
 - `CardEquipmentKeywordRules.BuildProfile(...)` now calls `AssembleEquipmentProfileCatalog.HasImplementedRepresentative(...)` when setting the implemented assemble representative boundary.
@@ -15,6 +18,7 @@ This file records concrete evidence for consolidating representative `ASSEMBLE_E
 - The previous local `AssembleEquipmentProfile` records and `ImplementedAssembleEquipmentProfiles` dictionaries were deleted from `CoreRuleEngine.cs` and `MatchSession.cs`.
 - `ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile(...)` was deleted, so equipment keyword profile construction no longer depends on prompt internals.
 - Existing payment, target, attach/detach, event, prompt, and snapshot shapes are unchanged.
+- The old static cardNo/profile dictionary in `AssembleEquipmentProfileCatalog` was removed; runtime source eligibility remains limited to cards already implemented through `CardBehaviorRegistry.PlaysSourceToBaseAsEquipment`.
 
 ## 2. Test Evidence
 
@@ -29,13 +33,14 @@ Coverage:
 - The same guard requires both Core and prompt source to call `AssembleEquipmentProfileCatalog.TryGet`.
 - The same guard blocks `CardEquipmentKeywordRules` from depending on `ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile` and requires it to use `AssembleEquipmentProfileCatalog.HasImplementedRepresentative`.
 - Existing assemble/equipment fixtures continue to cover representative payment, typed power, target, and equipment state behavior.
+- 2026-06-30 guard extension requires `AssembleEquipmentProfileCatalog` to call `BehaviorSpecCatalogBuilder.Build(...)` / `OfficialCardCatalog.LoadDefaultAsync(...)` and blocks reintroducing the static `Profiles` dictionary plus the Long Sword cardNo constant.
 
 ## 3. Rule Evidence
 
 - `data/official/card-catalog.zh-CN.json` remains the card-text source for the representative equipment cards.
 - Existing evidence rows such as `p2-preflight-play-long-sword-agile-equipment`, `p4-play-long-sword-target-rejected`, `p4-play-shurelyas-requiem-target-rejected`, and the other equipment target-rejected rows continue to anchor official card text and command legality.
-- The shared catalog keeps the already implemented representative profile values for Long Sword, Soul Sword, Jagged Dirk, Recurve Bow, Arion's Fall, Withered Battleaxe, Brutalizer, Guardian Angel, Cloth Armor, Hextech Infused Bulwark, Wanderer's Guidebook, Z Drive, Sterak's Gage, Svarshang Song, Doran's Shield, Doran's Ring, Doran's Blade, Hexdrinker, Warmog's Armor, Trinity Force, Hunter's Machete, Bone Club, Boots of Swiftness, Cull, Edge of Night, Last Rites, Vanguard's Eye, BF Sword, Sacred Shears, Blade of the Ruined King, Spinning Axe, Hearthfire Cloak, Rabadon's Deathcap, Shurelya's Requiem, Hextech Gauntlet, and Shepherd's Heirloom.
-- This slice does not reinterpret official text or add new assemble coverage; it removes duplicated runtime profile sources.
+- The shared catalog keeps the already implemented representative profile values for Long Sword, Soul Sword, Jagged Dirk, Recurve Bow, Arion's Fall, Withered Battleaxe, Brutalizer, Guardian Angel, Cloth Armor, Hextech Infused Bulwark, Wanderer's Guidebook, Z Drive, Sterak's Gage, Svarshang Song, Doran's Shield, Doran's Ring, Doran's Blade, Hexdrinker, Warmog's Armor, Trinity Force, Hunter's Machete, Bone Club, Boots of Swiftness, Cull, Edge of Night, Last Rites, Vanguard's Eye, BF Sword, Sacred Shears, Blade of the Ruined King, Spinning Axe, Hearthfire Cloak, Rabadon's Deathcap, Shurelya's Requiem, Hextech Gauntlet, and Shepherd's Heirloom through official text parsing rather than per-card row literals.
+- This slice does not add new assemble coverage; it removes duplicated runtime profile sources and then removes the remaining hand-written cardNo/profile table from the shared catalog.
 
 ## 4. Verification
 
@@ -69,6 +74,32 @@ Result: 3211/3211 passed.
 
 Result: 8812/8812 passed.
 
+2026-06-30 follow-up:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~CardCatalogBaselineTests.AssembleEquipmentRepresentativeProfilesUseSharedCatalog"
+```
+
+Result: failed before implementation because `AssembleEquipmentProfileCatalog` did not call `BehaviorSpecCatalogBuilder.Build(...)`; passed after implementation, 1/1.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~EquipmentKeyword|FullyQualifiedName~EquipmentState|FullyQualifiedName~LongSword"
+```
+
+Result: 131/131 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~EquipmentKeyword|FullyQualifiedName~EquipmentState|FullyQualifiedName~LongSword|FullyQualifiedName~PaymentEngine|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 3222/3222 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 9049/9049 passed.
+
 ## 5. Helper Count
 
 After this slice, this source-control check remains clean:
@@ -81,4 +112,4 @@ Result: 0 matches.
 
 ## 6. Non-Closure Statement
 
-This evidence does not close full assemble BehaviorSpec extraction, full Agile, Tempered, weapon, equipment static modifier, copy-text, attach lifecycle, owner/controller, full payment-window matrix, full card matrix, frontend final validation, P0 objective, or READY status.
+This evidence does not close a complete official assemble grammar beyond the currently implemented profile shapes, full Agile, Tempered, weapon, equipment static modifier, copy-text, attach lifecycle, owner/controller, full payment-window matrix, full card matrix, frontend final validation, P0 objective, or READY status.

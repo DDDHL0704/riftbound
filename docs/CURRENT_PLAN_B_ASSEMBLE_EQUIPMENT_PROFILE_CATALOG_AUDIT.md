@@ -5,6 +5,8 @@
 
 本文件记录 Plan B 小切片：把现有代表性 `ASSEMBLE_EQUIPMENT` profile 从 `CoreRuleEngine` 与 `ActionPromptBuilder` 两份本地表迁移到共享 `AssembleEquipmentProfileCatalog`。该切片只消除 profile 来源漂移，不改变装配支付、目标合法性、附加费用、装备入场/贴附、事件 payload、prompt 或 snapshot 语义。
 
+2026-06-30 follow-up：`AssembleEquipmentProfileCatalog` 不再维护逐卡 cardNo/profile 字典。共享 catalog 现在加载官方 card catalog，构建 `BehaviorSpec`，并从 `BehaviorSpec.OfficialText` / `Keywords=装配` 派生已实现装备的代表性装配费用 profile，包括指定颜色符能、任意符能、`3A` + 目标战力减费、经验费用、摧毁友方单位附加费用和废牌堆回收附加费用。Core / prompt / keyword 边界继续只通过同一个 catalog 消费 profile。
+
 ## 1. Scope
 
 Changed:
@@ -26,6 +28,7 @@ Not changed:
 - source/target legality and owner/controller checks
 - equipment attach/detach lifecycle
 - frontend runtime
+- enabled assemble source set beyond cards already implemented through `CardBehaviorRegistry.PlaysSourceToBaseAsEquipment`
 
 ## 2. Acceptance Review
 
@@ -37,6 +40,8 @@ Not changed:
 | Existing representative fallback remains explicit | `AssembleEquipmentProfileCatalog.FallbackRepresentative` preserves the current Long Sword fallback used by legacy unsupported-object handling | Accepted |
 | No semantic expansion is claimed | The profile rows are a consolidation of existing implemented representative values; no new official assemble card is enabled by this slice | Accepted |
 | Current `Is*CardNo` method-declaration cleanup | `rg -n "bool\\s+Is[A-Za-z0-9_]+CardNo\\s*\\(" src/Riftbound.Engine src/Riftbound.CardCatalog src/Riftbound.Contracts tests/Riftbound.ConformanceTests` remains at 0 matches | Accepted for helper-removal scope, no full-official claim |
+| Profile rows are now BehaviorSpec/catalog-derived | `AssembleEquipmentProfileCatalog.BuildProfiles()` calls `OfficialCardCatalog.LoadDefaultAsync(...)` and `BehaviorSpecCatalogBuilder.Build(...)`; the source guard blocks the old static `Profiles` dictionary and Long Sword cardNo constant | Accepted |
+| Existing assemble semantics remain stable after extraction | Focused assemble/equipment tests and adjacent PaymentEngine / MatchRecovery / CardCatalogBaseline tests remain green after profile derivation | Accepted |
 
 ## 3. Rule Authority
 
@@ -87,9 +92,35 @@ Full backend conformance:
 
 Result: 8812/8812 passed.
 
+2026-06-30 follow-up verification:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~CardCatalogBaselineTests.AssembleEquipmentRepresentativeProfilesUseSharedCatalog"
+```
+
+Result: failed before implementation because `AssembleEquipmentProfileCatalog` did not call `BehaviorSpecCatalogBuilder.Build(...)`; passed after implementation, 1/1.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~EquipmentKeyword|FullyQualifiedName~EquipmentState|FullyQualifiedName~LongSword"
+```
+
+Result: 131/131 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~AssembleEquipment|FullyQualifiedName~EquipmentKeyword|FullyQualifiedName~EquipmentState|FullyQualifiedName~LongSword|FullyQualifiedName~PaymentEngine|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result: 3222/3222 passed.
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result: 9049/9049 passed.
+
 ## 5. Residual Risks
 
-- `AssembleEquipmentProfileCatalog` is still an engine-side representative profile table, not a complete BehaviorSpec extraction of all assemble clauses.
+- `AssembleEquipmentProfileCatalog` now extracts representative profiles from BehaviorSpec/catalog text, but the parser is intentionally scoped to currently implemented profile shapes and is not a complete official assemble grammar.
 - This does not close full Agile, Tempered, assemble, weapon, equipment static modifier, copy-text, attach lifecycle, owner/controller, payment-window, or full card matrix coverage.
 - This does not change functional-unit coverage status, frontend validation status, P0 objective status, or READY status.
 - Project remains **NOT READY**.

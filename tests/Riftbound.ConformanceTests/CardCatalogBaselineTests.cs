@@ -7307,6 +7307,7 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
         var equipmentKeywordSource = File.ReadAllText(Path.Combine(engineRoot, "CardEquipmentKeywordRules.cs"));
+        var assembleProfileCatalogSource = File.ReadAllText(Path.Combine(engineRoot, "AssembleEquipmentProfileCatalog.cs"));
 
         Assert.DoesNotContain("private sealed record AssembleEquipmentProfile", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("private sealed record AssembleEquipmentProfile", matchSessionSource, StringComparison.Ordinal);
@@ -7322,6 +7323,11 @@ public sealed class CardCatalogBaselineTests
             "AssembleEquipmentProfileCatalog.HasImplementedRepresentative",
             equipmentKeywordSource,
             StringComparison.Ordinal);
+        Assert.Contains("BehaviorSpecCatalogBuilder.Build", assembleProfileCatalogSource, StringComparison.Ordinal);
+        Assert.Contains("OfficialCardCatalog.LoadDefaultAsync", assembleProfileCatalogSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> Profiles", assembleProfileCatalogSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("private const string LongSwordCardNo", assembleProfileCatalogSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("[LongSwordCardNo] = new(", assembleProfileCatalogSource, StringComparison.Ordinal);
     }
 
     [Fact]
