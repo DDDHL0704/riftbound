@@ -33,6 +33,7 @@ This slice also moves the implemented friendly-destroyed power trigger away from
 - `CoreRuleEngine.BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem` now validates the source through the same TriggerSpec path and reads the power amount from `TriggerSpec.PowerDelta`.
 - The old `GhostlyCentaurCardNo` direct card-number branch is removed from `CoreRuleEngine`.
+- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `GhostlyCentaurCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedPowerUntilEndTrigger(sourceCardNo, out _)`.
 
 This slice also moves the implemented first-friendly-destroyed draw trigger away from engine card-number branching:
 

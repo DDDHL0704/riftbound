@@ -952,7 +952,6 @@ public static class MatchRecoveryValidator
     private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
     private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
     private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
-    private const string GhostlyCentaurCardNoForRecovery = "UNL-068/219";
     private const string ResonantSoulCardNoForRecovery = "OGN·118/298";
     private const string SavageJawfishCardNoForRecovery = "UNL-129/219";
     private const string ViktorDestroyedNonMinionArcCardNoForRecovery = "ARC-006/006";
@@ -972,6 +971,8 @@ public static class MatchRecoveryValidator
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
+    private const string GhostlyCentaurFriendlyDestroyedPowerSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit friendly-destroyed power until-end trigger";
     private const string WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit last-breath draw-one trigger";
 
@@ -22429,21 +22430,42 @@ public static class MatchRecoveryValidator
         if (objectCardNos is not null
             && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
         {
-            var expectedSourceCardNos = GetFriendlyDestroyedSourceCardNosForRecovery(expectedEffectKind);
-            if (expectedSourceCardNos.Length > 0
-                && !Array.Exists(
-                    expectedSourceCardNos,
-                    expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+            if (string.Equals(
+                    expectedEffectKind,
+                    GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+                    StringComparison.Ordinal))
             {
-                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                AddTriggerQueueSourceCardNoMismatch(
-                    payloadLabel,
-                    diagnosticName,
-                    sourceObjectId,
-                    sourceCardNoLabel,
-                    FormatExpectedCardNosForRecovery(expectedSourceCardNos),
-                    objectCardNoLabel,
-                    errors);
+                if (!UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedPowerUntilEndTrigger(sourceCardNo, out _))
+                {
+                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                    AddTriggerQueueSourceCardSpecMismatch(
+                        payloadLabel,
+                        diagnosticName,
+                        sourceObjectId,
+                        sourceCardNoLabel,
+                        GhostlyCentaurFriendlyDestroyedPowerSourceTriggerSpecLabelForRecovery,
+                        objectCardNoLabel,
+                        errors);
+                }
+            }
+            else
+            {
+                var expectedSourceCardNos = GetFriendlyDestroyedSourceCardNosForRecovery(expectedEffectKind);
+                if (expectedSourceCardNos.Length > 0
+                    && !Array.Exists(
+                        expectedSourceCardNos,
+                        expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+                {
+                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                    AddTriggerQueueSourceCardNoMismatch(
+                        payloadLabel,
+                        diagnosticName,
+                        sourceObjectId,
+                        sourceCardNoLabel,
+                        FormatExpectedCardNosForRecovery(expectedSourceCardNos),
+                        objectCardNoLabel,
+                        errors);
+                }
             }
         }
 
@@ -23514,7 +23536,6 @@ public static class MatchRecoveryValidator
     {
         return effectKind switch
         {
-            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery => [GhostlyCentaurCardNoForRecovery],
             ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery => [ResonantSoulCardNoForRecovery],
             SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery => [SavageJawfishCardNoForRecovery],
             ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery =>

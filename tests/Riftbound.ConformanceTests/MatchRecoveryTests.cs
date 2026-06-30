@@ -11742,7 +11742,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in objects; expected UNL-068/219 but got WRONG-CARD",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in objects; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33996,7 +33996,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152656,7 +152656,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152766,7 +152766,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
