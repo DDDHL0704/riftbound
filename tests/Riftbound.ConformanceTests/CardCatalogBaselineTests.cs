@@ -7017,6 +7017,18 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void PoroHerderSourceBoonDrawCarriesOfficialControlledPoroCondition()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·061/298", out var poroHerder));
+        Assert.True(poroHerder.GrantsBoonToSourceUnit);
+        Assert.Equal(
+            CardSourceBoonConditionKinds.ControllerControlsFaceUpUnitWithTag,
+            poroHerder.SourceBoonConditionKind);
+        Assert.Equal("魄罗", poroHerder.SourceBoonRequiredControlledUnitTag);
+        Assert.Equal(1, poroHerder.SourceBoonDrawCount);
+    }
+
+    [Fact]
     public async Task P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

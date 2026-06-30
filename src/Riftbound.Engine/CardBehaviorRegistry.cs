@@ -169,10 +169,13 @@ public sealed record CardBehaviorDefinition(
     string LevelSourceUnitTags = "",
     int LevelDrawOnPlayCount = 0,
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
+    string SourceBoonRequiredControlledUnitTag = "",
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
     string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None,
     int ManaReductionIfDiscardHandCardOptionalCost = 0,
     int SourceBoonAdditionalManaCost = 0,
+    int SourceBoonDrawCount = 0,
+    string SourceBoonDrawEffectKind = "",
     int SourceDrawAdditionalPowerCost = 0,
     string SourceDrawAdditionalPowerTrait = "",
     int SourceDrawCountIfOptionalPowerCostPaid = 0,
@@ -309,6 +312,7 @@ public static class CardSourceBoonConditionKinds
 {
     public const string None = "NONE";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
+    public const string ControllerControlsFaceUpUnitWithTag = "CONTROLLER_CONTROLS_FACE_UP_UNIT_WITH_TAG";
 }
 
 public static class CardSourceReadyConditionKinds
@@ -4193,7 +4197,12 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            GrantsBoonToSourceUnit: true,
+            SourceBoonConditionKind: CardSourceBoonConditionKinds.ControllerControlsFaceUpUnitWithTag,
+            SourceBoonRequiredControlledUnitTag: "魄罗",
+            SourceBoonDrawCount: 1,
+            SourceBoonDrawEffectKind: "PORO_HERDER_BOON_DRAW"),
         new(
             "OGN·103/298",
             "拉文布鲁姆学生",

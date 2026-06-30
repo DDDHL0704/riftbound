@@ -166,8 +166,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
     private const int DragonCallerUnitCostReductionMana = 2;
     private const int DragonCallerMinimumUnitManaCost = 1;
-    private const string PoroHerderBoonDrawSourceEffectKind = "PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT";
-    private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
@@ -34040,19 +34038,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0;
     }
 
-    private static bool ControllerControlsFaceUpPoroUnit(
+    private static bool ControllerControlsFaceUpUnitWithTag(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId)
+        string playerId,
+        string requiredTag)
     {
+        if (string.IsNullOrWhiteSpace(requiredTag))
+        {
+            return false;
+        }
+
         return GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Any(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && cardObject.Tags.Contains("魄罗", StringComparer.Ordinal)
-                && !cardObject.IsFaceDown);
+                && cardObject.Tags.Contains(requiredTag, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal));
     }
 
     private static bool ShouldGrantBoonToSourceUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem)
     {
@@ -34072,6 +34079,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardSourceBoonConditionKinds.None => true,
             CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn
                 => stackItem.PlayedAfterAnotherCardThisTurn,
+            CardSourceBoonConditionKinds.ControllerControlsFaceUpUnitWithTag
+                => ControllerControlsFaceUpUnitWithTag(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    behavior.SourceBoonRequiredControlledUnitTag),
             _ => false
         };
     }
@@ -34949,41 +34962,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }));
             }
 
-            if (string.Equals(behavior.EffectKind, PoroHerderBoonDrawSourceEffectKind, StringComparison.Ordinal)
-                && ControllerControlsFaceUpPoroUnit(playerZones, cardObjects, stackItem.ControllerId)
-                && cardObjects.TryGetValue(stackItem.SourceObjectId, out var poroHerderState))
-            {
-                events.Add(new GameEvent(
-                    "TRIGGER_RESOLVED",
-                    $"{stackItem.ControllerId} 的魄罗牧者因控制魄罗而触发",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = stackItem.ControllerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["effectKind"] = PoroHerderBoonDrawEffectKind,
-                        ["controlledPoro"] = true
-                    }));
-                cardObjects[stackItem.SourceObjectId] = ApplyBoon(
-                    poroHerderState,
-                    behavior,
-                    stackItem,
-                    stackItem.SourceObjectId,
-                    out var poroHerderBoonEvents);
-                events.AddRange(poroHerderBoonEvents);
-
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones,
-                    playerScores,
-                    stackItem.ControllerId,
-                    1,
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-            }
-
             if (TryResolveSourceUnitConditionalDraw(
                     playerZones,
                     cardObjects,
@@ -35166,9 +35144,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.Add(powerEvent);
         }
 
-        if (ShouldGrantBoonToSourceUnit(behavior, stackItem)
+        if (ShouldGrantBoonToSourceUnit(playerZones, cardObjects, behavior, stackItem)
             && cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitStateForBoon))
         {
+            if (behavior.SourceBoonDrawCount > 0
+                && !string.IsNullOrWhiteSpace(behavior.SourceBoonDrawEffectKind))
+            {
+                events.Add(new GameEvent(
+                    "TRIGGER_RESOLVED",
+                    $"{stackItem.ControllerId} 的{behavior.DisplayName}因条件满足而触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["effectKind"] = behavior.SourceBoonDrawEffectKind,
+                        ["sourceBoonConditionKind"] = behavior.SourceBoonConditionKind,
+                        ["sourceBoonRequiredControlledUnitTag"] = behavior.SourceBoonRequiredControlledUnitTag,
+                        ["drawCount"] = behavior.SourceBoonDrawCount
+                    }));
+            }
+
             var nextSourceUnitState = ApplyBoon(
                 sourceUnitStateForBoon,
                 behavior,
@@ -35177,6 +35172,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var boonEvents);
             cardObjects[stackItem.SourceObjectId] = nextSourceUnitState;
             events.AddRange(boonEvents);
+
+            if (behavior.SourceBoonDrawCount > 0)
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    stackItem.ControllerId,
+                    behavior.SourceBoonDrawCount,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
         }
 
         if (behavior.BanishesAllFriendlyGraveyardUnits)

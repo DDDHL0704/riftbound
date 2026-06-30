@@ -62,7 +62,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
-    public void PoroHerderBoonDrawPlaySourceUsesCatalogEffectKind()
+    public void PoroHerderBoonDrawPlaySourceUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
@@ -72,11 +72,12 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
 
         Assert.DoesNotContain("PoroHerderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, PoroHerderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("PoroHerderBoonDrawSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains(
-            "string.Equals(behavior.EffectKind, PoroHerderBoonDrawSourceEffectKind",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
+        Assert.DoesNotContain("PoroHerderBoonDrawSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("PORO_HERDER_NO_PORO_STATIC_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceBoonConditionKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceBoonRequiredControlledUnitTag", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.SourceBoonDrawCount", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardSourceBoonConditionKinds.ControllerControlsFaceUpUnitWithTag", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
