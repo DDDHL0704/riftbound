@@ -32,3 +32,13 @@ Headless smoke:
 
 Expected G0 evidence: the log shows `Connected`, `Authenticate`, `Joined`,
 `Snapshot`, and `Prompt` messages from `/hubs/game`.
+
+## Official Card Images
+
+Card faces prefer official `frontImage` URLs from
+`data/official/card-catalog.zh-CN.json`. Images are downloaded at runtime and
+cached under `user://official-card-cache`, which maps to the local Godot user
+data directory and is never committed.
+
+If a card has no official image or the download fails, the client must degrade to
+a text/vector card face instead of blocking the match UI.

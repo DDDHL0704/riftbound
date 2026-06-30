@@ -33,6 +33,23 @@ offset_bottom = 96.0
 grow_horizontal = 2
 text = "Disconnected"
 
+[node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 440.0
+grow_horizontal = 0
+
+[node name="OfficialCardPreview" type="TextureRect" parent="OfficialCardPreviewFrame"]
+custom_minimum_size = Vector2(240, 336)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Log" type="RichTextLabel" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -40,7 +57,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
 offset_top = 112.0
-offset_right = -24.0
+offset_right = -324.0
 offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2

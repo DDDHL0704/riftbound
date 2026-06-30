@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -15,22 +16,63 @@ public partial class Main : Control
     [Export] public string RoomId { get; set; } = "godot-local";
     [Export] public string Handle { get; set; } = "godot";
     [Export] public string PlayerKey { get; set; } = "godot-local-development-key";
+    [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
+    [Export] public string PreviewCardNo { get; set; } = "UNL-181/219";
 
     private Label? _status;
     private RichTextLabel? _log;
+    private TextureRect? _officialCardPreview;
     private HubConnection? _connection;
+    private readonly CancellationTokenSource _shutdown = new();
 
     public override async void _Ready()
     {
         _status = GetNode<Label>("Status");
         _log = GetNode<RichTextLabel>("Log");
+        _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialCardPreview");
         AppendLog("Client booted. Waiting for server authority.");
+        _ = LoadOfficialCardPreviewAsync();
         await ConnectAndRequestSnapshotAsync();
     }
 
     public override void _ExitTree()
     {
+        _shutdown.Cancel();
         _ = DisconnectAsync();
+        _shutdown.Dispose();
+    }
+
+    private async Task LoadOfficialCardPreviewAsync()
+    {
+        try
+        {
+            var catalog = await new OfficialCardCatalogService()
+                .LoadSnapshotAsync(OfficialCatalogSnapshotPath, _shutdown.Token);
+            AppendLog($"Official catalog loaded: {catalog.Count} cards.");
+
+            if (!catalog.TryGetValue(PreviewCardNo, out var card))
+            {
+                AppendLog($"[color=yellow]Official preview card not found: {Escape(PreviewCardNo)}[/color]");
+                return;
+            }
+
+            var image = await new OfficialCardImageLoader().LoadOfficialFrontImageAsync(card, _shutdown.Token);
+            if (image is null)
+            {
+                AppendLog($"[color=yellow]No official front image for {Escape(card.CardNo)} {Escape(card.CardName)}[/color]");
+                return;
+            }
+
+            QueueMainThread(nameof(ApplyOfficialCardPreview), image);
+            AppendLog($"Official card image loaded: {Escape(card.CardNo)} {Escape(card.CardName)}.");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Official image preview unavailable: {Escape(ex.Message)}[/color]");
+        }
     }
 
     private async Task ConnectAndRequestSnapshotAsync()
@@ -166,14 +208,22 @@ public partial class Main : Control
         _log.AppendText($"{text}\n");
     }
 
-    private void QueueMainThread(StringName method, string text)
+    public void ApplyOfficialCardPreview(Image image)
+    {
+        if (_officialCardPreview is not null)
+        {
+            _officialCardPreview.Texture = ImageTexture.CreateFromImage(image);
+        }
+    }
+
+    private void QueueMainThread(StringName method, Variant value)
     {
         if (!IsInsideTree())
         {
             return;
         }
 
-        CallDeferred(method, text);
+        CallDeferred(method, value);
     }
 
     private static string Escape(string value)
