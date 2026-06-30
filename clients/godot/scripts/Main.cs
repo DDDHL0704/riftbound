@@ -14,6 +14,8 @@ namespace Riftbound.GodotClient;
 
 public partial class Main : Control
 {
+    private const int AutoSmokePlayCardTapRuneLimit = 4;
+
     [Export] public string ServerUrl { get; set; } = "http://127.0.0.1:5088";
     [Export] public bool AutoConnectOnReady { get; set; } = true;
     [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
@@ -46,8 +48,10 @@ public partial class Main : Control
     private bool _autoSmoke;
     private bool _autoSmokeMulligan;
     private bool _autoSmokeTapRune;
+    private bool _autoSmokePlayCard;
     private bool _autoSmokeSubmitted;
-    private bool _autoSmokeTapRuneSubmitted;
+    private int _autoSmokeTapRuneSubmissions;
+    private bool _autoSmokePlayCardSubmitted;
     private bool _ephemeralSession;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
@@ -62,6 +66,7 @@ public partial class Main : Control
         _autoSmoke = args.Contains("--riftbound-smoke-auto-ready");
         _autoSmokeMulligan = args.Contains("--riftbound-smoke-auto-mulligan");
         _autoSmokeTapRune = args.Contains("--riftbound-smoke-auto-tap-rune");
+        _autoSmokePlayCard = args.Contains("--riftbound-smoke-auto-play-card");
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
         AppendLog("Client booted. Waiting for server authority.");
 
@@ -804,60 +809,98 @@ public partial class Main : Control
 
     private async Task RunAutoSmokePromptAsync(Godot.Collections.Dictionary view)
     {
-        if ((!_autoSmokeMulligan && !_autoSmokeTapRune)
+        if ((!_autoSmokeMulligan && !_autoSmokeTapRune && !_autoSmokePlayCard)
             || !view.TryGetValue("actions", out var actionsValue)
             || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
         {
             return;
         }
 
-        foreach (var action in actions)
+        if (_autoSmokeMulligan
+            && TryGetEnabledPromptAction(actions, "MULLIGAN", requireTemplate: false, out var mulliganAction))
         {
-            var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
-            var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-            if (!enabled)
+            var key = AutoSmokePromptKey(mulliganAction, "MULLIGAN");
+            if (!_autoSmokePromptSubmissions.Add(key))
             {
-                continue;
-            }
-
-            if (_autoSmokeMulligan && string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
-            {
-                var key = AutoSmokePromptKey(action, actionName);
-                if (!_autoSmokePromptSubmissions.Add(key))
-                {
-                    return;
-                }
-
-                AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
-                await SubmitMulliganAsync(action, Array.Empty<string>());
                 return;
             }
 
-            if (_autoSmokeTapRune
-                && !_autoSmokeTapRuneSubmitted
-                && string.Equals(actionName, "TAP_RUNE", StringComparison.Ordinal)
-                && action.TryGetValue("hasTemplate", out var templateValue)
-                && templateValue.AsBool())
+            AppendLog("Auto smoke: confirming mulligan with 0 selected cards.");
+            await SubmitMulliganAsync(mulliganAction, Array.Empty<string>());
+            return;
+        }
+
+        if (_autoSmokePlayCard
+            && !_autoSmokePlayCardSubmitted
+            && (!_autoSmokeTapRune || _autoSmokeTapRuneSubmissions > 0)
+            && TryGetEnabledPromptAction(actions, "PLAY_CARD", requireTemplate: true, out var playAction))
+        {
+            var sourceObjectId = FirstPromptChoiceId(playAction, "sourceChoices");
+            if (string.IsNullOrWhiteSpace(sourceObjectId))
             {
-                var sourceObjectId = FirstPromptChoiceId(action, "sourceChoices");
-                if (string.IsNullOrWhiteSpace(sourceObjectId))
-                {
-                    AppendLog("[color=yellow]Auto smoke: TAP_RUNE has no server-provided source choice.[/color]");
-                    continue;
-                }
-
-                var key = AutoSmokePromptKey(action, $"{actionName}:{sourceObjectId}");
-                if (!_autoSmokePromptSubmissions.Add(key))
-                {
-                    return;
-                }
-
-                _autoSmokeTapRuneSubmitted = true;
-                AppendLog($"Auto smoke: submitting TAP_RUNE from server source {Escape(sourceObjectId)}.");
-                await SubmitPromptTemplateAsync(action, PromptSelection.SourceOnly(sourceObjectId));
+                AppendLog("[color=yellow]Auto smoke: PLAY_CARD has no server-provided source choice.[/color]");
                 return;
+            }
+
+            var key = AutoSmokePromptKey(playAction, $"PLAY_CARD:{sourceObjectId}");
+            if (!_autoSmokePromptSubmissions.Add(key))
+            {
+                return;
+            }
+
+            _autoSmokePlayCardSubmitted = true;
+            AppendLog($"Auto smoke: submitting PLAY_CARD from server source {Escape(sourceObjectId)}.");
+            await SubmitPromptTemplateAsync(playAction, PromptSelection.SourceOnly(sourceObjectId));
+            return;
+        }
+
+        var tapRuneLimit = _autoSmokePlayCard ? AutoSmokePlayCardTapRuneLimit : 1;
+        if (_autoSmokeTapRune
+            && _autoSmokeTapRuneSubmissions < tapRuneLimit
+            && TryGetEnabledPromptAction(actions, "TAP_RUNE", requireTemplate: true, out var tapRuneAction))
+        {
+            var sourceObjectId = FirstPromptChoiceId(tapRuneAction, "sourceChoices");
+            if (string.IsNullOrWhiteSpace(sourceObjectId))
+            {
+                AppendLog("[color=yellow]Auto smoke: TAP_RUNE has no server-provided source choice.[/color]");
+                return;
+            }
+
+            var key = AutoSmokePromptKey(tapRuneAction, $"TAP_RUNE:{sourceObjectId}");
+            if (!_autoSmokePromptSubmissions.Add(key))
+            {
+                return;
+            }
+
+            _autoSmokeTapRuneSubmissions++;
+            AppendLog($"Auto smoke: submitting TAP_RUNE from server source {Escape(sourceObjectId)}.");
+            await SubmitPromptTemplateAsync(tapRuneAction, PromptSelection.SourceOnly(sourceObjectId));
+            return;
+        }
+    }
+
+    private static bool TryGetEnabledPromptAction(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+        string actionName,
+        bool requireTemplate,
+        out Godot.Collections.Dictionary action)
+    {
+        action = [];
+        foreach (var candidate in actions)
+        {
+            var candidateName = candidate.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+            var enabled = candidate.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+            var hasTemplate = candidate.TryGetValue("hasTemplate", out var templateValue) && templateValue.AsBool();
+            if (enabled
+                && string.Equals(candidateName, actionName, StringComparison.Ordinal)
+                && (!requireTemplate || hasTemplate))
+            {
+                action = candidate;
+                return true;
             }
         }
+
+        return false;
     }
 
     private string AutoSmokePromptKey(Godot.Collections.Dictionary action, string actionName)

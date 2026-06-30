@@ -41,6 +41,7 @@ room="godot-dual-$(date +%H%M%S)"
   --riftbound-smoke-auto-ready \
   --riftbound-smoke-auto-mulligan \
   --riftbound-smoke-auto-tap-rune \
+  --riftbound-smoke-auto-play-card \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -53,6 +54,7 @@ pid_a=$!
   --riftbound-smoke-auto-ready \
   --riftbound-smoke-auto-mulligan \
   --riftbound-smoke-auto-tap-rune \
+  --riftbound-smoke-auto-play-card \
   --riftbound-ephemeral-session \
   --riftbound-ignore-reconnect \
   --riftbound-room="${room}" \
@@ -72,6 +74,10 @@ prompt also confirms a 0-card `MULLIGAN`, proving the Godot client can submit
 the server-stamped mulligan command without learning any rules locally. With
 `--riftbound-smoke-auto-tap-rune`, the first post-mulligan `TAP_RUNE` candidate
 is submitted from the server-provided source choice and server command template.
+With `--riftbound-smoke-auto-play-card`, the first post-rune `PLAY_CARD`
+candidate is submitted from the server-provided source choice and template,
+tapping additional server-provided rune candidates first if no playable source
+has appeared yet.
 
 ## Official Card Images
 
