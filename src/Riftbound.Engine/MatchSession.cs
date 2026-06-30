@@ -6717,9 +6717,6 @@ internal static class ActionPromptBuilder
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const string DragonCallerCostStaticSourceEffectKind = "DRAGON_CALLER_COST_STATIC_PLAY_UNIT";
-    private const int DragonCallerUnitCostReductionMana = 2;
-    private const int DragonCallerMinimumUnitManaCost = 1;
     private const string EagerApprenticeSpellCostStaticSourceEffectKind = "EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
@@ -12577,7 +12574,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId = null)
     {
         var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId);
-        reduction += PromptDragonCallerUnitCostReductionMana(state, playerId, behavior, reduction);
+        reduction += PromptStaticUnitCostReductionMana(state, playerId, behavior, reduction);
         reduction += PromptNextSpellCostReductionMana(state, playerId, behavior, reduction);
         reduction += PromptBattlefieldSpellCostReductionMana(
             state,
@@ -15108,51 +15105,72 @@ internal static class ActionPromptBuilder
             : 0;
     }
 
-    private static int PromptDragonCallerUnitCostReductionMana(
+    private static int PromptStaticUnitCostReductionMana(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         int alreadyAppliedBaseReductionMana)
     {
-        if (!IsPromptDragonUnitPlayBehavior(behavior)
-            || behavior.ManaCost <= DragonCallerMinimumUnitManaCost)
+        if (!behavior.PlaysSourceToBaseAsUnit)
         {
             return 0;
         }
 
-        var sourceCount = PromptDragonCallerCostStaticSourceCount(state, playerId);
-        if (sourceCount == 0)
+        var sources = PromptStaticUnitCostReductionSourceBehaviors(state, playerId)
+            .Where(source => PromptStaticUnitCostReductionAppliesToBehavior(source, behavior))
+            .ToArray();
+        if (sources.Length == 0)
         {
             return 0;
         }
 
+        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticUnitCostReductionMinimumManaCost));
         var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > DragonCallerMinimumUnitManaCost
+        return baseManaAfterExistingReductions > minimumManaCost
             ? Math.Min(
-                sourceCount * DragonCallerUnitCostReductionMana,
-                baseManaAfterExistingReductions - DragonCallerMinimumUnitManaCost)
+                sources.Sum(source => Math.Max(0, source.StaticUnitCostReductionMana)),
+                baseManaAfterExistingReductions - minimumManaCost)
             : 0;
     }
 
-    private static int PromptDragonCallerCostStaticSourceCount(MatchState state, string playerId)
+    private static IEnumerable<CardBehaviorDefinition> PromptStaticUnitCostReductionSourceBehaviors(
+        MatchState state,
+        string playerId)
     {
         return state.PlayerZones.Values
             .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
             .Distinct(StringComparer.Ordinal)
-            .Count(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && !cardObject.IsFaceDown
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(
-                    cardObject.CardNo,
-                    DragonCallerCostStaticSourceEffectKind));
+            .Select(objectId =>
+            {
+                if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    || cardObject.IsFaceDown
+                    || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? "", out var sourceBehavior)
+                    || sourceBehavior.StaticUnitCostReductionMana <= 0)
+                {
+                    return null;
+                }
+
+                return sourceBehavior;
+            })
+            .OfType<CardBehaviorDefinition>();
     }
 
-    private static bool IsPromptDragonUnitPlayBehavior(CardBehaviorDefinition behavior)
+    private static bool PromptStaticUnitCostReductionAppliesToBehavior(
+        CardBehaviorDefinition sourceBehavior,
+        CardBehaviorDefinition behavior)
     {
-        return behavior.PlaysSourceToBaseAsUnit
-            && HasDelimitedTag(behavior.SourceUnitTags, "龙");
+        if (sourceBehavior.StaticUnitCostReductionMana <= 0
+            || !behavior.PlaysSourceToBaseAsUnit)
+        {
+            return false;
+        }
+
+        return string.IsNullOrWhiteSpace(sourceBehavior.StaticUnitCostReductionRequiredUnitTag)
+            || HasDelimitedTag(
+                behavior.SourceUnitTags,
+                sourceBehavior.StaticUnitCostReductionRequiredUnitTag);
     }
 
     private static int PromptNextSpellCostReductionMana(
@@ -17193,7 +17211,7 @@ internal static class ActionPromptBuilder
             playerId,
             behavior,
             sourceObjectId);
-        var dragonUnitCostReductionMana = PromptDragonCallerUnitCostReductionMana(
+        var dragonUnitCostReductionMana = PromptStaticUnitCostReductionMana(
             state,
             playerId,
             behavior,

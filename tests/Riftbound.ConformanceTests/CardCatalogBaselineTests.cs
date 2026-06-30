@@ -119,6 +119,17 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void DragonCallerStaticUnitCostReductionCarriesOfficialBehaviorFields()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·140/298", out var behavior));
+
+        Assert.Equal("唤龙使者", behavior.DisplayName);
+        Assert.Equal(2, behavior.StaticUnitCostReductionMana);
+        Assert.Equal("龙", behavior.StaticUnitCostReductionRequiredUnitTag);
+        Assert.Equal(1, behavior.StaticUnitCostReductionMinimumManaCost);
+    }
+
+    [Fact]
     public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

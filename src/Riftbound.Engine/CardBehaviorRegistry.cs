@@ -213,7 +213,10 @@ public sealed record CardBehaviorDefinition(
     string ConditionalSourceUnitTags = "",
     string SourceDrawConditionKind = CardSourceDrawConditionKinds.None,
     int SourceDrawCount = 0,
-    int SourceDrawRequiredOtherControlledUnitPower = 0);
+    int SourceDrawRequiredOtherControlledUnitPower = 0,
+    int StaticUnitCostReductionMana = 0,
+    string StaticUnitCostReductionRequiredUnitTag = "",
+    int StaticUnitCostReductionMinimumManaCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -4113,7 +4116,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            StaticUnitCostReductionMana: 2,
+            StaticUnitCostReductionRequiredUnitTag: "龙",
+            StaticUnitCostReductionMinimumManaCost: 1),
         new(
             "OGN·002/298",
             "粗鲁的海盗",

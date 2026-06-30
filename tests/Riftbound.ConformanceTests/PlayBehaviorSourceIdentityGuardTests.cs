@@ -70,6 +70,36 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
     }
 
     [Fact]
+    public void DragonCallerUnitCostStaticSourceUsesBehaviorFields()
+    {
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("DragonCallerCostStaticSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DragonCallerCostStaticSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DRAGON_CALLER_COST_STATIC_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DRAGON_CALLER_COST_STATIC_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DragonCallerUnitCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DragonCallerUnitCostReductionMana", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DragonCallerMinimumUnitManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DragonCallerMinimumUnitManaCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionRequiredUnitTag", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionMinimumManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionMana", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionRequiredUnitTag", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticUnitCostReductionMinimumManaCost", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PoroHerderBoonDrawPlaySourceUsesBehaviorFields()
     {
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
