@@ -49,6 +49,7 @@ This slice also moves the implemented first-friendly-destroyed draw trigger away
 - `CoreRuleEngine.BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`, while preserving the existing destroyed-owner once-per-turn guard.
 - `CoreRuleEngine` immediate single-trigger resolution and stack resolution now read the draw amount from `TriggerSpec.DrawCount`.
 - The old `ResonantSoulCardNo` direct card-number branch and `ResonantSoulFirstFriendlyDestroyedDrawEffectKind` Core constant are removed from `CoreRuleEngine`.
+- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `ResonantSoulCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger(sourceCardNo, out _)`.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `38` total / `35` in `CoreRuleEngine`; this count is unchanged by the Ghostly Centaur and Resonant Soul slices because the old Core paths used direct card-number comparisons rather than `Is*CardNo(...)` helpers.
 
 This slice also moves the implemented destroyed non-minion create-minion trigger away from engine card-number branching:

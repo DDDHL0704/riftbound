@@ -952,7 +952,6 @@ public static class MatchRecoveryValidator
     private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
     private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
     private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
-    private const string ResonantSoulCardNoForRecovery = "OGN·118/298";
     private const string ViktorDestroyedNonMinionArcCardNoForRecovery = "ARC-006/006";
     private const string ViktorDestroyedNonMinionOgnCardNoForRecovery = "OGN·246/298";
     private const string ViktorDestroyedNonMinionOgnAltACardNoForRecovery = "OGN·246a/298";
@@ -974,6 +973,8 @@ public static class MatchRecoveryValidator
         "BehaviorSpec unit friendly-destroyed power until-end trigger";
     private const string SavageJawfishFriendlyDestroyedExperienceSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit friendly-destroyed gain-experience trigger";
+    private const string ResonantSoulFirstFriendlyDestroyedDrawSourceTriggerSpecLabelForRecovery =
+        "BehaviorSpec unit first-friendly-destroyed draw-one trigger";
     private const string WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery =
         "BehaviorSpec unit last-breath draw-one trigger";
 
@@ -22467,6 +22468,24 @@ public static class MatchRecoveryValidator
                         errors);
                 }
             }
+            else if (string.Equals(
+                         expectedEffectKind,
+                         ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+                         StringComparison.Ordinal))
+            {
+                if (!UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger(sourceCardNo, out _))
+                {
+                    var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                    AddTriggerQueueSourceCardSpecMismatch(
+                        payloadLabel,
+                        diagnosticName,
+                        sourceObjectId,
+                        sourceCardNoLabel,
+                        ResonantSoulFirstFriendlyDestroyedDrawSourceTriggerSpecLabelForRecovery,
+                        objectCardNoLabel,
+                        errors);
+                }
+            }
             else
             {
                 var expectedSourceCardNos = GetFriendlyDestroyedSourceCardNosForRecovery(expectedEffectKind);
@@ -23555,7 +23574,6 @@ public static class MatchRecoveryValidator
     {
         return effectKind switch
         {
-            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery => [ResonantSoulCardNoForRecovery],
             ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery =>
             [
                 ViktorDestroyedNonMinionArcCardNoForRecovery,
