@@ -1,5 +1,5 @@
 ; Engine configuration file.
-; Keep gameplay authority in the existing server; this client only renders
+; Keep gameplay authority in the existing server; this client renders
 ; snapshots and submits commands.
 
 config_version=5
@@ -11,16 +11,16 @@ run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "C#")
 config/icon="res://icon.svg"
 
-[dotnet]
-
-project/assembly_name="Riftbound.GodotClient"
-
 [display]
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="Riftbound.GodotClient"
 
 [rendering]
 

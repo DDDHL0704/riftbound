@@ -33,6 +33,38 @@ Headless smoke:
 Expected G0 evidence: the log shows `Connected`, `Authenticate`, `Joined`,
 `Snapshot`, and `Prompt` messages from `/hubs/game`.
 
+G1/G2 dual-client smoke can be run against the same memory-mode API:
+
+```sh
+room="godot-dual-$(date +%H%M%S)"
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 1800 -- \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-room="${room}" \
+  --riftbound-handle="godot-a-${room}" \
+  --riftbound-player-key="pk_${room}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" \
+  > /tmp/riftbound-godot-a.log 2>&1 &
+pid_a=$!
+
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot --headless --path clients/godot --quit-after 1800 -- \
+  --riftbound-smoke-auto-ready \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-room="${room}" \
+  --riftbound-handle="godot-b-${room}" \
+  --riftbound-player-key="pk_${room}_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" \
+  > /tmp/riftbound-godot-b.log 2>&1 &
+pid_b=$!
+
+wait "$pid_a" "$pid_b"
+cat /tmp/riftbound-godot-a.log /tmp/riftbound-godot-b.log
+```
+
+Expected G1/G2 evidence: each client logs accepted `SubmitDeck` and `Ready`
+receipts; after both are ready, the server pushes `START`, `Snapshot`, and
+`Prompt` messages.
+
 ## Official Card Images
 
 Card faces prefer official `frontImage` URLs from

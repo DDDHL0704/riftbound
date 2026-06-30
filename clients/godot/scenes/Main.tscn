@@ -33,6 +33,68 @@ offset_bottom = 96.0
 grow_horizontal = 2
 text = "Disconnected"
 
+[node name="Controls" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 102.0
+offset_right = -324.0
+offset_bottom = 244.0
+grow_horizontal = 2
+
+[node name="SessionRow" type="HBoxContainer" parent="Controls"]
+layout_mode = 2
+
+[node name="HandleLabel" type="Label" parent="Controls/SessionRow"]
+layout_mode = 2
+text = "Handle"
+
+[node name="HandleInput" type="LineEdit" parent="Controls/SessionRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+text = "godot"
+
+[node name="RoomLabel" type="Label" parent="Controls/SessionRow"]
+layout_mode = 2
+text = "Room"
+
+[node name="RoomInput" type="LineEdit" parent="Controls/SessionRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+text = "godot-local"
+
+[node name="ConnectButton" type="Button" parent="Controls/SessionRow"]
+layout_mode = 2
+text = "Connect"
+
+[node name="ReconnectButton" type="Button" parent="Controls/SessionRow"]
+layout_mode = 2
+text = "Reconnect"
+
+[node name="DeckRow" type="HBoxContainer" parent="Controls"]
+layout_mode = 2
+
+[node name="DeckLabel" type="Label" parent="Controls/DeckRow"]
+layout_mode = 2
+text = "Deck"
+
+[node name="DeckSelect" type="OptionButton" parent="Controls/DeckRow"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+
+[node name="LoadDecksButton" type="Button" parent="Controls/DeckRow"]
+layout_mode = 2
+text = "Load Decks"
+
+[node name="SubmitDeckButton" type="Button" parent="Controls/DeckRow"]
+layout_mode = 2
+text = "Submit Deck"
+
+[node name="ReadyButton" type="Button" parent="Controls/DeckRow"]
+layout_mode = 2
+text = "Ready"
+
 [node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
@@ -56,7 +118,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 112.0
+offset_top = 256.0
 offset_right = -324.0
 offset_bottom = -24.0
 grow_horizontal = 2

@@ -1,0 +1,77 @@
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Godot;
+
+namespace Riftbound.GodotClient;
+
+public sealed record PlayerSessionSettings(
+    string Handle,
+    string RoomId,
+    string PlayerKey,
+    string? ReconnectToken = null,
+    string? LastDeckId = null)
+{
+    public const string DefaultHandle = "godot";
+    public const string DefaultRoomId = "godot-local";
+
+    public static PlayerSessionSettings CreateDefault()
+    {
+        return new PlayerSessionSettings(DefaultHandle, DefaultRoomId, GeneratePlayerKey());
+    }
+
+    public static PlayerSessionSettings WithUsableKey(PlayerSessionSettings settings)
+    {
+        return string.IsNullOrWhiteSpace(settings.PlayerKey) || settings.PlayerKey.Trim().Length < 16
+            ? settings with { PlayerKey = GeneratePlayerKey() }
+            : settings;
+    }
+
+    private static string GeneratePlayerKey()
+    {
+        return $"pk_{Guid.NewGuid():N}{Guid.NewGuid():N}";
+    }
+}
+
+public sealed class PlayerSessionStore
+{
+    private const string SessionPath = "user://session.json";
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
+
+    public async Task<PlayerSessionSettings> LoadAsync()
+    {
+        var path = ProjectSettings.GlobalizePath(SessionPath);
+        if (!File.Exists(path))
+        {
+            var created = PlayerSessionSettings.CreateDefault();
+            await SaveAsync(created);
+            return created;
+        }
+
+        try
+        {
+            await using var stream = File.OpenRead(path);
+            var settings = await JsonSerializer.DeserializeAsync<PlayerSessionSettings>(stream, JsonOptions);
+            return PlayerSessionSettings.WithUsableKey(settings ?? PlayerSessionSettings.CreateDefault());
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"Unable to read session settings. Creating a fresh local identity. {ex.Message}");
+            var created = PlayerSessionSettings.CreateDefault();
+            await SaveAsync(created);
+            return created;
+        }
+    }
+
+    public async Task SaveAsync(PlayerSessionSettings settings)
+    {
+        var path = ProjectSettings.GlobalizePath(SessionPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await using var stream = File.Create(path);
+        await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
+    }
+}
