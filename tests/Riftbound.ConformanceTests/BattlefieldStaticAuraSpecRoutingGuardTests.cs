@@ -273,6 +273,29 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void SourceObjectPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var matchRecoverySource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceObjectPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSourceObjectPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSourceObjectFilteredPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SourceObjectKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

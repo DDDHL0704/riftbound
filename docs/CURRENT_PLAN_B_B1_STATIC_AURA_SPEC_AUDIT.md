@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Source-Object POWER Recovery Scope Predicate
+
+This follow-up moves spectator recovery source-card consistency and power-delta lookup for source-object POWER static auras onto `StaticAuraSpec` scope predicates.
+
+`StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura` now identifies source-object POWER auras with `SOURCE_OBJECT` target/participant scopes and no target filter. `StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura` identifies the filtered variant with the same target/participant scopes plus a target filter. `MatchRecovery` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `TryGetSourceObjectPowerAura` / `TryGetSourceObjectFilteredPowerAura`.
+
+The existing `SOURCE_OBJECT_POWER` and `SOURCE_OBJECT_FILTERED_POWER` continuous-effect metadata remains compatible; this is a recovery validation and scalar lookup selector cleanup only.
+
+Validation: baseline backend full conformance 9071/9071; red/green focused `SourceObjectPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` 1/1; focused source-object POWER / MatchRecovery regression 2000/2000; SourceObject / StaticAura / StaticPower / ContinuousEffect / Experience / FullGameEndToEnd / MatchRecovery adjacent 2266/2266; backend full conformance 9072/9072.
+
+Non-closure: this slice only consolidates source-object POWER recovery source-card validation and scalar lookup. Other static-aura recovery helper families, full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Battlefield POWER Recovery Scope Predicate
 
 This follow-up moves spectator recovery source-card consistency validation for battlefield POWER static auras onto the same `StaticAuraSpec` scope predicates used by Core and MatchSession.

@@ -35,22 +35,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetSourceObjectFilteredPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceObjectFilteredPower,
-            out aura);
-    }
-
-    public static bool TryGetSourceObjectPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceObjectPower,
-            out aura);
-    }
-
     public static bool TryGetBattlefieldAllUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -297,6 +281,18 @@ internal static class StaticAuraSpecRules
             && aura.PowerDeltaPerParticipant != 0
             && string.Equals(aura.TargetScope, StaticAuraTargetScopes.SourceObject, StringComparison.Ordinal)
             && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SourceObject, StringComparison.Ordinal);
+    }
+
+    public static bool IsSourceObjectUnfilteredPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceObjectPowerStaticAura(aura)
+            && string.IsNullOrWhiteSpace(aura.TargetFilter);
+    }
+
+    public static bool IsSourceObjectFilteredPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceObjectPowerStaticAura(aura)
+            && !string.IsNullOrWhiteSpace(aura.TargetFilter);
     }
 
     public static bool IsSourceObjectKeywordStaticAura(StaticAuraSpec aura)

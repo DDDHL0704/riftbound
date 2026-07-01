@@ -17237,7 +17237,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura))
         {
             return;
         }
@@ -17252,7 +17253,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceObjectPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura))
         {
             return;
         }
@@ -18026,14 +18028,16 @@ public static class MatchRecoveryValidator
             return 1;
         }
 
+        var staticAuras = StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
+
         if (string.Equals(effectKind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(sourceCardNo, out var sourceObjectFilteredAura))
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura) is { } sourceObjectFilteredAura)
         {
             return sourceObjectFilteredAura.PowerDeltaPerParticipant;
         }
 
         if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceObjectPowerAura(sourceCardNo, out var sourceObjectAura))
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura) is { } sourceObjectAura)
         {
             return sourceObjectAura.PowerDeltaPerParticipant;
         }

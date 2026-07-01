@@ -6,6 +6,17 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Source-Object POWER Recovery Scope Predicate
+
+- `StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura` is now the shared predicate for source-object POWER static auras whose target and participant scopes are `SOURCE_OBJECT` / `SOURCE_OBJECT` and whose target filter is empty.
+- `StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura` is now the shared predicate for source-object filtered POWER static auras with the same target/participant scopes and a non-empty target filter.
+- `MatchRecovery` source-card spec consistency validation and object static-aura power-delta lookup now enumerate `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filter through those predicates instead of calling `StaticAuraSpecRules.TryGetSourceObjectPowerAura` / `TryGetSourceObjectFilteredPowerAura`.
+- Existing recovery-sensitive metadata remains compatible: `SOURCE_OBJECT_POWER` and `SOURCE_OBJECT_FILTERED_POWER`.
+- `StaticAuraSpecRules.TryGetSourceObjectPowerAura` and `TryGetSourceObjectFilteredPowerAura` have been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceObjectPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helpers in MatchRecovery or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9071/9071; red/green focused guard 1/1; focused source-object POWER / MatchRecovery regression 2000/2000; SourceObject / StaticAura / StaticPower / ContinuousEffect / Experience / FullGameEndToEnd / MatchRecovery adjacent 2266/2266; backend full conformance 9072/9072.
+- Non-closure: this does not finish other static-aura recovery helper families, complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Battlefield POWER Recovery Scope Predicate
 
 - `StaticAuraSpecRules.IsBattlefieldAllUnitsPowerStaticAura` is now the shared predicate for battlefield all-units POWER static auras whose target and participant scopes are `SAME_BATTLEFIELD_UNITS` / `SAME_BATTLEFIELD_PUBLIC_UNITS`.
