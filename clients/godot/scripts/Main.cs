@@ -1771,7 +1771,11 @@ public partial class Main : Control
 
         return new Godot.Collections.Dictionary
         {
-            ["summary"] = $"{title}\n{message}\nActionable: {actionable} · {reason}",
+            ["summary"] = $"{title}\n{message}",
+            ["title"] = title,
+            ["message"] = message,
+            ["reason"] = reason,
+            ["actionable"] = actionable,
             ["actions"] = actions,
             ["candidateCount"] = actions.Count,
             ["directCount"] = directCount,
@@ -3156,13 +3160,6 @@ public partial class Main : Control
 
     public void ApplyPrompt(Godot.Collections.Dictionary view)
     {
-        if (_promptSummary is not null)
-        {
-            _promptSummary.Text = view.TryGetValue("summary", out var summary)
-                ? summary.AsString()
-                : "No prompt";
-        }
-
         if (_promptActions is null)
         {
             return;
@@ -3176,17 +3173,19 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
+        if (_promptSummary is not null)
+        {
+            _promptSummary.Text = PromptGuidanceSummary(view, actions);
+        }
+
         if (actions.Count == 0)
         {
-            _promptActions.AddChild(new Label
-            {
-                Text = "No candidate actions"
-            });
+            _promptActions.AddChild(MutedLabel("等待服务端提供可展示的候选。"));
             RunestoneTheme.ApplyToTree(_promptActions);
             return;
         }
 
-        foreach (var action in actions)
+        foreach (var action in actions.OrderBy(PromptActionSortKey).ThenBy(PromptActionLabel))
         {
             _promptActions.AddChild(PromptActionNode(action));
         }
@@ -3194,9 +3193,167 @@ public partial class Main : Control
         RunestoneTheme.ApplyToTree(_promptActions);
     }
 
+    private static string PromptGuidanceSummary(
+        Godot.Collections.Dictionary view,
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions)
+    {
+        var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
+        var message = view.TryGetValue("message", out var messageValue) ? messageValue.AsString() : string.Empty;
+        var reason = view.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
+        var enabledCount = actions.Count(action =>
+            action.TryGetValue("enabled", out var enabledValue)
+            && enabledValue.AsBool()
+            && !string.Equals(
+                action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty,
+                "WAIT",
+                StringComparison.Ordinal));
+        var detail = !string.IsNullOrWhiteSpace(message)
+            ? message
+            : !string.IsNullOrWhiteSpace(reason)
+                ? reason
+                : actionable
+                    ? "请选择一个服务端候选行动。"
+                    : "对手正在行动，请稍候。";
+        var headline = actionable ? "轮到你行动" : "等待对手行动";
+        return $"{headline}\n{detail}\n{enabledCount} / {actions.Count} 个服务端候选可提交";
+    }
+
+    private static int PromptActionSortKey(Godot.Collections.Dictionary action)
+    {
+        var actionName = PromptActionName(action);
+        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+        var primary = actionName switch
+        {
+            "PASS_PRIORITY" or "PASS_FOCUS" or "PASS" or "END_TURN" => 0,
+            "MULLIGAN" or "READY" or "SUBMIT_DECK" => 1,
+            "TAP_RUNE" or "PLAY_CARD" or "MOVE_UNIT" or "DECLARE_BATTLE" => 2,
+            "ASSIGN_COMBAT_DAMAGE" or "ORDER_TRIGGERS" => 3,
+            "SURRENDER" => 8,
+            "WAIT" => 9,
+            _ => 4
+        };
+        return enabled ? primary : primary + 10;
+    }
+
+    private static string PromptActionName(Godot.Collections.Dictionary action)
+    {
+        return action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
+    }
+
+    private static string PromptActionLabel(Godot.Collections.Dictionary action)
+    {
+        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : string.Empty;
+        return ActionDisplayName(PromptActionName(action), label);
+    }
+
+    private static VBoxContainer PromptCard()
+    {
+        var row = new VBoxContainer
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 5);
+        return row;
+    }
+
+    private static Control PromptActionHeader(
+        string actionName,
+        string label,
+        bool enabled,
+        bool canSubmit,
+        bool hasTemplate)
+    {
+        var row = new VBoxContainer
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 1);
+        var stateText = canSubmit ? "可提交" : enabled && hasTemplate ? "需选择" : enabled ? "待处理" : "等待";
+        var title = new Label
+        {
+            Text = $"{ActionDisplayName(actionName, label)} · {stateText}",
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart
+        };
+        title.AddThemeColorOverride("font_color", enabled ? RunestoneTheme.Ink : RunestoneTheme.MutedInk);
+        row.AddChild(title);
+        return row;
+    }
+
+    private static string PromptSubmitLabel(string actionName, string fallback)
+    {
+        return actionName switch
+        {
+            "PASS_PRIORITY" => "让过优先权",
+            "PASS_FOCUS" => "让过焦点",
+            "PASS" => "让过",
+            "END_TURN" => "结束回合",
+            "READY" => "准备",
+            "SUBMIT_DECK" => "提交构筑",
+            "MULLIGAN" => "确认起手",
+            "SURRENDER" => "投降",
+            _ => ActionDisplayName(actionName, fallback)
+        };
+    }
+
+    private static string ActionDisplayName(string actionName, string fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(fallback)
+            && !string.Equals(fallback, actionName, StringComparison.Ordinal)
+            && !fallback.Contains('_', StringComparison.Ordinal))
+        {
+            return fallback;
+        }
+
+        return actionName switch
+        {
+            "ASSIGN_COMBAT_DAMAGE" => "分配伤害",
+            "DECLARE_BATTLE" => "宣战",
+            "END_TURN" => "结束回合",
+            "HIDE_CARD" => "隐藏卡牌",
+            "MOVE_UNIT" => "移动单位",
+            "MULLIGAN" => "起手调度",
+            "ORDER_TRIGGERS" => "排序触发",
+            "PASS" => "让过",
+            "PASS_FOCUS" => "让过焦点",
+            "PASS_PRIORITY" => "让过优先权",
+            "PLAY_CARD" => "打出卡牌",
+            "READY" => "准备",
+            "RECYCLE_RUNE" => "回收符文",
+            "REVEAL_CARD" => "展示卡牌",
+            "SUBMIT_DECK" => "提交构筑",
+            "SURRENDER" => "投降",
+            "TAP_RUNE" => "横置符文",
+            "WAIT" => "等待",
+            _ => string.IsNullOrWhiteSpace(fallback) ? "服务端行动" : fallback
+        };
+    }
+
+    private static Label PromptReasonLabel(bool enabled, string reason, string fallback)
+    {
+        var text = !string.IsNullOrWhiteSpace(reason)
+            ? reason
+            : enabled
+                ? fallback
+                : "服务端当前未开放此候选。";
+        return MutedLabel(text);
+    }
+
+    private static Label MutedLabel(string text)
+    {
+        var label = new Label
+        {
+            Text = text,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+        return label;
+    }
+
     private Control PromptActionNode(Godot.Collections.Dictionary action)
     {
-        var row = new VBoxContainer();
+        var row = PromptCard();
         var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Action";
         var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
         var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
@@ -3219,6 +3376,7 @@ public partial class Main : Control
 
         var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
         var selectors = new List<PromptSelector>();
+        row.AddChild(PromptActionHeader(actionName, label, enabled, canSubmit, hasTemplate));
 
         if (hasTemplate
             && action.TryGetValue("selectionSteps", out var stepValue)
@@ -3235,8 +3393,8 @@ public partial class Main : Control
         var button = new Button
         {
             Disabled = !canSubmit,
-            Text = canSubmit ? label : $"{label} (choose)",
-            TooltipText = string.IsNullOrWhiteSpace(reason) ? actionName : reason
+            Text = canSubmit ? PromptSubmitLabel(actionName, label) : "等待服务端候选",
+            TooltipText = string.IsNullOrWhiteSpace(reason) ? ActionDisplayName(actionName, label) : reason
         };
         button.Pressed += () =>
         {
@@ -3250,35 +3408,28 @@ public partial class Main : Control
             }
         };
         row.AddChild(button);
-        row.AddChild(new Label
-        {
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · {(hasTemplate ? "template" : submitKind)} · {reason}"
-        });
+        row.AddChild(PromptReasonLabel(enabled, reason, hasTemplate ? "选择后将按服务端模板提交。" : "一键提交服务端候选。"));
         return row;
     }
 
     private Control PromptSpecialActionNode(Godot.Collections.Dictionary action)
     {
-        var row = new VBoxContainer();
+        var row = PromptCard();
         var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Prompt action";
         var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
         var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
         var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
         var canBuild = TryBuildSpecialPromptCommand(action, out _, out var payloadKey, out var buildReason);
+        row.AddChild(PromptActionHeader(actionName, label, enabled, enabled && canBuild, hasTemplate: false));
         var button = new Button
         {
             Disabled = !enabled || !canBuild,
-            Text = canBuild ? label : $"{label} (waiting for server metadata)",
+            Text = canBuild ? PromptSubmitLabel(actionName, label) : "等待服务端细节",
             TooltipText = !canBuild ? buildReason : string.IsNullOrWhiteSpace(reason) ? actionName : reason
         };
         button.Pressed += () => _ = SubmitSpecialPromptAsync(action);
         row.AddChild(button);
-        row.AddChild(new Label
-        {
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = $"{actionName} · {(enabled ? "enabled" : "disabled")} · server metadata · {(canBuild ? payloadKey : buildReason)}"
-        });
+        row.AddChild(PromptReasonLabel(enabled && canBuild, canBuild ? reason : buildReason, $"服务端元数据：{payloadKey}"));
         return row;
     }
 
@@ -3296,7 +3447,7 @@ public partial class Main : Control
 
     private Control PromptMulliganActionNode(Godot.Collections.Dictionary action)
     {
-        var row = new VBoxContainer();
+        var row = PromptCard();
         var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Mulligan";
         var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
         var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
@@ -3314,6 +3465,7 @@ public partial class Main : Control
         {
             TooltipText = string.IsNullOrWhiteSpace(reason) ? "Confirm mulligan" : reason
         };
+        row.AddChild(PromptActionHeader("MULLIGAN", label, enabled, enabled, hasTemplate: false));
 
         void Refresh()
         {
@@ -3324,9 +3476,9 @@ public partial class Main : Control
                 && selectedObjectIds.Count >= min
                 && selectedObjectIds.Count <= maxSelectionCount;
             summary.Text = hasServerLimit
-                ? $"{label} · selected {selectedObjectIds.Count} / {maxSelectionCount}"
-                : $"{label} · waiting for server selection limit";
-            submit.Text = "Confirm mulligan";
+                ? $"已选择 {selectedObjectIds.Count} / {maxSelectionCount} 张重抽"
+                : "等待服务端提供可重抽上限";
+            submit.Text = "确认起手";
             submit.Disabled = !canSubmit;
         }
 
@@ -3376,11 +3528,7 @@ public partial class Main : Control
 
         submit.Pressed += () => _ = SubmitMulliganAsync(action, selectedObjectIds.ToArray());
         row.AddChild(submit);
-        row.AddChild(new Label
-        {
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = $"MULLIGAN · {(enabled ? "enabled" : "disabled")} · {reason}"
-        });
+        row.AddChild(PromptReasonLabel(enabled, reason, "只提交你勾选的服务端手牌候选。"));
         Refresh();
         return row;
     }
@@ -3391,12 +3539,29 @@ public partial class Main : Control
         var id = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
         if (string.IsNullOrWhiteSpace(label))
         {
-            return id;
+            return ShortPromptChoiceId(id);
         }
 
-        return string.IsNullOrWhiteSpace(id) || string.Equals(label, id, StringComparison.Ordinal)
-            ? label
-            : $"{label} ({id})";
+        return CompactPromptChoiceLabel(label);
+    }
+
+    private static string CompactPromptChoiceLabel(string label)
+    {
+        var trimmed = label.Trim();
+        const int maxLength = 34;
+        return trimmed.Length <= maxLength ? trimmed : $"{trimmed[..(maxLength - 1)]}…";
+    }
+
+    private static string ShortPromptChoiceId(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return "(未命名选项)";
+        }
+
+        var trimmed = id.Trim();
+        const int maxLength = 30;
+        return trimmed.Length <= maxLength ? trimmed : $"…{trimmed[^maxLength..]}";
     }
 
     private static PromptSelectorNode PromptSelectionStepNode(Godot.Collections.Dictionary step, bool enabled)
@@ -3407,21 +3572,22 @@ public partial class Main : Control
         var choices = step.TryGetValue("choices", out var choicesValue)
             ? choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
-        var row = new HBoxContainer();
-        row.AddChild(new Label
+        var row = new VBoxContainer
         {
-            CustomMinimumSize = new Vector2(76, 0),
-            Text = required ? $"{label}*" : label
-        });
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 2);
+        row.AddChild(MutedLabel(required ? $"{label} *" : label));
 
         var selector = new OptionButton
         {
             Disabled = !enabled || choices.Count == 0,
-            CustomMinimumSize = new Vector2(180, 0)
+            CustomMinimumSize = new Vector2(260, 0),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
         if (!required)
         {
-            selector.AddItem("(none)");
+            selector.AddItem("(无)");
             selector.SetItemMetadata(0, string.Empty);
         }
 
@@ -3429,13 +3595,15 @@ public partial class Main : Control
         {
             var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
             var choiceLabel = choice.TryGetValue("label", out var textValue) ? textValue.AsString() : choiceId;
-            selector.AddItem(string.IsNullOrWhiteSpace(choiceLabel) ? choiceId : choiceLabel);
+            selector.AddItem(string.IsNullOrWhiteSpace(choiceLabel)
+                ? ShortPromptChoiceId(choiceId)
+                : CompactPromptChoiceLabel(choiceLabel));
             selector.SetItemMetadata(selector.ItemCount - 1, choiceId);
         }
 
         if (choices.Count == 0)
         {
-            selector.AddItem("(no choices)");
+            selector.AddItem("(无可选项)");
             selector.SetItemMetadata(selector.ItemCount - 1, string.Empty);
         }
 
