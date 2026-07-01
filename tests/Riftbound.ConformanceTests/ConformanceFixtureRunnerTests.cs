@@ -46785,6 +46785,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsSkipsUnitsAtOtherBattlefields()
+    {
+        var baseState = BattlefieldHeldActivateConquestState();
+        var objectLocations = baseState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new ObjectLocationState("P1", "BATTLEFIELD", "P2-BATTLEFIELD-RECKONER-ARENA");
+        objectLocations["P2-BATTLEFIELD-RECKONER-ARENA"] = new ObjectLocationState("P2", "BATTLEFIELD");
+        objectLocations["P2-BATTLEFIELD-BAD-PORO"] = new ObjectLocationState("P2", "BATTLEFIELD", "P2-BATTLEFIELD-RECKONER-ARENA");
+        objectLocations["P2-BATTLEFIELD-KAISA"] = new ObjectLocationState("P2", "BATTLEFIELD", "P2-BATTLEFIELD-RECKONER-OFFSITE");
+        var state = baseState with
+        {
+            ObjectLocations = objectLocations,
+            UntilEndOfTurnEffects =
+            [
+                ..baseState.UntilEndOfTurnEffects,
+                BattlefieldTaskMarkers.BattleSkipped("P2-BATTLEFIELD-RECKONER-ARENA")
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-activate-conquest-offsite-unit", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-BAD-PORO"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P2-BATTLEFIELD-BAD-PORO"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_CREATE_DORMANT_GOLD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-BAD-PORO", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-KAISA", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-RECKONER-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains(result.State.PlayerZones["P2"].Base, objectId =>
+            objectId.StartsWith("P2-BATTLEFIELD-BAD-PORO-TOKEN-", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable()
     {
         var state = BattlefieldHeldActivateQiyanaConquestState(hasMainDeck: true);

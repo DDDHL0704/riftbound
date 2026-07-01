@@ -18368,6 +18368,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         state,
                         playerZones,
                         cardObjects,
+                        ReconcileObjectLocations(state.ObjectLocations, playerZones),
                         playerScores,
                         untilEndOfTurnEffects,
                         battleWinnerPlayerId,
@@ -23399,6 +23400,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, int> playerScores,
         IReadOnlyList<string> untilEndOfTurnEffects,
         string playerId,
@@ -23413,8 +23415,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldActivateUnitConquestEffectsTrigger,
                 out var triggerSpec)
             || !string.Equals(triggerSpec.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
             || !string.Equals(triggerSpec.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
@@ -23428,6 +23431,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !unitState.IsFaceDown
                 && SourceObjectControlledByPlayerOrLegacyOwned(unitState, playerId)
+                && IsBattlefieldHeldActivateUnitConquestTargetInScope(
+                    playerZones,
+                    objectLocations,
+                    objectId,
+                    battlefieldObjectId)
                 && HasSupportedUnitConquestTriggerSpec(unitState.CardNo))
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
@@ -23467,6 +23475,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             out drawApplication,
             out nextUntilEndOfTurnEffects);
+    }
+
+    private static bool IsBattlefieldHeldActivateUnitConquestTargetInScope(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        string battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || FindFieldObjectLocation(playerZones, objectId) is not { Zone: MoveUnitBattlefieldZone })
+        {
+            return false;
+        }
+
+        if (!objectLocations.TryGetValue(objectId, out var location)
+            || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            || string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static bool TryResolveNaturalUnitConquestTriggerSpecs(

@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Activate-Unit-Conquest Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·286/298` Reckoner Arena official text `当你据守此处时，激活此处所有单位的征服效果。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldActivateUnitConquestEffectsTrigger, out trigger)`.
+- `IsBattlefieldHeldActivateUnitConquestEffectsTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS`, `Timing=BATTLEFIELD_HELD`, and `TargetScope=UNIT_AT_THIS_BATTLEFIELD`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_CONQUEST_EFFECT_ACTIVATED` payload semantics.
+- The resolver now applies precise `ObjectLocations` when present: a controlled unit whose `BattlefieldObjectId` points at another battlefield is skipped, preserving the official `此处` boundary while keeping legacy no-precise-location fixtures compatible.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldActivateUnitConquestEffectsTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route. Runtime guard: `P79BattlefieldHeldActivateConquestEffectsSkipsUnitsAtOtherBattlefields` proves offsite units are not activated.
+- Validation: baseline backend full 9090/9090; focused guard / offsite boundary 2/2; parser / Reckoner Arena representatives / official-deck route 14/14; adjacent `BattlefieldHeldActivateConquest|UnitConquest|BattleDamageAssignmentLifecycle|BattlefieldTriggerSpec|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2739/2739; backend full conformance 9092/9092.
+
 ## 2026-07-01 Held Seven-Units Win Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·293/298` / `OGN·293a/298` Grand Plaza official text `当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。`
