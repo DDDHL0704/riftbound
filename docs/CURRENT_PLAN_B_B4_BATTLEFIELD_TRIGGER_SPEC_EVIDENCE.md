@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held-Next-Spell Echo Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-216/219` Piltover Academy official text `当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldNextSpellEchoTrigger, out trigger)`.
+- `IsBattlefieldHeldNextSpellEchoTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO`, `Timing=BATTLEFIELD_HELD`, and `Duration=UNTIL_END_OF_TURN`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldNextSpellEchoTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` payload semantics plus `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{playerId}` marker compatibility.
+- Existing next-spell prompt/payment paths continue to consume the marker, offer the Echo optional cost, charge extra mana equal to the spell base cost, and repeat the stack item.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldNextSpellEchoTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9093/9093; focused guard / parser / Piltover Academy representatives / official-deck route 6/6; adjacent `PiltoverAcademy|HeldNextSpellEcho|BattlefieldHeld|BattlefieldTriggerSpec|Stack|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 3010/3010; backend full conformance 9094/9094.
+
 ## 2026-07-01 Held Unit-Cost Increase Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-219/219` Vaults of Helia official text `当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。`

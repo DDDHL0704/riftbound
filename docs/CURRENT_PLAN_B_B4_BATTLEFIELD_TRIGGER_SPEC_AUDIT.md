@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held unit-cost increase execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held-next-spell Echo execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held-next-spell Echo execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldNextSpellEchoTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldNextSpellEchoTrigger`.
+- `IsBattlefieldHeldNextSpellEchoTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO`, `BATTLEFIELD_HELD`, and `UNTIL_END_OF_TURN`. Existing until-end marker shape, Echo optional payment, marker consumption, repeated spell stack behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldHeldNextSpellEchoTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 25. This slice does not close natural same-turn non-active spell access, Swift stack-response `PLAY_CARD` prompts, complete Echo optional prompt breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9093/9093, focused guard / parser / Piltover Academy representatives / official-deck route 6/6, adjacent `PiltoverAcademy|HeldNextSpellEcho|BattlefieldHeld|BattlefieldTriggerSpec|Stack|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 3010/3010, backend full conformance 9094/9094.
 
 The 2026-07-01 held unit-cost increase execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -331,7 +340,7 @@ The 2026-06-25 follow-up also moves one implemented held-battlefield trigger awa
   - `Kind = BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO`
   - `Timing = BATTLEFIELD_HELD`
   - `Duration = UNTIL_END_OF_TURN`
-- `CoreRuleEngine.TryResolveBattlefieldHeldNextSpellEchoTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(...)`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldNextSpellEchoTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldNextSpellEchoCardNo` constant.
 - The old `BattlefieldHeldNextSpellEchoCardNo` / `IsBattlefieldHeldNextSpellEchoCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `92` total / `88` in `CoreRuleEngine`.
 

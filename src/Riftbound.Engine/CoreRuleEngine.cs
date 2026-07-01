@@ -23370,8 +23370,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldNextSpellEchoTrigger,
                 out var triggerSpec)
             || !string.Equals(triggerSpec.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
             || !string.Equals(triggerSpec.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal))

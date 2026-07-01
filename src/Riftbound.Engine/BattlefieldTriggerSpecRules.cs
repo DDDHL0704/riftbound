@@ -56,6 +56,13 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.ManaDelta is > 0;
     }
 
+    public static bool IsBattlefieldHeldNextSpellEchoTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldNextSpellEcho, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal);
+    }
+
     public static bool IsBattlefieldHeldEachPlayerCallRuneTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldEachPlayerCallRune, StringComparison.Ordinal)
@@ -193,14 +200,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldUnitMovedAwayPowerModifier,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldNextSpellEchoTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldNextSpellEcho,
             out trigger);
     }
 
