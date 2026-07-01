@@ -17318,7 +17318,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsOtherFriendlyUnitsPowerStaticAura))
         {
             return;
         }
@@ -17333,7 +17334,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetFriendlyUnitsPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsFriendlyUnitsPowerStaticAura))
         {
             return;
         }
@@ -17348,7 +17350,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsFriendlyFilteredUnitsPowerStaticAura))
         {
             return;
         }

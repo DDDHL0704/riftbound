@@ -51,30 +51,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.FriendlyUnitsPower,
-            out aura);
-    }
-
-    public static bool TryGetOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.OtherFriendlyUnitsPower,
-            out aura);
-    }
-
-    public static bool TryGetFriendlyFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.FriendlyFilteredUnitsPower,
-            out aura);
-    }
-
     public static bool TargetMatchesFilter(StaticAuraSpec aura, CardObjectState target)
     {
         if (string.IsNullOrWhiteSpace(aura.TargetFilter))
@@ -211,6 +187,45 @@ internal static class StaticAuraSpecRules
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
                     StringComparison.Ordinal));
+    }
+
+    public static bool IsFriendlyUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsPublicFieldFriendlyPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.FriendlyUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.FriendlyPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsOtherFriendlyUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsPublicFieldFriendlyPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.OtherFriendlyUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsFriendlyFilteredUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsPublicFieldFriendlyPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.FriendlyFilteredUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                StringComparison.Ordinal);
     }
 
     public static bool IsPublicFieldFriendlyKeywordStaticAura(StaticAuraSpec aura)
