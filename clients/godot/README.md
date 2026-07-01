@@ -181,9 +181,25 @@ evidence: one client logs an accepted `SURRENDER` receipt, both clients receive
 ## Manual Two-Player Playtest
 
 Use this for the Playable v1 human check. Start the API in memory mode, then
-open two visible Godot clients in the same room. For same-machine testing, keep
-the identities isolated with `--riftbound-ephemeral-session` or two different
-`--riftbound-session-file=` paths:
+open two visible Godot clients in the same room. The helper script starts both
+windows with isolated ephemeral sessions and writes logs/screenshots to `/tmp`:
+
+```sh
+clients/godot/tools/run-local-human-playtest.sh
+```
+
+Useful overrides:
+
+```sh
+RIFTBOUND_SERVER=http://127.0.0.1:5088 \
+RIFTBOUND_ROOM=human-local-test \
+RIFTBOUND_SCREENSHOT_DIR=/tmp/human-local-test \
+clients/godot/tools/run-local-human-playtest.sh
+```
+
+For same-machine testing without the script, keep the identities isolated with
+`--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
+paths:
 
 ```sh
 room="human-local-$(date +%H%M%S)"
