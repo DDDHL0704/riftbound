@@ -8,44 +8,22 @@ internal static class LegendConquestTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public static bool TryGetLegendConquestPayReadySelfTrigger(string? cardNo, out TriggerSpec trigger)
+    public static IReadOnlyList<TriggerSpec> TriggersForCard(string? cardNo)
     {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.LegendConquestPayReadySelf,
-            out trigger);
-    }
-
-    public static bool TryGetLegendConquestReadySelfTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.LegendConquestReadySelf,
-            out trigger);
-    }
-
-    public static bool TryGetLegendConquestOverkillExhaustReadyUnitTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.LegendConquestOverkillExhaustReadyUnit,
-            out trigger);
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
-    {
-        trigger = default!;
         if (string.IsNullOrWhiteSpace(cardNo))
         {
-            return false;
+            return [];
         }
 
-        if (!TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers))
-        {
-            return false;
-        }
+        return TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers)
+            ? triggers
+            : [];
+    }
 
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = TriggersForCard(cardNo).FirstOrDefault(predicate);
         if (match is null)
         {
             return false;
@@ -53,6 +31,35 @@ internal static class LegendConquestTriggerSpecRules
 
         trigger = match;
         return true;
+    }
+
+    public static bool IsLegendConquestPayReadySelfTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendConquestPayReadySelf, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.LegendReadyCount is 1
+            && trigger.ReadiesSource is true;
+    }
+
+    public static bool IsLegendConquestReadySelfTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendConquestReadySelf, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            && trigger.LegendReadyCount is 1
+            && trigger.ReadiesSource is true;
+    }
+
+    public static bool IsLegendConquestOverkillExhaustReadyUnitTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendConquestOverkillExhaustReadyUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ExhaustedUnitOnField, StringComparison.Ordinal)
+            && trigger.RequiredOverkillDamage is > 0
+            && trigger.ExhaustsSource is true
+            && trigger.UnitReadyCount is 1;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()

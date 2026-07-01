@@ -21612,7 +21612,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger(candidate.CardNo, out var triggerSpec)
+                || !LegendConquestTriggerSpecRules.TryGetTrigger(
+                    candidate.CardNo,
+                    LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger,
+                    out var triggerSpec)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -21678,7 +21681,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger(candidate.CardNo, out var triggerSpec)
+                || !LegendConquestTriggerSpecRules.TryGetTrigger(
+                    candidate.CardNo,
+                    LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger,
+                    out var triggerSpec)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -21744,7 +21750,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger(candidate.CardNo, out var triggerSpec)
+                || !LegendConquestTriggerSpecRules.TryGetTrigger(
+                    candidate.CardNo,
+                    LegendConquestTriggerSpecRules.IsLegendConquestOverkillExhaustReadyUnitTrigger,
+                    out var triggerSpec)
                 || candidate.IsExhausted)
             {
                 continue;

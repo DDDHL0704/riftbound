@@ -4715,7 +4715,8 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResolveIreliaLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -4729,7 +4730,8 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResolveSettLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -4743,7 +4745,30 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResolveViLegendOverkillConquerTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.IsLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LegendConquestTriggerRoutingUsesBehaviorSpecPredicatesInsteadOfEffectHelperAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var legendConquestRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "LegendConquestTriggerSpecRules.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var legendConquestRulesSource = File.ReadAllText(legendConquestRulesPath);
+
+        Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquest", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetLegendConquest", legendConquestRulesSource, StringComparison.Ordinal);
+        Assert.Contains("LegendConquestTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("public static IReadOnlyList<TriggerSpec> TriggersForCard", legendConquestRulesSource, StringComparison.Ordinal);
     }
 
     [Fact]

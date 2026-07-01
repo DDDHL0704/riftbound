@@ -3,7 +3,7 @@
 日期：2026-06-27
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records the concrete evidence for routing legend-source conquered-battlefield triggers through BehaviorSpec instead of single-legend Core resolvers.
+This file records the concrete evidence for routing legend-source conquered-battlefield triggers through BehaviorSpec instead of single-legend Core resolvers. 2026-07-01 follow-up: the per-effect `TryGetLegendConquest*` helper surface is also removed; runtime source selection now uses generic `TryGetTrigger(cardNo, predicate)` plus TriggerSpec shape predicates.
 
 ## 1. Official Source
 
@@ -54,21 +54,22 @@ The parser evidence is covered by `BehaviorSpecCatalogParsesLegendConquestOverki
 
 ## 3. Runtime Evidence
 
-- `LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger(cardNo, out trigger)` builds its trigger map from `BehaviorSpecCatalogBuilder`.
+- `LegendConquestTriggerSpecRules.TryGetTrigger(cardNo, IsLegendConquestPayReadySelfTrigger, out trigger)` builds its trigger map from `BehaviorSpecCatalogBuilder`.
 - `CoreRuleEngine.ResolveLegendConquestPayReadySelfTrigger` scans the conquering player's legend zone and accepts only controlled, exhausted legends whose card number has the parsed `LEGEND_CONQUEST_PAY_1_READY_SELF` trigger.
 - Runtime reads the mana cost and ready-source shape from the parsed `TriggerSpec`, pays the parsed mana cost, and readies the source legend.
 - The old `ResolveIreliaLegendConquerReadyTrigger` helper is removed, and `LegendConquestPayReadySelfTriggerDoesNotUseIreliaSpecificResolver` blocks reintroducing that Irelia-specific resolver.
 - `P79LegendTriggerIreliaPaysOneToReadyLegendOnConquer` proves the accepted `DECLARE_BATTLE` path pays one mana and readies the exhausted Blade Dancer legend.
 - `P79LegendTriggerIreliaRequiresManaToReadyLegendOnConquer` proves the trigger does not resolve when the player lacks the parsed mana cost.
-- `LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger(cardNo, out trigger)` reads the no-cost ready-self shape from `BehaviorSpecCatalogBuilder`.
+- `LegendConquestTriggerSpecRules.TryGetTrigger(cardNo, IsLegendConquestReadySelfTrigger, out trigger)` reads the no-cost ready-self shape from `BehaviorSpecCatalogBuilder`.
 - `CoreRuleEngine.ResolveLegendConquestReadySelfTrigger` scans the conquering player's legend zone and accepts only controlled, exhausted legends whose card number has the parsed `LEGEND_CONQUEST_READY_SELF` trigger.
 - The old `ResolveSettLegendConquerReadyTrigger` helper is removed, and `LegendConquestReadySelfTriggerDoesNotUseSettSpecificResolver` blocks reintroducing that Sett-specific resolver.
 - `P79LegendTriggerSettReadiesOnConquer` and `SettLegendExhaustedReprintReadiesOnConquer` prove the accepted `DECLARE_BATTLE` path readies the exhausted Sett legend.
-- `LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger(cardNo, out trigger)` reads the overkill threshold, source-exhaust policy, and unit-ready shape from `BehaviorSpecCatalogBuilder`.
+- `LegendConquestTriggerSpecRules.TryGetTrigger(cardNo, IsLegendConquestOverkillExhaustReadyUnitTrigger, out trigger)` reads the overkill threshold, source-exhaust policy, and unit-ready shape from `BehaviorSpecCatalogBuilder`.
 - `CoreRuleEngine.ResolveLegendConquestOverkillExhaustReadyUnitTrigger` scans the conquering player's active legend sources by parsed trigger, verifies the battle-assigned overkill count against `RequiredOverkillDamage`, exhausts the source legend, and readies one exhausted field unit.
 - The old `ResolveViLegendOverkillConquerTrigger` helper is removed, and `LegendConquestOverkillReadyUnitTriggerDoesNotUseViSpecificResolver` blocks reintroducing that Vi-specific resolver.
 - `P79LegendTriggerViReadiesUnitOnOverkillConquer` proves the accepted `DECLARE_BATTLE` path with 4 assigned overkill damage exhausts the source Vi legend and readies one exhausted unit.
 - `P79LegendTriggerViRequiresThreeOverkillOnConquer` proves the trigger does not resolve when the assigned overkill damage is below the parsed threshold.
+- `LegendConquestTriggerRoutingUsesBehaviorSpecPredicatesInsteadOfEffectHelperAllowList` proves Core no longer calls `LegendConquestTriggerSpecRules.TryGetLegendConquest*`, `LegendConquestTriggerSpecRules` no longer exposes public `TryGetLegendConquest*` helpers, and the shared rule helper exposes `TriggersForCard(...)` plus generic `TryGetTrigger(...)` / shape predicates instead.
 
 The existing Hall of Legends battlefield route remains separate: `BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND` still describes a battlefield source readying a controlled legend; `LEGEND_CONQUEST_PAY_1_READY_SELF` describes a legend source readying itself when its controller conquers a battlefield.
 The no-cost Sett route is also distinct: `LEGEND_CONQUEST_READY_SELF` describes a legend source readying itself without a parsed payment cost.
@@ -134,6 +135,30 @@ Result: 2422/2422 passed.
 ```
 
 Result: 8791/8791 passed.
+
+2026-07-01 helper-surface follow-up focused:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquest" --nologo -m:1
+```
+
+Result: first failed on old `LegendConquestTriggerSpecRules.TryGetLegendConquest*` calls; then 7/7 passed.
+
+2026-07-01 helper-surface follow-up adjacent:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendConquest|FullyQualifiedName~P79LegendTrigger|FullyQualifiedName~BattlefieldConquer|FullyQualifiedName~DeclareBattle|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery" --nologo -m:1
+```
+
+Result: 2527/2527 passed.
+
+2026-07-01 helper-surface follow-up full backend:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-build --nologo -m:1
+```
+
+Result: 9079/9079 passed.
 
 ## 5. Non-Closure
 
