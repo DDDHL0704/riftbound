@@ -46531,12 +46531,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             foreach (var sourceObjectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
             {
                 if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                    || !BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(
+                    || !BattlefieldTriggerSpecRules.TryGetTrigger(
                         sourceState.CardNo,
+                        BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger,
                         out var trigger)
-                    || !string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
-                    || !string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
-                    || trigger.DamageAmount is not > 0
                     || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
                 {
                     continue;
@@ -46545,7 +46543,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 sourceEntries.Add((
                     sourceObjectId,
                     BattlefieldScopeForSource(objectLocations, sourceObjectId),
-                    trigger.DamageAmount.Value));
+                    trigger.DamageAmount.GetValueOrDefault()));
             }
         }
 

@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Turn-Start Damage-Units Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-212/219` Frost Hold official text `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out trigger)`.
+- `IsBattlefieldTurnStartDamageAllUnitsTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, `Timing=TURN_START`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and positive `DamageAmount`.
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDamageAllUnits` uses that generic predicate route and keeps existing battlefield-source control gating, same-battlefield target scoping from `ObjectLocations`, pre-scoring damage, cleanup, `BATTLEFIELD_TRIGGER_RESOLVED`, `DAMAGE_APPLIED`, source ids, target ids, and damage payload semantics.
+- Existing turn-start damage paths continue to damage only units at the source battlefield, preserve offsite units, apply state-based cleanup, and route official-deck replay through the same parsed Frost Hold trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldTurnStartDamageAllUnitsTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9097/9097; focused guard / parser / Frost Hold representatives / official-deck route 6/6; adjacent `FrostHold|BattlefieldTurnStartDamage|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2450/2450; backend full conformance 9098/9098.
+
 ## 2026-07-01 Moved-Unit Power Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·277/298` Back Alley Bar official text `每当一名单位从此处向别处移动时，让其本回合内{{S}}+1。`
@@ -468,7 +478,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing repr
 
 The B0 full-game replay follow-up now also covers this same parsed Hunting Grounds route through a legal official-deck opening. `OfficialDeckMidgameResolvesHuntingGroundsOverkillWarhawkAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `UNL-217/219` can be selected in opening setup, that a focused midgame `START_BATTLE` state assigns at least three overkill damage to an enemy unit, that the route creates a 1-power `UNL·T02` Warhawk token with `法盾` at that battlefield, and that the command journal replays through score victory to the same final state hash.
 
-The turn-start damage-units follow-up parser path turns the Frost Hold official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, `Timing=TURN_START`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `DamageAmount=1`. Runtime no longer checks `UNL-212/219` through `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The turn-start damage-units follow-up parser path turns the Frost Hold official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, `Timing=TURN_START`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `DamageAmount=1`. Runtime no longer checks `UNL-212/219` through `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out trigger)`.
 
 The accepted `START_TURN` path keeps the existing start-phase timing before scoring and rune-call progression. It now derives affected units from the source battlefield object's location scope, so the official `此处` wording damages only units at that battlefield object rather than every battlefield-zone unit. The same source-controlled guard remains in place for dirty-state protection.
 

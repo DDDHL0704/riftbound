@@ -175,6 +175,14 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.PowerDelta is > 0;
     }
 
+    public static bool IsBattlefieldTurnStartDamageAllUnitsTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldTurnStartDamageAllUnits, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.DamageAmount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -379,14 +387,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldTurnStartDamageAllUnitsTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldTurnStartDamageAllUnits,
             out trigger);
     }
 
