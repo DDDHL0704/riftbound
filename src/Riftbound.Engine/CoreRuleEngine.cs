@@ -24207,10 +24207,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId);
         TriggerSpec? steadfastTrigger = null;
         if (sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(
+            && BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger,
                 out var candidateSteadfastTrigger)
-            && IsBattlefieldDefendGrantSteadfastTrigger(candidateSteadfastTrigger))
+            && BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(candidateSteadfastTrigger))
         {
             steadfastTrigger = candidateSteadfastTrigger;
         }
@@ -24270,14 +24271,6 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         targetObjectId = selectedTargetObjectId;
         return true;
-    }
-
-    private static bool IsBattlefieldDefendGrantSteadfastTrigger(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
-            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
-            && trigger.KeywordBonus.GetValueOrDefault() > 0;
     }
 
     private static bool TryResolveIcevaleArcherAttackPaymentChoice(

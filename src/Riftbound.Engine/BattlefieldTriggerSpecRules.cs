@@ -75,6 +75,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.Optional == true;
     }
 
+    public static bool IsBattlefieldDefendGrantSteadfastTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldDefendGrantSteadfast, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
+            && trigger.KeywordBonus.GetValueOrDefault() > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -143,14 +152,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldDefendGrantSteadfastTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldDefendGrantSteadfast,
             out trigger);
     }
 

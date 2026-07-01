@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Defend Grant-Steadfast Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·279/298` Fortified Position official text `当你防守此处时，选择一名单位，使其在本次战斗期间获得{{坚守2}}。（如果它是防守方，则{{S}}+2。）`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger, out trigger)`.
+- `IsBattlefieldDefendGrantSteadfastTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO`, `Timing=BATTLEFIELD_DEFENDED`, `TargetScope=DEFENDER_UNIT_AT_THIS_BATTLEFIELD`, `GrantedKeyword=坚守`, and positive `KeywordBonus`.
+- `CoreRuleEngine.TryResolveBattlefieldDefenderSteadfastChoice` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` payload and combat-power keyword bonus semantics, including the existing Teemo battlefield-effect target multiplexing path.
+- Source guard: `CardCatalogBaselineTests.BattlefieldDefendGrantSteadfastTriggerUsesGenericSpecPredicate` rejects the removed getter and the old Core-private predicate across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9085/9085; focused guard / parser / Fortified Position representatives / Teemo multiplexing / official-deck route 18/18; adjacent `FortifiedPosition|BattlefieldDefendGrantSteadfast|Steadfast|BattlefieldDefend|DeclareBattle|GameHub|FullGameEndToEnd|MatchRecovery|Teemo|CardCatalogBaseline` 2842/2842; backend full conformance 9086/9086.
+
 ## 2026-07-01 Defend Move-Friendly-Unit-To-Base Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·285/298` Plunder Alley official text `当你防守此处时，你可以选择将此处的一名友方单位移动到基地。`
