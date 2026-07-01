@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Godot;
 
 namespace Riftbound.GodotClient;
@@ -457,8 +458,8 @@ internal sealed class CardControlRenderer
         }
         else
         {
-            var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
-            content = VisibleCardContent(card, contentSize, image);
+            var imagePath = card.TryGetValue("imagePath", out var imagePathValue) ? imagePathValue.AsString() : string.Empty;
+            content = VisibleCardContent(card, contentSize, imagePath);
         }
 
         var frame = WireFrame(content, frameSize, borderWidth: promptSource ? 3 : 2, surface: promptSource ? RunestoneSurface.Result : surface);
@@ -569,7 +570,7 @@ internal sealed class CardControlRenderer
     private static Control VisibleCardContent(
         Godot.Collections.Dictionary card,
         Vector2 contentSize,
-        Image? image)
+        string imagePath)
     {
         var box = new VBoxContainer
         {
@@ -582,7 +583,7 @@ internal sealed class CardControlRenderer
         box.AddChild(CardTopBar(card, contentSize));
 
         var artHeight = MathF.Max(20f, contentSize.Y * (contentSize.Y >= 74f ? 0.5f : 0.42f));
-        box.AddChild(CardArtPanel(card, image, new Vector2(contentSize.X, artHeight)));
+        box.AddChild(CardArtPanel(card, imagePath, new Vector2(contentSize.X, artHeight)));
 
         box.AddChild(CardFooter(card, contentSize));
         return box;
@@ -625,7 +626,7 @@ internal sealed class CardControlRenderer
 
     private static Control CardArtPanel(
         Godot.Collections.Dictionary card,
-        Image? image,
+        string imagePath,
         Vector2 size)
     {
         var frame = new PanelContainer
@@ -636,11 +637,12 @@ internal sealed class CardControlRenderer
         };
         frame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Slot));
 
-        if (image is not null)
+        var texture = LoadTextureFromImagePath(imagePath);
+        if (texture is not null)
         {
             frame.AddChild(new TextureRect
             {
-                Texture = ImageTexture.CreateFromImage(image),
+                Texture = texture,
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
                 CustomMinimumSize = size,
@@ -663,6 +665,35 @@ internal sealed class CardControlRenderer
         placeholder.AddChild(artLabel);
         frame.AddChild(placeholder);
         return frame;
+    }
+
+    public static Texture2D? LoadTextureFromImagePath(string imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
+        {
+            return null;
+        }
+
+        var bytes = File.ReadAllBytes(imagePath);
+        var image = new Image();
+        var extension = Path.GetExtension(imagePath).ToLowerInvariant();
+        var error = extension switch
+        {
+            ".png" => image.LoadPngFromBuffer(bytes),
+            ".jpg" or ".jpeg" => image.LoadJpgFromBuffer(bytes),
+            ".webp" => image.LoadWebpFromBuffer(bytes),
+            _ => Error.Unavailable
+        };
+
+        if (error != Error.Ok)
+        {
+            image.Dispose();
+            return null;
+        }
+
+        var texture = ImageTexture.CreateFromImage(image);
+        image.Dispose();
+        return texture;
     }
 
     private static Control CardFooter(Godot.Collections.Dictionary card, Vector2 contentSize)

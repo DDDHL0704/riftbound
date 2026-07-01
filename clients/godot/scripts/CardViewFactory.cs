@@ -33,10 +33,10 @@ internal sealed class CardViewFactory
                 string.Empty,
                 card.Visible,
                 card.FaceDown,
-                Image: null);
+                ImagePath: string.Empty);
         }
 
-        var image = await _imageLoader.LoadOfficialFrontImageAsync(entry, cancellationToken);
+        var imagePath = await _imageLoader.LoadOfficialFrontImagePathAsync(entry, cancellationToken);
         return new CardViewData(
             card.ObjectId,
             entry.CardNo,
@@ -50,6 +50,6 @@ internal sealed class CardViewFactory
             entry.ColorText,
             Visible: true,
             FaceDown: false,
-            image);
+            imagePath ?? string.Empty);
     }
 }

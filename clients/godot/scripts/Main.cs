@@ -113,6 +113,7 @@ public partial class Main : Control
     private bool _matchFinished;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
+    private int _snapshotRenderVersion;
     private string _lastJoinedMatchmakingRoom = string.Empty;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
@@ -482,14 +483,14 @@ public partial class Main : Control
                 return;
             }
 
-            var image = await _cardImageLoader.LoadOfficialFrontImageAsync(card, _shutdown.Token);
-            if (image is null)
+            var imagePath = await _cardImageLoader.LoadOfficialFrontImagePathAsync(card, _shutdown.Token);
+            if (string.IsNullOrWhiteSpace(imagePath))
             {
                 AppendLog($"[color=yellow]No official front image for {Escape(card.CardNo)} {Escape(card.CardName)}[/color]");
                 return;
             }
 
-            QueueMainThread(nameof(ApplyOfficialCardPreview), image);
+            QueueMainThread(nameof(ApplyOfficialCardPreviewPath), imagePath);
             var preview = new CardViewData(
                 string.Empty,
                 card.CardNo,
@@ -503,7 +504,7 @@ public partial class Main : Control
                 card.ColorText,
                 Visible: true,
                 FaceDown: false,
-                image);
+                imagePath);
             QueueMainThread(nameof(ApplyOfficialCardPreviewSummary), preview.PreviewSummary);
             AppendLog($"Official card image loaded: {Escape(card.CardNo)} {Escape(card.CardName)}.");
         }
@@ -1328,7 +1329,8 @@ public partial class Main : Control
         }
         else if (channel == "Snapshot")
         {
-            _ = RenderSnapshotAsync(message);
+            var renderVersion = Interlocked.Increment(ref _snapshotRenderVersion);
+            _ = RenderSnapshotAsync(message, renderVersion);
         }
         else if (channel == "Prompt")
         {
@@ -1625,6 +1627,11 @@ public partial class Main : Control
             return false;
         }
 
+        if (string.Equals(actionName, "DECLARE_BATTLE", StringComparison.Ordinal))
+        {
+            return await TryRunAutoSmokePayloadActionAsync(action, actionName);
+        }
+
         if (!TryBuildFirstServerPromptSelection(action, out var selection, out var selectionKey, out var reason))
         {
             AppendLog($"[color=yellow]Auto smoke: {Escape(actionName)} skipped: {Escape(reason)}[/color]");
@@ -1643,16 +1650,10 @@ public partial class Main : Control
         return true;
     }
 
-    private async Task<bool> TryRunAutoSmokeSpecialActionAsync(
-        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+    private async Task<bool> TryRunAutoSmokePayloadActionAsync(
+        Godot.Collections.Dictionary action,
         string actionName)
     {
-        if (_autoSmokeActionSubmissions.GetValueOrDefault(actionName) >= AutoSmokeActionLimitFor(actionName)
-            || !TryGetEnabledPromptAction(actions, actionName, requireTemplate: false, out var action))
-        {
-            return false;
-        }
-
         if (!TryBuildSpecialPromptCommand(action, out var payload, out var payloadKey, out var reason))
         {
             AppendLog($"[color=yellow]Auto smoke: {Escape(actionName)} skipped: {Escape(reason)}[/color]");
@@ -1669,6 +1670,19 @@ public partial class Main : Control
         AppendLog($"Auto smoke: submitting {Escape(actionName)} with server metadata {Escape(payloadKey)}.");
         await SubmitPromptPayloadAsync(action, payload, actionName.ToLowerInvariant());
         return true;
+    }
+
+    private async Task<bool> TryRunAutoSmokeSpecialActionAsync(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+        string actionName)
+    {
+        if (_autoSmokeActionSubmissions.GetValueOrDefault(actionName) >= AutoSmokeActionLimitFor(actionName)
+            || !TryGetEnabledPromptAction(actions, actionName, requireTemplate: false, out var action))
+        {
+            return false;
+        }
+
+        return await TryRunAutoSmokePayloadActionAsync(action, actionName);
     }
 
     private static int AutoSmokeActionLimitFor(string actionName)
@@ -1744,7 +1758,9 @@ public partial class Main : Control
                 continue;
             }
 
-            if (!required && string.Equals(role, "optionalCost", StringComparison.Ordinal))
+            if (!required
+                && string.Equals(role, "optionalCost", StringComparison.Ordinal)
+                && !ShouldAutoIncludeOptionalCost(choiceId))
             {
                 continue;
             }
@@ -1787,6 +1803,11 @@ public partial class Main : Control
             optionalCosts);
         selectionKey = keyParts.Count == 0 ? "none" : string.Join(",", keyParts);
         return true;
+    }
+
+    private static bool ShouldAutoIncludeOptionalCost(string choiceId)
+    {
+        return string.Equals(choiceId, "COMBAT_ASSIGNMENT", StringComparison.Ordinal);
     }
 
     private static string FirstPromptStepChoiceId(Godot.Collections.Dictionary step)
@@ -2104,7 +2125,7 @@ public partial class Main : Control
         };
     }
 
-    private async Task RenderSnapshotAsync(WsServerMessage message)
+    private async Task RenderSnapshotAsync(WsServerMessage message, int renderVersion)
     {
         if (message.Payload is not JsonElement element || element.ValueKind != JsonValueKind.Object)
         {
@@ -2113,6 +2134,26 @@ public partial class Main : Control
 
         try
         {
+            if (SnapshotMatchResultView(element) is { } snapshotMatchResult)
+            {
+                if (!_matchFinished)
+                {
+                    _matchFinished = true;
+                    var resultSummary = snapshotMatchResult.TryGetValue("summary", out var summaryValue)
+                        ? summaryValue.AsString().Replace('\n', ' ')
+                        : "Match finished";
+                    AppendLog($"Match result rendered from snapshot: {Escape(resultSummary)}");
+                    QueueMainThread(nameof(ApplyMatchResult), snapshotMatchResult);
+                }
+
+                return;
+            }
+
+            if (IsStaleSnapshotRender(renderVersion))
+            {
+                return;
+            }
+
             var table = element.TryGetProperty("table", out var tableElement) && tableElement.ValueKind == JsonValueKind.Object
                 ? tableElement
                 : default;
@@ -2121,6 +2162,10 @@ public partial class Main : Control
             if (_officialCatalogLoadTask is { IsCompleted: false } catalogLoadTask)
             {
                 await catalogLoadTask;
+                if (IsStaleSnapshotRender(renderVersion))
+                {
+                    return;
+                }
             }
 
             var views = new Godot.Collections.Array<Godot.Collections.Dictionary>();
@@ -2128,7 +2173,7 @@ public partial class Main : Control
             foreach (var handCard in handCards.Take(12))
             {
                 var view = await BuildCardViewAsync(handCard);
-                if (view.ContainsKey("image"))
+                if (view.ContainsKey("imagePath"))
                 {
                     officialImageCount++;
                 }
@@ -2140,19 +2185,14 @@ public partial class Main : Control
 
             var objectIndex = VisibleObjectIndex(element, table);
             var tableSections = await BuildTableSectionsAsync(element, table, objectIndex);
+            if (IsStaleSnapshotRender(renderVersion))
+            {
+                return;
+            }
+
             QueueMainThread(nameof(ApplyBoardSummary), summary);
             QueueMainThread(nameof(ApplyHandCards), views);
             QueueMainThread(nameof(ApplySnapshotSections), tableSections.Sections);
-            if (!_matchFinished && SnapshotMatchResultView(element) is { } matchResult)
-            {
-                _matchFinished = true;
-                var resultSummary = matchResult.TryGetValue("summary", out var summaryValue)
-                    ? summaryValue.AsString().Replace('\n', ' ')
-                    : "Match finished";
-                AppendLog($"Match result rendered from snapshot: {Escape(resultSummary)}");
-                QueueMainThread(nameof(ApplyMatchResult), matchResult);
-            }
-
             AppendLog(
                 $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
             QueueVisualScreenshotIfReady(tableSections.CardCount);
@@ -2166,6 +2206,13 @@ public partial class Main : Control
 
             AppendLog($"[color=yellow]Snapshot render skipped: {Escape(ex.Message)}[/color]");
         }
+    }
+
+    private bool IsStaleSnapshotRender(int renderVersion)
+    {
+        return _isShuttingDown
+            || _matchFinished
+            || Volatile.Read(ref _snapshotRenderVersion) != renderVersion;
     }
 
     private void TryRunAutoSmokePreview(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
@@ -2430,7 +2477,7 @@ public partial class Main : Control
             siteView["rotated"] = true;
             siteCards.Add(siteView);
             cardCount++;
-            if (siteView.ContainsKey("image"))
+            if (siteView.ContainsKey("imagePath"))
             {
                 officialImageCount++;
             }
@@ -2511,7 +2558,7 @@ public partial class Main : Control
         {
             var view = await BuildCardViewAsync(card);
             view["standby"] = true;
-            if (view.ContainsKey("image"))
+            if (view.ContainsKey("imagePath"))
             {
                 officialImageCount++;
             }
@@ -2590,7 +2637,7 @@ public partial class Main : Control
             var view = await BuildCardViewAsync(objectIndex.TryGetValue(objectId, out var card)
                 ? card
                 : new SnapshotCardRef(objectId, string.Empty, false, true));
-            if (view.ContainsKey("image"))
+            if (view.ContainsKey("imagePath"))
             {
                 officialImageCount++;
             }
@@ -2784,7 +2831,7 @@ public partial class Main : Control
         foreach (var card in cards)
         {
             var view = await BuildCardViewAsync(card);
-            if (view.ContainsKey("image"))
+            if (view.ContainsKey("imagePath"))
             {
                 officialImageCount++;
             }
@@ -4023,10 +4070,8 @@ public partial class Main : Control
             return;
         }
 
-        var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
-        _officialCardPreview.Texture = image is null
-            ? null
-            : ImageTexture.CreateFromImage(image);
+        var imagePath = card.TryGetValue("imagePath", out var imagePathValue) ? imagePathValue.AsString() : string.Empty;
+        _officialCardPreview.Texture = CardControlRenderer.LoadTextureFromImagePath(imagePath);
     }
 
     public void ApplyDeckOptions()
@@ -4072,11 +4117,11 @@ public partial class Main : Control
         }
     }
 
-    public void ApplyOfficialCardPreview(Image image)
+    public void ApplyOfficialCardPreviewPath(string imagePath)
     {
         if (_officialCardPreview is not null)
         {
-            _officialCardPreview.Texture = ImageTexture.CreateFromImage(image);
+            _officialCardPreview.Texture = CardControlRenderer.LoadTextureFromImagePath(imagePath);
         }
     }
 

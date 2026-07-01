@@ -17,6 +17,20 @@ public sealed class OfficialCardImageLoader
         CardCatalogEntry card,
         CancellationToken cancellationToken = default)
     {
+        var path = await LoadOfficialFrontImagePathAsync(card, cancellationToken);
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
+
+        var bytes = await File.ReadAllBytesAsync(path, cancellationToken);
+        return LoadImageBytes(bytes, Path.GetExtension(path));
+    }
+
+    public async Task<string?> LoadOfficialFrontImagePathAsync(
+        CardCatalogEntry card,
+        CancellationToken cancellationToken = default)
+    {
         if (string.IsNullOrWhiteSpace(card.FrontImage))
         {
             return null;
@@ -26,7 +40,7 @@ public sealed class OfficialCardImageLoader
         var extension = Path.GetExtension(cachePath);
         try
         {
-            return await LoadCachedOrDownloadAsync(card, cachePath, extension, cancellationToken);
+            return await EnsureCachedOrDownloadAsync(card, cachePath, extension, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -39,7 +53,7 @@ public sealed class OfficialCardImageLoader
         }
     }
 
-    private static async Task<Image?> LoadCachedOrDownloadAsync(
+    private static async Task<string?> EnsureCachedOrDownloadAsync(
         CardCatalogEntry card,
         string cachePath,
         string extension,
@@ -51,7 +65,8 @@ public sealed class OfficialCardImageLoader
             var cachedImage = LoadImageBytes(cachedBytes, extension);
             if (cachedImage is not null)
             {
-                return cachedImage;
+                cachedImage.Dispose();
+                return cachePath;
             }
 
             TryDeleteBadCache(cachePath);
@@ -68,7 +83,8 @@ public sealed class OfficialCardImageLoader
         }
 
         await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
-        return image;
+        image.Dispose();
+        return cachePath;
     }
 
     private static Image? LoadImageBytes(byte[] bytes, string extension)

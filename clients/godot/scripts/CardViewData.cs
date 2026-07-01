@@ -16,7 +16,7 @@ internal sealed record CardViewData(
     string ColorText,
     bool Visible,
     bool FaceDown,
-    Image? Image)
+    string ImagePath)
 {
     public string Label => Visible && !string.IsNullOrWhiteSpace(CardNo)
         ? string.IsNullOrWhiteSpace(CardName) ? CardNo : $"{CardNo}\n{CardName}"
@@ -118,9 +118,9 @@ internal sealed record CardViewData(
             view["cardName"] = CardName;
         }
 
-        if (Image is not null)
+        if (!string.IsNullOrWhiteSpace(ImagePath))
         {
-            view["image"] = Image;
+            view["imagePath"] = ImagePath;
         }
 
         return view;

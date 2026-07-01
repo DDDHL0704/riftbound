@@ -38,6 +38,11 @@ public static class SpecialPromptCommandBuilder
             {
                 return TryBuildAssignCombatDamageCommand(document.RootElement, out payload, out payloadKey, out reason);
             }
+
+            if (string.Equals(actionName, "DECLARE_BATTLE", StringComparison.Ordinal))
+            {
+                return TryBuildDeclareBattleCommand(document.RootElement, out payload, out payloadKey, out reason);
+            }
         }
         catch (JsonException ex)
         {
@@ -47,6 +52,87 @@ public static class SpecialPromptCommandBuilder
 
         reason = $"unsupported special action {actionName}";
         return false;
+    }
+
+    private static bool TryBuildDeclareBattleCommand(
+        JsonElement candidate,
+        out Dictionary<string, object?> payload,
+        out string payloadKey,
+        out string reason)
+    {
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal);
+        payloadKey = string.Empty;
+        reason = string.Empty;
+
+        if (MetadataElement(candidate) is not { } metadata)
+        {
+            reason = "declare battle metadata is missing";
+            return false;
+        }
+
+        if (FirstSourceRequirement(metadata) is not { } requirement)
+        {
+            reason = "declare battle source requirement is missing";
+            return false;
+        }
+
+        var sourceObjectId = FirstNonEmpty(
+            ReadString(requirement, "sourceObjectId"),
+            FirstChoiceId(candidate, "sources"));
+        var battlefieldId = FirstNonEmpty(
+            FirstChoiceId(requirement, "battlefieldChoices", "destinationChoices"),
+            FirstChoiceId(candidate, "destinations"));
+        var defenderObjectIds = FirstNonEmptyStrings(
+            ChoiceIdsByIndex(requirement, "targetChoicesByIndex"),
+            ChoiceIds(requirement, "targetChoices"),
+            ChoiceIds(candidate, "targets"));
+        var battlefieldTargetObjectIds = FirstNonEmptyStrings(
+            ChoiceIdsByIndex(requirement, "battlefieldTargetChoicesByIndex"),
+            ChoiceIds(requirement, "battlefieldTargetChoices"));
+        var optionalCosts = DeclareBattleOptionalCosts(requirement, candidate);
+
+        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            reason = "attacker source is missing";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(battlefieldId))
+        {
+            reason = "battlefield choice is missing";
+            return false;
+        }
+
+        if (defenderObjectIds.Length == 0)
+        {
+            reason = "defender choice is missing";
+            return false;
+        }
+
+        payload = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["cmdType"] = "DECLARE_BATTLE",
+            ["battlefieldId"] = battlefieldId,
+            ["attackerObjectIds"] = new[] { sourceObjectId },
+            ["defenderObjectIds"] = defenderObjectIds,
+            ["optionalCosts"] = optionalCosts
+        };
+
+        if (battlefieldTargetObjectIds.Length > 0)
+        {
+            payload["battlefieldTargetObjectIds"] = battlefieldTargetObjectIds;
+        }
+
+        payloadKey = string.Join(",",
+            new[]
+            {
+                $"attacker={sourceObjectId}",
+                $"battlefield={battlefieldId}",
+                $"defenders={string.Join("+", defenderObjectIds)}",
+                $"battlefieldTargets={string.Join("+", battlefieldTargetObjectIds)}",
+                $"optionalCosts={string.Join("+", optionalCosts)}"
+            });
+        return true;
     }
 
     private static bool TryBuildOrderTriggersCommand(
@@ -282,10 +368,166 @@ public static class SpecialPromptCommandBuilder
 
         return choices
             .EnumerateArray()
-            .Select(choice => ReadString(choice, "id"))
+            .Select(ChoiceId)
             .Where(id => !string.IsNullOrWhiteSpace(id))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static JsonElement? FirstSourceRequirement(JsonElement metadata)
+    {
+        if (!metadata.TryGetProperty("sourceRequirements", out var requirements))
+        {
+            return null;
+        }
+
+        if (requirements.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var requirement in requirements.EnumerateArray())
+            {
+                if (requirement.ValueKind == JsonValueKind.Object)
+                {
+                    return requirement;
+                }
+            }
+        }
+
+        if (requirements.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var requirement in requirements.EnumerateObject())
+            {
+                if (requirement.Value.ValueKind == JsonValueKind.Object)
+                {
+                    return requirement.Value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static string FirstChoiceId(JsonElement element, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            var id = ChoiceIds(element, propertyName).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                return id;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string[] ChoiceIdsByIndex(JsonElement element, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!element.TryGetProperty(propertyName, out var indexedChoices)
+                || indexedChoices.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var values = indexedChoices
+                .EnumerateObject()
+                .OrderBy(choiceGroup => NumericKey(choiceGroup.Name))
+                .Select(choiceGroup => FirstChoiceIdFromArray(choiceGroup.Value))
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (values.Length > 0)
+            {
+                return values;
+            }
+        }
+
+        return [];
+    }
+
+    private static string[] FirstNonEmptyStrings(params string[][] values)
+    {
+        foreach (var value in values)
+        {
+            if (value.Length > 0)
+            {
+                return value;
+            }
+        }
+
+        return [];
+    }
+
+    private static string[] DeclareBattleOptionalCosts(JsonElement requirement, JsonElement candidate)
+    {
+        var optionalCosts = new List<string>();
+        AddStrings(optionalCosts, ReadStringArray(requirement, "requiredOptionalCosts"));
+        AddCombatAssignmentCost(optionalCosts, ChoiceIds(requirement, "optionalCostChoices"));
+        AddCombatAssignmentCost(optionalCosts, ChoiceIds(candidate, "optionalCosts"));
+        return optionalCosts
+            .Where(cost => !string.IsNullOrWhiteSpace(cost))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static void AddCombatAssignmentCost(List<string> optionalCosts, IReadOnlyList<string> candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            if (string.Equals(candidate, "COMBAT_ASSIGNMENT", StringComparison.Ordinal))
+            {
+                optionalCosts.Add(candidate);
+            }
+        }
+    }
+
+    private static void AddStrings(List<string> values, IReadOnlyList<string> candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            if (!string.IsNullOrWhiteSpace(candidate))
+            {
+                values.Add(candidate);
+            }
+        }
+    }
+
+    private static string FirstChoiceIdFromArray(JsonElement choices)
+    {
+        if (choices.ValueKind != JsonValueKind.Array)
+        {
+            return string.Empty;
+        }
+
+        foreach (var choice in choices.EnumerateArray())
+        {
+            var id = ChoiceId(choice);
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                return id;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string ChoiceId(JsonElement choice)
+    {
+        return choice.ValueKind switch
+        {
+            JsonValueKind.String => choice.GetString() ?? string.Empty,
+            JsonValueKind.Object => FirstNonEmpty(
+                ReadString(choice, "id"),
+                ReadString(choice, "choiceId"),
+                ReadString(choice, "objectId")),
+            _ => string.Empty
+        };
+    }
+
+    private static int NumericKey(string value)
+    {
+        return int.TryParse(value, out var parsed) ? parsed : int.MaxValue;
     }
 
     private static IReadOnlyDictionary<string, int> FirstMetadataIntMap(JsonElement metadata, params string[] propertyNames)
