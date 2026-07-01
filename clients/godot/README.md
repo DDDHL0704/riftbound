@@ -246,6 +246,19 @@ players showing the final result, plus a hidden-information check: each player
 must see the opponent hand only as card backs/counts, never as front faces or
 card identities.
 
+After both windows close, run the evidence checker against the script's output
+directory:
+
+```sh
+clients/godot/tools/check-human-playtest-evidence.sh /tmp/riftbound-human-playtest-human-local-test
+```
+
+The checker validates machine-readable gates: both logs exist, both final result
+screenshots exist, the logs include `MATCH_STARTED` and `MATCH_WON`/result
+rendering, and no crash/error/rejection patterns are present. It cannot prove
+that two humans operated the clients or inspect hidden-information safety by
+itself; those remain manual confirmations from the final screenshots.
+
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
 

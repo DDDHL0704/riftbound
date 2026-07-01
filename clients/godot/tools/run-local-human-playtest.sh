@@ -89,4 +89,10 @@ EOF
 
 if [[ "${wait_for_windows}" != "0" ]]; then
   wait "${pid_a}" "${pid_b}"
+  cat <<EOF
+
+Both Godot windows exited.
+Check evidence with:
+  clients/godot/tools/check-human-playtest-evidence.sh "${screenshot_dir}"
+EOF
 fi
