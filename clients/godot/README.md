@@ -9,6 +9,33 @@ information, or win-condition rules locally.
 Reference notes for Godot card-client architecture live in
 `docs/CARD_CLIENT_REFERENCE_NOTES.md`.
 
+## MCP Editor Access
+
+The project includes the `Godot MCP` editor plugin under
+`addons/godot_mcp/`, enabled in `project.godot`. It connects the running Godot
+editor to a local MCP server over `ws://127.0.0.1:6505` so agents can inspect
+and edit scenes, scripts, project settings, and editor state through MCP tools.
+
+Local Codex MCP setup lives outside the repo in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.godot]
+command = "/opt/homebrew/bin/npx"
+args = ["-y", "godot-mcp-server"]
+startup_timeout_sec = 120
+```
+
+After Codex reloads MCP tools, open the editor with:
+
+```sh
+godot-mono --editor --path clients/godot
+```
+
+Expected MCP evidence: `get_godot_status` reports
+`project_path=/Users/dinghaolin/IdeaProjects/riftbound/clients/godot/`, and
+tools such as `read_file`, `read_scene`, `add_node`, and `attach_script`
+execute through the Godot editor plugin.
+
 ## Local Smoke
 
 Start the API in memory mode from the repository root:

@@ -119,7 +119,9 @@ public partial class Main : Control
 
     public override async void _Ready()
     {
+        InstallRunestoneBackdrop();
         BindNodes();
+        ApplyRunestoneTheme();
         WireButtons();
         var args = CommandLineArgs();
         ServerUrl = ArgValue(args, "--riftbound-server=") ?? ServerUrl;
@@ -205,6 +207,52 @@ public partial class Main : Control
         _submitDeckButton = GetNode<Button>("Controls/DeckRow/SubmitDeckButton");
         _readyButton = GetNode<Button>("Controls/DeckRow/ReadyButton");
         _returnLobbyButton = GetNode<Button>("Controls/ResultFrame/ResultBox/ReturnLobbyButton");
+    }
+
+    private void InstallRunestoneBackdrop()
+    {
+        if (GetNodeOrNull<RunestoneBackdrop>("RunestoneBackdrop") is not null)
+        {
+            return;
+        }
+
+        var backdrop = new RunestoneBackdrop
+        {
+            Name = "RunestoneBackdrop",
+            AnchorLeft = 0,
+            AnchorTop = 0,
+            AnchorRight = 1,
+            AnchorBottom = 1,
+            OffsetLeft = 0,
+            OffsetTop = 0,
+            OffsetRight = 0,
+            OffsetBottom = 0,
+            MouseFilter = MouseFilterEnum.Ignore
+        };
+        AddChild(backdrop);
+        MoveChild(backdrop, 0);
+    }
+
+    private void ApplyRunestoneTheme()
+    {
+        ApplyMainContentGutter();
+        RunestoneTheme.ApplyToTree(this);
+        if (_resultFrame is not null)
+        {
+            _resultFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 2));
+        }
+    }
+
+    private void ApplyMainContentGutter()
+    {
+        foreach (var path in new[] { "Title", "Status", "Controls" })
+        {
+            var control = GetNodeOrNull<Control>(path);
+            if (control is not null)
+            {
+                control.OffsetLeft = Math.Max(control.OffsetLeft, 24f);
+            }
+        }
     }
 
     private void WireButtons()
@@ -3134,6 +3182,7 @@ public partial class Main : Control
             {
                 Text = "No candidate actions"
             });
+            RunestoneTheme.ApplyToTree(_promptActions);
             return;
         }
 
@@ -3141,6 +3190,8 @@ public partial class Main : Control
         {
             _promptActions.AddChild(PromptActionNode(action));
         }
+
+        RunestoneTheme.ApplyToTree(_promptActions);
     }
 
     private Control PromptActionNode(Godot.Collections.Dictionary action)
