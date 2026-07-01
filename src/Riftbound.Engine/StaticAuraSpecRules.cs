@@ -51,22 +51,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetBattlefieldAllUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne,
-            out aura);
-    }
-
-    public static bool TryGetBattlefieldFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.BattlefieldFilteredUnitsPower,
-            out aura);
-    }
-
     public static bool TryGetBattlefieldAllUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -387,6 +371,29 @@ internal static class StaticAuraSpecRules
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
                     StringComparison.Ordinal));
+    }
+
+    public static bool IsBattlefieldAllUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsBattlefieldPowerStaticAura(aura)
+            && string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsBattlefieldFilteredUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsBattlefieldPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                StringComparison.Ordinal);
     }
 
     public static bool IsBattlefieldKeywordStaticAura(StaticAuraSpec aura)

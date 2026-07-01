@@ -6,6 +6,17 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Battlefield POWER Recovery Scope Predicate
+
+- `StaticAuraSpecRules.IsBattlefieldAllUnitsPowerStaticAura` is now the shared predicate for battlefield all-units POWER static auras whose target and participant scopes are `SAME_BATTLEFIELD_UNITS` / `SAME_BATTLEFIELD_PUBLIC_UNITS`.
+- `StaticAuraSpecRules.IsBattlefieldFilteredUnitsPowerStaticAura` is now the shared predicate for battlefield filtered POWER static auras whose target and participant scopes are `SAME_BATTLEFIELD_FILTERED_UNITS` / `SAME_BATTLEFIELD_FILTERED_PUBLIC_UNITS`.
+- `MatchRecovery` source-card spec consistency validation now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura` / `TryGetBattlefieldFilteredUnitsPowerAura`.
+- Existing recovery-sensitive metadata remains compatible: `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` and `BATTLEFIELD_FILTERED_UNITS_POWER`.
+- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura` and `TryGetBattlefieldFilteredUnitsPowerAura` have been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helpers in MatchRecovery or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9070/9070; red/green focused guard 1/1; focused battlefield POWER / MatchRecovery regression 2027/2027; StaticAura / StaticPower / Battlefield / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2857/2857; backend full conformance 9071/9071.
+- Non-closure: this does not finish other static-aura recovery helper families, complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Battlefield All-Units Granted Keyword Scope Predicate
 
 - `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura` is now the shared predicate for battlefield all-units RULE_TEXT keyword auras whose target and participant scopes are `SAME_BATTLEFIELD_UNITS` / `SAME_BATTLEFIELD_PUBLIC_UNITS`.

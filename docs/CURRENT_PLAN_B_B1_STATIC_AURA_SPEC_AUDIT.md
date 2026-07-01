@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Battlefield POWER Recovery Scope Predicate
+
+This follow-up moves spectator recovery source-card consistency validation for battlefield POWER static auras onto the same `StaticAuraSpec` scope predicates used by Core and MatchSession.
+
+`StaticAuraSpecRules.IsBattlefieldAllUnitsPowerStaticAura` and `StaticAuraSpecRules.IsBattlefieldFilteredUnitsPowerStaticAura` now identify the two battlefield POWER scope shapes by `STATIC_AURA` layer, `StaticAuraTargetScopes.SameBattlefieldUnits` / `SameBattlefieldFilteredUnits`, and the matching participant scopes. `MatchRecovery` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `TryGetBattlefieldAllUnitsPowerAura` / `TryGetBattlefieldFilteredUnitsPowerAura`.
+
+The existing `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` and `BATTLEFIELD_FILTERED_UNITS_POWER` continuous-effect metadata remains compatible; this is a recovery validation selector cleanup only.
+
+Validation: baseline backend full conformance 9070/9070; red/green focused `BattlefieldPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` 1/1; focused battlefield POWER / MatchRecovery regression 2027/2027; StaticAura / StaticPower / Battlefield / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2857/2857; backend full conformance 9071/9071.
+
+Non-closure: this slice only consolidates battlefield POWER recovery source-card spec validation. Other static-aura recovery helper families, full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Battlefield All-Units Granted Keyword Scope Predicate
 
 This follow-up removes the remaining `TryGetBattlefieldAllUnitsGrantedKeywordAura` shared query and routes Wind Hill-style battlefield all-units keyword recognition through `StaticAuraSpec` scope predicates.

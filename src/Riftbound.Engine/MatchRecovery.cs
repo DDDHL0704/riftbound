@@ -17190,7 +17190,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsBattlefieldAllUnitsPowerStaticAura))
         {
             return;
         }
@@ -17205,7 +17206,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsBattlefieldFilteredUnitsPowerStaticAura))
         {
             return;
         }
