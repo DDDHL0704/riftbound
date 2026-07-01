@@ -8,6 +8,58 @@ internal static class BattlefieldTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
+    public static bool HasImplementedBattlefieldTrigger(string? cardNo)
+    {
+        return TriggersForCard(cardNo).Any(IsImplementedBattlefieldTrigger);
+    }
+
+    public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
+    {
+        return trigger.Kind switch
+        {
+            TriggerKinds.BattlefieldUnitMovedAwayPowerModifier => true,
+            TriggerKinds.BattlefieldHeldNextSpellEcho => true,
+            TriggerKinds.BattlefieldHeldUnitCostIncrease => true,
+            TriggerKinds.BattlefieldHeldDrawOne => true,
+            TriggerKinds.BattlefieldHeldCallRune => true,
+            TriggerKinds.BattlefieldHeldEachPlayerCallRune => true,
+            TriggerKinds.BattlefieldHeldMoveUnitToBase => true,
+            TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase => true,
+            TriggerKinds.BattlefieldDefendGrantSteadfast => true,
+            TriggerKinds.BattlefieldHeldGrantBoon => true,
+            TriggerKinds.BattlefieldHeldCreateMinion => true,
+            TriggerKinds.BattlefieldHeldReturnHero => true,
+            TriggerKinds.BattlefieldHeldSevenUnitsWin => true,
+            TriggerKinds.BattlefieldHeldPayPowerScore => true,
+            TriggerKinds.BattlefieldHeldActivateUnitConquestEffects => true,
+            TriggerKinds.BattlefieldConquerRevealRecycle => true,
+            TriggerKinds.BattlefieldConquerMill => true,
+            TriggerKinds.BattlefieldConquerRecycleRune => true,
+            TriggerKinds.BattlefieldConquerConsumeBoonDraw => true,
+            TriggerKinds.BattlefieldConquerDiscardDraw => true,
+            TriggerKinds.BattlefieldConquerDrawForOtherBattlefields => true,
+            TriggerKinds.BattlefieldConquerPowerfulPayDraw => true,
+            TriggerKinds.BattlefieldConquerReadyRunesAtEnd => true,
+            TriggerKinds.BattlefieldConquerReadyEquipment => true,
+            TriggerKinds.BattlefieldConquerPayCreateGold => true,
+            TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier => true,
+            TriggerKinds.BattlefieldConquerPayReadyLegend => true,
+            TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle => true,
+            TriggerKinds.BattlefieldConquerOverkillCreateWarhawk => true,
+            TriggerKinds.BattlefieldFriendlySpellDraw => true,
+            TriggerKinds.BattlefieldSpellPowerBonus => true,
+            TriggerKinds.BattlefieldHighCostSpellInsightRecycle => true,
+            TriggerKinds.BattlefieldPlayUnitPayBoon => true,
+            TriggerKinds.BattlefieldUnitReturnedPayCallRune => true,
+            TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase => true,
+            TriggerKinds.BattlefieldTurnStartDamageAllUnits => true,
+            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw => true,
+            TriggerKinds.BattlefieldFirstTurnExtraRune => true,
+            TriggerKinds.BattlefieldFirstTurnScore => true,
+            _ => false,
+        };
+    }
+
     public static bool TryGetBattlefieldMovedUnitPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

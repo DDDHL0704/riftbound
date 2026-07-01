@@ -1,8 +1,16 @@
 # Plan B / B4 Battlefield Trigger Spec Evidence
 
-Date: 2026-06-28
+Date: 2026-07-01
 
 Project status: **NOT READY**.
+
+## 2026-07-01 Rule-Card Recognition Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves the accepted official battlefield trigger specs listed below and changes only how the shared engine recognizes a card as an implemented battlefield rule card.
+- `CoreRuleEngine.HasImplementedBattlefieldRuleSpec` now delegates trigger-based recognition to `BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardNo)` instead of carrying a local `TryGetBattlefield...` allow-list.
+- `BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger` reads the parsed `BehaviorSpec.Triggers` for the card and admits only trigger kinds covered by `IsImplementedBattlefieldTrigger(...)`. That preserves the existing safety boundary: parsed future battlefield trigger kinds remain non-executable until the shared rule engine admits their shape.
+- Source guard: `CardCatalogBaselineTests.BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames` rejects direct `BattlefieldTriggerSpecRules.TryGetBattlefield...` entries inside `HasImplementedBattlefieldRuleSpec` and requires the generic recognition predicate.
+- Validation: baseline backend full 9079/9079; focused guard red then green 1/1; adjacent `Battlefield|CardCatalogBaseline|MatchRecovery|FullGameEndToEnd` 3027/3027; backend full conformance 9079/9079.
 
 ## Rule Sources
 

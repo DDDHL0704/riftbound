@@ -5765,7 +5765,19 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsDedicatedBattlefieldScoreRuleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("HasImplementedBattlefieldRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("HasDedicatedBattlefieldScoreRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("BattlefieldTriggerSpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
+        var implementedBattlefieldRuleSpecBody = ExtractSourceSpan(
+            coreRuleEngineSource,
+            "    private static bool HasImplementedBattlefieldRuleSpec(string? cardNo)",
+            "    private static int EffectiveWinningScore(MatchState state)");
+
+        Assert.DoesNotContain(
+            "BattlefieldTriggerSpecRules.TryGetBattlefield",
+            implementedBattlefieldRuleSpecBody,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger",
+            implementedBattlefieldRuleSpecBody,
+            StringComparison.Ordinal);
         Assert.Contains("BattlefieldStaticAbilitySpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticAuraSpecRules.IsBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticAuraSpecRules.HasBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
@@ -8688,5 +8700,16 @@ public sealed class CardCatalogBaselineTests
         }
 
         throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
+    }
+
+    private static string ExtractSourceSpan(string source, string startMarker, string endMarker)
+    {
+        var start = source.IndexOf(startMarker, StringComparison.Ordinal);
+        Assert.True(start >= 0, $"Unable to locate source start marker: {startMarker}");
+
+        var end = source.IndexOf(endMarker, start, StringComparison.Ordinal);
+        Assert.True(end > start, $"Unable to locate source end marker: {endMarker}");
+
+        return source[start..end];
     }
 }
