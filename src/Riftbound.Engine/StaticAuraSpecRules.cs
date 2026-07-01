@@ -27,14 +27,6 @@ internal static class StaticAuraSpecRules
             .ToArray();
     }
 
-    public static bool TryGetFriendlyEquipmentPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower,
-            out aura);
-    }
-
     public static bool TryGetBattlefieldAllUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -64,26 +56,6 @@ internal static class StaticAuraSpecRules
         return TryGetAura(
             cardNo,
             StaticAuraKinds.SameBattlefieldOtherFriendlyFilteredUnitsPower,
-            out aura);
-    }
-
-    public static bool TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(
-        string? cardNo,
-        out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower,
-            out aura);
-    }
-
-    public static bool TryGetSourceSameLocationOtherFriendlyUnitPowerAura(
-        string? cardNo,
-        out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower,
             out aura);
     }
 
@@ -344,6 +316,33 @@ internal static class StaticAuraSpecRules
                 StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
                 StringComparison.Ordinal)
             || string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsFriendlyEquipmentCountToSourcePowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceParticipantCountPowerStaticAura(aura)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSameBattlefieldFriendlyFilteredUnitCountToSourcePowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceParticipantCountPowerStaticAura(aura)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSameLocationOtherFriendlyUnitPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceParticipantCountPowerStaticAura(aura)
+            && string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
                 StringComparison.Ordinal);

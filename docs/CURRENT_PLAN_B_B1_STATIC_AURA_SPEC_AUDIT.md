@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Source Participant-Count POWER Recovery Scope Predicate
+
+This follow-up moves spectator recovery source-card consistency and power-delta lookup for source participant-count POWER static auras onto `StaticAuraSpec` scope predicates.
+
+`StaticAuraSpecRules.IsFriendlyEquipmentCountToSourcePowerStaticAura`, `IsSameBattlefieldFriendlyFilteredUnitCountToSourcePowerStaticAura`, and `IsSameLocationOtherFriendlyUnitPowerStaticAura` now identify the three implemented participant-count scope shapes by `SOURCE_OBJECT` target scope and their participant scopes. `MatchRecovery` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `TryGetFriendlyEquipmentPowerAura`, `TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura`, or `TryGetSourceSameLocationOtherFriendlyUnitPowerAura`.
+
+The existing `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER`, `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER`, and `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` continuous-effect metadata remains compatible; this is a recovery validation and scalar lookup selector cleanup only.
+
+Validation: baseline backend full conformance 9072/9072; red/green focused `SourceParticipantCountPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` 1/1; focused participant-count POWER / MatchRecovery regression 2094/2094; SourceParticipant / FriendlyEquipment / ReliableSiegeDog / PetalPixie / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2217/2217; backend full conformance 9073/9073.
+
+Non-closure: this slice only consolidates source participant-count POWER recovery source-card validation and scalar lookup. Other static-aura recovery helper families, full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Source-Object POWER Recovery Scope Predicate
 
 This follow-up moves spectator recovery source-card consistency and power-delta lookup for source-object POWER static auras onto `StaticAuraSpec` scope predicates.
@@ -206,7 +218,7 @@ Implemented in this slice:
 - `CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldAllUnitsKeywordBonus`, `CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus`, `CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus`, and `CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus` now apply these static power / keyword auras from `BehaviorSpec.StaticAuras`.
 - `StaticAuraSpec.RequiredParticipantCount` models threshold-style source auras where one or more same-location participants enable a fixed power delta rather than multiplying by every participant.
 - `StaticAuraSpec.RequiredPlayerExperience` models level/experience-gated static auras without hard-coding the source card in the engine.
-- `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now resolve Ornn-style friendly-equipment count-to-source static power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
+- `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power resolve Ornn-style friendly-equipment count-to-source static power from `BehaviorSpec.StaticAuras` and `StaticAuraSpec.PowerDeltaPerParticipant`; the former `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` runtime bridge has been deleted.
 - Friendly-equipment static-power hidden-boundary guard: standby friendly-equipment count-to-source power sources no longer project `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER` `STATIC_AURA` effects or recompute source power from public equipment count.
 - `CoreRuleEngine` resolves Master Yi intro single-defender power and Master Yi level friendly-unit power through `StaticAuraSpec.Kind=FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` and `StaticAuraSpec.Kind=FRIENDLY_UNITS_POWER`; the old `HasMasterYiSingleDefenderBonus` / `ResolveMasterYiLevelLegendPowerBonus` combat-power special paths have been deleted.
 - `CoreRuleEngine.ResolveSourceObjectPowerBonus` and `MatchSession.TryBuildSourceObjectPowerStaticAuraEffect` now resolve level-gated source-object power (`SOURCE_OBJECT_POWER`) from `BehaviorSpec.StaticAuras`, using `StaticAuraSpec.RequiredPlayerExperience` and `PowerDeltaPerParticipant` rather than a source card-number branch.

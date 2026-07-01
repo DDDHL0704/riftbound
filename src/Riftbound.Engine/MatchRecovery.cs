@@ -17222,7 +17222,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsSameBattlefieldFriendlyFilteredUnitCountToSourcePowerStaticAura))
         {
             return;
         }
@@ -17269,7 +17270,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                .Any(StaticAuraSpecRules.IsSameLocationOtherFriendlyUnitPowerStaticAura))
         {
             return;
         }
@@ -17980,9 +17982,12 @@ public static class MatchRecoveryValidator
         string? sourceCardNo,
         int participantCount)
     {
-        if (sourceCardNo is not null
-            && string.Equals(effectKind, StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(sourceCardNo, out var sameLocationAura))
+        var staticAuras = sourceCardNo is null
+            ? Array.Empty<StaticAuraSpec>()
+            : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
+
+        if (string.Equals(effectKind, StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, StringComparison.Ordinal)
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSameLocationOtherFriendlyUnitPowerStaticAura) is { } sameLocationAura)
         {
             return participantCount >= sameLocationAura.RequiredParticipantCount.GetValueOrDefault(1)
                 ? sameLocationAura.PowerDeltaPerParticipant
@@ -18043,19 +18048,19 @@ public static class MatchRecoveryValidator
         }
 
         if (string.Equals(effectKind, StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(sourceCardNo, out var sameBattlefieldCountAura))
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSameBattlefieldFriendlyFilteredUnitCountToSourcePowerStaticAura) is { } sameBattlefieldCountAura)
         {
             return sameBattlefieldCountAura.PowerDeltaPerParticipant;
         }
 
         if (string.Equals(effectKind, StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(sourceCardNo, out var sameLocationAura))
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSameLocationOtherFriendlyUnitPowerStaticAura) is { } sameLocationAura)
         {
             return sameLocationAura.PowerDeltaPerParticipant;
         }
 
         if (string.Equals(effectKind, StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(sourceCardNo, out var friendlyEquipmentAura))
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsFriendlyEquipmentCountToSourcePowerStaticAura) is { } friendlyEquipmentAura)
         {
             return friendlyEquipmentAura.PowerDeltaPerParticipant;
         }

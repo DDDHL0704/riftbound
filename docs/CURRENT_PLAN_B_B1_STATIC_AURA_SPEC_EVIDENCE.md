@@ -6,6 +6,18 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Source Participant-Count POWER Recovery Scope Predicate
+
+- `StaticAuraSpecRules.IsFriendlyEquipmentCountToSourcePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `FRIENDLY_PUBLIC_FIELD_EQUIPMENT`.
+- `StaticAuraSpecRules.IsSameBattlefieldFriendlyFilteredUnitCountToSourcePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `SAME_BATTLEFIELD_FRIENDLY_FILTERED_PUBLIC_UNITS`.
+- `StaticAuraSpecRules.IsSameLocationOtherFriendlyUnitPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `SAME_LOCATION_OTHER_FRIENDLY_PUBLIC_UNITS`.
+- `MatchRecovery` source-card spec consistency validation and object static-aura power-delta lookup now enumerate `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filter through those predicates instead of calling `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura`, `TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura`, or `TryGetSourceSameLocationOtherFriendlyUnitPowerAura`.
+- Existing recovery-sensitive metadata remains compatible: `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER`, `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER`, and `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER`.
+- `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura`, `TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura`, and `TryGetSourceSameLocationOtherFriendlyUnitPowerAura` have been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceParticipantCountPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helpers in MatchRecovery or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9072/9072; red/green focused guard 1/1; focused participant-count POWER / MatchRecovery regression 2094/2094; SourceParticipant / FriendlyEquipment / ReliableSiegeDog / PetalPixie / StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2217/2217; backend full conformance 9073/9073.
+- Non-closure: this does not finish other static-aura recovery helper families, complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Source-Object POWER Recovery Scope Predicate
 
 - `StaticAuraSpecRules.IsSourceObjectUnfilteredPowerStaticAura` is now the shared predicate for source-object POWER static auras whose target and participant scopes are `SOURCE_OBJECT` / `SOURCE_OBJECT` and whose target filter is empty.
@@ -185,7 +197,7 @@ Engine projection:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` resolves `SOURCE_OBJECT_FILTERED_POWER` through `ResolveSourceObjectFilteredPowerBonus`; `WiseElderSourceObjectFilteredPowerTests.WiseElderBoonStaticPowerAppliesToBattleDamage` proves the spec-driven source-object filtered static power contributes to real battle damage.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` resolves `SOURCE_OBJECT_POWER` through `ResolveSourceObjectPowerBonus`; `MatchSession.TryBuildSourceObjectPowerStaticAuraEffect` projects the same source-object level power only when the controller satisfies `StaticAuraSpec.RequiredPlayerExperience`.
 - `src/Riftbound.Engine/StaticAuraSpecRules.cs` includes a generic materialized-level-power guard so legacy source-unit entry paths that already stored the parsed level power in `CardObjectState.Power` do not double-count the same `BehaviorSpec.StaticAuras` delta during combat.
-- `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power from `BehaviorSpec.StaticAuras` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
 - `src/Riftbound.Engine/MatchSession.cs` now excludes standby sources from Ornn-style friendly-equipment static-power projection, and `src/Riftbound.Engine/CoreRuleEngine.cs` excludes standby sources before friendly-equipment source-power recompute.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` grant battlefield static `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走`; the old `BattlefieldStaticRoamCardNo` / `IsBattlefieldStaticRoamCardNo` branches are removed.
