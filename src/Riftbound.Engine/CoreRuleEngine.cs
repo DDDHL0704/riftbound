@@ -22616,7 +22616,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldCallRuneTrigger,
+                out var trigger)
             || trigger.RuneCallCount is not > 0)
         {
             return false;

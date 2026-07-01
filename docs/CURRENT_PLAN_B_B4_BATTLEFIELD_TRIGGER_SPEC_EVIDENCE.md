@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Call-Rune Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·288/298` Star Peak official text `当你据守此处时，你可以选择召出一枚休眠的符文。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldCallRuneTrigger, out trigger)`.
+- `IsBattlefieldHeldCallRuneTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_CALL_RUNE`, `Timing=BATTLEFIELD_HELD`, and positive `RuneCallCount`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldCallRuneTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `RUNES_CALLED` payload semantics.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldCallRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Validation: baseline backend full 9081/9081; focused guard / parser / held call-rune representatives / Star Peak official-deck route 6/6; adjacent `BattlefieldHeldCallRune|BattlefieldHeldRune|BattlefieldHeld|CallRune|GameHub|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2724/2724; backend full conformance 9082/9082.
+
 ## 2026-07-01 Held Draw-One Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·280/298` Hidden Valley official text `当你据守此处时，抽一张牌。`

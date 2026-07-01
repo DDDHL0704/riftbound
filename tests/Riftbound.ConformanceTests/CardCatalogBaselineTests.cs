@@ -5851,6 +5851,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldHeldCallRuneTriggerUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldHeldCallRuneTrigger",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldCallRuneTrigger",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task BehaviorTemplateExecutorRoutesRegisteredTemplatesWithoutReplacingP2Rules()
     {
         var requiredTemplates = new[]
