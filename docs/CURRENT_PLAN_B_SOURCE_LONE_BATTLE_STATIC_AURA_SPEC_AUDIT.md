@@ -12,7 +12,7 @@ This slice moves the implemented Waterbender lone-attacker / lone-defender comba
 - `StaticAuraKinds.SourceLoneBattlePower` models source-only combat power while the source is attacking or defending alone.
 - `StaticAuraSpec.RequiredAttackingUnitCount` and `RequiredDefendingUnitCount` model the lone-battle thresholds without hard-coding this card number in Core.
 - `RuleTextParsers.StaticAuraParser` now parses the official text into `Kind = SOURCE_LONE_BATTLE_POWER`, `Layer = STATIC_AURA`, `TargetScope = SOURCE_OBJECT`, `ParticipantScope = BATTLEFIELD_PUBLIC_UNITS`, `PowerDeltaPerParticipant = 2`, `RequiredAttackingUnitCount = 1`, and `RequiredDefendingUnitCount = 1`.
-- `CoreRuleEngine.ResolveWaterbenderLoneBattlePowerBonus(...)` now checks `StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(...)` and reads the combat thresholds plus power delta from `StaticAuraSpec`.
+- Current runtime routing is superseded by the B1 source battle-state scope router: `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` enumerates `StaticAuraSpecRules.GetStaticAuras(...)`, identifies this shape with `StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura(...)`, and reads the combat thresholds plus power delta from `StaticAuraSpec`.
 - The old Core `WaterbenderCardNo` direct card-number branch is removed.
 
 ## Runtime Effect

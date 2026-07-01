@@ -18,8 +18,8 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-- `StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(...)` exposes source-attacking combat static auras from `BehaviorSpecCatalogBuilder`.
-- `CoreRuleEngine.ResolveSourceAttackingWithAnotherUnitPowerBonus(...)` reads the attacker-count threshold and power delta from `StaticAuraSpec` instead of selecting by Scarlet Pigeon card number.
+- `StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura(...)` identifies source-attacking combat static auras from `BehaviorSpecCatalogBuilder` by `SOURCE_OBJECT` target scope and `ATTACKING_BATTLEFIELD_PUBLIC_UNITS` participant scope.
+- `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` reads the attacker-count threshold and power delta from `StaticAuraSpec` instead of selecting by Scarlet Pigeon card number.
 - `src/Riftbound.DevUi/src/types/catalog.ts` now includes `staticAuras[].requiredAttackingUnitCount` so catalog consumers can read the new spec field.
 
 ## Validation

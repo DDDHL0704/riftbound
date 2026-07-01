@@ -12,7 +12,7 @@ This slice moves the implemented Dune Drake ready-enemy combat-power representat
 - `StaticAuraKinds.SourceAttackingReadyEnemyUnitPower` models source-only combat power while the source is attacking a battlefield that has a ready enemy unit.
 - `StaticAuraSpec.RequiredReadyEnemyUnitCount` models the ready-enemy threshold without hard-coding this card number in Core.
 - `RuleTextParsers.StaticAuraParser` now parses the official text into `Kind = SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER`, `Layer = STATIC_AURA`, `TargetScope = SOURCE_OBJECT`, `ParticipantScope = READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS`, `PowerDeltaPerParticipant = 2`, and `RequiredReadyEnemyUnitCount = 1`.
-- `CoreRuleEngine.ResolveSourceAttackingReadyEnemyUnitPowerBonus(...)` now checks `StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(...)` and reads the ready-enemy threshold plus power delta from `StaticAuraSpec`.
+- Current runtime routing is superseded by the B1 source battle-state scope router: `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` enumerates `StaticAuraSpecRules.GetStaticAuras(...)`, identifies this shape with `StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura(...)`, and reads the ready-enemy threshold plus power delta from `StaticAuraSpec`.
 - The old Core `DuneDrakeCardNo` branch is removed.
 - `FullGameEndToEndTests.OfficialDeckMidgameAppliesDuneDrakeSourceAttackingReadyEnemyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` now carries this same `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` route through a legal official Poppy deck, server-authored play / move / declaration prompts, real battle damage, score victory, and action-log replay.
 

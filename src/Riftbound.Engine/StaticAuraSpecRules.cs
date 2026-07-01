@@ -91,30 +91,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetSourceAttackingWithAnotherUnitPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceAttackingWithAnotherUnitPower,
-            out aura);
-    }
-
-    public static bool TryGetSourceLoneBattlePowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceLoneBattlePower,
-            out aura);
-    }
-
-    public static bool TryGetSourceAttackingReadyEnemyUnitPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceAttackingReadyEnemyUnitPower,
-            out aura);
-    }
-
     public static bool TargetMatchesFilter(StaticAuraSpec aura, CardObjectState target)
     {
         if (string.IsNullOrWhiteSpace(aura.TargetFilter))
@@ -293,6 +269,33 @@ internal static class StaticAuraSpecRules
                 StaticAuraParticipantScopes.BattlefieldPublicUnits,
                 StringComparison.Ordinal)
             || string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.ReadyEnemyBattlefieldPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSourceAttackingWithAnotherUnitPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceBattleStatePowerStaticAura(aura)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.AttackingBattlefieldPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSourceLoneBattlePowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceBattleStatePowerStaticAura(aura)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.BattlefieldPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSourceAttackingReadyEnemyUnitPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSourceBattleStatePowerStaticAura(aura)
+            && string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.ReadyEnemyBattlefieldPublicUnits,
                 StringComparison.Ordinal);

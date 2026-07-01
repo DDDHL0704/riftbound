@@ -18,8 +18,8 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-- `StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(...)` exposes lone-battle combat static auras from `BehaviorSpecCatalogBuilder`.
-- `CoreRuleEngine.ResolveWaterbenderLoneBattlePowerBonus(...)` reads the attacker-count / defender-count thresholds and power delta from `StaticAuraSpec` instead of selecting by Waterbender card number.
+- `StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura(...)` identifies lone-battle combat static auras from `BehaviorSpecCatalogBuilder` by `SOURCE_OBJECT` target scope and `BATTLEFIELD_PUBLIC_UNITS` participant scope.
+- `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` reads the attacker-count / defender-count thresholds and power delta from `StaticAuraSpec` instead of selecting by Waterbender card number.
 - `src/Riftbound.DevUi/src/types/catalog.ts` now includes `staticAuras[].requiredDefendingUnitCount` so catalog consumers can read the new spec field.
 
 ## Validation

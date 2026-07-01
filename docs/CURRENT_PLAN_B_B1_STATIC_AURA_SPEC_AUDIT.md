@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Source Battle-State POWER Recovery Scope Predicate
+
+This follow-up moves spectator recovery source-card consistency and power-delta lookup for source battle-state POWER static auras onto `StaticAuraSpec` scope predicates.
+
+`StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura`, `IsSourceLoneBattlePowerStaticAura`, and `IsSourceAttackingReadyEnemyUnitPowerStaticAura` now identify the three implemented battle-state scope shapes by `SOURCE_OBJECT` target scope and their participant scopes. `MatchRecovery` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `TryGetSourceAttackingWithAnotherUnitPowerAura`, `TryGetSourceLoneBattlePowerAura`, or `TryGetSourceAttackingReadyEnemyUnitPowerAura`.
+
+The existing `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` continuous-effect metadata remains compatible; this is a recovery validation and scalar lookup selector cleanup only.
+
+Validation: baseline backend full conformance 9073/9073; red/green focused `SourceBattleStatePowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` 1/1; focused source battle-state POWER / MatchRecovery regression 2007/2007; StaticAura / StaticPower / SourceCombat / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2216/2216; backend full conformance 9074/9074.
+
+Non-closure: this slice only consolidates source battle-state POWER recovery source-card validation and scalar lookup. Other static-aura recovery helper families, full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Source Participant-Count POWER Recovery Scope Predicate
 
 This follow-up moves spectator recovery source-card consistency and power-delta lookup for source participant-count POWER static auras onto `StaticAuraSpec` scope predicates.

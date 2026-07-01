@@ -346,6 +346,32 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void SourceBattleStatePowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var matchRecoverySource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSourceAttackingWithAnotherUnitPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSourceLoneBattlePowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSourceAttackingReadyEnemyUnitPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SourceParticipantCountPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

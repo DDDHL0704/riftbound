@@ -19,8 +19,8 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-- `StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(...)` exposes source-attacking-ready-enemy combat static auras from `BehaviorSpecCatalogBuilder`.
-- `CoreRuleEngine.ResolveSourceAttackingReadyEnemyUnitPowerBonus(...)` reads the ready-enemy threshold and power delta from `StaticAuraSpec` instead of selecting by Dune Drake card number.
+- `StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura(...)` identifies source-attacking-ready-enemy combat static auras from `BehaviorSpecCatalogBuilder` by `SOURCE_OBJECT` target scope and `READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS` participant scope.
+- `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` reads the ready-enemy threshold and power delta from `StaticAuraSpec` instead of selecting by Dune Drake card number.
 - `FullGameEndToEndTests` now stages official `OGN·131/298` Dune Drake and an opposing ready defender through server-authored prompts, declares battle with Dune Drake as the sole attacker, verifies `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` projection metadata and participant dependency, and observes basePower 5 + staticPowerBonus 2 = combatPower/damage 7 before score-victory replay.
 - `src/Riftbound.DevUi/src/types/catalog.ts` now includes `staticAuras[].requiredReadyEnemyUnitCount` so catalog consumers can read the new spec field.
 

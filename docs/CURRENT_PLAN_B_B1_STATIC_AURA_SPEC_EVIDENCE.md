@@ -6,6 +6,18 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Source Battle-State POWER Recovery Scope Predicate
+
+- `StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `ATTACKING_BATTLEFIELD_PUBLIC_UNITS`.
+- `StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `BATTLEFIELD_PUBLIC_UNITS`.
+- `StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS`.
+- `MatchRecovery` source-card spec consistency validation and object static-aura power-delta lookup now enumerate `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filter through those predicates instead of calling `StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura`, `TryGetSourceLoneBattlePowerAura`, or `TryGetSourceAttackingReadyEnemyUnitPowerAura`.
+- Existing recovery-sensitive metadata remains compatible: `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER`.
+- `StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura`, `TryGetSourceLoneBattlePowerAura`, and `TryGetSourceAttackingReadyEnemyUnitPowerAura` have been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceBattleStatePowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helpers in MatchRecovery or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9073/9073; red/green focused guard 1/1; focused source battle-state POWER / MatchRecovery regression 2007/2007; StaticAura / StaticPower / SourceCombat / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2216/2216; backend full conformance 9074/9074.
+- Non-closure: this does not finish other static-aura recovery helper families, complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Source Participant-Count POWER Recovery Scope Predicate
 
 - `StaticAuraSpecRules.IsFriendlyEquipmentCountToSourcePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `FRIENDLY_PUBLIC_FIELD_EQUIPMENT`.

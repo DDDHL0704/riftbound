@@ -12,7 +12,7 @@ This slice moves the implemented Scarlet Pigeon multi-attacker combat-power repr
 - `StaticAuraKinds.SourceAttackingWithAnotherUnitPower` models source-only combat power while the source is attacking with the required attacker count.
 - `StaticAuraSpec.RequiredAttackingUnitCount` models the "with another unit" threshold without hard-coding this card number in Core.
 - `RuleTextParsers.StaticAuraParser` now parses the official text into `Kind = SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `Layer = STATIC_AURA`, `TargetScope = SOURCE_OBJECT`, `ParticipantScope = ATTACKING_BATTLEFIELD_PUBLIC_UNITS`, `PowerDeltaPerParticipant = 2`, and `RequiredAttackingUnitCount = 2`.
-- `CoreRuleEngine.ResolveSourceAttackingWithAnotherUnitPowerBonus(...)` now checks `StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(...)` and reads the combat threshold plus power delta from `StaticAuraSpec`.
+- Current runtime routing is superseded by the B1 source battle-state scope router: `CoreRuleEngine.ResolveSourceBattleStatePowerStaticAuraBonus(...)` enumerates `StaticAuraSpecRules.GetStaticAuras(...)`, identifies this shape with `StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura(...)`, and reads the combat threshold plus power delta from `StaticAuraSpec`.
 - The old Core `ScarletPigeonCardNo` and `IsScarletPigeonCardNo(...)` branch is removed.
 
 ## Runtime Effect

@@ -17361,7 +17361,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(
+                StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura))
         {
             return;
         }
@@ -17376,7 +17377,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(
+                StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura))
         {
             return;
         }
@@ -17391,7 +17393,8 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         if (sourceCardNo is null
-            || StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(sourceCardNo, out _))
+            || StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(
+                StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura))
         {
             return;
         }
@@ -17994,23 +17997,20 @@ public static class MatchRecoveryValidator
                 : 0;
         }
 
-        if (sourceCardNo is not null
-            && string.Equals(effectKind, StaticAuraKinds.SourceAttackingWithAnotherUnitPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(sourceCardNo, out var attackingWithAnotherUnitAura))
+        if (string.Equals(effectKind, StaticAuraKinds.SourceAttackingWithAnotherUnitPower, StringComparison.Ordinal)
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura) is { } attackingWithAnotherUnitAura)
         {
             return attackingWithAnotherUnitAura.PowerDeltaPerParticipant;
         }
 
-        if (sourceCardNo is not null
-            && string.Equals(effectKind, StaticAuraKinds.SourceLoneBattlePower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(sourceCardNo, out var loneBattleAura))
+        if (string.Equals(effectKind, StaticAuraKinds.SourceLoneBattlePower, StringComparison.Ordinal)
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceLoneBattlePowerStaticAura) is { } loneBattleAura)
         {
             return loneBattleAura.PowerDeltaPerParticipant;
         }
 
-        if (sourceCardNo is not null
-            && string.Equals(effectKind, StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(sourceCardNo, out var readyEnemyUnitAura))
+        if (string.Equals(effectKind, StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, StringComparison.Ordinal)
+            && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceAttackingReadyEnemyUnitPowerStaticAura) is { } readyEnemyUnitAura)
         {
             return readyEnemyUnitAura.PowerDeltaPerParticipant;
         }
