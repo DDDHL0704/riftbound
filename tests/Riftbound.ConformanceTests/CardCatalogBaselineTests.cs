@@ -5760,6 +5760,12 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var matchSessionSource = File.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("IsImplementedBattlefieldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsDedicatedBattlefieldScoreRuleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -5777,6 +5783,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(
             "BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger",
             implementedBattlefieldRuleSpecBody,
+            StringComparison.Ordinal);
+        var matchSessionBattlefieldCardObjectBody = ExtractSourceSpan(
+            matchSessionSource,
+            "    private static bool IsBattlefieldCardObject(CardObjectState cardObject)",
+            "    private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)");
+
+        Assert.DoesNotContain(
+            "BattlefieldTriggerSpecRules.TryGetBattlefield",
+            matchSessionBattlefieldCardObjectBody,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger",
+            matchSessionBattlefieldCardObjectBody,
             StringComparison.Ordinal);
         Assert.Contains("BattlefieldStaticAbilitySpecRules.TryGetBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticAuraSpecRules.IsBattlefield", coreRuleEngineSource, StringComparison.Ordinal);

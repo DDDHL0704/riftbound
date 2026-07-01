@@ -4,6 +4,14 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 MatchSession Recognition Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves the accepted official battlefield trigger specs listed below and changes only how prompt/snapshot classification recognizes a card as an implemented battlefield rule card.
+- `MatchSession.IsBattlefieldCardObject` now delegates trigger-based recognition to `BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardNo)` instead of carrying a local `TryGetBattlefield...` allow-list.
+- The shared predicate reads parsed `BehaviorSpec.Triggers` and admits only accepted B4 trigger kinds through `IsImplementedBattlefieldTrigger(...)`, keeping `MatchSession` classification aligned with `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`.
+- Source guard: `CardCatalogBaselineTests.BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames` rejects direct `BattlefieldTriggerSpecRules.TryGetBattlefield...` entries inside both recognition methods and requires the generic recognition predicate.
+- Validation: baseline backend full 9079/9079; focused guard red then green 1/1; adjacent `Battlefield|CardCatalogBaseline|MatchRecovery|FullGameEndToEnd` 3027/3027; backend full conformance 9079/9079.
+
 ## 2026-07-01 Rule-Card Recognition Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves the accepted official battlefield trigger specs listed below and changes only how the shared engine recognizes a card as an implemented battlefield rule card.
