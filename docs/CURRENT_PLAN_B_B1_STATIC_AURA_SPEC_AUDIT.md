@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Battlefield Isolated-Defender RULE_TEXT Keyword Modifier Scope Router
+
+This follow-up merges Forbidden Wasteland-style battlefield isolated-defender RULE_TEXT keyword modifier routing into a shared `StaticAuraSpec` scope predicate.
+
+`CoreRuleEngine` now computes the isolated defender keyword modifier by enumerating `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and filtering with `StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura` instead of calling a kind-specific helper. `MatchSession` projects the same RULE_TEXT effect through that predicate while preserving the existing `RULE_TEXT:BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` effect id shape.
+
+`StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura` now backs battlefield-card recognition for this family, so future same-shape battlefield keyword modifiers do not need another recognition branch.
+
+Validation: baseline backend full conformance 9068/9068; red/green focused `BattlefieldIsolatedDefenderKeywordModifierExecutionRoutesThroughBehaviorSpecScope` 1/1; isolated-defender focused regression 4/4; BattlefieldIsolated / ForbiddenWasteland / StaticAura / StaticKeyword / Steadfast / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2209/2209; backend full conformance 9069/9069.
+
+Non-closure: this slice only consolidates battlefield isolated-defender keyword modifier scope routing. Battlefield all-units granted-keyword shared query cleanup, complete battlefield RULE_TEXT keyword modifier breadth, complete B2 keyword breadth, full LayerEngine timestamp/order semantics, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Public-Field Friendly RULE_TEXT Keyword Aura Scope Router
 
 This follow-up merges friendly-filtered and other-friendly public-field RULE_TEXT keyword aura routing into one shared `StaticAuraSpec` scope predicate.

@@ -20814,12 +20814,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             && defendingUnitCount == 1
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(
-                battlefieldState.CardNo,
-                out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && GrantedCombatKeywordAmount(aura, combatKeyword) > 0
-            ? aura.PowerDeltaPerParticipant
+            ? StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
+                .Where(StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura)
+                .Where(aura => GrantedCombatKeywordAmount(aura, combatKeyword) > 0)
+                .Select(aura => aura.PowerDeltaPerParticipant)
+                .DefaultIfEmpty(0)
+                .Min()
             : 0;
     }
 
@@ -26559,7 +26559,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
+            || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardNo, out _)

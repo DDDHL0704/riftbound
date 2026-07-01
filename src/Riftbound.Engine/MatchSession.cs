@@ -3263,9 +3263,6 @@ public sealed record MatchState
             if (!string.Equals(battleState.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
                 || battlefield.IsFaceDown
-                || !StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(battlefield.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
             {
@@ -3292,13 +3289,22 @@ public sealed record MatchState
             }
 
             var participantObjectId = defenderObjectIds[0];
-            effects.Add(new ContinuousEffectState(
-                $"RULE_TEXT:BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
-                "OBJECT",
-                ContinuousEffectLayers.RuleText,
-                aura.Duration,
-                participantObjectId,
-                battlefieldObjectId));
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)
+                .Where(StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura))
+            {
+                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                {
+                    continue;
+                }
+
+                effects.Add(new ContinuousEffectState(
+                    $"RULE_TEXT:BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    aura.Duration,
+                    participantObjectId,
+                    battlefieldObjectId));
+            }
         }
 
         return effects;
@@ -17900,7 +17906,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardObject.CardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardObject.CardNo, out _)
+            || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardObject.CardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardObject.CardNo, out _)

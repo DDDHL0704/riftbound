@@ -55,6 +55,35 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void BattlefieldIsolatedDefenderKeywordModifierExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetBattlefieldIsolatedDefenderKeywordModifierAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveBattlefieldIsolatedDefenderKeywordModifier", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SameBattlefieldOtherFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

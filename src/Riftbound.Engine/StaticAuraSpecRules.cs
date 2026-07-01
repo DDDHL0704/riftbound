@@ -108,14 +108,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetBattlefieldIsolatedDefenderKeywordModifierAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.BattlefieldIsolatedDefenderKeywordModifier,
-            out aura);
-    }
-
     public static bool TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -233,6 +225,26 @@ internal static class StaticAuraSpecRules
     public static bool HasBattlefieldKeywordStaticAura(string? cardNo)
     {
         return GetStaticAuras(cardNo).Any(IsBattlefieldKeywordStaticAura);
+    }
+
+    public static bool HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(string? cardNo)
+    {
+        return GetStaticAuras(cardNo).Any(IsBattlefieldIsolatedDefenderKeywordModifierStaticAura);
+    }
+
+    public static bool IsBattlefieldIsolatedDefenderKeywordModifierStaticAura(StaticAuraSpec aura)
+    {
+        return string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+            && aura.PowerDeltaPerParticipant != 0
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldIsolatedDefender,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldIsolatedDefender,
+                StringComparison.Ordinal);
     }
 
     public static bool IsSameBattlefieldOtherFriendlyPowerStaticAura(StaticAuraSpec aura)

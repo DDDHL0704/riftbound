@@ -6,6 +6,18 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Battlefield Isolated-Defender RULE_TEXT Keyword Modifier Scope Router
+
+- `StaticAuraSpecRules.IsBattlefieldIsolatedDefenderKeywordModifierStaticAura` is now the shared predicate for battlefield isolated-defender RULE_TEXT keyword modifier auras whose target and participant scopes are `SAME_BATTLEFIELD_ISOLATED_DEFENDER`.
+- `StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura` now backs battlefield-card recognition for this scope shape.
+- `CoreRuleEngine.ResolveBattlefieldIsolatedDefenderKeywordModifier` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and applies matching keyword modifiers instead of calling `StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura`.
+- `MatchSession.BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)` and projects matching isolated-defender keyword modifiers from their `StaticAuraSpec` scope instead of a kind-specific helper.
+- Existing public effect id shape remains compatible: `RULE_TEXT:BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER`.
+- `StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura` has been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldIsolatedDefenderKeywordModifierExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helper in CoreRuleEngine, MatchSession, or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9068/9068; red/green focused guard 1/1; isolated-defender focused regression 4/4; BattlefieldIsolated / ForbiddenWasteland / StaticAura / StaticKeyword / Steadfast / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2209/2209; backend full conformance 9069/9069.
+- Non-closure: this does not finish battlefield all-units granted-keyword shared query cleanup, complete battlefield RULE_TEXT keyword modifier breadth, complete B2 keyword breadth, complete LayerEngine timestamp/order behavior, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Public-Field Friendly RULE_TEXT Keyword Aura Scope Router
 
 - `StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura` is now the shared predicate for public-field friendly RULE_TEXT keyword auras whose target scope is other friendly units or friendly filtered units.
