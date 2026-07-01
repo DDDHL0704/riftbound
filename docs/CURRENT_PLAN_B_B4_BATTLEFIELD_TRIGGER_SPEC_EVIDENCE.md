@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Grant-Boon Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·283/298` Navori Arena official text `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldGrantBoonTrigger, out trigger)`.
+- `IsBattlefieldHeldGrantBoonTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_GRANT_BOON`, `Timing=BATTLEFIELD_HELD`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `BoonCount=1`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldGrantBoonTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `BOON_GRANTED` payload semantics through `GrantLegendBoon`.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldGrantBoonTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9086/9086; focused guard / parser / Navori Arena representatives / official-deck route 5/5; adjacent `BattlefieldHeldGrantBoon|NavoriArena|BattlefieldHeld|Boon|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2795/2795; backend full conformance 9087/9087.
+
 ## 2026-07-01 Defend Grant-Steadfast Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·279/298` Fortified Position official text `当你防守此处时，选择一名单位，使其在本次战斗期间获得{{坚守2}}。（如果它是防守方，则{{S}}+2。）`
