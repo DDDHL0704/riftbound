@@ -178,6 +178,58 @@ only the client with a server-enabled `SURRENDER` prompt will submit it. Expecte
 evidence: one client logs an accepted `SURRENDER` receipt, both clients receive
 `MATCH_WON`, and the result panel prints the server winner and reason.
 
+## Manual Two-Player Playtest
+
+Use this for the Playable v1 human check. Start the API in memory mode, then
+open two visible Godot clients in the same room. For same-machine testing, keep
+the identities isolated with `--riftbound-ephemeral-session` or two different
+`--riftbound-session-file=` paths:
+
+```sh
+room="human-local-$(date +%H%M%S)"
+server="http://127.0.0.1:5088"
+
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot \
+  --windowed --resolution 1440x900 --position 20,60 --path clients/godot -- \
+  --riftbound-server="${server}" \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-room="${room}" \
+  --riftbound-handle="player-a-${room}" \
+  --riftbound-player-key="pk_${room}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+```
+
+Run the second window with the same `room` and `server`, but a distinct handle
+and player key:
+
+```sh
+/Applications/Godot_dotnet.app/Contents/MacOS/Godot \
+  --windowed --resolution 1440x900 --position 220,120 --path clients/godot -- \
+  --riftbound-server="${server}" \
+  --riftbound-ephemeral-session \
+  --riftbound-ignore-reconnect \
+  --riftbound-room="${room}" \
+  --riftbound-handle="player-b-${room}" \
+  --riftbound-player-key="pk_${room}_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+```
+
+For LAN testing, bind the API to the host interface and point both Godot clients
+at that host IP:
+
+```sh
+ASPNETCORE_ENVIRONMENT=Development \
+ASPNETCORE_URLS=http://0.0.0.0:5088 \
+ConnectionStrings__Riftbound="" \
+~/.dotnet/dotnet run --project src/Riftbound.Api
+```
+
+Then set `server="http://<host-lan-ip>:5088"` on both clients. The two players
+should choose preconstructed decks, ready, complete mulligan, and play to the
+server result panel. Validation evidence should include screenshots from both
+players showing the final result, plus a hidden-information check: each player
+must see the opponent hand only as card backs/counts, never as front faces or
+card identities.
+
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
 
