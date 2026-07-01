@@ -46,7 +46,7 @@ public partial class Main : Control
 
     private static readonly JsonSerializerOptions ClientJsonOptions = CreateClientJsonOptions();
     private readonly CancellationTokenSource _shutdown = new();
-    private readonly PlayerSessionStore _sessionStore = new();
+    private PlayerSessionStore _sessionStore = new();
     private readonly List<PreconstructedDeck> _decks = [];
     private readonly List<PublicMatchDto> _publicMatches = [];
     private readonly OfficialCardImageLoader _cardImageLoader = new();
@@ -150,9 +150,17 @@ public partial class Main : Control
             0,
             ArgInt(args, "--riftbound-visual-screenshot-min-table-cards=", _visualScreenshotMinTableCards));
         _ephemeralSession = args.Contains("--riftbound-ephemeral-session");
+        var sessionFile = ArgValue(args, "--riftbound-session-file=");
+        if (!string.IsNullOrWhiteSpace(sessionFile))
+        {
+            _sessionStore = new PlayerSessionStore(sessionFile);
+        }
+
         AppendLog("Client booted. Waiting for server authority.");
 
-        _session = await _sessionStore.LoadAsync();
+        _session = _ephemeralSession
+            ? PlayerSessionSettings.CreateDefault()
+            : await _sessionStore.LoadAsync();
         _session = ApplyCommandLineOverrides(_session, args);
         ApplySessionToInputs();
         _officialCatalogLoadTask = LoadOfficialCardPreviewAsync();

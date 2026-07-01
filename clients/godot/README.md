@@ -102,6 +102,13 @@ count as view/layout validation. macOS `screencapture` can omit windows when the
 calling terminal lacks Screen Recording permission, so prefer the Godot viewport
 PNG for layout evidence and use system screenshots only as an extra check.
 
+Use `--riftbound-ephemeral-session` for same-machine multi-window testing. In
+that mode the client starts from an in-memory default session and only applies
+the provided `--riftbound-room=`, `--riftbound-handle=`, and
+`--riftbound-player-key=` overrides; it does not read or write the shared
+`user://session.json` file. For persistent isolated identities, pass
+`--riftbound-session-file=/absolute/path/to/session.json` for each instance.
+
 G1/G2 dual-client smoke can be run against the same memory-mode API:
 
 ```sh

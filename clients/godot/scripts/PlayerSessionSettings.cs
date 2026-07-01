@@ -36,15 +36,23 @@ public sealed record PlayerSessionSettings(
 
 public sealed class PlayerSessionStore
 {
-    private const string SessionPath = "user://session.json";
+    private const string DefaultSessionPath = "user://session.json";
+    private readonly string _sessionPath;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
 
+    public PlayerSessionStore(string? sessionPath = null)
+    {
+        _sessionPath = string.IsNullOrWhiteSpace(sessionPath)
+            ? DefaultSessionPath
+            : sessionPath.Trim();
+    }
+
     public async Task<PlayerSessionSettings> LoadAsync()
     {
-        var path = ProjectSettings.GlobalizePath(SessionPath);
+        var path = ResolvePath(_sessionPath);
         if (!File.Exists(path))
         {
             var created = PlayerSessionSettings.CreateDefault();
@@ -69,9 +77,17 @@ public sealed class PlayerSessionStore
 
     public async Task SaveAsync(PlayerSessionSettings settings)
     {
-        var path = ProjectSettings.GlobalizePath(SessionPath);
+        var path = ResolvePath(_sessionPath);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         await using var stream = File.Create(path);
         await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
+    }
+
+    private static string ResolvePath(string sessionPath)
+    {
+        return sessionPath.StartsWith("user://", StringComparison.Ordinal)
+            || sessionPath.StartsWith("res://", StringComparison.Ordinal)
+            ? ProjectSettings.GlobalizePath(sessionPath)
+            : Path.GetFullPath(sessionPath);
     }
 }
