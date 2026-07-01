@@ -22505,8 +22505,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldCreateMinionTrigger,
                 out var trigger)
             || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
             || trigger.CreatedTokenCount is not > 0

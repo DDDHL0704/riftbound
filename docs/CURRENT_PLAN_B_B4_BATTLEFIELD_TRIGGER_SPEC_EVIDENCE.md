@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Create-Minion Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·275/298` Unity Sanctum official text `当你据守此处时，打出一名1{{S}}的“随从”到你的基地。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldCreateMinionTrigger, out trigger)`.
+- `IsBattlefieldHeldCreateMinionTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_CREATE_MINION`, `Timing=BATTLEFIELD_HELD`, positive `CreatedTokenCount`, non-empty `CreatedTokenName`, positive `CreatedTokenPower`, and `CreatedTokenDestination=OWNER_BASE`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldCreateMinionTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_TOKEN_CREATED` payload semantics through `CreateBattlefieldUnitTokensInBase`.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldCreateMinionTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9087/9087; focused guard / parser / Unity Sanctum representatives / local scoring representative / official-deck route 6/6; adjacent `BattlefieldHeldCreateMinion|UnitySanctum|BattlefieldHeld|CreateMinion|Token|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2789/2789; backend full conformance 9088/9088.
+
 ## 2026-07-01 Held Grant-Boon Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·283/298` Navori Arena official text `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`

@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held grant-boon execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held create-minion execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held create-minion execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldCreateMinionTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldCreateMinionTrigger`.
+- `IsBattlefieldHeldCreateMinionTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_CREATE_MINION`, `BATTLEFIELD_HELD`, positive `CreatedTokenCount`, non-empty `CreatedTokenName`, positive `CreatedTokenPower`, and `CreatedTokenDestination = OWNER_BASE`. Existing wire/event payloads and token creation behavior stay unchanged.
+- Red/green guard: `BattlefieldHeldCreateMinionTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 30. This slice does not close the other B4 execution helpers, optional trigger choice prompts, complete token-family disambiguation, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9087/9087, focused guard / parser / Unity Sanctum representatives / local scoring representative / official-deck route 6/6, adjacent `BattlefieldHeldCreateMinion|UnitySanctum|BattlefieldHeld|CreateMinion|Token|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2789/2789, backend full conformance 9088/9088.
 
 The 2026-07-01 held grant-boon execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -485,7 +494,7 @@ The 2026-06-25 held create-minion follow-up moves another implemented held-battl
   - `CreatedTokenName = 随从`
   - `CreatedTokenPower = 1`
   - `CreatedTokenDestination = OWNER_BASE`
-- `CoreRuleEngine.TryResolveBattlefieldHeldCreateMinionTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(...)` and reads token count, token family, token power and destination from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldCreateMinionTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route and reads token count, token family, token power and destination from `BehaviorSpec.Triggers`.
 - The token identity is resolved through `P6TokenFactoryCatalog` by token family, power and unit tag; the current official representative continues to create `OGN·271/298`, but the runtime no longer names that card number as the trigger's source condition.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldCreateMinionCardNo` constant.
 - The old `BattlefieldHoldCreateMinionCardNo` / `IsBattlefieldHoldCreateMinionCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `76` total / `73` in `CoreRuleEngine`; Core battlefield helper count is `29`.

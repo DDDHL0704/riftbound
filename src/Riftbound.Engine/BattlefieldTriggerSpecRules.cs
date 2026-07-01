@@ -92,6 +92,19 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.BoonCount.GetValueOrDefault() == 1;
     }
 
+    public static bool IsBattlefieldHeldCreateMinionTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldCreateMinion, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && trigger.CreatedTokenCount is > 0
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && trigger.CreatedTokenPower is > 0
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -160,14 +173,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldCreateMinionTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldCreateMinion,
             out trigger);
     }
 
