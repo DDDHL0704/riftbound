@@ -1,6 +1,6 @@
 # Plan B Friendly-Filtered Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-29
+更新时间：2026-07-01
 
 ## Evidence Summary
 
@@ -10,7 +10,7 @@ Implemented evidence:
 
 - `RuleTextParsers.StaticAuraParser` parses `你的指示物单位获得{{...}}` and `你的“...”属性单位获得{{...}}` into `StaticAuraSpec.Kind=FRIENDLY_FILTERED_UNITS_KEYWORD`.
 - The parser now preserves multiple granted keywords in one sentence, e.g. `你的“机械”属性单位获得{{法盾}}和{{游走}}`, as separate `StaticAuraSpec` entries instead of collapsing by shared text.
-- `StaticAuraSpecRules.GetStaticAuras(cardNo, kind)` exposes all parsed specs of the same kind to shared engine layers.
+- `StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura` now routes friendly-filtered and other-friendly public-field keyword specs by BehaviorSpec scope in shared engine layers.
 - `MatchSession.BuildFriendlyFilteredUnitsKeywordAuraEffects` projects RULE_TEXT continuous effects from public-field unit sources and legend-zone sources to matching friendly public units.
 - `CoreRuleEngine.ResolveFriendlyFilteredUnitsKeywordBonus` applies dynamic Assault / Steadfast / Roam combat keyword amounts during battle power and movement permission checks.
 - Spellshield target-tax calculation reads dynamic friendly-filtered Spellshield grants for both action prompts and Core payment plans.
@@ -99,6 +99,10 @@ Implemented evidence:
 - Backend full after Rumble legend official-deck replay: 8734/8734 passed.
 - Backend full after Speeding Mech official-deck replay: 8735/8735 passed.
 - Backend full after Prescient Mech static-granted Predict official-deck replay: 8942/8942 passed.
+- 2026-07-01 public-field keyword scope-router focused guard: 1/1 passed.
+- 2026-07-01 public-field keyword focused regression: 51/51 passed.
+- 2026-07-01 StaticAura / StaticKeyword / Roam / Spellshield / Predict / FullGameEndToEnd / MatchRecovery adjacent representatives: 2349/2349 passed.
+- 2026-07-01 backend full after public-field keyword scope-router follow-up: 9068/9068 passed.
 
 ## Residuals
 

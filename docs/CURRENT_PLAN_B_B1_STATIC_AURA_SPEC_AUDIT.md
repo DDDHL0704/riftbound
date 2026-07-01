@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Public-Field Friendly RULE_TEXT Keyword Aura Scope Router
+
+This follow-up merges friendly-filtered and other-friendly public-field RULE_TEXT keyword aura routing into one shared `StaticAuraSpec` scope predicate.
+
+`CoreRuleEngine` now computes public-field friendly keyword bonuses, resource-keyword amounts, and static-granted keyword checks by enumerating `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filtering with `StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura`. Participant applicability is derived from `StaticAuraTargetScopes.FriendlyFilteredUnits` / `OtherFriendlyUnits`, so future same-scope keyword grants do not require new kind-specific runtime branches.
+
+`MatchSession` now projects `FRIENDLY_FILTERED_UNITS_KEYWORD` and `OTHER_FRIENDLY_UNITS_KEYWORD` effects through the same scope predicate while preserving the existing effect id shapes. Prompt dynamic keyword and Spellshield tax checks use the same shared scope predicate.
+
+Validation: baseline backend full conformance 9067/9067; red/green focused `PublicFieldFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; public-field keyword focused regression 51/51; StaticAura / StaticKeyword / Roam / Spellshield / Predict / FullGameEndToEnd / MatchRecovery adjacent 2349/2349; backend full conformance 9068/9068.
+
+Non-closure: this slice only consolidates public-field friendly RULE_TEXT keyword scope routing. Battlefield isolated-defender keyword modifier routing, battlefield all-units granted-keyword shared query cleanup, complete B2 keyword breadth, full LayerEngine timestamp/order semantics, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Same-Battlefield Other-Friendly RULE_TEXT Keyword Aura Scope Router
 
 This follow-up merges same-battlefield other-friendly RULE_TEXT keyword aura runtime, projection, and prompt resource-keyword tax routing into the shared `StaticAuraSpec` scope router.

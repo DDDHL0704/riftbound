@@ -1,6 +1,6 @@
 # Plan B Other-Friendly Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-29
+更新时间：2026-07-01
 
 ## Evidence Summary
 
@@ -9,7 +9,7 @@ This slice turns `其他友方单位获得{{...}}` static keyword grants into a 
 Implemented evidence:
 
 - `RuleTextParsers.StaticAuraParser` parses global other-friendly keyword grants into `StaticAuraSpec.Kind=OTHER_FRIENDLY_UNITS_KEYWORD`.
-- `StaticAuraSpecRules.GetStaticAuras(cardNo, StaticAuraKinds.OtherFriendlyUnitsKeyword)` exposes parsed specs to shared engine layers.
+- `StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura` exposes parsed other-friendly keyword specs to shared engine layers by BehaviorSpec scope.
 - `MatchSession.BuildOtherFriendlyUnitsKeywordAuraEffects` projects RULE_TEXT continuous effects to public other friendly units while excluding the source.
 - Play-card prompts and Core play-card planning both use a shared static-granted keyword check for `预知`, so public Gemstone Seer grants the top-card optional recycle target to a later-played other friendly unit.
 - Existing combat/resource keyword resolvers now include `OTHER_FRIENDLY_UNITS_KEYWORD`, keeping the new spec kind generic instead of lifecycle-Predict-only.
@@ -38,6 +38,10 @@ Implemented evidence:
 - Focused other-friendly static keyword Predict slice: 4/4 passed.
 - Adjacent Gemstone / OtherFriendly / StaticKeyword / StaticAura / Predict / FullGameEndToEnd / MatchRecovery: 2177/2177 passed.
 - Backend full conformance: 9019/9019 passed.
+- 2026-07-01 public-field keyword scope-router focused guard: 1/1 passed.
+- 2026-07-01 public-field keyword focused regression: 51/51 passed.
+- 2026-07-01 StaticAura / StaticKeyword / Roam / Spellshield / Predict / FullGameEndToEnd / MatchRecovery adjacent representatives: 2349/2349 passed.
+- 2026-07-01 backend full after public-field keyword scope-router follow-up: 9068/9068 passed.
 
 ## Residuals
 

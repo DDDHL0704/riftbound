@@ -136,6 +136,39 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void PublicFieldFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraKinds.FriendlyFilteredUnitsKeyword", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraKinds.OtherFriendlyUnitsKeyword", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraKinds.FriendlyFilteredUnitsKeyword", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraKinds.OtherFriendlyUnitsKeyword", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetFriendlyFilteredUnitsKeywordAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetOtherFriendlyUnitsKeywordAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveFriendlyFilteredUnitsKeywordBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildFriendlyFilteredUnitsKeywordAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("BuildOtherFriendlyUnitsKeywordAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SourceObjectPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

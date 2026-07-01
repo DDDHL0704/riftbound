@@ -176,27 +176,11 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetOtherFriendlyUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.OtherFriendlyUnitsKeyword,
-            out aura);
-    }
-
     public static bool TryGetFriendlyFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
             cardNo,
             StaticAuraKinds.FriendlyFilteredUnitsPower,
-            out aura);
-    }
-
-    public static bool TryGetFriendlyFilteredUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.FriendlyFilteredUnitsKeyword,
             out aura);
     }
 
@@ -305,6 +289,26 @@ internal static class StaticAuraSpecRules
                     StaticAuraParticipantScopes.FriendlyPublicUnits,
                     StringComparison.Ordinal))
             || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.OtherFriendlyUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
+                    StringComparison.Ordinal))
+            || (string.Equals(aura.TargetScope, StaticAuraTargetScopes.FriendlyFilteredUnits, StringComparison.Ordinal)
+                && string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                    StringComparison.Ordinal));
+    }
+
+    public static bool IsPublicFieldFriendlyKeywordStaticAura(StaticAuraSpec aura)
+    {
+        if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+        {
+            return false;
+        }
+
+        return (string.Equals(aura.TargetScope, StaticAuraTargetScopes.OtherFriendlyUnits, StringComparison.Ordinal)
                 && string.Equals(
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
