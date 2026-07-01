@@ -22387,7 +22387,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldDrawTrigger,
+                out var trigger)
             || trigger.DrawCount.GetValueOrDefault() <= 0)
         {
             return false;

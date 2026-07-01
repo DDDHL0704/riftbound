@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Draw-One Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·280/298` Hidden Valley official text `当你据守此处时，抽一张牌。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldDrawTrigger, out trigger)`.
+- `IsBattlefieldHeldDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_DRAW_ONE`, `Timing=BATTLEFIELD_HELD`, and positive `DrawCount`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldDrawTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / draw payload semantics.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Validation: baseline backend full 9080/9080; focused guard / parser / held-draw representatives / Hidden Valley official-deck route 8/8; adjacent `BattlefieldHeldDraw|UnitBattlefieldHeldDraw|BattlefieldHeld|GameHub|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2713/2713; backend full conformance 9081/9081.
+
 ## 2026-07-01 Held Pay-Power Score Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·214/221` / 能量枢纽 official text `当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。`
