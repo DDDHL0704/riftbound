@@ -3,7 +3,7 @@
 日期：2026-06-26
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 Bilgewater Bully / 比尔吉沃特恶霸的 boon-roam movement permission 来源身份，从 `CoreRuleEngine` 与 `MatchSession` prompt 路径里的直接 cardNo 分支迁移到 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`。2026-06-30 follow-up 继续把该代表的 runtime effect-kind selector 迁移到 `BehaviorSpec.StaticAuras` / `SOURCE_OBJECT_FILTERED_KEYWORD`。该切片只收窄 movement / Roam source identity 与当前 source-object filtered keyword representative 硬编码；不关闭完整 Roam timing、完整 movement lifecycle、完整 boon-token family、完整 B2 rule-text keyword layer 或 READY。
+本文件记录 Plan B 小切片：把 Bilgewater Bully / 比尔吉沃特恶霸的 boon-roam movement permission 来源身份，从 `CoreRuleEngine` 与 `MatchSession` prompt 路径里的直接 cardNo 分支迁移到 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`。2026-06-30 follow-up 继续把该代表的 runtime effect-kind selector 迁移到 `BehaviorSpec.StaticAuras` / `SOURCE_OBJECT_FILTERED_KEYWORD`。2026-07-01 follow-up 再把引擎消费侧从 kind-specific lookup 迁移到 `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` scope predicate。该切片只收窄 movement / Roam source identity 与当前 source-object filtered keyword representative 硬编码；不关闭完整 Roam timing、完整 movement lifecycle、完整 boon-token family、完整 B2 rule-text keyword layer 或 READY。
 
 ## Scope
 
@@ -34,7 +34,7 @@ Not changed:
 | Bilgewater Bully boon-roam prompt source identity no longer directly selects by card number | `MatchSession.HasBilgewaterBullyBoonPromptRoamPermission` uses the same catalog source effect kind and no longer contains `BilgewaterBullyCardNo` | Accepted |
 | Existing boon condition is preserved | both runtime and prompt paths still require `CardObjectTags.Boon` after matching the catalog source identity | Accepted |
 | Registry identity is exact enough to reject wrong rows | `MovementSourceIdentityGuardTests` accepts `OGN·125/298` only for `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` and rejects wrong-card / wrong-effect examples | Accepted |
-| Bilgewater Bully boon-roam no longer selects by runtime effect kind | `CoreRuleEngine` and `MatchSession` now read `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` / `SOURCE_OBJECT_FILTERED_KEYWORD` instead of consuming `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` in runtime permission paths | Accepted |
+| Bilgewater Bully boon-roam no longer selects by runtime effect kind | `CoreRuleEngine` and `MatchSession` now enumerate `BehaviorSpec.StaticAuras` and filter with `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` / `SOURCE_OBJECT_FILTERED_KEYWORD` instead of consuming `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` in runtime permission paths | Accepted |
 | Existing representative behavior is preserved | Bilgewater / precise-roam / movement adjacent regression remains green | Accepted |
 | Full movement and keyword breadth | complete Roam timing, complete movement lifecycle, full boon-token family, and full rule-text keyword layer remain residual | Residual, no READY claim |
 

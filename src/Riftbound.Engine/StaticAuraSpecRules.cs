@@ -43,14 +43,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetSourceObjectFilteredKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SourceObjectFilteredKeyword,
-            out aura);
-    }
-
     public static bool TryGetSourceObjectPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -322,6 +314,14 @@ internal static class StaticAuraSpecRules
     {
         return string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             && aura.PowerDeltaPerParticipant != 0
+            && string.Equals(aura.TargetScope, StaticAuraTargetScopes.SourceObject, StringComparison.Ordinal)
+            && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SourceObject, StringComparison.Ordinal);
+    }
+
+    public static bool IsSourceObjectKeywordStaticAura(StaticAuraSpec aura)
+    {
+        return string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
             && string.Equals(aura.TargetScope, StaticAuraTargetScopes.SourceObject, StringComparison.Ordinal)
             && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SourceObject, StringComparison.Ordinal);
     }

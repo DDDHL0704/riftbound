@@ -19965,7 +19965,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         keywordBonus = CombatKeywordAmount(cardObject.Tags, combatKeyword);
         keywordBonus = Math.Max(
             keywordBonus,
-            ResolveSourceObjectFilteredKeywordBonus(
+            ResolveSourceObjectKeywordStaticAuraBonus(
                 cardObject,
                 combatKeyword));
         keywordBonus = Math.Max(
@@ -20120,16 +20120,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static int ResolveSourceObjectFilteredKeywordBonus(CardObjectState cardObject, string combatKeyword)
+    private static int ResolveSourceObjectKeywordStaticAuraBonus(CardObjectState cardObject, string combatKeyword)
     {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(cardObject.CardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
-            ? GrantedCombatKeywordAmount(aura, combatKeyword)
-            : 0;
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || cardObject.IsFaceDown)
+        {
+            return 0;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
+            .Where(aura => SourceObjectKeywordStaticAuraApplies(cardObject, aura))
+            .Select(aura => GrantedCombatKeywordAmount(aura, combatKeyword))
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static bool SourceObjectKeywordStaticAuraApplies(CardObjectState cardObject, StaticAuraSpec aura)
+    {
+        return string.IsNullOrWhiteSpace(aura.TargetFilter)
+            || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
     }
 
     private static int ResolveSourceObjectPowerStaticAuraBonus(MatchState state, CardObjectState cardObject)
@@ -31003,7 +31014,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
-            || HasSourceObjectFilteredStaticKeyword(sourceState, MoveUnitRoamKeyword)
+            || HasSourceObjectKeywordStaticAura(sourceState, MoveUnitRoamKeyword)
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 state.PlayerZones,
@@ -31013,15 +31024,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
     }
 
-    private static bool HasSourceObjectFilteredStaticKeyword(CardObjectState sourceState, string keyword)
+    private static bool HasSourceObjectKeywordStaticAura(CardObjectState sourceState, string keyword)
     {
-        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(sourceState.CardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState)
-            && GrantedCombatKeywordAmount(aura, keyword) > 0;
+        if (!sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || sourceState.IsFaceDown)
+        {
+            return false;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
+            .Where(aura => SourceObjectKeywordStaticAuraApplies(sourceState, aura))
+            .Any(aura => GrantedCombatKeywordAmount(aura, keyword) > 0);
     }
 
     private static bool HasBattlefieldStaticRoamPermission(MatchState state, string playerId, string sourceObjectId)

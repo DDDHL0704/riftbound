@@ -2,6 +2,8 @@
 
 Date: 2026-06-30
 
+Supplement: 2026-07-01
+
 Project status: **NOT READY**.
 
 ## Scope
@@ -9,6 +11,8 @@ Project status: **NOT READY**.
 This slice moves `OGN·125/298` 比尔吉沃特恶霸's current boon-gated Roam permission from a runtime effect-kind selector to the shared `BehaviorSpec.StaticAuras` rule-text layer.
 
 The stable catalog effect id `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` remains catalog row identity data. `CoreRuleEngine` and `MatchSession` no longer use it to decide whether the source has Roam.
+
+The 2026-07-01 follow-up removes the remaining source-object filtered keyword kind selector from the engine consumption path. Runtime, prompt, and projection now identify source-object keyword auras by `RULE_TEXT` layer plus `SOURCE_OBJECT` target/participant scope rather than by `StaticAuraKinds.SourceObjectFilteredKeyword`.
 
 ## Authority
 
@@ -25,9 +29,14 @@ The stable catalog effect id `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` remains c
   - `ParticipantScope=SOURCE_OBJECT`
   - `TargetFilter=TAG:<condition>`
   - `GrantedKeyword=<keyword>`
-- `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` exposes the shared lookup.
-- `CoreRuleEngine` reads this spec for Roam permission and combat keyword recomputation.
-- `MatchSession` reads the same spec for prompt Roam permission and continuous-effect projection.
+- `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` identifies shared source-object keyword auras from BehaviorSpec shape:
+  - `Layer=RULE_TEXT`
+  - `TargetScope=SOURCE_OBJECT`
+  - `ParticipantScope=SOURCE_OBJECT`
+  - non-empty `GrantedKeyword`
+- `CoreRuleEngine` enumerates `StaticAuraSpecRules.GetStaticAuras(cardNo)` and applies the optional `TargetFilter` for Roam permission and combat keyword recomputation.
+- `MatchSession` reads the same scope predicate for prompt Roam permission and continuous-effect projection.
+- `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` has been removed so new runtime code cannot reintroduce the kind-specific selector.
 
 ## Validation
 
@@ -39,6 +48,9 @@ The stable catalog effect id `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` remains c
 - Green focused representative gate `BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura|BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives|P79BilgewaterBully` passed `4/4`.
 - Adjacent / hidden-info gate `MovementSourceIdentityGuardTests|BilgewaterBully|PreciseRoam|MoveUnit|CardCatalogBaselineTests|MatchRecovery` passed `2393/2393`.
 - Backend full conformance passed `9026/9026`.
+- 2026-07-01 focused routing gate `SourceObjectKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope|BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura|P79BilgewaterBully` passed `4/4`.
+- 2026-07-01 adjacent / hidden-info gate `BattlefieldStaticAuraSpecRoutingGuardTests|MovementSourceIdentityGuardTests|CardCatalogBaselineTests|P79BilgewaterBully|PreciseRoam|MoveUnit|MatchRecovery` passed `2411/2411`.
+- 2026-07-01 backend full conformance passed `9066/9066`.
 
 ## Holdbacks
 

@@ -1889,9 +1889,9 @@ public sealed record MatchState
         {
             var objectId = entry.Key;
             var cardObject = entry.Value;
-            if (TryBuildSourceObjectFilteredKeywordStaticAuraEffect(state, objectId, cardObject, out var sourceObjectFilteredKeywordEffect))
+            foreach (var sourceObjectKeywordEffect in BuildSourceObjectKeywordStaticAuraEffects(state, objectId, cardObject))
             {
-                effects.Add(sourceObjectFilteredKeywordEffect);
+                effects.Add(sourceObjectKeywordEffect);
             }
 
             foreach (var sourceObjectPowerEffect in BuildSourceObjectPowerStaticAuraEffects(state, objectId, cardObject))
@@ -2358,50 +2358,84 @@ public sealed record MatchState
             "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_STATE");
     }
 
-    private static bool TryBuildSourceObjectFilteredKeywordStaticAuraEffect(
+    private static IReadOnlyList<ContinuousEffectState> BuildSourceObjectKeywordStaticAuraEffects(
         MatchState state,
         string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
+        CardObjectState cardObject)
     {
-        effect = default!;
+        var effects = new List<ContinuousEffectState>();
         if (string.IsNullOrWhiteSpace(cardObject.CardNo)
             || cardObject.IsFaceDown
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(cardObject.CardNo, out var aura)
-            || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
-            || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
             || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
         {
-            return false;
+            return effects;
         }
 
         var dependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        effect = new ContinuousEffectState(
-            $"RULE_TEXT:SOURCE_OBJECT_FILTERED_KEYWORD:{objectId}:{aura.GrantedKeyword}",
-            "OBJECT",
-            ContinuousEffectLayers.RuleText,
-            aura.Duration,
-            objectId,
-            objectId,
-            0,
-            ResolveBasePower(cardObject),
-            cardObject.Power,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.HasSourceObjectFilteredStaticKeyword",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS",
-            ParticipantObjectIds: [objectId],
-            SourceDependencyObjectIds: dependencyObjectIds,
-            TargetDependencyObjectIds: dependencyObjectIds,
-            ParticipantDependencyObjectIds: dependencyObjectIds);
-        return true;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura))
+        {
+            if (!SourceObjectKeywordStaticAuraApplies(cardObject, aura))
+            {
+                continue;
+            }
+
+            var metadata = SourceObjectKeywordStaticAuraProjectionMetadata(aura);
+            effects.Add(new ContinuousEffectState(
+                $"{metadata.EffectIdPrefix}:{objectId}:{aura.GrantedKeyword}",
+                "OBJECT",
+                ContinuousEffectLayers.RuleText,
+                aura.Duration,
+                objectId,
+                objectId,
+                0,
+                ResolveBasePower(cardObject),
+                cardObject.Power,
+                aura.Kind,
+                cardObject.CardNo,
+                metadata.SourcePath,
+                true,
+                LayerEngineFoundationResiduals(),
+                Condition: metadata.Condition,
+                Lifecycle: metadata.Lifecycle,
+                ParticipantObjectIds: [objectId],
+                SourceDependencyObjectIds: dependencyObjectIds,
+                TargetDependencyObjectIds: dependencyObjectIds,
+                ParticipantDependencyObjectIds: dependencyObjectIds));
+        }
+
+        return effects;
+    }
+
+    private static bool SourceObjectKeywordStaticAuraApplies(CardObjectState cardObject, StaticAuraSpec aura)
+    {
+        return string.IsNullOrWhiteSpace(aura.TargetFilter)
+            || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) SourceObjectKeywordStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectFilteredKeyword, StringComparison.Ordinal))
+        {
+            return (
+                "RULE_TEXT:SOURCE_OBJECT_FILTERED_KEYWORD",
+                "CoreRuleEngine.HasSourceObjectFilteredStaticKeyword",
+                "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
+                "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS");
+        }
+
+        return (
+            $"RULE_TEXT:SOURCE_OBJECT_KEYWORD:{aura.Kind}",
+            "CoreRuleEngine.HasSourceObjectKeywordStaticAura",
+            "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_SOURCE_OBJECT_SCOPE",
+            "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_STATE");
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildSourceBattleStatePowerStaticAuraEffects(
@@ -9706,14 +9740,19 @@ internal static class ActionPromptBuilder
 
     private static bool HasSourceObjectFilteredPromptKeyword(CardObjectState sourceState, string keyword)
     {
-        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura(sourceState.CardNo, out var aura)
-            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState)
-            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
-            && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0;
+        if (!sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || sourceState.IsFaceDown)
+        {
+            return false;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
+            .Where(aura => string.IsNullOrWhiteSpace(aura.TargetFilter)
+                || StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState))
+            .Any(aura => aura.GrantedKeyword is { Length: > 0 } grantedKeyword
+                && CardCombatKeywordRules.KeywordAmount([grantedKeyword], keyword) > 0);
     }
 
     private static bool TryMoveUnitPreciseBattlefieldOrigin(

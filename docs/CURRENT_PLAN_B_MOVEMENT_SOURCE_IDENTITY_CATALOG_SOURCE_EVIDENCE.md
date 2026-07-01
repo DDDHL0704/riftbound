@@ -3,7 +3,7 @@
 日期：2026-06-26
 结论：**EVIDENCE RECORDED / PROJECT NOT READY**
 
-This file records concrete evidence for removing direct Bilgewater Bully card-number checks from the current boon-roam movement source representatives in runtime and prompt generation. 2026-06-30 follow-up evidence records that the same representative no longer consumes the runtime effect-kind selector and now reads `BehaviorSpec.StaticAuras` / `SOURCE_OBJECT_FILTERED_KEYWORD`.
+This file records concrete evidence for removing direct Bilgewater Bully card-number checks from the current boon-roam movement source representatives in runtime and prompt generation. 2026-06-30 follow-up evidence records that the same representative no longer consumes the runtime effect-kind selector and now reads `BehaviorSpec.StaticAuras` / `SOURCE_OBJECT_FILTERED_KEYWORD`. 2026-07-01 follow-up evidence records that Core and MatchSession consume that BehaviorSpec through `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` scope routing rather than a kind-specific lookup.
 
 ## Runtime Evidence
 
@@ -12,7 +12,8 @@ This file records concrete evidence for removing direct Bilgewater Bully card-nu
 - Both paths still require the source object to have `CardObjectTags.Boon`.
 - The previous `BilgewaterBullyCardNo` Core and MatchSession source allow-list constants were deleted.
 - 2026-06-30 follow-up: `CoreRuleEngine` and `MatchSession` no longer contain `BilgewaterBullyBoonRoamSourceEffectKind` or `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` in runtime permission paths.
-- 2026-06-30 follow-up: both files read `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura`; `StaticAuraParser` parses `OGN·125/298` as `SOURCE_OBJECT_FILTERED_KEYWORD` with `TargetFilter=TAG:增益` and `GrantedKeyword=游走`.
+- 2026-06-30 follow-up: `StaticAuraParser` parses `OGN·125/298` as `SOURCE_OBJECT_FILTERED_KEYWORD` with `TargetFilter=TAG:增益` and `GrantedKeyword=游走`.
+- 2026-07-01 follow-up: both files enumerate `StaticAuraSpecRules.GetStaticAuras(cardNo)` and filter with `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura`; `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` has been removed from the engine helper surface.
 
 ## Test Evidence
 
@@ -24,7 +25,7 @@ Coverage:
 
 - `CardBehaviorRegistryIdentifiesMovementSourceUnitsByEffectKind` accepts the registered `OGN·125/298` source row used by this slice.
 - `CardBehaviorRegistryRejectsNonMatchingMovementSourceUnits` rejects wrong-card and wrong-effect source identity matches.
-- `BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura` blocks reintroducing `BilgewaterBullyCardNo`, `BilgewaterBullyBoonRoamSourceEffectKind`, `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT`, or direct `sourceState.CardNo` comparisons in both `CoreRuleEngine.cs` and `MatchSession.cs`, and requires `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura`.
+- `BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura` blocks reintroducing `BilgewaterBullyCardNo`, `BilgewaterBullyBoonRoamSourceEffectKind`, `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT`, or direct `sourceState.CardNo` comparisons in both `CoreRuleEngine.cs` and `MatchSession.cs`, and requires `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura`.
 - `CardCatalogBaselineTests.BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives` locks `OGN·125/298` to a `SOURCE_OBJECT_FILTERED_KEYWORD` rule-text aura.
 - Existing `P79BilgewaterBullyWithBoonCanUseRoam` / `P79BilgewaterBullyWithoutBoonDoesNotUseRoam` representatives verify runtime and prompt behavior remains intact.
 

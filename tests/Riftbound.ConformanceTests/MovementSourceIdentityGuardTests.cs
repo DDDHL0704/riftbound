@@ -46,8 +46,8 @@ public sealed class MovementSourceIdentityGuardTests
         Assert.DoesNotContain("BilgewaterBullyBoonRoamSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectKeywordStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectKeywordStaticAura", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

@@ -130,6 +130,29 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void SourceObjectKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveSourceObjectKeywordStaticAuraBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildSourceObjectKeywordStaticAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectKeywordStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSourceObjectKeywordStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SourceBattleStatePowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
