@@ -80,6 +80,37 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void SameBattlefieldOtherFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura", matchSessionSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PublicFieldFriendlyPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

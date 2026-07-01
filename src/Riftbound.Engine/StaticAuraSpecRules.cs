@@ -124,14 +124,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword,
-            out aura);
-    }
-
     public static bool TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -283,6 +275,20 @@ internal static class StaticAuraSpecRules
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyFilteredPublicUnits,
                     StringComparison.Ordinal));
+    }
+
+    public static bool IsSameBattlefieldOtherFriendlyKeywordStaticAura(StaticAuraSpec aura)
+    {
+        return string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                StringComparison.Ordinal);
     }
 
     public static bool IsPublicFieldFriendlyPowerStaticAura(StaticAuraSpec aura)

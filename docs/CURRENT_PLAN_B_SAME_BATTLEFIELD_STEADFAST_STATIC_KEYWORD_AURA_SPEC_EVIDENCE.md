@@ -1,6 +1,6 @@
 # Plan B Same-Battlefield Steadfast Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-26
+更新时间：2026-07-01
 
 ## Evidence Summary
 
@@ -15,7 +15,7 @@ Catalog / BehaviorSpec:
 Engine projection:
 
 - `src/Riftbound.Engine/MatchSession.cs` builds RULE_TEXT continuous effects through `BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects`.
-- `src/Riftbound.Engine/StaticAuraSpecRules.cs` supplies `TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura` from official BehaviorSpec data.
+- `src/Riftbound.Engine/StaticAuraSpecRules.cs` supplies `IsSameBattlefieldOtherFriendlyKeywordStaticAura`; Core and MatchSession enumerate `BehaviorSpec.StaticAuras` and filter by same-battlefield other-friendly keyword scope.
 - `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs` verifies the projection targets only the other friendly unit at Taric's battlefield.
 
 Combat resolution:
@@ -91,6 +91,10 @@ Existing fixture alignment:
 - FullGameEndToEnd B0/B2 cross-slice representatives after Taric Bulwark assignment replay: 24/24 passed.
 - BattleDamageAssignment / AssignCombatDamage / Steadfast / Taric / SameBattlefield / StaticKeyword / FullGameEndToEnd / MatchRecovery adjacent representatives after Taric Bulwark assignment replay: 2126/2126 passed.
 - Backend full after Taric Bulwark assignment replay: 8716/8716 passed.
+- 2026-07-01 scope-router focused guard `SameBattlefieldOtherFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope`: 1/1 passed.
+- 2026-07-01 same-battlefield keyword focused regression: 9/9 passed.
+- 2026-07-01 StaticKeyword / StaticAura / SameBattlefield / Spellshield / FullGameEndToEnd / MatchRecovery adjacent representatives: 2319/2319 passed.
+- 2026-07-01 backend full after scope-router follow-up: 9067/9067 passed.
 
 ## Remaining Evidence Needed
 

@@ -20362,8 +20362,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || sourceState.IsFaceDown
                 || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(sourceState.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -20372,10 +20370,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+                .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
+                .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
+            {
+                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+            }
         }
 
         return bonus;
+    }
+
+    private static bool SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(
+        StaticAuraSpec aura,
+        CardObjectState cardObject)
+    {
+        return string.IsNullOrWhiteSpace(aura.TargetFilter)
+            || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
     }
 
     private static int GrantedCombatKeywordAmount(StaticAuraSpec aura, string combatKeyword)
@@ -20609,10 +20620,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     continue;
                 }
 
-                foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword))
+                foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+                    .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
+                    .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
                 {
-                    if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                        || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                    if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
                     {
                         continue;
                     }

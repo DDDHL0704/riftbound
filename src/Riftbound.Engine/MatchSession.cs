@@ -2609,9 +2609,6 @@ public sealed record MatchState
                 || source.IsFaceDown
                 || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(source.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
                 || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
             {
                 continue;
@@ -2628,19 +2625,42 @@ public sealed record MatchState
                 sourceObjectId,
                 battlefieldObjectId,
                 controllerId);
-            foreach (var participantObjectId in participantObjectIds)
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(source.CardNo)
+                .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura))
             {
-                effects.Add(new ContinuousEffectState(
-                    $"RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
-                    "OBJECT",
-                    ContinuousEffectLayers.RuleText,
-                    aura.Duration,
-                    participantObjectId,
-                    sourceObjectId));
+                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                {
+                    continue;
+                }
+
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    if (!state.CardObjects.TryGetValue(participantObjectId, out var participant)
+                        || !SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, participant))
+                    {
+                        continue;
+                    }
+
+                    effects.Add(new ContinuousEffectState(
+                        $"RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                        "OBJECT",
+                        ContinuousEffectLayers.RuleText,
+                        aura.Duration,
+                        participantObjectId,
+                        sourceObjectId));
+                }
             }
         }
 
         return effects;
+    }
+
+    private static bool SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(
+        StaticAuraSpec aura,
+        CardObjectState participant)
+    {
+        return string.IsNullOrWhiteSpace(aura.TargetFilter)
+            || StaticAuraSpecRules.TargetMatchesFilter(aura, participant);
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects(MatchState state)
@@ -17633,10 +17653,12 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword))
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+                .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
+                .Where(aura => string.IsNullOrWhiteSpace(aura.TargetFilter)
+                    || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)))
             {
-                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
                 {
                     continue;
                 }

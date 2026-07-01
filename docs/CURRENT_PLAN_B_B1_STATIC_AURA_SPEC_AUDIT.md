@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Same-Battlefield Other-Friendly RULE_TEXT Keyword Aura Scope Router
+
+This follow-up merges same-battlefield other-friendly RULE_TEXT keyword aura runtime, projection, and prompt resource-keyword tax routing into the shared `StaticAuraSpec` scope router.
+
+`CoreRuleEngine` now computes same-battlefield other-friendly keyword bonuses through `ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus`, enumerating `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filtering with `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura`. The same predicate is reused in the resource-keyword tax path, so future same-scope keyword grants do not require a second kind-specific branch.
+
+`MatchSession` now projects those RULE_TEXT effects through `BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects`, enumerating the source unit's `BehaviorSpec.StaticAuras` instead of calling the kind-specific `TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura` helper. Existing `RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD` effect id shape is preserved for recovery compatibility.
+
+Validation: baseline backend full conformance 9066/9066; red/green focused `SameBattlefieldOtherFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; same-battlefield keyword focused regression 9/9; StaticKeyword / StaticAura / SameBattlefield / Spellshield / FullGameEndToEnd / MatchRecovery adjacent 2319/2319; backend full conformance 9067/9067.
+
+Non-closure: this slice only consolidates same-battlefield other-friendly RULE_TEXT keyword scope routing. Public-field RULE_TEXT keyword routing, battlefield isolated-defender keyword modifier routing, complete B2 keyword breadth, full LayerEngine timestamp/order semantics, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Source Participant-Count POWER Aura Scope Router
 
 This follow-up merges source participant-count POWER aura families into shared `StaticAuraSpec` scope routing: friendly equipment count, same-battlefield friendly filtered unit count, and same-location other-friendly threshold.

@@ -6,6 +6,19 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Same-Battlefield Other-Friendly RULE_TEXT Keyword Aura Scope Router
+
+- `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura` is now the shared predicate for same-battlefield other-friendly RULE_TEXT keyword auras whose target scope is same-battlefield other friendly units and whose participant scope is same-battlefield other friendly public units.
+- `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and takes the max matching granted combat keyword amount instead of calling `StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura`.
+- `CoreRuleEngine` resource-keyword tax calculation now consumes the same shared predicate for same-battlefield other-friendly keyword grants.
+- `MatchSession.BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(source.CardNo)` and projects matching same-battlefield other-friendly keyword auras from their `StaticAuraSpec` scopes instead of a kind-specific helper.
+- `MatchSession` prompt resource-keyword tax calculation now consumes the same shared predicate.
+- Existing public effect id shape remains compatible: `RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD`.
+- `StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura` has been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SameBattlefieldOtherFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing the kind-specific helper or `StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword` runtime filtering in CoreRuleEngine or MatchSession.
+- Validation passed: baseline backend full conformance 9066/9066; red/green focused guard 1/1; same-battlefield keyword focused regression 9/9; StaticKeyword / StaticAura / SameBattlefield / Spellshield / FullGameEndToEnd / MatchRecovery adjacent 2319/2319; backend full conformance 9067/9067.
+- Non-closure: this does not finish public-field RULE_TEXT keyword routing, battlefield isolated-defender keyword modifier routing, complete B2 keyword breadth, complete LayerEngine timestamp/order behavior, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Source Participant-Count POWER Aura Scope Router
 
 - `StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is friendly public field equipment, same-battlefield friendly filtered public units, or same-location other friendly public units.
