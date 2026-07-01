@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Defend Move-Friendly-Unit-To-Base Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·285/298` Plunder Alley official text `当你防守此处时，你可以选择将此处的一名友方单位移动到基地。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger, out trigger)`.
+- `IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, `Timing=BATTLEFIELD_DEFENDED`, `TargetScope=FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`, `MoveCount=1`, `MoveDestination=OWNER_BASE`, and `Optional=true`.
+- `CoreRuleEngine` defended-battlefield target validation and resolution use that generic predicate route and keep existing `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_MOVED_TO_BASE` payload semantics, including the existing Teemo battlefield-effect target multiplexing path.
+- Source guard: `CardCatalogBaselineTests.BattlefieldDefendMoveFriendlyUnitToBaseTriggerUsesGenericSpecPredicate` rejects the removed getter and the old Core-private predicate across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9084/9084; focused guard / parser / Plunder Alley representatives / Teemo multiplexing / official-deck route 19/19; adjacent `Plunder|BattlefieldDefend|DefendMoveToBase|DeclareBattle|GameHub|FullGameEndToEnd|MatchRecovery|Teemo|CardCatalogBaseline` 2829/2829; backend full conformance 9085/9085.
+
 ## 2026-07-01 Held Move-Unit-To-Base Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-207/219` Rehearsal Hall official text `当你据守此处时，你可以选择将战场上的一名单位移动到其基地。`

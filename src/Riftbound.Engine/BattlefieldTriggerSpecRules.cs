@@ -65,6 +65,16 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.MoveCount.GetValueOrDefault() == 1
+            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
+            && trigger.Optional == true;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -133,14 +143,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase,
             out trigger);
     }
 

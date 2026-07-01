@@ -24216,10 +24216,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         var isSteadfastBattlefield = steadfastTrigger is not null;
         var isMoveToBaseBattlefield = sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+            && BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
                 out var moveToBaseTrigger)
-            && IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
+            && BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
         if (!isSteadfastBattlefield)
         {
             if (requestedTargetObjectIds.Count > 0
@@ -24343,10 +24344,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
             || string.IsNullOrWhiteSpace(defendingPlayerId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
                 out var trigger)
-            || !IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger))
+            || !BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger))
         {
             return true;
         }
@@ -24416,10 +24418,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
                 out var trigger)
-            || !IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger)
+            || !BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
@@ -24466,15 +24469,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["reason"] = trigger.Kind
             }));
         return true;
-    }
-
-    private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
-            && trigger.MoveCount.GetValueOrDefault() == 1
-            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
-            && trigger.Optional == true;
     }
 
     private static void CreateBattlefieldUnitTokensInBase(
