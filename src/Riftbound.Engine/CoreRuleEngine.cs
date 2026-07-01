@@ -362,8 +362,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (string.IsNullOrWhiteSpace(cardObject.CardNo)
                 || cardObject.IsFaceDown
                 || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(cardObject.CardNo, out var aura)
                 || !TryGetPublicFieldControllerId(state.PlayerZones, cardObjects, objectId, cardObject, out var controllerId))
+            {
+                continue;
+            }
+
+            var equipmentPowerDelta = ResolveFriendlyEquipmentSourceParticipantCountPowerDelta(
+                cardObject.CardNo,
+                state.PlayerZones,
+                cardObjects,
+                controllerId);
+            if (!equipmentPowerDelta.HasValue)
             {
                 continue;
             }
@@ -374,8 +383,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             var basePower = registeredPower > 0
                 ? registeredPower
                 : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
-            var equipmentCount = CountControlledPublicFieldEquipmentObjects(state.PlayerZones, cardObjects, controllerId);
-            var recomputedPower = basePower + (equipmentCount * aura.PowerDeltaPerParticipant) + cardObject.UntilEndOfTurnPowerModifier;
+            var recomputedPower = basePower + equipmentPowerDelta.Value + cardObject.UntilEndOfTurnPowerModifier;
             if (cardObject.Power == recomputedPower)
             {
                 continue;
@@ -6943,11 +6951,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         string controllerId)
     {
+        return CountOtherFriendlyUnitsAtSamePosition(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            objectId,
+            controllerId) > 0;
+    }
+
+    private static int CountOtherFriendlyUnitsAtSamePosition(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        string controllerId)
+    {
         var location = FindFieldObjectLocation(playerZones, objectId);
         if (location is null
             || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
         {
-            return false;
+            return 0;
         }
 
         IReadOnlyList<string> candidateObjectIds = location.Value.Zone switch
@@ -6968,7 +6991,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             _ => []
         };
 
-        return candidateObjectIds.Any(candidateObjectId =>
+        return candidateObjectIds.Count(candidateObjectId =>
             !string.Equals(candidateObjectId, objectId, StringComparison.Ordinal)
             && cardObjects.TryGetValue(candidateObjectId, out var candidate)
             && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -20003,12 +20026,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             isAttacking,
             defendingUnitCount);
         staticPowerBonus += ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, playerZones, objectId, cardObject);
-        staticPowerBonus += ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus(
-            state,
-            playerZones,
-            objectId,
-            cardObject);
-        staticPowerBonus += ResolveSourceSameLocationOtherFriendlyUnitPowerBonus(
+        staticPowerBonus += ResolveSourceParticipantCountPowerStaticAuraBonus(
             state,
             playerZones,
             objectId,
@@ -20634,7 +20652,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return amount;
     }
 
-    private static int ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus(
+    private static int ResolveSourceParticipantCountPowerStaticAuraBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
@@ -20642,13 +20660,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(
-                cardObject.CardNo,
-                out var aura)
-            || !state.ObjectLocations.TryGetValue(objectId, out var sourceLocation)
-            || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId))
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
         {
             return 0;
         }
@@ -20659,51 +20671,110 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        var battlefieldObjectId = sourceLocation.BattlefieldObjectId;
-        return state.ObjectLocations.Count(entry =>
-            string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            && IsObjectOnField(playerZones, entry.Key)
-            && state.CardObjects.TryGetValue(entry.Key, out var candidate)
-            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !candidate.IsFaceDown
-            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, candidate)
-            && string.Equals(
-                EffectiveFieldControllerId(playerZones, entry.Key, candidate),
+        var bonus = 0;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura))
+        {
+            if (string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var participantCount = CountSourceParticipantCountPowerStaticAuraParticipants(
+                state,
+                playerZones,
+                objectId,
                 controllerId,
-                StringComparison.Ordinal)) * aura.PowerDeltaPerParticipant;
+                aura);
+            bonus += SourceParticipantCountPowerDelta(aura, participantCount);
+        }
+
+        return bonus;
     }
 
-    private static int ResolveSourceSameLocationOtherFriendlyUnitPowerBonus(
+    private static int CountSourceParticipantCountPowerStaticAuraParticipants(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
-        CardObjectState cardObject)
+        string controllerId,
+        StaticAuraSpec aura)
     {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !IsObjectOnField(playerZones, objectId)
-            || !StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(cardObject.CardNo, out var aura))
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
+            StringComparison.Ordinal))
         {
-            return 0;
+            if (!state.ObjectLocations.TryGetValue(objectId, out var sourceLocation)
+                || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId))
+            {
+                return 0;
+            }
+
+            var battlefieldObjectId = sourceLocation.BattlefieldObjectId;
+            return state.ObjectLocations.Count(entry =>
+                string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && state.CardObjects.TryGetValue(entry.Key, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !candidate.IsFaceDown
+                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && StaticAuraSpecRules.TargetMatchesFilter(aura, candidate)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, entry.Key, candidate),
+                    controllerId,
+                    StringComparison.Ordinal));
         }
 
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+            StringComparison.Ordinal))
         {
-            return 0;
+            return CountOtherFriendlyUnitsAtSamePosition(
+                playerZones,
+                state.CardObjects,
+                state.ObjectLocations,
+                objectId,
+                controllerId);
         }
 
-        return HasOtherFriendlyUnitAtSamePosition(
-            playerZones,
-            state.CardObjects,
-            state.ObjectLocations,
-            objectId,
-            controllerId)
-            ? aura.PowerDeltaPerParticipant
-            : 0;
+        return 0;
+    }
+
+    private static int SourceParticipantCountPowerDelta(StaticAuraSpec aura, int participantCount)
+    {
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
+            StringComparison.Ordinal))
+        {
+            return participantCount * aura.PowerDeltaPerParticipant;
+        }
+
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+            StringComparison.Ordinal))
+        {
+            return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1)
+                ? aura.PowerDeltaPerParticipant
+                : 0;
+        }
+
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+            StringComparison.Ordinal))
+        {
+            return participantCount * aura.PowerDeltaPerParticipant;
+        }
+
+        return 0;
     }
 
     private static int ResolveBattlefieldIsolatedDefenderKeywordModifier(
@@ -39919,6 +39990,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
     }
 
+    private static int? ResolveFriendlyEquipmentSourceParticipantCountPowerDelta(
+        string? cardNo,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId)
+    {
+        var matchingAuras = StaticAuraSpecRules.GetStaticAuras(cardNo)
+            .Where(StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura)
+            .Where(aura => string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                StringComparison.Ordinal))
+            .ToArray();
+        if (matchingAuras.Length == 0)
+        {
+            return null;
+        }
+
+        var equipmentCount = CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, controllerId);
+        return matchingAuras.Sum(aura => SourceParticipantCountPowerDelta(aura, equipmentCount));
+    }
+
     private static int SumOtherControlledUnitPower(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -41322,9 +41415,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string controllerId)
     {
-        return StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(behavior.CardNo, out var aura)
-            ? CountControlledPublicFieldEquipmentObjects(playerZones, cardObjects, controllerId) * aura.PowerDeltaPerParticipant
-            : 0;
+        return ResolveFriendlyEquipmentSourceParticipantCountPowerDelta(
+            behavior.CardNo,
+            playerZones,
+            cardObjects,
+            controllerId).GetValueOrDefault();
     }
 
     private static bool TryGetFriendlyUnitEnterReadyStaticAbilitySource(

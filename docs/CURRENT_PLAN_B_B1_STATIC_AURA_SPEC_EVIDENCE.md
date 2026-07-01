@@ -6,6 +6,17 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Source Participant-Count POWER Aura Scope Router
+
+- `StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is friendly public field equipment, same-battlefield friendly filtered public units, or same-location other friendly public units.
+- `CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and sums matching non-equipment participant-count `PowerDeltaPerParticipant` values instead of calling separate same-battlefield filtered count and same-location threshold POWER resolvers.
+- `CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute` and source-unit entry power now derive Ornn-style friendly-equipment count-to-source power from the same shared predicate while preserving the persistent source-power recompute path.
+- `MatchSession.BuildSourceParticipantCountPowerStaticAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)` and projects matching source participant-count POWER static auras from their `StaticAuraSpec` participant scopes instead of separate projection builders.
+- Existing recovery-sensitive metadata remains compatible for the current representatives: `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER`, `SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER`, and `SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER` still project the same effect id prefixes, source paths, conditions and lifecycle strings.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SourceParticipantCountPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing direct `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` / `TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura` / `TryGetSourceSameLocationOtherFriendlyUnitPowerAura` calls in CoreRuleEngine or MatchSession source participant-count POWER execution/projection routing.
+- Validation passed: red/green focused guard 1/1; source participant-count focused regression 70/70; StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2246/2246; backend full conformance 9065/9065.
+- Non-closure: this does not finish friendly single-defender POWER, source-object RULE_TEXT keyword routing, complete LayerEngine timestamp/order behavior, full B1, P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Source Battle-State POWER Aura Scope Router
 
 - `StaticAuraSpecRules.IsSourceBattleStatePowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is current attackers, all current battle participants, or ready enemy units at the current battlefield.

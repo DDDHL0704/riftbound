@@ -1889,11 +1889,6 @@ public sealed record MatchState
         {
             var objectId = entry.Key;
             var cardObject = entry.Value;
-            if (TryBuildFriendlyEquipmentStaticAuraEffect(state, objectId, cardObject, out var friendlyEquipmentEffect))
-            {
-                effects.Add(friendlyEquipmentEffect);
-            }
-
             if (TryBuildSourceObjectFilteredKeywordStaticAuraEffect(state, objectId, cardObject, out var sourceObjectFilteredKeywordEffect))
             {
                 effects.Add(sourceObjectFilteredKeywordEffect);
@@ -1904,22 +1899,12 @@ public sealed record MatchState
                 effects.Add(sourceObjectPowerEffect);
             }
 
-            if (TryBuildSameBattlefieldFriendlyFilteredUnitCountToSourceStaticAuraEffect(
-                    state,
-                    objectId,
-                    cardObject,
-                    out var sameBattlefieldFriendlyFilteredCountEffect))
+            foreach (var sourceParticipantCountPowerEffect in BuildSourceParticipantCountPowerStaticAuraEffects(
+                state,
+                objectId,
+                cardObject))
             {
-                effects.Add(sameBattlefieldFriendlyFilteredCountEffect);
-            }
-
-            if (TryBuildSourceSameLocationOtherFriendlyUnitPowerStaticAuraEffect(
-                    state,
-                    objectId,
-                    cardObject,
-                    out var sourceSameLocationOtherFriendlyUnitPowerEffect))
-            {
-                effects.Add(sourceSameLocationOtherFriendlyUnitPowerEffect);
+                effects.Add(sourceParticipantCountPowerEffect);
             }
 
             foreach (var sourceBattleStatePowerEffect in BuildSourceBattleStatePowerStaticAuraEffects(
@@ -2054,61 +2039,213 @@ public sealed record MatchState
             : effect;
     }
 
-    private static bool TryBuildFriendlyEquipmentStaticAuraEffect(
+    private static IReadOnlyList<ContinuousEffectState> BuildSourceParticipantCountPowerStaticAuraEffects(
         MatchState state,
         string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
+        CardObjectState cardObject)
     {
-        effect = default!;
+        var effects = new List<ContinuousEffectState>();
         if (string.IsNullOrWhiteSpace(cardObject.CardNo)
             || cardObject.IsFaceDown
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(cardObject.CardNo, out var aura)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+            || !IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone))
         {
-            return false;
+            return effects;
         }
 
         var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
         if (string.IsNullOrWhiteSpace(controllerId))
         {
-            return false;
+            return effects;
         }
 
-        var equipmentObjectIds = ControlledPublicFieldEquipmentObjectIds(state, controllerId);
-        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, equipmentObjectIds);
-        var printedPower = CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-            ? behavior.SourceUnitPower
-            : 0;
-        var basePower = printedPower > 0
-            ? printedPower
-            : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - (equipmentObjectIds.Count * aura.PowerDeltaPerParticipant);
-        effect = new ContinuousEffectState(
-            $"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{objectId}",
-            "OBJECT",
-            ContinuousEffectLayers.StaticAura,
-            aura.Duration,
-            objectId,
-            objectId,
-            equipmentObjectIds.Count * aura.PowerDeltaPerParticipant,
-            basePower,
-            cardObject.Power,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE",
-            ParticipantObjectIds: equipmentObjectIds,
-            SourceDependencyObjectIds: sourceDependencyObjectIds,
-            TargetDependencyObjectIds: targetDependencyObjectIds,
-            ParticipantDependencyObjectIds: participantDependencyObjectIds);
-        return true;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura))
+        {
+            var participantObjectIds = SourceParticipantCountPowerStaticAuraParticipantObjectIds(
+                state,
+                objectId,
+                fieldLocation,
+                controllerId,
+                aura);
+            var powerDelta = SourceParticipantCountPowerDelta(aura, participantObjectIds.Count);
+            if (powerDelta == 0
+                && !string.Equals(
+                    aura.ParticipantScope,
+                    StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+            var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
+            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+            var metadata = SourceParticipantCountPowerStaticAuraProjectionMetadata(aura);
+            effects.Add(new ContinuousEffectState(
+                $"{metadata.EffectIdPrefix}:{objectId}",
+                "OBJECT",
+                ContinuousEffectLayers.StaticAura,
+                aura.Duration,
+                objectId,
+                objectId,
+                powerDelta,
+                SourceParticipantCountPowerStaticAuraBasePower(cardObject, aura, powerDelta),
+                cardObject.Power + SourceParticipantCountPowerStaticAuraProjectedPowerAdjustment(aura, powerDelta),
+                aura.Kind,
+                cardObject.CardNo,
+                metadata.SourcePath,
+                true,
+                LayerEngineFoundationResiduals(),
+                Condition: metadata.Condition,
+                Lifecycle: metadata.Lifecycle,
+                ParticipantObjectIds: participantObjectIds,
+                SourceDependencyObjectIds: sourceDependencyObjectIds,
+                TargetDependencyObjectIds: targetDependencyObjectIds,
+                ParticipantDependencyObjectIds: participantDependencyObjectIds));
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<string> SourceParticipantCountPowerStaticAuraParticipantObjectIds(
+        MatchState state,
+        string objectId,
+        (string PlayerId, string Zone) fieldLocation,
+        string controllerId,
+        StaticAuraSpec aura)
+    {
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+            StringComparison.Ordinal))
+        {
+            return ControlledPublicFieldEquipmentObjectIds(state, controllerId);
+        }
+
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
+            StringComparison.Ordinal))
+        {
+            if (!state.ObjectLocations.TryGetValue(objectId, out var sourceLocation)
+                || !string.Equals(sourceLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId))
+            {
+                return [];
+            }
+
+            return SameBattlefieldFriendlyFilteredUnitObjectIds(
+                state,
+                sourceLocation.BattlefieldObjectId,
+                controllerId,
+                aura);
+        }
+
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+            StringComparison.Ordinal))
+        {
+            return SameLocationOtherFriendlyUnitObjectIds(
+                state,
+                objectId,
+                fieldLocation,
+                controllerId);
+        }
+
+        return [];
+    }
+
+    private static int SourceParticipantCountPowerDelta(StaticAuraSpec aura, int participantCount)
+    {
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
+            StringComparison.Ordinal))
+        {
+            return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1)
+                ? aura.PowerDeltaPerParticipant
+                : 0;
+        }
+
+        return participantCount * aura.PowerDeltaPerParticipant;
+    }
+
+    private static int SourceParticipantCountPowerStaticAuraBasePower(
+        CardObjectState cardObject,
+        StaticAuraSpec aura,
+        int powerDelta)
+    {
+        if (string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+            StringComparison.Ordinal))
+        {
+            var printedPower = !string.IsNullOrWhiteSpace(cardObject.CardNo)
+                && CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+                ? behavior.SourceUnitPower
+                : 0;
+            return printedPower > 0
+                ? printedPower
+                : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - powerDelta;
+        }
+
+        return cardObject.Power;
+    }
+
+    private static int SourceParticipantCountPowerStaticAuraProjectedPowerAdjustment(
+        StaticAuraSpec aura,
+        int powerDelta)
+    {
+        return string.Equals(
+            aura.ParticipantScope,
+            StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+            StringComparison.Ordinal)
+            ? 0
+            : powerDelta;
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) SourceParticipantCountPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (string.Equals(aura.Kind, StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:FRIENDLY_EQUIPMENT_POWER",
+                "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
+                "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT",
+                "RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER",
+                "CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus",
+                "SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceSameLocationOtherFriendlyUnitPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER",
+                "CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus",
+                "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_LOCATION",
+                "RECOMPUTED_FROM_CURRENT_SAME_LOCATION_FRIENDLY_UNIT_LOCATIONS");
+        }
+
+        return (
+            $"STATIC_AURA:{aura.Kind}",
+            "CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus",
+            "SOURCE_PARTICIPANT_COUNT_POWER_SCOPE_MATCHES",
+            "RECOMPUTED_FROM_CURRENT_SOURCE_PARTICIPANT_COUNT");
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildSourceObjectPowerStaticAuraEffects(
@@ -2264,128 +2401,6 @@ public sealed record MatchState
             SourceDependencyObjectIds: dependencyObjectIds,
             TargetDependencyObjectIds: dependencyObjectIds,
             ParticipantDependencyObjectIds: dependencyObjectIds);
-        return true;
-    }
-
-    private static bool TryBuildSameBattlefieldFriendlyFilteredUnitCountToSourceStaticAuraEffect(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
-    {
-        effect = default!;
-        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(cardObject.CardNo, out var aura)
-            || !TryFindBattlefieldUnitLocation(state, objectId, cardObject, out var battlefieldObjectId))
-        {
-            return false;
-        }
-
-        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
-        {
-            return false;
-        }
-
-        var participantObjectIds = SameBattlefieldFriendlyFilteredUnitObjectIds(
-            state,
-            battlefieldObjectId,
-            controllerId,
-            aura);
-        if (participantObjectIds.Count == 0)
-        {
-            return false;
-        }
-
-        var powerDelta = participantObjectIds.Count * aura.PowerDeltaPerParticipant;
-        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-        effect = new ContinuousEffectState(
-            $"STATIC_AURA:SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER:{objectId}",
-            "OBJECT",
-            ContinuousEffectLayers.StaticAura,
-            aura.Duration,
-            objectId,
-            objectId,
-            powerDelta,
-            cardObject.Power,
-            cardObject.Power + powerDelta,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS",
-            ParticipantObjectIds: participantObjectIds,
-            SourceDependencyObjectIds: sourceDependencyObjectIds,
-            TargetDependencyObjectIds: targetDependencyObjectIds,
-            ParticipantDependencyObjectIds: participantDependencyObjectIds);
-        return true;
-    }
-
-    private static bool TryBuildSourceSameLocationOtherFriendlyUnitPowerStaticAuraEffect(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject,
-        out ContinuousEffectState effect)
-    {
-        effect = default!;
-        if (string.IsNullOrWhiteSpace(cardObject.CardNo)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !StaticAuraSpecRules.TryGetSourceSameLocationOtherFriendlyUnitPowerAura(cardObject.CardNo, out var aura)
-            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var sourceFieldLocation)
-            || !IsPublicFieldObjectLocationCompatible(state, objectId, sourceFieldLocation.Zone))
-        {
-            return false;
-        }
-
-        var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
-        {
-            return false;
-        }
-
-        var participantObjectIds = SameLocationOtherFriendlyUnitObjectIds(
-            state,
-            objectId,
-            sourceFieldLocation,
-            controllerId);
-        if (participantObjectIds.Count < aura.RequiredParticipantCount.GetValueOrDefault(1))
-        {
-            return false;
-        }
-
-        var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
-        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-        effect = new ContinuousEffectState(
-            $"STATIC_AURA:SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER:{objectId}",
-            "OBJECT",
-            ContinuousEffectLayers.StaticAura,
-            aura.Duration,
-            objectId,
-            objectId,
-            aura.PowerDeltaPerParticipant,
-            cardObject.Power,
-            cardObject.Power + aura.PowerDeltaPerParticipant,
-            aura.Kind,
-            cardObject.CardNo,
-            "CoreRuleEngine.ResolveSourceSameLocationOtherFriendlyUnitPowerBonus",
-            true,
-            LayerEngineFoundationResiduals(),
-            Condition: "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_LOCATION",
-            Lifecycle: "RECOMPUTED_FROM_CURRENT_SAME_LOCATION_FRIENDLY_UNIT_LOCATIONS",
-            ParticipantObjectIds: participantObjectIds,
-            SourceDependencyObjectIds: sourceDependencyObjectIds,
-            TargetDependencyObjectIds: targetDependencyObjectIds,
-            ParticipantDependencyObjectIds: participantDependencyObjectIds);
         return true;
     }
 

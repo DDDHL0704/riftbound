@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Source Participant-Count POWER Aura Scope Router
+
+This follow-up merges source participant-count POWER aura families into shared `StaticAuraSpec` scope routing: friendly equipment count, same-battlefield friendly filtered unit count, and same-location other-friendly threshold.
+
+`CoreRuleEngine` now computes these source participant-count POWER bonuses through `ResolveSourceParticipantCountPowerStaticAuraBonus` and the friendly-equipment recompute path through the same `StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura` predicate. Friendly equipment remains a persistent source-power recompute to avoid combat double-counting, while same-battlefield filtered count and same-location threshold remain combat static-power bonuses.
+
+`MatchSession` now projects those same participant-count POWER auras through `BuildSourceParticipantCountPowerStaticAuraEffects`, enumerating the source object's `BehaviorSpec.StaticAuras` instead of separate Ornn / Petal Pixie-Sett / Reliable Siege Dog-shaped projection helpers. Existing `ContinuousEffectState` effect ids, source paths, conditions and lifecycle strings are preserved for recovery compatibility.
+
+Validation: red/green focused `SourceParticipantCountPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; source participant-count focused regression 70/70; StaticAura / StaticPower / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2246/2246; backend full conformance 9065/9065.
+
+Non-closure: this slice only consolidates source participant-count POWER scope routing. Friendly single-defender POWER, source-object RULE_TEXT keyword routing, full LayerEngine timestamp/order semantics, full B1, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Source Battle-State POWER Aura Scope Router
 
 This follow-up merges source battle-state POWER aura families into shared `StaticAuraSpec` scope routing: attacking with another unit, lone battle, and attacking a battlefield with ready enemy units.
