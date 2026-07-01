@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest first-turn extra-rune execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest moved-unit power execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 moved-unit power execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(...)` is removed.
+- `CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger`.
+- `IsBattlefieldMovedUnitPowerModifierTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, `BATTLEFIELD_UNIT_MOVED_AWAY`, `MOVED_UNIT`, `UNTIL_END_OF_TURN`, and positive `PowerDelta`. Existing battlefield-source control guard, moved-unit ledger mutation, `BATTLEFIELD_TRIGGER_RESOLVED` / `POWER_MODIFIED_UNTIL_END_OF_TURN` payloads, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldMovedUnitPowerTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 22. This slice does not close complete same-turn movement policy, movement / control-zone edge cases, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9096/9096, focused guard / parser / Back Alley Bar representatives / official-deck route 6/6, adjacent `BackAlleyBar|BattlefieldMovedUnitPower|BattlefieldMovePower|MoveUnit|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2529/2529, backend full conformance 9097/9097.
 
 The 2026-07-01 first-turn extra-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -348,7 +357,7 @@ This slice moves one implemented battlefield trigger away from engine card-numbe
   - `TargetScope = MOVED_UNIT`
   - `PowerDelta = 1`
   - `Duration = UNTIL_END_OF_TURN`
-- `CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(...)` and reads the power delta from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne` now finds eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out trigger)` and reads the power delta from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldMovedUnitPowerPlusOneCardNo` constant.
 
 The 2026-06-25 follow-up also moves one implemented held-battlefield trigger away from engine card-number branching:

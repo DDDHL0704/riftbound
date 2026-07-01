@@ -31165,23 +31165,24 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var triggerSourceObjectId = zones.Battlefields
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
+                && BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (triggerSourceObjectId is null
             || !state.CardObjects.TryGetValue(triggerSourceObjectId, out var triggerSourceState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 triggerSourceState.CardNo,
-                out var triggerSpec)
-            || !string.Equals(triggerSpec.TargetScope, TriggerTargetScopes.MovedUnit, StringComparison.Ordinal)
-            || !string.Equals(triggerSpec.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            || triggerSpec.PowerDelta is not > 0)
+                BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger,
+                out var triggerSpec))
         {
             return [];
         }
 
-        var powerDelta = triggerSpec.PowerDelta.Value;
+        var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
         var nextSourceState = ApplyDirectUntilEndPowerModifier(
             sourceState,
             sourceObjectId,

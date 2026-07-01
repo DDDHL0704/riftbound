@@ -166,6 +166,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.RuneCallCount is > 0;
     }
 
+    public static bool IsBattlefieldMovedUnitPowerModifierTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldUnitMovedAway, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.MovedUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -211,14 +220,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldMovedUnitPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldUnitMovedAwayPowerModifier,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerRevealRecycleTrigger(string? cardNo, out TriggerSpec trigger)

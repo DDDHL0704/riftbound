@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Moved-Unit Power Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·277/298` Back Alley Bar official text `每当一名单位从此处向别处移动时，让其本回合内{{S}}+1。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out trigger)`.
+- `IsBattlefieldMovedUnitPowerModifierTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, `Timing=BATTLEFIELD_UNIT_MOVED_AWAY`, `TargetScope=MOVED_UNIT`, `Duration=UNTIL_END_OF_TURN`, and positive `PowerDelta`.
+- `CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne` uses that generic predicate route and keeps existing battlefield-source control gating, moved-unit until-end power ledger mutation, `BATTLEFIELD_TRIGGER_RESOLVED`, `POWER_MODIFIED_UNTIL_END_OF_TURN`, `sourceObjectId`, source card, and power delta payload semantics.
+- Existing movement paths continue to require a battlefield-origin move away from that battlefield, skip opponent-controlled battlefield sources, and apply the parsed temporary power delta to the moved unit.
+- Source guard: `CardCatalogBaselineTests.BattlefieldMovedUnitPowerTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9096/9096; focused guard / parser / Back Alley Bar representatives / official-deck route 6/6; adjacent `BackAlleyBar|BattlefieldMovedUnitPower|BattlefieldMovePower|MoveUnit|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2529/2529; backend full conformance 9097/9097.
+
 ## 2026-07-01 First-Turn Extra-Rune Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·284/298` Power Obelisk official text `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
@@ -260,7 +270,7 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-The new parser path turns the official text into a structured `TriggerSpec`, including the moved-unit target scope, until-end-of-turn duration and numeric power delta. The runtime no longer checks `OGN·277/298` through `BattlefieldMovedUnitPowerPlusOneCardNo` / `IsBattlefieldMovedUnitPowerPlusOneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The new parser path turns the official text into a structured `TriggerSpec`, including the moved-unit target scope, until-end-of-turn duration and numeric power delta. The runtime no longer checks `OGN·277/298` through `BattlefieldMovedUnitPowerPlusOneCardNo` / `IsBattlefieldMovedUnitPowerPlusOneCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out trigger)`.
 
 The accepted `MOVE_UNIT` path still applies the same server-authoritative mutation after a successful battlefield-origin move. It now emits `BATTLEFIELD_TRIGGER_RESOLVED` and `POWER_MODIFIED_UNTIL_END_OF_TURN` with `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` as the trigger / reason, includes the parsed source battlefield object/card and `powerDelta` in the trigger payload, and reads the applied `+1` from the parsed spec.
 
