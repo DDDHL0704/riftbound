@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Pay-Power Score Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·214/221` / 能量枢纽 official text `当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger, out trigger)`.
+- `IsBattlefieldHeldPayPowerScoreTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`, `Timing=BATTLEFIELD_HELD`, positive `PowerCost`, and positive `ScoreAmount`.
+- `CoreRuleEngine` held-score payment-resource validation, Brush replacement validation, battle-response resume normalization, and held-score resolution now all use that generic predicate route.
+- `MatchSession` held-score payment-resource prompt metadata and Brush replacement choice construction use the same generic predicate route.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldPayPowerScoreTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Validation: focused guard / held-score representatives / Energy Hub official-deck route 11/11; adjacent `BattlefieldHeld|PaymentResource|ActionPrompt|GameHub|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2836/2836; backend full conformance 9080/9080.
+
 ## 2026-07-01 MatchSession Recognition Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves the accepted official battlefield trigger specs listed below and changes only how prompt/snapshot classification recognizes a card as an implemented battlefield rule card.

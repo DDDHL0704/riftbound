@@ -13,6 +13,27 @@ internal static class BattlefieldTriggerSpecRules
         return TriggersForCard(cardNo).Any(IsImplementedBattlefieldTrigger);
     }
 
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = TriggersForCard(cardNo).FirstOrDefault(predicate);
+        if (match is null)
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
+    }
+
+    public static bool IsBattlefieldHeldPayPowerScoreTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldPayPowerScore, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && trigger.PowerCost is > 0
+            && trigger.ScoreAmount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -161,14 +182,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldSevenUnitsWin,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldPayPowerScoreTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldPayPowerScore,
             out trigger);
     }
 

@@ -19647,8 +19647,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.BattlefieldId?.Trim() ?? string.Empty,
             brushReplacementChoices,
             out replacement)
-            && BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(
+            && BattlefieldTriggerSpecRules.TryGetTrigger(
                 replacement.OriginalBattlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
                 out _);
     }
 
@@ -19756,7 +19757,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
+                out var trigger)
             || trigger.PowerCost.GetValueOrDefault() <= 0)
         {
             return false;
@@ -23023,7 +23027,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextTemporaryPaymentResources = state.TemporaryPaymentResources;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
+                out var trigger)
             || trigger.PowerCost.GetValueOrDefault() <= 0
             || trigger.ScoreAmount.GetValueOrDefault() <= 0)
         {
@@ -28485,7 +28492,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, paymentBattlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
+                out var trigger)
             || trigger.PowerCost.GetValueOrDefault() <= 0)
         {
             return command;

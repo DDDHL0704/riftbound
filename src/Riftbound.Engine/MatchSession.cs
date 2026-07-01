@@ -14064,7 +14064,10 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(originalBattlefieldObjectId, out var originalState)
             || !IsPromptBattlefieldCardObject(originalState)
             || P6TokenFactoryCatalog.IsBrushBattlefieldToken(originalState.CardNo)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(originalState.CardNo, out _)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                originalState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
+                out _)
             || !PublicBattlefieldCardObjects(state).Contains(originalBattlefieldObjectId, StringComparer.Ordinal))
         {
             return false;
@@ -14450,7 +14453,10 @@ internal static class ActionPromptBuilder
         {
             var battlefieldObjectId = battlefieldChoice.Id;
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                    battlefieldState.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
+                    out var trigger)
                 || trigger.PowerCost.GetValueOrDefault() <= 0)
             {
                 continue;
