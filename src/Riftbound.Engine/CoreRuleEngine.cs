@@ -1504,7 +1504,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out _)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
             || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var sourceState)
-            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            || !UnitConquestTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger,
+                out var trigger)
             || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
             || !TryReturnTargetToHand(playerZones, cardObjects, sourceObjectId, out var ownerPlayerId, out _))
         {
@@ -2976,7 +2979,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
-            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(parts[0], out _)
+            || !UnitConquestTriggerSpecRules.TryGetTriggerByEffectKind(
+                parts[0],
+                UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger,
+                out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -23576,9 +23582,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextPlayerScores = playerScores;
         string? winnerPlayerId = null;
         var nextRngCursor = rngCursor;
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestOverkillCreateDormantGoldTrigger(
-                unitState.CardNo,
-                out var unitConquestOverkillGoldTrigger)
+        var unitConquestTriggers = UnitConquestTriggerSpecRules.TriggersForCard(unitState.CardNo)
+            .Where(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger)
+            .ToArray();
+        var unitConquestOverkillGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestOverkillCreateDormantGold, StringComparison.Ordinal));
+        if (unitConquestOverkillGoldTrigger is not null
             && string.Equals(activationReason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
             && unitConquestOverkillGoldTrigger.RequiredOverkillDamage is > 0
             && assignedOverkillDamageToEnemyUnits >= unitConquestOverkillGoldTrigger.RequiredOverkillDamage.Value)
@@ -23618,9 +23627,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestAttackOverkillGainScoreTrigger(
-                unitState.CardNo,
-                out var unitConquestOverkillScoreTrigger)
+        var unitConquestOverkillScoreTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestAttackOverkillGainScore, StringComparison.Ordinal));
+        if (unitConquestOverkillScoreTrigger is not null
             && string.Equals(activationReason, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
             && unitConquestOverkillScoreTrigger.RequiredOverkillDamage is > 0
             && assignedOverkillDamageToEnemyUnits >= unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value
@@ -23678,7 +23687,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(unitState.CardNo, out var unitConquestGoldTrigger))
+        var unitConquestGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestCreateDormantGold, StringComparison.Ordinal));
+        if (unitConquestGoldTrigger is not null)
         {
             var tokenName = unitConquestGoldTrigger.CreatedTokenName ?? "金币";
             var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
@@ -23713,7 +23724,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(unitState.CardNo, out var unitConquestDrawTrigger))
+        var unitConquestDrawTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestDrawOne, StringComparison.Ordinal));
+        if (unitConquestDrawTrigger is not null)
         {
             var drawCount = unitConquestDrawTrigger.DrawCount.GetValueOrDefault(1);
             AddUnitConquestEffectActivatedEvent(
@@ -23739,7 +23752,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(unitState.CardNo, out var unitConquestDrawOrRuneTrigger))
+        var unitConquestDrawOrRuneTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestDrawOneOrCallRune, StringComparison.Ordinal));
+        if (unitConquestDrawOrRuneTrigger is not null)
         {
             var drawCount = unitConquestDrawOrRuneTrigger.DrawCount.GetValueOrDefault(1);
             var runeCallCount = unitConquestDrawOrRuneTrigger.RuneCallCount.GetValueOrDefault(1);
@@ -23786,7 +23801,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(unitState.CardNo, out var unitConquestSelfBoonTrigger))
+        var unitConquestSelfBoonTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestGrantSelfBoon, StringComparison.Ordinal));
+        if (unitConquestSelfBoonTrigger is not null)
         {
             AddUnitConquestEffectActivatedEvent(
                 events,
@@ -23807,7 +23824,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(unitState.CardNo, out var unitConquestReadySelfTrigger))
+        var unitConquestReadySelfTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestReadySelfOncePerTurn, StringComparison.Ordinal));
+        if (unitConquestReadySelfTrigger is not null)
         {
             var readyEffectId = BuildUnitConquestReadySelfOnceEffectId(playerId, unitObjectId);
             var isOncePerTurn = unitConquestReadySelfTrigger.OncePerTurn.GetValueOrDefault(true);
@@ -23852,7 +23871,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(unitState.CardNo, out var unitConquestFriendlyBoonTrigger)
+        var unitConquestFriendlyBoonTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal));
+        if (unitConquestFriendlyBoonTrigger is not null
             && TryGetFirstControlledBattlefieldUnit(
                 playerZones,
                 cardObjects,
@@ -23880,7 +23901,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(unitState.CardNo, out var unitConquestFriendlyPowerTrigger)
+        var unitConquestFriendlyPowerTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn, StringComparison.Ordinal));
+        if (unitConquestFriendlyPowerTrigger is not null
             && TryGetFirstControlledBattlefieldUnit(
                 playerZones,
                 cardObjects,
@@ -23925,7 +23948,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(unitState.CardNo, out var unitConquestDestroyEquipmentTrigger)
+        var unitConquestDestroyEquipmentTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon, StringComparison.Ordinal));
+        if (unitConquestDestroyEquipmentTrigger is not null
             && TryGetFirstFieldEquipment(playerZones, cardObjects, out var equipmentObjectId))
         {
             AddUnitConquestEffectActivatedEvent(
@@ -23992,12 +24017,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && TryGetPreciseFieldLocation(playerZones, objectLocations, objectId, out var location)
                 && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 && string.Equals(location.BattlefieldObjectId, battlefieldPositionObjectId, StringComparison.Ordinal)
-                && UnitConquestTriggerSpecRules.TryGetUnitConquestAdditionalActivationTrigger(sourceState.CardNo, out _))
+                && UnitConquestTriggerSpecRules.TryGetTrigger(
+                    sourceState.CardNo,
+                    UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
+                    out _))
             .Distinct(StringComparer.Ordinal)
             .Sum(objectId =>
             {
                 var sourceState = cardObjects[objectId];
-                return UnitConquestTriggerSpecRules.TryGetUnitConquestAdditionalActivationTrigger(sourceState.CardNo, out var trigger)
+                return UnitConquestTriggerSpecRules.TryGetTrigger(
+                        sourceState.CardNo,
+                        UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
+                        out var trigger)
                     ? Math.Max(0, trigger.AdditionalTriggerCount.GetValueOrDefault(0))
                     : 0;
             });
@@ -24065,16 +24096,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasSupportedUnitConquestTriggerSpec(string? cardNo)
     {
-        return UnitConquestTriggerSpecRules.TryGetUnitConquestOverkillCreateDormantGoldTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestAttackOverkillGainScoreTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(cardNo, out _)
-            || UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(cardNo, out _);
+        return UnitConquestTriggerSpecRules.TriggersForCard(cardNo)
+            .Any(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger);
     }
 
     private static string BuildUnitConquestReadySelfOnceEffectId(string playerId, string unitObjectId)
@@ -25358,7 +25381,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _)
             || !TryGetUnitConquestPayReturnSelfToHandSource(cardObjects, playerZones, playerId, sourceObjectId, out var sourceState)
-            || !UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            || !UnitConquestTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger,
+                out var trigger)
             || trigger.ManaCost is not > 0)
         {
             return false;
@@ -25424,7 +25450,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             && IsObjectOnField(playerZones, sourceObjectId)
-            && UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(sourceState.CardNo, out var trigger)
+            && UnitConquestTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger,
+                out var trigger)
             && string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
             && trigger.ManaCost is > 0

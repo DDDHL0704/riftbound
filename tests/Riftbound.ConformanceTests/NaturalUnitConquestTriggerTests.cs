@@ -15,6 +15,28 @@ public sealed class NaturalUnitConquestTriggerTests
     private const string DrawObjectId = "P1-NATURAL-CONQUEST-DRAW";
 
     [Fact]
+    public void UnitConquestTriggerRoutingEnumeratesBehaviorSpecTriggersInsteadOfEffectHelperAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var unitConquestRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "UnitConquestTriggerSpecRules.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var unitConquestRulesSource = File.ReadAllText(unitConquestRulesPath);
+
+        Assert.DoesNotContain("UnitConquestTriggerSpecRules.TryGetUnitConquest", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetUnitConquest", unitConquestRulesSource, StringComparison.Ordinal);
+        Assert.Contains("UnitConquestTriggerSpecRules.TriggersForCard", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest()
     {
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -408,5 +430,22 @@ public sealed class NaturalUnitConquestTriggerTests
             tags: [CardObjectTags.UnitCard],
             ownerId: playerId,
             controllerId: playerId);
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }

@@ -4,7 +4,9 @@ Date: 2026-06-29
 
 Project status: **NOT READY**.
 
-2026-06-30 follow-up: Vayne pay-return pending-payment reason parsing and runtime trigger/reason payloads now validate through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(...)`. `CoreRuleEngine` no longer owns `UnitConquestPayReturnSelfToHandEffectKind`; the wire-compatible `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` payload remains unchanged.
+2026-06-30 follow-up: Vayne pay-return pending-payment reason parsing and runtime trigger/reason payloads now validate through `UnitConquestTriggerSpecRules.TryGetTriggerByEffectKind(...)` plus `IsUnitConquestPayReturnSelfToHandTrigger(...)`. `CoreRuleEngine` no longer owns `UnitConquestPayReturnSelfToHandEffectKind`; the wire-compatible `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` payload remains unchanged.
+
+2026-07-01 follow-up: unit-conquest runtime routing no longer exposes or calls public `TryGetUnitConquest*` helper methods. `CoreRuleEngine` enumerates `UnitConquestTriggerSpecRules.TriggersForCard(...)`, filters auto-resolvable effects with `IsSupportedUnitConquestTrigger(...)`, and uses the same generic `TryGetTrigger(...)` / `TryGetTriggerByEffectKind(...)` path for Vayne pay-return payment validation.
 
 ## Rule Sources
 
@@ -52,7 +54,8 @@ Project status: **NOT READY**.
 - `UnitConquestGrantFriendlyBoonTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `FriendlyBoonUnitConquestCardNo` / `IsFriendlyBoonUnitConquestCardNo`.
 - `UnitConquestFriendlyPowerUntilEndTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `FriendlyPowerUnitConquestCardNo` / `IsFriendlyPowerUnitConquestCardNo`.
 - `UnitConquestDestroyEquipmentGrantSelfBoonTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `DestroyEquipmentBoonUnitConquestCardNo` / `IsDestroyEquipmentBoonUnitConquestCardNo`.
-- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now also verifies that `CoreRuleEngine` no longer contains the old Vayne source selector `OgnVayneConquerRecallSourceEffectKind` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` or the Core-local `UnitConquestPayReturnSelfToHandEffectKind` runtime alias, and instead routes the source and effect-kind validation through `UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTrigger(...)` / `TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(...)`.
+- `TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now also verifies that `CoreRuleEngine` no longer contains the old Vayne source selector `OgnVayneConquerRecallSourceEffectKind` / `OGN_VAYNE_ASSAULT3_CONQUER_RECALL_PLAY_UNIT` or the Core-local `UnitConquestPayReturnSelfToHandEffectKind` runtime alias, and instead routes the source and effect-kind validation through `UnitConquestTriggerSpecRules.TryGetTrigger(...)` / `TryGetTriggerByEffectKind(...)` with `IsUnitConquestPayReturnSelfToHandTrigger(...)`.
+- `NaturalUnitConquestTriggerTests.UnitConquestTriggerRoutingEnumeratesBehaviorSpecTriggersInsteadOfEffectHelperAllowList` verifies that `CoreRuleEngine` no longer calls `UnitConquestTriggerSpecRules.TryGetUnitConquest*`, `UnitConquestTriggerSpecRules` no longer exposes public `TryGetUnitConquest*` helpers, and the runtime route references `TriggersForCard(...)` plus `IsSupportedUnitConquestTrigger(...)`.
 
 ## Runtime Evidence
 
@@ -88,6 +91,9 @@ Project status: **NOT READY**.
 - Adjacent `OfficialDeckMidgamePaysVayneConquestReturn` / `Vayne` / `UnitConquest` / `TriggerPayment` / `BattlefieldConquer` / `DeclareBattle` / `PaymentEngine` / `FullGameEndToEnd` / `MatchRecovery` / `CardCatalogBaseline` representatives: `3453/3453` passing.
 - 2026-06-30 follow-up focused trigger-payment source guard / catalog representatives: `5/5` passing.
 - 2026-06-30 follow-up adjacent Vayne / UnitConquest / TriggerPayment / PaymentEngine / MatchRecovery / CardCatalogBaseline representatives: `3198/3198` passing.
+- 2026-07-01 follow-up focused NaturalUnitConquestTrigger / TriggerPayment helper-surface guards and representatives: `92/92` passing.
+- 2026-07-01 follow-up adjacent UnitConquest / TriggerPayment / MatchRecovery representatives: `2116/2116` passing.
+- 2026-07-01 follow-up backend full conformance: `9078/9078` passing.
 - Backend full conformance: `9020/9020` passing.
 - 2026-06-30 follow-up backend full conformance: `9038/9038` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.

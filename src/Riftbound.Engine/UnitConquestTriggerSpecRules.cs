@@ -8,120 +8,32 @@ internal static class UnitConquestTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public static bool TryGetUnitConquestDrawTrigger(string? cardNo, out TriggerSpec trigger)
+    public static IReadOnlyList<TriggerSpec> TriggersForCard(string? cardNo)
     {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestDrawOne,
-            out trigger);
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            return [];
+        }
+
+        return TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers)
+            ? triggers
+            : [];
     }
 
-    public static bool TryGetUnitConquestDrawOrCallRuneTrigger(string? cardNo, out TriggerSpec trigger)
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
     {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestDrawOneOrCallRune,
-            out trigger);
+        trigger = default!;
+        var match = TriggersForCard(cardNo).FirstOrDefault(predicate);
+        if (match is null)
+        {
+            return false;
+        }
+
+        trigger = match;
+        return true;
     }
 
-    public static bool TryGetUnitConquestCreateDormantGoldTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestCreateDormantGold,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestOverkillCreateDormantGoldTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestOverkillCreateDormantGold,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestAttackOverkillGainScoreTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestAttackOverkillGainScore,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestPayReturnSelfToHandTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(cardNo, TriggerKinds.UnitConquestPayReturnSelfToHand, out trigger)
-            && IsUnitConquestPayReturnSelfToHandTrigger(trigger);
-    }
-
-    public static bool TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind(
-        string? effectKind,
-        out TriggerSpec trigger)
-    {
-        return TryGetTriggerByEffectKind(effectKind, IsUnitConquestPayReturnSelfToHandTrigger, out trigger);
-    }
-
-    public static bool TryGetUnitConquestGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestGrantSelfBoon,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestReadySelfOnceTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestReadySelfOncePerTurn,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestGrantFriendlyBoonTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestGrantFriendlyBoon,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestAdditionalActivationTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestAdditionalActivation,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestFriendlyPowerUntilEndTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn,
-            out trigger);
-    }
-
-    public static bool TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon,
-            out trigger);
-    }
-
-    private static bool IsUnitConquestPayReturnSelfToHandTrigger(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Kind, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.ManaCost is > 0
-            && trigger.ReturnCount is > 0
-            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
-            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
-            && trigger.Optional == true;
-    }
-
-    private static bool TryGetTriggerByEffectKind(
+    public static bool TryGetTriggerByEffectKind(
         string? effectKind,
         Func<TriggerSpec, bool> predicate,
         out TriggerSpec trigger)
@@ -147,34 +59,76 @@ internal static class UnitConquestTriggerSpecRules
         return true;
     }
 
+    public static bool IsSupportedUnitConquestTrigger(TriggerSpec trigger)
+    {
+        if (!string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return trigger.Kind switch
+        {
+            TriggerKinds.UnitConquestOverkillCreateDormantGold => trigger.RequiredOverkillDamage is > 0
+                && trigger.CreatedTokenCount is > 0,
+            TriggerKinds.UnitConquestAttackOverkillGainScore => trigger.RequiredOverkillDamage is > 0
+                && trigger.ScoreAmount is > 0,
+            TriggerKinds.UnitConquestCreateDormantGold => trigger.CreatedTokenCount is > 0,
+            TriggerKinds.UnitConquestDrawOne => trigger.DrawCount is > 0,
+            TriggerKinds.UnitConquestDrawOneOrCallRune => trigger.DrawCount is > 0
+                && trigger.RuneCallCount is > 0,
+            TriggerKinds.UnitConquestGrantSelfBoon => string.Equals(
+                trigger.TargetScope,
+                TriggerTargetScopes.SourceUnit,
+                StringComparison.Ordinal),
+            TriggerKinds.UnitConquestReadySelfOncePerTurn => string.Equals(
+                trigger.TargetScope,
+                TriggerTargetScopes.SourceUnit,
+                StringComparison.Ordinal),
+            TriggerKinds.UnitConquestGrantFriendlyBoon => string.Equals(
+                trigger.TargetScope,
+                TriggerTargetScopes.ControlledUnitOnField,
+                StringComparison.Ordinal),
+            TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn => string.Equals(
+                    trigger.TargetScope,
+                    TriggerTargetScopes.ControlledUnitOnField,
+                    StringComparison.Ordinal)
+                && trigger.PowerDelta is not null
+                && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal),
+            TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon => string.Equals(
+                    trigger.TargetScope,
+                    TriggerTargetScopes.EquipmentOnField,
+                    StringComparison.Ordinal)
+                && trigger.DestroyCount is > 0
+                && trigger.BoonCount is > 0,
+            _ => false
+        };
+    }
+
+    public static bool IsUnitConquestAdditionalActivationTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitConquestAdditionalActivation, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitsAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.AdditionalTriggerCount is > 0;
+    }
+
+    public static bool IsUnitConquestPayReturnSelfToHandTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitConquest, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.ReturnCount is > 0
+            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && trigger.Optional == true;
+    }
+
     private static string RuntimeEffectKind(TriggerSpec trigger)
     {
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
             ? trigger.Kind
             : trigger.EffectKind!;
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
-    {
-        trigger = default!;
-        if (string.IsNullOrWhiteSpace(cardNo))
-        {
-            return false;
-        }
-
-        if (!TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers))
-        {
-            return false;
-        }
-
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
-        if (match is null)
-        {
-            return false;
-        }
-
-        trigger = match;
-        return true;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
