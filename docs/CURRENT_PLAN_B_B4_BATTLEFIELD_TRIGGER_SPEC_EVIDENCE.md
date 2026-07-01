@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Unit-Cost Increase Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-219/219` Vaults of Helia official text `当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldUnitCostIncreaseTrigger, out trigger)`.
+- `IsBattlefieldHeldUnitCostIncreaseTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE`, `Timing=BATTLEFIELD_HELD`, `Duration=UNTIL_END_OF_TURN`, and positive `ManaDelta`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldUnitCostIncreaseTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` payload semantics plus `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:{playerId}` marker compatibility for the official `+1` case.
+- Existing prompt/payment paths continue to read the until-end marker for `battlefieldHeldUnitCostIncreaseMana`, exclude tokens, and charge non-token unit plays through the server payment plan.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldUnitCostIncreaseTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9092/9092; focused guard / parser / Vaults of Helia representatives / official-deck route 6/6; adjacent `BattlefieldHeldUnitCostIncrease|VaultsOfHelia|PaymentEngine|PlayCard|BattlefieldHeld|BattlefieldTriggerSpec|CardCatalogBaseline|FullGameEndToEnd|MatchRecovery` 3535/3535; backend full conformance 9093/9093.
+
 ## 2026-07-01 Held Activate-Unit-Conquest Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·286/298` Reckoner Arena official text `当你据守此处时，激活此处所有单位的征服效果。`

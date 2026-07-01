@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held activate-unit-conquest execution helper and same-battlefield scope follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held unit-cost increase execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held unit-cost increase execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldUnitCostIncreaseTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldUnitCostIncreaseTrigger`.
+- `IsBattlefieldHeldUnitCostIncreaseTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE`, `BATTLEFIELD_HELD`, `UNTIL_END_OF_TURN`, and positive `ManaDelta`. Existing until-end marker shape, prompt metadata, payment surcharge, token exclusion, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldHeldUnitCostIncreaseTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 26. This slice does not close complex multi-modifier payment stacking, token/non-token full breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9092/9092, focused guard / parser / Vaults of Helia representatives / official-deck route 6/6, adjacent `BattlefieldHeldUnitCostIncrease|VaultsOfHelia|PaymentEngine|PlayCard|BattlefieldHeld|BattlefieldTriggerSpec|CardCatalogBaseline|FullGameEndToEnd|MatchRecovery` 3535/3535, backend full conformance 9093/9093.
 
 The 2026-07-01 held activate-unit-conquest execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface and tightens the parsed `UNIT_AT_THIS_BATTLEFIELD` scope:
 
@@ -334,7 +343,7 @@ The 2026-06-25 held unit-cost follow-up moves another implemented held-battlefie
   - `Timing = BATTLEFIELD_HELD`
   - `Duration = UNTIL_END_OF_TURN`
   - `ManaDelta = 1`
-- `CoreRuleEngine.TryResolveBattlefieldHeldUnitCostIncreaseTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(...)`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldUnitCostIncreaseTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route.
 - `CoreRuleEngine` and `MatchSession` read the mana increase from the until-end marker; the `+1` case keeps the existing marker shape `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:{playerId}` for compatibility, while larger future deltas can be encoded as a marker suffix.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldUnitCostIncreaseCardNo` constant.
 - The old `BattlefieldHeldUnitCostIncreaseCardNo` / `IsBattlefieldHeldUnitCostIncreaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `91` total / `87` in `CoreRuleEngine`; Core battlefield helper count is `43`.
