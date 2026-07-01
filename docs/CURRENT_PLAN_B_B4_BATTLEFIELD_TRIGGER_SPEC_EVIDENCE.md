@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Conquer Reveal/Recycle Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·291/298` Candlelit Sanctum official text `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerRevealRecycleTrigger, out trigger)`.
+- `IsBattlefieldConquerRevealRecycleTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `Timing=BATTLEFIELD_CONQUERED`, `RevealSourceZone=MAIN_DECK`, `RecycleDestinationZone=MAIN_DECK`, positive `RevealCount`, and positive `RecycleCount`.
+- `CoreRuleEngine.ResolveBattlefieldConquerRevealRecycleTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, deterministic representative reveal/recycle count handling, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, `CARDS_RECYCLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer reveal/recycle paths continue to reveal controlled main-deck top cards, recycle the parsed count to the main-deck bottom, preserve hidden main-deck ordering boundaries, and route official-deck replay through the same parsed Candlelit Sanctum trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerRevealRecycleTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9099/9099; focused guard / parser / Candlelit Sanctum representatives / official-deck route 5/5; adjacent `Candlelit|BattlefieldConquerRevealRecycle|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery|CardCatalogBaseline` 2726/2726; backend full conformance 9100/9100.
+
 ## 2026-07-01 Turn-Start Destroy-Draw Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-209/219` Duskpetal Lab official text `在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）`
@@ -406,7 +416,7 @@ The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible c
 
 The 2026-06-27 B0 follow-up adds an official-deck action-log replay for Grand Plaza (`OGN·293/298`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages a low-power official attacker plus seven real official non-standby unit objects controlled by the holder at that same battlefield, resolves the `DECLARE_BATTLE` held path, asserts the parsed seven-units victory trigger and `MATCH_WON` state transition, then replays the resulting action log to the final state hash. The first focused red run exposed that later battle-winner draw hooks could overwrite an already determined special-victory `winnerPlayerId` with null when those hooks did not themselves produce a draw-based winner; the shared `DECLARE_BATTLE` draw-hook assignments now preserve an existing winner unless the later hook produces a new one.
 
-The conquer reveal/recycle follow-up parser path turns the Candlelit Sanctum official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `Timing=BATTLEFIELD_CONQUERED`, `RevealCount=2`, `RevealSourceZone=MAIN_DECK`, `RecycleCount=2`, and `RecycleDestinationZone=MAIN_DECK`. Runtime no longer checks `OGN·291/298` through `BattlefieldConquerRevealRecycleCardNo` / `IsBattlefieldConquerRevealRecycleCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer reveal/recycle follow-up parser path turns the Candlelit Sanctum official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `Timing=BATTLEFIELD_CONQUERED`, `RevealCount=2`, `RevealSourceZone=MAIN_DECK`, `RecycleCount=2`, and `RecycleDestinationZone=MAIN_DECK`. Runtime no longer checks `OGN·291/298` through `BattlefieldConquerRevealRecycleCardNo` / `IsBattlefieldConquerRevealRecycleCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerRevealRecycleTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still keeps the existing deterministic representative behavior: it reveals the top two controlled main-deck cards, recycles the parsed count, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, and preserves hidden main-deck ordering boundaries. The official optional choice of any number and arbitrary order for non-recycled cards remains outside this narrow routing slice.
 
@@ -635,6 +645,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held seven-units win adjacent BattlefieldHeld / BattlefieldTriggerSpec / FullGame / GameHub representatives: `293/293`;
 - conquer reveal/recycle focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer reveal/recycle adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `272/272`;
+- conquer reveal/recycle execution-helper focused guard / parser / runtime / GameHub / official-deck route: `5/5`;
+- conquer reveal/recycle execution-helper adjacent Candlelit / BattlefieldConquerRevealRecycle / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / GameHubJoin / MatchRecovery / CardCatalogBaseline follow-up: `2726/2726`;
+- conquer reveal/recycle execution-helper backend full conformance: `9100/9100`;
 - conquer reveal/recycle Candlelit Sanctum B0 action-log replay follow-up: `1/1`;
 - conquer reveal/recycle Candlelit Sanctum B0 full-game follow-up: `75/75`;
 - conquer reveal/recycle Candlelit Sanctum B0 adjacent / hidden-info follow-up: `2355/2355`;

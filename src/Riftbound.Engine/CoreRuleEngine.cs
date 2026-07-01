@@ -24892,12 +24892,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var events = new List<GameEvent>();
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.RevealSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
-            || !string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
-            || trigger.RevealCount.GetValueOrDefault() <= 0
-            || trigger.RecycleCount.GetValueOrDefault() <= 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerRevealRecycleTrigger,
+                out var trigger)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {

@@ -193,6 +193,16 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.Optional == true;
     }
 
+    public static bool IsBattlefieldConquerRevealRecycleTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerRevealRecycle, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.RevealSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            && string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            && trigger.RevealCount is > 0
+            && trigger.RecycleCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -238,14 +248,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerRevealRecycleTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerRevealRecycle,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerMillTrigger(string? cardNo, out TriggerSpec trigger)
