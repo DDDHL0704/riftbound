@@ -468,7 +468,9 @@ internal sealed class CardControlRenderer
         var stats = CardStatsLine(card);
         if (!string.IsNullOrWhiteSpace(stats))
         {
-            box.AddChild(LabelNode(stats));
+            var statsLabel = LabelNode(stats);
+            statsLabel.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+            box.AddChild(statsLabel);
         }
 
         box.AddChild(LabelNode(
@@ -481,7 +483,7 @@ internal sealed class CardControlRenderer
         if (!string.IsNullOrWhiteSpace(category))
         {
             var categoryLabel = LabelNode(category, new Vector2(contentSize.X, 0));
-            categoryLabel.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+            categoryLabel.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
             box.AddChild(categoryLabel);
         }
 
@@ -511,11 +513,21 @@ internal sealed class CardControlRenderer
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
         box.AddThemeConstantOverride("separation", 2);
-        box.AddChild(LabelNode("◇", new Vector2(size.X, 0)));
+        var topGlyph = LabelNode("◆", new Vector2(size.X, 0));
+        topGlyph.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        box.AddChild(topGlyph);
+
+        var seal = LabelNode("◇", new Vector2(size.X, 0));
+        seal.AddThemeColorOverride("font_color", RunestoneTheme.Crimson);
+        box.AddChild(seal);
+
         var labelNode = LabelNode(label, new Vector2(size.X, 0));
-        labelNode.AddThemeColorOverride("font_color", RunestoneTheme.Rune);
+        labelNode.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         box.AddChild(labelNode);
-        box.AddChild(LabelNode("◇", new Vector2(size.X, 0)));
+
+        var bottomGlyph = LabelNode("◆", new Vector2(size.X, 0));
+        bottomGlyph.AddThemeColorOverride("font_color", RunestoneTheme.BrassDim);
+        box.AddChild(bottomGlyph);
         return box;
     }
 

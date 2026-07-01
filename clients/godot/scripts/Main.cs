@@ -61,6 +61,8 @@ public partial class Main : Control
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
     private Label? _officialCardPreviewSummary;
+    private PanelContainer? _officialCardPreviewFrame;
+    private PanelContainer? _promptFrame;
     private PanelContainer? _resultFrame;
     private Label? _resultSummary;
     private Label? _promptSummary;
@@ -190,10 +192,12 @@ public partial class Main : Control
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
+        _officialCardPreviewFrame = GetNode<PanelContainer>("OfficialCardPreviewFrame");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreview");
         _officialCardPreviewSummary = GetNode<Label>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreviewSummary");
         _resultFrame = GetNode<PanelContainer>("Controls/ResultFrame");
         _resultSummary = GetNode<Label>("Controls/ResultFrame/ResultBox/ResultSummary");
+        _promptFrame = GetNode<PanelContainer>("PromptFrame");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
         _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
@@ -242,6 +246,32 @@ public partial class Main : Control
     {
         ApplyMainContentGutter();
         RunestoneTheme.ApplyToTree(this);
+        var title = GetNodeOrNull<Label>("Title");
+        if (title is not null)
+        {
+            title.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        }
+
+        if (_status is not null)
+        {
+            _status.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+        }
+
+        if (_boardSummary is not null)
+        {
+            _boardSummary.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+        }
+
+        if (_officialCardPreviewFrame is not null)
+        {
+            _officialCardPreviewFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Card, 2));
+        }
+
+        if (_promptFrame is not null)
+        {
+            _promptFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 2));
+        }
+
         if (_resultFrame is not null)
         {
             _resultFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 2));

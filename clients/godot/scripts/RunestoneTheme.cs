@@ -4,17 +4,21 @@ namespace Riftbound.GodotClient;
 
 internal static class RunestoneTheme
 {
-    public static readonly Color BasaltBlack = new(0.035f, 0.043f, 0.043f, 1f);
-    public static readonly Color Basalt = new(0.082f, 0.098f, 0.094f, 1f);
-    public static readonly Color BasaltLift = new(0.135f, 0.151f, 0.137f, 1f);
-    public static readonly Color Stone = new(0.235f, 0.247f, 0.216f, 1f);
-    public static readonly Color Rune = new(0.42f, 0.78f, 0.76f, 1f);
-    public static readonly Color RuneDim = new(0.18f, 0.45f, 0.43f, 0.72f);
-    public static readonly Color Brass = new(0.73f, 0.57f, 0.29f, 1f);
-    public static readonly Color BrassDim = new(0.44f, 0.34f, 0.17f, 1f);
-    public static readonly Color Ink = new(0.83f, 0.86f, 0.78f, 1f);
-    public static readonly Color MutedInk = new(0.56f, 0.61f, 0.54f, 1f);
-    public static readonly Color Warning = new(0.88f, 0.68f, 0.34f, 1f);
+    public static readonly Color BasaltBlack = new(0.015f, 0.015f, 0.014f, 1f);
+    public static readonly Color Basalt = new(0.055f, 0.055f, 0.052f, 1f);
+    public static readonly Color BasaltLift = new(0.105f, 0.105f, 0.098f, 1f);
+    public static readonly Color Stone = new(0.225f, 0.22f, 0.2f, 1f);
+    public static readonly Color Rune = new(0.86f, 0.79f, 0.62f, 1f);
+    public static readonly Color RuneDim = new(0.64f, 0.58f, 0.43f, 0.58f);
+    public static readonly Color Brass = new(0.84f, 0.62f, 0.25f, 1f);
+    public static readonly Color BrassDim = new(0.48f, 0.36f, 0.18f, 0.86f);
+    public static readonly Color Ink = new(0.9f, 0.87f, 0.78f, 1f);
+    public static readonly Color MutedInk = new(0.58f, 0.56f, 0.5f, 1f);
+    public static readonly Color Warning = new(0.86f, 0.25f, 0.18f, 1f);
+    public static readonly Color Crimson = new(0.66f, 0.075f, 0.07f, 1f);
+    public static readonly Color CrimsonDim = new(0.42f, 0.055f, 0.055f, 0.72f);
+    public static readonly Color Ivory = new(0.88f, 0.84f, 0.74f, 1f);
+    public static readonly Color Steel = new(0.24f, 0.25f, 0.24f, 1f);
 
     public static StyleBoxFlat FrameStyle(RunestoneSurface surface, int borderWidth = 1)
     {
@@ -26,6 +30,7 @@ internal static class RunestoneTheme
         };
         style.SetBorderWidthAll(borderWidth);
         style.SetCornerRadiusAll(radius);
+        style.SetContentMarginAll(SurfacePadding(surface));
         return style;
     }
 
@@ -38,6 +43,10 @@ internal static class RunestoneTheme
         };
         style.SetBorderWidthAll(1);
         style.SetCornerRadiusAll(4);
+        style.SetContentMargin(Side.Left, 8);
+        style.SetContentMargin(Side.Right, 8);
+        style.SetContentMargin(Side.Top, 4);
+        style.SetContentMargin(Side.Bottom, 4);
         return style;
     }
 
@@ -62,7 +71,14 @@ internal static class RunestoneTheme
                 break;
             case RichTextLabel richText:
                 richText.AddThemeColorOverride("default_color", Ink);
+                richText.AddThemeColorOverride("font_shadow_color", BasaltBlack);
                 richText.AddThemeStyleboxOverride("normal", FrameStyle(RunestoneSurface.Chrome));
+                break;
+            case CheckBox checkBox:
+                checkBox.AddThemeColorOverride("font_color", Ink);
+                checkBox.AddThemeColorOverride("font_hover_color", Colors.White);
+                checkBox.AddThemeColorOverride("font_pressed_color", Colors.White);
+                checkBox.AddThemeColorOverride("font_disabled_color", MutedInk);
                 break;
             case Button button:
                 ApplyButtonTheme(button);
@@ -70,8 +86,8 @@ internal static class RunestoneTheme
             case LineEdit lineEdit:
                 lineEdit.AddThemeColorOverride("font_color", Ink);
                 lineEdit.AddThemeColorOverride("font_placeholder_color", MutedInk);
-                lineEdit.AddThemeStyleboxOverride("normal", ButtonStyle(Basalt, BrassDim));
-                lineEdit.AddThemeStyleboxOverride("focus", ButtonStyle(BasaltLift, RuneDim));
+                lineEdit.AddThemeStyleboxOverride("normal", ButtonStyle(Basalt, Steel));
+                lineEdit.AddThemeStyleboxOverride("focus", ButtonStyle(BasaltLift, Crimson));
                 break;
             case PanelContainer panel:
                 panel.AddThemeStyleboxOverride("panel", FrameStyle(RunestoneSurface.Chrome));
@@ -80,7 +96,7 @@ internal static class RunestoneTheme
 
         if (node is BoxContainer box)
         {
-            box.AddThemeConstantOverride("separation", 6);
+            box.AddThemeConstantOverride("separation", 5);
         }
     }
 
@@ -90,26 +106,42 @@ internal static class RunestoneTheme
         button.AddThemeColorOverride("font_hover_color", Colors.White);
         button.AddThemeColorOverride("font_pressed_color", Colors.White);
         button.AddThemeColorOverride("font_disabled_color", MutedInk);
-        button.AddThemeStyleboxOverride("normal", ButtonStyle(Basalt, BrassDim));
-        button.AddThemeStyleboxOverride("hover", ButtonStyle(BasaltLift, RuneDim));
-        button.AddThemeStyleboxOverride("pressed", ButtonStyle(new Color(0.18f, 0.22f, 0.19f, 1f), Brass));
-        button.AddThemeStyleboxOverride("disabled", ButtonStyle(new Color(0.07f, 0.08f, 0.075f, 0.86f), new Color(0.2f, 0.18f, 0.14f, 0.7f)));
-        button.AddThemeStyleboxOverride("focus", ButtonStyle(BasaltLift, Rune));
+        button.AddThemeStyleboxOverride("normal", ButtonStyle(new Color(0.06f, 0.057f, 0.052f, 0.94f), Steel));
+        button.AddThemeStyleboxOverride("hover", ButtonStyle(new Color(0.13f, 0.12f, 0.105f, 0.98f), Crimson));
+        button.AddThemeStyleboxOverride("pressed", ButtonStyle(new Color(0.16f, 0.06f, 0.045f, 1f), Brass));
+        button.AddThemeStyleboxOverride("disabled", ButtonStyle(new Color(0.035f, 0.035f, 0.033f, 0.74f), new Color(0.16f, 0.15f, 0.13f, 0.72f)));
+        button.AddThemeStyleboxOverride("focus", ButtonStyle(BasaltLift, Brass));
     }
 
     private static (Color Background, Color Border, int Radius) SurfaceColors(RunestoneSurface surface)
     {
         return surface switch
         {
-            RunestoneSurface.Table => (new Color(0.055f, 0.065f, 0.06f, 0.96f), Brass, 4),
-            RunestoneSurface.Rail => (new Color(0.075f, 0.087f, 0.08f, 0.92f), BrassDim, 3),
-            RunestoneSurface.Zone => (new Color(0.07f, 0.082f, 0.076f, 0.82f), RuneDim, 3),
-            RunestoneSurface.Slot => (new Color(0.04f, 0.047f, 0.044f, 0.48f), new Color(0.28f, 0.35f, 0.3f, 0.72f), 3),
-            RunestoneSurface.Card => (new Color(0.16f, 0.15f, 0.125f, 1f), Brass, 5),
-            RunestoneSurface.CardBack => (new Color(0.045f, 0.068f, 0.072f, 1f), Rune, 5),
-            RunestoneSurface.Stack => (new Color(0.06f, 0.07f, 0.066f, 0.94f), BrassDim, 3),
-            RunestoneSurface.Result => (new Color(0.12f, 0.1f, 0.065f, 0.96f), Brass, 4),
-            _ => (new Color(0.07f, 0.08f, 0.076f, 0.9f), BrassDim, 3)
+            RunestoneSurface.Table => (new Color(0.025f, 0.024f, 0.022f, 0.98f), Brass, 4),
+            RunestoneSurface.Rail => (new Color(0.045f, 0.043f, 0.039f, 0.94f), Steel, 3),
+            RunestoneSurface.Zone => (new Color(0.035f, 0.035f, 0.032f, 0.86f), new Color(0.47f, 0.43f, 0.34f, 0.78f), 3),
+            RunestoneSurface.Slot => (new Color(0.02f, 0.02f, 0.018f, 0.58f), new Color(0.62f, 0.58f, 0.48f, 0.42f), 3),
+            RunestoneSurface.Card => (new Color(0.12f, 0.105f, 0.082f, 1f), Brass, 5),
+            RunestoneSurface.CardBack => (new Color(0.035f, 0.024f, 0.022f, 1f), Crimson, 5),
+            RunestoneSurface.Stack => (new Color(0.028f, 0.028f, 0.026f, 0.94f), BrassDim, 3),
+            RunestoneSurface.Result => (new Color(0.105f, 0.062f, 0.045f, 0.98f), Brass, 4),
+            _ => (new Color(0.04f, 0.04f, 0.036f, 0.9f), Steel, 3)
+        };
+    }
+
+    private static float SurfacePadding(RunestoneSurface surface)
+    {
+        return surface switch
+        {
+            RunestoneSurface.Table => 3f,
+            RunestoneSurface.Rail => 3f,
+            RunestoneSurface.Zone => 3f,
+            RunestoneSurface.Card => 2f,
+            RunestoneSurface.CardBack => 2f,
+            RunestoneSurface.Stack => 4f,
+            RunestoneSurface.Result => 8f,
+            RunestoneSurface.Chrome => 8f,
+            _ => 3f
         };
     }
 }

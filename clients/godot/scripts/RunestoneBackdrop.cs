@@ -24,6 +24,7 @@ public partial class RunestoneBackdrop : Control
         DrawRect(new Rect2(Vector2.Zero, size), RunestoneTheme.BasaltBlack);
         DrawStoneSlabs(size);
         DrawTableSigil(size);
+        DrawHeaderPlate(size);
         DrawSidePanelGlow(size);
     }
 
@@ -31,8 +32,8 @@ public partial class RunestoneBackdrop : Control
     {
         const float tileWidth = 150f;
         const float tileHeight = 118f;
-        var vertical = new Color(0.17f, 0.19f, 0.17f, 0.28f);
-        var horizontal = new Color(0.22f, 0.24f, 0.2f, 0.22f);
+        var vertical = new Color(0.56f, 0.53f, 0.44f, 0.13f);
+        var horizontal = new Color(0.7f, 0.66f, 0.54f, 0.1f);
 
         for (var x = 0f; x <= size.X; x += tileWidth)
         {
@@ -54,7 +55,7 @@ public partial class RunestoneBackdrop : Control
             DrawLine(
                 new Vector2(x, y),
                 new Vector2(x + length, y + Jitter(i, 409, 12f)),
-                new Color(0.36f, 0.39f, 0.33f, 0.16f),
+                new Color(0.8f, 0.76f, 0.62f, 0.07f),
                 1f);
         }
     }
@@ -68,12 +69,13 @@ public partial class RunestoneBackdrop : Control
         var height = size.Y * 0.42f;
         var rect = new Rect2(left, top, width, height);
 
-        DrawRect(rect, new Color(0.075f, 0.09f, 0.084f, 0.44f));
-        DrawRect(rect, new Color(0.58f, 0.45f, 0.23f, 0.32f), false, 2f);
+        DrawRect(rect, new Color(0.018f, 0.018f, 0.016f, 0.56f));
+        DrawRect(rect, new Color(0.84f, 0.78f, 0.62f, 0.24f), false, 2f);
+        DrawRect(new Rect2(rect.Position + new Vector2(3, 3), rect.Size - new Vector2(6, 6)), new Color(0.42f, 0.035f, 0.035f, 0.13f), false, 1f);
 
         var midY = rect.Position.Y + rect.Size.Y * 0.5f;
-        DrawLine(new Vector2(rect.Position.X + 18f, midY), new Vector2(rect.End.X - 18f, midY), RunestoneTheme.RuneDim, 2f);
-        DrawLine(new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.Position.Y + 14f), new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.End.Y - 14f), new Color(0.24f, 0.54f, 0.5f, 0.34f), 2f);
+        DrawLine(new Vector2(rect.Position.X + 18f, midY), new Vector2(rect.End.X - 18f, midY), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.22f), 2f);
+        DrawLine(new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.Position.Y + 14f), new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.End.Y - 14f), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.24f), 2f);
 
         for (var i = 0; i < 18; i++)
         {
@@ -84,7 +86,7 @@ public partial class RunestoneBackdrop : Control
 
     private void DrawRuneTick(Vector2 center, int index)
     {
-        var glow = index % 3 == 0 ? RunestoneTheme.Brass : RunestoneTheme.Rune;
+        var glow = index % 3 == 0 ? RunestoneTheme.Brass : index % 2 == 0 ? RunestoneTheme.Crimson : RunestoneTheme.Ivory;
         var color = new Color(glow.R, glow.G, glow.B, 0.42f);
         DrawLine(center + new Vector2(-5, -8), center + new Vector2(5, 8), color, 1.4f);
         DrawLine(center + new Vector2(-5, 8), center + new Vector2(5, -8), color, 1.4f);
@@ -94,11 +96,21 @@ public partial class RunestoneBackdrop : Control
         }
     }
 
+    private void DrawHeaderPlate(Vector2 size)
+    {
+        var width = MathF.Max(320f, size.X - 352f);
+        var plate = new Rect2(0, 0, width, 246f);
+        DrawRect(plate, new Color(0.01f, 0.01f, 0.009f, 0.42f));
+        DrawRect(new Rect2(0, plate.End.Y - 2f, width, 2f), new Color(RunestoneTheme.Brass.R, RunestoneTheme.Brass.G, RunestoneTheme.Brass.B, 0.34f));
+        DrawRect(new Rect2(width - 2f, 0, 2f, plate.End.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.18f));
+    }
+
     private void DrawSidePanelGlow(Vector2 size)
     {
         var x = MathF.Max(0, size.X - 336f);
-        DrawRect(new Rect2(x, 0, 2f, size.Y), new Color(0.66f, 0.5f, 0.24f, 0.42f));
-        DrawRect(new Rect2(x + 2f, 0, 26f, size.Y), new Color(0.28f, 0.49f, 0.44f, 0.08f));
+        DrawRect(new Rect2(x, 0, 2f, size.Y), new Color(RunestoneTheme.Brass.R, RunestoneTheme.Brass.G, RunestoneTheme.Brass.B, 0.45f));
+        DrawRect(new Rect2(x + 2f, 0, 22f, size.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.1f));
+        DrawRect(new Rect2(x + 24f, 0, 1f, size.Y), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.12f));
     }
 
     private static float Jitter(int a, int b, float scale)
