@@ -2,6 +2,17 @@
 
 This guide describes a reproducible production-style deployment package. It does not require Codex or this repository to create cloud resources, domains, certificates, databases, or paid services.
 
+## Local Docker Engine
+
+Make sure a Docker daemon is running before building. Docker Desktop works, and on macOS a local Colima daemon also works:
+
+```bash
+colima start
+docker context use colima
+```
+
+If `docker build` reports that it cannot connect to `/var/run/docker.sock`, start one of those local Docker engines and retry.
+
 ## Build The Image
 
 Build from the repository root:
