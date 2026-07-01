@@ -52,6 +52,8 @@ public partial class Main : Control
     private readonly OfficialCardImageLoader _cardImageLoader = new();
     private readonly CardViewFactory _cardViewFactory;
     private readonly CardControlRenderer _cardControlRenderer;
+    private readonly object _promptHighlightLock = new();
+    private readonly HashSet<string> _promptSourceObjectIds = new(StringComparer.Ordinal);
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
     private Label? _status;
@@ -113,11 +115,12 @@ public partial class Main : Control
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
+    private Godot.Collections.Array<Godot.Collections.Dictionary>? _lastSnapshotSections;
 
     public Main()
     {
         _cardViewFactory = new CardViewFactory(_cardImageLoader);
-        _cardControlRenderer = new CardControlRenderer(ApplyCardPreview);
+        _cardControlRenderer = new CardControlRenderer(ApplyCardPreview, IsPromptSourceObject);
     }
 
     public override async void _Ready()
@@ -3333,15 +3336,26 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
+        RefreshPromptHighlights(actions);
+        var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
+        if (_promptFrame is not null)
+        {
+            _promptFrame.AddThemeStyleboxOverride(
+                "panel",
+                RunestoneTheme.FrameStyle(actionable ? RunestoneSurface.Result : RunestoneSurface.Chrome, actionable ? 3 : 1));
+        }
+
         if (_promptSummary is not null)
         {
             _promptSummary.Text = PromptGuidanceSummary(view, actions);
+            _promptSummary.AddThemeColorOverride("font_color", actionable ? RunestoneTheme.Brass : RunestoneTheme.MutedInk);
         }
 
         if (actions.Count == 0)
         {
             _promptActions.AddChild(MutedLabel("等待服务端提供可展示的候选。"));
             RunestoneTheme.ApplyToTree(_promptActions);
+            RedrawLastSnapshotSections();
             return;
         }
 
@@ -3351,6 +3365,68 @@ public partial class Main : Control
         }
 
         RunestoneTheme.ApplyToTree(_promptActions);
+        RedrawLastSnapshotSections();
+    }
+
+    private void RefreshPromptHighlights(Godot.Collections.Array<Godot.Collections.Dictionary> actions)
+    {
+        var next = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var action in actions)
+        {
+            var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
+            if (!enabled)
+            {
+                continue;
+            }
+
+            foreach (var objectId in PromptChoiceIds(action, "sourceChoices"))
+            {
+                next.Add(objectId);
+            }
+        }
+
+        lock (_promptHighlightLock)
+        {
+            _promptSourceObjectIds.Clear();
+            foreach (var objectId in next)
+            {
+                _promptSourceObjectIds.Add(objectId);
+            }
+        }
+    }
+
+    private static IEnumerable<string> PromptChoiceIds(Godot.Collections.Dictionary action, string propertyName)
+    {
+        if (!action.TryGetValue(propertyName, out var choicesValue)
+            || choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } choices)
+        {
+            yield break;
+        }
+
+        foreach (var choice in choices)
+        {
+            var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
+            if (!string.IsNullOrWhiteSpace(choiceId))
+            {
+                yield return choiceId;
+            }
+        }
+    }
+
+    private bool IsPromptSourceObject(string objectId)
+    {
+        lock (_promptHighlightLock)
+        {
+            return _promptSourceObjectIds.Contains(objectId);
+        }
+    }
+
+    private void RedrawLastSnapshotSections()
+    {
+        if (_snapshotRows is not null && _lastSnapshotSections is not null)
+        {
+            _cardControlRenderer.RenderSnapshotSections(_snapshotRows, _lastSnapshotSections);
+        }
     }
 
     private static string PromptGuidanceSummary(
@@ -3778,6 +3854,7 @@ public partial class Main : Control
             return;
         }
 
+        _lastSnapshotSections = sections;
         _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
     }
 

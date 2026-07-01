@@ -20,10 +20,14 @@ internal sealed class CardControlRenderer
     private const int RuneDeckSize = 12;
 
     private readonly Action<Godot.Collections.Dictionary> _cardInspected;
+    private readonly Func<string, bool> _isPromptSource;
 
-    public CardControlRenderer(Action<Godot.Collections.Dictionary> cardInspected)
+    public CardControlRenderer(
+        Action<Godot.Collections.Dictionary> cardInspected,
+        Func<string, bool> isPromptSource)
     {
         _cardInspected = cardInspected;
+        _isPromptSource = isPromptSource;
     }
 
     public void RenderHandCards(
@@ -442,6 +446,8 @@ internal sealed class CardControlRenderer
     {
         var visible = !card.TryGetValue("visible", out var visibleValue) || visibleValue.AsBool();
         var faceDown = card.TryGetValue("faceDown", out var faceDownValue) && faceDownValue.AsBool();
+        var objectId = card.TryGetValue("objectId", out var objectValue) ? objectValue.AsString() : string.Empty;
+        var promptSource = !string.IsNullOrWhiteSpace(objectId) && _isPromptSource(objectId);
         Control content;
         var surface = RunestoneSurface.Card;
         if (!visible || faceDown)
@@ -455,9 +461,11 @@ internal sealed class CardControlRenderer
             content = VisibleCardContent(card, contentSize, image);
         }
 
-        var frame = WireFrame(content, frameSize, borderWidth: 2, surface: surface);
+        var frame = WireFrame(content, frameSize, borderWidth: promptSource ? 3 : 2, surface: promptSource ? RunestoneSurface.Result : surface);
         frame.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
-        frame.TooltipText = PreviewSummary(card);
+        frame.TooltipText = promptSource
+            ? $"服务端候选来源\n{PreviewSummary(card)}"
+            : PreviewSummary(card);
         frame.GuiInput += input =>
         {
             if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
