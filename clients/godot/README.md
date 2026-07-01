@@ -180,9 +180,18 @@ evidence: one client logs an accepted `SURRENDER` receipt, both clients receive
 
 ## Manual Two-Player Playtest
 
-Use this for the Playable v1 human check. Start the API in memory mode, then
-open two visible Godot clients in the same room. The helper script starts both
-windows with isolated ephemeral sessions and writes logs/screenshots to `/tmp`:
+Use this for the Playable v1 human check. For a same-machine local test, the
+stack helper starts the memory-mode API when needed, opens two visible Godot
+clients in the same room, waits for both windows to close, then runs the
+machine-readable evidence checker:
+
+```sh
+clients/godot/tools/run-local-human-playtest-stack.sh
+```
+
+If the API is already running, or if you want to point at a LAN/public server,
+use the window-only helper. It starts both windows with isolated ephemeral
+sessions and writes logs/screenshots to `/tmp`:
 
 ```sh
 clients/godot/tools/run-local-human-playtest.sh
@@ -194,7 +203,7 @@ Useful overrides:
 RIFTBOUND_SERVER=http://127.0.0.1:5088 \
 RIFTBOUND_ROOM=human-local-test \
 RIFTBOUND_SCREENSHOT_DIR=/tmp/human-local-test \
-clients/godot/tools/run-local-human-playtest.sh
+clients/godot/tools/run-local-human-playtest-stack.sh
 ```
 
 For same-machine testing without the script, keep the identities isolated with
