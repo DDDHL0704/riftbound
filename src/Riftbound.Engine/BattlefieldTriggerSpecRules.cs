@@ -105,6 +105,18 @@ internal static class BattlefieldTriggerSpecRules
                 StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldHeldReturnHeroTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldReturnHero, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedHeroUnitInGraveyard, StringComparison.Ordinal)
+            && trigger.ReturnCount is > 0
+            && string.Equals(trigger.RequiredEmptyZone, TriggerZones.Champion, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Champion, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(trigger.ReturnCardFilter);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -173,14 +185,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldReturnHeroTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldReturnHero,
             out trigger);
     }
 

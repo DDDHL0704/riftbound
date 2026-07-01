@@ -22891,8 +22891,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !playerZones.TryGetValue(playerId, out var zones)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldReturnHeroTrigger,
                 out var trigger)
             || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
             || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedHeroUnitInGraveyard, StringComparison.Ordinal)

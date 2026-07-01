@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Return-Hero Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·281/298` Hallowed Tomb official text `当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldReturnHeroTrigger, out trigger)`.
+- `IsBattlefieldHeldReturnHeroTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD`, `Timing=BATTLEFIELD_HELD`, `TargetScope=OWNED_HERO_UNIT_IN_GRAVEYARD`, positive `ReturnCount`, `RequiredEmptyZone=CHAMPION`, `ReturnOriginZone=GRAVEYARD`, `ReturnDestinationZone=CHAMPION`, and non-empty `ReturnCardFilter`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldReturnHeroTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / returned hero payload semantics and champion-zone transition behavior.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldReturnHeroTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9088/9088; focused guard / parser / Hallowed Tomb representatives / official-deck route 6/6; adjacent `BattlefieldHeldReturnHero|HallowedTomb|BattlefieldHeld|ChampionZone|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2722/2722; backend full conformance 9089/9089.
+
 ## 2026-07-01 Held Create-Minion Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·275/298` Unity Sanctum official text `当你据守此处时，打出一名1{{S}}的“随从”到你的基地。`
