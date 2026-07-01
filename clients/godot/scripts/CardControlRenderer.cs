@@ -420,15 +420,7 @@ internal sealed class CardControlRenderer
         else
         {
             var image = card.TryGetValue("image", out var imageValue) ? imageValue.As<Image>() : null;
-            content = image is null
-                ? TextCardFace(card, contentSize)
-                : new TextureRect
-                {
-                    CustomMinimumSize = contentSize,
-                    Texture = ImageTexture.CreateFromImage(image),
-                    ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
-                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
-                };
+            content = VisibleCardContent(card, contentSize, image);
         }
 
         var frame = WireFrame(content, frameSize, borderWidth: 2, surface: surface);
@@ -452,6 +444,152 @@ internal sealed class CardControlRenderer
     private static Control BackCard(string label, Vector2 size)
     {
         return WireFrame(CardBackContent(label, size), size, borderWidth: 2, surface: RunestoneSurface.CardBack);
+    }
+
+    private static Control VisibleCardContent(
+        Godot.Collections.Dictionary card,
+        Vector2 contentSize,
+        Image? image)
+    {
+        var box = new VBoxContainer
+        {
+            CustomMinimumSize = contentSize,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        box.AddThemeConstantOverride("separation", 1);
+
+        box.AddChild(CardTopBar(card, contentSize));
+
+        var artHeight = MathF.Max(20f, contentSize.Y * (contentSize.Y >= 74f ? 0.5f : 0.42f));
+        box.AddChild(CardArtPanel(card, image, new Vector2(contentSize.X, artHeight)));
+
+        box.AddChild(CardFooter(card, contentSize));
+        return box;
+    }
+
+    private static Control CardTopBar(Godot.Collections.Dictionary card, Vector2 contentSize)
+    {
+        var energy = Value(card, "energy");
+        var power = Value(card, "power");
+        if (energy < 0 && power < 0)
+        {
+            return new Control
+            {
+                CustomMinimumSize = new Vector2(contentSize.X, 1)
+            };
+        }
+
+        var row = new HBoxContainer
+        {
+            CustomMinimumSize = new Vector2(contentSize.X, 14),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 1);
+        if (energy >= 0)
+        {
+            row.AddChild(StatBadge("C", energy, RunestoneTheme.Brass, new Vector2(22, 14)));
+        }
+
+        row.AddChild(new Control
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        });
+        if (power >= 0)
+        {
+            row.AddChild(StatBadge("P", power, RunestoneTheme.Crimson, new Vector2(22, 14)));
+        }
+
+        return row;
+    }
+
+    private static Control CardArtPanel(
+        Godot.Collections.Dictionary card,
+        Image? image,
+        Vector2 size)
+    {
+        var frame = new PanelContainer
+        {
+            CustomMinimumSize = size,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        frame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Slot));
+
+        if (image is not null)
+        {
+            frame.AddChild(new TextureRect
+            {
+                Texture = ImageTexture.CreateFromImage(image),
+                ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                CustomMinimumSize = size,
+                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill
+            });
+            return frame;
+        }
+
+        var placeholder = new VBoxContainer
+        {
+            CustomMinimumSize = size,
+            Alignment = BoxContainer.AlignmentMode.Center,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        var title = CardTitle(card);
+        var artLabel = LabelNode(string.IsNullOrWhiteSpace(title) ? "CARD" : title, new Vector2(size.X, 0));
+        artLabel.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+        placeholder.AddChild(artLabel);
+        frame.AddChild(placeholder);
+        return frame;
+    }
+
+    private static Control CardFooter(Godot.Collections.Dictionary card, Vector2 contentSize)
+    {
+        var box = new VBoxContainer
+        {
+            CustomMinimumSize = new Vector2(contentSize.X, 0),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        box.AddThemeConstantOverride("separation", 0);
+
+        var title = LabelNode(CompactCardTitle(CardTitle(card)), new Vector2(contentSize.X, 0));
+        title.AddThemeColorOverride("font_color", RunestoneTheme.Ink);
+        box.AddChild(title);
+
+        var detail = CardDetailLine(card);
+        if (!string.IsNullOrWhiteSpace(detail) && contentSize.Y >= 58f)
+        {
+            var detailLabel = LabelNode(detail, new Vector2(contentSize.X, 0));
+            detailLabel.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+            box.AddChild(detailLabel);
+        }
+
+        var effect = card.TryGetValue("effectText", out var effectValue)
+            ? CompactEffect(effectValue.AsString())
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(effect) && contentSize.X >= 58f && contentSize.Y >= 92f)
+        {
+            var effectLabel = LabelNode(effect, new Vector2(contentSize.X, 0));
+            effectLabel.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+            box.AddChild(effectLabel);
+        }
+
+        return box;
+    }
+
+    private static Control StatBadge(string prefix, int value, Color border, Vector2 size)
+    {
+        var badge = new PanelContainer
+        {
+            CustomMinimumSize = size
+        };
+        badge.AddThemeStyleboxOverride("panel", RunestoneTheme.ButtonStyle(new Color(0.02f, 0.018f, 0.016f, 0.94f), border));
+        var label = LabelNode($"{prefix}{value}", size);
+        label.AddThemeColorOverride("font_color", RunestoneTheme.Ink);
+        badge.AddChild(label);
+        return badge;
     }
 
     private static Control TextCardFace(Godot.Collections.Dictionary card, Vector2 contentSize)
@@ -487,7 +625,68 @@ internal sealed class CardControlRenderer
             box.AddChild(categoryLabel);
         }
 
+        var trait = card.TryGetValue("trait", out var traitValue) ? traitValue.AsString() : string.Empty;
+        if (!string.IsNullOrWhiteSpace(trait))
+        {
+            var traitLabel = LabelNode(trait, new Vector2(contentSize.X, 0));
+            traitLabel.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+            box.AddChild(traitLabel);
+        }
+
+        var effect = card.TryGetValue("effectText", out var effectValue)
+            ? CompactEffect(effectValue.AsString())
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(effect))
+        {
+            var effectLabel = LabelNode(effect, new Vector2(contentSize.X, 0));
+            effectLabel.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+            box.AddChild(effectLabel);
+        }
+
         return box;
+    }
+
+    private static string CardTitle(Godot.Collections.Dictionary card)
+    {
+        if (card.TryGetValue("cardName", out var cardName) && !string.IsNullOrWhiteSpace(cardName.AsString()))
+        {
+            return cardName.AsString();
+        }
+
+        return card.TryGetValue("label", out var label) ? label.AsString() : "Card";
+    }
+
+    private static string CompactCardTitle(string title)
+    {
+        title = title.Replace('\n', ' ').Trim();
+        return title.Length <= 12 ? title : $"{title[..11]}…";
+    }
+
+    private static string CardDetailLine(Godot.Collections.Dictionary card)
+    {
+        var category = card.TryGetValue("category", out var categoryValue) ? categoryValue.AsString() : string.Empty;
+        var trait = card.TryGetValue("trait", out var traitValue) ? traitValue.AsString() : string.Empty;
+        if (string.IsNullOrWhiteSpace(category))
+        {
+            return trait;
+        }
+
+        return string.IsNullOrWhiteSpace(trait) ? category : $"{category} · {trait}";
+    }
+
+    private static string CompactEffect(string effect)
+    {
+        var compact = effect
+            .Replace("{{", string.Empty, StringComparison.Ordinal)
+            .Replace("}}", string.Empty, StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Trim();
+        return compact.Length <= 34 ? compact : $"{compact[..33]}…";
+    }
+
+    private static int Value(Godot.Collections.Dictionary card, string key)
+    {
+        return card.TryGetValue(key, out var value) ? value.AsInt32() : -1;
     }
 
     private static string CardStatsLine(Godot.Collections.Dictionary card)

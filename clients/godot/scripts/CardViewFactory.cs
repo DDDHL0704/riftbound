@@ -27,6 +27,10 @@ internal sealed class CardViewFactory
                 string.Empty,
                 -1,
                 -1,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
                 card.Visible,
                 card.FaceDown,
                 Image: null);
@@ -40,6 +44,10 @@ internal sealed class CardViewFactory
             entry.CardCategoryName,
             entry.Energy ?? -1,
             entry.Power ?? -1,
+            entry.Trait,
+            entry.EffectText,
+            entry.RarityName,
+            entry.ColorText,
             Visible: true,
             FaceDown: false,
             image);

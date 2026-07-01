@@ -7,4 +7,8 @@ public sealed record CardCatalogEntry(
     string FrontImage,
     string BackImage,
     int? Energy,
-    int? Power);
+    int? Power,
+    string Trait,
+    string EffectText,
+    string RarityName,
+    string ColorText);

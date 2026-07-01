@@ -35,7 +35,11 @@ public sealed class OfficialCardCatalogService
                 ReadString(card, "frontImage"),
                 ReadString(card, "backImage"),
                 ReadInt(card, "energy"),
-                ReadInt(card, "power"));
+                ReadInt(card, "power"),
+                ReadString(card, "tag"),
+                ReadString(card, "cardEffect"),
+                ReadString(card, "rarityName"),
+                ReadStringArray(card, "cardColorList"));
         }
 
         return entries;
@@ -61,5 +65,26 @@ public sealed class OfficialCardCatalogService
             JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
             _ => null
         };
+    }
+
+    private static string ReadStringArray(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return string.Empty;
+        }
+
+        var values = new List<string>();
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                values.Add(item.GetString()!);
+            }
+        }
+
+        return string.Join(" / ", values);
     }
 }

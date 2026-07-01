@@ -10,6 +10,10 @@ internal sealed record CardViewData(
     string Category,
     int Energy,
     int Power,
+    string Trait,
+    string EffectText,
+    string RarityName,
+    string ColorText,
     bool Visible,
     bool FaceDown,
     Image? Image)
@@ -44,6 +48,27 @@ internal sealed record CardViewData(
                 lines.Add(Category);
             }
 
+            var details = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Trait))
+            {
+                details.Add(Trait);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ColorText))
+            {
+                details.Add(ColorText);
+            }
+
+            if (!string.IsNullOrWhiteSpace(RarityName))
+            {
+                details.Add(RarityName);
+            }
+
+            if (details.Count > 0)
+            {
+                lines.Add(string.Join(" · ", details));
+            }
+
             var stats = new List<string>();
             if (Energy >= 0)
             {
@@ -58,6 +83,11 @@ internal sealed record CardViewData(
             if (stats.Count > 0)
             {
                 lines.Add(string.Join(" · ", stats));
+            }
+
+            if (!string.IsNullOrWhiteSpace(EffectText))
+            {
+                lines.Add(EffectText);
             }
 
             return lines.Count == 0 ? "Visible card" : string.Join("\n", lines);
@@ -76,6 +106,10 @@ internal sealed record CardViewData(
             ["category"] = Category,
             ["energy"] = Energy,
             ["power"] = Power,
+            ["trait"] = Trait,
+            ["effectText"] = EffectText,
+            ["rarityName"] = RarityName,
+            ["colorText"] = ColorText,
             ["previewSummary"] = PreviewSummary
         };
 

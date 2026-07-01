@@ -450,6 +450,10 @@ public partial class Main : Control
                 card.CardCategoryName,
                 card.Energy ?? -1,
                 card.Power ?? -1,
+                card.Trait,
+                card.EffectText,
+                card.RarityName,
+                card.ColorText,
                 Visible: true,
                 FaceDown: false,
                 image);
