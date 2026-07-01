@@ -23258,7 +23258,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         winnerPlayerId = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldSevenUnitsWinTrigger,
+                out var trigger)
             || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
             || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitsAtThisBattlefield, StringComparison.Ordinal)
             || trigger.RequiredUnitCount is not > 0

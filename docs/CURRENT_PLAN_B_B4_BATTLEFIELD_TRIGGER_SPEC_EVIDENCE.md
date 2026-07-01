@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Seven-Units Win Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·293/298` / `OGN·293a/298` Grand Plaza official text `当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldSevenUnitsWinTrigger, out trigger)`.
+- `IsBattlefieldHeldSevenUnitsWinTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_SEVEN_UNITS_WIN`, `Timing=BATTLEFIELD_HELD`, `TargetScope=CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`, positive `RequiredUnitCount`, and `WinsGame=true`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldSevenUnitsWinTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `MATCH_WON` payload semantics and same-battlefield controlled-unit counting.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldSevenUnitsWinTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9089/9089; focused guard / parser / Grand Plaza representatives / official-deck route 8/8; adjacent `BattlefieldHeldSevenUnits|GrandPlaza|BattlefieldHeld|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2722/2722; backend full conformance 9090/9090.
+
 ## 2026-07-01 Held Return-Hero Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·281/298` Hallowed Tomb official text `当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。`

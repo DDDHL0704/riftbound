@@ -117,6 +117,15 @@ internal static class BattlefieldTriggerSpecRules
             && !string.IsNullOrWhiteSpace(trigger.ReturnCardFilter);
     }
 
+    public static bool IsBattlefieldHeldSevenUnitsWinTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldSevenUnitsWin, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitsAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.RequiredUnitCount is > 0
+            && trigger.WinsGame == true;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -185,14 +194,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldSevenUnitsWinTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldSevenUnitsWin,
             out trigger);
     }
 

@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held return-hero execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held seven-units win execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held seven-units win execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldSevenUnitsWinTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldSevenUnitsWinTrigger`.
+- `IsBattlefieldHeldSevenUnitsWinTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_SEVEN_UNITS_WIN`, `BATTLEFIELD_HELD`, `CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`, positive `RequiredUnitCount`, and `WinsGame = true`. Existing wire/event payloads and same-battlefield controlled-unit counting stay unchanged.
+- Red/green guard: `BattlefieldHeldSevenUnitsWinTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 28. This slice does not close the other B4 execution helpers, optional trigger choice prompts, complete battlefield lifecycle, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9089/9089, focused guard / parser / Grand Plaza representatives / official-deck route 8/8, adjacent `BattlefieldHeldSevenUnits|GrandPlaza|BattlefieldHeld|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2722/2722, backend full conformance 9090/9090.
 
 The 2026-07-01 held return-hero execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -533,7 +542,7 @@ The 2026-06-25 held seven-units win follow-up moves another implemented held-bat
   - `TargetScope = CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`
   - `RequiredUnitCount = 7`
   - `WinsGame = true`
-- `CoreRuleEngine.TryResolveBattlefieldHeldSevenUnitsWinTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(...)`, reads the required count / win flag from `BehaviorSpec.Triggers`, and counts controlled units whose `ObjectLocations.BattlefieldObjectId` is the held battlefield object.
+- `CoreRuleEngine.TryResolveBattlefieldHeldSevenUnitsWinTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route, reads the required count / win flag from `BehaviorSpec.Triggers`, and counts controlled units whose `ObjectLocations.BattlefieldObjectId` is the held battlefield object.
 - The representative regression now covers the official `在此` boundary: seven controlled battlefield-zone units split across multiple battlefields no longer satisfy the condition.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` constants.
 - The old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` / `IsBattlefieldHeldSevenUnitsWinCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `75` total / `71` in `CoreRuleEngine`; Core battlefield helper count is `27`.
