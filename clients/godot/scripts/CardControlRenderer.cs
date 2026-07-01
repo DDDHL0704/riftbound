@@ -102,6 +102,7 @@ internal sealed class CardControlRenderer
             CustomMinimumSize = new Vector2(0, 72),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
+        row.AddChild(ZoneStrip($"{PlayerName(player, side)}\n手牌 / 符文", new Vector2(96, 0)));
 
         if (side == "opponent")
         {
@@ -216,6 +217,7 @@ internal sealed class CardControlRenderer
             CustomMinimumSize = new Vector2(0, 92),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
+        row.AddChild(ZoneStrip($"{PlayerName(player, side)}\n基地 / 英雄", new Vector2(96, 0)));
 
         if (side == "opponent")
         {
@@ -274,6 +276,7 @@ internal sealed class CardControlRenderer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
+        row.AddChild(ZoneStrip("中央战场\n据点 / 单位", new Vector2(96, 0)));
         row.AddChild(WireSite(lanes.Count > 0 ? lanes[0] : new Godot.Collections.Dictionary()));
         row.AddChild(WireLaneGrid(lanes));
         row.AddChild(WireSite(lanes.Count > 1 ? lanes[1] : new Godot.Collections.Dictionary()));
@@ -302,6 +305,7 @@ internal sealed class CardControlRenderer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
+        column.AddChild(BandLabel($"战场 {LaneNumber(lane)} 单位"));
         column.AddChild(WireUnitZone(lane, "opponent"));
         column.AddChild(WireUnitZone(lane, "self"));
         return WireFrame(column, new Vector2(0, 0), surface: RunestoneSurface.Zone);
@@ -347,8 +351,15 @@ internal sealed class CardControlRenderer
     private Control WireSite(Godot.Collections.Dictionary lane)
     {
         var siteCards = Cards(lane, "site");
+        var column = new VBoxContainer
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        column.AddChild(BandLabel($"战场 {LaneNumber(lane)} 据点"));
+        column.AddChild(WireCardFlow(siteCards, BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
         return WireFrame(
-            WireCardFlow(siteCards, BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1),
+            column,
             new Vector2(124, 0),
             surface: RunestoneSurface.Zone);
     }
@@ -374,6 +385,27 @@ internal sealed class CardControlRenderer
         box.AddChild(LabelNode(label));
         box.AddChild(LabelNode(count.ToString()));
         return WireFrame(box, minSize, surface: RunestoneSurface.Stack);
+    }
+
+    private static Control ZoneStrip(string text, Vector2 minSize)
+    {
+        var frame = new PanelContainer
+        {
+            CustomMinimumSize = minSize,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        frame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Stack));
+        var label = LabelNode(text, minSize);
+        label.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        frame.AddChild(label);
+        return frame;
+    }
+
+    private static Label BandLabel(string text)
+    {
+        var label = LabelNode(text, new Vector2(0, 18));
+        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+        return label;
     }
 
     private Control WireCardFlow(
@@ -687,6 +719,18 @@ internal sealed class CardControlRenderer
     private static int Value(Godot.Collections.Dictionary card, string key)
     {
         return card.TryGetValue(key, out var value) ? value.AsInt32() : -1;
+    }
+
+    private static string PlayerName(Godot.Collections.Dictionary player, string side)
+    {
+        var fallback = side == "self" ? "P1 我方" : "P2 对手";
+        var score = Count(player, "score");
+        return $"{fallback}\n分数 {score}";
+    }
+
+    private static int LaneNumber(Godot.Collections.Dictionary lane)
+    {
+        return Count(lane, "index") + 1;
     }
 
     private static string CardStatsLine(Godot.Collections.Dictionary card)
