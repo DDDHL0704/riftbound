@@ -26579,7 +26579,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)
+            || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardNo, MoveUnitRoamKeyword)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardNo, out _)
@@ -31058,8 +31058,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !cardObject.IsFaceDown
-            && StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
+            && HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
+    }
+
+    private static bool HasBattlefieldAllUnitsGrantedKeywordStaticAura(string? cardNo, string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            return false;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(cardNo)
+            .Where(StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura)
+            .Any(aura => GrantedCombatKeywordAmount(aura, keyword) > 0);
     }
 
     private static bool HasBattlefieldStaticPreventMoveToBase(MatchState state, string playerId, string sourceObjectId)

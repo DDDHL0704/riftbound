@@ -1,10 +1,22 @@
 # Plan B B1 Static Aura Spec Audit
 
-更新时间：2026-06-30
+更新时间：2026-07-01
 
 ## Scope
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
+
+## 2026-07-01 Supplement: Battlefield All-Units Granted Keyword Scope Predicate
+
+This follow-up removes the remaining `TryGetBattlefieldAllUnitsGrantedKeywordAura` shared query and routes Wind Hill-style battlefield all-units keyword recognition through `StaticAuraSpec` scope predicates.
+
+`StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura` now identifies battlefield all-units RULE_TEXT keyword auras by `RULE_TEXT` layer, `StaticAuraTargetScopes.SameBattlefieldUnits`, and `StaticAuraParticipantScopes.SameBattlefieldPublicUnits`. `CoreRuleEngine` and `MatchSession` enumerate `StaticAuraSpecRules.GetStaticAuras(...)` and evaluate granted keyword amount through that predicate for Roam permission and battlefield rule-card recognition.
+
+The existing `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` effect id shape and Wind Hill Roam behavior remain compatible; this is a selector/scope-routing cleanup only.
+
+Validation: baseline backend full conformance 9069/9069; red/green focused `BattlefieldAllUnitsGrantedKeywordQueriesRouteThroughBehaviorSpecScope` 1/1; focused BattlefieldAllUnits / BattlefieldStaticRoam / Roam regression 40/40; StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery adjacent 2925/2925; backend full conformance 9070/9070.
+
+Non-closure: this slice only closes the battlefield all-units granted-keyword shared query cleanup. Complete battlefield RULE_TEXT keyword modifier breadth, complete B2 keyword breadth, full Roam/movement timing breadth, full LayerEngine timestamp/order semantics, P0, and READY remain open.
 
 ## 2026-07-01 Supplement: Battlefield Isolated-Defender RULE_TEXT Keyword Modifier Scope Router
 
@@ -110,7 +122,7 @@ This follow-up merges the battlefield all-units RULE_TEXT keyword aura and battl
 
 `MatchSession` now projects battlefield keyword continuous effects through `BuildBattlefieldKeywordAuraEffects`, enumerating each source battlefield's `BehaviorSpec.StaticAuras` instead of calling kind-specific `TryGetBattlefieldAllUnitsKeywordAura` / `TryGetBattlefieldFilteredUnitsKeywordAura` helpers. Existing `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` and `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD` effect id shapes are preserved.
 
-`StaticAuraSpecRules.HasBattlefieldKeywordStaticAura` now backs battlefield-card recognition for battlefield keyword aura sources. Roam prompt / movement permission still uses the existing `TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` query, but that query now also reads the shared battlefield keyword aura predicate.
+`StaticAuraSpecRules.HasBattlefieldKeywordStaticAura` now backs battlefield-card recognition for battlefield keyword aura sources. At this point Roam prompt / movement permission still used the `TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` query; the 2026-07-01 all-units granted-keyword follow-up supersedes that query with `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura`.
 
 Validation: red/green focused `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` 1/1; battlefield keyword / Roam focused regression 63/63; StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery adjacent 2329/2329; backend full conformance 9060/9060.
 
@@ -132,7 +144,7 @@ Non-closure: this slice only consolidates the battlefield POWER static-aura all-
 
 ## 2026-06-30 Supplement: Shared Battlefield All-Units Keyword Aura Query
 
-This follow-up removes the remaining duplicated `BattlefieldSourceGrantsRoam` private selector from `CoreRuleEngine` and `MatchSession`. Both runtime and prompt paths now call `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` for Wind Hill-style battlefield all-units `RULE_TEXT` keyword permission.
+This historical follow-up removed the duplicated `BattlefieldSourceGrantsRoam` private selector from `CoreRuleEngine` and `MatchSession` by introducing `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, MoveUnitRoamKeyword, out _)` for Wind Hill-style battlefield all-units `RULE_TEXT` keyword permission. The 2026-07-01 all-units granted-keyword follow-up supersedes that shared query with `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura`.
 
 The change is source-selector only: `OGN·297/298` 疾风山丘 still parses as `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` with `GrantedKeyword=游走`, battlefield keyword sources must remain face-up, and existing movement / Roam command semantics are unchanged.
 

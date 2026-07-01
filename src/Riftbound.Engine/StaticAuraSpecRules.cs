@@ -75,31 +75,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetBattlefieldAllUnitsGrantedKeywordAura(
-        string? cardNo,
-        string keyword,
-        out StaticAuraSpec aura)
-    {
-        aura = default!;
-        if (string.IsNullOrWhiteSpace(keyword))
-        {
-            return false;
-        }
-
-        var match = GetStaticAuras(cardNo)
-            .FirstOrDefault(candidate =>
-                IsBattlefieldKeywordStaticAura(candidate)
-                && string.Equals(candidate.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
-                && string.Equals(candidate.GrantedKeyword, keyword, StringComparison.Ordinal));
-        if (match is null)
-        {
-            return false;
-        }
-
-        aura = match;
-        return true;
-    }
-
     public static bool TryGetBattlefieldFilteredUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -432,6 +407,16 @@ internal static class StaticAuraSpecRules
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
                     StringComparison.Ordinal));
+    }
+
+    public static bool IsBattlefieldAllUnitsKeywordStaticAura(StaticAuraSpec aura)
+    {
+        return IsBattlefieldKeywordStaticAura(aura)
+            && string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                StringComparison.Ordinal);
     }
 
     public static bool IsSourceObjectPowerAuraAlreadyMaterialized(

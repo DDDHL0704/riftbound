@@ -9744,7 +9744,7 @@ internal static class ActionPromptBuilder
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
-                && StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
+                && HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -9785,6 +9785,19 @@ internal static class ActionPromptBuilder
             .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
             .Where(aura => string.IsNullOrWhiteSpace(aura.TargetFilter)
                 || StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState))
+            .Any(aura => aura.GrantedKeyword is { Length: > 0 } grantedKeyword
+                && CardCombatKeywordRules.KeywordAmount([grantedKeyword], keyword) > 0);
+    }
+
+    private static bool HasBattlefieldAllUnitsGrantedKeywordStaticAura(string? cardNo, string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            return false;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(cardNo)
+            .Where(StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura)
             .Any(aura => aura.GrantedKeyword is { Length: > 0 } grantedKeyword
                 && CardCombatKeywordRules.KeywordAmount([grantedKeyword], keyword) > 0);
     }
@@ -17926,7 +17939,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
-            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardObject.CardNo, MoveUnitRoamKeyword, out _)
+            || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardObject.CardNo, out _)

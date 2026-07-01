@@ -1,10 +1,21 @@
 # Plan B B1 Static Aura Spec Evidence
 
-更新时间：2026-06-30
+更新时间：2026-07-01
 
 ## Evidence Summary
 
 This evidence records the current B1 static-aura data-driven slices.
+
+## 2026-07-01 Supplement Evidence: Battlefield All-Units Granted Keyword Scope Predicate
+
+- `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura` is now the shared predicate for battlefield all-units RULE_TEXT keyword auras whose target and participant scopes are `SAME_BATTLEFIELD_UNITS` / `SAME_BATTLEFIELD_PUBLIC_UNITS`.
+- `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and battlefield rule-card recognition now enumerate `StaticAuraSpecRules.GetStaticAuras(cardNo)` and filter with `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura` instead of calling `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura`.
+- `MatchSession` prompt Roam permission and battlefield rule-card recognition now consume the same scope predicate.
+- Existing public effect id shape remains compatible: `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD`.
+- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura` has been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.BattlefieldAllUnitsGrantedKeywordQueriesRouteThroughBehaviorSpecScope` blocks reintroducing the removed helper in CoreRuleEngine, MatchSession, or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9069/9069; red/green focused guard 1/1; focused BattlefieldAllUnits / BattlefieldStaticRoam / Roam regression 40/40; StaticAura / StaticKeyword / Battlefield / Roam / MoveUnit / FullGameEndToEnd / MatchRecovery adjacent 2925/2925; backend full conformance 9070/9070.
+- Non-closure: this does not finish complete battlefield RULE_TEXT keyword modifier breadth, complete B2 keyword breadth, full Roam/movement timing breadth, complete LayerEngine timestamp/order behavior, full P0, or READY.
 
 ## 2026-07-01 Supplement Evidence: Battlefield Isolated-Defender RULE_TEXT Keyword Modifier Scope Router
 
@@ -99,7 +110,7 @@ This evidence records the current B1 static-aura data-driven slices.
 
 - `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura` is now the shared predicate for battlefield RULE_TEXT keyword auras whose target/participant scope is either all public units at the source battlefield or filtered public units at the source battlefield.
 - `StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardNo)` is now the shared battlefield-rule recognition query for those keyword aura shapes.
-- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` now uses the shared battlefield keyword aura predicate before checking all-units target scope and the requested granted keyword.
+- At this point `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` used the shared battlefield keyword aura predicate before checking all-units target scope and the requested granted keyword; the 2026-07-01 all-units granted-keyword follow-up supersedes that query with `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura`.
 - `CoreRuleEngine.ResolveBattlefieldKeywordStaticAuraBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)` and takes the max matching granted combat keyword amount instead of calling separate all-units and filtered-units keyword helper selectors.
 - `MatchSession.BuildBattlefieldKeywordAuraEffects` now enumerates `StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)` and projects matching battlefield keyword auras from their `StaticAuraSpec` scopes instead of separate all-units and filtered-units projection builders.
 - Existing public effect id shapes remain compatible: `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD` and `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD`.
@@ -120,11 +131,11 @@ This evidence records the current B1 static-aura data-driven slices.
 
 ## 2026-06-30 Supplement Evidence: Shared Battlefield All-Units Keyword Aura Query
 
-- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` is now the shared engine query for battlefield all-units `RULE_TEXT` keyword auras.
-- `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `MatchSession.HasMoveUnitPromptRoamPermission` now consume that shared query for `MoveUnitRoamKeyword`.
-- `CoreRuleEngine.HasImplementedBattlefieldRuleSpec` and `MatchSession.IsBattlefieldCardObject` now also recognize Wind Hill-style battlefield all-units keyword sources through the shared query.
+- This historical slice introduced `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura(cardNo, keyword, out aura)` as the shared engine query for battlefield all-units `RULE_TEXT` keyword auras; the 2026-07-01 all-units granted-keyword follow-up supersedes it with `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura`.
+- `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `MatchSession.HasMoveUnitPromptRoamPermission` consumed that shared query for `MoveUnitRoamKeyword` before the 2026-07-01 follow-up moved them to scope-predicate enumeration.
+- `CoreRuleEngine.HasImplementedBattlefieldRuleSpec` and `MatchSession.IsBattlefieldCardObject` recognized Wind Hill-style battlefield all-units keyword sources through the shared query before the 2026-07-01 follow-up moved them to scope-predicate enumeration.
 - The duplicated private `BattlefieldSourceGrantsRoam` helpers were removed from `CoreRuleEngine` and `MatchSession`.
-- `CardCatalogBaselineTests.StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList` now blocks reintroducing `BattlefieldSourceGrantsRoam` and requires `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura`.
+- `CardCatalogBaselineTests.StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList` blocked reintroducing `BattlefieldSourceGrantsRoam`; after the 2026-07-01 follow-up it blocks `StaticAuraSpecRules.TryGetBattlefieldAllUnitsGrantedKeywordAura` and requires `StaticAuraSpecRules.IsBattlefieldAllUnitsKeywordStaticAura`.
 - Validation passed: focused guard red/green 1/1; StaticAura / BattlefieldStaticRoam / BattlefieldAllUnits / Roam / MoveUnit / CardCatalogBaseline / MatchRecovery adjacent 2490/2490; backend full conformance 9049/9049.
 - Non-closure: this does not expand complete Roam timing, movement lifecycle, full battlefield keyword aura breadth, B1/B2 completion, frontend validation, or READY.
 
