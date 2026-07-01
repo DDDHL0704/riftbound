@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Each-Player Call-Rune Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·219/221` Confetti Tree official text `当你据守此处时，每名玩家召出一枚休眠的符文。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldEachPlayerCallRuneTrigger, out trigger)`.
+- `IsBattlefieldHeldEachPlayerCallRuneTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE`, `Timing=BATTLEFIELD_HELD`, `TargetScope=EACH_PLAYER`, and positive `RuneCallCount`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldEachPlayerCallRuneTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / per-player `RUNES_CALLED` payload semantics.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldEachPlayerCallRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Validation: baseline backend full 9082/9082; focused guard / parser / held each-player call-rune representatives / Confetti Tree official-deck route 5/5; adjacent `BattlefieldHeldEachPlayerCallRune|BattlefieldHeldRunes|BattlefieldHeld|CallRune|GameHub|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2725/2725; backend full conformance 9083/9083.
+
 ## 2026-07-01 Held Call-Rune Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·288/298` Star Peak official text `当你据守此处时，你可以选择召出一枚休眠的符文。`

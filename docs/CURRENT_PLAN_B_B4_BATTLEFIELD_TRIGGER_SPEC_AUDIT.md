@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held call-rune execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held each-player call-rune execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held each-player call-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldEachPlayerCallRuneTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldEachPlayerCallRuneTrigger`.
+- `IsBattlefieldHeldEachPlayerCallRuneTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE`, `BATTLEFIELD_HELD`, `EACH_PLAYER`, and positive `runeCallCount`. Existing wire/event payloads keep the parsed trigger kind.
+- Red/green guard: `BattlefieldHeldEachPlayerCallRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 35. This slice does not close the other B4 execution helpers, optional trigger ordering breadth, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9082/9082, focused guard / parser / held each-player call-rune representatives / Confetti Tree official-deck route 5/5, adjacent `BattlefieldHeldEachPlayerCallRune|BattlefieldHeldRunes|BattlefieldHeld|CallRune|GameHub|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2725/2725, backend full conformance 9083/9083.
 
 The 2026-07-01 held call-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -395,7 +404,7 @@ The 2026-06-25 held each-player call-rune follow-up moves another implemented he
   - `Timing = BATTLEFIELD_HELD`
   - `TargetScope = EACH_PLAYER`
   - `RuneCallCount = 1`
-- `CoreRuleEngine.TryResolveBattlefieldHeldEachPlayerCallRuneTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(...)` and reads the target scope and rune-call count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldEachPlayerCallRuneTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route and reads the target scope and rune-call count from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldEachPlayerCallRuneCardNo` constant.
 - The old `BattlefieldHoldEachPlayerCallRuneCardNo` / `IsBattlefieldHoldEachPlayerCallRuneCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `80` total / `76` in `CoreRuleEngine`; Core battlefield helper count is `32`.
 

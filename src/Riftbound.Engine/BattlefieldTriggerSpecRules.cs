@@ -48,6 +48,14 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.RuneCallCount is > 0;
     }
 
+    public static bool IsBattlefieldHeldEachPlayerCallRuneTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldEachPlayerCallRune, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.EachPlayer, StringComparison.Ordinal)
+            && trigger.RuneCallCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -116,14 +124,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldEachPlayerCallRuneTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldEachPlayerCallRune,
             out trigger);
     }
 

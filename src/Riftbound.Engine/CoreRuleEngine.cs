@@ -22563,7 +22563,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(battlefieldState.CardNo, out var trigger)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldHeldEachPlayerCallRuneTrigger,
+                out var trigger)
             || !string.Equals(trigger.TargetScope, TriggerTargetScopes.EachPlayer, StringComparison.Ordinal)
             || trigger.RuneCallCount is not > 0)
         {
