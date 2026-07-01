@@ -148,6 +148,15 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldFirstTurnScoreTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.EachPlayer, StringComparison.Ordinal)
+            && trigger.FirstTurnOnly == true
+            && trigger.ScoreAmount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -384,14 +393,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldFirstTurnExtraRune,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldFirstTurnScoreTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldFirstTurnScore,
             out trigger);
     }
 

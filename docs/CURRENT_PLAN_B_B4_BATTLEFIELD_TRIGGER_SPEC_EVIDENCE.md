@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 First-Turn Score Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·290/298` Glory Arena official text `每名玩家在各自的第一个回合开始阶段，获得1分。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnScoreTrigger, out trigger)`.
+- `IsBattlefieldFirstTurnScoreTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_FIRST_TURN_GAIN_SCORE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `FirstTurnOnly=true`, and positive `ScoreAmount`.
+- `CoreRuleEngine.ApplyBattlefieldFirstTurnScore` and `HasDedicatedBattlefieldScoreRuleSpec` use that generic predicate route and keep existing `BATTLEFIELD_TRIGGER_RESOLVED`, `SCORE_GAINED`, `sourceObjectIds`, score amount, and score-prevention compatibility semantics.
+- Existing first-turn score paths continue to ignore battlefield control changes for global source discovery, mark each source as scored once per turn, and route official-deck replay through the same parsed Glory Arena trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldFirstTurnScoreTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9094/9094; focused guard / parser / Glory Arena representatives / official-deck route 6/6; adjacent `GloryArena|FirstTurnScore|ScoreDelay|BattlefieldFirstTurn|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2452/2452; backend full conformance 9095/9095.
+
 ## 2026-07-01 Held-Next-Spell Echo Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-216/219` Piltover Academy official text `当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）`
@@ -456,7 +466,7 @@ The accepted `START_TURN` path keeps the existing representative behavior: while
 
 The 2026-06-27 B0 follow-up adds an official-deck score-victory action-log replay for Power Obelisk (`OGN·284/298`). It verifies a legal Vex official opening selects the BehaviorSpec battlefield source, derives a focused first-turn replay state from that official opening, submits replayable `END_TURN`, asserts P2's first turn start emits `RUNES_CALLED` with `count=4` and decreases P2's rune deck by four, then continues through battlefield score victory and replays the resulting action log to the final score-victory state hash.
 
-The first-turn score follow-up parser path turns the Glory Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_GAIN_SCORE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `FirstTurnOnly=true`, and `ScoreAmount=1`. Runtime no longer checks `OGN·290/298` through `BattlefieldFirstTurnScoreCardNo` / `IsBattlefieldFirstTurnScoreCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The first-turn score follow-up parser path turns the Glory Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_GAIN_SCORE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `FirstTurnOnly=true`, and `ScoreAmount=1`. Runtime no longer checks `OGN·290/298` through `BattlefieldFirstTurnScoreCardNo` / `IsBattlefieldFirstTurnScoreCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnScoreTrigger, out trigger)`.
 
 The accepted `START_TURN` path keeps the existing representative behavior: while the battlefield object is present, each player's own first turn-start score step grants the parsed score amount and emits the existing `BATTLEFIELD_TRIGGER_RESOLVED` / `SCORE_GAINED` payloads with `BATTLEFIELD_FIRST_TURN_GAIN_SCORE`. Existing dirty-control evidence remains unchanged because the official text is a global battlefield rule and not a controller-gated source.
 
