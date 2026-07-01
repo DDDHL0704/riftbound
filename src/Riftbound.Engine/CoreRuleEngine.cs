@@ -47232,15 +47232,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldCardObject(cardObject)
-                && BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardObject.CardNo, out var trigger)
-                && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
-                && trigger.FirstTurnOnly == true
-                && trigger.RuneCallCount is > 0)
+                && BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnExtraRuneTrigger,
+                    out _))
             .Distinct(StringComparer.Ordinal)
             .Select(objectId =>
             {
-                BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(
+                BattlefieldTriggerSpecRules.TryGetTrigger(
                     state.CardObjects[objectId].CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnExtraRuneTrigger,
                     out var trigger);
                 return trigger.RuneCallCount.GetValueOrDefault();
             })

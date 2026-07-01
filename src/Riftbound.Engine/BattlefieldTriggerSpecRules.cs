@@ -157,6 +157,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.ScoreAmount is > 0;
     }
 
+    public static bool IsBattlefieldFirstTurnExtraRuneTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldFirstTurnExtraRune, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.EachPlayer, StringComparison.Ordinal)
+            && trigger.FirstTurnOnly == true
+            && trigger.RuneCallCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -385,14 +394,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldFirstTurnExtraRuneTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldFirstTurnExtraRune,
             out trigger);
     }
 

@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 First-Turn Extra-Rune Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·284/298` Power Obelisk official text `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnExtraRuneTrigger, out trigger)`.
+- `IsBattlefieldFirstTurnExtraRuneTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `FirstTurnOnly=true`, and positive `RuneCallCount`.
+- `CoreRuleEngine.BattlefieldFirstTurnExtraRuneCount` uses that generic predicate route and keeps existing rune-call count addition, `RUNES_CALLED` payload, and official-deck replay semantics.
+- Existing first-turn extra-rune paths continue to use global battlefield source discovery, ignore battlefield control changes for that global source, and add the parsed extra rune count to the base rune call.
+- Source guard: `CardCatalogBaselineTests.BattlefieldFirstTurnExtraRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9095/9095; focused guard / parser / Power Obelisk representatives / official-deck route 6/6; adjacent `PowerObelisk|FirstTurnRune|BattlefieldFirstTurn|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2449/2449; backend full conformance 9096/9096.
+
 ## 2026-07-01 First-Turn Score Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·290/298` Glory Arena official text `每名玩家在各自的第一个回合开始阶段，获得1分。`
@@ -460,7 +470,7 @@ The accepted `START_TURN` path keeps the existing auto-representative optional-t
 
 The 2026-06-27 B0 follow-up adds an official-deck score-victory action-log replay for Duskpetal Lab (`UNL-209/219`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages one P2 official `UNL-057/219` Wildclaw Beastmaster at Duskpetal Lab and another P2 Wildclaw at a different battlefield, submits replayable `END_TURN`, asserts the parsed `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW` trigger destroys only the same-battlefield controlled unit, draws one card before scoring, preserves the offsite controlled unit, then continues through battlefield score victory and replays the resulting action log to the final score-victory state hash.
 
-The first-turn extra-rune follow-up parser path turns the Power Obelisk official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `RuneCallCount=1`, and `FirstTurnOnly=true`. Runtime no longer checks `OGN·284/298` through `BattlefieldFirstTurnExtraRuneCardNo` / `IsBattlefieldFirstTurnExtraRuneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The first-turn extra-rune follow-up parser path turns the Power Obelisk official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `RuneCallCount=1`, and `FirstTurnOnly=true`. Runtime no longer checks `OGN·284/298` through `BattlefieldFirstTurnExtraRuneCardNo` / `IsBattlefieldFirstTurnExtraRuneCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnExtraRuneTrigger, out trigger)`.
 
 The accepted `START_TURN` path keeps the existing representative behavior: while the battlefield object is present, each player's own first turn-start rune call adds the parsed rune count to the normal turn-start rune call count. Existing dirty-control evidence remains unchanged because the official text is a global battlefield rule and not a controller-gated source.
 
