@@ -56,6 +56,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.RuneCallCount is > 0;
     }
 
+    public static bool IsBattlefieldHeldMoveUnitToBaseTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldMoveUnitToBase, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.MoveCount.GetValueOrDefault() == 1
+            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -124,14 +133,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldHeldUnitCostIncrease,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldHeldMoveUnitToBaseTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHeldMoveUnitToBase,
             out trigger);
     }
 

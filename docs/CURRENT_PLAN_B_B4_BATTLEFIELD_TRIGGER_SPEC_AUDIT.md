@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held each-player call-rune execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest held move-unit-to-base execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 held move-unit-to-base execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldHeldMoveUnitToBaseTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldHeldMoveUnitToBaseTrigger`.
+- `IsBattlefieldHeldMoveUnitToBaseTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE`, `BATTLEFIELD_HELD`, `UNIT_AT_THIS_BATTLEFIELD`, `MoveCount = 1`, and `MoveDestination = OWNER_BASE`. Existing wire/event payloads keep the parsed trigger kind.
+- Red/green guard: `BattlefieldHeldMoveUnitToBaseTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 34. This slice does not close the other B4 execution helpers, optional trigger choice prompts, complete same-battlefield target-choice breadth, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9083/9083, focused guard / parser / held move-unit-to-base representatives / Rehearsal Hall official-deck route 5/5, adjacent `BattlefieldHeldMoveUnitToBase|RehearsalHall|BattlefieldHeld|MoveUnit|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2793/2793, backend full conformance 9084/9084.
 
 The 2026-07-01 held each-player call-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -417,7 +426,7 @@ The 2026-06-25 held move-unit-to-base follow-up moves another implemented held-b
   - `TargetScope = UNIT_AT_THIS_BATTLEFIELD`
   - `MoveCount = 1`
   - `MoveDestination = OWNER_BASE`
-- `CoreRuleEngine.TryResolveBattlefieldHeldMoveUnitToBaseTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(...)` and reads the target scope and movement parameters from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldMoveUnitToBaseTrigger` now recognizes eligible battlefield sources through the generic `BattlefieldTriggerSpecRules.TryGetTrigger(...)` predicate route and reads the target scope and movement parameters from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldMoveUnitToBaseCardNo` constant.
 - The old `BattlefieldHeldMoveUnitToBaseCardNo` / `IsBattlefieldHeldMoveUnitToBaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `79` total / `75` in `CoreRuleEngine`; Core battlefield helper count is `31`.
 

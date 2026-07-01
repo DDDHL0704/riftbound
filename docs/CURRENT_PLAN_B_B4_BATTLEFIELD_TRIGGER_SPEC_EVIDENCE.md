@@ -4,6 +4,15 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Held Move-Unit-To-Base Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-207/219` Rehearsal Hall official text `当你据守此处时，你可以选择将战场上的一名单位移动到其基地。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldMoveUnitToBaseTrigger, out trigger)`.
+- `IsBattlefieldHeldMoveUnitToBaseTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE`, `Timing=BATTLEFIELD_HELD`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, `MoveCount=1`, and `MoveDestination=OWNER_BASE`.
+- `CoreRuleEngine.TryResolveBattlefieldHeldMoveUnitToBaseTrigger` uses that generic predicate route and keeps existing `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_MOVED_TO_BASE` payload semantics.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHeldMoveUnitToBaseTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the generic predicate route.
+- Validation: baseline backend full 9083/9083; focused guard / parser / held move-unit-to-base representatives / Rehearsal Hall official-deck route 5/5; adjacent `BattlefieldHeldMoveUnitToBase|RehearsalHall|BattlefieldHeld|MoveUnit|FullGameEndToEnd|GameHub|MatchRecovery|CardCatalogBaseline` 2793/2793; backend full conformance 9084/9084.
+
 ## 2026-07-01 Held Each-Player Call-Rune Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·219/221` Confetti Tree official text `当你据守此处时，每名玩家召出一枚休眠的符文。`
