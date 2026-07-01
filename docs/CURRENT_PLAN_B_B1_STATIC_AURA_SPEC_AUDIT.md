@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Static-Aura Helper Surface Closure
+
+This follow-up removes the remaining `StaticAuraSpecRules.TryGet*Aura` helper surface and finishes routing the friendly single-defender POWER path through a scope predicate.
+
+`StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura`, `TryGetBattlefieldFilteredUnitsKeywordAura`, `TryGetFriendlySingleDefendingUnitPowerAura`, and the private `TryGetAura` helper have been removed. Battlefield keyword runtime/projection continues through `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura`. Friendly single-defender combat POWER now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filters with `StaticAuraSpecRules.IsFriendlySingleDefendingUnitPowerStaticAura` instead of filtering by `StaticAuraKinds.FriendlySingleDefendingUnitPower`.
+
+The existing `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD`, `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD`, and `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` metadata remains compatible; this is a helper-surface cleanup plus friendly single-defender selector cleanup.
+
+Validation: baseline backend full conformance 9076/9076; red/green focused `BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope|FriendlySingleDefendingPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` 2/2; focused battlefield keyword / friendly single-defender / Master Yi / MatchRecovery regression 2022/2022; StaticAura / StaticPower / StaticKeyword / Battlefield / FriendlySingle / MasterYi / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2875/2875; backend full conformance 9077/9077.
+
+Non-closure: this slice closes the remaining `StaticAuraSpecRules.TryGet*Aura` helper surface only. Full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Public-Field Friendly POWER Recovery Scope Predicate
 
 This follow-up moves spectator recovery source-card consistency validation for public-field friendly POWER static auras onto `StaticAuraSpec` scope predicates.

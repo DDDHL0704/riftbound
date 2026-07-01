@@ -6,6 +6,17 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Static-Aura Helper Surface Closure
+
+- `StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura`, `TryGetBattlefieldFilteredUnitsKeywordAura`, `TryGetFriendlySingleDefendingUnitPowerAura`, and the private `TryGetAura` helper have been removed from the engine helper surface.
+- `StaticAuraSpecRules.IsBattlefieldKeywordStaticAura` remains the shared predicate for battlefield RULE_TEXT keyword auras; `BattlefieldKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope` now also blocks reintroducing the removed battlefield keyword helpers in `StaticAuraSpecRules`.
+- `StaticAuraSpecRules.IsFriendlySingleDefendingUnitPowerStaticAura` is now the shared predicate for `STATIC_AURA` POWER auras whose target and participant scopes are `FRIENDLY_SINGLE_DEFENDING_BATTLEFIELD_UNIT` / `SINGLE_FRIENDLY_DEFENDING_BATTLEFIELD_UNIT`.
+- `CoreRuleEngine.ResolveFriendlySingleDefendingUnitPowerBonus` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)` and filters through that predicate instead of filtering by `StaticAuraKinds.FriendlySingleDefendingUnitPower`.
+- Existing recovery-sensitive metadata remains compatible: `RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD`, `RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD`, and `FRIENDLY_SINGLE_DEFENDING_UNIT_POWER`.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.FriendlySingleDefendingPowerStaticAuraExecutionRoutesThroughBehaviorSpecScope` blocks reintroducing the removed friendly single-defender helper or kind-filtered Core routing.
+- Validation passed: baseline backend full conformance 9076/9076; red/green focused guards 2/2; focused battlefield keyword / friendly single-defender / Master Yi / MatchRecovery regression 2022/2022; StaticAura / StaticPower / StaticKeyword / Battlefield / FriendlySingle / MasterYi / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2875/2875; backend full conformance 9077/9077.
+- Non-closure: this does not finish complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Public-Field Friendly POWER Recovery Scope Predicate
 
 - `StaticAuraSpecRules.IsFriendlyUnitsPowerStaticAura` is now the shared predicate for public-field friendly POWER static auras whose target and participant scopes are `FRIENDLY_UNITS` / `FRIENDLY_PUBLIC_UNITS`.

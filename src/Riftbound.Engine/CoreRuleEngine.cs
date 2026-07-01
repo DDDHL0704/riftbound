@@ -20935,12 +20935,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(
-                sourceState.CardNo,
-                StaticAuraKinds.FriendlySingleDefendingUnitPower))
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
+                         .Where(StaticAuraSpecRules.IsFriendlySingleDefendingUnitPowerStaticAura))
             {
-                if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
-                    || defendingUnitCount != aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
+                if (defendingUnitCount != aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
                     || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId))
                 {
                     continue;

@@ -27,30 +27,6 @@ internal static class StaticAuraSpecRules
             .ToArray();
     }
 
-    public static bool TryGetBattlefieldAllUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.BattlefieldAllUnitsKeyword,
-            out aura);
-    }
-
-    public static bool TryGetBattlefieldFilteredUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.BattlefieldFilteredUnitsKeyword,
-            out aura);
-    }
-
-    public static bool TryGetFriendlySingleDefendingUnitPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.FriendlySingleDefendingUnitPower,
-            out aura);
-    }
-
     public static bool TargetMatchesFilter(StaticAuraSpec aura, CardObjectState target)
     {
         if (string.IsNullOrWhiteSpace(aura.TargetFilter))
@@ -81,6 +57,20 @@ internal static class StaticAuraSpecRules
     public static bool HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(string? cardNo)
     {
         return GetStaticAuras(cardNo).Any(IsBattlefieldIsolatedDefenderKeywordModifierStaticAura);
+    }
+
+    public static bool IsFriendlySingleDefendingUnitPowerStaticAura(StaticAuraSpec aura)
+    {
+        return string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && aura.PowerDeltaPerParticipant != 0
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.FriendlySingleDefendingBattlefieldUnit,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SingleFriendlyDefendingBattlefieldUnit,
+                StringComparison.Ordinal);
     }
 
     public static bool IsBattlefieldIsolatedDefenderKeywordModifierStaticAura(StaticAuraSpec aura)
@@ -495,19 +485,6 @@ internal static class StaticAuraSpecRules
         }
 
         return false;
-    }
-
-    private static bool TryGetAura(string? cardNo, string kind, out StaticAuraSpec aura)
-    {
-        aura = default!;
-        var match = GetStaticAuras(cardNo, kind).FirstOrDefault();
-        if (match is null)
-        {
-            return false;
-        }
-
-        aura = match;
-        return true;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>> BuildStaticAuraMap()
