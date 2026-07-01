@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Conquer Mill Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·212/221` Minefield official text `当你征服此处时，将你主牌堆顶部的两张牌放入废牌堆。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out trigger)`.
+- `IsBattlefieldConquerMillTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, `Timing=BATTLEFIELD_CONQUERED`, `MillSourceZone=MAIN_DECK`, `MillDestinationZone=GRAVEYARD`, and positive `MillCount`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerMillTwoTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, controlled top-main-deck movement to graveyard, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_MILLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer mill paths continue to move the parsed count of controlled main-deck top cards into the conquering player's graveyard, preserve hidden main-deck ordering boundaries, and route official-deck replay through the same parsed Minefield trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerMillTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9100/9100; focused guard / parser / Minefield representatives / official-deck route 5/5; adjacent `Minefield|BattlefieldConquerMill|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery|CardCatalogBaseline` 2727/2727; backend full conformance 9101/9101.
+
 ## 2026-07-01 Conquer Reveal/Recycle Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·291/298` Candlelit Sanctum official text `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
@@ -422,7 +432,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path still keeps the existin
 
 The 2026-06-27 B0 follow-up adds an official-deck action-log replay for Candlelit Sanctum (`OGN·291/298`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages official `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that battlefield, resolves the `DECLARE_BATTLE` conquered path, asserts the parsed reveal/recycle trigger plus hidden-safe `CARDS_REVEALED` / `CARDS_RECYCLED` payloads, then replays the resulting action log to the final score-victory state hash.
 
-The conquer mill follow-up parser path turns the Minefield official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, `Timing=BATTLEFIELD_CONQUERED`, `MillCount=2`, `MillSourceZone=MAIN_DECK`, and `MillDestinationZone=GRAVEYARD`. Runtime no longer checks `SFD·212/221` through `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer mill follow-up parser path turns the Minefield official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, `Timing=BATTLEFIELD_CONQUERED`, `MillCount=2`, `MillSourceZone=MAIN_DECK`, and `MillDestinationZone=GRAVEYARD`. Runtime no longer checks `SFD·212/221` through `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still moves the top controlled main-deck cards into the conquering player's graveyard and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `CARDS_MILLED` with `BATTLEFIELD_CONQUERED_MILL_TOP_TWO`. The mill count and source/destination zones now come from the parsed spec while preserving existing hidden main-deck ordering boundaries.
 
@@ -654,6 +664,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer reveal/recycle Candlelit Sanctum backend full follow-up: `8831/8831`;
 - conquer mill focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer mill adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `274/274`;
+- conquer mill execution-helper focused guard / parser / runtime / GameHub / official-deck route: `5/5`;
+- conquer mill execution-helper adjacent Minefield / BattlefieldConquerMill / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / GameHubJoin / MatchRecovery / CardCatalogBaseline follow-up: `2727/2727`;
+- conquer mill execution-helper backend full conformance: `9101/9101`;
 - conquer mill Minefield B0 action-log replay follow-up: `1/1`;
 - conquer mill Minefield B0 full-game follow-up: `76/76`;
 - conquer mill Minefield B0 adjacent / hidden-info follow-up: `2356/2356`;

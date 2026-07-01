@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer reveal/recycle execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer mill execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 conquer mill execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldConquerMillTwoTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger`.
+- `IsBattlefieldConquerMillTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, `BATTLEFIELD_CONQUERED`, `MillSourceZone=MAIN_DECK`, `MillDestinationZone=GRAVEYARD`, and positive `MillCount`. Existing conquered-battlefield source discovery, controlled top-main-deck movement to graveyard, `BATTLEFIELD_TRIGGER_RESOLVED` / `CARDS_MILLED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerMillTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 18. This slice does not close complete main-deck / graveyard replacement breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9100/9100, focused guard / parser / Minefield representatives / official-deck route 5/5, adjacent `Minefield|BattlefieldConquerMill|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery|CardCatalogBaseline` 2727/2727, backend full conformance 9101/9101.
 
 The 2026-07-01 conquer reveal/recycle execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -655,9 +664,9 @@ The 2026-06-25 conquer mill follow-up moves another implemented conquered-battle
   - `MillCount = 2`
   - `MillSourceZone = MAIN_DECK`
   - `MillDestinationZone = GRAVEYARD`
-- `CoreRuleEngine.TryResolveBattlefieldConquerMillTwoTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(...)` and reads the mill count and zones from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerMillTwoTrigger` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out trigger)` and reads the mill count and zones from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerMillTwoCardNo` constant.
-- The old `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `73` total / `69` in `CoreRuleEngine`; Core battlefield helper count is `25`.
+- The old `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo` card-number branch was removed in that slice. Its then-current source-helper count for `private static bool Is*CardNo(...)` was `73` total / `69` in `CoreRuleEngine`; current helper-closure counts are tracked in the 2026-07-01 execution-helper sections above.
 
 The 2026-06-27 B0 replay follow-up adds no runtime rule changes. It proves the parsed `SFD·212/221` Minefield route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, move the top two controlled main-deck cards to graveyard, and replay through score victory to the same final state hash.
 

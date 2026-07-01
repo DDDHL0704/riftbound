@@ -24657,11 +24657,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.MillSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
-            || !string.Equals(trigger.MillDestinationZone, TriggerZones.Graveyard, StringComparison.Ordinal)
-            || trigger.MillCount.GetValueOrDefault() <= 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger,
+                out var trigger)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {
