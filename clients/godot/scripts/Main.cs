@@ -96,6 +96,7 @@ public partial class Main : Control
     private bool _autoSmokePreviewFirstVisibleCard;
     private bool _autoSmokeSubmitted;
     private bool _visualScreenshotSaved;
+    private bool _resultScreenshotSaved;
     private int _autoSmokeTapRuneSubmissions;
     private int _visualScreenshotMinTableCards = 1;
     private bool _autoSmokePlayCardSubmitted;
@@ -174,8 +175,12 @@ public partial class Main : Control
     {
         _isShuttingDown = true;
         _shutdown.Cancel();
+        ReleaseRuntimeUiResources();
         _ = DisconnectAsync();
         _shutdown.Dispose();
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
     }
 
     private void BindNodes()
@@ -268,6 +273,51 @@ public partial class Main : Control
         _submitDeckButton!.Pressed += () => _ = SubmitSelectedDeckAsync();
         _readyButton!.Pressed += () => _ = ReadyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
+    }
+
+    private void ReleaseRuntimeUiResources()
+    {
+        ReleaseTextureReferences(this);
+        if (_officialCardPreview is not null)
+        {
+            _officialCardPreview.Texture = null;
+        }
+
+        ClearNodeChildren(_snapshotRows);
+        ClearNodeChildren(_handRow);
+        ClearNodeChildren(_promptActions);
+    }
+
+    private static void ReleaseTextureReferences(Node? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        if (node is TextureRect textureRect)
+        {
+            textureRect.Texture = null;
+        }
+
+        foreach (var child in node.GetChildren())
+        {
+            ReleaseTextureReferences(child);
+        }
+    }
+
+    private static void ClearNodeChildren(Node? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        foreach (var child in node.GetChildren())
+        {
+            node.RemoveChild(child);
+            child.QueueFree();
+        }
     }
 
     private void ApplySessionToInputs()
@@ -1347,7 +1397,11 @@ public partial class Main : Control
         {
             ["summary"] = string.Join("\n", lines),
             ["winnerPlayerId"] = winnerPlayerId,
-            ["reason"] = reason
+            ["reason"] = reason,
+            ["surrenderedPlayerId"] = surrenderedPlayerId,
+            ["winningScore"] = winningScore,
+            ["serverTick"] = serverTick,
+            ["source"] = "MATCH_WON"
         };
     }
 
@@ -2098,7 +2152,11 @@ public partial class Main : Control
         {
             ["summary"] = string.Join("\n", lines),
             ["winnerPlayerId"] = winnerPlayerId,
-            ["reason"] = string.Empty
+            ["reason"] = string.Empty,
+            ["surrenderedPlayerId"] = string.Empty,
+            ["winningScore"] = winningScore,
+            ["serverTick"] = ReadLong(snapshot, "tick"),
+            ["source"] = "snapshot"
         };
     }
 
@@ -3127,16 +3185,17 @@ public partial class Main : Control
 
         if (_resultSummary is not null)
         {
-            _resultSummary.Text = result.TryGetValue("summary", out var summary)
-                ? summary.AsString()
-                : "Match finished";
+            _resultSummary.Text = MatchResultSummaryForViewer(result);
         }
+
+        QueueResultScreenshotIfReady();
     }
 
     public void ClearMatchResult()
     {
         _matchFinished = false;
         _autoSmokeSurrenderSubmitted = false;
+        _resultScreenshotSaved = false;
         if (_resultFrame is not null)
         {
             _resultFrame.Visible = false;
@@ -3146,6 +3205,73 @@ public partial class Main : Control
         {
             _resultSummary.Text = "No result";
         }
+    }
+
+    private string MatchResultSummaryForViewer(Godot.Collections.Dictionary result)
+    {
+        var winnerPlayerId = ResultString(result, "winnerPlayerId");
+        var surrenderedPlayerId = ResultString(result, "surrenderedPlayerId");
+        var reason = ResultString(result, "reason");
+        var source = ResultString(result, "source");
+        var winningScore = ResultInt(result, "winningScore");
+        var serverTick = ResultInt(result, "serverTick");
+        var knownWinner = !string.IsNullOrWhiteSpace(winnerPlayerId);
+        var youWon = knownWinner && string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal);
+        var lines = new List<string>
+        {
+            knownWinner ? youWon ? "对局结束 · 胜利" : "对局结束 · 失败" : "对局结束"
+        };
+
+        if (knownWinner)
+        {
+            lines.Add($"胜者：{winnerPlayerId}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(surrenderedPlayerId))
+        {
+            lines.Add($"投降：{surrenderedPlayerId}");
+        }
+
+        if (winningScore > 0)
+        {
+            lines.Add($"胜利分数：{winningScore}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            lines.Add($"原因：{ResultReasonLabel(reason)}");
+        }
+
+        if (serverTick >= 0)
+        {
+            lines.Add($"服务端 tick：{serverTick}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            lines.Add($"来源：{source}");
+        }
+
+        return string.Join("\n", lines);
+    }
+
+    private static string ResultString(Godot.Collections.Dictionary result, string key)
+    {
+        return result.TryGetValue(key, out var value) ? value.AsString() : string.Empty;
+    }
+
+    private static int ResultInt(Godot.Collections.Dictionary result, string key)
+    {
+        return result.TryGetValue(key, out var value) ? value.AsInt32() : -1;
+    }
+
+    private static string ResultReasonLabel(string reason)
+    {
+        return reason switch
+        {
+            "SURRENDER" => "投降",
+            _ => reason
+        };
     }
 
     public void ApplyHandCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
@@ -3634,6 +3760,30 @@ public partial class Main : Control
         QueueMainThread(nameof(CaptureVisualScreenshot), _visualScreenshotPath);
     }
 
+    private void QueueResultScreenshotIfReady()
+    {
+        if (_resultScreenshotSaved || string.IsNullOrWhiteSpace(_visualScreenshotPath))
+        {
+            return;
+        }
+
+        _resultScreenshotSaved = true;
+        CaptureVisualScreenshot(ResultScreenshotPath(_visualScreenshotPath));
+    }
+
+    private static string ResultScreenshotPath(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+        var extension = Path.GetExtension(path);
+        var fileName = Path.GetFileNameWithoutExtension(path);
+        var resultFileName = string.IsNullOrWhiteSpace(extension)
+            ? $"{fileName}-result.png"
+            : $"{fileName}-result{extension}";
+        return string.IsNullOrWhiteSpace(directory)
+            ? resultFileName
+            : Path.Combine(directory, resultFileName);
+    }
+
     public async void CaptureVisualScreenshot(string path)
     {
         try
@@ -3647,7 +3797,7 @@ public partial class Main : Control
                 Directory.CreateDirectory(directory);
             }
 
-            var image = GetViewport().GetTexture().GetImage();
+            using var image = GetViewport().GetTexture().GetImage();
             var error = image.SavePng(path);
             if (error == Error.Ok)
             {
