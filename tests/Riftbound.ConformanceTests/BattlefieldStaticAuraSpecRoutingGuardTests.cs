@@ -159,6 +159,29 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     }
 
     [Fact]
+    public void SameBattlefieldOtherFriendlyPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
+    {
+        var root = RepositoryRoot();
+        var matchRecoverySource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "MatchRecovery.cs"));
+        var staticAuraSpecRulesSource = File.ReadAllText(Path.Combine(
+            root,
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs"));
+
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSameBattlefieldOtherFriendlyUnitsPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura", staticAuraSpecRulesSource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyUnitsPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyFilteredUnitsPowerStaticAura", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SameBattlefieldOtherFriendlyKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();

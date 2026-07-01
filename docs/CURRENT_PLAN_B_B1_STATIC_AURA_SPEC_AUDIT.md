@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-01 Supplement: Same-Battlefield Other-Friendly POWER Recovery Scope Predicate
+
+This follow-up moves spectator recovery source-card consistency validation for same-battlefield other-friendly POWER static auras onto `StaticAuraSpec` scope predicates.
+
+`StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyUnitsPowerStaticAura` and `IsSameBattlefieldOtherFriendlyFilteredUnitsPowerStaticAura` now identify the two implemented same-battlefield other-friendly scope shapes by `STATIC_AURA` layer, target scope, and participant scope. `MatchRecovery` now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `TryGetSameBattlefieldOtherFriendlyUnitsPowerAura` or `TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura`.
+
+The existing `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` and `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER` continuous-effect metadata remains compatible; this is a recovery validation selector cleanup only.
+
+Validation: baseline backend full conformance 9074/9074; red/green focused `SameBattlefieldOtherFriendlyPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` 1/1; focused same-battlefield other-friendly POWER / MatchRecovery regression 2006/2006; StaticAura / StaticPower / SameBattlefield / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2231/2231; backend full conformance 9075/9075.
+
+Non-closure: this slice only consolidates same-battlefield other-friendly POWER recovery source-card validation. Other static-aura recovery helper families, full LayerEngine timestamp/order semantics, complete B1/B2 breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Source Battle-State POWER Recovery Scope Predicate
 
 This follow-up moves spectator recovery source-card consistency and power-delta lookup for source battle-state POWER static auras onto `StaticAuraSpec` scope predicates.

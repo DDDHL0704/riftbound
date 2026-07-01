@@ -6,6 +6,17 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-01 Supplement Evidence: Same-Battlefield Other-Friendly POWER Recovery Scope Predicate
+
+- `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyUnitsPowerStaticAura` is now the shared predicate for same-battlefield other-friendly POWER static auras whose target and participant scopes are `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS` / `SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS`.
+- `StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyFilteredUnitsPowerStaticAura` is now the shared predicate for same-battlefield other-friendly filtered POWER static auras whose target and participant scopes are `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS` / `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS`.
+- `MatchRecovery` source-card spec consistency validation now enumerates `StaticAuraSpecRules.GetStaticAuras(sourceCardNo)` and filters through those predicates instead of calling `StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura` / `TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura`.
+- Existing recovery-sensitive metadata remains compatible: `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` and `SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER`.
+- `StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura` and `TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura` have been removed from the engine helper surface.
+- `BattlefieldStaticAuraSpecRoutingGuardTests.SameBattlefieldOtherFriendlyPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope` blocks reintroducing the removed helpers in MatchRecovery or StaticAuraSpecRules.
+- Validation passed: baseline backend full conformance 9074/9074; red/green focused guard 1/1; focused same-battlefield other-friendly POWER / MatchRecovery regression 2006/2006; StaticAura / StaticPower / SameBattlefield / ContinuousEffect / FullGameEndToEnd / MatchRecovery adjacent 2231/2231; backend full conformance 9075/9075.
+- Non-closure: this does not finish other static-aura recovery helper families, complete LayerEngine timestamp/order behavior, complete B1/B2 breadth, full P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Source Battle-State POWER Recovery Scope Predicate
 
 - `StaticAuraSpecRules.IsSourceAttackingWithAnotherUnitPowerStaticAura` is now the shared predicate for source-object POWER static auras whose participant scope is `ATTACKING_BATTLEFIELD_PUBLIC_UNITS`.

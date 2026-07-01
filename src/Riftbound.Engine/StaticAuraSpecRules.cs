@@ -43,22 +43,6 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
-    public static bool TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne,
-            out aura);
-    }
-
-    public static bool TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
-    {
-        return TryGetAura(
-            cardNo,
-            StaticAuraKinds.SameBattlefieldOtherFriendlyFilteredUnitsPower,
-            out aura);
-    }
-
     public static bool TryGetFriendlySingleDefendingUnitPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -162,6 +146,32 @@ internal static class StaticAuraSpecRules
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyFilteredPublicUnits,
                     StringComparison.Ordinal));
+    }
+
+    public static bool IsSameBattlefieldOtherFriendlyUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSameBattlefieldOtherFriendlyPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                StringComparison.Ordinal);
+    }
+
+    public static bool IsSameBattlefieldOtherFriendlyFilteredUnitsPowerStaticAura(StaticAuraSpec aura)
+    {
+        return IsSameBattlefieldOtherFriendlyPowerStaticAura(aura)
+            && string.Equals(
+                aura.TargetScope,
+                StaticAuraTargetScopes.SameBattlefieldOtherFriendlyFilteredUnits,
+                StringComparison.Ordinal)
+            && string.Equals(
+                aura.ParticipantScope,
+                StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyFilteredPublicUnits,
+                StringComparison.Ordinal);
     }
 
     public static bool IsSameBattlefieldOtherFriendlyKeywordStaticAura(StaticAuraSpec aura)
