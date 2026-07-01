@@ -3587,6 +3587,15 @@ public partial class Main : Control
         return label;
     }
 
+    private static void FlashActionButton(Button button)
+    {
+        button.Modulate = new Color(1f, 0.78f, 0.42f, 1f);
+        var tween = button.CreateTween();
+        tween.TweenProperty(button, "modulate", Colors.White, 0.18d)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.Out);
+    }
+
     private Control PromptActionNode(Godot.Collections.Dictionary action)
     {
         var row = PromptCard();
@@ -3634,6 +3643,7 @@ public partial class Main : Control
         };
         button.Pressed += () =>
         {
+            FlashActionButton(button);
             if (hasTemplate)
             {
                 _ = SubmitPromptTemplateAsync(action, selectors);
@@ -3663,7 +3673,11 @@ public partial class Main : Control
             Text = canBuild ? PromptSubmitLabel(actionName, label) : "等待服务端细节",
             TooltipText = !canBuild ? buildReason : string.IsNullOrWhiteSpace(reason) ? actionName : reason
         };
-        button.Pressed += () => _ = SubmitSpecialPromptAsync(action);
+        button.Pressed += () =>
+        {
+            FlashActionButton(button);
+            _ = SubmitSpecialPromptAsync(action);
+        };
         row.AddChild(button);
         row.AddChild(PromptReasonLabel(enabled && canBuild, canBuild ? reason : buildReason, $"服务端元数据：{payloadKey}"));
         return row;
@@ -3762,7 +3776,11 @@ public partial class Main : Control
             }
         }
 
-        submit.Pressed += () => _ = SubmitMulliganAsync(action, selectedObjectIds.ToArray());
+        submit.Pressed += () =>
+        {
+            FlashActionButton(submit);
+            _ = SubmitMulliganAsync(action, selectedObjectIds.ToArray());
+        };
         row.AddChild(submit);
         row.AddChild(PromptReasonLabel(enabled, reason, "只提交你勾选的服务端手牌候选。"));
         Refresh();

@@ -462,6 +462,7 @@ internal sealed class CardControlRenderer
         }
 
         var frame = WireFrame(content, frameSize, borderWidth: promptSource ? 3 : 2, surface: promptSource ? RunestoneSurface.Result : surface);
+        AttachCardMotion(frame, frameSize, promptSource);
         frame.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
         frame.TooltipText = promptSource
             ? $"服务端候选来源\n{PreviewSummary(card)}"
@@ -470,10 +471,89 @@ internal sealed class CardControlRenderer
         {
             if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
             {
+                FlashCardPress(frame);
                 _cardInspected(card);
             }
         };
         return frame;
+    }
+
+    private static void AttachCardMotion(PanelContainer frame, Vector2 frameSize, bool promptSource)
+    {
+        frame.PivotOffset = frameSize * 0.5f;
+        Tween? hoverTween = null;
+        var hoverScale = promptSource ? 1.08f : 1.06f;
+        var restScale = Vector2.One;
+        var restPosition = Vector2.Zero;
+        var hovered = false;
+
+        frame.Ready += () =>
+        {
+            frame.PivotOffset = frame.Size * 0.5f;
+            restPosition = frame.Position;
+            if (promptSource)
+            {
+                StartPromptPulse(frame);
+            }
+        };
+        frame.Resized += () => frame.PivotOffset = frame.Size * 0.5f;
+        frame.TreeExiting += () => hoverTween?.Kill();
+        frame.MouseEntered += () =>
+        {
+            hoverTween?.Kill();
+            if (!hovered)
+            {
+                restPosition = frame.Position;
+            }
+
+            hovered = true;
+            frame.ZIndex = promptSource ? 40 : 30;
+            hoverTween = frame.CreateTween();
+            hoverTween.SetParallel(true);
+            hoverTween.TweenProperty(frame, "scale", Vector2.One * hoverScale, 0.11d)
+                .SetTrans(Tween.TransitionType.Cubic)
+                .SetEase(Tween.EaseType.Out);
+            hoverTween.TweenProperty(frame, "position", restPosition + new Vector2(0, -5), 0.11d)
+                .SetTrans(Tween.TransitionType.Cubic)
+                .SetEase(Tween.EaseType.Out);
+        };
+        frame.MouseExited += () =>
+        {
+            hoverTween?.Kill();
+            hovered = false;
+            frame.ZIndex = 0;
+            hoverTween = frame.CreateTween();
+            hoverTween.SetParallel(true);
+            hoverTween.TweenProperty(frame, "scale", restScale, 0.14d)
+                .SetTrans(Tween.TransitionType.Cubic)
+                .SetEase(Tween.EaseType.Out);
+            hoverTween.TweenProperty(frame, "position", restPosition, 0.14d)
+                .SetTrans(Tween.TransitionType.Cubic)
+                .SetEase(Tween.EaseType.Out);
+        };
+    }
+
+    private static void StartPromptPulse(Control frame)
+    {
+        var tween = frame.CreateTween();
+        tween.SetLoops();
+        tween.TweenProperty(frame, "modulate", new Color(1f, 0.86f, 0.54f, 1f), 0.62d)
+            .SetTrans(Tween.TransitionType.Sine)
+            .SetEase(Tween.EaseType.InOut);
+        tween.TweenProperty(frame, "modulate", Colors.White, 0.62d)
+            .SetTrans(Tween.TransitionType.Sine)
+            .SetEase(Tween.EaseType.InOut);
+    }
+
+    private static void FlashCardPress(Control frame)
+    {
+        var tween = frame.CreateTween();
+        tween.TweenProperty(frame, "modulate", new Color(1f, 0.74f, 0.38f, 1f), 0.05d)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.Out);
+        tween.TweenProperty(frame, "modulate", Colors.White, 0.16d)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.Out);
     }
 
     private static Control EmptySlot(Vector2 size)
