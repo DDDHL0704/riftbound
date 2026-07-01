@@ -4,6 +4,16 @@ Date: 2026-07-01
 
 Project status: **NOT READY**.
 
+## 2026-07-01 Turn-Start Destroy-Draw Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-209/219` Duskpetal Lab official text `在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger, out trigger)`.
+- `IsBattlefieldTurnStartDestroyUnitDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, `Timing=TURN_START`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, positive `DestroyCount`, positive `DrawCount`, and `Optional=true`.
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDestroyUnitDraw` uses that generic predicate route and keeps existing battlefield-source control gating, same-battlefield controlled-unit target scoping from `ObjectLocations`, pre-scoring destruction/draw, `BATTLEFIELD_TRIGGER_RESOLVED`, `UNIT_DESTROYED`, draw payloads, and official-deck replay semantics.
+- Existing turn-start destroy-draw paths continue to destroy only a controlled unit at the source battlefield, preserve offsite controlled units, draw the parsed count before scoring, and route official-deck replay through the same parsed Duskpetal Lab trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldTurnStartDestroyDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9098/9098; focused guard / parser / Duskpetal Lab representatives / official-deck route 6/6; adjacent `Duskpetal|BattlefieldTurnStartDestroy|BattlefieldTurnStart|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2454/2454; backend full conformance 9099/9099.
+
 ## 2026-07-01 Turn-Start Damage-Units Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-212/219` Frost Hold official text `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
@@ -484,7 +494,7 @@ The accepted `START_TURN` path keeps the existing start-phase timing before scor
 
 The 2026-06-27 B0 follow-up adds an official-deck score-victory action-log replay for Frost Hold (`UNL-212/219`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages both players' official `UNL-057/219` Wildclaw Beastmasters at that battlefield, submits replayable `END_TURN`, asserts the parsed `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS` trigger damages both same-battlefield units before scoring, then continues through battlefield score victory and replays the resulting action log to the final score-victory state hash.
 
-The turn-start destroy-draw follow-up parser path turns the Duskpetal Lab official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, `Timing=TURN_START`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `DestroyCount=1`, `DrawCount=1`, and `Optional=true`. Runtime no longer checks `UNL-209/219` through `BattlefieldTurnStartDestroyUnitDrawCardNo` / `IsBattlefieldTurnStartDestroyUnitDrawCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The turn-start destroy-draw follow-up parser path turns the Duskpetal Lab official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, `Timing=TURN_START`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `DestroyCount=1`, `DrawCount=1`, and `Optional=true`. Runtime no longer checks `UNL-209/219` through `BattlefieldTurnStartDestroyUnitDrawCardNo` / `IsBattlefieldTurnStartDestroyUnitDrawCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger, out trigger)`.
 
 The accepted `START_TURN` path keeps the existing auto-representative optional-trigger behavior and still resolves before scoring, rune-call progression and normal turn draw. It now chooses the destroyed unit from the source battlefield object's location scope, so a controlled unit at another battlefield object is preserved under the official `此处` boundary.
 
@@ -734,6 +744,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - turn-start destroy-draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - turn-start destroy-draw CardCatalog baseline: `149/149`;
 - turn-start destroy-draw adjacent BattlefieldTurnStart / BattlefieldTriggerSpec / GameHub representatives: `230/230`;
+- turn-start destroy-draw execution-helper focused guard / parser / runtime / GameHub / official-deck route: `6/6`;
+- turn-start destroy-draw execution-helper adjacent Duskpetal / BattlefieldTurnStartDestroy / BattlefieldTurnStart / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline follow-up: `2454/2454`;
+- turn-start destroy-draw execution-helper backend full conformance: `9099/9099`;
 - turn-start destroy-draw Duskpetal Lab B0 action-log replay follow-up: `1/1`;
 - turn-start destroy-draw Duskpetal Lab B0 FullGameEndToEnd follow-up: `78/78`;
 - turn-start destroy-draw Duskpetal Lab B0 adjacent BattlefieldTurnStartDestroy / BattlefieldTurnStart / BattlefieldTriggerSpec / FullGameEndToEnd / MatchRecovery follow-up: `2077/2077`;

@@ -46682,16 +46682,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceEntries = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(cardObject.CardNo, out var trigger)
-                && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
-                && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
-                && trigger.DestroyCount is > 0
-                && trigger.DrawCount is > 0
+                && BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
             .Select(objectId =>
             {
-                BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(
+                BattlefieldTriggerSpecRules.TryGetTrigger(
                     cardObjects[objectId].CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger,
                     out var trigger);
                 return (
                     SourceObjectId: objectId,

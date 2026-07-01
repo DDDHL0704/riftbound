@@ -2,9 +2,18 @@
 
 Date: 2026-07-01
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest turn-start damage-units execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest turn-start destroy-draw execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-01 turn-start destroy-draw execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(...)` is removed.
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDestroyUnitDraw` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger`.
+- `IsBattlefieldTurnStartDestroyUnitDrawTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW`, `TURN_START`, `CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, positive `DestroyCount`, positive `DrawCount`, and `Optional=true`. Existing battlefield-source control guard, same-battlefield controlled-unit target scoping, pre-scoring destruction/draw, offsite preservation, `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_DESTROYED` / draw payloads, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldTurnStartDestroyDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 20. This slice does not close optional yes/no trigger prompts, complete turn-start battlefield trigger breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9098/9098, focused guard / parser / Duskpetal Lab representatives / official-deck route 6/6, adjacent `Duskpetal|BattlefieldTurnStartDestroy|BattlefieldTurnStart|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2454/2454, backend full conformance 9099/9099.
 
 The 2026-07-01 turn-start damage-units execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -327,10 +336,10 @@ The 2026-06-25 turn-start destroy-draw follow-up moves another implemented battl
   - `DestroyCount = 1`
   - `DrawCount = 1`
   - `Optional = true`
-- `CoreRuleEngine.ApplyBattlefieldTurnStartDestroyUnitDraw` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(...)` and reads the destroy/draw counts from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDestroyUnitDraw` now finds eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger, out trigger)` and reads the destroy/draw counts from `BehaviorSpec.Triggers`.
 - The runtime now resolves the auto-representative destroy target from the source battlefield object's `ObjectLocations[source].BattlefieldObjectId`, so a controlled unit at another battlefield object is not destroyed by this source.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldTurnStartDestroyUnitDrawCardNo` constant, and the dev seed includes explicit battlefield `ObjectLocations` plus an off-scope controlled unit.
-- The old `BattlefieldTurnStartDestroyUnitDrawCardNo` / `IsBattlefieldTurnStartDestroyUnitDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `59` total / `55` in `CoreRuleEngine`; Core battlefield helper count is `11`.
+- The old `BattlefieldTurnStartDestroyUnitDrawCardNo` / `IsBattlefieldTurnStartDestroyUnitDrawCardNo` card-number branch was removed in that slice. Its then-current source-helper count for `private static bool Is*CardNo(...)` was `59` total / `55` in `CoreRuleEngine`; current helper-closure counts are tracked in the 2026-07-01 execution-helper sections above.
 
 The 2026-06-25 turn-start damage-units follow-up moves another implemented battlefield trigger away from engine card-number branching and corrects the official `此处` scope:
 

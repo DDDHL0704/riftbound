@@ -183,6 +183,16 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.DamageAmount is > 0;
     }
 
+    public static bool IsBattlefieldTurnStartDestroyUnitDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.DestroyCount is > 0
+            && trigger.DrawCount is > 0
+            && trigger.Optional == true;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -387,14 +397,6 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
-            out trigger);
-    }
-
-    public static bool TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
             out trigger);
     }
 
