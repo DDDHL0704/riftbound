@@ -20,7 +20,7 @@ offset_top = 10.0
 offset_right = -336.0
 offset_bottom = 34.0
 grow_horizontal = 2
-text = "Riftbound Godot Client"
+text = "Riftbound 符文战场"
 
 [node name="Status" type="Label" parent="."]
 layout_mode = 1
@@ -31,7 +31,7 @@ offset_top = 36.0
 offset_right = -336.0
 offset_bottom = 58.0
 grow_horizontal = 2
-text = "Disconnected"
+text = "未连接"
 
 [node name="Controls" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -45,105 +45,117 @@ offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SessionRow" type="HBoxContainer" parent="Controls"]
+[node name="SessionFrame" type="PanelContainer" parent="Controls"]
 layout_mode = 2
 
-[node name="HandleLabel" type="Label" parent="Controls/SessionRow"]
+[node name="SessionRow" type="HBoxContainer" parent="Controls/SessionFrame"]
 layout_mode = 2
-text = "Handle"
 
-[node name="HandleInput" type="LineEdit" parent="Controls/SessionRow"]
+[node name="HandleLabel" type="Label" parent="Controls/SessionFrame/SessionRow"]
+layout_mode = 2
+text = "玩家"
+
+[node name="HandleInput" type="LineEdit" parent="Controls/SessionFrame/SessionRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "godot"
 
-[node name="RoomLabel" type="Label" parent="Controls/SessionRow"]
+[node name="RoomLabel" type="Label" parent="Controls/SessionFrame/SessionRow"]
 layout_mode = 2
-text = "Room"
+text = "房间"
 
-[node name="RoomInput" type="LineEdit" parent="Controls/SessionRow"]
+[node name="RoomInput" type="LineEdit" parent="Controls/SessionFrame/SessionRow"]
 custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "godot-local"
 
-[node name="ConnectButton" type="Button" parent="Controls/SessionRow"]
+[node name="ConnectButton" type="Button" parent="Controls/SessionFrame/SessionRow"]
 layout_mode = 2
-text = "Connect"
+text = "连接"
 
-[node name="ReconnectButton" type="Button" parent="Controls/SessionRow"]
+[node name="ReconnectButton" type="Button" parent="Controls/SessionFrame/SessionRow"]
 layout_mode = 2
-text = "Reconnect"
+text = "重连"
 
-[node name="MatchmakingRow" type="HBoxContainer" parent="Controls"]
+[node name="MatchmakingFrame" type="PanelContainer" parent="Controls"]
 layout_mode = 2
 
-[node name="MatchmakingLabel" type="Label" parent="Controls/MatchmakingRow"]
+[node name="MatchmakingRow" type="HBoxContainer" parent="Controls/MatchmakingFrame"]
 layout_mode = 2
-text = "Lobby"
 
-[node name="MatchmakingStatus" type="Label" parent="Controls/MatchmakingRow"]
+[node name="MatchmakingLabel" type="Label" parent="Controls/MatchmakingFrame/MatchmakingRow"]
+layout_mode = 2
+text = "大厅"
+
+[node name="MatchmakingStatus" type="Label" parent="Controls/MatchmakingFrame/MatchmakingRow"]
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 text = "Idle"
 
-[node name="CreatePublicMatchButton" type="Button" parent="Controls/MatchmakingRow"]
+[node name="CreatePublicMatchButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
 layout_mode = 2
-text = "Create Public Match"
+text = "创建公开房"
 
-[node name="QueueMatchmakingButton" type="Button" parent="Controls/MatchmakingRow"]
+[node name="QueueMatchmakingButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
 layout_mode = 2
-text = "Quick Match"
+text = "快速匹配"
 
-[node name="CancelMatchmakingButton" type="Button" parent="Controls/MatchmakingRow"]
+[node name="CancelMatchmakingButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
 layout_mode = 2
-text = "Cancel Queue"
+text = "取消排队"
 
-[node name="PublicMatchRow" type="HBoxContainer" parent="Controls"]
+[node name="PublicMatchFrame" type="PanelContainer" parent="Controls"]
 layout_mode = 2
 
-[node name="PublicMatchLabel" type="Label" parent="Controls/PublicMatchRow"]
+[node name="PublicMatchRow" type="HBoxContainer" parent="Controls/PublicMatchFrame"]
 layout_mode = 2
-text = "Public"
 
-[node name="PublicMatchSelect" type="OptionButton" parent="Controls/PublicMatchRow"]
+[node name="PublicMatchLabel" type="Label" parent="Controls/PublicMatchFrame/PublicMatchRow"]
+layout_mode = 2
+text = "公开房"
+
+[node name="PublicMatchSelect" type="OptionButton" parent="Controls/PublicMatchFrame/PublicMatchRow"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="RefreshPublicMatchesButton" type="Button" parent="Controls/PublicMatchRow"]
+[node name="RefreshPublicMatchesButton" type="Button" parent="Controls/PublicMatchFrame/PublicMatchRow"]
 layout_mode = 2
-text = "Refresh"
+text = "刷新"
 
-[node name="JoinPublicMatchButton" type="Button" parent="Controls/PublicMatchRow"]
+[node name="JoinPublicMatchButton" type="Button" parent="Controls/PublicMatchFrame/PublicMatchRow"]
 layout_mode = 2
-text = "Join Public Match"
+text = "加入公开房"
 
-[node name="DeckRow" type="HBoxContainer" parent="Controls"]
+[node name="DeckFrame" type="PanelContainer" parent="Controls"]
 layout_mode = 2
 
-[node name="DeckLabel" type="Label" parent="Controls/DeckRow"]
+[node name="DeckRow" type="HBoxContainer" parent="Controls/DeckFrame"]
 layout_mode = 2
-text = "Deck"
 
-[node name="DeckSelect" type="OptionButton" parent="Controls/DeckRow"]
+[node name="DeckLabel" type="Label" parent="Controls/DeckFrame/DeckRow"]
+layout_mode = 2
+text = "卡组"
+
+[node name="DeckSelect" type="OptionButton" parent="Controls/DeckFrame/DeckRow"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="LoadDecksButton" type="Button" parent="Controls/DeckRow"]
+[node name="LoadDecksButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
 layout_mode = 2
-text = "Load Decks"
+text = "加载卡组"
 
-[node name="SubmitDeckButton" type="Button" parent="Controls/DeckRow"]
+[node name="SubmitDeckButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
 layout_mode = 2
-text = "Submit Deck"
+text = "提交卡组"
 
-[node name="ReadyButton" type="Button" parent="Controls/DeckRow"]
+[node name="ReadyButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
 layout_mode = 2
-text = "Ready"
+text = "准备"
 
 [node name="BoardSummary" type="Label" parent="Controls"]
 layout_mode = 2
 autowrap_mode = 2
-text = "No snapshot"
+text = "等待服务端快照"
 
 [node name="ResultFrame" type="PanelContainer" parent="Controls"]
 visible = false
@@ -160,7 +172,7 @@ text = "No result"
 
 [node name="ReturnLobbyButton" type="Button" parent="Controls/ResultFrame/ResultBox"]
 layout_mode = 2
-text = "Return lobby"
+text = "返回大厅"
 
 [node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
 custom_minimum_size = Vector2(0, 600)
@@ -200,7 +212,7 @@ layout_mode = 2
 [node name="OfficialCardPreviewSummary" type="Label" parent="OfficialCardPreviewFrame/OfficialPreviewBox"]
 layout_mode = 2
 autowrap_mode = 2
-text = "Click a visible card to inspect it"
+text = "点击可见卡牌查看详情"
 
 [node name="OfficialCardPreview" type="TextureRect" parent="OfficialCardPreviewFrame/OfficialPreviewBox"]
 custom_minimum_size = Vector2(268, 360)
@@ -228,7 +240,7 @@ layout_mode = 2
 [node name="PromptSummary" type="Label" parent="PromptFrame/PromptBox"]
 layout_mode = 2
 autowrap_mode = 2
-text = "No prompt"
+text = "暂无行动"
 
 [node name="PromptScroll" type="ScrollContainer" parent="PromptFrame/PromptBox"]
 custom_minimum_size = Vector2(0, 244)

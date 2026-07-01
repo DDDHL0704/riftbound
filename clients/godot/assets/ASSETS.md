@@ -9,6 +9,7 @@ Do not commit Riot/official `frontImage` card images into this repository.
 | --- | --- | --- | --- |
 | `icon.svg` | Local placeholder | Project-local | Temporary vector icon for the Godot project. |
 | `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored procedural visual theme | Project-local | User selected style route C: black-white inksteel tabletop with restrained crimson and antique-gold accents. No external binary asset is used at runtime for this pass. |
+| `scripts/CardControlRenderer.cs`, `scripts/Main.cs`, `scenes/Main.tscn` | Project-authored procedural UI and motion | Project-local | Designed card frames, card backs, tabletop zones, prompt highlights, card hover/press feedback, lobby chrome, and result banner. No external binary asset is used for these elements. |
 | Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; not committed to git. |
 
 ## Generated Style Checkpoint

@@ -69,6 +69,10 @@ public partial class Main : Control
     private Label? _resultSummary;
     private Label? _promptSummary;
     private VBoxContainer? _promptActions;
+    private PanelContainer? _sessionFrame;
+    private PanelContainer? _matchmakingFrame;
+    private PanelContainer? _publicMatchFrame;
+    private PanelContainer? _deckFrame;
     private LineEdit? _handleInput;
     private LineEdit? _roomInput;
     private Label? _matchmakingStatus;
@@ -203,21 +207,25 @@ public partial class Main : Control
         _promptFrame = GetNode<PanelContainer>("PromptFrame");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
-        _handleInput = GetNode<LineEdit>("Controls/SessionRow/HandleInput");
-        _roomInput = GetNode<LineEdit>("Controls/SessionRow/RoomInput");
-        _matchmakingStatus = GetNode<Label>("Controls/MatchmakingRow/MatchmakingStatus");
-        _publicMatchSelect = GetNode<OptionButton>("Controls/PublicMatchRow/PublicMatchSelect");
-        _deckSelect = GetNode<OptionButton>("Controls/DeckRow/DeckSelect");
-        _connectButton = GetNode<Button>("Controls/SessionRow/ConnectButton");
-        _reconnectButton = GetNode<Button>("Controls/SessionRow/ReconnectButton");
-        _createPublicMatchButton = GetNode<Button>("Controls/MatchmakingRow/CreatePublicMatchButton");
-        _queueMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/QueueMatchmakingButton");
-        _cancelMatchmakingButton = GetNode<Button>("Controls/MatchmakingRow/CancelMatchmakingButton");
-        _refreshPublicMatchesButton = GetNode<Button>("Controls/PublicMatchRow/RefreshPublicMatchesButton");
-        _joinPublicMatchButton = GetNode<Button>("Controls/PublicMatchRow/JoinPublicMatchButton");
-        _loadDecksButton = GetNode<Button>("Controls/DeckRow/LoadDecksButton");
-        _submitDeckButton = GetNode<Button>("Controls/DeckRow/SubmitDeckButton");
-        _readyButton = GetNode<Button>("Controls/DeckRow/ReadyButton");
+        _sessionFrame = GetNode<PanelContainer>("Controls/SessionFrame");
+        _matchmakingFrame = GetNode<PanelContainer>("Controls/MatchmakingFrame");
+        _publicMatchFrame = GetNode<PanelContainer>("Controls/PublicMatchFrame");
+        _deckFrame = GetNode<PanelContainer>("Controls/DeckFrame");
+        _handleInput = GetNode<LineEdit>("Controls/SessionFrame/SessionRow/HandleInput");
+        _roomInput = GetNode<LineEdit>("Controls/SessionFrame/SessionRow/RoomInput");
+        _matchmakingStatus = GetNode<Label>("Controls/MatchmakingFrame/MatchmakingRow/MatchmakingStatus");
+        _publicMatchSelect = GetNode<OptionButton>("Controls/PublicMatchFrame/PublicMatchRow/PublicMatchSelect");
+        _deckSelect = GetNode<OptionButton>("Controls/DeckFrame/DeckRow/DeckSelect");
+        _connectButton = GetNode<Button>("Controls/SessionFrame/SessionRow/ConnectButton");
+        _reconnectButton = GetNode<Button>("Controls/SessionFrame/SessionRow/ReconnectButton");
+        _createPublicMatchButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/CreatePublicMatchButton");
+        _queueMatchmakingButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/QueueMatchmakingButton");
+        _cancelMatchmakingButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/CancelMatchmakingButton");
+        _refreshPublicMatchesButton = GetNode<Button>("Controls/PublicMatchFrame/PublicMatchRow/RefreshPublicMatchesButton");
+        _joinPublicMatchButton = GetNode<Button>("Controls/PublicMatchFrame/PublicMatchRow/JoinPublicMatchButton");
+        _loadDecksButton = GetNode<Button>("Controls/DeckFrame/DeckRow/LoadDecksButton");
+        _submitDeckButton = GetNode<Button>("Controls/DeckFrame/DeckRow/SubmitDeckButton");
+        _readyButton = GetNode<Button>("Controls/DeckFrame/DeckRow/ReadyButton");
         _returnLobbyButton = GetNode<Button>("Controls/ResultFrame/ResultBox/ReturnLobbyButton");
     }
 
@@ -260,6 +268,12 @@ public partial class Main : Control
             _status.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         }
 
+        ApplyLobbyFrame(_sessionFrame);
+        ApplyLobbyFrame(_matchmakingFrame, RunestoneSurface.Result);
+        ApplyLobbyFrame(_publicMatchFrame);
+        ApplyLobbyFrame(_deckFrame, RunestoneSurface.Result);
+        ApplyLobbyRowLabels();
+
         if (_boardSummary is not null)
         {
             _boardSummary.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
@@ -277,8 +291,30 @@ public partial class Main : Control
 
         if (_resultFrame is not null)
         {
-            _resultFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 2));
+            _resultFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 3));
         }
+    }
+
+    private static void ApplyLobbyFrame(PanelContainer? frame, RunestoneSurface surface = RunestoneSurface.Rail)
+    {
+        frame?.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(surface, 1));
+    }
+
+    private void ApplyLobbyRowLabels()
+    {
+        foreach (var path in new[]
+        {
+            "Controls/SessionFrame/SessionRow/HandleLabel",
+            "Controls/SessionFrame/SessionRow/RoomLabel",
+            "Controls/MatchmakingFrame/MatchmakingRow/MatchmakingLabel",
+            "Controls/PublicMatchFrame/PublicMatchRow/PublicMatchLabel",
+            "Controls/DeckFrame/DeckRow/DeckLabel"
+        })
+        {
+            GetNodeOrNull<Label>(path)?.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        }
+
+        _matchmakingStatus?.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
     }
 
     private void ApplyMainContentGutter()
@@ -3218,14 +3254,38 @@ public partial class Main : Control
         if (_resultFrame is not null)
         {
             _resultFrame.Visible = true;
+            FlashResultFrame(_resultFrame);
         }
 
         if (_resultSummary is not null)
         {
             _resultSummary.Text = MatchResultSummaryForViewer(result);
+            _resultSummary.AddThemeColorOverride("font_color", MatchResultFontColor(result));
         }
 
         QueueResultScreenshotIfReady();
+    }
+
+    private void FlashResultFrame(PanelContainer resultFrame)
+    {
+        resultFrame.Modulate = new Color(1f, 0.82f, 0.46f, 1f);
+        var tween = resultFrame.CreateTween();
+        tween.TweenProperty(resultFrame, "modulate", Colors.White, 0.28d)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.Out);
+    }
+
+    private Color MatchResultFontColor(Godot.Collections.Dictionary result)
+    {
+        var winnerPlayerId = ResultString(result, "winnerPlayerId");
+        if (string.IsNullOrWhiteSpace(winnerPlayerId))
+        {
+            return RunestoneTheme.Ivory;
+        }
+
+        return string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal)
+            ? RunestoneTheme.Brass
+            : RunestoneTheme.Warning;
     }
 
     public void ClearMatchResult()

@@ -80,6 +80,10 @@ internal static class RunestoneTheme
                 checkBox.AddThemeColorOverride("font_pressed_color", Colors.White);
                 checkBox.AddThemeColorOverride("font_disabled_color", MutedInk);
                 break;
+            case OptionButton optionButton:
+                ApplyButtonTheme(optionButton);
+                optionButton.AddThemeColorOverride("font_focus_color", Colors.White);
+                break;
             case Button button:
                 ApplyButtonTheme(button);
                 break;
