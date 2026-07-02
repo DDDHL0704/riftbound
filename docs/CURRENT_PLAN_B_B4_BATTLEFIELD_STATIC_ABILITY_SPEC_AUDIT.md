@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield prevent-unit-play static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield Echo cost-reduction static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -104,12 +104,28 @@ Validation: red/green focused guard `BattlefieldPreventUnitPlayStaticAbilityUses
 
 Non-closure: this slice only closes the prevent-unit-play static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete play destination policy / timing-window breadth, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Echo Cost-Reduction Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(...)` and routes Marai Spire-style Echo optional-cost reduction through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldEchoCostReductionAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_ECHO_COST_REDUCTION` plus positive `Amount`. `CoreRuleEngine.ResolveBattlefieldEchoCostReductionMana`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.PromptBattlefieldEchoCostReductionMana`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldEchoCostReductionAbility, out ability)`.
+
+Existing `SFD·211/221` official behavior, controlled battlefield-source filtering, server-authored Echo optional-cost prompt metadata, `COST_PAID.battlefieldEchoCostReductionMana`, stack `effectRepeatCount = 2`, repeated draw resolution, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldEchoCostReductionStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / prompt / GameHub seed / official-deck route 7/7; adjacent `BattlefieldStatic|EchoCostReduction|CenterStage|Echo|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2617/2617; backend full conformance 9124/9124.
+
+Non-closure: this slice only closes the Echo cost-reduction static ability execution helper. The remaining battlefield static ability per-effect helper surface, complex Echo costs, complete PaymentEngine optional-cost matrix, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest Echo cost-reduction static ability generic-predicate guard red/green: passed `1/1`;
+- latest Echo parser / P79 runtime / prompt / GameHub seed / official-deck route focused validation: passed `7/7`;
+- latest BattlefieldStatic / EchoCostReduction / CenterStage / Echo / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2617/2617`;
+- backend full conformance after the Echo cost-reduction generic-predicate increment: passed `9124/9124`;
 - latest Poro Forge official-deck rejected-command replay focused validation: passed `1/1`;
 - latest PoroForge / LegendAttachArmament / LegendAct / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2486/2486`;
 - backend full conformance after the Poro Forge rejected-command replay increment: passed `8865/8865`;
