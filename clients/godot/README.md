@@ -270,8 +270,8 @@ The verifier checks the package structure, valid `SHA256SUMS` coverage for all
 required evidence files, clean-git report markers, a report Git revision
 contained in `origin/main`, manual confirmation mode, all five human
 confirmation boxes, match lifecycle logs, final result screenshot logs, valid
-PNG result screenshots, distinct A/B result screenshot files, and absence of
-crash/rejection/auto-smoke evidence.
+PNG result screenshots, distinct A/B log and result screenshot files, and
+absence of crash/rejection/auto-smoke evidence.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`

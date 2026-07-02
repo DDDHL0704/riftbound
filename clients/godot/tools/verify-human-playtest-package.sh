@@ -230,6 +230,11 @@ require_log_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a
 require_log_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
 require_log_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
 require_log_match "Visual screenshot saved: .*player-b-result\\.png" "${player_b_log}" "player B result screenshot log"
+
+if [[ -s "${player_a_log}" && -s "${player_b_log}" ]] && cmp -s "${player_a_log}" "${player_b_log}"; then
+  failures+=("player A and player B logs are identical")
+fi
+
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
 
