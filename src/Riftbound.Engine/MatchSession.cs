@@ -15178,7 +15178,10 @@ internal static class ActionPromptBuilder
 
     private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out var ability)
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+            cardNo,
+            BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
+            out var ability)
             ? Math.Max(0, ability.Amount)
             : 0;
     }
@@ -17946,7 +17949,10 @@ internal static class ActionPromptBuilder
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldEchoCostReductionAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardObject.CardNo, out _);
     }

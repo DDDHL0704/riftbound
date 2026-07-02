@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield Echo cost-reduction static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield equipment cost-reduction static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -116,12 +116,28 @@ Validation: red/green focused guard `BattlefieldEchoCostReductionStaticAbilityUs
 
 Non-closure: this slice only closes the Echo cost-reduction static ability execution helper. The remaining battlefield static ability per-effect helper surface, complex Echo costs, complete PaymentEngine optional-cost matrix, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Equipment Cost-Reduction Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(...)` and routes Ornn's Forge-style first-equipment cost reduction through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_EQUIPMENT_COST_REDUCTION` plus positive `Amount`. `CoreRuleEngine.ResolveBattlefieldEquipmentCostReductionMana`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.PromptBattlefieldEquipmentCostReductionMana`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility, out ability)`.
+
+Existing `SFD·213/221` official behavior, controlled battlefield-source filtering, server-authored equipment `PLAY_CARD` prompt metadata, once-per-turn `PLAYED_EQUIPMENT_THIS_TURN` tracking, `COST_PAID.battlefieldEquipmentCostReductionMana`, equipment stack resolution, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldEquipmentCostReductionStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / prompt / GameHub seed / official-deck route 7/7; adjacent `BattlefieldStatic|EquipmentCostReduction|LongSword|Equipment|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 3025/3025; backend full conformance 9125/9125.
+
+Non-closure: this slice only closes the equipment cost-reduction static ability execution helper. The remaining battlefield static ability per-effect helper surface, complex equipment costs, complete PaymentEngine equipment-cost matrix, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest equipment cost-reduction static ability generic-predicate guard red/green: passed `1/1`;
+- latest equipment parser / P79 runtime / prompt / GameHub seed / official-deck route focused validation: passed `7/7`;
+- latest BattlefieldStatic / EquipmentCostReduction / LongSword / Equipment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `3025/3025`;
+- backend full conformance after the equipment cost-reduction generic-predicate increment: passed `9125/9125`;
 - latest Echo cost-reduction static ability generic-predicate guard red/green: passed `1/1`;
 - latest Echo parser / P79 runtime / prompt / GameHub seed / official-deck route focused validation: passed `7/7`;
 - latest BattlefieldStatic / EchoCostReduction / CenterStage / Echo / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2617/2617`;

@@ -26604,7 +26604,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldEchoCostReductionAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _);
     }
@@ -33568,7 +33571,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out var ability)
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+            cardNo,
+            BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
+            out var ability)
             ? Math.Max(0, ability.Amount)
             : 0;
     }
