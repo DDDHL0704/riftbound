@@ -41,6 +41,7 @@ room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
+require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
 package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
 verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
@@ -62,6 +63,9 @@ fi
 disabled_final_gates=()
 if [[ "${confirm_manual}" != "1" ]]; then
   disabled_final_gates+=("RIFTBOUND_CONFIRM_MANUAL=${confirm_manual}")
+fi
+if [[ "${require_clean_git}" != "1" ]]; then
+  disabled_final_gates+=("RIFTBOUND_REQUIRE_CLEAN_GIT=${require_clean_git}")
 fi
 if [[ "${check_evidence}" != "1" ]]; then
   disabled_final_gates+=("RIFTBOUND_CHECK_EVIDENCE=${check_evidence}")
@@ -101,10 +105,10 @@ Refusing final clean-main human playtest with disabled final P5 evidence gates:
   - ${disabled_final_gates[*]}
 
 Final P5 evidence requires a fetched origin/main clean worktree, manual
-confirmations, evidence checking, evidence packaging, package verification, a
-fresh Godot build, waiting for both Godot windows to exit, and no automatic
-Godot quit timer. The evidence directory must be new or empty, and the evidence
-package path must not already exist. Set
+confirmations, a clean-git report marker, evidence checking, evidence packaging,
+package verification, a fresh Godot build, waiting for both Godot windows to
+exit, and no automatic Godot quit timer. The evidence directory must be new or
+empty, and the evidence package path must not already exist. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -156,6 +160,7 @@ Started clean-main Riftbound Godot human playtest stack.
   evidence dir: ${screenshot_dir}
   evidence package: ${evidence_package}
   manual confirmations: ${confirm_manual}
+  require clean git: ${require_clean_git}
   check evidence: ${check_evidence}
   package evidence: ${package_evidence}
   verify evidence package: ${verify_evidence_package}
@@ -177,7 +182,7 @@ EOF
 export RIFTBOUND_ROOM="${room}"
 export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
-export RIFTBOUND_REQUIRE_CLEAN_GIT="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
+export RIFTBOUND_REQUIRE_CLEAN_GIT="${require_clean_git}"
 export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"
 export RIFTBOUND_CHECK_EVIDENCE="${check_evidence}"
 export RIFTBOUND_PACKAGE_EVIDENCE="${package_evidence}"
