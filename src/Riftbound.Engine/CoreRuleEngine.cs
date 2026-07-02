@@ -26591,7 +26591,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility,
+                out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardNo, MoveUnitRoamKeyword)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
@@ -31094,7 +31097,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
+            && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility,
+                out _)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 

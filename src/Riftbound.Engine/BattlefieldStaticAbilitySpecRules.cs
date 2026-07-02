@@ -27,12 +27,12 @@ internal static class BattlefieldStaticAbilitySpecRules
             && ability.Amount > 0;
     }
 
-    public static bool TryGetBattlefieldPreventMoveToBaseAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldPreventMoveToBaseAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
+        return string.Equals(
+            ability.Kind,
             StaticAbilityKinds.BattlefieldPreventMoveToBase,
-            out ability);
+            StringComparison.Ordinal);
     }
 
     public static bool TryGetBattlefieldPreventUnitPlayAbility(string? cardNo, out StaticAbilitySpec ability)

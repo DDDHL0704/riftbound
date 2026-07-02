@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield score-delay static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield prevent-move-to-base static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -79,6 +79,18 @@ Existing `SFD·209/221` official behavior, `BATTLEFIELD_SCORE_PREVENTED` payload
 Validation: red/green focused guard `BattlefieldScoreDelayStaticAbilityUsesGenericSpecPredicate` 1/1; focused score-delay parser / P79 runtime / GameHub seed / official-deck route 8/8; adjacent `ScoreDelay|ScorePrevented|BattlefieldStatic|FirstTurnScore|BattlefieldHeldScore|BattleResponse|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2617/2617; backend full conformance 9121/9121.
 
 Non-closure: this slice only closes the score-delay static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete physical `此处` score-prevention scoping, complete battlefield lifecycle, P0, and READY remain open.
+
+## 2026-07-02 Supplement: Battlefield Prevent Move-To-Base Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(...)` and routes Vilemaw's Lair-style movement prevention through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_PREVENT_MOVE_TO_BASE`. `CoreRuleEngine.HasBattlefieldStaticPreventMoveToBase`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.HasMoveUnitPromptPreventMoveToBase`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility, out _)`.
+
+Existing `OGN·295/298` official behavior, server-authored `MOVE_UNIT` prompt filtering, rejected `BATTLEFIELD_TO_BASE` command behavior, no-mutation state hash, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldPreventMoveToBaseStaticAbilityUsesGenericSpecPredicate` 1/1; focused static-restriction parser / P79 runtime / prompt / official-deck route 7/7; adjacent `BattlefieldStatic|PreventMoveToBase|MoveUnit|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2631/2631; backend full conformance 9122/9122.
+
+Non-closure: this slice only closes the prevent-move-to-base static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete movement / control-zone edge cases, complete battlefield lifecycle, P0, and READY remain open.
 
 ## Non-Closure
 
