@@ -214,6 +214,18 @@ Set `RIFTBOUND_EXTRA_GODOT_ARGS="--riftbound-smoke-auto-ready ..."` to append
 the same extra Godot user arguments to both launched clients for simulated or
 diagnostic runs. Do not use auto-smoke output as final two-human P5 evidence.
 
+For a one-command visible simulated preflight, run:
+
+```sh
+clients/godot/tools/run-local-simulated-playtest-stack.sh
+```
+
+This opens two visible Godot clients, uses server-exposed auto-smoke actions to
+submit preconstructed decks, ready, mulligan, and reach a surrender result, then
+runs the machine-readable checker. Its report intentionally contains auto-smoke
+notes and unchecked manual confirmations, so it is useful for P2/P3 diagnostics
+but not valid final P5 evidence.
+
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
 worktree, prompts for the human-only confirmations, and packages the evidence
