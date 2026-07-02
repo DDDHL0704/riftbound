@@ -339,6 +339,14 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldFriendlySpellDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldFriendlySpellDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldFriendlySpellTargeted, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.DrawCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -384,14 +392,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldFriendlySpellDraw,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldSpellPowerBonusTrigger(string? cardNo, out TriggerSpec trigger)

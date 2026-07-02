@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Friendly-Spell Draw Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·292/298` Dream Tree / 幻梦之树 official text for drawing once each turn when you use a spell on a friendly unit at that battlefield.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFriendlySpellDrawTrigger, out trigger)`.
+- `IsBattlefieldFriendlySpellDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`, `Timing=BATTLEFIELD_FRIENDLY_SPELL_TARGETED`, `TargetScope=FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`, and positive `DrawCount`.
+- `CoreRuleEngine.TryGetBattlefieldFriendlySpellDrawSource` uses that generic predicate route and keeps existing spell-play gating, target-object requirement, controlled battlefield-source guard, precise same-battlefield friendly-unit scope, once-per-turn marker, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DRAWN`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing friendly-spell draw paths continue to draw the parsed count only once per source per turn, skip friendly units at other battlefields when precise `ObjectLocations` are present, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Dream Tree official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldFriendlySpellDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Dream Tree route 5/5; adjacent `DreamTree|FriendlySpell|SpellTarget|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery` 2133/2133; backend full conformance 9114/9114.
+
 ## 2026-07-02 Conquer Overkill Create-Warhawk Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-217/219` Hunting Grounds / 捕猎场 official text for creating a 1-power Warhawk with Spellshield when conquering that battlefield after assigning at least 3 overkill damage to enemy units.

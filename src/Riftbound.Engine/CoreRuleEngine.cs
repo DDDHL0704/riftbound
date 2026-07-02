@@ -5018,6 +5018,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 targetObjectIds,
                 out var spellDrawSourceObjectId,
                 out var battlefieldFriendlySpellDrawSourceCardNo,
+                out var battlefieldFriendlySpellDrawTriggerKind,
                 out var battlefieldFriendlySpellDrawCount)
             ? spellDrawSourceObjectId
             : string.Empty;
@@ -5336,7 +5337,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldObjectId"] = battlefieldFriendlySpellDrawSourceObjectId,
                     ["battlefieldCardNo"] = battlefieldFriendlySpellDrawSourceCardNo,
-                    ["trigger"] = TriggerKinds.BattlefieldFriendlySpellDraw,
+                    ["trigger"] = battlefieldFriendlySpellDrawTriggerKind,
                     ["drawCount"] = battlefieldFriendlySpellDrawCount,
                     ["playedCardNo"] = command.CardNo,
                     ["targetObjectIds"] = targetObjectIds.ToArray()
@@ -33713,10 +33714,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> targetObjectIds,
         out string sourceObjectId,
         out string sourceCardNo,
+        out string triggerKind,
         out int drawCount)
     {
         sourceObjectId = string.Empty;
         sourceCardNo = string.Empty;
+        triggerKind = string.Empty;
         drawCount = 0;
         if (!IsSpellPlayBehavior(behavior)
             || targetObjectIds.Count == 0
@@ -33728,10 +33731,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardObject.CardNo, out var trigger)
-                || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldFriendlySpellTargeted, StringComparison.Ordinal)
-                || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
-                || trigger.DrawCount.GetValueOrDefault() <= 0
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldFriendlySpellDrawTrigger,
+                    out var trigger)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 || BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId)
                 || !targetObjectIds.Any(targetObjectId =>
@@ -33748,6 +33751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             sourceObjectId = objectId;
             sourceCardNo = cardObject.CardNo ?? string.Empty;
+            triggerKind = trigger.Kind;
             drawCount = trigger.DrawCount.GetValueOrDefault();
             return true;
         }
