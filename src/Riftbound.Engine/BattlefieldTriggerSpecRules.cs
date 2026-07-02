@@ -242,6 +242,14 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.DrawCount is > 0;
     }
 
+    public static bool IsBattlefieldConquerDrawForOtherBattlefieldsTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerDrawForOtherBattlefields, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.OtherControlledBattlefields, StringComparison.Ordinal)
+            && trigger.DrawCountPerParticipant is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -287,14 +295,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerDrawForOtherBattlefields,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerPowerfulPayDrawTrigger(string? cardNo, out TriggerSpec trigger)

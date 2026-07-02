@@ -26505,10 +26505,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OtherControlledBattlefields, StringComparison.Ordinal)
-            || trigger.DrawCountPerParticipant.GetValueOrDefault() <= 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerDrawForOtherBattlefieldsTrigger,
+                out var trigger)
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return false;

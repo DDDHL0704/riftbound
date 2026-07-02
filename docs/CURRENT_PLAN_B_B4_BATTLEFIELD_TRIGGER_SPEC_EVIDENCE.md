@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Draw-For-Other-Battlefields Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·217/221` Seat of Power / 权能之座 official text `当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerDrawForOtherBattlefieldsTrigger, out trigger)`.
+- `IsBattlefieldConquerDrawForOtherBattlefieldsTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OTHER_CONTROLLED_BATTLEFIELDS`, and positive `DrawCountPerParticipant`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, other controlled battlefield counting, opponent-owned battlefield filtering, draw-count multiplication, `BATTLEFIELD_TRIGGER_RESOLVED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer draw-for-other-battlefields paths continue to count controlled battlefield card objects other than the conquered source, skip opponent-owned dirty battlefield objects, multiply by the parsed draw-per-participant count, and preserve hidden main-deck boundaries through the same draw helper. Ally / two-headed-giant expansion remains outside this execution-helper slice.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerDrawForOtherBattlefieldsTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Seat of Power runtime / GameHub / official-deck route 7/7; adjacent `BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery` 2417/2417; backend full conformance 9105/9105.
+
 ## 2026-07-02 Conquer Discard-Draw Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·298/298` Zaun Sump / 祖安地沟 official text `当你征服此处时，弃置一张手牌，然后抽一张牌。`
@@ -484,7 +494,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing repr
 
 The 2026-06-28 B0 follow-up now also covers this same parsed Zaun Sump route through a legal official-deck opening. `OfficialDeckMidgameResolvesZaunSumpConquerDiscardDrawAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `OGN·298/298` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_DISCARD_DRAW`, moves one controlled hand card to graveyard, draws one controlled main-deck card, and that the command journal replays through score victory to the same final state hash.
 
-The conquer draw-for-other-battlefields follow-up parser path turns the Seat of Power official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OTHER_CONTROLLED_BATTLEFIELDS`, and `DrawCountPerParticipant=1`. Runtime no longer checks `SFD·217/221` through `BattlefieldConquerDrawForOtherBattlefieldsCardNo` / `IsBattlefieldConquerDrawForOtherBattlefieldsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer draw-for-other-battlefields follow-up parser path turns the Seat of Power official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OTHER_CONTROLLED_BATTLEFIELDS`, and `DrawCountPerParticipant=1`. Runtime no longer checks `SFD·217/221` through `BattlefieldConquerDrawForOtherBattlefieldsCardNo` / `IsBattlefieldConquerDrawForOtherBattlefieldsCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerDrawForOtherBattlefieldsTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still counts other controlled battlefield card objects, excludes the conquered source battlefield object, skips opponent-owned dirty battlefield objects, and draws `otherBattlefieldObjectIds.Length * DrawCountPerParticipant`. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` while preserving hidden main-deck ordering boundaries through the existing draw implementation.
 

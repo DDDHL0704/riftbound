@@ -4707,6 +4707,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldConquerDrawForOtherBattlefieldsTriggerUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldTriggerSpecRules.IsBattlefieldConquerDrawForOtherBattlefieldsTrigger",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BattlefieldConquerPowerfulPayDrawTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
