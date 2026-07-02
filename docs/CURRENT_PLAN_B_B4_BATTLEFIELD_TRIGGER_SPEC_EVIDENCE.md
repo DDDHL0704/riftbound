@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 High-Cost Spell Insight Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-211/219` Lost Library / 失落书库 official text for performing Insight when you play a spell after spending at least 4 mana while that battlefield is controlled by you.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHighCostSpellInsightRecycleTrigger, out trigger)`.
+- `IsBattlefieldHighCostSpellInsightRecycleTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE`, `Timing=BATTLEFIELD_SPELL_PLAYED`, positive `MinimumPaidMana`, and positive `RecycleCount`.
+- `CoreRuleEngine.TryResolveBattlefieldHighCostSpellInsightTrigger` uses that generic predicate route and keeps existing spell-play gating, paid-mana threshold check, controlled battlefield-source guard, controlled main-deck prefix recycle, randomized main-deck-bottom placement, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_RECYCLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing high-cost spell insight paths continue to recycle the parsed number of controlled top main-deck cards only when paid mana reaches the parsed threshold, skip low-cost spells, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Lost Library official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldHighCostSpellInsightTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Lost Library route 8/8; adjacent `BattlefieldHighCostSpellInsight|BattlefieldTriggerSpec|BattlefieldSpellPowerBonus|BattlefieldFriendlySpell|FullGameEndToEnd|MatchRecovery` 2130/2130; backend full conformance 9116/9116.
+
 ## 2026-07-02 Spell-Power Bonus Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-205/219` Waste Hall / 废弃大厅 official text for letting the player who plays a spell give one unit they control at that battlefield `{{S}}+1` until end of turn.

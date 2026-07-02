@@ -34331,12 +34331,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceObjectId = string.Empty;
         var battlefieldCardNo = string.Empty;
+        var triggerKind = string.Empty;
         var recycleCount = 0;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
                     cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldHighCostSpellInsightRecycleTrigger,
                     out var trigger)
                 || paidMana < trigger.MinimumPaidMana.GetValueOrDefault()
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
@@ -34352,6 +34354,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             sourceObjectId = objectId;
             battlefieldCardNo = cardObject.CardNo;
+            triggerKind = trigger.Kind;
             recycleCount = triggerRecycleCount;
             break;
         }
@@ -34389,7 +34392,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = sourceObjectId,
                 ["battlefieldCardNo"] = battlefieldCardNo,
-                ["trigger"] = TriggerKinds.BattlefieldHighCostSpellInsightRecycle,
+                ["trigger"] = triggerKind,
                 ["playedCardNo"] = stackItem.CardNo,
                 ["paidMana"] = paidMana,
                 ["recycledCardIds"] = randomizedRecycledCardIds.ToArray()
@@ -34403,7 +34406,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = randomizedRecycledCardIds.ToArray(),
                 ["count"] = randomizedRecycledCardIds.Count,
-                ["reason"] = TriggerKinds.BattlefieldHighCostSpellInsightRecycle
+                ["reason"] = triggerKind
             }));
         return new RecycleResult(events, rngCursor);
     }

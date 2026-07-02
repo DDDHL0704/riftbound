@@ -4252,6 +4252,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldHighCostSpellInsightTriggerUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldHighCostSpellInsightRecycleTrigger",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldTriggerSpecRules.IsBattlefieldHighCostSpellInsightRecycleTrigger",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BattlefieldPlayUnitBoonTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(

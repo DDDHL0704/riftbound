@@ -356,6 +356,14 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.PowerDelta.GetValueOrDefault() != 0;
     }
 
+    public static bool IsBattlefieldHighCostSpellInsightRecycleTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHighCostSpellInsightRecycle, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.RecycleCount.GetValueOrDefault() > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -401,14 +409,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldHighCostSpellInsightRecycleTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldHighCostSpellInsightRecycle,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldPlayUnitPayBoonTrigger(string? cardNo, out TriggerSpec trigger)
