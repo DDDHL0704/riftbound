@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Pay-Create-Gold Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·220/221` Treasure Pile / 珍宝堆 official text for paying 1 after conquest to play one exhausted Gold equipment token.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPayCreateGoldTrigger, out trigger)`.
+- `IsBattlefieldConquerPayCreateGoldTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD`, `Timing=BATTLEFIELD_CONQUERED`, positive `ManaCost`, positive `CreatedTokenCount`, non-empty `CreatedTokenName`, and `CreatedTokenDestination=OWNER_BASE`.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneCreateGoldPaymentWindow` and `CoreRuleEngine.ResolveBattlefieldConquerGoldTriggerPayment` use that generic predicate route and keep existing trigger-payment open / accept / decline behavior, payment choice ids, token name/count/destination/exhausted handling, `PAYMENT_WINDOW_OPENED`, `COST_PAID`, `BATTLEFIELD_TRIGGER_RESOLVED`, `EQUIPMENT_TOKEN_CREATED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer pay-create-gold paths continue to open `TRIGGER_PAYMENT`, accept `SPEND_MANA:1` or `DECLINE`, create an exhausted Gold equipment token only after successful payment, preserve decline-without-token behavior, and replay both paid and declined Treasure Pile official-deck midgames to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerPayCreateGoldTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Treasure Pile runtime / GameHub / official-deck paid+decline routes 20/20; adjacent `TreasurePile|BattlefieldConquerGold|TriggerPayment|FullGameEndToEnd|MatchRecovery` 2200/2200; backend full conformance 9109/9109.
+
 ## 2026-07-02 Conquer Ready-Equipment Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·221/221` Moonveil Altar / 月帷祭坛 official text `当你征服此处时，你可以选择让一件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除`
@@ -540,7 +550,7 @@ The conquer ready-equipment follow-up parser path turns the Moonveil Altar offic
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still readies the first controlled exhausted equipment in the conquering player's base / battlefield zones, skips opponent-owned dirty equipment objects, and detaches the target when the parsed trigger allows armament detach and the target is attached armament. It emits `BATTLEFIELD_TRIGGER_RESOLVED`, `EQUIPMENT_READIED`, and, when applicable, `EQUIPMENT_DETACHED` with `BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, while preserving existing equipment ownership / controller guards.
 
-The conquer pay-create-gold follow-up parser path turns the Treasure Pile official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD`, `Timing=BATTLEFIELD_CONQUERED`, `ManaCost=1`, `CreatedTokenCount=1`, `CreatedTokenName=金币`, `CreatedTokenDestination=OWNER_BASE`, and `CreatedTokenExhausted=true`. Runtime no longer checks `SFD·220/221` through `BattlefieldConquerPayOneCreateGoldCardNo` / `IsBattlefieldConquerPayOneCreateGoldCardNo`, and no longer uses `BattlefieldGoldManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer pay-create-gold follow-up parser path turns the Treasure Pile official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD`, `Timing=BATTLEFIELD_CONQUERED`, `ManaCost=1`, `CreatedTokenCount=1`, `CreatedTokenName=金币`, `CreatedTokenDestination=OWNER_BASE`, and `CreatedTokenExhausted=true`. Runtime no longer checks `SFD·220/221` through `BattlefieldConquerPayOneCreateGoldCardNo` / `IsBattlefieldConquerPayOneCreateGoldCardNo`, and no longer uses `BattlefieldGoldManaCost`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPayCreateGoldTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and creates an exhausted Gold equipment token after successful payment. The prompt cost, trigger id, token name, token destination and exhausted state now come from the parsed spec while preserving the existing `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED` event contract and hidden information boundaries.
 

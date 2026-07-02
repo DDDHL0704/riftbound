@@ -277,6 +277,19 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.EquipmentReadyCount.GetValueOrDefault() > 0;
     }
 
+    public static bool IsBattlefieldConquerPayCreateGoldTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerPayCreateGold, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.CreatedTokenCount is > 0
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -322,14 +335,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerPayCreateGoldTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerPayCreateGold,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(string? cardNo, out TriggerSpec trigger)

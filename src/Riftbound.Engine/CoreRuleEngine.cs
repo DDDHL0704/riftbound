@@ -981,15 +981,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
-                out var trigger)
-            || trigger.CreatedTokenCount is not > 0
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || !string.Equals(
-                trigger.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal))
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayCreateGoldTrigger,
+                out var trigger))
         {
             return RejectWithCorePrompts(
                 state,
@@ -997,8 +992,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var tokenName = trigger.CreatedTokenName;
-        var tokenCount = trigger.CreatedTokenCount.Value;
+        var tokenName = trigger.CreatedTokenName ?? string.Empty;
+        var tokenCount = trigger.CreatedTokenCount.GetValueOrDefault();
         var tokenExhausted = trigger.CreatedTokenExhausted.GetValueOrDefault();
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
@@ -25355,21 +25350,15 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
-                out var trigger)
-            || trigger.ManaCost is not > 0
-            || trigger.CreatedTokenCount is not > 0
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || !string.Equals(
-                trigger.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal))
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayCreateGoldTrigger,
+                out var trigger))
         {
             return false;
         }
 
-        var manaCost = trigger.ManaCost.Value;
+        var manaCost = trigger.ManaCost.GetValueOrDefault();
         var effectKind = RuntimeTriggerEffectKind(trigger);
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
