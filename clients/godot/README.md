@@ -246,6 +246,12 @@ before returning success:
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
 ```
 
+The wrapper prints the final P5 operator checklist before launching the two
+clients. Two human players must operate the clients, use preconstructed decks,
+play to the server result panel, keep both final screenshots, and confirm from
+those screenshots that opponent hands and hidden cards are shown only as card
+backs/counts before answering the manual prompts.
+
 Set `RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz` to choose
 the output tarball path. If unset, the wrapper writes
 `/tmp/riftbound-human-playtest-<room>.tar.gz`, where `<room>` is

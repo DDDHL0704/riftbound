@@ -145,6 +145,13 @@ Started clean-main Riftbound Godot human playtest stack.
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.
+
+Final P5 operator checklist:
+  1. Two human players must operate the two Godot clients.
+  2. Both players must use preconstructed decks and play to the server result panel.
+  3. Both final screenshots must show the result panel.
+  4. Each player must verify opponent hands and hidden cards are visible only as card backs/counts.
+  5. Answer the manual confirmation prompts only after checking the final screenshots.
 EOF
 
 export RIFTBOUND_ROOM="${room}"

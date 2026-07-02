@@ -147,4 +147,13 @@ PATH="${fake_bin}:${PATH}" \
 rg -q "wrapped human stack ran" "${safe_output}" \
   || fail "clean-main human playtest did not continue for non-smoke extra args"
 
+rg -q "Final P5 operator checklist" "${safe_output}" \
+  || fail "clean-main human playtest did not print the final P5 operator checklist"
+
+rg -q "two human players|Two human players" "${safe_output}" \
+  || fail "clean-main human playtest checklist did not mention two human players"
+
+rg -q "hidden cards|card backs|backs/counts" "${safe_output}" \
+  || fail "clean-main human playtest checklist did not mention hidden-information verification"
+
 echo "Human playtest script safety checks passed."
