@@ -44,6 +44,7 @@ package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
 verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
 build_godot="${RIFTBOUND_BUILD_GODOT:-1}"
 wait_for_windows="${RIFTBOUND_WAIT:-1}"
+quit_after="${RIFTBOUND_QUIT_AFTER:-}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 created_worktree=0
 
@@ -72,6 +73,9 @@ fi
 if [[ "${wait_for_windows}" == "0" ]]; then
   disabled_final_gates+=("RIFTBOUND_WAIT=0")
 fi
+if [[ -n "${quit_after}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_QUIT_AFTER=${quit_after}")
+fi
 if [[ "${fetch_ref}" != "1" ]]; then
   disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_FETCH=${fetch_ref}")
 fi
@@ -87,7 +91,7 @@ Refusing final clean-main human playtest with disabled final P5 evidence gates:
 
 Final P5 evidence requires a fetched origin/main clean worktree, manual
 confirmations, evidence packaging, package verification, a fresh Godot build,
-and waiting for both Godot windows to exit. Set
+waiting for both Godot windows to exit, and no automatic Godot quit timer. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -142,6 +146,7 @@ Started clean-main Riftbound Godot human playtest stack.
   verify evidence package: ${verify_evidence_package}
   build Godot: ${build_godot}
   wait for windows: ${wait_for_windows}
+  quit after: ${quit_after:-<unset>}
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.

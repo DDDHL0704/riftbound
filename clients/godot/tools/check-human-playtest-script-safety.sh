@@ -134,6 +134,7 @@ expect_final_gate_rejection "RIFTBOUND_BUILD_GODOT"
 expect_final_gate_rejection "RIFTBOUND_WAIT"
 expect_final_gate_rejection "RIFTBOUND_CLEAN_WORKTREE_FETCH"
 expect_final_gate_value_rejection "RIFTBOUND_CLEAN_WORKTREE_REF" "HEAD"
+expect_final_gate_value_rejection "RIFTBOUND_QUIT_AFTER" "10"
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"

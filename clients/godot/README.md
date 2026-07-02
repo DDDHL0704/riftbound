@@ -366,6 +366,13 @@ The package contains both player logs, both result screenshots,
 `playtest-report.md`, and `SHA256SUMS`. It is still only valid for P5 when the
 report includes the real two-human manual confirmations.
 
+For final P5 collection from pushed `main`, use
+`clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper
+refuses automated smoke arguments, disabled manual/package/build/wait gates,
+non-`origin/main` clean worktrees, and any `RIFTBOUND_QUIT_AFTER` value. Final
+evidence needs two human operators to close the Godot windows after reaching the
+server result panel; automatic quit timers are only for simulated diagnostics.
+
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
 
