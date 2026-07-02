@@ -1307,24 +1307,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.ReturnCount is not 1
-            || !string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
-            || !string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
-            || trigger.CreatedTokenCount is not 1
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || trigger.CreatedTokenPower is not > 0
-            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal)
-            || pendingPayment.ManaCost != trigger.ManaCost.Value
+            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault()
             || !cardObjects.TryGetValue(returnedObjectId, out var returnedState)
             || !returnedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(returnedState, intent.PlayerId)
-            || !TryGetUnitTokenDefinition(trigger.CreatedTokenName, trigger.CreatedTokenPower.Value, out var tokenDefinition))
+            || !TryGetUnitTokenDefinition(
+                trigger.CreatedTokenName ?? string.Empty,
+                trigger.CreatedTokenPower.GetValueOrDefault(),
+                out var tokenDefinition))
         {
             return RejectWithCorePrompts(
                 state,
@@ -25997,31 +25991,25 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.ReturnCount is not 1
-            || !string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
-            || !string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
-            || trigger.CreatedTokenCount is not 1
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || trigger.CreatedTokenPower is not > 0
-            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal)
             || !TryGetFirstControlledBattlefieldUnit(
                 playerZones,
                 cardObjects,
                 playerId,
                 sourceObjectId,
                 out var returnedObjectId)
-            || !TryGetUnitTokenDefinition(trigger.CreatedTokenName, trigger.CreatedTokenPower.Value, out _))
+            || !TryGetUnitTokenDefinition(
+                trigger.CreatedTokenName ?? string.Empty,
+                trigger.CreatedTokenPower.GetValueOrDefault(),
+                out _))
         {
             return false;
         }
 
-        var manaCost = trigger.ManaCost.Value;
+        var manaCost = trigger.ManaCost.GetValueOrDefault();
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,

@@ -290,6 +290,24 @@ internal static class BattlefieldTriggerSpecRules
                 StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.ReturnCount is 1
+            && string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && trigger.CreatedTokenCount is 1
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && trigger.CreatedTokenPower is > 0
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.Battlefield,
+                StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -335,14 +353,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerPayReadyLegendTrigger(string? cardNo, out TriggerSpec trigger)

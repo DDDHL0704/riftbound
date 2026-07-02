@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer pay-create-gold execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer pay-return-unit create-Sand-Soldier execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer pay-return-unit create-Sand-Soldier execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(...)` is removed.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneReturnUnitCreateSandSoldierPaymentWindow` and `CoreRuleEngine.ResolveBattlefieldConquerSandSoldierTriggerPayment` now route through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger`.
+- `IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER`, `BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, `ReturnCount=1`, `ReturnOriginZone=BATTLEFIELD`, `ReturnDestinationZone=HAND`, `CreatedTokenCount=1`, non-empty `CreatedTokenName`, positive `CreatedTokenPower`, and `CreatedTokenDestination=BATTLEFIELD`. Existing trigger-payment open / accept / decline behavior, selected controlled-unit return, token identity lookup by name/power, token ready/exhausted handling, `PAYMENT_WINDOW_OPENED` / `COST_PAID` / `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_RETURNED_TO_HAND` / token-created payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerPayReturnUnitCreateSandSoldierTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 9; `Is*CardNo(...)` helper count remains 0 for `BattlefieldTriggerSpecRules`. This slice does not close complete return-unit target-choice breadth, complete token lifecycle breadth, complete triggered-cost battlefield FUs, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: focused guard / parser / Imperial Shrine runtime / GameHub / official-deck paid+decline routes 8/8, adjacent `ImperialShrine|SandSoldier|PayReturnUnit|ReturnUnitCreate|TriggerPayment|BattlefieldConquer|FullGameEndToEnd|MatchRecovery` 2278/2278, backend full conformance 9110/9110.
 
 The 2026-07-02 conquer pay-create-gold execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -882,7 +891,7 @@ The 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up moves anoth
   - `CreatedTokenPower = 2`
   - `CreatedTokenDestination = BATTLEFIELD`
   - `CreatedTokenExhausted = false`
-- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneReturnUnitCreateSandSoldierPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(...)`, reads the mana cost / return zones / token name and token power from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerSandSoldierTriggerPayment` commits the payment before returning the selected unit and creating the concrete unit token through `P6TokenFactoryCatalog` by token family and power.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneReturnUnitCreateSandSoldierPaymentWindow` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger, out trigger)`, reads the mana cost / return zones / token name and token power from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerSandSoldierTriggerPayment` commits the payment before returning the selected unit and creating the concrete unit token through `P6TokenFactoryCatalog` by token family and power.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` card-number branch and `BattlefieldSandSoldierManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `64` total / `60` in `CoreRuleEngine`; Core battlefield helper count is `16`.
 
@@ -1267,6 +1276,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `42/42`;
 - adjacent TreasurePile / BattlefieldConquerGold / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2124/2124`;
 - backend full conformance: passed `8736/8736`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-07-02 conquer pay-return-unit create-Sand-Soldier execution-helper follow-up validation:
+
+- focused generic predicate guard / behavior-spec / runtime / GameHub / official-deck paid+decline representatives: passed `8/8`;
+- adjacent ImperialShrine / SandSoldier / PayReturnUnit / ReturnUnitCreate / TriggerPayment / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2278/2278`;
+- backend full conformance: passed `9110/9110`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-07-02 conquer pay-create-gold execution-helper follow-up validation:
