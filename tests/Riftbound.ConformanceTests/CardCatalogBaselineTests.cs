@@ -4393,6 +4393,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldFirstUnitPlayedMoveOtherToBaseTriggerUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldTriggerSpecRules.TryGetTrigger",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldTriggerSpecRules.IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void PlayCardPromptModePreferenceDoesNotUseRoyalAttendantCardNumberBranch()
     {
         var matchSessionPath = Path.Combine(

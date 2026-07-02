@@ -382,6 +382,17 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.RuneCallCount.GetValueOrDefault() > 0;
     }
 
+    public static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldUnitPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.OtherControlledUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.MoveCount.GetValueOrDefault() == 1
+            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
+            && trigger.OncePerTurn == true
+            && trigger.ExcludesTokens == true;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -427,14 +438,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
-            out trigger);
     }
 
     public static IReadOnlyList<TriggerSpec> TriggersForCard(string? cardNo)

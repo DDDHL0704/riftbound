@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 First-Unit Move-Other Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-215/219` Meteor Spring / 流星疗泉 official text for the first non-token unit played there each turn moving another unit controlled there to its owner's base.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger, out trigger)`.
+- `IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE`, `Timing=BATTLEFIELD_UNIT_PLAYED`, `TargetScope=OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `MoveCount=1`, `MoveDestination=OWNER_BASE`, `OncePerTurn=true`, and `ExcludesTokens=true`.
+- `CoreRuleEngine.TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger` uses that generic predicate route and keeps existing battlefield-destination gating, controlled played-unit requirement, controlled battlefield-source guard, token exclusion check, once-per-turn marker, target selection, `BATTLEFIELD_TRIGGER_RESOLVED`, `UNIT_MOVED_TO_BASE`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing first-unit move-other paths continue to skip token units, skip repeat use after the source/player once-per-turn marker exists, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Meteor Spring official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldFirstUnitPlayedMoveOtherToBaseTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Meteor Spring route 8/8; adjacent `BattlefieldFirstUnit|MeteorSpring|BattlefieldPlayUnitBoon|BattlefieldTriggerSpec|MoveUnit|PlayCard|GameHub|FullGameEndToEnd|MatchRecovery` 2685/2685; backend full conformance 9119/9119.
+
 ## 2026-07-02 Unit-Returned Call-Rune Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-214/219` Ghost Bay / 鬼影湾 official text for paying 1 when a unit at that battlefield returns to a player's hand to call one exhausted rune.

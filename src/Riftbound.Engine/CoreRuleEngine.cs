@@ -34229,29 +34229,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battlefieldObjectId = string.Empty;
+        var triggerKind = string.Empty;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
                     cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger,
                     out var trigger)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                || !string.Equals(
-                    trigger.TargetScope,
-                    TriggerTargetScopes.OtherControlledUnitAtThisBattlefield,
-                    StringComparison.Ordinal)
-                || trigger.MoveCount.GetValueOrDefault() != 1
-                || !string.Equals(
-                    trigger.MoveDestination,
-                    TriggerMoveDestinations.OwnerBase,
-                    StringComparison.Ordinal)
-                || trigger.OncePerTurn != true
                 || (trigger.ExcludesTokens == true && P6TokenFactoryCatalog.TryGetByCardNo(stackItem.CardNo, out _)))
             {
                 continue;
             }
 
             battlefieldObjectId = objectId;
+            triggerKind = trigger.Kind;
             break;
         }
 
@@ -34296,7 +34289,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
+                ["trigger"] = triggerKind,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["playedUnitObjectId"] = stackItem.SourceObjectId,
                 ["targetObjectId"] = targetObjectId,
@@ -34313,7 +34306,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["originZone"] = MoveUnitBattlefieldZone,
                 ["destinationZone"] = MoveUnitBaseZone,
-                ["reason"] = TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase
+                ["reason"] = triggerKind
             }));
         return true;
     }
