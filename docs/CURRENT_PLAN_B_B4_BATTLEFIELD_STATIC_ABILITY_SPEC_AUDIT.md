@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield destroyed-in-battle recall static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield static ability kind lookup generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -188,12 +188,25 @@ Validation: red/green focused guard `BattlefieldDestroyedInBattleRecallStaticAbi
 
 Non-closure: this slice only closes the destroyed-in-battle recall static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete battle-destroyed replacement / payment prompt breadth, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Static Ability Kind Lookup Generic Predicate
+
+This follow-up removes the residual `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility(cardNo, kind, out ability)` helper. The remaining callers were the Core/MatchSession checks for `RequiredControlledBattlefieldStaticAbilityKind`, used by battlefield-granted legend actions such as Poro Forge. Those callers now use the generic `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, ability => ability.Kind == staticAbilityKind, out _)` predicate route.
+
+Existing `SFD·208/221` Poro Forge behavior, controlled battlefield-source filtering, server-authored `LEGEND_ACT` prompt metadata, accepted attach-armament resolution, rejected no-controlled-forge guard, hidden-info checks, and official-deck score-victory replays remain compatible.
+
+Validation: red/green focused guard `BattlefieldStaticAbilityKindLookupUsesGenericSpecPredicate|BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames` 2/2; adjacent `BattlefieldStaticAbilityKindLookup|PoroForge|LegendAttachArmament|LegendAct|BattlefieldStatic|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2670/2670; backend full conformance 9139/9139.
+
+Non-closure: this slice only closes the residual kind lookup helper surface. Complete battlefield static ability breadth, complete granted-ability modeling, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest battlefield static ability kind lookup generic-predicate guard red/green: passed `2/2`;
+- latest B4 kind lookup / PoroForge / LegendAttachArmament / LegendAct / BattlefieldStatic / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2670/2670`;
+- backend full conformance after the kind lookup generic-predicate increment: passed `9139/9139`;
 - latest destroyed-in-battle recall static ability generic-predicate guard red/green: passed `1/1`;
 - latest destroyed-in-battle recall parser / P79 runtime / GameHub seed / official-deck route focused validation: passed `7/7`;
 - latest BloodAltar / BattleDestroyedRecall / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2643/2643`;

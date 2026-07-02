@@ -87,11 +87,6 @@ internal static class BattlefieldStaticAbilitySpecRules
             StringComparison.Ordinal);
     }
 
-    public static bool TryGetBattlefieldStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
-    {
-        return TryGetStaticAbility(cardNo, kind, out ability);
-    }
-
     public static bool IsBattlefieldExtraStandbyDestinationAbility(StaticAbilitySpec ability)
     {
         return string.Equals(
@@ -109,8 +104,4 @@ internal static class BattlefieldStaticAbilitySpecRules
             && ability.Amount > 0;
     }
 
-    private static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
-    {
-        return CardStaticAbilitySpecRules.TryGetStaticAbility(cardNo, kind, out ability);
-    }
 }

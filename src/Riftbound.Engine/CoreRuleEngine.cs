@@ -12186,9 +12186,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.Battlefields)
         {
             if (cardObjects.TryGetValue(objectId, out var candidate)
-                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility(
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
                     candidate.CardNo,
-                    staticAbilityKind,
+                    ability => string.Equals(ability.Kind, staticAbilityKind, StringComparison.Ordinal),
                     out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             {

@@ -17982,9 +17982,9 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility(
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
                     cardObject.CardNo,
-                    staticAbilityKind,
+                    ability => string.Equals(ability.Kind, staticAbilityKind, StringComparison.Ordinal),
                     out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
