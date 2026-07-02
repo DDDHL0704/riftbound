@@ -17960,7 +17960,10 @@ internal static class ActionPromptBuilder
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardObject.CardNo, out _);
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility,
+                out _);
     }
 
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)

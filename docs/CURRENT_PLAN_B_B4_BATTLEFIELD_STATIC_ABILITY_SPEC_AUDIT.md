@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield granted unit-experience static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield target spell/skill damage-bonus static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -140,12 +140,28 @@ Validation: red/green focused guard `BattlefieldGrantUnitExperienceStaticAbility
 
 Non-closure: this slice only closes the granted unit-experience static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete activated ability modeling for granted abilities, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Target Spell/Skill Damage-Bonus Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(...)` and routes Void Gate-style target spell/skill damage modifiers through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` plus positive `Amount`. `CoreRuleEngine.ApplyBattlefieldTargetSpellSkillDamageBonus`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility, out ability)`.
+
+Existing `OGN·296/298` official behavior, same-battlefield target checks, controlled battlefield-source filtering, official `UNL-007/219` Punishment stack resolution, `DAMAGE_APPLIED.damage = 4`, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldTargetSpellSkillDamageBonusStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / GameHub seed / official-deck route 7/7; adjacent `BattlefieldStatic|TargetDamageBonus|TargetSpellSkillDamageBonus|Punishment|Damage|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2774/2774; backend full conformance 9127/9127.
+
+Non-closure: this slice only closes the target spell/skill damage-bonus static ability execution helper. The remaining battlefield static ability per-effect helper surface, all spell/skill damage modifier timing edges, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest target spell/skill damage-bonus static ability generic-predicate guard red/green: passed `1/1`;
+- latest target spell/skill damage-bonus parser / P79 runtime / GameHub seed / official-deck route focused validation: passed `7/7`;
+- latest BattlefieldStatic / TargetDamageBonus / TargetSpellSkillDamageBonus / Punishment / Damage / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2774/2774`;
+- backend full conformance after the target spell/skill damage-bonus generic-predicate increment: passed `9127/9127`;
 - latest granted unit-experience static ability generic-predicate guard red/green: passed `1/1`;
 - latest granted unit-experience parser / P79 runtime / rejection / official-deck route focused validation: passed `12/12`;
 - latest BattlefieldStatic / UnitExperience / Experience / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2607/2607`;

@@ -70,12 +70,13 @@ internal static class BattlefieldStaticAbilitySpecRules
             && ability.Amount > 0;
     }
 
-    public static bool TryGetBattlefieldTargetSpellSkillDamageBonusAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldTargetSpellSkillDamageBonusAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus,
-            out ability);
+        return string.Equals(
+                ability.Kind,
+                StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus,
+                StringComparison.Ordinal)
+            && ability.Amount > 0;
     }
 
     public static bool TryGetBattlefieldGrantLegendAttachArmamentAbility(string? cardNo, out StaticAbilitySpec ability)

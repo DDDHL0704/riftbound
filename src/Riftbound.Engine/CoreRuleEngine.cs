@@ -26613,7 +26613,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _);
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility,
+                out _);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -46234,8 +46237,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             foreach (var objectId in entry.Value.Battlefields)
             {
                 if (cardObjects.TryGetValue(objectId, out var cardObject)
-                    && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(
+                    && BattlefieldStaticAbilitySpecRules.TryGetAbility(
                         cardObject.CardNo,
+                        BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility,
                         out var ability)
                     && ability.Amount > 0
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key))
