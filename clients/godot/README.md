@@ -294,8 +294,8 @@ mode, all five human confirmation boxes, both clients loading preconstructed
 decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
 `800x600`, report/log agreement on the original result screenshot paths,
-distinct A/B log and result screenshot files, and absence of
-crash/rejection/auto-smoke evidence.
+distinct A/B log and result screenshot files, the `VISUAL_REVIEW.md` screenshot
+checklist, and absence of crash/rejection/auto-smoke evidence.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
@@ -375,10 +375,12 @@ clients/godot/tools/package-human-playtest-evidence.sh /tmp/riftbound-human-play
 ```
 
 The package contains both player logs, both result screenshots,
-`playtest-report.md`, `P5_HANDOFF.md`, and `SHA256SUMS`. The handoff summary is
-generated from the checked report so reviewers can quickly see the room, both
-player handles, and result screenshot filenames. It is still only valid for P5
-when the report includes the real two-human manual confirmations.
+`playtest-report.md`, `P5_HANDOFF.md`, `VISUAL_REVIEW.md`, and `SHA256SUMS`.
+The handoff summary is generated from the checked report so reviewers can
+quickly see the room, both player handles, and result screenshot filenames.
+`VISUAL_REVIEW.md` is a focused checklist for inspecting the final screenshots
+for result-panel visibility and hidden-information safety. It is still only
+valid for P5 when the report includes the real two-human manual confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper

@@ -45,6 +45,9 @@ resume from repository state instead of conversation history alone.
 - Evidence packages include `P5_HANDOFF.md`, generated from the report, so a
   reviewer can quickly verify the room, player identities, result screenshots,
   report file, and manual-confirmation mode.
+- Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
+  so reviewers have a package-local checklist for result-panel visibility and
+  hidden-information inspection of both screenshots.
 
 ## Open Risks
 

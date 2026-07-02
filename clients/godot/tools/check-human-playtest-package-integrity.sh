@@ -193,6 +193,22 @@ valid final P5 evidence when playtest-report.md has all manual confirmations
 checked after a real two-human Godot match.
 EOF
 
+  cat >"${bundle_dir}/VISUAL_REVIEW.md" <<EOF
+# Riftbound Godot Visual Review
+
+- Room: ${room_id}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
+- Player A result screenshot: player-a-result.png
+- Player B result screenshot: player-b-result.png
+- Report: playtest-report.md
+
+- Both screenshots show the server result panel.
+- Player A sees opponent hand and hidden cards only as card backs and counts.
+- Player B sees opponent hand and hidden cards only as card backs and counts.
+- No opponent hidden card face, name, text, or identity is visible in either screenshot.
+EOF
+
   if [[ "${extra_file}" == "1" ]]; then
     printf 'unexpected package payload\n' >"${bundle_dir}/secret.txt"
   fi
@@ -216,7 +232,7 @@ missing_checksum_bundle="${tmp_dir}/missing/riftbound-human-playtest-evidence"
 write_evidence_bundle "${missing_checksum_bundle}" "${revision}"
 (
   cd "${missing_checksum_bundle}"
-  shasum -a 256 player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 missing_checksum_package="${tmp_dir}/missing-readme-checksum.tar.gz"
 make_package "${missing_checksum_bundle}" "${missing_checksum_package}"
@@ -236,7 +252,7 @@ manual_mode_bundle="${tmp_dir}/manual-mode/riftbound-human-playtest-evidence"
 write_evidence_bundle "${manual_mode_bundle}" "${revision}" "0"
 (
   cd "${manual_mode_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 manual_mode_package="${tmp_dir}/manual-mode-zero.tar.gz"
 make_package "${manual_mode_bundle}" "${manual_mode_package}"
@@ -256,7 +272,7 @@ incomplete_bundle="${tmp_dir}/incomplete/riftbound-human-playtest-evidence"
 write_evidence_bundle "${incomplete_bundle}" "${revision}" "1" "0" "0" "0" "0" "full" "match" "1"
 (
   cd "${incomplete_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 incomplete_package="${tmp_dir}/incomplete.tar.gz"
 make_package "${incomplete_bundle}" "${incomplete_package}"
@@ -276,7 +292,7 @@ duplicate_screenshot_bundle="${tmp_dir}/duplicate-screenshot/riftbound-human-pla
 write_evidence_bundle "${duplicate_screenshot_bundle}" "${revision}" "1" "1"
 (
   cd "${duplicate_screenshot_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 duplicate_screenshot_package="${tmp_dir}/duplicate-screenshot.tar.gz"
 make_package "${duplicate_screenshot_bundle}" "${duplicate_screenshot_package}"
@@ -296,7 +312,7 @@ duplicate_log_bundle="${tmp_dir}/duplicate-log/riftbound-human-playtest-evidence
 write_evidence_bundle "${duplicate_log_bundle}" "${revision}" "1" "0" "1"
 (
   cd "${duplicate_log_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 duplicate_log_package="${tmp_dir}/duplicate-log.tar.gz"
 make_package "${duplicate_log_bundle}" "${duplicate_log_package}"
@@ -335,7 +351,7 @@ awk '{
 mv "${duplicate_identity_bundle}/playtest-report.md.tmp" "${duplicate_identity_bundle}/playtest-report.md"
 (
   cd "${duplicate_identity_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 duplicate_identity_package="${tmp_dir}/duplicate-identity.tar.gz"
 make_package "${duplicate_identity_bundle}" "${duplicate_identity_package}"
@@ -356,7 +372,7 @@ write_evidence_bundle "${missing_handoff_bundle}" "${revision}"
 rm -f "${missing_handoff_bundle}/P5_HANDOFF.md"
 (
   cd "${missing_handoff_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
 )
 missing_handoff_package="${tmp_dir}/missing-handoff.tar.gz"
 make_package "${missing_handoff_bundle}" "${missing_handoff_package}"
@@ -372,11 +388,32 @@ if ! rg -q "P5_HANDOFF|handoff" "${missing_handoff_output}"; then
   fail "verifier did not explain the missing P5 handoff summary"
 fi
 
+missing_visual_review_bundle="${tmp_dir}/missing-visual-review/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_visual_review_bundle}" "${revision}"
+rm -f "${missing_visual_review_bundle}/VISUAL_REVIEW.md"
+(
+  cd "${missing_visual_review_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_visual_review_package="${tmp_dir}/missing-visual-review.tar.gz"
+make_package "${missing_visual_review_bundle}" "${missing_visual_review_package}"
+
+missing_visual_review_output="${tmp_dir}/missing-visual-review-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_visual_review_package}" >"${missing_visual_review_output}" 2>&1; then
+  fail "verifier accepted package without visual review checklist"
+fi
+
+if ! rg -q "VISUAL_REVIEW|visual review" "${missing_visual_review_output}"; then
+  echo "Expected missing visual review rejection output:" >&2
+  cat "${missing_visual_review_output}" >&2
+  fail "verifier did not explain the missing visual review checklist"
+fi
+
 extra_file_bundle="${tmp_dir}/extra-file/riftbound-human-playtest-evidence"
 write_evidence_bundle "${extra_file_bundle}" "${revision}" "1" "0" "0" "1"
 (
   cd "${extra_file_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 extra_file_package="${tmp_dir}/extra-file.tar.gz"
 make_package "${extra_file_bundle}" "${extra_file_package}"
@@ -396,7 +433,7 @@ missing_deck_ready_bundle="${tmp_dir}/missing-deck-ready/riftbound-human-playtes
 write_evidence_bundle "${missing_deck_ready_bundle}" "${revision}" "1" "0" "0" "0" "1"
 (
   cd "${missing_deck_ready_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 missing_deck_ready_package="${tmp_dir}/missing-deck-ready.tar.gz"
 make_package "${missing_deck_ready_bundle}" "${missing_deck_ready_package}"
@@ -416,7 +453,7 @@ mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbou
 write_evidence_bundle "${mismatched_screenshot_path_bundle}" "${revision}" "1" "0" "0" "0" "0" "full" "mismatch"
 (
   cd "${mismatched_screenshot_path_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 mismatched_screenshot_path_package="${tmp_dir}/mismatched-screenshot-path.tar.gz"
 make_package "${mismatched_screenshot_path_bundle}" "${mismatched_screenshot_path_package}"
@@ -436,7 +473,7 @@ small_screenshot_bundle="${tmp_dir}/small-screenshot/riftbound-human-playtest-ev
 write_evidence_bundle "${small_screenshot_bundle}" "${revision}" "1" "0" "0" "0" "0" "small"
 (
   cd "${small_screenshot_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 small_screenshot_package="${tmp_dir}/small-screenshot.tar.gz"
 make_package "${small_screenshot_bundle}" "${small_screenshot_package}"
@@ -456,7 +493,7 @@ covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"
 write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0" "0" "0" "0"
 (
   cd "${covered_bundle}"
-  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+  shasum -a 256 README.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
 covered_package="${tmp_dir}/covered-checksum.tar.gz"
 make_package "${covered_bundle}" "${covered_package}"

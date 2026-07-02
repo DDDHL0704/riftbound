@@ -7,7 +7,8 @@ Usage:
   clients/godot/tools/package-human-playtest-evidence.sh /path/to/evidence-dir [output.tar.gz]
 
 Runs the Godot human playtest evidence checker, then packages the logs,
-result screenshots, generated report, and SHA-256 checksums into a tarball.
+result screenshots, generated report, visual review checklist, handoff summary,
+and SHA-256 checksums into a tarball.
 
 Set RIFTBOUND_CONFIRM_MANUAL=1 to have the checker prompt for the human-only
 confirmations before packaging.
@@ -125,6 +126,30 @@ valid final P5 evidence when playtest-report.md has all manual confirmations
 checked after a real two-human Godot match.
 EOF
 
+cat >"${bundle_dir}/VISUAL_REVIEW.md" <<EOF
+# Riftbound Godot Visual Review
+
+- Room: ${room}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
+- Player A result screenshot: player-a-result.png
+- Player B result screenshot: player-b-result.png
+- Report: playtest-report.md
+
+Before accepting this package as final P5 evidence, inspect both result
+screenshots and confirm:
+
+- Both screenshots show the server result panel.
+- Player A sees opponent hand and hidden cards only as card backs and counts.
+- Player B sees opponent hand and hidden cards only as card backs and counts.
+- No opponent hidden card face, name, text, or identity is visible in either
+  screenshot.
+
+The machine verifier can prove this checklist exists and is checksummed, but the
+hidden-information review is a human visual confirmation recorded in
+playtest-report.md.
+EOF
+
 cat >"${bundle_dir}/README.md" <<EOF
 # Riftbound Godot Human Playtest Evidence
 
@@ -132,6 +157,7 @@ cat >"${bundle_dir}/README.md" <<EOF
 - Source evidence directory: ${evidence_dir}
 - Report: playtest-report.md
 - P5 handoff summary: P5_HANDOFF.md
+- Visual review checklist: VISUAL_REVIEW.md
 - Checksums: SHA256SUMS
 
 This package is evidence material only. It does not prove the human-only
@@ -142,6 +168,7 @@ EOF
 checksum_files=(
   "README.md"
   "P5_HANDOFF.md"
+  "VISUAL_REVIEW.md"
   "player-a.log"
   "player-b.log"
   "player-a-result.png"

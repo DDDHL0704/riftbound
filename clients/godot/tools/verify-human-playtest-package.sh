@@ -34,6 +34,7 @@ failures=()
 required_files=(
   "README.md"
   "P5_HANDOFF.md"
+  "VISUAL_REVIEW.md"
   "SHA256SUMS"
   "player-a.log"
   "player-b.log"
@@ -44,6 +45,7 @@ required_files=(
 checksum_required_files=(
   "README.md"
   "P5_HANDOFF.md"
+  "VISUAL_REVIEW.md"
   "player-a.log"
   "player-b.log"
   "player-a-result.png"
@@ -53,6 +55,7 @@ checksum_required_files=(
 allowed_files=(
   "README.md"
   "P5_HANDOFF.md"
+  "VISUAL_REVIEW.md"
   "SHA256SUMS"
   "api.log"
   "player-a.log"
@@ -135,6 +138,7 @@ fi
 
 report="${bundle_dir}/playtest-report.md"
 handoff="${bundle_dir}/P5_HANDOFF.md"
+visual_review="${bundle_dir}/VISUAL_REVIEW.md"
 player_a_log="${bundle_dir}/player-a.log"
 player_b_log="${bundle_dir}/player-b.log"
 player_a_result="${bundle_dir}/player-a-result.png"
@@ -262,6 +266,38 @@ require_handoff_consistency() {
   require_handoff_literal_match "- Player B result screenshot: player-b-result.png" "P5 handoff player B screenshot"
   require_handoff_literal_match "- Report: playtest-report.md" "P5 handoff report"
   require_handoff_literal_match "- Manual confirmation mode: ${manual_confirmation_mode}" "P5 handoff manual confirmation mode"
+}
+
+require_visual_review_literal_match() {
+  local expected="$1"
+  local label="$2"
+
+  if [[ -s "${visual_review}" ]] && ! grep -Fq -- "${expected}" "${visual_review}"; then
+    failures+=("${label} missing from VISUAL_REVIEW.md")
+  fi
+}
+
+require_visual_review_consistency() {
+  local room=""
+  local player_a_handle=""
+  local player_b_handle=""
+
+  if [[ ! -s "${visual_review}" || ! -s "${report}" ]]; then
+    return
+  fi
+
+  room="$(report_field "Room")"
+  player_a_handle="$(report_field "Player A handle")"
+  player_b_handle="$(report_field "Player B handle")"
+
+  require_visual_review_literal_match "# Riftbound Godot Visual Review" "visual review title"
+  require_visual_review_literal_match "- Room: ${room}" "visual review room"
+  require_visual_review_literal_match "- Player A handle: ${player_a_handle}" "visual review player A handle"
+  require_visual_review_literal_match "- Player B handle: ${player_b_handle}" "visual review player B handle"
+  require_visual_review_literal_match "- Player A result screenshot: player-a-result.png" "visual review player A screenshot"
+  require_visual_review_literal_match "- Player B result screenshot: player-b-result.png" "visual review player B screenshot"
+  require_visual_review_literal_match "opponent hand and hidden cards only as card backs and counts" "visual review hidden-information checklist"
+  require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
 }
 
 require_client_setup_log_matches() {
@@ -400,6 +436,7 @@ else
 fi
 require_report_identity_consistency
 require_handoff_consistency
+require_visual_review_consistency
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"
