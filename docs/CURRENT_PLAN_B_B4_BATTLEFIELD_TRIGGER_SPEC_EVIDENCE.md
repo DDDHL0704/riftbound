@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Ready-Runes-At-End Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·289/298` Mount Targon / 巨神峰之巅 official text `当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger, out trigger)`.
+- `IsBattlefieldConquerReadyRunesAtEndTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, positive `RuneReadyCount`, and `ReadyTiming=END_OF_TURN`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerReadyRunesAtEndTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, owned base-rune filtering, delayed end-turn ready marker creation, `BATTLEFIELD_TRIGGER_RESOLVED`, `RUNE_READY_SCHEDULED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer ready-runes-at-end paths continue to schedule delayed markers for controlled exhausted base runes, skip opponent-owned dirty base-rune objects, consume those markers on server-authored `END_TURN`, and replay the Mount Targon official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerReadyRunesAtEndTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Mount Targon runtime / GameHub / official-deck route 7/7; adjacent `BattlefieldConquerReadyRunesAtEnd|P79BattlefieldConquerReadyRunesEndSeed|FullGameEndToEnd|MatchRecovery` 2114/2114; backend full conformance 9107/9107.
+
 ## 2026-07-02 Conquer Powerful Pay-Draw Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·218/221` Sunken Temple / 沉没神庙 official text `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
@@ -510,7 +520,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path still counts other cont
 
 The 2026-06-28 B0 follow-up now also covers this same parsed Seat of Power route through a legal official-deck opening. `OfficialDeckMidgameResolvesSeatOfPowerConquerDrawForOtherBattlefieldsAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `SFD·217/221` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` with two other controlled battlefield source objects, draws two controlled main-deck cards, and that the command journal replays through score victory to the same final state hash.
 
-The conquer ready-runes-at-end follow-up parser path turns the Mount Targon official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RuneReadyCount=2`, and `ReadyTiming=END_OF_TURN`. Runtime no longer checks `OGN·289/298` through `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer ready-runes-at-end follow-up parser path turns the Mount Targon official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RuneReadyCount=2`, and `ReadyTiming=END_OF_TURN`. Runtime no longer checks `OGN·289/298` through `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still schedules the existing delayed end-of-turn ready effects for owned base runes, skips opponent-owned dirty rune objects in the base zone, and then `END_TURN` resolves those markers through the existing `BATTLEFIELD_END_TURN_READY_RUNES` path. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `RUNE_READY_SCHEDULED` with `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, while preserving the existing end-turn marker shape and snapshot hidden-information boundaries.
 

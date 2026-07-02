@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer powerful pay-draw execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer ready-runes-at-end execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer ready-runes-at-end execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldConquerReadyRunesAtEndTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger`.
+- `IsBattlefieldConquerReadyRunesAtEndTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, positive `RuneReadyCount`, and `ReadyTiming=END_OF_TURN`. Existing conquered-battlefield source discovery, owned base-rune filtering, delayed end-turn ready marker creation, `BATTLEFIELD_TRIGGER_RESOLVED` / `RUNE_READY_SCHEDULED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerReadyRunesAtEndTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 12; `Is*CardNo(...)` helper count remains 0 for `BattlefieldTriggerSpecRules`. This slice does not close optional rune choice prompts, complete delayed end-turn trigger breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: focused guard / parser / Mount Targon runtime / GameHub / official-deck route 7/7, adjacent `BattlefieldConquerReadyRunesAtEnd|P79BattlefieldConquerReadyRunesEndSeed|FullGameEndToEnd|MatchRecovery` 2114/2114, backend full conformance 9107/9107.
 
 The 2026-07-02 conquer powerful pay-draw execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -784,7 +793,7 @@ The 2026-06-25 conquer ready-runes-at-end follow-up moves another implemented co
   - `TargetScope = OWNED_RUNE_IN_BASE`
   - `RuneReadyCount = 2`
   - `ReadyTiming = END_OF_TURN`
-- `CoreRuleEngine.TryResolveBattlefieldConquerReadyRunesAtEndTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(...)` and reads the rune count and delayed ready timing from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerReadyRunesAtEndTrigger` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger, out trigger)` and reads the rune count and delayed ready timing from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerReadyTwoRunesAtEndCardNo` constant.
 - The old `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `68` total / `64` in `CoreRuleEngine`; Core battlefield helper count is `20`.
 
@@ -1240,6 +1249,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `42/42`;
 - adjacent TreasurePile / BattlefieldConquerGold / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2124/2124`;
 - backend full conformance: passed `8736/8736`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-07-02 conquer ready-runes-at-end execution-helper follow-up validation:
+
+- focused generic predicate guard / behavior-spec / runtime / GameHub / official-deck representative: passed `7/7`;
+- adjacent BattlefieldConquerReadyRunesAtEnd / P79BattlefieldConquerReadyRunesEndSeed / FullGameEndToEnd / MatchRecovery representatives: passed `2114/2114`;
+- backend full conformance: passed `9107/9107`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-07-02 conquer powerful pay-draw execution-helper follow-up validation:

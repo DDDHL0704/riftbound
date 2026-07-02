@@ -26122,11 +26122,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         const string abilityId = TriggerKinds.BattlefieldConquerReadyRunesAtEnd;
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedRuneInBase, StringComparison.Ordinal)
-            || trigger.RuneReadyCount.GetValueOrDefault() <= 0
-            || !string.Equals(trigger.ReadyTiming, TriggerReadyTimings.EndOfTurn, StringComparison.Ordinal))
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger,
+                out var trigger))
         {
             return false;
         }
