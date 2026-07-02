@@ -13,6 +13,7 @@ keep_api="${RIFTBOUND_KEEP_API:-0}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
 package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-0}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-}"
+build_godot="${RIFTBOUND_BUILD_GODOT:-1}"
 
 started_api=0
 api_pid=""
@@ -77,6 +78,17 @@ if ! curl -fsS "${health_url}" >/dev/null 2>&1; then
   esac
 else
   echo "Using existing Riftbound API at ${server}."
+fi
+
+if [[ "${build_godot}" != "0" ]]; then
+  if [[ ! -x "${dotnet_bin}" ]]; then
+    echo ".NET executable not found: ${dotnet_bin}" >&2
+    echo "Set RIFTBOUND_DOTNET_BIN to the dotnet executable." >&2
+    exit 1
+  fi
+
+  echo "Building Riftbound Godot client."
+  "${dotnet_bin}" build "${repo_root}/clients/godot/Riftbound.GodotClient.csproj"
 fi
 
 export RIFTBOUND_SERVER="${server}"
