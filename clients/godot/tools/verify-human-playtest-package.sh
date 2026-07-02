@@ -233,6 +233,10 @@ require_log_match "Visual screenshot saved: .*player-b-result\\.png" "${player_b
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
 
+if [[ -s "${player_a_result}" && -s "${player_b_result}" ]] && cmp -s "${player_a_result}" "${player_b_result}"; then
+  failures+=("player A and player B result screenshots are identical")
+fi
+
 if compgen -G "${bundle_dir}/*.log" >/dev/null; then
   if rg -n "Message queue out of memory|handle_crash|Exception|ERROR|FATAL|REJECTED|rejected|sharing violation" "${bundle_dir}"/*.log >/dev/null; then
     failures+=("error/rejection pattern found in logs")

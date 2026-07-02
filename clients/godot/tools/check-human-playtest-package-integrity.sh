@@ -11,20 +11,25 @@ fail() {
 
 write_png() {
   local path="$1"
+  local suffix="${2:-}"
+
   # 1x1 transparent PNG.
   if printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' \
     | base64 -d >"${path}" 2>/dev/null; then
+    printf '%s' "${suffix}" >>"${path}"
     return 0
   fi
 
   printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' \
     | base64 -D >"${path}"
+  printf '%s' "${suffix}" >>"${path}"
 }
 
 write_evidence_bundle() {
   local bundle_dir="$1"
   local revision="$2"
   local manual_confirmation_mode="${3:-1}"
+  local duplicate_screenshots="${4:-0}"
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -45,8 +50,13 @@ MATCH_WON
 Visual screenshot saved: /tmp/player-b-result.png
 EOF
 
-  write_png "${bundle_dir}/player-a-result.png"
-  write_png "${bundle_dir}/player-b-result.png"
+  if [[ "${duplicate_screenshots}" == "1" ]]; then
+    write_png "${bundle_dir}/player-a-result.png"
+    write_png "${bundle_dir}/player-b-result.png"
+  else
+    write_png "${bundle_dir}/player-a-result.png" "player-a"
+    write_png "${bundle_dir}/player-b-result.png" "player-b"
+  fi
 
   cat >"${bundle_dir}/playtest-report.md" <<EOF
 # Riftbound Godot Human Playtest Report
@@ -124,8 +134,28 @@ if ! rg -q "Manual confirmation mode" "${manual_mode_output}"; then
   fail "verifier did not explain the missing manual confirmation mode"
 fi
 
+duplicate_screenshot_bundle="${tmp_dir}/duplicate-screenshot/riftbound-human-playtest-evidence"
+write_evidence_bundle "${duplicate_screenshot_bundle}" "${revision}" "1" "1"
+(
+  cd "${duplicate_screenshot_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+duplicate_screenshot_package="${tmp_dir}/duplicate-screenshot.tar.gz"
+make_package "${duplicate_screenshot_bundle}" "${duplicate_screenshot_package}"
+
+duplicate_screenshot_output="${tmp_dir}/duplicate-screenshot-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${duplicate_screenshot_package}" >"${duplicate_screenshot_output}" 2>&1; then
+  fail "verifier accepted package with identical player A/B result screenshots"
+fi
+
+if ! rg -q "result screenshots.*identical|identical.*result screenshots" "${duplicate_screenshot_output}"; then
+  echo "Expected duplicate screenshot rejection output:" >&2
+  cat "${duplicate_screenshot_output}" >&2
+  fail "verifier did not explain the duplicate result screenshots"
+fi
+
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"
-write_evidence_bundle "${covered_bundle}" "${revision}" "1"
+write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0"
 (
   cd "${covered_bundle}"
   shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
