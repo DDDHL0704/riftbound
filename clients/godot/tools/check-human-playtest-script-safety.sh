@@ -143,6 +143,10 @@ mkdir -p "${stale_screenshot_dir}"
 printf 'old evidence\n' >"${stale_screenshot_dir}/player-a.log"
 expect_final_gate_value_rejection "RIFTBOUND_SCREENSHOT_DIR" "${stale_screenshot_dir}"
 
+existing_evidence_package="${tmp_dir}/existing-human-playtest.tar.gz"
+printf 'old package\n' >"${existing_evidence_package}"
+expect_final_gate_value_rejection "RIFTBOUND_EVIDENCE_PACKAGE" "${existing_evidence_package}"
+
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
 PATH="${fake_bin}:${PATH}" \

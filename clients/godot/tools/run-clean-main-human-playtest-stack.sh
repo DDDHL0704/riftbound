@@ -90,6 +90,9 @@ fi
 if [[ -e "${screenshot_dir}" && -n "$(find "${screenshot_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   disabled_final_gates+=("RIFTBOUND_SCREENSHOT_DIR=${screenshot_dir} is not empty")
 fi
+if [[ -e "${evidence_package}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_EVIDENCE_PACKAGE=${evidence_package} already exists")
+fi
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -100,7 +103,8 @@ Refusing final clean-main human playtest with disabled final P5 evidence gates:
 Final P5 evidence requires a fetched origin/main clean worktree, manual
 confirmations, evidence checking, evidence packaging, package verification, a
 fresh Godot build, waiting for both Godot windows to exit, and no automatic
-Godot quit timer. The evidence directory must be new or empty. Set
+Godot quit timer. The evidence directory must be new or empty, and the evidence
+package path must not already exist. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
