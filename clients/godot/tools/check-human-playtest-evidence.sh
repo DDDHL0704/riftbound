@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../../.." && pwd)"
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -32,6 +35,7 @@ fi
 
 failures=()
 notes=()
+report_path="${RIFTBOUND_PLAYTEST_REPORT:-${evidence_dir}/playtest-report.md}"
 
 require_file() {
   local path="$1"
@@ -102,6 +106,50 @@ if (( ${#failures[@]} > 0 )); then
   exit 1
 fi
 
+checked_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || printf 'unknown')"
+{
+  cat <<EOF
+# Riftbound Godot Human Playtest Report
+
+- Checked at: ${checked_at}
+- Git revision: ${git_revision}
+- Evidence directory: ${evidence_dir}
+- Player A log: ${player_a_log}
+- Player B log: ${player_b_log}
+- Player A result screenshot: ${player_a_result}
+- Player B result screenshot: ${player_b_result}
+
+## Machine Check
+
+- Status: passed
+- Required logs: present
+- Required result screenshots: present
+- Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
+- Error scan: no crash/error/rejection patterns found
+
+## Notes
+EOF
+
+  if (( ${#notes[@]} > 0 )); then
+    printf '\n'
+    printf -- '- %s\n' "${notes[@]}"
+  else
+    printf '\n- None\n'
+  fi
+
+  cat <<'EOF'
+
+## Manual Confirmations
+
+- [ ] Two human players operated the two Godot clients.
+- [ ] Player A final screenshot shows the server result panel.
+- [ ] Player B final screenshot shows the server result panel.
+- [ ] Player A sees opponent hand/hidden cards only as card backs and counts.
+- [ ] Player B sees opponent hand/hidden cards only as card backs and counts.
+EOF
+} >"${report_path}"
+
 cat <<'EOF'
 
 Machine-checkable gates passed.
@@ -110,3 +158,4 @@ Manual confirmations still required:
   - Both final screenshots show the result panel.
   - Each player sees opponent hand/hidden cards only as card backs and counts.
 EOF
+printf 'Report written: %s\n' "${report_path}"

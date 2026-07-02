@@ -266,7 +266,9 @@ The checker validates machine-readable gates: both logs exist, both final result
 screenshots exist, the logs include `MATCH_STARTED` and `MATCH_WON`/result
 rendering, and no crash/error/rejection patterns are present. It cannot prove
 that two humans operated the clients or inspect hidden-information safety by
-itself; those remain manual confirmations from the final screenshots.
+itself; those remain manual confirmations from the final screenshots. When the
+machine checks pass, it writes `playtest-report.md` in the evidence directory
+with those manual confirmation boxes.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
