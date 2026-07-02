@@ -62,12 +62,13 @@ resume from repository state instead of conversation history alone.
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots.
 - Latest clean pushed-main validation after engine-side commit
-  `bc456c392`: Godot client build passed, final P5 `--precheck` passed, and a
-  visible clean-main simulated two-window run reached both result panels. The
-  simulated evidence directory was
-  `/tmp/riftbound-simulated-playtest-clean-sim-latest-main-200109`; it is
-  useful regression evidence only and remains invalid for final P5 because it
-  contains auto-smoke markers.
+  `9ee4d80a4`: a visible clean-main simulated two-window run opened Godot from a
+  temporary clean `origin/main` worktree, started the local memory-mode API,
+  reached both result panels, and wrote 1440x900 result screenshots plus a clean
+  machine-check report. The simulated evidence directory was
+  `/tmp/riftbound-simulated-playtest-clean-sim-latest-203656`; it is useful
+  regression evidence only and remains invalid for final P5 because it contains
+  auto-smoke markers.
 
 ## Open Risks
 
