@@ -250,9 +250,11 @@ Run the precheck first while both operators are preparing. It validates the
 final P5 gate settings, fetches `origin/main`, and checks the configured
 `RIFTBOUND_GODOT_BIN` plus the local auto-start `RIFTBOUND_DOTNET_BIN` when
 using the default local API. It also checks that the configured evidence
-directory and package output parents are usable writable directories. It does
-this without creating a worktree, opening Godot windows, or writing evidence.
-After it prints `Final P5 precheck passed`, run the real collection command:
+directory, package output, and custom clean-worktree parents are usable writable
+directories, and that a custom clean worktree is empty if it already exists. It
+does this without creating a worktree, opening Godot windows, or writing
+evidence. After it prints `Final P5 precheck passed`, run the real collection
+command:
 
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
@@ -276,10 +278,11 @@ the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start
 with automated or extra Godot client arguments, disabled manual/clean-git/
 evidence/package/build/wait gates, skipped `origin/main` fetches, non-`origin/main`
 refs, duplicate player handles/keys, non-empty evidence directories, existing
-evidence package paths, unusable evidence output parents, or custom playtest
-report paths. It prints the two handles and short player-key fingerprints
-before launching so operators can catch identity mistakes without exposing full
-keys. For wrapper development only, set
+evidence package paths, unusable evidence output parents, unusable or non-empty
+custom clean worktree directories, or custom playtest report paths. It prints
+the two handles and short player-key fingerprints before launching so operators
+can catch identity mistakes without exposing full keys. For wrapper development
+only, set
 `RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of those
 gates; that run writes `Incomplete human evidence: 1` into the report and the
 final package verifier rejects it.

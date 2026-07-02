@@ -178,6 +178,14 @@ if [[ -e "${evidence_package}" ]]; then
 fi
 validate_output_parent "${screenshot_dir}" "RIFTBOUND_SCREENSHOT_DIR"
 validate_output_parent "${evidence_package}" "RIFTBOUND_EVIDENCE_PACKAGE"
+if [[ -n "${user_worktree_dir}" ]]; then
+  if [[ -e "${user_worktree_dir}" && ! -d "${user_worktree_dir}" ]]; then
+    disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_DIR=${user_worktree_dir} exists but is not a directory")
+  elif [[ -d "${user_worktree_dir}" && -n "$(find "${user_worktree_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+    disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_DIR=${user_worktree_dir} is not empty")
+  fi
+  validate_output_parent "${user_worktree_dir}" "RIFTBOUND_CLEAN_WORKTREE_DIR"
+fi
 if [[ -n "${playtest_report}" ]]; then
   disabled_final_gates+=("RIFTBOUND_PLAYTEST_REPORT=${playtest_report}")
 fi
@@ -193,8 +201,9 @@ confirmations, a clean-git report marker, evidence checking, evidence packaging,
 package verification, a fresh Godot build, waiting for both Godot windows to
 exit, no automatic Godot quit timer, and no extra client arguments. The evidence
 directory must be new or empty, the evidence package path must not already
-exist, their output parent directories must be writable directories, and the
-playtest report must be generated inside the new evidence directory. Set
+exist, their output parent directories must be writable directories, any custom
+clean worktree directory must be empty with a usable parent, and the playtest
+report must be generated inside the new evidence directory. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF

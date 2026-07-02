@@ -326,4 +326,36 @@ fi
 rg -q "RIFTBOUND_EVIDENCE_PACKAGE|evidence package|parent" "${blocked_package_parent_output}" \
   || fail "clean-main human playtest precheck did not explain the blocked evidence package parent"
 
+blocked_worktree_parent_output="${tmp_dir}/blocked-worktree-parent-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${blocked_parent_file}/clean-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${blocked_worktree_parent_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted a clean worktree under a file parent"
+fi
+
+rg -q "RIFTBOUND_CLEAN_WORKTREE_DIR|clean worktree|parent" "${blocked_worktree_parent_output}" \
+  || fail "clean-main human playtest precheck did not explain the blocked clean worktree parent"
+
+nonempty_worktree_dir="${tmp_dir}/nonempty-clean-worktree"
+mkdir -p "${nonempty_worktree_dir}"
+printf 'old worktree content\n' >"${nonempty_worktree_dir}/stale.txt"
+
+nonempty_worktree_output="${tmp_dir}/nonempty-worktree-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${nonempty_worktree_dir}" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${nonempty_worktree_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted a non-empty clean worktree directory"
+fi
+
+rg -q "RIFTBOUND_CLEAN_WORKTREE_DIR|clean worktree|not empty" "${nonempty_worktree_output}" \
+  || fail "clean-main human playtest precheck did not explain the non-empty clean worktree directory"
+
 echo "Human playtest script safety checks passed."

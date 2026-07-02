@@ -35,7 +35,9 @@ resume from repository state instead of conversation history alone.
   and fetches `origin/main` without creating a worktree, opening Godot windows,
   or writing evidence. It also checks the configured Godot binary and local
   auto-start .NET binary, plus the evidence directory and package output
-  parents. Run it immediately before the two-human session.
+  parents. It now also catches invalid or non-empty custom clean-worktree paths
+  before operators spend time on the final run. Run it immediately before the
+  two-human session.
 - P4 local deployment check has been validated from clean
   `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`: Docker image
   `riftbound-api:p4-docker-192252` built, Production memory-mode container
