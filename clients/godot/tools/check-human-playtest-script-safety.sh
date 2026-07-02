@@ -90,7 +90,6 @@ expect_final_gate_rejection() {
   if env \
     PATH="${fake_bin}:${PATH}" \
     RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
-    RIFTBOUND_CLEAN_WORKTREE_FETCH=0 \
     RIFTBOUND_CLEAN_WORKTREE_DIR="${worktree_path}" \
     RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
     "${env_name}=0" \
@@ -105,17 +104,41 @@ expect_final_gate_rejection() {
   fi
 }
 
+expect_final_gate_value_rejection() {
+  local env_name="$1"
+  local env_value="$2"
+  local output_path="${tmp_dir}/${env_name}-${env_value}-output.log"
+  local worktree_path="${tmp_dir}/${env_name}-${env_value}-worktree"
+
+  if env \
+    PATH="${fake_bin}:${PATH}" \
+    RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+    RIFTBOUND_CLEAN_WORKTREE_DIR="${worktree_path}" \
+    RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+    "${env_name}=${env_value}" \
+    "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${output_path}" 2>&1; then
+    fail "clean-main human playtest accepted ${env_name}=${env_value}"
+  fi
+
+  if ! rg -q "final P5 evidence|${env_name}" "${output_path}"; then
+    echo "Expected final evidence gate rejection output for ${env_name}=${env_value}:" >&2
+    cat "${output_path}" >&2
+    fail "clean-main human playtest did not explain the ${env_name}=${env_value} rejection"
+  fi
+}
+
 expect_final_gate_rejection "RIFTBOUND_CONFIRM_MANUAL"
 expect_final_gate_rejection "RIFTBOUND_PACKAGE_EVIDENCE"
 expect_final_gate_rejection "RIFTBOUND_VERIFY_EVIDENCE_PACKAGE"
 expect_final_gate_rejection "RIFTBOUND_BUILD_GODOT"
 expect_final_gate_rejection "RIFTBOUND_WAIT"
+expect_final_gate_rejection "RIFTBOUND_CLEAN_WORKTREE_FETCH"
+expect_final_gate_value_rejection "RIFTBOUND_CLEAN_WORKTREE_REF" "HEAD"
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
 PATH="${fake_bin}:${PATH}" \
   RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
-  RIFTBOUND_CLEAN_WORKTREE_FETCH=0 \
   RIFTBOUND_CLEAN_WORKTREE_DIR="${safe_worktree}" \
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
   RIFTBOUND_EXTRA_GODOT_ARGS="--windowed" \

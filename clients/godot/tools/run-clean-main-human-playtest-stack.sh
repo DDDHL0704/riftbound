@@ -72,6 +72,12 @@ fi
 if [[ "${wait_for_windows}" == "0" ]]; then
   disabled_final_gates+=("RIFTBOUND_WAIT=0")
 fi
+if [[ "${fetch_ref}" != "1" ]]; then
+  disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_FETCH=${fetch_ref}")
+fi
+if [[ "${ref}" != "origin/main" ]]; then
+  disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_REF=${ref}")
+fi
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -79,10 +85,11 @@ if (( ${#disabled_final_gates[@]} > 0 )); then
 Refusing final clean-main human playtest with disabled final P5 evidence gates:
   - ${disabled_final_gates[*]}
 
-Final P5 evidence requires manual confirmations, evidence packaging, package
-verification, a fresh Godot build, and waiting for both Godot windows to exit.
-Set RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development;
-that output is not valid final P5 evidence.
+Final P5 evidence requires a fetched origin/main clean worktree, manual
+confirmations, evidence packaging, package verification, a fresh Godot build,
+and waiting for both Godot windows to exit. Set
+RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
+output is not valid final P5 evidence.
 EOF
     exit 2
   fi
@@ -127,6 +134,7 @@ Started clean-main Riftbound Godot human playtest stack.
   source repo: ${repo_root}
   clean worktree: ${clean_worktree}
   ref: ${ref}
+  fetch origin/main: ${fetch_ref}
   keep worktree: ${keep_worktree}
   evidence package: ${evidence_package}
   manual confirmations: ${confirm_manual}

@@ -258,8 +258,9 @@ the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start if
 `RIFTBOUND_EXTRA_GODOT_ARGS` contains any `--riftbound-smoke-auto-*` flag; use
 the simulated preflight wrapper for automated diagnostics instead. It also
 refuses to start if manual confirmations, evidence packaging, or final package
-verification are disabled, if the Godot build is skipped, or if the script is
-configured not to wait for both Godot windows to exit. For wrapper development
+verification are disabled, if the Godot build is skipped, if the script is
+configured not to wait for both Godot windows to exit, if `origin/main` is not
+fetched, or if a different worktree ref is requested. For wrapper development
 only, set `RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of
 those gates; that output is not valid final P5 evidence.
 
