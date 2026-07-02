@@ -226,6 +226,16 @@ runs the machine-readable checker. Its report intentionally contains auto-smoke
 notes and unchecked manual confirmations, so it is useful for P2/P3 diagnostics
 but not valid final P5 evidence.
 
+To run the same simulated preflight from a temporary clean `origin/main`
+worktree, use:
+
+```sh
+clients/godot/tools/run-clean-main-simulated-playtest-stack.sh
+```
+
+This avoids local dirty files affecting the preflight. It still uses auto-smoke
+actions and is not valid final P5 evidence.
+
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
 worktree, prompts for the human-only confirmations, and packages the evidence
