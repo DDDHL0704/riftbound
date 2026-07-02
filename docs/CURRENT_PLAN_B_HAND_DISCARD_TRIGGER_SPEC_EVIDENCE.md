@@ -4,6 +4,16 @@ Date: 2026-06-25
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Predicate Surface Evidence
+
+- `HandDiscardTriggerSpecRules` now exposes `TryGetTrigger(cardNo, predicate, out trigger)` plus `IsHandCardsDiscardedReadySourcePowerTrigger`.
+- The former public per-effect getter `TryGetHandCardsDiscardedReadySourcePowerTrigger` has been removed.
+- `CoreRuleEngine.ResolveHandCardsDiscardedReadyPowerTriggers(...)` calls the generic predicate route, and the former Core-private hand-discard trigger-shape predicate has moved into the shared rules class.
+- `CardCatalogBaselineTests.SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface` guards this route together with the other single-representative trigger rules.
+- Focused guard / representative runtime set for the current follow-up passed `38/38`.
+- Adjacent move / discard / boon / battlefield-held / recovery / full-game representative set for the current follow-up passed `2790/2790`.
+- Backend full conformance for the current follow-up passed `9141/9141`.
+
 ## Rule Sources
 
 - `data/official/card-catalog.zh-CN.json`: `OGN·202/298`, `OGN·202a/298`, and `ARC-005/006` 金克丝 official text is `每当你弃置任意数量的手牌时，让我变为活跃状态，且本回合内{{S}}+1。`
@@ -21,7 +31,7 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-- `HandDiscardTriggerSpecRules` builds its trigger map from `BehaviorSpecCatalogBuilder`, matching the existing unit-moved, unit-conquest, and unit-destroyed trigger-spec rule pattern.
+- `HandDiscardTriggerSpecRules` builds its trigger map from `BehaviorSpecCatalogBuilder`, matching the existing unit-moved, unit-conquest, and unit-destroyed trigger-spec rule pattern, and exposes the accepted route as `TryGetTrigger(cardNo, IsHandCardsDiscardedReadySourcePowerTrigger, out trigger)`.
 - `CoreRuleEngine.ResolveHandCardsDiscardedReadyPowerTriggers(...)` now reads the effect id, ready flag, power delta, and duration from `TriggerSpec`.
 - The emitted trigger payload remains `JINX_DISCARDED_HAND_CARDS_READY_POWER_1` for compatibility, but Core no longer selects the behavior by a Jinx card-number constant.
 - `src/Riftbound.DevUi/src/types/catalog.ts` now includes `triggers[].readiesSource` so catalog consumers can read the new spec field.

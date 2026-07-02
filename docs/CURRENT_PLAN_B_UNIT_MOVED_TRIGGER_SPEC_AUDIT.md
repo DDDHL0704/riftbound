@@ -4,6 +4,10 @@ Date: 2026-06-25
 
 Status: focused unit-moved trigger-spec slice accepted; project remains **NOT READY**.
 
+## 2026-07-02 Follow-up: Generic Predicate Surface
+
+`UnitMovedTriggerSpecRules.TryGetUnitMovedCreateDormantGoldTrigger(...)` has been removed. `CoreRuleEngine.ResolveUnitMovedCreateDormantGoldTrigger(...)` now routes through `UnitMovedTriggerSpecRules.TryGetTrigger(cardNo, UnitMovedTriggerSpecRules.IsUnitMovedCreateDormantGoldTrigger, out trigger)` and keeps the same Treasure Hunter movement guards, token creation payloads, parsed token shape, and hidden-info boundaries. Validation: focused guard / representative runtime set `38/38`, adjacent move / discard / boon / battlefield-held / recovery / full-game representative set `2790/2790`, backend full conformance `9141/9141`. This follow-up only removes the per-effect rules API; it does not add new official-text interpretation, complete the move-trigger family, or mark the project READY.
+
 ## Scope
 
 This slice moves the implemented Treasure Hunter move-Gold representative from a Core card-number branch to `BehaviorSpec.Triggers`:
@@ -12,7 +16,7 @@ This slice moves the implemented Treasure Hunter move-Gold representative from a
 - `TriggerKinds.UnitMovedCreateDormantGold` preserves the existing emitted trigger value `TREASURE_HUNTER_MOVE_CREATE_GOLD` for event/replay compatibility.
 - `TriggerTimings.UnitMoved` models the movement trigger timing.
 - `RuleTextParsers.TriggerParser` now parses the official text into `TriggerSpec.Kind = TREASURE_HUNTER_MOVE_CREATE_GOLD`, `Timing = UNIT_MOVED`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount = 1`, `CreatedTokenName = 金币`, `CreatedTokenDestination = OWNER_BASE`, `CreatedTokenExhausted = true`, and `CreatedTokenKeywords = [反应]`.
-- `CoreRuleEngine.ResolveUnitMovedCreateDormantGoldTrigger(...)` now checks `UnitMovedTriggerSpecRules.TryGetUnitMovedCreateDormantGoldTrigger(...)` and reads the token shape from `TriggerSpec`.
+- `CoreRuleEngine.ResolveUnitMovedCreateDormantGoldTrigger(...)` now checks `UnitMovedTriggerSpecRules.TryGetTrigger(..., UnitMovedTriggerSpecRules.IsUnitMovedCreateDormantGoldTrigger, ...)` and reads the token shape from `TriggerSpec`.
 - The old Core `TreasureHunterCardNo`, `TreasureHunterMoveCreateGoldEffectKind`, and `IsTreasureHunterCardNo(...)` branch is removed.
 
 ## Runtime Effect

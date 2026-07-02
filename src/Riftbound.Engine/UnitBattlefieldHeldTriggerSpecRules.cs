@@ -8,15 +8,7 @@ internal static class UnitBattlefieldHeldTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public static bool TryGetUnitBattlefieldHeldDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitBattlefieldHeldDraw,
-            out trigger);
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
     {
         trigger = default!;
         if (string.IsNullOrWhiteSpace(cardNo))
@@ -29,7 +21,7 @@ internal static class UnitBattlefieldHeldTriggerSpecRules
             return false;
         }
 
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = triggers.FirstOrDefault(predicate);
         if (match is null)
         {
             return false;
@@ -37,6 +29,14 @@ internal static class UnitBattlefieldHeldTriggerSpecRules
 
         trigger = match;
         return true;
+    }
+
+    public static bool IsUnitBattlefieldHeldDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitBattlefieldHeldDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.DrawCount is > 0;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()

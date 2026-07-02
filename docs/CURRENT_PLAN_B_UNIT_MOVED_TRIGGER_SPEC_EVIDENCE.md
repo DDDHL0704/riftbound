@@ -4,6 +4,16 @@ Date: 2026-06-25
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Predicate Surface Evidence
+
+- `UnitMovedTriggerSpecRules` now exposes `TryGetTrigger(cardNo, predicate, out trigger)` plus `IsUnitMovedCreateDormantGoldTrigger`.
+- The former public per-effect getter `TryGetUnitMovedCreateDormantGoldTrigger` has been removed.
+- `CoreRuleEngine.ResolveUnitMovedCreateDormantGoldTrigger(...)` calls the generic predicate route and keeps existing event payloads and token creation semantics.
+- `CardCatalogBaselineTests.SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface` guards this route together with the other single-representative trigger rules.
+- Focused guard / representative runtime set for the current follow-up passed `38/38`.
+- Adjacent move / discard / boon / battlefield-held / recovery / full-game representative set for the current follow-up passed `2790/2790`.
+- Backend full conformance for the current follow-up passed `9141/9141`.
+
 ## Rule Sources
 
 - `data/official/card-catalog.zh-CN.json`: `SFD·130/221` 寻宝猎人 official text is `每当我移动时，打出一个休眠的“金币”装备指示物。`
@@ -19,7 +29,7 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-- `UnitMovedTriggerSpecRules` builds its trigger map from `BehaviorSpecCatalogBuilder`, matching the existing unit-conquest and unit-destroyed trigger-spec rule pattern.
+- `UnitMovedTriggerSpecRules` builds its trigger map from `BehaviorSpecCatalogBuilder`, matching the existing unit-conquest and unit-destroyed trigger-spec rule pattern, and exposes the accepted route as `TryGetTrigger(cardNo, IsUnitMovedCreateDormantGoldTrigger, out trigger)`.
 - `CoreRuleEngine.ResolveUnitMovedCreateDormantGoldTrigger(...)` now reads token count/name/destination/exhausted state/keywords from `TriggerSpec`.
 - The emitted trigger payload remains `TREASURE_HUNTER_MOVE_CREATE_GOLD` for compatibility, but Core no longer selects the behavior by a Treasure Hunter card-number constant.
 

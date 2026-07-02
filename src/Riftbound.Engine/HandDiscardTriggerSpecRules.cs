@@ -8,15 +8,7 @@ internal static class HandDiscardTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public static bool TryGetHandCardsDiscardedReadySourcePowerTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.HandCardsDiscardedReadySourcePower,
-            out trigger);
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
     {
         trigger = default!;
         if (string.IsNullOrWhiteSpace(cardNo))
@@ -29,7 +21,7 @@ internal static class HandDiscardTriggerSpecRules
             return false;
         }
 
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = triggers.FirstOrDefault(predicate);
         if (match is null)
         {
             return false;
@@ -37,6 +29,19 @@ internal static class HandDiscardTriggerSpecRules
 
         trigger = match;
         return true;
+    }
+
+    public static bool IsHandCardsDiscardedReadySourcePowerTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.HandCardsDiscardedReadySourcePower,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.HandCardsDiscarded, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.ReadiesSource == true
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta is not null;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()

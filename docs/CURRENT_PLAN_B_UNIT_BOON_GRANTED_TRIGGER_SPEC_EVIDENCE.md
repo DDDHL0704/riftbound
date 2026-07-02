@@ -4,6 +4,16 @@ Date: 2026-06-27
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Predicate Surface Evidence
+
+- `UnitBoonGrantedTriggerSpecRules` now exposes `TryGetTrigger(cardNo, predicate, out trigger)` plus `IsUnitBoonGrantedReadySelfTrigger`.
+- The former public per-effect getter `TryGetUnitBoonGrantedReadySelfTrigger` has been removed.
+- `CoreRuleEngine.ApplyBoon(...)` calls the generic predicate route and keeps the existing control guard, already-booned skip, `TRIGGER_RESOLVED`, and `UNIT_READIED` payloads.
+- `CardCatalogBaselineTests.SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface` guards this route together with the other single-representative trigger rules.
+- Focused guard / representative runtime set for the current follow-up passed `38/38`.
+- Adjacent move / discard / boon / battlefield-held / recovery / full-game representative set for the current follow-up passed `2790/2790`.
+- Backend full conformance for the current follow-up passed `9141/9141`.
+
 ## Rule Sources
 
 - `data/official/card-catalog.zh-CN.json`: `SFD·047/221` 山猿老祖 has official text `当你给予我增益时，让我变为活跃状态。`
@@ -18,7 +28,7 @@ Project status: **NOT READY**.
 
 ## Runtime Evidence
 
-`CoreRuleEngine.ApplyBoon(...)` now resolves the ready-self effect by looking up the target unit's `BehaviorSpec.Triggers` through `UnitBoonGrantedTriggerSpecRules`. The resolver validates the parsed timing, target scope, and `ReadiesSource` shape before mutating exhaustion state.
+`CoreRuleEngine.ApplyBoon(...)` now resolves the ready-self effect by looking up the target unit's `BehaviorSpec.Triggers` through `UnitBoonGrantedTriggerSpecRules.TryGetTrigger(..., UnitBoonGrantedTriggerSpecRules.IsUnitBoonGrantedReadySelfTrigger, ...)`. The resolver validates the parsed timing, target scope, and `ReadiesSource` shape before mutating exhaustion state.
 
 The accepted event payload shape is:
 

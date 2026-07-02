@@ -4,6 +4,10 @@ Date: 2026-06-27
 
 Status: focused unit boon-granted ready-self TriggerSpec slice accepted; project remains **NOT READY**.
 
+## 2026-07-02 Follow-up: Generic Predicate Surface
+
+`UnitBoonGrantedTriggerSpecRules.TryGetUnitBoonGrantedReadySelfTrigger(...)` has been removed. `CoreRuleEngine.ApplyBoon(...)` now reaches the parsed ready-self trigger through `UnitBoonGrantedTriggerSpecRules.TryGetTrigger(cardNo, UnitBoonGrantedTriggerSpecRules.IsUnitBoonGrantedReadySelfTrigger, out trigger)`. Existing boon-grant mutation, ready event payloads, control guard, and already-booned skip behavior stay unchanged. Validation: focused guard / representative runtime set `38/38`, adjacent move / discard / boon / battlefield-held / recovery / full-game representative set `2790/2790`, backend full conformance `9141/9141`. This follow-up only removes the per-effect rules API; it does not add new official-text interpretation, complete boon-trigger ordering, or mark the project READY.
+
 ## Scope
 
 This slice moves the implemented `SFD·047/221` Mountain Ape Elder boon-ready representative away from a Core card-number branch and into a shared BehaviorSpec trigger route.
@@ -14,7 +18,7 @@ This slice moves the implemented `SFD·047/221` Mountain Ape Elder boon-ready re
   - `Timing = UNIT_BOON_GRANTED`
   - `TargetScope = SOURCE_UNIT`
   - `ReadiesSource = true`
-- `CoreRuleEngine.ApplyBoon(...)` now asks `UnitBoonGrantedTriggerSpecRules.TryGetUnitBoonGrantedReadySelfTrigger(...)` for the target unit's parsed trigger spec after a new boon is successfully granted.
+- `CoreRuleEngine.ApplyBoon(...)` now asks `UnitBoonGrantedTriggerSpecRules.TryGetTrigger(..., UnitBoonGrantedTriggerSpecRules.IsUnitBoonGrantedReadySelfTrigger, ...)` for the target unit's parsed trigger spec after a new boon is successfully granted.
 - Runtime events now use the parsed trigger kind for `TRIGGER_RESOLVED.trigger`, `TRIGGER_RESOLVED.effectKind`, and `UNIT_READIED.reason`.
 - The old `MountainApeElderCardNo` / `MountainApeElderBoonReadyEffectKind` Core branch is removed.
 

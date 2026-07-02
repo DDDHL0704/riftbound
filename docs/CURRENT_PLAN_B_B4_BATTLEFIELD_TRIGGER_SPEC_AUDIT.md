@@ -6,6 +6,14 @@ Status: focused B4 battlefield trigger/static spec slices accepted for moved-uni
 
 ## Scope
 
+The 2026-07-02 unit battlefield-held draw predicate-surface follow-up removes the per-effect public getter from the unit battlefield-held trigger rules surface:
+
+- `UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` now routes through `UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(cardNo, UnitBattlefieldHeldTriggerSpecRules.IsUnitBattlefieldHeldDrawTrigger, out trigger)`.
+- `IsUnitBattlefieldHeldDrawTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `UNIT_BATTLEFIELD_HELD_DRAW`, `BATTLEFIELD_HELD`, `TargetScope=SOURCE_UNIT`, and positive `DrawCount`. Existing surviving held-unit discovery, controller guard, `TRIGGER_RESOLVED` payload shape, hidden-safe draw behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / representative runtime set 38/38; adjacent move / discard / boon / battlefield-held / recovery / full-game representative set 2790/2790; backend full conformance 9141/9141. This follow-up does not close complete unit-held trigger breadth, optional trigger choice prompts, APNAP/simultaneous ordering, P0 full objective, or READY.
+
 The 2026-07-02 first-unit move-other execution-helper follow-up removes the last B4 per-effect public getter from the battlefield trigger rules surface:
 
 - `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(...)` is removed.
@@ -691,7 +699,7 @@ The 2026-06-27 unit battlefield-held draw follow-up moves the implemented Duneho
   - `Timing = BATTLEFIELD_HELD`
   - `TargetScope = SOURCE_UNIT`
   - `DrawCount = 2`
-- `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` now recognizes surviving held units through `UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(...)` and reads the draw count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` now recognizes surviving held units through `UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(..., UnitBattlefieldHeldTriggerSpecRules.IsUnitBattlefieldHeldDrawTrigger, ...)` and reads the draw count from `BehaviorSpec.Triggers`.
 - The old `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind` card-number branch is removed. The emitted runtime event uses the parsed trigger kind for both `trigger` and `effectKind`.
 - This slice only closes the unit battlefield-held draw path. The separate low-hand active entry condition is now tracked and covered by `docs/CURRENT_PLAN_B_OTHER_FRIENDLY_ACTIVE_ENTRY_STATIC_ABILITY_SPEC_AUDIT.md`.
 

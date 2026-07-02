@@ -15038,10 +15038,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(
+                && HandDiscardTriggerSpecRules.TryGetTrigger(
                     sourceState.CardNo,
-                    out var triggerSpec)
-                && IsHandCardsDiscardedReadySourcePowerTriggerSpec(triggerSpec)
+                    HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger,
+                    out _)
                 && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !sourceState.IsFaceDown
                 && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -15056,10 +15056,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in triggerSourceObjectIds)
         {
             var sourceState = cardObjects[sourceObjectId];
-            if (!HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(
+            if (!HandDiscardTriggerSpecRules.TryGetTrigger(
                     sourceState.CardNo,
-                    out var triggerSpec)
-                || !IsHandCardsDiscardedReadySourcePowerTriggerSpec(triggerSpec))
+                    HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger,
+                    out var triggerSpec))
             {
                 continue;
             }
@@ -15122,19 +15122,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events.Add(powerEvent);
             }
         }
-    }
-
-    private static bool IsHandCardsDiscardedReadySourcePowerTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.HandCardsDiscardedReadySourcePower,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.HandCardsDiscarded, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.ReadiesSource == true
-            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            && trigger.PowerDelta is not null;
     }
 
     private static ResolutionResult ResolveTapRune(
@@ -22475,7 +22462,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                || !UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(cardObject.CardNo, out var trigger))
+                || !UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    UnitBattlefieldHeldTriggerSpecRules.IsUnitBattlefieldHeldDrawTrigger,
+                    out var trigger))
             {
                 continue;
             }
@@ -31268,14 +31258,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(originZone, destinationZone, StringComparison.Ordinal)
             || !playerZones.TryGetValue(playerId, out _)
             || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !UnitMovedTriggerSpecRules.TryGetUnitMovedCreateDormantGoldTrigger(sourceState.CardNo, out var triggerSpec)
-            || !string.Equals(triggerSpec.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            || triggerSpec.CreatedTokenCount is not > 0
-            || string.IsNullOrWhiteSpace(triggerSpec.CreatedTokenName)
-            || !string.Equals(
-                triggerSpec.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal)
+            || !UnitMovedTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitMovedTriggerSpecRules.IsUnitMovedCreateDormantGoldTrigger,
+                out var triggerSpec)
             || sourceState.IsFaceDown
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -31300,12 +31286,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["destinationZone"] = destinationZone
                 })
         };
-        var tokenName = triggerSpec.CreatedTokenName;
+        var tokenName = triggerSpec.CreatedTokenName ?? string.Empty;
         var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
-            .Concat(triggerSpec.CreatedTokenKeywords ?? [])
+            .Concat((triggerSpec.CreatedTokenKeywords ?? [])
+                .Where(keyword => !string.IsNullOrWhiteSpace(keyword))
+                .Select(keyword => keyword!))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        var tokenCount = triggerSpec.CreatedTokenCount.Value;
+        var tokenCount = triggerSpec.CreatedTokenCount.GetValueOrDefault();
         var tokenIsExhausted = triggerSpec.CreatedTokenExhausted.GetValueOrDefault(true);
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -42743,10 +42731,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         trigger = default!;
         if (!SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
-            || !UnitBoonGrantedTriggerSpecRules.TryGetUnitBoonGrantedReadySelfTrigger(targetState.CardNo, out var candidate)
-            || !string.Equals(candidate.Timing, TriggerTimings.UnitBoonGranted, StringComparison.Ordinal)
-            || !string.Equals(candidate.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            || candidate.ReadiesSource != true)
+            || !UnitBoonGrantedTriggerSpecRules.TryGetTrigger(
+                targetState.CardNo,
+                UnitBoonGrantedTriggerSpecRules.IsUnitBoonGrantedReadySelfTrigger,
+                out var candidate))
         {
             return false;
         }

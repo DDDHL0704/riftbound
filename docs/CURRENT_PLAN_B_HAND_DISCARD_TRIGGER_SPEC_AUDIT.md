@@ -4,6 +4,10 @@ Date: 2026-06-25
 
 Status: focused hand-discard trigger-spec slice accepted; project remains **NOT READY**.
 
+## 2026-07-02 Follow-up: Generic Predicate Surface
+
+`HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(...)` has been removed. `CoreRuleEngine.ResolveHandCardsDiscardedReadyPowerTriggers(...)` now routes through `HandDiscardTriggerSpecRules.TryGetTrigger(cardNo, HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger, out trigger)`, with the ready/power shape predicate owned by the shared rules class instead of Core. Existing Jinx discard guards, `TRIGGER_RESOLVED`, `UNIT_READIED`, and `POWER_MODIFIED_UNTIL_END_OF_TURN` payloads stay unchanged. Validation: focused guard / representative runtime set `38/38`, adjacent move / discard / boon / battlefield-held / recovery / full-game representative set `2790/2790`, backend full conformance `9141/9141`. This follow-up only removes the per-effect rules API; it does not add new official-text interpretation, complete discard-trigger timing, or mark the project READY.
+
 ## Scope
 
 This slice moves the implemented Jinx hand-discard ready/power representative from a Core card-number branch to `BehaviorSpec.Triggers`:
@@ -13,7 +17,7 @@ This slice moves the implemented Jinx hand-discard ready/power representative fr
 - `TriggerTimings.HandCardsDiscarded` models the hand-discard trigger timing.
 - `TriggerSpec.ReadiesSource` models the source-ready effect that pairs with the existing `PowerDelta` and `Duration` fields.
 - `RuleTextParsers.TriggerParser` now parses the official text into `TriggerSpec.Kind = JINX_DISCARDED_HAND_CARDS_READY_POWER_1`, `Timing = HAND_CARDS_DISCARDED`, `TargetScope = SOURCE_UNIT`, `ReadiesSource = true`, `PowerDelta = 1`, and `Duration = UNTIL_END_OF_TURN`.
-- `CoreRuleEngine.ResolveHandCardsDiscardedReadyPowerTriggers(...)` now checks `HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger(...)` and reads the emitted effect id plus ready/power shape from `TriggerSpec`.
+- `CoreRuleEngine.ResolveHandCardsDiscardedReadyPowerTriggers(...)` now checks `HandDiscardTriggerSpecRules.TryGetTrigger(..., HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger, ...)` and reads the emitted effect id plus ready/power shape from `TriggerSpec`.
 - The old Core `OgnJinxDiscardTriggerCardNo`, `OgnJinxDiscardTriggerAltCardNo`, `ArcJinxDiscardTriggerCardNo`, `JinxDiscardedHandCardsEffectKind`, `JinxDiscardedHandCardsBehavior`, and `IsJinxDiscardTriggerCardNo(...)` branch is removed.
 
 ## Runtime Effect

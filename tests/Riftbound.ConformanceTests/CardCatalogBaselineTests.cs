@@ -4116,6 +4116,66 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
+
+        Assert.DoesNotContain(
+            "UnitMovedTriggerSpecRules.TryGetUnitMovedCreateDormantGoldTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "HandDiscardTriggerSpecRules.TryGetHandCardsDiscardedReadySourcePowerTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "UnitBoonGrantedTriggerSpecRules.TryGetUnitBoonGrantedReadySelfTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "UnitMovedTriggerSpecRules.TryGetTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "HandDiscardTriggerSpecRules.TryGetTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "UnitBoonGrantedTriggerSpecRules.TryGetTrigger",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+
+        var unitMovedSource = File.ReadAllText(Path.Combine(engineRoot, "UnitMovedTriggerSpecRules.cs"));
+        Assert.DoesNotContain("TryGetUnitMovedCreateDormantGoldTrigger", unitMovedSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", unitMovedSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitMovedCreateDormantGoldTrigger", unitMovedSource, StringComparison.Ordinal);
+
+        var handDiscardSource = File.ReadAllText(Path.Combine(engineRoot, "HandDiscardTriggerSpecRules.cs"));
+        Assert.DoesNotContain("TryGetHandCardsDiscardedReadySourcePowerTrigger", handDiscardSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", handDiscardSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsHandCardsDiscardedReadySourcePowerTrigger", handDiscardSource, StringComparison.Ordinal);
+
+        var unitBattlefieldHeldSource = File.ReadAllText(Path.Combine(engineRoot, "UnitBattlefieldHeldTriggerSpecRules.cs"));
+        Assert.DoesNotContain("TryGetUnitBattlefieldHeldDrawTrigger", unitBattlefieldHeldSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", unitBattlefieldHeldSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitBattlefieldHeldDrawTrigger", unitBattlefieldHeldSource, StringComparison.Ordinal);
+
+        var unitBoonGrantedSource = File.ReadAllText(Path.Combine(engineRoot, "UnitBoonGrantedTriggerSpecRules.cs"));
+        Assert.DoesNotContain("TryGetUnitBoonGrantedReadySelfTrigger", unitBoonGrantedSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", unitBoonGrantedSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitBoonGrantedReadySelfTrigger", unitBoonGrantedSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BattlefieldHeldNextSpellEchoTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(

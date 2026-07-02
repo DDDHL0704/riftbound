@@ -4,6 +4,15 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Unit Battlefield-Held Draw Predicate Surface Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·027/221` Dunehorn Beast / 穿沙角兽 official held text for drawing two cards when that unit holds a battlefield.
+- `UnitBattlefieldHeldTriggerSpecRules.TryGetUnitBattlefieldHeldDrawTrigger(...)` is removed. The accepted path now uses `UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(cardNo, UnitBattlefieldHeldTriggerSpecRules.IsUnitBattlefieldHeldDrawTrigger, out trigger)`.
+- `IsUnitBattlefieldHeldDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=UNIT_BATTLEFIELD_HELD_DRAW`, `Timing=BATTLEFIELD_HELD`, `TargetScope=SOURCE_UNIT`, and positive `DrawCount`.
+- `CoreRuleEngine.TryResolveUnitBattlefieldHeldDrawTriggers` uses that generic predicate route and keeps existing surviving held-unit discovery, controller guard, `TRIGGER_RESOLVED`, hidden-safe draw payloads, and official-deck replay semantics.
+- Source guard: `CardCatalogBaselineTests.SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / representative runtime set 38/38; adjacent move / discard / boon / battlefield-held / recovery / full-game representative set 2790/2790; backend full conformance 9141/9141.
+
 ## 2026-07-02 First-Unit Move-Other Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-215/219` Meteor Spring / 流星疗泉 official text for the first non-token unit played there each turn moving another unit controlled there to its owner's base.
@@ -546,7 +555,7 @@ The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible c
 
 The 2026-06-27 B0 follow-up adds an official-deck action-log replay for `OGN·280/298`. It selects the BehaviorSpec battlefield source through normal opening prompts, stages a low-power official attacker and a surviving official defender at that battlefield, resolves the `DECLARE_BATTLE` held path, asserts the parsed draw trigger and hidden-safe draw state transition, then replays the resulting action log to the final score-victory state hash.
 
-The unit battlefield-held draw follow-up parser path turns the Dunehorn Beast held sentence into a structured `TriggerSpec` with `Kind=UNIT_BATTLEFIELD_HELD_DRAW`, `Timing=BATTLEFIELD_HELD`, `TargetScope=SOURCE_UNIT`, and `DrawCount=2`. Runtime no longer checks `SFD·027/221` through `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind`; it queries `BehaviorSpec.Triggers` via `UnitBattlefieldHeldTriggerSpecRules`.
+The unit battlefield-held draw follow-up parser path turns the Dunehorn Beast held sentence into a structured `TriggerSpec` with `Kind=UNIT_BATTLEFIELD_HELD_DRAW`, `Timing=BATTLEFIELD_HELD`, `TargetScope=SOURCE_UNIT`, and `DrawCount=2`. Runtime no longer checks `SFD·027/221` through `DunehornBeastCardNo` / `DunehornBeastBattlefieldHeldDrawEffectKind`; it queries `BehaviorSpec.Triggers` via `UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(..., UnitBattlefieldHeldTriggerSpecRules.IsUnitBattlefieldHeldDrawTrigger, ...)`.
 
 The accepted `DECLARE_BATTLE` held-unit path still requires the battlefield holder to survive combat and be controlled by the battlefield holder. The emitted `TRIGGER_RESOLVED` payload now uses the parsed trigger kind for both `trigger` and `effectKind`, carries the parsed draw count, and applies the authoritative hidden-safe draw path through `ApplyDrawToPlayer`. The separate low-hand active entry sentence is now covered by the active-entry StaticAbilitySpec audit.
 
