@@ -56,6 +56,7 @@ public sealed class FullGameEndToEndTests
     private const string FiercewingControlledDragonActiveEntryCardNo = "SFD·094/221";
     private const string CrystalhandHunterSourceObjectLevelStaticAuraCardNo = "UNL-094/219";
     private const string TargonSeerSourceObjectLevelStaticAuraCardNo = "UNL-098/219";
+    private const string MossStepperSourceObjectLevelSpellshieldCardNo = "UNL-047/219";
     private const string ArenaRookieGrantBoonCardNo = "OGN·136/298";
     private const string GarenSameBattlefieldStaticAuraCardNo = "OGS·013/024";
     private const string DariusSameBattlefieldStaticAuraCardNo = "SFD·236/221";
@@ -4468,6 +4469,48 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameAppliesMossStepperSourceObjectLevelSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildAerieHeadFanSpellshieldTaxSpellOfficialDeck(catalog);
+        var p2Deck = BuildMossStepperSourceObjectLevelSpellshieldOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-moss-stepper-source-object-level-spellshield-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildMossStepperSourceObjectLevelSpellshieldMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var spellPlayed = await DriveSourceObjectLevelSpellshieldTaxSpellAsync(
+            session,
+            current,
+            "P1",
+            "P2",
+            "b0-moss-stepper-source-object-level-spellshield-tax");
+        var spellResolved = await ResolveStackPassPassAsync(
+            session,
+            spellPlayed,
+            "b0-moss-stepper-source-object-level-spellshield-tax-resolve");
+
+        AssertSourceObjectLevelSpellshieldTaxSpellResolved(spellPlayed, spellResolved);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            spellResolved,
+            "b0-moss-stepper-source-object-level-spellshield-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -9346,6 +9389,20 @@ public sealed class FullGameEndToEndTests
     }
 
     private static void AssertAerieHeadFanSpellshieldTaxSpellResolved(
+        ResolutionResult spellPlayed,
+        ResolutionResult spellResolved)
+    {
+        AssertSpellshieldTaxSpellResolved(spellPlayed, spellResolved);
+    }
+
+    private static void AssertSourceObjectLevelSpellshieldTaxSpellResolved(
+        ResolutionResult spellPlayed,
+        ResolutionResult spellResolved)
+    {
+        AssertSpellshieldTaxSpellResolved(spellPlayed, spellResolved);
+    }
+
+    private static void AssertSpellshieldTaxSpellResolved(
         ResolutionResult spellPlayed,
         ResolutionResult spellResolved)
     {
@@ -19959,6 +20016,102 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException($"B0 Aerie Head Fan spellshield driver could not play Incinerate for {spellControllerId}.");
     }
 
+    private static async ValueTask<ResolutionResult> DriveSourceObjectLevelSpellshieldTaxSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string spellControllerId,
+        string targetControllerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                result = await SubmitFirstDeclareBattleCandidateAsync(
+                    session,
+                    result,
+                    $"{intentPrefix}-clear-existing-battle-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 source-object level spellshield driver cannot play the target spell: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, spellControllerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, spellControllerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            var spellObjectId = FindHandCardObjectByCardNo(result.State, spellControllerId, IncinerateSpellCardNo);
+            var targetObjectId = FindBattlefieldUnitByCardNo(
+                result.State,
+                targetControllerId,
+                MossStepperSourceObjectLevelSpellshieldCardNo)
+                ?? throw new InvalidOperationException("B0 source-object level spellshield driver could not find Moss Stepper target.");
+            var targetState = result.State.CardObjects[targetObjectId];
+            Assert.DoesNotContain(CardObjectTags.Spellshield, targetState.Tags);
+
+            var ruleTextAura = Assert.Single(result.State.ContinuousEffects, effect =>
+                string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, targetObjectId, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, targetObjectId, StringComparison.Ordinal));
+            Assert.Equal(
+                $"RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:{targetObjectId}:{CardResourceKeywordNames.Spellshield}",
+                ruleTextAura.EffectId);
+            Assert.Equal("OBJECT", ruleTextAura.Scope);
+            Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", ruleTextAura.Duration);
+
+            var playCandidate = EnabledCandidate(result.Prompts[spellControllerId], CommandTypes.PlayCard);
+            var legalSourceIds = playCandidate?.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+                ?? [];
+            var legalTargetIds = playCandidate?.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+                ?? [];
+            if (spellObjectId is not null
+                && legalSourceIds.Contains(spellObjectId)
+                && legalTargetIds.Contains(targetObjectId)
+                && result.State.RunePools[spellControllerId].Mana >= 3)
+            {
+                var command = new PlayCardCommand(
+                    spellObjectId,
+                    IncinerateSpellCardNo,
+                    [targetObjectId]);
+                var played = await session.SubmitAsync(
+                    spellControllerId,
+                    $"{intentPrefix}-play-{turnIndex}",
+                    command,
+                    RawCommand(command),
+                    CancellationToken.None);
+                AssertAccepted(played);
+                AssertNoHiddenZoneLeak(played);
+                return played;
+            }
+
+            result = await EndTurnAsync(session, spellControllerId, $"{intentPrefix}-wait-resources-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 source-object level spellshield driver could not play Incinerate for {spellControllerId}.");
+    }
+
     private static async ValueTask<ResolutionResult> SubmitSameBattlefieldSteadfastDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -22677,6 +22830,19 @@ public sealed class FullGameEndToEndTests
                 PoppyChampionCardNo,
                 [
                     TargonSeerSourceObjectLevelStaticAuraCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildMossStepperSourceObjectLevelSpellshieldOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                VexLegendCardNo,
+                VexChampionCardNo,
+                [
+                    MossStepperSourceObjectLevelSpellshieldCardNo
                 ]));
     }
 
@@ -28584,6 +28750,69 @@ public sealed class FullGameEndToEndTests
                 playerId => playerId,
                 playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 11 : 0,
                 StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BuildMossStepperSourceObjectLevelSpellshieldMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [IncinerateSpellCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [MossStepperSourceObjectLevelSpellshieldCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P2");
+        var mossStepperObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            MossStepperSourceObjectLevelSpellshieldCardNo)
+            ?? throw new InvalidOperationException("B0 Moss Stepper setup could not find Moss Stepper in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p2Zones = playerZones["P2"];
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, mossStepperObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([mossStepperObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[mossStepperObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[mossStepperObjectId] = cardObjects[mossStepperObjectId] with
+        {
+            Power = 3,
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[mossStepperObjectId])
+                .Where(tag => !string.Equals(tag, CardObjectTags.Spellshield, StringComparison.Ordinal))
+                .ToArray(),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerExperience = midgameState.Seats.Keys.ToDictionary(
+                playerId => playerId,
+                playerId => string.Equals(playerId, "P2", StringComparison.Ordinal) ? 3 : 0,
+                StringComparer.Ordinal),
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Append(BattlefieldTaskMarkers.BattleSkipped(battlefieldId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
         };
     }
 

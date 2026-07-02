@@ -39,6 +39,7 @@ After this slice:
 - `MatchSession` projects `RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:*` continuous effects and prompt Roam metadata through the same controller-experience gate.
 - `CoreRuleEngine` now applies the same source-object keyword aura route to resource keywords used by target-tax calculation. A level-gated `法盾` grant contributes Spellshield tax from `BehaviorSpec.StaticAuras` even when the target object has no materialized `法盾` tag.
 - `MatchSession` prompt filtering and target labeling use the same source-object keyword aura tax route, so an enemy spell source is hidden when it cannot pay the dynamic level-gated `法盾` tax.
+- The B0 official-deck replay follow-up adds no runtime logic; it drives the same projected `SOURCE_OBJECT_LEVEL_KEYWORD` / `法盾` target-tax path through official deck submission/opening, a server-authored Incinerate `PLAY_CARD`, stack resolution, score victory, action-log replay, and hidden-info guarded recovery.
 
 ## Test Evidence
 
@@ -59,7 +60,10 @@ After this slice:
 - 2026-07-02 focused source-object level Spellshield target-tax gate `SourceObjectLevelPowerStaticAuraTests` passed `11/11`.
 - 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` passed `2160/2160`.
 - 2026-07-02 backend full conformance passed `9137/9137`.
+- 2026-07-02 B0 official-deck replay `OfficialDeckMidgameAppliesMossStepperSourceObjectLevelSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash` passed `1/1`; it verifies official `UNL-047/219` Moss Stepper / 踏苔蜥 at 3 experience charges official `OGS·003/024` Incinerate base 2 mana plus 1 dynamic Spellshield target tax while the target object has no materialized `法盾` tag, then action-log replays to the score-victory final state hash.
+- 2026-07-02 B0 adjacent / hidden-info gate `OfficialDeckMidgameAppliesMossStepperSourceObjectLevelSpellshieldTax|SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|FullGameEndToEnd|MatchRecovery` passed `2258/2258`.
+- 2026-07-02 backend full conformance after B0 evidence passed `9138/9138`.
 
 ## Non-Claims
 
-This evidence does not claim complete source-object keyword official breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, P0 completion, or READY.
+This evidence does not claim complete source-object keyword official breadth, complete Spellshield target-tax timing breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, complete B0 official-deck breadth, P0 completion, or READY.

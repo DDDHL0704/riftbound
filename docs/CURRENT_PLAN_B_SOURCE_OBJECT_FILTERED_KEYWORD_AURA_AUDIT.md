@@ -18,6 +18,8 @@ The 2026-07-02 follow-up extends the same source-object keyword route to level-g
 
 The later 2026-07-02 follow-up wires source-object level `法盾` grants into the same resource-keyword target-tax calculation used for printed and other-source granted Spellshield. `UNL-047/219` 踏苔蜥 can now charge the enemy spell target tax from its `SOURCE_OBJECT_LEVEL_KEYWORD` aura even when the object has no materialized `法盾` tag.
 
+The B0 evidence follow-up adds an official-deck-derived score-victory replay for the same `UNL-047/219` source-object level `法盾` target-tax route. It does not add runtime behavior; it proves the existing shared Core/MatchSession path survives official deck submission/opening, prompt-driven `PLAY_CARD`, stack resolution, action-log replay, and hidden-info recovery checks.
+
 ## Authority
 
 - `data/official/card-catalog.zh-CN.json` row `OGN·125/298` 比尔吉沃特恶霸: if the source has a boon, it gains `游走`.
@@ -68,7 +70,10 @@ The later 2026-07-02 follow-up wires source-object level `法盾` grants into th
 - 2026-07-02 focused source-object level Spellshield target-tax gate `SourceObjectLevelPowerStaticAuraTests` passed `11/11`.
 - 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` passed `2160/2160`.
 - 2026-07-02 backend full conformance passed `9137/9137`.
+- 2026-07-02 B0 official-deck replay gate `OfficialDeckMidgameAppliesMossStepperSourceObjectLevelSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash` passed `1/1`.
+- 2026-07-02 B0 adjacent / hidden-info gate `OfficialDeckMidgameAppliesMossStepperSourceObjectLevelSpellshieldTax|SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|FullGameEndToEnd|MatchRecovery` passed `2258/2258`.
+- 2026-07-02 backend full conformance after B0 evidence passed `9138/9138`.
 
 ## Holdbacks
 
-This does not close complete source-object keyword official breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, P0 full objective, or READY.
+This does not close complete source-object keyword official breadth, complete Spellshield target-tax timing breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, complete B0 official-deck breadth, P0 full objective, or READY.
