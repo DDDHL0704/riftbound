@@ -34,8 +34,11 @@ if [[ ! -d "${evidence_dir}" ]]; then
 fi
 
 failures=()
+manual_failures=()
 notes=()
 report_path="${RIFTBOUND_PLAYTEST_REPORT:-${evidence_dir}/playtest-report.md}"
+confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-0}"
+auto_smoke_found=0
 
 require_file() {
   local path="$1"
@@ -82,6 +85,7 @@ if compgen -G "${evidence_dir}/*.log" >/dev/null; then
   fi
 
   if rg -q "Auto smoke:" "${evidence_dir}"/*.log; then
+    auto_smoke_found=1
     notes+=("auto smoke entries found; this evidence is not sufficient for the two-human P5 gate")
   fi
 fi
@@ -106,6 +110,40 @@ if (( ${#failures[@]} > 0 )); then
   exit 1
 fi
 
+confirm_box_two_humans="[ ]"
+confirm_box_a_result="[ ]"
+confirm_box_b_result="[ ]"
+confirm_box_a_hidden="[ ]"
+confirm_box_b_hidden="[ ]"
+
+prompt_confirmation() {
+  local variable_name="$1"
+  local label="$2"
+  local answer=""
+
+  printf '%s [y/N] ' "${label}"
+  if read -r answer && [[ "${answer}" =~ ^[Yy]$ ]]; then
+    printf -v "${variable_name}" '[x]'
+    return 0
+  fi
+
+  manual_failures+=("${label}")
+  return 0
+}
+
+if [[ "${confirm_manual}" == "1" ]]; then
+  if [[ "${auto_smoke_found}" == "1" ]]; then
+    manual_failures+=("auto smoke entries found; cannot record two-human manual completion")
+  else
+    printf '\nManual confirmation mode is enabled.\n'
+    prompt_confirmation confirm_box_two_humans "Two human players operated the two Godot clients."
+    prompt_confirmation confirm_box_a_result "Player A final screenshot shows the server result panel."
+    prompt_confirmation confirm_box_b_result "Player B final screenshot shows the server result panel."
+    prompt_confirmation confirm_box_a_hidden "Player A sees opponent hand/hidden cards only as card backs and counts."
+    prompt_confirmation confirm_box_b_hidden "Player B sees opponent hand/hidden cards only as card backs and counts."
+  fi
+fi
+
 checked_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || printf 'unknown')"
 {
@@ -127,6 +165,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Required result screenshots: present
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
+- Manual confirmation mode: ${confirm_manual}
 
 ## Notes
 EOF
@@ -138,19 +177,36 @@ EOF
     printf '\n- None\n'
   fi
 
-  cat <<'EOF'
+  cat <<EOF
 
 ## Manual Confirmations
 
-- [ ] Two human players operated the two Godot clients.
-- [ ] Player A final screenshot shows the server result panel.
-- [ ] Player B final screenshot shows the server result panel.
-- [ ] Player A sees opponent hand/hidden cards only as card backs and counts.
-- [ ] Player B sees opponent hand/hidden cards only as card backs and counts.
+- ${confirm_box_two_humans} Two human players operated the two Godot clients.
+- ${confirm_box_a_result} Player A final screenshot shows the server result panel.
+- ${confirm_box_b_result} Player B final screenshot shows the server result panel.
+- ${confirm_box_a_hidden} Player A sees opponent hand/hidden cards only as card backs and counts.
+- ${confirm_box_b_hidden} Player B sees opponent hand/hidden cards only as card backs and counts.
 EOF
 } >"${report_path}"
 
-cat <<'EOF'
+if (( ${#manual_failures[@]} > 0 )); then
+  printf '\nMANUAL CONFIRMATION INCOMPLETE:\n' >&2
+  printf '  - %s\n' "${manual_failures[@]}" >&2
+  printf 'Report written: %s\n' "${report_path}" >&2
+  exit 1
+fi
+
+if [[ "${confirm_manual}" == "1" ]]; then
+  cat <<'EOF'
+
+Machine-checkable gates passed.
+Manual confirmations recorded in report:
+  - Two human players operated the two Godot clients.
+  - Both final screenshots show the result panel.
+  - Each player sees opponent hand/hidden cards only as card backs and counts.
+EOF
+else
+  cat <<'EOF'
 
 Machine-checkable gates passed.
 Manual confirmations still required:
@@ -158,4 +214,5 @@ Manual confirmations still required:
   - Both final screenshots show the result panel.
   - Each player sees opponent hand/hidden cards only as card backs and counts.
 EOF
+fi
 printf 'Report written: %s\n' "${report_path}"

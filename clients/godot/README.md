@@ -268,7 +268,8 @@ rendering, and no crash/error/rejection patterns are present. It cannot prove
 that two humans operated the clients or inspect hidden-information safety by
 itself; those remain manual confirmations from the final screenshots. When the
 machine checks pass, it writes `playtest-report.md` in the evidence directory
-with those manual confirmation boxes.
+with those manual confirmation boxes. To have the checker prompt for and record
+those confirmations, run it with `RIFTBOUND_CONFIRM_MANUAL=1`.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
