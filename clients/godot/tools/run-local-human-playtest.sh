@@ -61,16 +61,23 @@ launch_player() {
     launcher=(nohup "${godot_bin}")
   fi
 
+  local user_args=(
+    --riftbound-server="${server}"
+    --riftbound-ephemeral-session
+    --riftbound-ignore-reconnect
+    --riftbound-room="${room}"
+    --riftbound-handle="${handle}"
+    --riftbound-player-key="${player_key}"
+    --riftbound-visual-screenshot="${shot}"
+    --riftbound-visual-screenshot-min-table-cards="${min_table_cards}"
+  )
+
+  if ((${#extra_user_args[@]} > 0)); then
+    user_args+=("${extra_user_args[@]}")
+  fi
+
   "${launcher[@]}" "${godot_window_args[@]}" -- \
-    --riftbound-server="${server}" \
-    --riftbound-ephemeral-session \
-    --riftbound-ignore-reconnect \
-    --riftbound-room="${room}" \
-    --riftbound-handle="${handle}" \
-    --riftbound-player-key="${player_key}" \
-    --riftbound-visual-screenshot="${shot}" \
-    --riftbound-visual-screenshot-min-table-cards="${min_table_cards}" \
-    "${extra_user_args[@]}" \
+    "${user_args[@]}" \
     >"${log}" 2>&1 &
   launched_pid="$!"
 }
