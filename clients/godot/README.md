@@ -223,6 +223,16 @@ The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
 the temporary worktree after the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is
 set.
 
+After the tarball is written, verify the final handoff package:
+
+```sh
+clients/godot/tools/verify-human-playtest-package.sh /tmp/riftbound-human-playtest.tar.gz
+```
+
+The verifier checks the package structure, `SHA256SUMS`, clean-git report
+markers, all five human confirmation boxes, match lifecycle logs, final result
+screenshot logs, and absence of crash/rejection/auto-smoke evidence.
+
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
 paths:
