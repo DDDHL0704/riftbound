@@ -269,9 +269,11 @@ clients/godot/tools/verify-human-playtest-package.sh /tmp/riftbound-human-playte
 The verifier checks the package structure, valid `SHA256SUMS` coverage for all
 required evidence files, absence of undeclared extra files, clean-git report
 markers, a report Git revision contained in `origin/main`, manual confirmation
-mode, all five human confirmation boxes, match lifecycle logs, final result
-screenshot logs, valid PNG result screenshots, distinct A/B log and result
-screenshot files, and absence of crash/rejection/auto-smoke evidence.
+mode, all five human confirmation boxes, both clients loading preconstructed
+decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
+logs, final result screenshot logs, valid PNG result screenshots, distinct A/B
+log and result screenshot files, and absence of crash/rejection/auto-smoke
+evidence.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`

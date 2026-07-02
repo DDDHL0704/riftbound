@@ -151,6 +151,15 @@ require_log_match() {
   fi
 }
 
+require_client_setup_log_matches() {
+  local path="$1"
+  local label="$2"
+
+  require_log_match "Preconstructed decks loaded: [1-9][0-9]*\\." "${path}" "${label} preconstructed deck load"
+  require_log_match "SubmitDeck receipt accepted=True" "${path}" "${label} SubmitDeck receipt"
+  require_log_match "Ready receipt accepted=True" "${path}" "${label} Ready receipt"
+}
+
 require_png_screenshot() {
   local path="$1"
   local label="$2"
@@ -249,6 +258,8 @@ if [[ -s "${report}" ]] && grep -Eq '^- \[ \]' "${report}"; then
   failures+=("unchecked manual confirmation found in playtest-report.md")
 fi
 
+require_client_setup_log_matches "${player_a_log}" "player A"
+require_client_setup_log_matches "${player_b_log}" "player B"
 require_log_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
 require_log_match "MATCH_WON|Match result rendered" "${player_a_log}" "match result"
 require_log_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a_log}" "player A result screenshot log"

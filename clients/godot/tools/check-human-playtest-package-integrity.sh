@@ -32,6 +32,7 @@ write_evidence_bundle() {
   local duplicate_screenshots="${4:-0}"
   local duplicate_logs="${5:-0}"
   local extra_file="${6:-0}"
+  local missing_deck_ready="${7:-0}"
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -41,12 +42,18 @@ Package integrity fixture.
 EOF
 
   cat >"${bundle_dir}/player-a.log" <<'EOF'
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 Match result rendered
 Visual screenshot saved: /tmp/player-a-result.png
 EOF
 
   cat >"${bundle_dir}/player-b.log" <<'EOF'
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: /tmp/player-b-result.png
@@ -54,12 +61,28 @@ EOF
 
   if [[ "${duplicate_logs}" == "1" ]]; then
     cat >"${bundle_dir}/player-a.log" <<'EOF'
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: /tmp/player-a-result.png
 Visual screenshot saved: /tmp/player-b-result.png
 EOF
     cp "${bundle_dir}/player-a.log" "${bundle_dir}/player-b.log"
+  fi
+
+  if [[ "${missing_deck_ready}" == "1" ]]; then
+    cat >"${bundle_dir}/player-a.log" <<'EOF'
+MATCH_STARTED
+Match result rendered
+Visual screenshot saved: /tmp/player-a-result.png
+EOF
+    cat >"${bundle_dir}/player-b.log" <<'EOF'
+MATCH_STARTED
+MATCH_WON
+Visual screenshot saved: /tmp/player-b-result.png
+EOF
   fi
 
   if [[ "${duplicate_screenshots}" == "1" ]]; then
@@ -210,8 +233,28 @@ if ! rg -q "unexpected file|extra file|secret\\.txt" "${extra_file_output}"; the
   fail "verifier did not explain the unexpected package file"
 fi
 
+missing_deck_ready_bundle="${tmp_dir}/missing-deck-ready/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_deck_ready_bundle}" "${revision}" "1" "0" "0" "0" "1"
+(
+  cd "${missing_deck_ready_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+missing_deck_ready_package="${tmp_dir}/missing-deck-ready.tar.gz"
+make_package "${missing_deck_ready_bundle}" "${missing_deck_ready_package}"
+
+missing_deck_ready_output="${tmp_dir}/missing-deck-ready-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_deck_ready_package}" >"${missing_deck_ready_output}" 2>&1; then
+  fail "verifier accepted package without preconstructed deck submit/ready evidence"
+fi
+
+if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; then
+  echo "Expected deck/ready rejection output:" >&2
+  cat "${missing_deck_ready_output}" >&2
+  fail "verifier did not explain the missing deck/ready evidence"
+fi
+
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"
-write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0" "0" "0"
+write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0" "0" "0" "0"
 (
   cd "${covered_bundle}"
   shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
