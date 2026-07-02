@@ -42,6 +42,7 @@ launch_player() {
   local log="${screenshot_dir}/${seat}.log"
   local godot_window_args=(
     --windowed --resolution "${resolution}" --position "${position}"
+    --scene res://scenes/Main.tscn
     --path "${repo_root}/clients/godot"
   )
 
