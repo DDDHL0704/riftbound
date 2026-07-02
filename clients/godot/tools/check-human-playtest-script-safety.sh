@@ -58,12 +58,29 @@ EOF
   : >"${log_path}"
 }
 
+make_fake_curl() {
+  local fake_bin="$1"
+
+  cat >"${fake_bin}/curl" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${RIFTBOUND_FAKE_CURL_HEALTHY:-0}" == "1" ]]; then
+  exit 0
+fi
+
+exit 22
+EOF
+  chmod +x "${fake_bin}/curl"
+}
+
 tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/riftbound-human-script-safety.XXXXXX")"
 trap 'rm -rf "${tmp_dir}"' EXIT
 
 fake_bin="${tmp_dir}/bin"
 fake_git_log="${tmp_dir}/git.log"
 make_fake_git "${fake_bin}" "${fake_git_log}"
+make_fake_curl "${fake_bin}"
 
 make_fake_executable() {
   local path="$1"
@@ -357,5 +374,20 @@ fi
 
 rg -q "RIFTBOUND_CLEAN_WORKTREE_DIR|clean worktree|not empty" "${nonempty_worktree_output}" \
   || fail "clean-main human playtest precheck did not explain the non-empty clean worktree directory"
+
+existing_local_api_output="${tmp_dir}/existing-local-api-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_FAKE_CURL_HEALTHY=1 \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${tmp_dir}/existing-local-api-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${existing_local_api_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted an existing default local API"
+fi
+
+rg -q "existing.*local.*API|RIFTBOUND_SERVER|127\\.0\\.0\\.1:5088|5088" "${existing_local_api_output}" \
+  || fail "clean-main human playtest precheck did not explain the existing local API rejection"
 
 echo "Human playtest script safety checks passed."

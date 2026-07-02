@@ -251,10 +251,10 @@ final P5 gate settings, fetches `origin/main`, and checks the configured
 `RIFTBOUND_GODOT_BIN` plus the local auto-start `RIFTBOUND_DOTNET_BIN` when
 using the default local API. It also checks that the configured evidence
 directory, package output, and custom clean-worktree parents are usable writable
-directories, and that a custom clean worktree is empty if it already exists. It
-does this without creating a worktree, opening Godot windows, or writing
-evidence. After it prints `Final P5 precheck passed`, run the real collection
-command:
+directories, that a custom clean worktree is empty if it already exists, and
+that the default local API port is not already serving another process. It does
+this without creating a worktree, opening Godot windows, or writing evidence.
+After it prints `Final P5 precheck passed`, run the real collection command:
 
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
@@ -279,10 +279,12 @@ with automated or extra Godot client arguments, disabled manual/clean-git/
 evidence/package/build/wait gates, skipped `origin/main` fetches, non-`origin/main`
 refs, duplicate player handles/keys, non-empty evidence directories, existing
 evidence package paths, unusable evidence output parents, unusable or non-empty
-custom clean worktree directories, or custom playtest report paths. It prints
-the two handles and short player-key fingerprints before launching so operators
-can catch identity mistakes without exposing full keys. For wrapper development
-only, set
+custom clean worktree directories, an already-running default local API on port
+5088, or custom playtest report paths. This ensures the clean worktree starts
+the local API used by the final playtest instead of reusing a stale server. It
+prints the two handles and short player-key fingerprints before launching so
+operators can catch identity mistakes without exposing full keys. For wrapper
+development only, set
 `RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of those
 gates; that run writes `Incomplete human evidence: 1` into the report and the
 final package verifier rejects it.

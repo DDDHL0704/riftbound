@@ -15,6 +15,7 @@ check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
 package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-0}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-}"
 build_godot="${RIFTBOUND_BUILD_GODOT:-1}"
+refuse_existing_local_api="${RIFTBOUND_REFUSE_EXISTING_LOCAL_API:-0}"
 
 started_api=0
 api_pid=""
@@ -33,7 +34,19 @@ health_url="${server%/}/health"
 
 mkdir -p "${screenshot_dir}"
 
-if ! curl -fsS "${health_url}" >/dev/null 2>&1; then
+if curl -fsS "${health_url}" >/dev/null 2>&1; then
+  if [[ "${refuse_existing_local_api}" == "1" ]]; then
+    case "${server}" in
+      http://127.0.0.1:5088|http://localhost:5088)
+        echo "Refusing to reuse existing local Riftbound API at ${server}." >&2
+        echo "Stop the server on port 5088 so the clean worktree can start its own API." >&2
+        exit 2
+        ;;
+    esac
+  fi
+
+  echo "Using existing Riftbound API at ${server}."
+else
   case "${server}" in
     http://127.0.0.1:5088|http://localhost:5088)
       if [[ ! -x "${dotnet_bin}" ]]; then
@@ -77,8 +90,6 @@ if ! curl -fsS "${health_url}" >/dev/null 2>&1; then
       exit 1
       ;;
   esac
-else
-  echo "Using existing Riftbound API at ${server}."
 fi
 
 if [[ "${build_godot}" != "0" ]]; then

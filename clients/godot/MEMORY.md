@@ -36,7 +36,9 @@ resume from repository state instead of conversation history alone.
   or writing evidence. It also checks the configured Godot binary and local
   auto-start .NET binary, plus the evidence directory and package output
   parents. It now also catches invalid or non-empty custom clean-worktree paths
-  before operators spend time on the final run. Run it immediately before the
+  before operators spend time on the final run. On the default local server, it
+  refuses an existing healthy API on port 5088 so the final clean worktree starts
+  and owns the backend used for evidence. Run it immediately before the
   two-human session.
 - P4 local deployment check has been validated from clean
   `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`: Docker image

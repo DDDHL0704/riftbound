@@ -51,7 +51,9 @@ contracts change.
   confirmations, evidence packaging, and package verification. Its `--precheck`
   mode validates the final gate settings, configured Godot/.NET executables,
   evidence output parents, custom clean-worktree paths, and fetches
-  `origin/main` without launching the Godot windows.
+  `origin/main` without launching the Godot windows. With the default local
+  server it also refuses an already-running API on port 5088 so the clean
+  worktree owns the server process for final evidence.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, and writes
   `playtest-report.md`.

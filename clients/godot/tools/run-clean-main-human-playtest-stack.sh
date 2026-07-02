@@ -78,6 +78,7 @@ extra_godot_args="${RIFTBOUND_EXTRA_GODOT_ARGS:-}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 incomplete_human_evidence=0
 created_worktree=0
+require_owned_local_api=1
 
 fingerprint_secret() {
   local secret="$1"
@@ -189,6 +190,16 @@ fi
 if [[ -n "${playtest_report}" ]]; then
   disabled_final_gates+=("RIFTBOUND_PLAYTEST_REPORT=${playtest_report}")
 fi
+case "${server}" in
+  http://127.0.0.1:5088|http://localhost:5088)
+    if curl -fsS "${server%/}/health" >/dev/null 2>&1; then
+      disabled_final_gates+=("RIFTBOUND_SERVER=${server} already has a local API running; stop it so the clean worktree can start its own API")
+    fi
+    ;;
+  *)
+    require_owned_local_api=0
+    ;;
+esac
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -203,7 +214,9 @@ exit, no automatic Godot quit timer, and no extra client arguments. The evidence
 directory must be new or empty, the evidence package path must not already
 exist, their output parent directories must be writable directories, any custom
 clean worktree directory must be empty with a usable parent, and the playtest
-report must be generated inside the new evidence directory. Set
+report must be generated inside the new evidence directory. When using the
+default local API, port 5088 must be free so the clean worktree starts the API
+used by the playtest. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -262,6 +275,7 @@ Final P5 precheck passed.
   verify evidence package: ${verify_evidence_package}
   build Godot: ${build_godot}
   wait for windows: ${wait_for_windows}
+  require owned local API: ${require_owned_local_api}
 
 No Godot windows were launched and no evidence was written. Run without
 --precheck when both human operators are ready.
@@ -341,6 +355,7 @@ export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"
 export RIFTBOUND_CHECK_EVIDENCE="${check_evidence}"
 export RIFTBOUND_PACKAGE_EVIDENCE="${package_evidence}"
 export RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE="${incomplete_human_evidence}"
+export RIFTBOUND_REFUSE_EXISTING_LOCAL_API="${require_owned_local_api}"
 
 "${clean_worktree}/clients/godot/tools/run-local-human-playtest-stack.sh"
 
