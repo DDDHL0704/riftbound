@@ -224,4 +224,27 @@ rg -q "two human players|Two human players" "${safe_output}" \
 rg -q "hidden cards|card backs|backs/counts" "${safe_output}" \
   || fail "clean-main human playtest checklist did not mention hidden-information verification"
 
+precheck_output="${tmp_dir}/precheck-output.log"
+precheck_worktree="${tmp_dir}/precheck-worktree"
+: >"${fake_git_log}"
+PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${precheck_worktree}" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${precheck_output}" 2>&1
+
+rg -q "Final P5 precheck passed" "${precheck_output}" \
+  || fail "clean-main human playtest precheck did not report success"
+
+if rg -q "wrapped human stack ran" "${precheck_output}"; then
+  fail "clean-main human playtest precheck launched the wrapped human stack"
+fi
+
+if rg -q "worktree add" "${fake_git_log}"; then
+  fail "clean-main human playtest precheck created a clean worktree"
+fi
+
+rg -q "fetch origin main" "${fake_git_log}" \
+  || fail "clean-main human playtest precheck did not fetch origin/main"
+
 echo "Human playtest script safety checks passed."

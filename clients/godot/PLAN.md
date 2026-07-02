@@ -39,6 +39,9 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 2. Run visible clean-main simulated preflights after pushed changes to catch
    obvious window, result-panel, screenshot, or evidence regressions.
 3. Prepare for the final two-human P5 run:
+   - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
+     before both operators start, so final evidence gate mistakes are caught
+     without opening Godot windows;
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh`;
    - have two human operators play from preconstructed decks to the server
      result panel;

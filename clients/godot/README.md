@@ -243,6 +243,15 @@ immediately after both windows close. It then verifies the final handoff package
 before returning success:
 
 ```sh
+clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck
+```
+
+Run the precheck first while both operators are preparing. It validates the
+final P5 gate settings and fetches `origin/main` without creating a worktree,
+opening Godot windows, or writing evidence. After it prints
+`Final P5 precheck passed`, run the real collection command:
+
+```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
 ```
 

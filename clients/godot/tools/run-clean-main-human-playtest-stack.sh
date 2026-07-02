@@ -5,9 +5,13 @@ usage() {
   cat <<'EOF'
 Usage:
   clients/godot/tools/run-clean-main-human-playtest-stack.sh
+  clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck
 
 Creates a temporary clean git worktree, checks out the pushed main revision,
 then runs the Godot two-human playtest stack from that clean worktree.
+
+Use --precheck to validate the final P5 gates and fetch origin/main without
+creating the worktree, opening Godot windows, or writing evidence.
 
 Useful environment overrides:
   RIFTBOUND_CLEAN_WORKTREE_REF=origin/main
@@ -25,10 +29,24 @@ The wrapped stack defaults to:
 EOF
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
+precheck_only="${RIFTBOUND_PRECHECK_ONLY:-0}"
+
+while (( $# > 0 )); do
+  case "${1:-}" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --precheck)
+      precheck_only=1
+      shift
+      ;;
+    *)
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/../../.." && pwd)"
@@ -158,6 +176,30 @@ fi
 
 if [[ "${fetch_ref}" != "0" ]]; then
   git -C "${repo_root}" fetch origin main
+fi
+
+if [[ "${precheck_only}" == "1" ]]; then
+  cat <<EOF
+Final P5 precheck passed.
+  source repo: ${repo_root}
+  ref: ${ref}
+  fetch origin/main: ${fetch_ref}
+  evidence dir: ${screenshot_dir}
+  evidence package: ${evidence_package}
+  player A handle: ${handle_a}
+  player B handle: ${handle_b}
+  manual confirmations: ${confirm_manual}
+  require clean git: ${require_clean_git}
+  check evidence: ${check_evidence}
+  package evidence: ${package_evidence}
+  verify evidence package: ${verify_evidence_package}
+  build Godot: ${build_godot}
+  wait for windows: ${wait_for_windows}
+
+No Godot windows were launched and no evidence was written. Run without
+--precheck when both human operators are ready.
+EOF
+  exit 0
 fi
 
 if [[ -n "${user_worktree_dir}" ]]; then
