@@ -65,6 +65,22 @@ fake_bin="${tmp_dir}/bin"
 fake_git_log="${tmp_dir}/git.log"
 make_fake_git "${fake_bin}" "${fake_git_log}"
 
+make_fake_executable() {
+  local path="$1"
+
+  cat >"${path}" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exit 0
+EOF
+  chmod +x "${path}"
+}
+
+fake_godot_bin="${tmp_dir}/Godot"
+fake_dotnet_bin="${tmp_dir}/dotnet"
+make_fake_executable "${fake_godot_bin}"
+make_fake_executable "${fake_dotnet_bin}"
+
 auto_output="${tmp_dir}/auto-output.log"
 auto_worktree="${tmp_dir}/auto-worktree"
 if PATH="${fake_bin}:${PATH}" \
@@ -231,6 +247,8 @@ PATH="${fake_bin}:${PATH}" \
   RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
   RIFTBOUND_CLEAN_WORKTREE_DIR="${precheck_worktree}" \
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
   "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${precheck_output}" 2>&1
 
 rg -q "Final P5 precheck passed" "${precheck_output}" \
@@ -246,5 +264,33 @@ fi
 
 rg -q "fetch origin main" "${fake_git_log}" \
   || fail "clean-main human playtest precheck did not fetch origin/main"
+
+missing_godot_output="${tmp_dir}/missing-godot-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${tmp_dir}/missing-godot-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${tmp_dir}/missing-godot" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${missing_godot_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted a missing Godot executable"
+fi
+
+rg -q "Godot executable" "${missing_godot_output}" \
+  || fail "clean-main human playtest precheck did not explain the missing Godot executable"
+
+missing_dotnet_output="${tmp_dir}/missing-dotnet-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${tmp_dir}/missing-dotnet-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${tmp_dir}/missing-dotnet" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${missing_dotnet_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted a missing .NET executable for local API auto-start"
+fi
+
+rg -q "\\.NET executable|dotnet" "${missing_dotnet_output}" \
+  || fail "clean-main human playtest precheck did not explain the missing .NET executable"
 
 echo "Human playtest script safety checks passed."

@@ -59,6 +59,9 @@ room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
 playtest_report="${RIFTBOUND_PLAYTEST_REPORT:-}"
+server="${RIFTBOUND_SERVER:-http://127.0.0.1:5088}"
+dotnet_bin="${RIFTBOUND_DOTNET_BIN:-${HOME}/.dotnet/dotnet}"
+godot_bin="${RIFTBOUND_GODOT_BIN:-/Applications/Godot_dotnet.app/Contents/MacOS/Godot}"
 handle_a="${RIFTBOUND_HANDLE_A:-player-a-${room}}"
 handle_b="${RIFTBOUND_HANDLE_B:-player-b-${room}}"
 player_key_a="${RIFTBOUND_PLAYER_KEY_A:-pk_${room}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
@@ -179,11 +182,34 @@ if [[ "${fetch_ref}" != "0" ]]; then
 fi
 
 if [[ "${precheck_only}" == "1" ]]; then
+  precheck_failures=()
+
+  if [[ "${build_godot}" != "0" && ! -x "${godot_bin}" ]]; then
+    precheck_failures+=("Godot executable not found: ${godot_bin}")
+  fi
+
+  case "${server}" in
+    http://127.0.0.1:5088|http://localhost:5088)
+      if [[ ! -x "${dotnet_bin}" ]]; then
+        precheck_failures+=(".NET executable not found for local API auto-start: ${dotnet_bin}")
+      fi
+      ;;
+  esac
+
+  if (( ${#precheck_failures[@]} > 0 )); then
+    printf 'Final P5 precheck failed:\n' >&2
+    printf '  - %s\n' "${precheck_failures[@]}" >&2
+    exit 2
+  fi
+
   cat <<EOF
 Final P5 precheck passed.
   source repo: ${repo_root}
   ref: ${ref}
   fetch origin/main: ${fetch_ref}
+  server: ${server}
+  Godot executable: ${godot_bin}
+  .NET executable: ${dotnet_bin}
   evidence dir: ${screenshot_dir}
   evidence package: ${evidence_package}
   player A handle: ${handle_a}

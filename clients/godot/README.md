@@ -247,9 +247,11 @@ clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck
 ```
 
 Run the precheck first while both operators are preparing. It validates the
-final P5 gate settings and fetches `origin/main` without creating a worktree,
-opening Godot windows, or writing evidence. After it prints
-`Final P5 precheck passed`, run the real collection command:
+final P5 gate settings, fetches `origin/main`, and checks the configured
+`RIFTBOUND_GODOT_BIN` plus the local auto-start `RIFTBOUND_DOTNET_BIN` when
+using the default local API. It does this without creating a worktree, opening
+Godot windows, or writing evidence. After it prints `Final P5 precheck passed`,
+run the real collection command:
 
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
