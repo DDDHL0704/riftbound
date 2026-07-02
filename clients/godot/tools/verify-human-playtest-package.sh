@@ -48,6 +48,16 @@ checksum_required_files=(
   "player-b-result.png"
   "playtest-report.md"
 )
+allowed_files=(
+  "README.md"
+  "SHA256SUMS"
+  "api.log"
+  "player-a.log"
+  "player-b.log"
+  "player-a-result.png"
+  "player-b-result.png"
+  "playtest-report.md"
+)
 
 staging_dir="$(mktemp -d)"
 cleanup() {
@@ -71,6 +81,21 @@ for file in "${required_files[@]}"; do
     failures+=("missing ${file}")
   fi
 done
+
+while IFS= read -r file; do
+  relative_file="${file#${bundle_dir}/}"
+  allowed=0
+  for allowed_file in "${allowed_files[@]}"; do
+    if [[ "${relative_file}" == "${allowed_file}" ]]; then
+      allowed=1
+      break
+    fi
+  done
+
+  if [[ "${allowed}" != "1" ]]; then
+    failures+=("unexpected file in evidence package: ${relative_file}")
+  fi
+done < <(find "${bundle_dir}" -type f -print)
 
 if (( ${#failures[@]} == 0 )); then
   if ! (cd "${bundle_dir}" && shasum -a 256 -c SHA256SUMS >/dev/null); then

@@ -31,6 +31,7 @@ write_evidence_bundle() {
   local manual_confirmation_mode="${3:-1}"
   local duplicate_screenshots="${4:-0}"
   local duplicate_logs="${5:-0}"
+  local extra_file="${6:-0}"
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -89,6 +90,10 @@ EOF
 - [x] Player A sees opponent hand/hidden cards only as card backs and counts.
 - [x] Player B sees opponent hand/hidden cards only as card backs and counts.
 EOF
+
+  if [[ "${extra_file}" == "1" ]]; then
+    printf 'unexpected package payload\n' >"${bundle_dir}/secret.txt"
+  fi
 }
 
 make_package() {
@@ -185,8 +190,28 @@ if ! rg -q "player A and player B logs are identical|logs.*identical|identical.*
   fail "verifier did not explain the duplicate player logs"
 fi
 
+extra_file_bundle="${tmp_dir}/extra-file/riftbound-human-playtest-evidence"
+write_evidence_bundle "${extra_file_bundle}" "${revision}" "1" "0" "0" "1"
+(
+  cd "${extra_file_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+extra_file_package="${tmp_dir}/extra-file.tar.gz"
+make_package "${extra_file_bundle}" "${extra_file_package}"
+
+extra_file_output="${tmp_dir}/extra-file-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${extra_file_package}" >"${extra_file_output}" 2>&1; then
+  fail "verifier accepted package with an unexpected extra file"
+fi
+
+if ! rg -q "unexpected file|extra file|secret\\.txt" "${extra_file_output}"; then
+  echo "Expected unexpected-file rejection output:" >&2
+  cat "${extra_file_output}" >&2
+  fail "verifier did not explain the unexpected package file"
+fi
+
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"
-write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0" "0"
+write_evidence_bundle "${covered_bundle}" "${revision}" "1" "0" "0" "0"
 (
   cd "${covered_bundle}"
   shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
