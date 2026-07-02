@@ -2,13 +2,14 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield winning-score static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield score-delay static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
 These slices move implemented battlefield static abilities away from engine card-number branching:
 
 - `OGN·276/298` / `OGN·276a/298` official text: `赢得游戏所需的分数+1。`
+- `SFD·209/221` official text: `每名玩家在各自的第三回合开始前，无法从此处获得分数。`
 - `OGN·295/298` official text: `单位无法从此处移动到基地。`
 - `SFD·216/221` official text: `单位无法被打出到此处。`
 - `SFD·211/221` official text: `如果此战场受你控制，则友方{{回响}}的费用减少{{1}}。`
@@ -20,6 +21,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `SFD·208/221` official text: `如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”`
 - `RuleTextParser` now parses those texts as `StaticAbilitySpec` with:
   - `Kind = BATTLEFIELD_WINNING_SCORE_INCREASE`, `Amount = 1`
+  - `Kind = BATTLEFIELD_SCORE_DELAY_UNTIL_TURN`, `Amount = 3`
   - `Kind = BATTLEFIELD_PREVENT_MOVE_TO_BASE`
   - `Kind = BATTLEFIELD_PREVENT_UNIT_PLAY`
   - `Kind = BATTLEFIELD_ECHO_COST_REDUCTION`, `Amount = 1`
@@ -65,6 +67,18 @@ This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinni
 Validation: red/green focused guard `BattlefieldWinningScoreStaticAbilityUsesGenericSpecPredicate` 1/1; focused winning-score parser / P79 runtime / GameHub seed / official-deck route 8/8; adjacent `BattlefieldStatic|WinningScore|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2550/2550; backend full conformance 9120/9120.
 
 Non-closure: this slice only closes the winning-score static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete battlefield lifecycle, complete score-delay physical `此处` scoping, P0, and READY remain open.
+
+## 2026-07-02 Supplement: Battlefield Score-Delay Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(...)` and routes Forgotten Monument-style score-prevention through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_SCORE_DELAY_UNTIL_TURN` plus positive `Amount`. `CoreRuleEngine.HasDedicatedBattlefieldScoreRuleSpec`, `CoreRuleEngine.TryBuildBattlefieldScorePreventedEvent`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility, out ability)`.
+
+Existing `SFD·209/221` official behavior, `BATTLEFIELD_SCORE_PREVENTED` payloads, `releasedTurnOrdinal = 3`, score-victory replay, and hidden-info recovery coverage remain compatible.
+
+Validation: red/green focused guard `BattlefieldScoreDelayStaticAbilityUsesGenericSpecPredicate` 1/1; focused score-delay parser / P79 runtime / GameHub seed / official-deck route 8/8; adjacent `ScoreDelay|ScorePrevented|BattlefieldStatic|FirstTurnScore|BattlefieldHeldScore|BattleResponse|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2617/2617; backend full conformance 9121/9121.
+
+Non-closure: this slice only closes the score-delay static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete physical `此处` score-prevention scoping, complete battlefield lifecycle, P0, and READY remain open.
 
 ## Non-Closure
 

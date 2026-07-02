@@ -17920,7 +17920,10 @@ internal static class ActionPromptBuilder
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)

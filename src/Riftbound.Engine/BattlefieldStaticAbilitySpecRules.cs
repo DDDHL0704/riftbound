@@ -18,6 +18,15 @@ internal static class BattlefieldStaticAbilitySpecRules
             && ability.Amount > 0;
     }
 
+    public static bool IsBattlefieldScoreDelayUntilTurnAbility(StaticAbilitySpec ability)
+    {
+        return string.Equals(
+                ability.Kind,
+                StaticAbilityKinds.BattlefieldScoreDelayUntilTurn,
+                StringComparison.Ordinal)
+            && ability.Amount > 0;
+    }
+
     public static bool TryGetBattlefieldPreventMoveToBaseAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(
@@ -77,14 +86,6 @@ internal static class BattlefieldStaticAbilitySpecRules
     public static bool TryGetBattlefieldStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(cardNo, kind, out ability);
-    }
-
-    public static bool TryGetBattlefieldScoreDelayUntilTurnAbility(string? cardNo, out StaticAbilitySpec ability)
-    {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.BattlefieldScoreDelayUntilTurn,
-            out ability);
     }
 
     public static bool TryGetBattlefieldExtraStandbyDestinationAbility(string? cardNo, out StaticAbilitySpec ability)

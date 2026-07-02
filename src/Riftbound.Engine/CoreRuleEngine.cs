@@ -26587,7 +26587,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardNo, MoveUnitRoamKeyword)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
@@ -46944,8 +46947,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldTriggerSpecRules.IsBattlefieldFirstTurnScoreTrigger,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out var ability)
-            && IsBattlefieldScoreDelayAbilitySpec(ability);
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
+                out _);
     }
 
     private static bool TryApplyBattlefieldScore(
@@ -47049,13 +47054,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceEntries = GlobalBattlefieldCardSourceObjectIds(
                 state,
-                cardNo => BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out var ability)
-                    && IsBattlefieldScoreDelayAbilitySpec(ability))
+                cardNo => BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                    cardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
+                    out _))
             .Select(objectId =>
             {
                 var releasedTurnOrdinal = state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardObject.CardNo, out var ability)
-                    && IsBattlefieldScoreDelayAbilitySpec(ability)
+                    && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                        cardObject.CardNo,
+                        BattlefieldStaticAbilitySpecRules.IsBattlefieldScoreDelayUntilTurnAbility,
+                        out var ability)
                         ? ability.Amount
                         : 0;
                 return (SourceObjectId: objectId, ReleasedTurnOrdinal: releasedTurnOrdinal);
@@ -47086,11 +47095,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["releasedTurnOrdinal"] = releasedTurnOrdinal
             });
         return true;
-    }
-
-    private static bool IsBattlefieldScoreDelayAbilitySpec(StaticAbilitySpec ability)
-    {
-        return ability.Amount > 0;
     }
 
     private static bool BattlefieldScoredThisTurn(IReadOnlyList<string> untilEndOfTurnEffects, string battlefieldObjectId)
