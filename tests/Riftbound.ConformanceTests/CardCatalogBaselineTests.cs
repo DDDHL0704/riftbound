@@ -566,8 +566,16 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("LeblancEphemeralStaticSourceEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("LEBLANC_PLAY_KEYWORD_UNIT", source, StringComparison.Ordinal);
         Assert.DoesNotContain("LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT", source, StringComparison.Ordinal);
-        Assert.Contains(
+        Assert.DoesNotContain(
             "CardStaticAbilitySpecRules.TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility",
+            source,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "CardStaticAbilitySpecRules.TryGetStaticAbility",
+            source,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "CardStaticAbilitySpecRules.IsSameBattlefieldEphemeralTurnStartSuppressionAbility",
             source,
             StringComparison.Ordinal);
     }
@@ -4026,7 +4034,41 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("OgnFioraCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ApplyOgnFioraPowerfulKeywordTags", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardStaticAbilitySpecRules.TryGetStaticAbility", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CardStaticAbilityRoutingUsesGenericSpecPredicates()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var cardStaticAbilityRulesPath = Path.Combine(engineRoot, "CardStaticAbilitySpecRules.cs");
+        var cardStaticAbilityRulesSource = File.ReadAllText(cardStaticAbilityRulesPath);
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
+
+        Assert.DoesNotContain("public static bool TryGetUnitCannotBecomeActiveAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetUnitPowerfulSelfKeywordsAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetSourceUnitEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetOtherFriendlyUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetFriendlyUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetFriendlyFilteredUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetStaticAbility(string? cardNo, string kind", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetUnit", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetSourceUnit", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetOtherFriendly", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetFriendly", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetSameBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetStaticAbility(", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("Func<StaticAbilitySpec, bool> predicate", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitCannotBecomeActiveAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitPowerfulSelfKeywordsAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsSourceUnitEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsOtherFriendlyUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsFriendlyUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsFriendlyFilteredUnitsEnterReadyAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsSameBattlefieldEphemeralTurnStartSuppressionAbility", cardStaticAbilityRulesSource, StringComparison.Ordinal);
     }
 
     [Fact]

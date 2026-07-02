@@ -10,80 +10,52 @@ internal static class CardStaticAbilitySpecRules
 
     public static bool CardCannotBecomeActive(string? cardNo)
     {
-        return TryGetUnitCannotBecomeActiveAbility(cardNo, out _);
+        return TryGetStaticAbility(cardNo, IsUnitCannotBecomeActiveAbility, out _);
     }
 
-    public static bool TryGetUnitCannotBecomeActiveAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsUnitCannotBecomeActiveAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.UnitCannotBecomeActive,
-            out ability);
+        return string.Equals(ability.Kind, StaticAbilityKinds.UnitCannotBecomeActive, StringComparison.Ordinal);
     }
 
-    public static bool TryGetUnitPowerfulSelfKeywordsAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsUnitPowerfulSelfKeywordsAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-                cardNo,
-                StaticAbilityKinds.UnitPowerfulSelfKeywords,
-                out ability)
+        return string.Equals(ability.Kind, StaticAbilityKinds.UnitPowerfulSelfKeywords, StringComparison.Ordinal)
             && ability.RequiredPowerThreshold is > 0
             && ability.GrantedKeywords is { Count: > 0 };
     }
 
-    public static bool TryGetSourceUnitEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsSourceUnitEnterReadyAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.SourceUnitEnterReady,
-            out ability);
+        return string.Equals(ability.Kind, StaticAbilityKinds.SourceUnitEnterReady, StringComparison.Ordinal);
     }
 
-    public static bool TryGetOtherFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsOtherFriendlyUnitsEnterReadyAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.OtherFriendlyUnitsEnterReady,
-            out ability);
+        return string.Equals(ability.Kind, StaticAbilityKinds.OtherFriendlyUnitsEnterReady, StringComparison.Ordinal);
     }
 
-    public static bool TryGetFriendlyUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsFriendlyUnitsEnterReadyAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.FriendlyUnitsEnterReady,
-            out ability);
+        return string.Equals(ability.Kind, StaticAbilityKinds.FriendlyUnitsEnterReady, StringComparison.Ordinal);
     }
 
-    public static bool TryGetFriendlyFilteredUnitsEnterReadyAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsFriendlyFilteredUnitsEnterReadyAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.FriendlyFilteredUnitsEnterReady,
-            out ability)
+        return string.Equals(ability.Kind, StaticAbilityKinds.FriendlyFilteredUnitsEnterReady, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(ability.TargetFilter);
     }
 
-    public static bool TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility(
-        string? cardNo,
-        out StaticAbilitySpec ability)
+    public static bool IsSameBattlefieldEphemeralTurnStartSuppressionAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-                cardNo,
+        return string.Equals(
+                ability.Kind,
                 StaticAbilityKinds.SameBattlefieldEphemeralTurnStartSuppression,
-                out ability)
+                StringComparison.Ordinal)
             && string.Equals(
                 ability.TargetFilter,
                 StaticAuraTargetFilters.TagPrefix + CardObjectTags.Ephemeral,
                 StringComparison.Ordinal);
-    }
-
-    public static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
-    {
-        return TryGetStaticAbility(
-            cardNo,
-            candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal),
-            out ability);
     }
 
     public static bool TryGetStaticAbility(

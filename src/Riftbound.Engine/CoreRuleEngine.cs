@@ -22219,7 +22219,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool SuppressesSameBattlefieldEphemeralTurnStart(string? cardNo)
     {
-        return CardStaticAbilitySpecRules.TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility(cardNo, out _);
+        return CardStaticAbilitySpecRules.TryGetStaticAbility(
+            cardNo,
+            CardStaticAbilitySpecRules.IsSameBattlefieldEphemeralTurnStartSuppressionAbility,
+            out _);
     }
 
     private static void AddBattlefieldHeldEventIfNeeded(
@@ -41526,7 +41529,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         out StaticAbilitySpec ability)
     {
         if (enteringIsUnit
-            && CardStaticAbilitySpecRules.TryGetFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability)
+            && CardStaticAbilitySpecRules.TryGetStaticAbility(
+                sourceCardNo,
+                CardStaticAbilitySpecRules.IsFriendlyUnitsEnterReadyAbility,
+                out ability)
             && StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
         {
             return true;
@@ -41534,13 +41540,19 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (enteringIsUnit
             && sourceIsUnit
-            && CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility(sourceCardNo, out ability))
+            && CardStaticAbilitySpecRules.TryGetStaticAbility(
+                sourceCardNo,
+                CardStaticAbilitySpecRules.IsOtherFriendlyUnitsEnterReadyAbility,
+                out ability))
         {
             return true;
         }
 
         if (sourceIsUnit
-            && CardStaticAbilitySpecRules.TryGetFriendlyFilteredUnitsEnterReadyAbility(sourceCardNo, out ability)
+            && CardStaticAbilitySpecRules.TryGetStaticAbility(
+                sourceCardNo,
+                CardStaticAbilitySpecRules.IsFriendlyFilteredUnitsEnterReadyAbility,
+                out ability)
             && StaticAbilityTargetMatchesFilter(ability.TargetFilter, enteringCardNo))
         {
             return true;
@@ -41579,7 +41591,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         ability = default!;
         if (CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
-            || !CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility(behavior.CardNo, out var candidateAbility)
+            || !CardStaticAbilitySpecRules.TryGetStaticAbility(
+                behavior.CardNo,
+                CardStaticAbilitySpecRules.IsSourceUnitEnterReadyAbility,
+                out var candidateAbility)
             || !SourceUnitEnterReadyRequirementsSatisfied(
                 candidateAbility,
                 playerZones,
@@ -42611,7 +42626,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static CardObjectState ApplyPowerThresholdSelfKeywordStaticAbilities(CardObjectState state)
     {
-        if (!CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility(state.CardNo, out var ability)
+        if (!CardStaticAbilitySpecRules.TryGetStaticAbility(
+                state.CardNo,
+                CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility,
+                out var ability)
             || state.Power < ability.RequiredPowerThreshold.GetValueOrDefault())
         {
             return state;

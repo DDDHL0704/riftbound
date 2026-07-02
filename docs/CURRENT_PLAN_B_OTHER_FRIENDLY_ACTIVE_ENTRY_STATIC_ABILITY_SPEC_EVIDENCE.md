@@ -1,6 +1,6 @@
 # Plan B Active-Entry Static Ability Spec Evidence
 
-更新时间：2026-06-29
+更新时间：2026-07-02
 
 ## Evidence Summary
 
@@ -9,10 +9,11 @@ Other-friendly unit active-entry BehaviorSpec / catalog:
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` adds `StaticAbilityKinds.OtherFriendlyUnitsEnterReady`.
 - `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses `当我在场上时，其他友方单位以活跃状态进场。` into a `StaticAbilitySpec`.
 - `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies `OGN·011/298` 熔浆巨龙 exposes `OTHER_FRIENDLY_UNITS_ENTER_READY` through `BehaviorSpec.StaticAbilities`.
+- `CardCatalogBaselineTests.CardStaticAbilityRoutingUsesGenericSpecPredicates` verifies active-entry static ability routing uses the generic `TryGetStaticAbility(cardNo, predicate, out ability)` surface instead of public per-kind getters.
 
 Other-friendly unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetOtherFriendlyUnitsEnterReadyAbility`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsOtherFriendlyUnitsEnterReadyAbility` for generic `TryGetStaticAbility(...)` lookup.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` enumerates public field objects and applies the static ability only when the source is a face-up, non-standby friendly unit controlled by the entering unit's controller.
 - The entering object id is excluded, so a source does not make itself enter ready through its own "other friendly" static text.
 - The active-entry check is shared by `PlaySourceUnitToBase` and `PlaySourceUnitToBattlefield`, so future cards with this parsed shape do not require engine card-number branches.
@@ -29,7 +30,7 @@ Filtered token active-entry BehaviorSpec / catalog:
 Filtered token active-entry runtime:
 
 - `src/Riftbound.Engine/P6TokenFactoryCatalog.cs` exposes `IsTokenFactory`, covering unit / equipment / battlefield token factory identities without local card-number checks.
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetFriendlyFilteredUnitsEnterReadyAbility`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsFriendlyFilteredUnitsEnterReadyAbility` for generic `TryGetStaticAbility(...)` lookup.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes `OTHER_FRIENDLY_UNITS_ENTER_READY` and `FRIENDLY_FILTERED_UNITS_ENTER_READY` through the same public-source scan, while keeping `OTHER_FRIENDLY_UNITS_ENTER_READY` unit-only.
 - `ApplyTokenEntryStaticAbility` applies the entry source scan to token factory unit and equipment entries and emits shared `entryStaticAbility*` audit metadata.
 - `tests/Riftbound.ConformanceTests/RenataTokenActiveEntryStaticAbilityTests.cs` proves public face-up Renata marks an Azir-created `SFD·T02` 黄沙士兵 token entry with `FRIENDLY_FILTERED_UNITS_ENTER_READY`, while face-down / standby Renata does not.
@@ -47,7 +48,7 @@ Level-gated friendly unit active-entry BehaviorSpec / catalog:
 
 Level-gated friendly unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetFriendlyUnitsEnterReadyAbility`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsFriendlyUnitsEnterReadyAbility` for generic `TryGetStaticAbility(...)` lookup.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes played unit entry through `StaticAbilitySpec.Kind=FRIENDLY_UNITS_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller.
 - `CoreRuleEngine` now scans controlled public legend-zone sources for this generic friendly-unit active-entry static ability, so Master Yi level 11 no longer needs `ControllerHasMasterYiLevelLegend`, `MasterYiLevelReadyThreshold`, or an `entersActiveFromMasterYiLevel` branch.
 - `tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs` proves Master Yi level 11 makes an unpaid-haste `OGN·010/298` 军团后卫 enter ready at 11 experience and emits `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` with legend source object/card metadata.
@@ -63,7 +64,7 @@ Low-hand source-unit active-entry BehaviorSpec / catalog:
 
 Low-hand source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsSourceUnitEnterReadyAbility` for generic `TryGetStaticAbility(...)` lookup.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `MaxControllerHandCount` against the controller's hand count after the played card has left hand.
 - `tests/Riftbound.ConformanceTests/DunehornLowHandActiveEntryStaticAbilityTests.cs` proves Dunehorn Beast enters ready when the controller has two cards in hand after play and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves three cards in hand after play does not satisfy the parsed requirement and leaves the pre-exhausted source unit exhausted with no entry-static metadata.
@@ -79,7 +80,7 @@ Controlled-tag source-unit active-entry BehaviorSpec / catalog:
 
 Controlled-tag source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks the entering unit controller's public field objects for another controlled, face-up, non-standby unit with the parsed official tag.
 - `tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs` proves Fiercewing enters ready when its controller controls another public `龙` unit and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves no other public controlled tagged unit leaves Fiercewing exhausted: no other unit, a friendly face-down standby Dragon, and an opponent-controlled face-up Dragon do not satisfy the parsed requirement and emit no entry-static metadata.
@@ -149,7 +150,7 @@ Unconditional source-unit active-entry BehaviorSpec / catalog:
 
 Unconditional source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` now exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs even when `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, and `RequiredOpponentControlledBattlefieldCount` are all null.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` now exposes `IsSourceUnitEnterReadyAbility` for source-unit active-entry specs even when `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, and `RequiredOpponentControlledBattlefieldCount` are all null.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` already treated missing source-unit requirements as satisfied, so unconditional specs reuse the same source-unit entry path and event metadata as the conditional forms.
 - `tests/Riftbound.ConformanceTests/UnconditionalSourceUnitActiveEntryStaticAbilityTests.cs` proves pre-exhausted Aggressive Dragonhound enters ready from its parsed unconditional `SOURCE_UNIT_ENTER_READY` spec and emits self source object/card metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` proves a legal official Rumble deck opening can feed `SFD·006/221` Aggressive Dragonhound unconditional active-entry into B0 score victory: the focused midgame pre-exhausts the source object in hand, playing it directly to a P1 battlefield resolves `SOURCE_UNIT_ENTER_READY`, emits self source metadata, enters active with printed 3 power, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
@@ -162,7 +163,7 @@ Level-gated source-unit active-entry BehaviorSpec / catalog:
 
 Level-gated source-unit active-entry runtime:
 
-- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `TryGetSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry source-unit requirement fields such as `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
+- `src/Riftbound.Engine/CardStaticAbilitySpecRules.cs` exposes `IsSourceUnitEnterReadyAbility` for source-unit active-entry specs that carry source-unit requirement fields such as `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` routes source-unit play entry through `StaticAbilitySpec.Kind=SOURCE_UNIT_ENTER_READY` and checks `RequiredPlayerExperience` against the entering unit controller before deciding whether the source unit enters ready.
 - `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` proves Flameclaw enters ready at 3 experience and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves 2 experience does not satisfy the parsed requirement and leaves Flameclaw exhausted with no entry-static metadata.
@@ -202,6 +203,9 @@ Level-gated source-unit active-entry runtime:
 - Bandle Soldier level-gated source-unit active-entry focused: 6/6 passed.
 - Bandle Soldier level-gated source-unit active-entry + B0 official-deck replay focused: 7/7 passed.
 - Bandle Soldier active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2456/2456 passed.
+- 2026-07-02 CardStaticAbilitySpecRules selector-surface cleanup focused red/green guard `CardStaticAbilityRoutingUsesGenericSpecPredicates`: red 1/1 failing before implementation, then green as part of focused selector gate 3/3 passing.
+- 2026-07-02 selector-surface cleanup adjacent / hidden-info gate `ActiveEntry|LeBlanc|Ephemeral|UnitPowerfulSelfKeyword|CardCatalogBaselineTests|MatchRecovery|FullGameEndToEnd`: 2586/2586 passing.
+- 2026-07-02 selector-surface cleanup backend full conformance: 9143/9143 passing.
 - Controlled-tag source-unit active-entry pre-implementation red: `ControlledTaggedSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOtherControlledUnitTag` did not exist.
 - Controlled-tag source-unit active-entry + Fiercewing B0 official-deck replay focused: 7/7 passed.
 - Fiercewing controlled-tag active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2427/2427 passed.

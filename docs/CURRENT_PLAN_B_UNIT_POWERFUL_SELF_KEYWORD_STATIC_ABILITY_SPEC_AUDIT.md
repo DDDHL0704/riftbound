@@ -39,7 +39,7 @@ Not changed:
 | Requirement | Evidence | Verdict |
 |---|---|---|
 | OGN Fiora static text is represented as data | `RuleTextParser` emits `StaticAbilityKinds.UnitPowerfulSelfKeywords` with `RequiredPowerThreshold=5` and `GrantedKeywords=[法盾, 游走, 坚守]` | Accepted |
-| Runtime reads static ability shape from shared spec rules | `CoreRuleEngine` now calls `CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility(...)` after boon / temporary power changes | Accepted |
+| Runtime reads static ability shape from shared spec rules | `CoreRuleEngine` now calls `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsUnitPowerfulSelfKeywordsAbility, ...)` after boon / temporary power changes | Accepted |
 | Core no longer owns the OGN Fiora card-number branch | `OgnFioraCardNo` and `ApplyOgnFioraPowerfulKeywordTags` were removed from `CoreRuleEngine`; the guard test blocks reintroduction | Accepted |
 | Existing representative behavior remains intact | Existing `CoreRuleEngineGrantsOgnFioraKeywordsWhenBoonMakesPowerful` still passes through the same boon-to-powerful path | Accepted |
 | Frontend shared catalog type stays aligned | `src/Riftbound.DevUi/src/types/catalog.ts` now mirrors optional static ability `amount`, `requiredPowerThreshold`, and `grantedKeywords` payload fields | Accepted |

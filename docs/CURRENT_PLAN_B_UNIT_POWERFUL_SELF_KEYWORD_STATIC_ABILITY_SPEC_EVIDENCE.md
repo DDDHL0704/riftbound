@@ -19,7 +19,7 @@ These entries are sourced from `data/official/card-catalog.zh-CN.json` and the e
   - `RequiredPowerThreshold=5`
   - `GrantedKeywords=[法盾, 游走, 坚守]`
 - `StaticAbilitySpec` now carries optional `RequiredPowerThreshold` and `GrantedKeywords`, and DevUi catalog typing mirrors those fields for shared catalog payload compatibility.
-- `CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility(...)` builds on the existing BehaviorSpec-backed static ability map and validates a positive threshold plus at least one granted keyword.
+- `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsUnitPowerfulSelfKeywordsAbility, ...)` builds on the existing BehaviorSpec-backed static ability map and validates a positive threshold plus at least one granted keyword.
 - `CoreRuleEngine.ApplyPowerThresholdSelfKeywordStaticAbilities(...)` queries `CardStaticAbilitySpecRules` after successful power-changing representative paths and applies the spec-defined keyword set once the current power reaches the threshold.
 - `CoreRuleEngine` no longer defines `OgnFioraCardNo` or the old `ApplyOgnFioraPowerfulKeywordTags` helper.
 
@@ -32,7 +32,7 @@ Focused test file:
 Coverage:
 
 - `BehaviorSpecCatalogParsesUnitPowerfulSelfKeywordStaticAbility` proves the official OGN Fiora entry produces the expected static ability row, threshold, granted keywords, text fragments and implemented catalog status.
-- `UnitPowerfulSelfKeywordStaticDoesNotUseCoreCardNumberBranch` blocks reintroducing the old OGN Fiora card-number branch and requires the new `CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility` call.
+- `UnitPowerfulSelfKeywordStaticDoesNotUseCoreCardNumberBranch` blocks reintroducing the old OGN Fiora card-number branch and requires the generic `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsUnitPowerfulSelfKeywordsAbility, ...)` route.
 - Existing `CoreRuleEngineGrantsOgnFioraKeywordsWhenBoonMakesPowerful` proves the representative boon-to-powerful runtime behavior still grants `法盾`, `游走`, and `坚守`.
 
 ## 4. Verification

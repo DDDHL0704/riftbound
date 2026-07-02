@@ -1,16 +1,22 @@
 # Plan B Active-Entry Static Ability Spec Audit
 
-更新时间：2026-06-29
+更新时间：2026-07-02
 
 ## Scope
 
 This audit tracks Plan B active-entry static ability slices that move card text from deferred card rows into shared BehaviorSpec-driven entry lifecycles.
 
+2026-07-02 selector-surface cleanup:
+
+- `CardStaticAbilitySpecRules` no longer exposes public per-kind selectors such as `TryGetSourceUnitEnterReadyAbility`, `TryGetFriendlyUnitsEnterReadyAbility`, or `TryGetOtherFriendlyUnitsEnterReadyAbility`.
+- Runtime active-entry lookup now uses `CardStaticAbilitySpecRules.TryGetStaticAbility(cardNo, predicate, out ability)` plus shared shape predicates such as `IsSourceUnitEnterReadyAbility`, `IsFriendlyUnitsEnterReadyAbility`, `IsOtherFriendlyUnitsEnterReadyAbility`, and `IsFriendlyFilteredUnitsEnterReadyAbility`.
+- Public event payloads and `StaticAbilitySpec.Kind` values remain unchanged.
+
 Implemented for `OGN·011/298` 熔浆巨龙:
 
 - `StaticAbilityKinds.OtherFriendlyUnitsEnterReady = OTHER_FRIENDLY_UNITS_ENTER_READY`.
 - `RuleTextParsers.StaticAbilityParser` parses `当我在场上时，其他友方单位以活跃状态进场。` into `BehaviorSpec.StaticAbilities`.
-- `CardStaticAbilitySpecRules.TryGetOtherFriendlyUnitsEnterReadyAbility` exposes the parsed spec to engine runtime.
+- `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsOtherFriendlyUnitsEnterReadyAbility, ...)` exposes the parsed spec to engine runtime.
 - `CoreRuleEngine` unit-entry resolution checks public, face-up, non-standby friendly field-unit sources with that static ability before deciding whether a played unit enters exhausted.
 - The source object is excluded from its own static ability, and face-down / standby sources do not grant active entry.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata when this static ability controls the entry state.
@@ -30,7 +36,7 @@ Implemented for `UNL-191/219` / `UNL-231/219` / `UNL-231*/219` 无极宗师:
 
 - `StaticAbilityKinds.FriendlyUnitsEnterReady = FRIENDLY_UNITS_ENTER_READY`.
 - `StaticAbilitySpec.RequiredPlayerExperience` can now carry level-gated active-entry requirements; Master Yi parses `{{等级11>}} 你的单位以活跃状态进场。` with `RequiredPlayerExperience=11`.
-- `CardStaticAbilitySpecRules.TryGetFriendlyUnitsEnterReadyAbility` exposes the parsed spec to engine runtime.
+- `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsFriendlyUnitsEnterReadyAbility, ...)` exposes the parsed spec to engine runtime.
 - `CoreRuleEngine` unit-entry resolution now checks this generic static ability and its controller experience requirement before deciding whether a played unit enters exhausted.
 - The active-entry source scan can use controlled public legend-zone sources for this generic friendly-unit entry ability, without a Master Yi card-number / legend-identity branch.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind`, `entryStaticAbilitySourceObjectId`, and source card metadata when this static ability controls the entry state.
@@ -39,7 +45,7 @@ Implemented for `SFD·027/221` 穿沙角兽:
 
 - `StaticAbilityKinds.SourceUnitEnterReady = SOURCE_UNIT_ENTER_READY`.
 - `StaticAbilitySpec.MaxControllerHandCount` can now carry source-unit active-entry hand-count requirements; Dunehorn Beast parses `如果你的手牌不超过两张，则我以活跃状态进场。` with `MaxControllerHandCount=2`.
-- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` exposes the parsed spec to engine runtime.
+- `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsSourceUnitEnterReadyAbility, ...)` exposes the parsed spec to engine runtime.
 - `CoreRuleEngine` source-unit entry resolution now checks this generic static ability against the controller's hand count after the played card has left hand.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this static ability controls the entry state.
 
@@ -48,7 +54,7 @@ Implemented for `UNL-016/219` 焰爪:
 - `StaticAbilityKinds.SourceUnitEnterReady = SOURCE_UNIT_ENTER_READY` is reused for level-gated source-unit active entry.
 - `StaticAbilitySpec.RequiredPlayerExperience` now applies to source-unit active-entry requirements as well as friendly-unit active-entry requirements.
 - `RuleTextParsers.StaticAbilityParser` parses `{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredPlayerExperience=3`.
-- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with either `MaxControllerHandCount` or `RequiredPlayerExperience`.
+- `CardStaticAbilitySpecRules.IsSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with either `MaxControllerHandCount` or `RequiredPlayerExperience` through the generic `TryGetStaticAbility` route.
 - `CoreRuleEngine` checks the parsed controller experience requirement before deciding whether the played source unit enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this level-gated source-unit static ability controls the entry state.
 
@@ -64,7 +70,7 @@ Implemented for `SFD·094/221` 凶翼 and the same controlled-tag source-unit fa
 - `StaticAbilitySpec.RequiredOtherControlledUnitTag` can now carry source-unit active-entry requirements that look for another controlled public unit with a matching official tag.
 - `RuleTextParsers.StaticAbilityParser` parses `如果你控制着其他“龙”属性单位，则我以活跃状态进场。` into `SOURCE_UNIT_ENTER_READY` with `RequiredOtherControlledUnitTag=龙`.
 - The same parser also covers `SFD·071/221` 疾驰机械 text `如果你控制着其他“机械”单位，则我以活跃状态进场。` with `RequiredOtherControlledUnitTag=机械`.
-- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount`.
+- `CardStaticAbilitySpecRules.IsSourceUnitEnterReadyAbility` accepts source-unit active-entry specs with `MaxControllerHandCount`, `RequiredPlayerExperience`, `RequiredOtherControlledUnitTag`, or `RequiredOpponentControlledBattlefieldCount` through the generic `TryGetStaticAbility` route.
 - `CoreRuleEngine` checks the entering unit controller's public field units, excludes the entering source object, and requires a face-up non-standby controlled unit carrying the parsed tag before the source unit enters ready.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this controlled-tag source-unit static ability controls the entry state.
 
@@ -104,7 +110,7 @@ Implemented for `UNL-194/219` 黑影:
 Implemented for unconditional source-unit active-entry text represented by `SFD·006/221` 好斗的龙犬 and `OGS·016/024` 先锋扈从:
 
 - `RuleTextParsers.StaticAbilityParser` parses exact `我以活跃状态进场。` segments into `SOURCE_UNIT_ENTER_READY` without requirement fields.
-- `CardStaticAbilitySpecRules.TryGetSourceUnitEnterReadyAbility` now accepts `SOURCE_UNIT_ENTER_READY` specs with no extra requirement fields, so the existing `CoreRuleEngine` source-unit entry path can treat the official text as an unconditional self entry modifier.
+- `CardStaticAbilitySpecRules.IsSourceUnitEnterReadyAbility` now accepts `SOURCE_UNIT_ENTER_READY` specs with no extra requirement fields through the generic `TryGetStaticAbility` route, so the existing `CoreRuleEngine` source-unit entry path can treat the official text as an unconditional self entry modifier.
 - Haste reminder text such as `{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）` is guarded against this parser route and remains on the Haste optional-cost path.
 - `UNIT_PLAYED_TO_BASE` / `UNIT_PLAYED_TO_BATTLEFIELD` payloads include `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object id, and source card metadata when this unconditional source-unit static ability controls the entry state.
 - `FullGameEndToEndTests.OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` proves a legal official Rumble deck route can carry `SFD·006/221` through the B0 score-victory action-log replay path with self source entry metadata.

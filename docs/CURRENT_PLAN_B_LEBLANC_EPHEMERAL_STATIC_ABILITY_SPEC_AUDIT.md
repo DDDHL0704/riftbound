@@ -22,7 +22,7 @@ The runtime behavior is unchanged: at the controlled player's turn start, visibl
 - `RuleTextParser` parses LeBlanc's official text into a `StaticAbilitySpec` with:
   - `Kind=SAME_BATTLEFIELD_EPHEMERAL_TURN_START_SUPPRESSION`
   - `TargetFilter=TAG:瞬息`
-- `CardStaticAbilitySpecRules.TryGetSameBattlefieldEphemeralTurnStartSuppressionAbility(...)` validates the catalog-backed static ability shape at runtime.
+- `CardStaticAbilitySpecRules.TryGetStaticAbility(..., IsSameBattlefieldEphemeralTurnStartSuppressionAbility, ...)` validates the catalog-backed static ability shape at runtime.
 - `CoreRuleEngine.IsEphemeralTurnStartSuppressedByLeblancStatic(...)` keeps the existing public-object, same-battlefield, face-up, non-standby, unit, and controller guards, but its source predicate now reads `BehaviorSpec.StaticAbilities`.
 - `CoreRuleEngine` no longer defines or references:
   - `LeblancEphemeralStaticSourceEffectKind`
