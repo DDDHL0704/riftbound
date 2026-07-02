@@ -373,6 +373,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.BoonCount.GetValueOrDefault() > 0;
     }
 
+    public static bool IsBattlefieldUnitReturnedPayCallRuneTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldUnitReturnedPayCallRune, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldUnitReturned, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ReturnedUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.ManaCost.GetValueOrDefault() > 0
+            && trigger.RuneCallCount.GetValueOrDefault() > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -418,14 +427,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldUnitReturnedPayCallRuneTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldUnitReturnedPayCallRune,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(string? cardNo, out TriggerSpec trigger)

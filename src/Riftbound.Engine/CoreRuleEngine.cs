@@ -22665,13 +22665,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battlefieldObjectId = string.Empty;
+        var triggerKind = string.Empty;
         var manaCost = 0;
         var runeCallCount = 0;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldUnitReturnedPayCallRuneTrigger(
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
                     candidate.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldUnitReturnedPayCallRuneTrigger,
                     out var trigger)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             {
@@ -22686,6 +22688,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             battlefieldObjectId = objectId;
+            triggerKind = trigger.Kind;
             manaCost = triggerManaCost;
             runeCallCount = triggerRuneCallCount;
             break;
@@ -22725,7 +22728,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune,
+                ["trigger"] = triggerKind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["returnedObjectId"] = returnedObjectId
             }));
@@ -22737,7 +22740,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["mana"] = manaCost,
                 ["power"] = 0,
-                ["reason"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune
+                ["reason"] = triggerKind
             }));
         var runeCallResult = CallRunes(
             playerZones,
@@ -22753,7 +22756,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                 ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                ["reason"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune,
+                ["reason"] = triggerKind,
                 ["returnedObjectId"] = returnedObjectId
             }));
         return true;

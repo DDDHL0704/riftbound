@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Unit-Returned Call-Rune Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-214/219` Ghost Bay / 鬼影湾 official text for paying 1 when a unit at that battlefield returns to a player's hand to call one exhausted rune.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldUnitReturnedPayCallRuneTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldUnitReturnedPayCallRuneTrigger, out trigger)`.
+- `IsBattlefieldUnitReturnedPayCallRuneTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE`, `Timing=BATTLEFIELD_UNIT_RETURNED`, `TargetScope=RETURNED_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, and positive `RuneCallCount`.
+- `CoreRuleEngine.TryResolveBattlefieldUnitReturnedCallRuneTrigger` uses that generic predicate route and keeps existing returned-unit trigger entry points, controlled battlefield-source guard, mana availability/payment, rune-deck availability, `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, `RUNES_CALLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing unit-returned call-rune paths continue to pay the parsed mana cost only when the player can afford it, call the parsed number of runes only when the rune deck is non-empty, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Ghost Bay official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldUnitReturnedCallRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Ghost Bay route 6/6; adjacent `BattlefieldUnitReturnedCallRune|BattlefieldReturnCallRune|GhostBay|BattlefieldReturnedUnit|BattlefieldTriggerSpec|CallRune|GameHub|FullGameEndToEnd|MatchRecovery` 2370/2370; backend full conformance 9118/9118.
+
 ## 2026-07-02 Unit-Play Boon Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-218/219` Idol Valley / 偶像谷 official text for paying 1 when a player plays a unit there to give that unit Boon.
