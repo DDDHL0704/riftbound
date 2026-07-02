@@ -49,10 +49,11 @@ verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
 build_godot="${RIFTBOUND_BUILD_GODOT:-1}"
 wait_for_windows="${RIFTBOUND_WAIT:-1}"
 quit_after="${RIFTBOUND_QUIT_AFTER:-}"
+extra_godot_args="${RIFTBOUND_EXTRA_GODOT_ARGS:-}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 created_worktree=0
 
-if [[ "${RIFTBOUND_EXTRA_GODOT_ARGS:-}" == *"--riftbound-smoke-auto-"* ]]; then
+if [[ "${extra_godot_args}" == *"--riftbound-smoke-auto-"* ]]; then
   cat >&2 <<'EOF'
 Refusing final clean-main human playtest with automated smoke Godot arguments.
 Use clients/godot/tools/run-local-simulated-playtest-stack.sh for automated
@@ -86,6 +87,9 @@ fi
 if [[ -n "${quit_after}" ]]; then
   disabled_final_gates+=("RIFTBOUND_QUIT_AFTER=${quit_after}")
 fi
+if [[ -n "${extra_godot_args}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_EXTRA_GODOT_ARGS=${extra_godot_args}")
+fi
 if [[ "${fetch_ref}" != "1" ]]; then
   disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_FETCH=${fetch_ref}")
 fi
@@ -111,9 +115,10 @@ Refusing final clean-main human playtest with disabled final P5 evidence gates:
 Final P5 evidence requires a fetched origin/main clean worktree, manual
 confirmations, a clean-git report marker, evidence checking, evidence packaging,
 package verification, a fresh Godot build, waiting for both Godot windows to
-exit, and no automatic Godot quit timer. The evidence directory must be new or
-empty, the evidence package path must not already exist, and the playtest report
-must be generated inside the new evidence directory. Set
+exit, no automatic Godot quit timer, and no extra client arguments. The evidence
+directory must be new or empty, the evidence package path must not already
+exist, and the playtest report must be generated inside the new evidence
+directory. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -173,6 +178,7 @@ Started clean-main Riftbound Godot human playtest stack.
   build Godot: ${build_godot}
   wait for windows: ${wait_for_windows}
   quit after: ${quit_after:-<unset>}
+  extra Godot args: ${extra_godot_args:-<unset>}
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.

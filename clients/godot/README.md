@@ -370,14 +370,15 @@ For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper
 refuses automated smoke arguments, disabled manual/clean-git/evidence/package/
 build/wait gates, non-`origin/main` clean worktrees, and any
-`RIFTBOUND_QUIT_AFTER` value. It also refuses a non-empty
-`RIFTBOUND_SCREENSHOT_DIR`, so stale logs or screenshots cannot be mixed into
-the final package, and it refuses an existing `RIFTBOUND_EVIDENCE_PACKAGE` path
-so a previous tarball is never overwritten. It also refuses custom
-`RIFTBOUND_PLAYTEST_REPORT` paths; the report must be generated inside the new
-evidence directory. Final evidence needs two human operators to close the Godot
-windows after reaching the server result panel; automatic quit timers are only
-for simulated diagnostics.
+`RIFTBOUND_QUIT_AFTER` value or `RIFTBOUND_EXTRA_GODOT_ARGS`. It also refuses a
+non-empty `RIFTBOUND_SCREENSHOT_DIR`, so stale logs or screenshots cannot be
+mixed into the final package, and it refuses an existing
+`RIFTBOUND_EVIDENCE_PACKAGE` path so a previous tarball is never overwritten. It
+also refuses custom `RIFTBOUND_PLAYTEST_REPORT` paths; the report must be
+generated inside the new evidence directory. Final evidence needs two human
+operators to close the Godot windows after reaching the server result panel;
+automatic quit timers and extra client arguments are only for simulated
+diagnostics.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:

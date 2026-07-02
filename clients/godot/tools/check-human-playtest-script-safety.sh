@@ -150,6 +150,7 @@ expect_final_gate_value_rejection "RIFTBOUND_EVIDENCE_PACKAGE" "${existing_evide
 
 external_playtest_report="${tmp_dir}/external-playtest-report.md"
 expect_final_gate_value_rejection "RIFTBOUND_PLAYTEST_REPORT" "${external_playtest_report}"
+expect_final_gate_value_rejection "RIFTBOUND_EXTRA_GODOT_ARGS" "--windowed"
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
@@ -157,11 +158,10 @@ PATH="${fake_bin}:${PATH}" \
   RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
   RIFTBOUND_CLEAN_WORKTREE_DIR="${safe_worktree}" \
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
-  RIFTBOUND_EXTRA_GODOT_ARGS="--windowed" \
   "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${safe_output}" 2>&1
 
 rg -q "wrapped human stack ran" "${safe_output}" \
-  || fail "clean-main human playtest did not continue for non-smoke extra args"
+  || fail "clean-main human playtest did not continue with final evidence gates enabled"
 
 rg -q "Final P5 operator checklist" "${safe_output}" \
   || fail "clean-main human playtest did not print the final P5 operator checklist"
