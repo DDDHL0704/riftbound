@@ -26293,18 +26293,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerOverkillCreateWarhawkTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || trigger.RequiredOverkillDamage is not > 0
-            || assignedOverkillDamageToEnemyUnits < trigger.RequiredOverkillDamage.Value
-            || trigger.CreatedTokenCount is not 1
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || trigger.CreatedTokenPower is not > 0
-            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal)
+            || assignedOverkillDamageToEnemyUnits < trigger.RequiredOverkillDamage.GetValueOrDefault()
             || !playerZones.TryGetValue(playerId, out var zones)
-            || !TryGetUnitTokenDefinition(trigger.CreatedTokenName, trigger.CreatedTokenPower.Value, out var tokenDefinition)
+            || !TryGetUnitTokenDefinition(
+                trigger.CreatedTokenName ?? string.Empty,
+                trigger.CreatedTokenPower.GetValueOrDefault(),
+                out var tokenDefinition)
             || !TokenDefinitionHasRequiredKeywords(tokenDefinition, trigger.CreatedTokenKeywords))
         {
             return false;
@@ -26340,7 +26338,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
                 ["tokenObjectId"] = tokenObjectId
@@ -26349,7 +26347,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             ["playerId"] = playerId,
             ["sourceObjectId"] = battlefieldObjectId,
-            ["abilityId"] = TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
+            ["abilityId"] = trigger.Kind,
             ["tokenObjectId"] = tokenObjectId,
             ["tokenCardNo"] = tokenDefinition.CardNo,
             ["tokenName"] = tokenDefinition.TokenFamilyName,

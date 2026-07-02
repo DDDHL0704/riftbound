@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Overkill Create-Warhawk Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-217/219` Hunting Grounds / 捕猎场 official text for creating a 1-power Warhawk with Spellshield when conquering that battlefield after assigning at least 3 overkill damage to enemy units.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerOverkillCreateWarhawkTrigger, out trigger)`.
+- `IsBattlefieldConquerOverkillCreateWarhawkTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK`, `Timing=BATTLEFIELD_CONQUERED`, positive `RequiredOverkillDamage`, `CreatedTokenCount=1`, non-empty `CreatedTokenName`, positive `CreatedTokenPower`, and `CreatedTokenDestination=BATTLEFIELD`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger` uses that generic predicate route and keeps existing overkill threshold gating, token-definition lookup by parsed name/power, required keyword validation, battlefield token placement, unit-entry static ability handling, `BATTLEFIELD_TRIGGER_RESOLVED`, `UNIT_TOKEN_CREATED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer overkill create-Warhawk paths continue to require at least the parsed overkill damage, create the `UNL·T02` Warhawk token with `法盾` at the conquered battlefield, expose the same GameHub seed result, and replay the Hunting Grounds official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerOverkillCreateWarhawkTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Hunting Grounds route 5/5; adjacent `Hunting|Overkill|Warhawk|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery` 2232/2232; backend full conformance 9113/9113.
+
 ## 2026-07-02 Defend Reveal-Spell-Or-Recycle Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·215/221` Ravenbloom Conservatory / 拉文布鲁姆学院 official text for revealing the top main-deck card when defending that battlefield, putting it into hand if it is a spell, or recycling it otherwise.

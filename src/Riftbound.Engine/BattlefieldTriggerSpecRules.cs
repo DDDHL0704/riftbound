@@ -328,6 +328,17 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.RevealMissDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldConquerOverkillCreateWarhawkTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerOverkillCreateWarhawk, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && trigger.RequiredOverkillDamage is > 0
+            && trigger.CreatedTokenCount is 1
+            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            && trigger.CreatedTokenPower is > 0
+            && string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -373,14 +384,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
