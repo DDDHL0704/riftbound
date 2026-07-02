@@ -15,11 +15,13 @@ Useful environment overrides:
   RIFTBOUND_CLEAN_WORKTREE_FETCH=0
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1
   RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz
+  RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=0
 
 The wrapped stack defaults to:
   RIFTBOUND_REQUIRE_CLEAN_GIT=1
   RIFTBOUND_CONFIRM_MANUAL=1
   RIFTBOUND_PACKAGE_EVIDENCE=1
+  RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=1
 EOF
 }
 
@@ -35,6 +37,9 @@ ref="${RIFTBOUND_CLEAN_WORKTREE_REF:-origin/main}"
 fetch_ref="${RIFTBOUND_CLEAN_WORKTREE_FETCH:-1}"
 keep_worktree="${RIFTBOUND_KEEP_CLEAN_WORKTREE:-0}"
 user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
+room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
+evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
+verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
 created_worktree=0
 
 if [[ "${fetch_ref}" != "0" ]]; then
@@ -71,13 +76,21 @@ Started clean-main Riftbound Godot human playtest stack.
   clean worktree: ${clean_worktree}
   ref: ${ref}
   keep worktree: ${keep_worktree}
+  evidence package: ${evidence_package}
+  verify evidence package: ${verify_evidence_package}
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.
 EOF
 
+export RIFTBOUND_ROOM="${room}"
+export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
 export RIFTBOUND_REQUIRE_CLEAN_GIT="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
 export RIFTBOUND_CONFIRM_MANUAL="${RIFTBOUND_CONFIRM_MANUAL:-1}"
 export RIFTBOUND_PACKAGE_EVIDENCE="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
 
 "${clean_worktree}/clients/godot/tools/run-local-human-playtest-stack.sh"
+
+if [[ "${RIFTBOUND_PACKAGE_EVIDENCE}" != "0" && "${verify_evidence_package}" != "0" ]]; then
+  "${clean_worktree}/clients/godot/tools/verify-human-playtest-package.sh" "${RIFTBOUND_EVIDENCE_PACKAGE}"
+fi

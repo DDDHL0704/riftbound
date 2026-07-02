@@ -209,21 +209,26 @@ clients/godot/tools/run-local-human-playtest-stack.sh
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
 worktree, prompts for the human-only confirmations, and packages the evidence
-immediately after both windows close:
+immediately after both windows close. It then verifies the final handoff package
+before returning success:
 
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh
 ```
 
 Set `RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz` to choose
-the output tarball path. The package is valid P5 evidence only when the prompts
-were answered by the two human operators after a real completed match.
-The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
-`RIFTBOUND_CONFIRM_MANUAL=1`, and `RIFTBOUND_PACKAGE_EVIDENCE=1`. It removes
-the temporary worktree after the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is
-set.
+the output tarball path. If unset, the wrapper writes
+`/tmp/riftbound-human-playtest-<room>.tar.gz`, where `<room>` is
+`RIFTBOUND_ROOM` or the generated local room id. The package is valid P5
+evidence only when the prompts were answered by the two human operators after a
+real completed match. The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
+`RIFTBOUND_CONFIRM_MANUAL=1`, `RIFTBOUND_PACKAGE_EVIDENCE=1`, and
+`RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=1`. It removes the temporary worktree after
+the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set.
 
-After the tarball is written, verify the final handoff package:
+The wrapper runs this verifier automatically by default; run it manually only
+for an existing package, or set `RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=0` when you
+need to skip the final package verification during script development:
 
 ```sh
 clients/godot/tools/verify-human-playtest-package.sh /tmp/riftbound-human-playtest.tar.gz
