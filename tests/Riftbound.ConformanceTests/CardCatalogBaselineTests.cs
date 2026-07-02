@@ -6860,9 +6860,16 @@ public sealed class CardCatalogBaselineTests
             "Riftbound.Engine",
             "MatchSession.cs");
         var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var battlefieldTriggerSpecRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "BattlefieldTriggerSpecRules.cs");
+        var battlefieldTriggerSpecRulesSource = File.ReadAllText(battlefieldTriggerSpecRulesPath);
 
         Assert.DoesNotContain("IsImplementedBattlefieldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsDedicatedBattlefieldScoreRuleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetTrigger(string? cardNo, string kind", battlefieldTriggerSpecRulesSource, StringComparison.Ordinal);
         Assert.Contains("HasImplementedBattlefieldRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("HasDedicatedBattlefieldScoreRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
         var implementedBattlefieldRuleSpecBody = ExtractSourceSpan(

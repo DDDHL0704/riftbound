@@ -14414,7 +14414,10 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || !TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger(battlefieldState.CardNo, out var trigger))
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger,
+                out var trigger))
         {
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
@@ -14436,20 +14439,6 @@ internal static class ActionPromptBuilder
             {
                 ["0"] = choices
             };
-    }
-
-    private static bool TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        trigger = BattlefieldTriggerSpecRules.TriggersForCard(cardNo)
-            .FirstOrDefault(IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger)!;
-        return trigger is not null;
-    }
-
-    private static bool IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            && (string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
-                || string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal));
     }
 
     private static IEnumerable<string> DeclareBattleBattlefieldDefendEffectTargetObjectIds(

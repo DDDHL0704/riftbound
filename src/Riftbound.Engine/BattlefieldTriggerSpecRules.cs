@@ -99,6 +99,13 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.KeywordBonus.GetValueOrDefault() > 0;
     }
 
+    public static bool IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && (string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
+                || string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal));
+    }
+
     public static bool IsBattlefieldHeldGrantBoonTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.BattlefieldHeldGrantBoon, StringComparison.Ordinal)
@@ -450,20 +457,6 @@ internal static class BattlefieldTriggerSpecRules
         return TriggersByCardNo.Value.TryGetValue(cardNo.Trim(), out var triggers)
             ? triggers
             : [];
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
-    {
-        trigger = default!;
-        var match = TriggersForCard(cardNo)
-            .FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
-        if (match is null)
-        {
-            return false;
-        }
-
-        trigger = match;
-        return true;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()

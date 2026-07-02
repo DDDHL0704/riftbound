@@ -339,10 +339,13 @@ public sealed class StandbyDefendTeemoTests
             "MatchSession.cs");
         var matchSessionSource = File.ReadAllText(matchSessionPath);
         var promptHelper = matchSessionSource[
-            matchSessionSource.IndexOf("private static bool TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger", StringComparison.Ordinal)..];
+            matchSessionSource.IndexOf("private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleBattlefieldDefendEffectTargetChoicesByIndex", StringComparison.Ordinal)..];
         promptHelper = promptHelper[..promptHelper.IndexOf("private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex", StringComparison.Ordinal)];
 
-        Assert.Contains("BattlefieldTriggerSpecRules.TriggersForCard", promptHelper, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger", promptHelper, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldTriggerSpecRules.TriggersForCard", promptHelper, StringComparison.Ordinal);
+        Assert.Contains("BattlefieldTriggerSpecRules.TryGetTrigger", promptHelper, StringComparison.Ordinal);
+        Assert.Contains("BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger", promptHelper, StringComparison.Ordinal);
         Assert.DoesNotContain("TryGetBattlefieldDefendGrantSteadfastTrigger", promptHelper, StringComparison.Ordinal);
         Assert.DoesNotContain("TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger", promptHelper, StringComparison.Ordinal);
     }

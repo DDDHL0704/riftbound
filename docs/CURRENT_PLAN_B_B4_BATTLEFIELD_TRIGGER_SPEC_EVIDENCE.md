@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Defended-Battlefield Prompt Selector Surface Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves the existing Fortified Position / Plunder Alley defended-battlefield trigger prompt target semantics and Teemo defend-trigger multiplexing.
+- `MatchSession.TryGetDeclareBattlePromptDefendedUnitTargetBattlefieldTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger, out trigger)`.
+- `IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger` validates the parsed `BehaviorSpec.Triggers` prompt shape: `Timing=BATTLEFIELD_DEFENDED` and `TargetScope` of either `DEFENDER_UNIT_AT_THIS_BATTLEFIELD` or `FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`.
+- `MatchSession.DeclareBattleBattlefieldDefendEffectTargetChoicesByIndex` uses that generic predicate route and keeps existing defending-player control checks, same-battlefield target selection, object-choice prompt payloads, and hidden-info-safe metadata.
+- The unused private `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, string kind, out trigger)` selector is removed, so battlefield trigger lookup keeps the generic predicate surface.
+- Source guards: `StandbyDefendTeemoTests.DeclareBattlePromptBattlefieldDefendEffectTargetsUseGenericTriggerSpecs` rejects the old local helper / direct `TriggersForCard` scan and requires the shared predicate route; `CardCatalogBaselineTests.BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames` rejects the removed `cardNo + kind` selector.
+- Validation: red/green focused guards 2/2; adjacent `StandbyDefendTeemo|BattlefieldDefend|DeclareBattle|BattlefieldTriggerSpec|CardCatalogBaselineTests|MatchRecovery|FullGameEndToEnd` 2618/2618; backend full conformance 9143/9143.
+
 ## 2026-07-02 Unit Battlefield-Held Draw Predicate Surface Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·027/221` Dunehorn Beast / 穿沙角兽 official held text for drawing two cards when that unit holds a battlefield.
