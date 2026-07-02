@@ -50,6 +50,13 @@ resume from repository state instead of conversation history alone.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots.
+- Latest clean pushed-main validation after engine-side commit
+  `bc456c392`: Godot client build passed, final P5 `--precheck` passed, and a
+  visible clean-main simulated two-window run reached both result panels. The
+  simulated evidence directory was
+  `/tmp/riftbound-simulated-playtest-clean-sim-latest-main-200109`; it is
+  useful regression evidence only and remains invalid for final P5 because it
+  contains auto-smoke markers.
 
 ## Open Risks
 
