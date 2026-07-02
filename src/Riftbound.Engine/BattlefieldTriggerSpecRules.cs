@@ -231,6 +231,17 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.DrawCount is > 0;
     }
 
+    public static bool IsBattlefieldConquerDiscardDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerDiscardDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledHandCard, StringComparison.Ordinal)
+            && trigger.DiscardCount is > 0
+            && string.Equals(trigger.DiscardSourceZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && string.Equals(trigger.DiscardDestinationZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            && trigger.DrawCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -276,14 +287,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerDiscardDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerDiscardDraw,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(string? cardNo, out TriggerSpec trigger)

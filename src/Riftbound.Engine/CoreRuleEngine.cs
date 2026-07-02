@@ -24985,13 +24985,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         discardedObjectIds = [];
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledHandCard, StringComparison.Ordinal)
-            || trigger.DiscardCount.GetValueOrDefault() <= 0
-            || !string.Equals(trigger.DiscardSourceZone, TriggerZones.Hand, StringComparison.Ordinal)
-            || !string.Equals(trigger.DiscardDestinationZone, TriggerZones.Graveyard, StringComparison.Ordinal)
-            || trigger.DrawCount.GetValueOrDefault() <= 0)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger,
+                out var trigger))
         {
             return false;
         }

@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Discard-Draw Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·298/298` Zaun Sump / 祖安地沟 official text `当你征服此处时，弃置一张手牌，然后抽一张牌。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out trigger)`.
+- `IsBattlefieldConquerDiscardDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_DISCARD_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_HAND_CARD`, positive `DiscardCount`, `DiscardSourceZone=HAND`, `DiscardDestinationZone=GRAVEYARD`, and positive `DrawCount`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerDiscardDrawTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, controlled hand-card selection, hand-to-graveyard movement, Jinx discard hook fanout, draw application, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DISCARDED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer discard-draw paths continue to discard the first controlled hand card when available, skip opponent-controlled dirty hand cards, draw the parsed count, and preserve hidden hand/main-deck boundaries through the same discard and draw helpers. Broader discard choice prompting remains outside this execution-helper slice.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerDiscardDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Zaun Sump runtime / GameHub / official-deck route 7/7; adjacent `Discard|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery` 2470/2470; backend full conformance 9104/9104.
+
 ## 2026-07-02 Conquer Consume-Boon Draw Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·282/298` Shirana Monastery / 希拉娜修道院 official text `当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。`
@@ -468,7 +478,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing repr
 
 The 2026-06-28 B0 follow-up now also covers this same parsed Shirana Monastery route through a legal official-deck opening. `OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `OGN·282/298` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, consumes the boon on official `UNL-057/219` Wildclaw Beastmaster, reduces that unit's power by one, draws one controlled main-deck card, and that the command journal replays through score victory to the same final state hash.
 
-The conquer discard-draw follow-up parser path turns the Zaun Sump official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_DISCARD_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_HAND_CARD`, `DiscardCount=1`, `DiscardSourceZone=HAND`, `DiscardDestinationZone=GRAVEYARD`, and `DrawCount=1`. Runtime no longer checks `OGN·298/298` through `BattlefieldConquerDiscardDrawCardNo` / `IsBattlefieldConquerDiscardDrawCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer discard-draw follow-up parser path turns the Zaun Sump official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_DISCARD_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_HAND_CARD`, `DiscardCount=1`, `DiscardSourceZone=HAND`, `DiscardDestinationZone=GRAVEYARD`, and `DrawCount=1`. Runtime no longer checks `OGN·298/298` through `BattlefieldConquerDiscardDrawCardNo` / `IsBattlefieldConquerDiscardDrawCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: it discards the first controlled hand card when one is available, triggers the existing Jinx discard hook, draws the parsed count, and emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DISCARDED`, and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DISCARD_DRAW`. The opponent-controlled dirty hand-card guard remains covered; broader discard choice prompting remains outside this narrow routing slice.
 
