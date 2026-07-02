@@ -291,6 +291,11 @@ require_reported_screenshot_log_path() {
 require_git_revision_on_main
 require_report_line "- Git worktree: clean" "clean git worktree"
 require_report_line "- Require clean git: 1" "required clean git marker"
+if [[ -s "${report}" ]] && grep -Fxq -- "- Incomplete human evidence: 1" "${report}"; then
+  failures+=("Incomplete human evidence marker found in playtest-report.md")
+else
+  require_report_line "- Incomplete human evidence: 0" "complete human evidence marker"
+fi
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"

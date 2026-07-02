@@ -34,6 +34,7 @@ case "${1:-} ${2:-} ${3:-}" in
 #!/usr/bin/env bash
 set -euo pipefail
 echo "wrapped human stack ran"
+echo "incomplete evidence marker: ${RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE:-<unset>}"
 STUB
     chmod +x "${destination}/clients/godot/tools/run-local-human-playtest-stack.sh"
     cat >"${destination}/clients/godot/tools/verify-human-playtest-package.sh" <<'STUB'
@@ -151,6 +152,19 @@ expect_final_gate_value_rejection "RIFTBOUND_EVIDENCE_PACKAGE" "${existing_evide
 external_playtest_report="${tmp_dir}/external-playtest-report.md"
 expect_final_gate_value_rejection "RIFTBOUND_PLAYTEST_REPORT" "${external_playtest_report}"
 expect_final_gate_value_rejection "RIFTBOUND_EXTRA_GODOT_ARGS" "--windowed"
+
+incomplete_output="${tmp_dir}/incomplete-output.log"
+incomplete_worktree="${tmp_dir}/incomplete-worktree"
+PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${incomplete_worktree}" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_CONFIRM_MANUAL=0 \
+  RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${incomplete_output}" 2>&1
+
+rg -q "incomplete evidence marker: 1" "${incomplete_output}" \
+  || fail "clean-main human playtest did not propagate the incomplete evidence marker"
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"

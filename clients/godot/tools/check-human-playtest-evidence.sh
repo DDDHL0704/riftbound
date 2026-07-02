@@ -39,6 +39,7 @@ notes=()
 report_path="${RIFTBOUND_PLAYTEST_REPORT:-${evidence_dir}/playtest-report.md}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-0}"
 require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-0}"
+incomplete_human_evidence="${RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 auto_smoke_found=0
 git_status_output="$(git -C "${repo_root}" status --short 2>/dev/null || true)"
 git_worktree_state="clean"
@@ -51,6 +52,10 @@ if [[ -n "${git_status_output}" ]]; then
   if [[ "${require_clean_git}" == "1" ]]; then
     failures+=("git worktree is dirty while RIFTBOUND_REQUIRE_CLEAN_GIT=1")
   fi
+fi
+
+if [[ "${incomplete_human_evidence}" == "1" ]]; then
+  notes+=("incomplete human evidence marker found; this report is not valid final P5 evidence")
 fi
 
 require_file() {
@@ -250,6 +255,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Git revision: ${git_revision}
 - Git worktree: ${git_worktree_state}
 - Require clean git: ${require_clean_git}
+- Incomplete human evidence: ${incomplete_human_evidence}
 - Evidence directory: ${evidence_dir}
 - Player A log: ${player_a_log}
 - Player B log: ${player_b_log}

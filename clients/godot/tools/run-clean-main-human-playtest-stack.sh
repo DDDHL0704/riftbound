@@ -51,6 +51,7 @@ wait_for_windows="${RIFTBOUND_WAIT:-1}"
 quit_after="${RIFTBOUND_QUIT_AFTER:-}"
 extra_godot_args="${RIFTBOUND_EXTRA_GODOT_ARGS:-}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
+incomplete_human_evidence=0
 created_worktree=0
 
 if [[ "${extra_godot_args}" == *"--riftbound-smoke-auto-"* ]]; then
@@ -125,6 +126,7 @@ EOF
     exit 2
   fi
 
+  incomplete_human_evidence=1
   cat >&2 <<EOF
 WARNING: clean-main human playtest is running with disabled final P5 evidence gates:
   - ${disabled_final_gates[*]}
@@ -179,6 +181,7 @@ Started clean-main Riftbound Godot human playtest stack.
   wait for windows: ${wait_for_windows}
   quit after: ${quit_after:-<unset>}
   extra Godot args: ${extra_godot_args:-<unset>}
+  incomplete human evidence: ${incomplete_human_evidence}
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.
@@ -198,6 +201,7 @@ export RIFTBOUND_REQUIRE_CLEAN_GIT="${require_clean_git}"
 export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"
 export RIFTBOUND_CHECK_EVIDENCE="${check_evidence}"
 export RIFTBOUND_PACKAGE_EVIDENCE="${package_evidence}"
+export RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE="${incomplete_human_evidence}"
 
 "${clean_worktree}/clients/godot/tools/run-local-human-playtest-stack.sh"
 

@@ -63,6 +63,7 @@ write_evidence_bundle() {
   local missing_deck_ready="${7:-0}"
   local screenshot_size="${8:-full}"
   local screenshot_report_paths="${9:-match}"
+  local incomplete_human_evidence="${10:-0}"
   local player_a_result_path="/tmp/riftbound-human-playtest/player-a-result.png"
   local player_b_result_path="/tmp/riftbound-human-playtest/player-b-result.png"
 
@@ -136,6 +137,7 @@ EOF
 - Git revision: ${revision}
 - Git worktree: clean
 - Require clean git: 1
+- Incomplete human evidence: ${incomplete_human_evidence}
 - Player A result screenshot: ${player_a_result_path}
 - Player B result screenshot: ${player_b_result_path}
 
@@ -210,6 +212,26 @@ if ! rg -q "Manual confirmation mode" "${manual_mode_output}"; then
   echo "Expected manual confirmation mode rejection output:" >&2
   cat "${manual_mode_output}" >&2
   fail "verifier did not explain the missing manual confirmation mode"
+fi
+
+incomplete_bundle="${tmp_dir}/incomplete/riftbound-human-playtest-evidence"
+write_evidence_bundle "${incomplete_bundle}" "${revision}" "1" "0" "0" "0" "0" "full" "match" "1"
+(
+  cd "${incomplete_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+incomplete_package="${tmp_dir}/incomplete.tar.gz"
+make_package "${incomplete_bundle}" "${incomplete_package}"
+
+incomplete_output="${tmp_dir}/incomplete-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${incomplete_package}" >"${incomplete_output}" 2>&1; then
+  fail "verifier accepted package marked as incomplete human evidence"
+fi
+
+if ! rg -q "Incomplete human evidence|incomplete human evidence" "${incomplete_output}"; then
+  echo "Expected incomplete marker rejection output:" >&2
+  cat "${incomplete_output}" >&2
+  fail "verifier did not explain the incomplete human evidence marker"
 fi
 
 duplicate_screenshot_bundle="${tmp_dir}/duplicate-screenshot/riftbound-human-playtest-evidence"

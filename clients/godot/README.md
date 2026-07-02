@@ -260,15 +260,14 @@ evidence only when the prompts were answered by the two human operators after a
 real completed match. The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
 `RIFTBOUND_CONFIRM_MANUAL=1`, `RIFTBOUND_PACKAGE_EVIDENCE=1`, and
 `RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=1`. It removes the temporary worktree after
-the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start if
-`RIFTBOUND_EXTRA_GODOT_ARGS` contains any `--riftbound-smoke-auto-*` flag; use
-the simulated preflight wrapper for automated diagnostics instead. It also
-refuses to start if manual confirmations, evidence packaging, or final package
-verification are disabled, if the Godot build is skipped, if the script is
-configured not to wait for both Godot windows to exit, if `origin/main` is not
-fetched, or if a different worktree ref is requested. For wrapper development
-only, set `RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of
-those gates; that output is not valid final P5 evidence.
+the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start
+with automated or extra Godot client arguments, disabled manual/clean-git/
+evidence/package/build/wait gates, skipped `origin/main` fetches, non-`origin/main`
+refs, non-empty evidence directories, existing evidence package paths, or custom
+playtest report paths. For wrapper development only, set
+`RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of those
+gates; that run writes `Incomplete human evidence: 1` into the report and the
+final package verifier rejects it.
 
 The wrapper runs this verifier automatically by default; run it manually only
 for an existing package:
@@ -375,10 +374,11 @@ non-empty `RIFTBOUND_SCREENSHOT_DIR`, so stale logs or screenshots cannot be
 mixed into the final package, and it refuses an existing
 `RIFTBOUND_EVIDENCE_PACKAGE` path so a previous tarball is never overwritten. It
 also refuses custom `RIFTBOUND_PLAYTEST_REPORT` paths; the report must be
-generated inside the new evidence directory. Final evidence needs two human
-operators to close the Godot windows after reaching the server result panel;
-automatic quit timers and extra client arguments are only for simulated
-diagnostics.
+generated inside the new evidence directory. If the wrapper development escape
+hatch is used, the report is marked `Incomplete human evidence: 1` and the final
+package verifier rejects it. Final evidence needs two human operators to close
+the Godot windows after reaching the server result panel; automatic quit timers
+and extra client arguments are only for simulated diagnostics.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:

@@ -145,6 +145,23 @@ if ! rg -q "player A and player B logs are identical|logs.*identical|identical.*
   fail "evidence checker did not explain the duplicate player logs"
 fi
 
+incomplete_evidence_dir="${tmp_dir}/incomplete"
+write_evidence_dir "${incomplete_evidence_dir}" "full"
+incomplete_output="${tmp_dir}/incomplete-output.log"
+if ! RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE=1 \
+  RIFTBOUND_PLAYTEST_REPORT="${incomplete_evidence_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${incomplete_evidence_dir}" >"${incomplete_output}" 2>&1; then
+  echo "Expected incomplete evidence check to pass machine gates while marking the report:" >&2
+  cat "${incomplete_output}" >&2
+  fail "evidence checker rejected incomplete marker fixture"
+fi
+
+if ! rg -q "Incomplete human evidence: 1" "${incomplete_evidence_dir}/playtest-report.md"; then
+  echo "Expected incomplete evidence report marker:" >&2
+  cat "${incomplete_evidence_dir}/playtest-report.md" >&2
+  fail "evidence checker did not write the incomplete evidence marker"
+fi
+
 covered_evidence_dir="${tmp_dir}/covered"
 write_evidence_dir "${covered_evidence_dir}" "full"
 covered_output="${tmp_dir}/covered-output.log"
