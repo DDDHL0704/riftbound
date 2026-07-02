@@ -9,7 +9,7 @@ fail() {
   exit 1
 }
 
-write_png() {
+write_small_png() {
   local path="$1"
   local suffix="${2:-}"
 
@@ -25,6 +25,34 @@ write_png() {
   printf '%s' "${suffix}" >>"${path}"
 }
 
+write_full_size_png() {
+  local path="$1"
+  local suffix="${2:-}"
+  local small_path="${path}.small"
+
+  if ! command -v sips >/dev/null 2>&1; then
+    fail "sips is required to build full-size PNG fixtures"
+  fi
+
+  write_small_png "${small_path}"
+  sips -z 900 1440 "${small_path}" --out "${path}" >/dev/null
+  rm -f "${small_path}"
+  printf '%s' "${suffix}" >>"${path}"
+}
+
+write_result_png() {
+  local path="$1"
+  local suffix="${2:-}"
+  local size="${3:-full}"
+
+  if [[ "${size}" == "small" ]]; then
+    write_small_png "${path}" "${suffix}"
+    return
+  fi
+
+  write_full_size_png "${path}" "${suffix}"
+}
+
 write_evidence_bundle() {
   local bundle_dir="$1"
   local revision="$2"
@@ -33,6 +61,7 @@ write_evidence_bundle() {
   local duplicate_logs="${5:-0}"
   local extra_file="${6:-0}"
   local missing_deck_ready="${7:-0}"
+  local screenshot_size="${8:-full}"
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -86,11 +115,11 @@ EOF
   fi
 
   if [[ "${duplicate_screenshots}" == "1" ]]; then
-    write_png "${bundle_dir}/player-a-result.png"
-    write_png "${bundle_dir}/player-b-result.png"
+    write_result_png "${bundle_dir}/player-a-result.png" "" "${screenshot_size}"
+    write_result_png "${bundle_dir}/player-b-result.png" "" "${screenshot_size}"
   else
-    write_png "${bundle_dir}/player-a-result.png" "player-a"
-    write_png "${bundle_dir}/player-b-result.png" "player-b"
+    write_result_png "${bundle_dir}/player-a-result.png" "player-a" "${screenshot_size}"
+    write_result_png "${bundle_dir}/player-b-result.png" "player-b" "${screenshot_size}"
   fi
 
   cat >"${bundle_dir}/playtest-report.md" <<EOF
@@ -251,6 +280,26 @@ if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; the
   echo "Expected deck/ready rejection output:" >&2
   cat "${missing_deck_ready_output}" >&2
   fail "verifier did not explain the missing deck/ready evidence"
+fi
+
+small_screenshot_bundle="${tmp_dir}/small-screenshot/riftbound-human-playtest-evidence"
+write_evidence_bundle "${small_screenshot_bundle}" "${revision}" "1" "0" "0" "0" "0" "small"
+(
+  cd "${small_screenshot_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+small_screenshot_package="${tmp_dir}/small-screenshot.tar.gz"
+make_package "${small_screenshot_bundle}" "${small_screenshot_package}"
+
+small_screenshot_output="${tmp_dir}/small-screenshot-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${small_screenshot_package}" >"${small_screenshot_output}" 2>&1; then
+  fail "verifier accepted package with too-small result screenshots"
+fi
+
+if ! rg -q "screenshot.*too small|too small.*screenshot|minimum" "${small_screenshot_output}"; then
+  echo "Expected small screenshot rejection output:" >&2
+  cat "${small_screenshot_output}" >&2
+  fail "verifier did not explain the too-small result screenshots"
 fi
 
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"

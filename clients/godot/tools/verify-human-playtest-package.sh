@@ -58,6 +58,8 @@ allowed_files=(
   "player-b-result.png"
   "playtest-report.md"
 )
+min_result_screenshot_width=800
+min_result_screenshot_height=600
 
 staging_dir="$(mktemp -d)"
 cleanup() {
@@ -160,6 +162,16 @@ require_client_setup_log_matches() {
   require_log_match "Ready receipt accepted=True" "${path}" "${label} Ready receipt"
 }
 
+require_minimum_png_dimensions() {
+  local label="$1"
+  local width="$2"
+  local height="$3"
+
+  if (( width < min_result_screenshot_width || height < min_result_screenshot_height )); then
+    failures+=("${label} is too small for final evidence (${width}x${height}, minimum ${min_result_screenshot_width}x${min_result_screenshot_height})")
+  fi
+}
+
 require_png_screenshot() {
   local path="$1"
   local label="$2"
@@ -199,7 +211,9 @@ require_png_screenshot() {
     height="$(awk '/pixelHeight:/ {print $2}' <<<"${sips_output}")"
     if [[ ! "${width}" =~ ^[0-9]+$ || ! "${height}" =~ ^[0-9]+$ || "${width}" == "0" || "${height}" == "0" ]]; then
       failures+=("${label} has invalid PNG dimensions")
+      return
     fi
+    require_minimum_png_dimensions "${label}" "${width}" "${height}"
     return
   fi
 
@@ -207,7 +221,9 @@ require_png_screenshot() {
   height=$((16#${height_hex}))
   if (( width <= 0 || height <= 0 )); then
     failures+=("${label} has invalid PNG dimensions")
+    return
   fi
+  require_minimum_png_dimensions "${label}" "${width}" "${height}"
 }
 
 require_git_revision_on_main() {
@@ -304,6 +320,6 @@ P5 evidence package passed machine verification:
   required files: present
   checksums: valid
   report: clean git, clean-git required, manual confirmation mode, git revision on origin/main, all human confirmations checked
-  screenshots: valid PNG result screenshots
+  screenshots: valid PNG result screenshots at least ${min_result_screenshot_width}x${min_result_screenshot_height}
   logs: match lifecycle/result screenshots present, no crash/error/rejection patterns
 EOF
