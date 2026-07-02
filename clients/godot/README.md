@@ -366,8 +366,10 @@ clients/godot/tools/package-human-playtest-evidence.sh /tmp/riftbound-human-play
 ```
 
 The package contains both player logs, both result screenshots,
-`playtest-report.md`, and `SHA256SUMS`. It is still only valid for P5 when the
-report includes the real two-human manual confirmations.
+`playtest-report.md`, `P5_HANDOFF.md`, and `SHA256SUMS`. The handoff summary is
+generated from the checked report so reviewers can quickly see the room, both
+player handles, and result screenshot filenames. It is still only valid for P5
+when the report includes the real two-human manual confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper

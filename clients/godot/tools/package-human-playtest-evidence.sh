@@ -84,10 +84,46 @@ bundle_name="riftbound-human-playtest-evidence"
 bundle_dir="${staging_dir}/${bundle_name}"
 mkdir -p "${bundle_dir}"
 
+report_field() {
+  local label="$1"
+  local prefix="- ${label}: "
+
+  awk -v prefix="${prefix}" '
+    index($0, prefix) == 1 {
+      print substr($0, length(prefix) + 1)
+      exit
+    }
+  ' "${report_path}"
+}
+
 for file in "${required_files[@]}"; do
   cp "${evidence_dir}/${file}" "${bundle_dir}/${file}"
 done
 cp "${report_path}" "${bundle_dir}/playtest-report.md"
+
+room="$(report_field "Room")"
+player_a_handle="$(report_field "Player A handle")"
+player_b_handle="$(report_field "Player B handle")"
+git_revision="$(report_field "Git revision")"
+manual_confirmation_mode="$(report_field "Manual confirmation mode")"
+
+cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
+# Riftbound Godot P5 Handoff
+
+- Packaged at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+- Git revision: ${git_revision}
+- Room: ${room}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
+- Player A result screenshot: player-a-result.png
+- Player B result screenshot: player-b-result.png
+- Report: playtest-report.md
+- Manual confirmation mode: ${manual_confirmation_mode}
+
+This handoff summary is machine generated from playtest-report.md and is only
+valid final P5 evidence when playtest-report.md has all manual confirmations
+checked after a real two-human Godot match.
+EOF
 
 cat >"${bundle_dir}/README.md" <<EOF
 # Riftbound Godot Human Playtest Evidence
@@ -95,6 +131,7 @@ cat >"${bundle_dir}/README.md" <<EOF
 - Packaged at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 - Source evidence directory: ${evidence_dir}
 - Report: playtest-report.md
+- P5 handoff summary: P5_HANDOFF.md
 - Checksums: SHA256SUMS
 
 This package is evidence material only. It does not prove the human-only
@@ -104,6 +141,7 @@ EOF
 
 checksum_files=(
   "README.md"
+  "P5_HANDOFF.md"
   "player-a.log"
   "player-b.log"
   "player-a-result.png"

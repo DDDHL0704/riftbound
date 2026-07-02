@@ -33,6 +33,7 @@ repo_root="$(cd "${script_dir}/../../.." && pwd)"
 failures=()
 required_files=(
   "README.md"
+  "P5_HANDOFF.md"
   "SHA256SUMS"
   "player-a.log"
   "player-b.log"
@@ -42,6 +43,7 @@ required_files=(
 )
 checksum_required_files=(
   "README.md"
+  "P5_HANDOFF.md"
   "player-a.log"
   "player-b.log"
   "player-a-result.png"
@@ -50,6 +52,7 @@ checksum_required_files=(
 )
 allowed_files=(
   "README.md"
+  "P5_HANDOFF.md"
   "SHA256SUMS"
   "api.log"
   "player-a.log"
@@ -131,6 +134,7 @@ if (( ${#failures[@]} == 0 )); then
 fi
 
 report="${bundle_dir}/playtest-report.md"
+handoff="${bundle_dir}/P5_HANDOFF.md"
 player_a_log="${bundle_dir}/player-a.log"
 player_b_log="${bundle_dir}/player-b.log"
 player_a_result="${bundle_dir}/player-a-result.png"
@@ -221,6 +225,43 @@ require_report_identity_consistency() {
       failures+=("Player B handle does not match player-b.log")
     fi
   fi
+}
+
+require_handoff_literal_match() {
+  local expected="$1"
+  local label="$2"
+
+  if [[ -s "${handoff}" ]] && ! grep -Fq -- "${expected}" "${handoff}"; then
+    failures+=("${label} missing from P5_HANDOFF.md")
+  fi
+}
+
+require_handoff_consistency() {
+  local room=""
+  local player_a_handle=""
+  local player_b_handle=""
+  local git_revision=""
+  local manual_confirmation_mode=""
+
+  if [[ ! -s "${handoff}" || ! -s "${report}" ]]; then
+    return
+  fi
+
+  room="$(report_field "Room")"
+  player_a_handle="$(report_field "Player A handle")"
+  player_b_handle="$(report_field "Player B handle")"
+  git_revision="$(report_field "Git revision")"
+  manual_confirmation_mode="$(report_field "Manual confirmation mode")"
+
+  require_handoff_literal_match "# Riftbound Godot P5 Handoff" "P5 handoff title"
+  require_handoff_literal_match "- Git revision: ${git_revision}" "P5 handoff git revision"
+  require_handoff_literal_match "- Room: ${room}" "P5 handoff room"
+  require_handoff_literal_match "- Player A handle: ${player_a_handle}" "P5 handoff player A handle"
+  require_handoff_literal_match "- Player B handle: ${player_b_handle}" "P5 handoff player B handle"
+  require_handoff_literal_match "- Player A result screenshot: player-a-result.png" "P5 handoff player A screenshot"
+  require_handoff_literal_match "- Player B result screenshot: player-b-result.png" "P5 handoff player B screenshot"
+  require_handoff_literal_match "- Report: playtest-report.md" "P5 handoff report"
+  require_handoff_literal_match "- Manual confirmation mode: ${manual_confirmation_mode}" "P5 handoff manual confirmation mode"
 }
 
 require_client_setup_log_matches() {
@@ -358,6 +399,7 @@ else
   require_report_line "- Incomplete human evidence: 0" "complete human evidence marker"
 fi
 require_report_identity_consistency
+require_handoff_consistency
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"

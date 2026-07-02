@@ -54,7 +54,7 @@ contracts change.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
-  identity consistency, and absence of auto-smoke markers.
+  identity consistency, `P5_HANDOFF.md`, and absence of auto-smoke markers.
 
 ## Standard Gates
 
