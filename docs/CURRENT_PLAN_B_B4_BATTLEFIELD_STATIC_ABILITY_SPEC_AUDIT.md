@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield equipment cost-reduction static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield granted unit-experience static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -128,12 +128,28 @@ Validation: red/green focused guard `BattlefieldEquipmentCostReductionStaticAbil
 
 Non-closure: this slice only closes the equipment cost-reduction static ability execution helper. The remaining battlefield static ability per-effect helper surface, complex equipment costs, complete PaymentEngine equipment-cost matrix, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Granted Unit-Experience Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(...)` and routes Mutation Garden-style granted unit experience activation through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE` plus positive `Amount`. `CoreRuleEngine` battlefield granted unit-experience activation resolution, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.BattlefieldGrantUnitExperienceObjectId`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility, out ability)`.
+
+Existing `UNL-213/219` official behavior, controlled battlefield-source filtering, server-authored `ACTIVATE_ABILITY` prompt metadata, source exhaustion, `BATTLEFIELD_TRIGGER_RESOLVED.amount = 1`, `EXPERIENCE_GAINED.totalExperience = 1`, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldGrantUnitExperienceStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / rejection / official-deck route 12/12; adjacent `BattlefieldStatic|UnitExperience|Experience|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2607/2607; backend full conformance 9126/9126.
+
+Non-closure: this slice only closes the granted unit-experience static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete activated ability modeling for granted abilities, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest granted unit-experience static ability generic-predicate guard red/green: passed `1/1`;
+- latest granted unit-experience parser / P79 runtime / rejection / official-deck route focused validation: passed `12/12`;
+- latest BattlefieldStatic / UnitExperience / Experience / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2607/2607`;
+- backend full conformance after the granted unit-experience generic-predicate increment: passed `9126/9126`;
 - latest equipment cost-reduction static ability generic-predicate guard red/green: passed `1/1`;
 - latest equipment parser / P79 runtime / prompt / GameHub seed / official-deck route focused validation: passed `7/7`;
 - latest BattlefieldStatic / EquipmentCostReduction / LongSword / Equipment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `3025/3025`;

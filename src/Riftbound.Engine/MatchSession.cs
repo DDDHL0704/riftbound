@@ -12091,7 +12091,10 @@ internal static class ActionPromptBuilder
         return zones.Battlefields.FirstOrDefault(battlefieldObjectId =>
             !string.Equals(battlefieldObjectId, sourceObjectId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(battlefieldState.CardNo, out _)
+            && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                battlefieldState.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
+                out _)
             && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
@@ -17953,7 +17956,10 @@ internal static class ActionPromptBuilder
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardObject.CardNo, out _);
     }
 

@@ -11469,8 +11469,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(objectId, out var battlefieldState)
-                || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(
+                || !BattlefieldStaticAbilitySpecRules.TryGetAbility(
                     battlefieldState.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
                     out var ability)
                 || ability.Amount <= 0
                 || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, intent.PlayerId))
@@ -26608,7 +26609,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _);
     }
 
