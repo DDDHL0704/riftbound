@@ -153,6 +153,44 @@ external_playtest_report="${tmp_dir}/external-playtest-report.md"
 expect_final_gate_value_rejection "RIFTBOUND_PLAYTEST_REPORT" "${external_playtest_report}"
 expect_final_gate_value_rejection "RIFTBOUND_EXTRA_GODOT_ARGS" "--windowed"
 
+duplicate_handle_output="${tmp_dir}/duplicate-handle-output.log"
+duplicate_handle_worktree="${tmp_dir}/duplicate-handle-worktree"
+if env \
+  PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${duplicate_handle_worktree}" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_HANDLE_A="same-human-handle" \
+  RIFTBOUND_HANDLE_B="same-human-handle" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${duplicate_handle_output}" 2>&1; then
+  fail "clean-main human playtest accepted duplicate player handles"
+fi
+
+if ! rg -q "final P5 evidence|RIFTBOUND_HANDLE_A|RIFTBOUND_HANDLE_B|duplicate.*handle|distinct.*handle" "${duplicate_handle_output}"; then
+  echo "Expected duplicate handle rejection output:" >&2
+  cat "${duplicate_handle_output}" >&2
+  fail "clean-main human playtest did not explain the duplicate handle rejection"
+fi
+
+duplicate_key_output="${tmp_dir}/duplicate-key-output.log"
+duplicate_key_worktree="${tmp_dir}/duplicate-key-worktree"
+if env \
+  PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${duplicate_key_worktree}" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_PLAYER_KEY_A="pk_same_human_key" \
+  RIFTBOUND_PLAYER_KEY_B="pk_same_human_key" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${duplicate_key_output}" 2>&1; then
+  fail "clean-main human playtest accepted duplicate player keys"
+fi
+
+if ! rg -q "final P5 evidence|RIFTBOUND_PLAYER_KEY_A|RIFTBOUND_PLAYER_KEY_B|duplicate.*key|distinct.*key" "${duplicate_key_output}"; then
+  echo "Expected duplicate player key rejection output:" >&2
+  cat "${duplicate_key_output}" >&2
+  fail "clean-main human playtest did not explain the duplicate player key rejection"
+fi
+
 incomplete_output="${tmp_dir}/incomplete-output.log"
 incomplete_worktree="${tmp_dir}/incomplete-worktree"
 PATH="${fake_bin}:${PATH}" \

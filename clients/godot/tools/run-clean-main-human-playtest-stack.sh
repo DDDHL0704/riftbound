@@ -41,6 +41,10 @@ room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
 playtest_report="${RIFTBOUND_PLAYTEST_REPORT:-}"
+handle_a="${RIFTBOUND_HANDLE_A:-player-a-${room}}"
+handle_b="${RIFTBOUND_HANDLE_B:-player-b-${room}}"
+player_key_a="${RIFTBOUND_PLAYER_KEY_A:-pk_${room}_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
+player_key_b="${RIFTBOUND_PLAYER_KEY_B:-pk_${room}_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
 require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
@@ -53,6 +57,18 @@ extra_godot_args="${RIFTBOUND_EXTRA_GODOT_ARGS:-}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 incomplete_human_evidence=0
 created_worktree=0
+
+fingerprint_secret() {
+  local secret="$1"
+  local length="${#secret}"
+
+  if (( length <= 10 )); then
+    printf '<set:%s chars>' "${length}"
+    return
+  fi
+
+  printf '%s...%s' "${secret:0:4}" "${secret: -4}"
+}
 
 if [[ "${extra_godot_args}" == *"--riftbound-smoke-auto-"* ]]; then
   cat >&2 <<'EOF'
@@ -96,6 +112,12 @@ if [[ "${fetch_ref}" != "1" ]]; then
 fi
 if [[ "${ref}" != "origin/main" ]]; then
   disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_REF=${ref}")
+fi
+if [[ "${handle_a}" == "${handle_b}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_HANDLE_A and RIFTBOUND_HANDLE_B must be distinct")
+fi
+if [[ "${player_key_a}" == "${player_key_b}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_PLAYER_KEY_A and RIFTBOUND_PLAYER_KEY_B must be distinct")
 fi
 if [[ -e "${screenshot_dir}" && -n "$(find "${screenshot_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   disabled_final_gates+=("RIFTBOUND_SCREENSHOT_DIR=${screenshot_dir} is not empty")
@@ -172,6 +194,10 @@ Started clean-main Riftbound Godot human playtest stack.
   evidence dir: ${screenshot_dir}
   evidence package: ${evidence_package}
   playtest report: ${screenshot_dir}/playtest-report.md
+  player A handle: ${handle_a}
+  player B handle: ${handle_b}
+  player A key: $(fingerprint_secret "${player_key_a}")
+  player B key: $(fingerprint_secret "${player_key_b}")
   manual confirmations: ${confirm_manual}
   require clean git: ${require_clean_git}
   check evidence: ${check_evidence}
@@ -197,6 +223,10 @@ EOF
 export RIFTBOUND_ROOM="${room}"
 export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
+export RIFTBOUND_HANDLE_A="${handle_a}"
+export RIFTBOUND_HANDLE_B="${handle_b}"
+export RIFTBOUND_PLAYER_KEY_A="${player_key_a}"
+export RIFTBOUND_PLAYER_KEY_B="${player_key_b}"
 export RIFTBOUND_REQUIRE_CLEAN_GIT="${require_clean_git}"
 export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"
 export RIFTBOUND_CHECK_EVIDENCE="${check_evidence}"

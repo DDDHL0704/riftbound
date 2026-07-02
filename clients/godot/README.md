@@ -263,8 +263,10 @@ real completed match. The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
 the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start
 with automated or extra Godot client arguments, disabled manual/clean-git/
 evidence/package/build/wait gates, skipped `origin/main` fetches, non-`origin/main`
-refs, non-empty evidence directories, existing evidence package paths, or custom
-playtest report paths. For wrapper development only, set
+refs, duplicate player handles/keys, non-empty evidence directories, existing
+evidence package paths, or custom playtest report paths. It prints the two
+handles and short player-key fingerprints before launching so operators can
+catch identity mistakes without exposing full keys. For wrapper development only, set
 `RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of those
 gates; that run writes `Incomplete human evidence: 1` into the report and the
 final package verifier rejects it.
@@ -374,11 +376,14 @@ non-empty `RIFTBOUND_SCREENSHOT_DIR`, so stale logs or screenshots cannot be
 mixed into the final package, and it refuses an existing
 `RIFTBOUND_EVIDENCE_PACKAGE` path so a previous tarball is never overwritten. It
 also refuses custom `RIFTBOUND_PLAYTEST_REPORT` paths; the report must be
-generated inside the new evidence directory. If the wrapper development escape
-hatch is used, the report is marked `Incomplete human evidence: 1` and the final
-package verifier rejects it. Final evidence needs two human operators to close
-the Godot windows after reaching the server result panel; automatic quit timers
-and extra client arguments are only for simulated diagnostics.
+generated inside the new evidence directory. It also requires distinct
+`RIFTBOUND_HANDLE_A`/`RIFTBOUND_HANDLE_B` and
+`RIFTBOUND_PLAYER_KEY_A`/`RIFTBOUND_PLAYER_KEY_B` values. If the wrapper
+development escape hatch is used, the report is marked
+`Incomplete human evidence: 1` and the final package verifier rejects it. Final
+evidence needs two human operators to close the Godot windows after reaching the
+server result panel; automatic quit timers and extra client arguments are only
+for simulated diagnostics.
 
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
