@@ -14,7 +14,7 @@ Project status: **NOT READY**.
 - `RuleTextParser` recognizes the Icevale attack-payment text and emits `TriggerSpec` data for attack timing, same-battlefield target scope, optional mana payment, until-end-of-turn duration, and -1 power delta.
 - `CardBehaviorRegistry` stores only the stable trigger effect metadata for Icevale through `UnitAttackPayPowerModifierEffectKind`.
 - `BehaviorSpecCatalogBuilder` projects that metadata into `TriggerSpec.EffectKind`.
-- `UnitTriggerPaymentSpecRules` consumes the same catalog-backed `BehaviorSpec` map at runtime and validates both source-card trigger shape and pending-payment effect kind.
+- `UnitTriggerPaymentSpecRules` consumes the same catalog-backed `BehaviorSpec` map at runtime and validates both source-card trigger shape and pending-payment effect kind through `TryGetTrigger(..., IsUnitAttackPayPowerModifierTrigger, ...)` and `TryGetTriggerByEffectKind(..., IsUnitAttackPayPowerModifierTrigger, ...)`.
 - `CoreRuleEngine` opens and resolves the Icevale attack-payment window from `TriggerSpec` instead of `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`.
 - Existing event and snapshot compatibility remains stable:
   - payment reason first segment: `ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1`
@@ -26,7 +26,8 @@ Project status: **NOT READY**.
 ## Test Evidence
 
 - `CardCatalogBaselineTests.BehaviorSpecCatalogParsesUnitTriggerPaymentTriggers` now proves `UNL-065/219` parses to `UNIT_ATTACK_PAY_POWER_MODIFIER` with the expected timing, target scope, cost, power delta, duration, optionality, and effect kind.
-- `TriggerPaymentTests.TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now requires `UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger(...)` and blocks `IcevaleArcherAttackPaymentSourceEffectKind` / `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT` from returning to `CoreRuleEngine`.
+- `TriggerPaymentTests.TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists` now requires the generic UnitTriggerPayment predicate route and blocks `IcevaleArcherAttackPaymentSourceEffectKind` / `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT` from returning to `CoreRuleEngine`.
+- 2026-07-02 predicate-surface focused guard / representative runtime set passed `52/52`; adjacent TriggerPayment / PaymentEngine / MatchRecovery set passed `3241/3241`; backend full conformance passed `9141/9141`.
 - Existing Icevale payment tests continue to cover prompt opening, payment acceptance, decline, replay rejection, invalid target rejection, and hidden/source guard suppression.
 - Existing battle-damage lifecycle tests continue to cover Icevale post-payment battle-response advancement and no-mutation rejection behavior.
 

@@ -7,7 +7,9 @@ This file records evidence for routing the existing Jax and Fiora unit trigger-p
 
 2026-06-30 supplement: Icevale Archer / 冰谷弓箭手 attack-payment now has its own `UNIT_ATTACK_PAY_POWER_MODIFIER` TriggerSpec slice. See `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_AUDIT.md` and `docs/CURRENT_PLAN_B_ICEVALE_ATTACK_PAYMENT_TRIGGER_SPEC_EVIDENCE.md`.
 
-2026-06-30 follow-up: Jax and Fiora pending-payment reason parsing and runtime trigger payloads now validate through `UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(...)` and `TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(...)`. `CoreRuleEngine` no longer owns `JaxWeaponAttachPayOneDrawEffectKind`, `SfdFioraPowerfulReadyEffectKind`, or the literal Jax / Fiora wire strings.
+2026-06-30 follow-up: Jax and Fiora pending-payment reason parsing and runtime trigger payloads moved out of Core-local `JaxWeaponAttachPayOneDrawEffectKind` / `SfdFioraPowerfulReadyEffectKind` constants and into `UnitTriggerPaymentSpecRules`; the 2026-07-02 predicate-surface follow-up supersedes the original per-effect helper names.
+
+2026-07-02 follow-up: `UnitTriggerPaymentSpecRules` now exposes generic `TryGetTrigger(cardNo, predicate, out trigger)` and `TryGetTriggerByEffectKind(effectKind, predicate, out trigger)` APIs plus public shape predicates for Jax, Fiora, and Icevale. The former public per-effect getters have been removed, and `CoreRuleEngine` uses the generic predicate surface for both source-card checks and pending-payment reason parsing. Focused guard / representative runtime set passed `52/52`; adjacent TriggerPayment / PaymentEngine / MatchRecovery set passed `3241/3241`; backend full conformance passed `9141/9141`.
 
 ## 1. Official Rule Evidence
 
@@ -35,11 +37,13 @@ These entries are sourced from `data/official/card-catalog.zh-CN.json`; no offic
   - `UnitReadyCount=1`
   - `Optional=true`
 - `TriggerSpec` now carries `PowerCostTrait`, and DevUi catalog typing mirrors that field for shared catalog payload compatibility.
-- `UnitTriggerPaymentSpecRules` builds a catalog-backed map and exposes:
-  - `TryGetUnitArmamentAttachedPayDrawTrigger(...)`
-  - `TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(...)`
-  - `TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(...)`
-  - `TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(...)`
+- `UnitTriggerPaymentSpecRules` builds a catalog-backed map and exposes generic lookup APIs:
+  - `TryGetTrigger(cardNo, IsUnitArmamentAttachedPayDrawTrigger, out trigger)`
+  - `TryGetTriggerByEffectKind(effectKind, IsUnitArmamentAttachedPayDrawTrigger, out trigger)`
+  - `TryGetTrigger(cardNo, IsUnitControlledUnitPowerfulPayPowerReadyTrigger, out trigger)`
+  - `TryGetTriggerByEffectKind(effectKind, IsUnitControlledUnitPowerfulPayPowerReadyTrigger, out trigger)`
+  - `TryGetTrigger(cardNo, IsUnitAttackPayPowerModifierTrigger, out trigger)`
+  - `TryGetTriggerByEffectKind(effectKind, IsUnitAttackPayPowerModifierTrigger, out trigger)`
 - `CoreRuleEngine.TryGetJaxWeaponAttachSource(...)` and `TryGetSfdFioraPowerfulReadySource(...)` now require the relevant `TriggerSpec` and keep the previous public-field, visible, non-standby, current-controller / legacy-owned source guards.
 - `CoreRuleEngine` builds pending-payment reasons, validates submitted payment reasons, and emits trigger/reason payload fields from the runtime trigger effect kind derived from `TriggerSpec`.
 - Jax payment-window cost and draw resolution now read `ManaCost` / `DrawCount` from `TriggerSpec`.

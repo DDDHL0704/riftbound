@@ -3016,7 +3016,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 4
-            || !UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTriggerByEffectKind(parts[0], out _)
+            || !UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(
+                parts[0],
+                UnitTriggerPaymentSpecRules.IsUnitAttackPayPowerModifierTrigger,
+                out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
             || string.IsNullOrWhiteSpace(parts[3]))
@@ -3067,7 +3070,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 3
-            || !UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind(parts[0], out _)
+            || !UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(
+                parts[0],
+                UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger,
+                out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2]))
         {
@@ -3109,7 +3115,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
         if (parts.Length != 3
-            || !UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind(parts[0], out _)
+            || !UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(
+                parts[0],
+                UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger,
+                out _)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2]))
         {
@@ -25855,7 +25864,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(candidate.CardNo, out trigger)
+        return UnitTriggerPaymentSpecRules.TryGetTrigger(
+                candidate.CardNo,
+                UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger,
+                out trigger)
             && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !candidate.IsFaceDown
             && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -25917,7 +25929,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger(candidate.CardNo, out trigger)
+        return UnitTriggerPaymentSpecRules.TryGetTrigger(
+                candidate.CardNo,
+                UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger,
+                out trigger)
             && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !candidate.IsFaceDown
             && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -25964,7 +25979,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger(sourceState.CardNo, out triggerSpec)
+        return UnitTriggerPaymentSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitTriggerPaymentSpecRules.IsUnitAttackPayPowerModifierTrigger,
+                out triggerSpec)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)

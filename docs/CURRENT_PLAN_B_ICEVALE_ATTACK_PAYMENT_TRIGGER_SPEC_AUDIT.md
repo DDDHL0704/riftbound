@@ -28,11 +28,13 @@ The wire-compatible trigger/effect string `ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MIN
   - `Optional=true`
 - `CardBehaviorDefinition.UnitAttackPayPowerModifierEffectKind` carries the stable runtime effect kind for implemented rows.
 - `CardBehaviorRegistry.TriggerEffectKinds(...)` projects `ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1` onto the parsed Icevale trigger.
-- `UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger(...)` validates source card trigger shape from the catalog-backed spec map.
-- `UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTriggerByEffectKind(...)` validates pending payment reasons without a Core-owned Icevale constant.
+- `UnitTriggerPaymentSpecRules.TryGetTrigger(..., UnitTriggerPaymentSpecRules.IsUnitAttackPayPowerModifierTrigger, ...)` validates source card trigger shape from the catalog-backed spec map.
+- `UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(..., UnitTriggerPaymentSpecRules.IsUnitAttackPayPowerModifierTrigger, ...)` validates pending payment reasons without a Core-owned Icevale constant.
 - `CoreRuleEngine.TryGetIcevaleArcherAttackSource(...)` now requires the parsed trigger plus the existing face-up, non-standby, controlled/legacy-owned, on-field source guards.
 - Icevale payment opening and resolution now read `ManaCost`, `PowerDelta`, and effect kind from `TriggerSpec`.
 - `CoreRuleEngine` no longer defines or references `IcevaleArcherAttackPaymentSourceEffectKind` or `ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT`.
+
+2026-07-02 follow-up: the Icevale source-card and pending-payment reason paths now use the generic `UnitTriggerPaymentSpecRules` predicate surface instead of Icevale-specific public getters. Focused guard / representative runtime set passed `52/52`; adjacent TriggerPayment / PaymentEngine / MatchRecovery set passed `3241/3241`; backend full conformance passed `9141/9141`; payload strings remain unchanged.
 
 ## Validation
 

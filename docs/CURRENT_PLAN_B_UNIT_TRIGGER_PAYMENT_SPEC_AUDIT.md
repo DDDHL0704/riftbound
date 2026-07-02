@@ -9,6 +9,8 @@
 
 2026-06-30 follow-up：Jax / Fiora pending-payment wire strings now also come from `BehaviorSpec.Triggers` / `UnitTriggerPaymentSpecRules` instead of Core-local `JaxWeaponAttachPayOneDrawEffectKind` and `SfdFioraPowerfulReadyEffectKind` constants. Focused source guard 2/2, adjacent trigger-payment / payment / recovery 3187/3187, and backend full 9038/9038 passed. Runtime payload strings remain unchanged.
 
+2026-07-02 follow-up：`UnitTriggerPaymentSpecRules` no longer exposes per-effect public getters for Jax, Fiora, or Icevale trigger-payment source selection. Core now uses `TryGetTrigger(cardNo, predicate, out trigger)` and `TryGetTriggerByEffectKind(effectKind, predicate, out trigger)` with shared `Is...Trigger` predicates for source-card validation and pending-payment reason parsing. Focused guard / representative runtime set 52/52, adjacent TriggerPayment / PaymentEngine / MatchRecovery set 3241/3241, and backend full conformance 9141/9141 passed. Runtime payload strings remain unchanged.
+
 ## 1. Scope
 
 Changed:
@@ -45,8 +47,8 @@ Not changed:
 
 | Requirement | Evidence | Verdict |
 |---|---|---|
-| Jax trigger payment source / cost / draw shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitArmamentAttachedPayDraw`, `Timing=UNIT_ARMAMENT_ATTACHED`, `TargetScope=FRIENDLY_EQUIPMENT`, `ManaCost=1`, `DrawCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger(...)` | Accepted |
-| Fiora trigger payment source / cost / ready shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitControlledUnitPowerfulPayPowerReady`, `Timing=CONTROLLED_UNIT_BECAME_POWERFUL`, `TargetScope=CONTROLLED_UNIT_ON_FIELD`, `PowerCost=1`, `PowerCostTrait=yellow`, `RequiredPowerThreshold=5`, `UnitReadyCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger(...)` | Accepted |
+| Jax trigger payment source / cost / draw shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitArmamentAttachedPayDraw`, `Timing=UNIT_ARMAMENT_ATTACHED`, `TargetScope=FRIENDLY_EQUIPMENT`, `ManaCost=1`, `DrawCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetTrigger(..., IsUnitArmamentAttachedPayDrawTrigger, ...)` | Accepted |
+| Fiora trigger payment source / cost / ready shape comes from `TriggerSpec` | `RuleTextParser` emits `TriggerKinds.UnitControlledUnitPowerfulPayPowerReady`, `Timing=CONTROLLED_UNIT_BECAME_POWERFUL`, `TargetScope=CONTROLLED_UNIT_ON_FIELD`, `PowerCost=1`, `PowerCostTrait=yellow`, `RequiredPowerThreshold=5`, `UnitReadyCount=1`, `Optional=true`; `CoreRuleEngine` reads it through `UnitTriggerPaymentSpecRules.TryGetTrigger(..., IsUnitControlledUnitPowerfulPayPowerReadyTrigger, ...)` | Accepted |
 | Core no longer duplicates Jax / Fiora trigger-payment source-effect selectors | `SfdJaxWeaponAttachSourceEffectKind`, `SfdJaxWeaponAttachAltSourceEffectKind`, `IsJaxWeaponAttachSourceBehavior`, `SfdFioraPowerfulReadySourceEffectKind`, `SfdFioraPowerfulReadyAltSourceEffectKind`, `IsSfdFioraPowerfulReadySourceBehavior`, `JaxWeaponAttachPayOneDrawEffectKind`, and `SfdFioraPowerfulReadyEffectKind` were removed from `CoreRuleEngine` | Accepted |
 | Existing wire/event compatibility is preserved | trigger/effect strings remain `JAX_WEAPON_ATTACH_PAY_1_DRAW_1` and `SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY`, now sourced through `TriggerSpec.Kind` / `TriggerSpec.EffectKind`; prompt/event payload shape is unchanged | Accepted |
 | Frontend shared catalog type stays aligned | `src/Riftbound.DevUi/src/types/catalog.ts` now includes `powerCostTrait?: string | null` | Accepted |

@@ -79,15 +79,36 @@ public sealed class TriggerPaymentTests
         Assert.DoesNotContain("UnitConquestTriggerSpecRules.TryGetUnitConquestPayReturnSelfToHandTriggerByEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger", source, StringComparison.Ordinal);
         Assert.Contains("TryOpenUnitConquestPayReturnSelfToHandPaymentWindow", source, StringComparison.Ordinal);
-        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind", source, StringComparison.Ordinal);
-        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind", source, StringComparison.Ordinal);
-        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitTriggerPaymentSpecRules.TryGetUnitArmamentAttachedPayDrawTriggerByEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitTriggerPaymentSpecRules.TryGetUnitControlledUnitPowerfulPayPowerReadyTriggerByEffectKind", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UnitTriggerPaymentSpecRules.TryGetUnitAttackPayPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("UnitTriggerPaymentSpecRules.IsUnitAttackPayPowerModifierTrigger", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, OgnVayneCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, IcevaleArcherCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("IcevaleArcherAttackPaymentSourceEffectKind", source, StringComparison.Ordinal);
         Assert.DoesNotContain("ICEVALE_ARCHER_ATTACK_PAYMENT_PLAY_UNIT", source, StringComparison.Ordinal);
+
+        var unitTriggerPaymentRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "UnitTriggerPaymentSpecRules.cs");
+        var unitTriggerPaymentRulesSource = File.ReadAllText(unitTriggerPaymentRulesPath);
+
+        Assert.DoesNotContain("TryGetUnitArmamentAttachedPayDrawTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetUnitControlledUnitPowerfulPayPowerReadyTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetUnitAttackPayPowerModifierTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTriggerByEffectKind", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitArmamentAttachedPayDrawTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitControlledUnitPowerfulPayPowerReadyTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitAttackPayPowerModifierTrigger", unitTriggerPaymentRulesSource, StringComparison.Ordinal);
     }
 
     [Fact]
