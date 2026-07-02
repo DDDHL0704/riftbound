@@ -66,6 +66,9 @@ write_evidence_bundle() {
   local incomplete_human_evidence="${10:-0}"
   local player_a_result_path="/tmp/riftbound-human-playtest/player-a-result.png"
   local player_b_result_path="/tmp/riftbound-human-playtest/player-b-result.png"
+  local room_id="fixture-room"
+  local player_a_handle="player-a-fixture"
+  local player_b_handle="player-b-fixture"
 
   if [[ "${screenshot_report_paths}" == "mismatch" ]]; then
     player_a_result_path="/tmp/old-riftbound-human-playtest/player-a-result.png"
@@ -80,6 +83,9 @@ Package integrity fixture.
 EOF
 
   cat >"${bundle_dir}/player-a.log" <<'EOF'
+Authenticate: Registered (player-a-fixture).
+JoinRoom requested: room=fixture-room, player=player-a-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
@@ -89,6 +95,9 @@ Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
 
   cat >"${bundle_dir}/player-b.log" <<'EOF'
+Authenticate: Registered (player-b-fixture).
+JoinRoom requested: room=fixture-room, player=player-b-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-b-fixture tick=0 payload=Object
 Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
@@ -99,6 +108,9 @@ EOF
 
   if [[ "${duplicate_logs}" == "1" ]]; then
     cat >"${bundle_dir}/player-a.log" <<'EOF'
+Authenticate: Registered (player-a-fixture).
+JoinRoom requested: room=fixture-room, player=player-a-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
@@ -112,11 +124,17 @@ EOF
 
   if [[ "${missing_deck_ready}" == "1" ]]; then
     cat >"${bundle_dir}/player-a.log" <<'EOF'
+Authenticate: Registered (player-a-fixture).
+JoinRoom requested: room=fixture-room, player=player-a-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 MATCH_STARTED
 Match result rendered
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
     cat >"${bundle_dir}/player-b.log" <<'EOF'
+Authenticate: Registered (player-b-fixture).
+JoinRoom requested: room=fixture-room, player=player-b-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-b-fixture tick=0 payload=Object
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
@@ -138,6 +156,9 @@ EOF
 - Git worktree: clean
 - Require clean git: 1
 - Incomplete human evidence: ${incomplete_human_evidence}
+- Room: ${room_id}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
 - Player A result screenshot: ${player_a_result_path}
 - Player B result screenshot: ${player_b_result_path}
 
@@ -272,6 +293,45 @@ if ! rg -q "player A and player B logs are identical|logs.*identical|identical.*
   echo "Expected duplicate log rejection output:" >&2
   cat "${duplicate_log_output}" >&2
   fail "verifier did not explain the duplicate player logs"
+fi
+
+duplicate_identity_bundle="${tmp_dir}/duplicate-identity/riftbound-human-playtest-evidence"
+write_evidence_bundle "${duplicate_identity_bundle}" "${revision}"
+cat >"${duplicate_identity_bundle}/player-b.log" <<'EOF'
+Authenticate: Registered (player-a-fixture).
+JoinRoom requested: room=fixture-room, player=player-a-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
+MATCH_STARTED
+MATCH_WON
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
+EOF
+awk '{
+  if ($0 == "- Player B handle: player-b-fixture") {
+    print "- Player B handle: player-a-fixture"
+  } else {
+    print
+  }
+}' "${duplicate_identity_bundle}/playtest-report.md" >"${duplicate_identity_bundle}/playtest-report.md.tmp"
+mv "${duplicate_identity_bundle}/playtest-report.md.tmp" "${duplicate_identity_bundle}/playtest-report.md"
+(
+  cd "${duplicate_identity_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+duplicate_identity_package="${tmp_dir}/duplicate-identity.tar.gz"
+make_package "${duplicate_identity_bundle}" "${duplicate_identity_package}"
+
+duplicate_identity_output="${tmp_dir}/duplicate-identity-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${duplicate_identity_package}" >"${duplicate_identity_output}" 2>&1; then
+  fail "verifier accepted package with duplicate player identities"
+fi
+
+if ! rg -q "Player A handle|Player B handle|distinct|duplicate" "${duplicate_identity_output}"; then
+  echo "Expected duplicate identity rejection output:" >&2
+  cat "${duplicate_identity_output}" >&2
+  fail "verifier did not explain the duplicate player identities"
 fi
 
 extra_file_bundle="${tmp_dir}/extra-file/riftbound-human-playtest-evidence"

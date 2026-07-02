@@ -84,6 +84,62 @@ require_literal_match() {
   fi
 }
 
+extract_authenticated_handle() {
+  local path="$1"
+  sed -nE 's/.*Authenticate: .* \(([^)]+)\)\..*/\1/p' "${path}" | head -n 1
+}
+
+extract_join_room() {
+  local path="$1"
+  sed -nE \
+    -e 's/.*JoinRoom requested: room=([^,]+), player=.*/\1/p' \
+    -e 's/.* type=JOIN room=([^ ]+) player=.*/\1/p' \
+    "${path}" | head -n 1
+}
+
+extract_join_player() {
+  local path="$1"
+  sed -nE \
+    -e 's/.*JoinRoom requested: room=[^,]+, player=([^.]+)\..*/\1/p' \
+    -e 's/.* type=JOIN room=[^ ]+ player=([^ ]+).*/\1/p' \
+    "${path}" | head -n 1
+}
+
+validate_player_identity() {
+  local log_path="$1"
+  local label="$2"
+  local handle_var="$3"
+  local room_var="$4"
+  local authenticated_handle=""
+  local joined_handle=""
+  local joined_room=""
+  local selected_handle=""
+
+  if [[ ! -s "${log_path}" ]]; then
+    return
+  fi
+
+  authenticated_handle="$(extract_authenticated_handle "${log_path}")"
+  joined_handle="$(extract_join_player "${log_path}")"
+  joined_room="$(extract_join_room "${log_path}")"
+  selected_handle="${authenticated_handle:-${joined_handle}}"
+
+  if [[ -z "${selected_handle}" ]]; then
+    failures+=("${label} handle not found in ${log_path}")
+  fi
+
+  if [[ -z "${joined_room}" ]]; then
+    failures+=("${label} room not found in ${log_path}")
+  fi
+
+  if [[ -n "${authenticated_handle}" && -n "${joined_handle}" && "${authenticated_handle}" != "${joined_handle}" ]]; then
+    failures+=("${label} authenticated handle and joined player disagree in ${log_path}")
+  fi
+
+  printf -v "${handle_var}" '%s' "${selected_handle}"
+  printf -v "${room_var}" '%s' "${joined_room}"
+}
+
 require_minimum_png_dimensions() {
   local label="$1"
   local width="$2"
@@ -152,6 +208,11 @@ player_a_log="${evidence_dir}/player-a.log"
 player_b_log="${evidence_dir}/player-b.log"
 player_a_result="${evidence_dir}/player-a-result.png"
 player_b_result="${evidence_dir}/player-b-result.png"
+player_a_handle=""
+player_b_handle=""
+player_a_room=""
+player_b_room=""
+room_id=""
 
 require_file "${player_a_log}" "player A log"
 require_file "${player_b_log}" "player B log"
@@ -170,6 +231,23 @@ if [[ -s "${player_b_log}" ]]; then
   require_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
   require_literal_match "Visual screenshot saved: ${player_b_result}" "${player_b_log}" "player B result screenshot log"
+fi
+
+validate_player_identity "${player_a_log}" "Player A" player_a_handle player_a_room
+validate_player_identity "${player_b_log}" "Player B" player_b_handle player_b_room
+
+if [[ -n "${player_a_room}" && -n "${player_b_room}" ]]; then
+  if [[ "${player_a_room}" != "${player_b_room}" ]]; then
+    failures+=("Player A and Player B joined different rooms (${player_a_room} vs ${player_b_room})")
+  else
+    room_id="${player_a_room}"
+  fi
+else
+  room_id="${player_a_room:-${player_b_room}}"
+fi
+
+if [[ -n "${player_a_handle}" && -n "${player_b_handle}" && "${player_a_handle}" == "${player_b_handle}" ]]; then
+  failures+=("Player A handle and Player B handle must be distinct (${player_a_handle})")
 fi
 
 if [[ -s "${player_a_log}" && -s "${player_b_log}" ]] && cmp -s "${player_a_log}" "${player_b_log}"; then
@@ -196,6 +274,9 @@ Riftbound Godot human playtest evidence check
   evidence_dir: ${evidence_dir}
   player_a_log: ${player_a_log}
   player_b_log: ${player_b_log}
+  room: ${room_id:-unknown}
+  player_a_handle: ${player_a_handle:-unknown}
+  player_b_handle: ${player_b_handle:-unknown}
   player_a_result: ${player_a_result}
   player_b_result: ${player_b_result}
 EOF
@@ -256,6 +337,9 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Git worktree: ${git_worktree_state}
 - Require clean git: ${require_clean_git}
 - Incomplete human evidence: ${incomplete_human_evidence}
+- Room: ${room_id}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
 - Evidence directory: ${evidence_dir}
 - Player A log: ${player_a_log}
 - Player B log: ${player_b_log}

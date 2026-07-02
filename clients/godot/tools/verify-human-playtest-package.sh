@@ -162,6 +162,67 @@ require_log_literal_match() {
   fi
 }
 
+report_field() {
+  local label="$1"
+  local prefix="- ${label}: "
+
+  if [[ ! -s "${report}" ]]; then
+    return
+  fi
+
+  awk -v prefix="${prefix}" '
+    index($0, prefix) == 1 {
+      print substr($0, length(prefix) + 1)
+      exit
+    }
+  ' "${report}"
+}
+
+require_report_identity_consistency() {
+  local room=""
+  local player_a_handle=""
+  local player_b_handle=""
+
+  room="$(report_field "Room")"
+  player_a_handle="$(report_field "Player A handle")"
+  player_b_handle="$(report_field "Player B handle")"
+
+  if [[ -z "${room}" || "${room}" == "unknown" ]]; then
+    failures+=("Room missing from playtest-report.md")
+  fi
+
+  if [[ -z "${player_a_handle}" || "${player_a_handle}" == "unknown" ]]; then
+    failures+=("Player A handle missing from playtest-report.md")
+  fi
+
+  if [[ -z "${player_b_handle}" || "${player_b_handle}" == "unknown" ]]; then
+    failures+=("Player B handle missing from playtest-report.md")
+  fi
+
+  if [[ -n "${player_a_handle}" && -n "${player_b_handle}" && "${player_a_handle}" == "${player_b_handle}" ]]; then
+    failures+=("Player A handle and Player B handle must be distinct (${player_a_handle})")
+  fi
+
+  if [[ -n "${room}" && "${room}" != "unknown" ]]; then
+    require_log_literal_match "room=${room}" "${player_a_log}" "player A room identity"
+    require_log_literal_match "room=${room}" "${player_b_log}" "player B room identity"
+  fi
+
+  if [[ -n "${player_a_handle}" && "${player_a_handle}" != "unknown" && -s "${player_a_log}" ]]; then
+    if ! grep -Fq -- "player=${player_a_handle}" "${player_a_log}" \
+      && ! grep -Fq -- "(${player_a_handle})." "${player_a_log}"; then
+      failures+=("Player A handle does not match player-a.log")
+    fi
+  fi
+
+  if [[ -n "${player_b_handle}" && "${player_b_handle}" != "unknown" && -s "${player_b_log}" ]]; then
+    if ! grep -Fq -- "player=${player_b_handle}" "${player_b_log}" \
+      && ! grep -Fq -- "(${player_b_handle})." "${player_b_log}"; then
+      failures+=("Player B handle does not match player-b.log")
+    fi
+  fi
+}
+
 require_client_setup_log_matches() {
   local path="$1"
   local label="$2"
@@ -296,6 +357,7 @@ if [[ -s "${report}" ]] && grep -Fxq -- "- Incomplete human evidence: 1" "${repo
 else
   require_report_line "- Incomplete human evidence: 0" "complete human evidence marker"
 fi
+require_report_identity_consistency
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"

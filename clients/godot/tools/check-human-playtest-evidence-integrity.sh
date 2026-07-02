@@ -44,6 +44,9 @@ write_evidence_dir() {
   local duplicate_logs="${5:-0}"
   local player_a_screenshot_log="/tmp/player-a-result.png"
   local player_b_screenshot_log="/tmp/player-b-result.png"
+  local room_id="fixture-room"
+  local player_a_handle="player-a-fixture"
+  local player_b_handle="player-b-fixture"
 
   if [[ "${screenshot_log_paths}" == "actual" ]]; then
     player_a_screenshot_log="${evidence_dir}/player-a-result.png"
@@ -52,12 +55,18 @@ write_evidence_dir() {
 
   mkdir -p "${evidence_dir}"
   cat >"${evidence_dir}/player-a.log" <<EOF
+Authenticate: Registered (${player_a_handle}).
+JoinRoom requested: room=${room_id}, player=${player_a_handle}.
+[b]Joined[/b] type=JOIN room=${room_id} player=${player_a_handle} tick=0 payload=Object
 MATCH_STARTED
 Match result rendered
 Visual screenshot saved: ${player_a_screenshot_log}
 EOF
 
   cat >"${evidence_dir}/player-b.log" <<EOF
+Authenticate: Registered (${player_b_handle}).
+JoinRoom requested: room=${room_id}, player=${player_b_handle}.
+[b]Joined[/b] type=JOIN room=${room_id} player=${player_b_handle} tick=0 payload=Object
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: ${player_b_screenshot_log}
@@ -65,6 +74,9 @@ EOF
 
   if [[ "${duplicate_logs}" == "1" ]]; then
     cat >"${evidence_dir}/player-a.log" <<EOF
+Authenticate: Registered (${player_a_handle}).
+JoinRoom requested: room=${room_id}, player=${player_a_handle}.
+[b]Joined[/b] type=JOIN room=${room_id} player=${player_a_handle} tick=0 payload=Object
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: ${player_a_screenshot_log}
@@ -145,6 +157,28 @@ if ! rg -q "player A and player B logs are identical|logs.*identical|identical.*
   fail "evidence checker did not explain the duplicate player logs"
 fi
 
+duplicate_identity_dir="${tmp_dir}/duplicate-identity"
+write_evidence_dir "${duplicate_identity_dir}" "full"
+cat >"${duplicate_identity_dir}/player-b.log" <<EOF
+Authenticate: Registered (player-a-fixture).
+JoinRoom requested: room=fixture-room, player=player-a-fixture.
+[b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
+MATCH_STARTED
+MATCH_WON
+Visual screenshot saved: ${duplicate_identity_dir}/player-b-result.png
+EOF
+duplicate_identity_output="${tmp_dir}/duplicate-identity-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${duplicate_identity_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${duplicate_identity_dir}" >"${duplicate_identity_output}" 2>&1; then
+  fail "evidence checker accepted duplicate player identities"
+fi
+
+if ! rg -q "Player A handle|Player B handle|distinct|duplicate" "${duplicate_identity_output}"; then
+  echo "Expected duplicate identity rejection output:" >&2
+  cat "${duplicate_identity_output}" >&2
+  fail "evidence checker did not explain the duplicate player identities"
+fi
+
 incomplete_evidence_dir="${tmp_dir}/incomplete"
 write_evidence_dir "${incomplete_evidence_dir}" "full"
 incomplete_output="${tmp_dir}/incomplete-output.log"
@@ -176,6 +210,24 @@ if ! rg -q "Required result screenshots: present" "${covered_evidence_dir}/playt
   echo "Expected covered report to include screenshot machine-check status:" >&2
   cat "${covered_evidence_dir}/playtest-report.md" >&2
   fail "evidence checker did not write the expected report"
+fi
+
+if ! rg -q "Room: fixture-room" "${covered_evidence_dir}/playtest-report.md"; then
+  echo "Expected covered report to include room identity:" >&2
+  cat "${covered_evidence_dir}/playtest-report.md" >&2
+  fail "evidence checker did not write the room identity"
+fi
+
+if ! rg -q "Player A handle: player-a-fixture" "${covered_evidence_dir}/playtest-report.md"; then
+  echo "Expected covered report to include player A handle:" >&2
+  cat "${covered_evidence_dir}/playtest-report.md" >&2
+  fail "evidence checker did not write the player A handle"
+fi
+
+if ! rg -q "Player B handle: player-b-fixture" "${covered_evidence_dir}/playtest-report.md"; then
+  echo "Expected covered report to include player B handle:" >&2
+  cat "${covered_evidence_dir}/playtest-report.md" >&2
+  fail "evidence checker did not write the player B handle"
 fi
 
 echo "Human playtest evidence integrity checks passed."

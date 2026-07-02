@@ -1,0 +1,45 @@
+# Riftbound Godot Development Memory
+
+This file records durable context for the Godot client work so long runs can
+resume from repository state instead of conversation history alone.
+
+## Current Shape
+
+- The Godot client remains server-authoritative: it renders server snapshots and
+  prompts, then submits server-provided commands or prompt templates. It must not
+  infer legality, hidden identities, combat results, or win conditions locally.
+- `scripts/Main.cs` owns session setup, hub connection, lobby controls, prompt
+  rendering/submission, smoke helpers, result rendering, and viewport screenshot
+  capture.
+- `scripts/CardControlRenderer.cs` owns the visible table/card presentation:
+  hand rows, opponent card backs, rune tracks, base/signature/standby/battlefield
+  zones, card hover/click feedback, and prompt-source highlights.
+- `scripts/RunestoneTheme.cs` and `scripts/RunestoneBackdrop.cs` implement the
+  selected style route C: black-white inksteel tabletop with restrained crimson
+  and antique-gold accents.
+- Official card fronts are loaded at runtime from catalog `frontImage` URLs via
+  `OfficialCardImageLoader` into `user://official-card-cache`; they are not
+  committed to git.
+
+## Verification Pattern
+
+- Build gate: `~/.dotnet/dotnet build clients/godot/Riftbound.GodotClient.csproj`.
+- Visual preflight: `clients/godot/tools/run-clean-main-simulated-playtest-stack.sh`
+  opens two visible Godot windows from clean `origin/main`, but it uses
+  auto-smoke and is not final P5 evidence.
+- Final P5 path: `clients/godot/tools/run-clean-main-human-playtest-stack.sh`
+  must be run from a clean pushed `main`, with two human operators, manual
+  confirmations, final result screenshots, evidence packaging, and package
+  verification.
+- The evidence checker now records the room id and both player handles from the
+  Godot logs; final packages must prove the report and logs agree and that the
+  two player identities are distinct.
+
+## Open Risks
+
+- P5 is still incomplete until two real humans complete a Godot match to the
+  server result panel and produce a verified final evidence package.
+- Automated smoke screenshots are useful regression evidence but do not satisfy
+  the two-human hidden-information gate.
+- Keep changes scoped to `clients/godot/` unless the user explicitly approves a
+  backend, contract, DevUi, or deployment change.
