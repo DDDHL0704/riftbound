@@ -222,6 +222,15 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.RecycleCount is > 0;
     }
 
+    public static bool IsBattlefieldConquerConsumeBoonDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerConsumeBoonDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledBoonUnitOnField, StringComparison.Ordinal)
+            && trigger.ConsumedBoonCount is > 0
+            && trigger.DrawCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -267,14 +276,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerConsumeBoonDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerConsumeBoonDraw,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerDiscardDrawTrigger(string? cardNo, out TriggerSpec trigger)

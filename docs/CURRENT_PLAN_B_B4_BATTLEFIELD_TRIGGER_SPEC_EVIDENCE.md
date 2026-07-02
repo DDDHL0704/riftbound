@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Consume-Boon Draw Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·282/298` Shirana Monastery / 希拉娜修道院 official text `当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerConsumeBoonDrawTrigger, out trigger)`.
+- `IsBattlefieldConquerConsumeBoonDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_BOON_UNIT_ON_FIELD`, positive `ConsumedBoonCount`, and positive `DrawCount`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerConsumeBoonDrawTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, controlled boon-unit target discovery, one-boon consumption, power decrement, draw application, `BATTLEFIELD_TRIGGER_RESOLVED`, `BOON_CONSUMED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer consume-boon draw paths continue to auto-resolve the current representative optional trigger when a controlled boon unit is available, consume one boon from that unit, draw the parsed count, and preserve opponent-owned dirty boon guards through the same target selection helper. Broader optional yes/no prompting remains outside this execution-helper slice.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerConsumeBoonDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Shirana Monastery runtime / GameHub / official-deck route 7/7; adjacent `ConsumeBoon|Boon|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery` 2513/2513; backend full conformance 9103/9103.
+
 ## 2026-07-02 Conquer Recycle-Rune Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·287/298` Thunder Sigil / 雷霆之纹 official text `当你征服此处时，回收一枚你的符文。`
@@ -452,7 +462,7 @@ The conquer recycle-rune follow-up parser path turns the Sigil of Thunder offici
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still selects a controlled rune in the conquering player's base, moves it to the bottom of that player's main deck, and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`. The recycle count and source/destination zones now come from the parsed spec, and the existing opponent-controlled base rune guard remains covered.
 
-The conquer consume-boon draw follow-up parser path turns the Shirana Monastery official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_BOON_UNIT_ON_FIELD`, `ConsumedBoonCount=1`, and `DrawCount=1`. Runtime no longer checks `OGN·282/298` through `BattlefieldConquerConsumeBoonDrawCardNo` / `IsBattlefieldConquerConsumeBoonDrawCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer consume-boon draw follow-up parser path turns the Shirana Monastery official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_BOON_UNIT_ON_FIELD`, `ConsumedBoonCount=1`, and `DrawCount=1`. Runtime no longer checks `OGN·282/298` through `BattlefieldConquerConsumeBoonDrawCardNo` / `IsBattlefieldConquerConsumeBoonDrawCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerConsumeBoonDrawTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior for this optional trigger: when a controlled boon unit is available, it consumes one boon, reduces that unit's power by one, draws the parsed count, and emits `BATTLEFIELD_TRIGGER_RESOLVED`, `BOON_CONSUMED`, and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`. The opponent-controlled dirty boon guard remains covered; the broader optional yes/no prompt remains outside this narrow routing slice.
 

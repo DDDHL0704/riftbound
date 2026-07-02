@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer recycle-rune execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer consume-boon draw execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer consume-boon draw execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldConquerConsumeBoonDrawTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerConsumeBoonDrawTrigger`.
+- `IsBattlefieldConquerConsumeBoonDrawTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, `BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_BOON_UNIT_ON_FIELD`, positive `ConsumedBoonCount`, and positive `DrawCount`. Existing conquered-battlefield source discovery, controlled boon-unit target discovery, one-boon consumption, power decrement, draw application, `BATTLEFIELD_TRIGGER_RESOLVED` / `BOON_CONSUMED` / draw payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerConsumeBoonDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 16; `Is*CardNo(...)` helper count remains 0. This slice does not close optional yes/no prompts, complete boon target-choice / replacement breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: focused guard / parser / Shirana Monastery runtime / GameHub / official-deck route 7/7, adjacent `ConsumeBoon|Boon|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery` 2513/2513, backend full conformance 9103/9103.
 
 The 2026-07-02 conquer recycle-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -704,9 +713,9 @@ The 2026-06-25 conquer consume-boon draw follow-up moves another implemented con
   - `TargetScope = CONTROLLED_BOON_UNIT_ON_FIELD`
   - `ConsumedBoonCount = 1`
   - `DrawCount = 1`
-- `CoreRuleEngine.TryResolveBattlefieldConquerConsumeBoonDrawTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(...)` and reads the draw count and consumed-boon count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerConsumeBoonDrawTrigger` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerConsumeBoonDrawTrigger, out trigger)` and reads the draw count and consumed-boon count from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerConsumeBoonDrawCardNo` constant.
-- The old `BattlefieldConquerConsumeBoonDrawCardNo` / `IsBattlefieldConquerConsumeBoonDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `71` total / `67` in `CoreRuleEngine`; Core battlefield helper count is `23`.
+- The old `BattlefieldConquerConsumeBoonDrawCardNo` / `IsBattlefieldConquerConsumeBoonDrawCardNo` card-number branch was removed in that slice. Its then-current source-helper count for `private static bool Is*CardNo(...)` was `71` total / `67` in `CoreRuleEngine`; current helper-closure counts are tracked in the 2026-07-02 execution-helper sections above.
 
 The 2026-06-25 conquer discard-draw follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
 
@@ -1103,6 +1112,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `83/83`;
 - adjacent BattlefieldConquerRecycleRune / FullGameEndToEnd / MatchRecovery representatives: passed `2076/2076`;
 - backend full conformance: passed `8847/8847`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-07-02 conquer consume-boon draw execution-helper follow-up validation:
+
+- focused generic predicate guard / behavior-spec / runtime / GameHub / official-deck representative: passed `7/7`;
+- adjacent ConsumeBoon / Boon / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / GameHubJoin / MatchRecovery representatives: passed `2513/2513`;
+- backend full conformance: passed `9103/9103`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer consume-boon draw follow-up validation:

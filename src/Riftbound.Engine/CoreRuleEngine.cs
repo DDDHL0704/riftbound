@@ -25066,11 +25066,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledBoonUnitOnField, StringComparison.Ordinal)
-            || trigger.ConsumedBoonCount.GetValueOrDefault() <= 0
-            || trigger.DrawCount.GetValueOrDefault() <= 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerConsumeBoonDrawTrigger,
+                out var trigger)
             || !TryGetFirstControlledBoonUnit(playerZones, cardObjects, playerId, sourceObjectId, out var targetObjectId, out var targetState))
         {
             return false;
