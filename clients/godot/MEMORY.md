@@ -31,6 +31,11 @@ resume from repository state instead of conversation history alone.
   must be run from a clean pushed `main`, with two human operators, manual
   confirmations, final result screenshots, evidence packaging, and package
   verification.
+- P4 local deployment check has been validated from clean
+  `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`: Docker image
+  `riftbound-api:p4-docker-192252` built, Production memory-mode container
+  returned `/health` OK, `/metrics` OK, Dev UI root HTML OK, and Docker
+  `HEALTHCHECK` reached `healthy`.
 - The evidence checker now records the room id and both player handles from the
   Godot logs; final packages must prove the report and logs agree and that the
   two player identities are distinct.

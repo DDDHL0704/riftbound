@@ -20,6 +20,11 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 - P2/P3 have a visible automated regression path that reaches the server result
   panel with the inksteel table/card presentation. This is useful evidence, but
   it is auto-smoke and cannot satisfy final P5.
+- P4 local deployment validation has passed from clean pushed `origin/main`:
+  Docker image build, Production memory-mode `docker run`, `/health`,
+  `/metrics`, Dev UI root, and Docker `HEALTHCHECK` all verified. No public
+  cloud instance has been created because target platform and credentials are
+  still user-owned.
 - P5 evidence collection has been hardened: final runs must come from clean
   pushed `origin/main`, must not use auto-smoke or auto-quit arguments, must
   record manual confirmations, and must now prove both player identities and the

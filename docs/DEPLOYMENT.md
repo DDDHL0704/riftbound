@@ -45,6 +45,23 @@ curl -fsS http://127.0.0.1:8080/metrics
 
 With no `ConnectionStrings__Riftbound`, identity and match result state use in-memory stores and reset when the process exits.
 
+## Local Verification Record
+
+Latest validated local deployment check:
+
+- Date: 2026-07-02.
+- Source revision: `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`.
+- Image tag: `riftbound-api:p4-docker-192252`.
+- Build: `docker build -t riftbound-api:p4-docker-192252 .` from a clean `origin/main` worktree.
+- Runtime: container started in Production memory mode with configuration supplied through environment variables only.
+- Checks:
+  - `GET /health` returned `status=ok`, `persistenceMode=memory`, `signalRScaleMode=single-instance`, and `configuredCorsOriginCount=1`.
+  - Docker `HEALTHCHECK` transitioned from `starting` to `healthy`.
+  - `GET /metrics` exposed process/configuration gauges without match, player, card, or room identifiers.
+  - `GET /` served the bundled Dev UI index page.
+
+No cloud resources were created for this check. Public deployment still requires the target platform, registry, domain, and any managed Postgres or Redis credentials to be supplied out of band.
+
 ## Run With Postgres
 
 Set `ConnectionStrings__Riftbound` to the Postgres connection string supplied by your hosting environment. The API runs the idempotent SQL files from `src/Riftbound.Persistence/Sql` during startup through `PostgresSchemaInitializer`.
