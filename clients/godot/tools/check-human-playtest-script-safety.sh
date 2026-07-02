@@ -148,6 +148,9 @@ existing_evidence_package="${tmp_dir}/existing-human-playtest.tar.gz"
 printf 'old package\n' >"${existing_evidence_package}"
 expect_final_gate_value_rejection "RIFTBOUND_EVIDENCE_PACKAGE" "${existing_evidence_package}"
 
+external_playtest_report="${tmp_dir}/external-playtest-report.md"
+expect_final_gate_value_rejection "RIFTBOUND_PLAYTEST_REPORT" "${external_playtest_report}"
+
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
 PATH="${fake_bin}:${PATH}" \

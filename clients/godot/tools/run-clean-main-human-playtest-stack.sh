@@ -40,6 +40,7 @@ user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
 room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
+playtest_report="${RIFTBOUND_PLAYTEST_REPORT:-}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
 require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
@@ -97,6 +98,9 @@ fi
 if [[ -e "${evidence_package}" ]]; then
   disabled_final_gates+=("RIFTBOUND_EVIDENCE_PACKAGE=${evidence_package} already exists")
 fi
+if [[ -n "${playtest_report}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_PLAYTEST_REPORT=${playtest_report}")
+fi
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -108,7 +112,8 @@ Final P5 evidence requires a fetched origin/main clean worktree, manual
 confirmations, a clean-git report marker, evidence checking, evidence packaging,
 package verification, a fresh Godot build, waiting for both Godot windows to
 exit, and no automatic Godot quit timer. The evidence directory must be new or
-empty, and the evidence package path must not already exist. Set
+empty, the evidence package path must not already exist, and the playtest report
+must be generated inside the new evidence directory. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -159,6 +164,7 @@ Started clean-main Riftbound Godot human playtest stack.
   keep worktree: ${keep_worktree}
   evidence dir: ${screenshot_dir}
   evidence package: ${evidence_package}
+  playtest report: ${screenshot_dir}/playtest-report.md
   manual confirmations: ${confirm_manual}
   require clean git: ${require_clean_git}
   check evidence: ${check_evidence}
