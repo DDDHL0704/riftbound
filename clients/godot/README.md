@@ -210,6 +210,7 @@ For the final P5 evidence run, have the stack prompt for the human-only
 confirmations and package the evidence immediately after both windows close:
 
 ```sh
+RIFTBOUND_REQUIRE_CLEAN_GIT=1 \
 RIFTBOUND_CONFIRM_MANUAL=1 \
 RIFTBOUND_PACKAGE_EVIDENCE=1 \
 clients/godot/tools/run-local-human-playtest-stack.sh
@@ -218,6 +219,8 @@ clients/godot/tools/run-local-human-playtest-stack.sh
 Set `RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz` to choose
 the output tarball path. The package is valid P5 evidence only when the prompts
 were answered by the two human operators after a real completed match.
+`RIFTBOUND_REQUIRE_CLEAN_GIT=1` also makes the checker fail if the report would
+be captured from a worktree with uncommitted changes.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`

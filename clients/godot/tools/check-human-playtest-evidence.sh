@@ -38,7 +38,18 @@ manual_failures=()
 notes=()
 report_path="${RIFTBOUND_PLAYTEST_REPORT:-${evidence_dir}/playtest-report.md}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-0}"
+require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-0}"
 auto_smoke_found=0
+git_status_output="$(git -C "${repo_root}" status --short 2>/dev/null || true)"
+git_worktree_state="clean"
+
+if [[ -n "${git_status_output}" ]]; then
+  git_worktree_state="dirty"
+  notes+=("git worktree is dirty; final P5 evidence should be captured from a clean pushed main revision")
+  if [[ "${require_clean_git}" == "1" ]]; then
+    failures+=("git worktree is dirty while RIFTBOUND_REQUIRE_CLEAN_GIT=1")
+  fi
+fi
 
 require_file() {
   local path="$1"
@@ -152,6 +163,8 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 
 - Checked at: ${checked_at}
 - Git revision: ${git_revision}
+- Git worktree: ${git_worktree_state}
+- Require clean git: ${require_clean_git}
 - Evidence directory: ${evidence_dir}
 - Player A log: ${player_a_log}
 - Player B log: ${player_b_log}
@@ -166,6 +179,17 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
 - Manual confirmation mode: ${confirm_manual}
+
+## Git Status
+EOF
+
+  if [[ -n "${git_status_output}" ]]; then
+    printf '\n```text\n%s\n```\n' "${git_status_output}"
+  else
+    printf '\n- Clean\n'
+  fi
+
+  cat <<EOF
 
 ## Notes
 EOF
