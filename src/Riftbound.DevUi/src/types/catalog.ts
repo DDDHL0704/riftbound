@@ -115,7 +115,20 @@ export type BehaviorSpec = {
     requiresOtherFriendlyUnitAtSamePosition?: boolean | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
-  activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;
+  activatedAbilities: Array<{
+    costText: string;
+    effectText: string;
+    templateIds: string[];
+    status: string;
+    reason: string;
+    kind?: string | null;
+    exhaustsSourceAsCost?: boolean | null;
+    reactionSpeed?: boolean | null;
+    isResourceSkill?: boolean | null;
+    paymentOnlyResource?: boolean | null;
+    generatedPowerTrait?: string | null;
+    generatedPower?: number | null;
+  }>;
   staticAbilities: Array<{
     kind: string;
     text: string;

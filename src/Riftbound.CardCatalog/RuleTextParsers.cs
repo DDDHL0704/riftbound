@@ -2060,6 +2060,17 @@ public static class ReplacementParser
 
 public static class ActivatedAbilityParser
 {
+    private static readonly IReadOnlyDictionary<string, string> ResourceTraitByChineseColor =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["红色"] = "red",
+            ["绿色"] = "green",
+            ["蓝色"] = "blue",
+            ["橙色"] = "orange",
+            ["紫色"] = "purple",
+            ["黄色"] = "yellow"
+        };
+
     public static IReadOnlyList<ActivatedAbilitySpec> Parse(string text)
     {
         return TargetParser.SplitRulesText(text)
@@ -2070,6 +2081,11 @@ public static class ActivatedAbilityParser
                 var parts = segment.Split(['：', ':'], 2, StringSplitOptions.TrimEntries);
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
+                if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
+                {
+                    return typedResourceSkill;
+                }
+
                 return new ActivatedAbilitySpec(
                     cost,
                     effect,
@@ -2078,6 +2094,39 @@ public static class ActivatedAbilityParser
                     "Activated ability parsed for P3 routing only; execution remains unimplemented.");
             })
             .ToArray();
+    }
+
+    private static bool TryParseTypedResourceSkill(
+        string cost,
+        string effect,
+        out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var match = Regex.Match(
+            effect,
+            @"\{\{反应\}\}\s*—\s*\{\{获得\}\}\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}，用以支付符能费用",
+            RegexOptions.CultureInvariant);
+        if (!string.Equals(cost, "{{横置}}", StringComparison.Ordinal)
+            || !match.Success
+            || !ResourceTraitByChineseColor.TryGetValue(match.Groups["trait"].Value, out var trait))
+        {
+            return false;
+        }
+
+        ability = new ActivatedAbilitySpec(
+            cost,
+            effect,
+            EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Unimplemented,
+            "Typed resource activated ability parsed for P4 spec-driven resource-skill routing.",
+            Kind: ActivatedAbilityKinds.TypedResourceSkill,
+            ExhaustsSourceAsCost: true,
+            ReactionSpeed: true,
+            IsResourceSkill: true,
+            PaymentOnlyResource: true,
+            GeneratedPowerTrait: trait,
+            GeneratedPower: 1);
+        return true;
     }
 }
 

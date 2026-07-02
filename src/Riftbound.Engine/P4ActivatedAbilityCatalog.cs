@@ -1,3 +1,6 @@
+using Riftbound.CardCatalog;
+using Riftbound.Contracts;
+
 namespace Riftbound.Engine;
 
 public sealed record P4ActivatedAbilityDefinition(
@@ -242,129 +245,8 @@ public static class P4ActivatedAbilityCatalog
     public const int GoldTokenRenataBonusMana = 1;
     public const string GoldTokenPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GOLD_TEMPORARY_LEDGER_4D_03V";
 
-    private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles =
-    [
-        new(
-            RageSigilResourceAbilityId,
-            RageSigilCardNo,
-            RageSigilResourceAbilityEffectKind,
-            "暴怒之印",
-            RuneTrait.Red,
-            "红色",
-            RageSigilTypedResourceRestriction,
-            "RAGE_SIGIL",
-            IsOgnReprint: false),
-        new(
-            FocusSigilResourceAbilityId,
-            FocusSigilCardNo,
-            FocusSigilResourceAbilityEffectKind,
-            "专注之印",
-            RuneTrait.Green,
-            "绿色",
-            FocusSigilTypedResourceRestriction,
-            "FOCUS_SIGIL",
-            IsOgnReprint: false),
-        new(
-            InsightSigilResourceAbilityId,
-            InsightSigilCardNo,
-            InsightSigilResourceAbilityEffectKind,
-            "洞察之印",
-            RuneTrait.Blue,
-            "蓝色",
-            InsightSigilTypedResourceRestriction,
-            "INSIGHT_SIGIL",
-            IsOgnReprint: false),
-        new(
-            PowerSigilResourceAbilityId,
-            PowerSigilCardNo,
-            PowerSigilResourceAbilityEffectKind,
-            "力量之印",
-            RuneTrait.Orange,
-            "橙色",
-            PowerSigilTypedResourceRestriction,
-            "POWER_SIGIL",
-            IsOgnReprint: false),
-        new(
-            DiscordSigilResourceAbilityId,
-            DiscordSigilCardNo,
-            DiscordSigilResourceAbilityEffectKind,
-            "不和之印",
-            RuneTrait.Purple,
-            "紫色",
-            DiscordSigilTypedResourceRestriction,
-            "DISCORD_SIGIL",
-            IsOgnReprint: false),
-        new(
-            UnitySigilResourceAbilityId,
-            UnitySigilCardNo,
-            UnitySigilResourceAbilityEffectKind,
-            "团结之印",
-            RuneTrait.Yellow,
-            "黄色",
-            UnitySigilTypedResourceRestriction,
-            "UNITY_SIGIL",
-            IsOgnReprint: false),
-        new(
-            OgnRageSigilResourceAbilityId,
-            OgnRageSigilCardNo,
-            OgnRageSigilResourceAbilityEffectKind,
-            "暴怒之印",
-            RuneTrait.Red,
-            "红色",
-            OgnRageSigilTypedResourceRestriction,
-            "OGN_RAGE_SIGIL",
-            IsOgnReprint: true),
-        new(
-            OgnFocusSigilResourceAbilityId,
-            OgnFocusSigilCardNo,
-            OgnFocusSigilResourceAbilityEffectKind,
-            "专注之印",
-            RuneTrait.Green,
-            "绿色",
-            OgnFocusSigilTypedResourceRestriction,
-            "OGN_FOCUS_SIGIL",
-            IsOgnReprint: true),
-        new(
-            OgnInsightSigilResourceAbilityId,
-            OgnInsightSigilCardNo,
-            OgnInsightSigilResourceAbilityEffectKind,
-            "洞察之印",
-            RuneTrait.Blue,
-            "蓝色",
-            OgnInsightSigilTypedResourceRestriction,
-            "OGN_INSIGHT_SIGIL",
-            IsOgnReprint: true),
-        new(
-            OgnPowerSigilResourceAbilityId,
-            OgnPowerSigilCardNo,
-            OgnPowerSigilResourceAbilityEffectKind,
-            "力量之印",
-            RuneTrait.Orange,
-            "橙色",
-            OgnPowerSigilTypedResourceRestriction,
-            "OGN_POWER_SIGIL",
-            IsOgnReprint: true),
-        new(
-            OgnDiscordSigilResourceAbilityId,
-            OgnDiscordSigilCardNo,
-            OgnDiscordSigilResourceAbilityEffectKind,
-            "不和之印",
-            RuneTrait.Purple,
-            "紫色",
-            OgnDiscordSigilTypedResourceRestriction,
-            "OGN_DISCORD_SIGIL",
-            IsOgnReprint: true),
-        new(
-            OgnUnitySigilResourceAbilityId,
-            OgnUnitySigilCardNo,
-            OgnUnitySigilResourceAbilityEffectKind,
-            "团结之印",
-            RuneTrait.Yellow,
-            "黄色",
-            OgnUnitySigilTypedResourceRestriction,
-            "OGN_UNITY_SIGIL",
-            IsOgnReprint: true)
-    ];
+    private static readonly Lazy<IReadOnlyList<P4SigilTypedResourceProfile>> SigilTypedResourceProfiles =
+        new(BuildSigilTypedResourceProfiles, LazyThreadSafetyMode.ExecutionAndPublication);
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -717,7 +599,7 @@ public static class P4ActivatedAbilityCatalog
             ResourceRestriction: GoldTokenPaymentOnlyResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
-        .. SigilTypedResourceProfiles.Select(SigilTypedResourceDefinition)
+        .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
     ];
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
@@ -820,7 +702,7 @@ public static class P4ActivatedAbilityCatalog
 
     public static bool IsSigilTypedResourceAbility(string? abilityId)
     {
-        return SigilTypedResourceProfiles.Any(profile => string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
+        return SigilTypedResourceProfiles.Value.Any(profile => string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
     }
 
     public static bool IsResourceConversionEquipmentAbility(string? abilityId)
@@ -855,14 +737,14 @@ public static class P4ActivatedAbilityCatalog
         string? abilityId,
         out P4SigilTypedResourceProfile profile)
     {
-        profile = SigilTypedResourceProfiles.FirstOrDefault(candidate =>
+        profile = SigilTypedResourceProfiles.Value.FirstOrDefault(candidate =>
             string.Equals(candidate.AbilityId, abilityId, StringComparison.Ordinal))!;
         return profile is not null;
     }
 
     public static bool IsSfdSigilTypedResourceAbility(string? abilityId)
     {
-        return SigilTypedResourceProfiles.Any(profile =>
+        return SigilTypedResourceProfiles.Value.Any(profile =>
             !profile.IsOgnReprint
             && string.Equals(profile.AbilityId, abilityId, StringComparison.Ordinal));
     }
@@ -871,7 +753,7 @@ public static class P4ActivatedAbilityCatalog
         string? abilityId,
         out P4SigilTypedResourceProfile profile)
     {
-        profile = SigilTypedResourceProfiles.FirstOrDefault(candidate =>
+        profile = SigilTypedResourceProfiles.Value.FirstOrDefault(candidate =>
             !candidate.IsOgnReprint
             && string.Equals(candidate.AbilityId, abilityId, StringComparison.Ordinal))!;
         return profile is not null;
@@ -879,19 +761,19 @@ public static class P4ActivatedAbilityCatalog
 
     public static IReadOnlyList<P4SigilTypedResourceProfile> GetSigilTypedResourceProfiles()
     {
-        return SigilTypedResourceProfiles;
+        return SigilTypedResourceProfiles.Value;
     }
 
     public static IReadOnlyList<P4SigilTypedResourceProfile> GetSfdSigilTypedResourceProfiles()
     {
-        return SigilTypedResourceProfiles
+        return SigilTypedResourceProfiles.Value
             .Where(profile => !profile.IsOgnReprint)
             .ToArray();
     }
 
     public static IReadOnlyList<P4SigilTypedResourceProfile> GetOgnSigilTypedResourceProfiles()
     {
-        return SigilTypedResourceProfiles
+        return SigilTypedResourceProfiles.Value
             .Where(profile => profile.IsOgnReprint)
             .ToArray();
     }
@@ -920,6 +802,113 @@ public static class P4ActivatedAbilityCatalog
             {
                 [profile.Trait] = 1
             });
+    }
+
+    private static IReadOnlyList<P4SigilTypedResourceProfile> BuildSigilTypedResourceProfiles()
+    {
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var behaviors = CardBehaviorRegistry.GetAll()
+            .Select(behavior => new ImplementedCardBehavior(
+                behavior.CardNo,
+                behavior.EffectKind,
+                behavior.DisplayName))
+            .ToArray();
+        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
+            catalog.Cards,
+            behaviors);
+
+        return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
+            .SelectMany(spec => spec.ActivatedAbilities
+                .Where(IsSigilTypedResourceActivatedAbility)
+                .Select(ability => SigilTypedResourceProfile(spec, ability)))
+            .OrderBy(profile => profile.IsOgnReprint ? 1 : 0)
+            .ThenBy(profile => profile.SourceCardNo, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsSigilTypedResourceActivatedAbility(ActivatedAbilitySpec ability)
+    {
+        return string.Equals(ability.Kind, ActivatedAbilityKinds.TypedResourceSkill, StringComparison.Ordinal)
+            && ability.ExhaustsSourceAsCost == true
+            && ability.ReactionSpeed == true
+            && ability.IsResourceSkill == true
+            && ability.PaymentOnlyResource == true
+            && !string.IsNullOrWhiteSpace(ability.GeneratedPowerTrait)
+            && ability.GeneratedPower.GetValueOrDefault() == 1;
+    }
+
+    private static P4SigilTypedResourceProfile SigilTypedResourceProfile(
+        BehaviorSpec spec,
+        ActivatedAbilitySpec ability)
+    {
+        var trait = ability.GeneratedPowerTrait ?? string.Empty;
+        var isOgnReprint = spec.CardNo.StartsWith("OGN·", StringComparison.Ordinal);
+        var prefix = SigilResourcePrefix(trait, isOgnReprint);
+        var traitUpper = SigilResourceTraitUpper(trait);
+        return new P4SigilTypedResourceProfile(
+            $"{prefix}_REACTION_EXHAUST_GAIN_1_{traitUpper}_POWER",
+            spec.CardNo,
+            $"{prefix}_REACTION_TYPED_RESOURCE_GAIN_{traitUpper}",
+            spec.CardName,
+            trait,
+            SigilResourceTraitLabel(trait),
+            SigilResourceRestriction(trait, isOgnReprint),
+            prefix,
+            isOgnReprint);
+    }
+
+    private static string SigilResourcePrefix(string trait, bool isOgnReprint)
+    {
+        var basePrefix = trait switch
+        {
+            RuneTrait.Red => "RAGE_SIGIL",
+            RuneTrait.Green => "FOCUS_SIGIL",
+            RuneTrait.Blue => "INSIGHT_SIGIL",
+            RuneTrait.Orange => "POWER_SIGIL",
+            RuneTrait.Purple => "DISCORD_SIGIL",
+            RuneTrait.Yellow => "UNITY_SIGIL",
+            _ => throw new InvalidOperationException($"Unsupported typed resource trait '{trait}'.")
+        };
+        return isOgnReprint ? $"OGN_{basePrefix}" : basePrefix;
+    }
+
+    private static string SigilResourceTraitUpper(string trait)
+    {
+        return trait switch
+        {
+            RuneTrait.Red => "RED",
+            RuneTrait.Green => "GREEN",
+            RuneTrait.Blue => "BLUE",
+            RuneTrait.Orange => "ORANGE",
+            RuneTrait.Purple => "PURPLE",
+            RuneTrait.Yellow => "YELLOW",
+            _ => throw new InvalidOperationException($"Unsupported typed resource trait '{trait}'.")
+        };
+    }
+
+    private static string SigilResourceTraitLabel(string trait)
+    {
+        return trait switch
+        {
+            RuneTrait.Red => "红色",
+            RuneTrait.Green => "绿色",
+            RuneTrait.Blue => "蓝色",
+            RuneTrait.Orange => "橙色",
+            RuneTrait.Purple => "紫色",
+            RuneTrait.Yellow => "黄色",
+            _ => throw new InvalidOperationException($"Unsupported typed resource trait '{trait}'.")
+        };
+    }
+
+    private static string SigilResourceRestriction(string trait, bool isOgnReprint)
+    {
+        var suffix = isOgnReprint
+            ? "T"
+            : string.Equals(trait, RuneTrait.Red, StringComparison.Ordinal)
+                ? "R"
+                : "S";
+        return $"PAY_RUNE_COSTS_ONLY_TYPED_{SigilResourceTraitUpper(trait)}_TEMPORARY_LEDGER_4D_03{suffix}";
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildSourceCardNosByRepresentativeCardNo()

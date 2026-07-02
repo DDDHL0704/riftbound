@@ -3450,6 +3450,15 @@
 - 验证：red focused guard failed on old `SourceCardNosByIdentityId` array；focused `LegendActionSourceIdentityGuardTests` 13/13 passed；adjacent Legend identity / legend action / representative legend / MatchRecovery / CardCatalogBaselineTests 2753/2753 passed；backend full conformance 9049/9049 passed。
 - 该证据只关闭 legend-identity source-card group selector 数据化；不关闭完整 legend identity effect BehaviorSpec migration、完整 payment / target timing breadth、P1 或 READY。
 
+## Plan B Sigil Typed Resource Activated Ability Spec Evidence
+
+- 审计入口：`docs/CURRENT_PLAN_B_SIGIL_TYPED_RESOURCE_ABILITY_SPEC_AUDIT.md`。
+- 证据入口：`docs/CURRENT_PLAN_B_SIGIL_TYPED_RESOURCE_ABILITY_SPEC_EVIDENCE.md`。
+- 本批将 12 张官方 SFD / OGN Sigil 的 typed-resource activated ability profile 来源从 `P4ActivatedAbilityCatalog` 手写 `P4SigilTypedResourceProfile[]` 清单迁移到 `BehaviorSpec.ActivatedAbilities`。`ActivatedAbilityParser` 现在把 `{{横置}}` cost、`{{反应}}` timing、`{{获得}}{{颜色}}，用以支付符能费用...` 官方文本解析成 `TYPED_RESOURCE_SKILL`，并记录 payment-only typed rune power trait / amount。
+- 运行时 ability id、effect kind、payment-only temporary ledger restriction、prompt / command / audit / replay / recovery 语义保持兼容；本批只改变资料来源，不扩张 Sigil 玩法。
+- 验证：red focused guard failed on missing structured activated-ability fields；focused Sigil spec / catalog guard 2/2 passed；adjacent SigilResourceSkill / ActivatedAbility / PaymentEngine / MatchRecovery / FullGameEndToEnd / CardCatalogBaseline 3382/3382 passed；backend full conformance 9145/9145 passed；Dev UI build passed。
+- 该证据只关闭 Sigil typed-resource profile 的 BehaviorSpec source migration；不关闭完整 P4 activated ability BehaviorSpec migration、完整 resource-skill official breadth、完整 payment / target timing breadth、P0/P1 或 READY。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

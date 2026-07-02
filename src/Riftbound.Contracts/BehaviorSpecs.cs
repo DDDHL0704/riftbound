@@ -35,6 +35,11 @@ public static class BehaviorTemplateIds
     public const string Control = "control";
 }
 
+public static class ActivatedAbilityKinds
+{
+    public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
+}
+
 public static class BehaviorEffectConditionKinds
 {
     public const string None = "NONE";
@@ -535,7 +540,14 @@ public sealed record ActivatedAbilitySpec(
     string EffectText,
     IReadOnlyList<string> TemplateIds,
     string Status,
-    string Reason);
+    string Reason,
+    string? Kind = null,
+    bool? ExhaustsSourceAsCost = null,
+    bool? ReactionSpeed = null,
+    bool? IsResourceSkill = null,
+    bool? PaymentOnlyResource = null,
+    string? GeneratedPowerTrait = null,
+    int? GeneratedPower = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

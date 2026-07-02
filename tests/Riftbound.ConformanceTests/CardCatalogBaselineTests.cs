@@ -8899,6 +8899,47 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesSigilTypedResourceActivatedAbilities()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var expectedTraitsByCardNo = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["SFD·222/221"] = RuneTrait.Red,
+            ["SFD·226/221"] = RuneTrait.Green,
+            ["SFD·229/221"] = RuneTrait.Blue,
+            ["SFD·231/221"] = RuneTrait.Orange,
+            ["SFD·234/221"] = RuneTrait.Purple,
+            ["SFD·238/221"] = RuneTrait.Yellow,
+            ["OGN·040/298"] = RuneTrait.Red,
+            ["OGN·081/298"] = RuneTrait.Green,
+            ["OGN·120/298"] = RuneTrait.Blue,
+            ["OGN·163/298"] = RuneTrait.Orange,
+            ["OGN·204/298"] = RuneTrait.Purple,
+            ["OGN·245/298"] = RuneTrait.Yellow
+        };
+
+        foreach (var (cardNo, expectedTrait) in expectedTraitsByCardNo)
+        {
+            var spec = Assert.Single(specs, candidate => string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal));
+            var ability = Assert.Single(
+                spec.ActivatedAbilities,
+                candidate => string.Equals(candidate.Kind, ActivatedAbilityKinds.TypedResourceSkill, StringComparison.Ordinal));
+
+            Assert.Equal("{{横置}}", ability.CostText);
+            Assert.Contains("{{反应}}", ability.EffectText, StringComparison.Ordinal);
+            Assert.Contains("用以支付符能费用", ability.EffectText, StringComparison.Ordinal);
+            Assert.True(ability.ExhaustsSourceAsCost);
+            Assert.True(ability.ReactionSpeed);
+            Assert.True(ability.IsResourceSkill);
+            Assert.True(ability.PaymentOnlyResource);
+            Assert.Equal(expectedTrait, ability.GeneratedPowerTrait);
+            Assert.Equal(1, ability.GeneratedPower);
+        }
+    }
+
+    [Fact]
     public async Task OfficialArmamentEquipmentRegistryDefinitionsCarryWeaponSourceTag()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

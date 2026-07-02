@@ -77,6 +77,24 @@ public sealed class ActivatedAbilitySourceIdentityGuardTests
             StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void P4SigilTypedResourceProfilesAreDerivedFromBehaviorSpecs()
+    {
+        var catalogSource = File.ReadAllText(Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "P4ActivatedAbilityCatalog.cs"));
+
+        Assert.DoesNotContain(
+            "private static readonly P4SigilTypedResourceProfile[] SigilTypedResourceProfiles",
+            catalogSource,
+            StringComparison.Ordinal);
+        Assert.Contains("BuildSigilTypedResourceProfiles", catalogSource, StringComparison.Ordinal);
+        Assert.Contains("BehaviorSpecCatalogBuilder.Build", catalogSource, StringComparison.Ordinal);
+        Assert.Contains("ActivatedAbilityKinds.TypedResourceSkill", catalogSource, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData(
         P4ActivatedAbilityCatalog.ViDoublePowerAbilityId,
