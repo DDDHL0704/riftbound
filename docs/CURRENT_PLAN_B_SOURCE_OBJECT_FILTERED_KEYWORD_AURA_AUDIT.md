@@ -16,6 +16,8 @@ The 2026-07-01 follow-up removes the remaining source-object filtered keyword ki
 
 The 2026-07-02 follow-up extends the same source-object keyword route to level-gated official text such as `UNL-075/219` 风行狐, `UNL-047/219` 踏苔蜥, and `UNL-113/219` / `UNL-113a/219` 易. These cards now parse `{{等级N>}} 我获得...` keyword grants as `BehaviorSpec.StaticAuras` with `RequiredPlayerExperience`, and runtime/prompt/projection checks enforce that controller experience threshold through the shared source-object keyword predicate.
 
+The later 2026-07-02 follow-up wires source-object level `法盾` grants into the same resource-keyword target-tax calculation used for printed and other-source granted Spellshield. `UNL-047/219` 踏苔蜥 can now charge the enemy spell target tax from its `SOURCE_OBJECT_LEVEL_KEYWORD` aura even when the object has no materialized `法盾` tag.
+
 ## Authority
 
 - `data/official/card-catalog.zh-CN.json` row `OGN·125/298` 比尔吉沃特恶霸: if the source has a boon, it gains `游走`.
@@ -44,6 +46,8 @@ The 2026-07-02 follow-up extends the same source-object keyword route to level-g
 - `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` has been removed so new runtime code cannot reintroduce the kind-specific selector.
 - `StaticAuraParser` now parses `{{等级N>}} 我获得...` keyword grants into `StaticAuraKinds.SourceObjectLevelKeyword` with `RequiredPlayerExperience=N`.
 - `CoreRuleEngine`, `MatchSession`, and prompt Roam metadata reuse the source-object keyword applicability path and reject level-gated keyword grants until the source controller has the required experience.
+- `CoreRuleEngine.ResolveSpellshieldTargetTaxMana` now includes source-object resource keyword amounts from `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura`, so level-gated `法盾` affects enemy spell target taxes without card-number routing or tag materialization.
+- `MatchSession.SpellshieldTaxManaForTarget` uses the same source-object keyword aura route for prompt filtering and target labels.
 
 ## Validation
 
@@ -61,6 +65,9 @@ The 2026-07-02 follow-up extends the same source-object keyword route to level-g
 - 2026-07-02 focused level-keyword gate `SourceObjectLevelPowerStaticAuraTests|BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives` passed `8/8`.
 - 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Roam|MoveUnit|MatchRecovery` passed `2197/2197`.
 - 2026-07-02 backend full conformance passed `9133/9133`.
+- 2026-07-02 focused source-object level Spellshield target-tax gate `SourceObjectLevelPowerStaticAuraTests` passed `11/11`.
+- 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` passed `2160/2160`.
+- 2026-07-02 backend full conformance passed `9137/9137`.
 
 ## Holdbacks
 

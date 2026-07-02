@@ -20143,6 +20143,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Max();
     }
 
+    private static int ResolveSourceObjectResourceKeywordAmount(
+        MatchState state,
+        CardObjectState cardObject,
+        string resourceKeyword)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || cardObject.IsFaceDown)
+        {
+            return 0;
+        }
+
+        return StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
+            .Where(aura => SourceObjectKeywordStaticAuraApplies(state, cardObject, aura))
+            .Select(aura => GrantedResourceKeywordAmount(aura, resourceKeyword))
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
     private static bool SourceObjectKeywordStaticAuraApplies(
         MatchState state,
         CardObjectState cardObject,
@@ -32254,7 +32274,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var targetTax = Math.Max(
-                CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+                Math.Max(
+                    CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+                    ResolveSourceObjectResourceKeywordAmount(
+                        state,
+                        targetState,
+                        CardResourceKeywordNames.Spellshield)),
                 ResolveFriendlyFilteredUnitsResourceKeywordAmount(
                     state,
                     state.PlayerZones,

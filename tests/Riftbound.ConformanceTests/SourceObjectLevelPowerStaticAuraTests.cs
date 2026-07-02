@@ -14,6 +14,8 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
     private const string MossStepperCardNo = "UNL-047/219";
     private const string MossStepperBattlefieldObjectId = "P1-MOSS-STEPPER-BATTLEFIELD";
     private const string MossStepperDefenderObjectId = "P2-MOSS-STEPPER-DEFENDER";
+    private const string MossStepperLevelSpellshieldObjectId = "P2-MOSS-STEPPER-LEVEL-SPELLSHIELD";
+    private const string SpellObjectId = "P1-SPELL-INCINERATE";
     private const string WindrunnerObjectId = "P1-WINDRUNNER-LEVEL-KEYWORD";
     private const string WindrunnerCardNo = "UNL-075/219";
     private const string WindrunnerOriginBattlefieldObjectId = "P1-WINDRUNNER-ORIGIN";
@@ -99,6 +101,115 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             state.ContinuousEffects,
             effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal)
                 && string.Equals(effect.SourceObjectId, WindrunnerObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void MossStepperLevelSpellshieldProjectsSourceObjectKeywordAuraAtRequiredExperience()
+    {
+        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+
+        var keywordAura = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, MossStepperLevelSpellshieldObjectId, StringComparison.Ordinal));
+
+        Assert.Equal(
+            $"RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:{MossStepperLevelSpellshieldObjectId}:{CardResourceKeywordNames.Spellshield}",
+            keywordAura.EffectId);
+        Assert.Equal(MossStepperLevelSpellshieldObjectId, keywordAura.TargetObjectId);
+        Assert.Equal(MossStepperLevelSpellshieldObjectId, keywordAura.SourceObjectId);
+        Assert.Equal(MossStepperCardNo, keywordAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.HasSourceObjectLevelStaticKeyword", keywordAura.SourcePath);
+    }
+
+    [Fact]
+    public async Task MossStepperLevelSpellshieldAddsEnemySpellTargetTaxWithoutMaterializedTag()
+    {
+        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+        Assert.DoesNotContain(CardObjectTags.Spellshield, state.CardObjects[MossStepperLevelSpellshieldObjectId].Tags);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-moss-stepper-level-spellshield-tax", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                SpellObjectId,
+                "OGS·003/024",
+                [MossStepperLevelSpellshieldObjectId]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(
+            [MossStepperLevelSpellshieldObjectId],
+            Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
+    public async Task MossStepperLevelSpellshieldDoesNotTaxBelowRequiredExperience()
+    {
+        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 2, mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-moss-stepper-level-spellshield-tax-below-level", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                SpellObjectId,
+                "OGS·003/024",
+                [MossStepperLevelSpellshieldObjectId]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(2, costPaidEvent.Payload["mana"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
+    public void MossStepperLevelSpellshieldTaxFiltersPlayCardPromptWhenTaxManaIsMissing()
+    {
+        var insufficientState = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 2);
+
+        var insufficientPrompt = ResolutionResult.BuildPrompts(insufficientState)["P1"];
+        var insufficientPlayCandidate = Assert.Single(
+            insufficientPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.False(insufficientPlayCandidate.Enabled);
+        Assert.Empty(insufficientPlayCandidate.Sources ?? []);
+        var insufficientMetadata = Assert.IsType<Dictionary<string, object?>>(insufficientPlayCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            insufficientMetadata["sourceRequirements"]));
+
+        var payableState = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payablePlayCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(payablePlayCandidate.Enabled);
+        Assert.Equal([SpellObjectId], (payablePlayCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+
+        var payableMetadata = Assert.IsType<Dictionary<string, object?>>(payablePlayCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            payableMetadata["sourceRequirements"]));
+        Assert.Equal(SpellObjectId, Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var targetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]).ToArray();
+        Assert.Equal([MossStepperLevelSpellshieldObjectId], targetChoices.Select(choice => choice.Id).ToArray());
+        var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+                sourceRequirement["legalTargetSelections"])
+            .Select(selection => selection.ToArray())
+            .ToArray();
+        Assert.Contains(
+            legalTargetSelections,
+            selection => selection.SequenceEqual([MossStepperLevelSpellshieldObjectId]));
     }
 
     [Fact]
@@ -248,6 +359,61 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [WindrunnerObjectId] = Windrunner(WindrunnerObjectId)
+            });
+    }
+
+    private static MatchState BuildMossStepperLevelSpellshieldTaxState(int playerTwoExperience, int mana)
+    {
+        return new MatchState(
+            "source-object-level-spellshield-tax-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = playerTwoExperience
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [SpellObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [MossStepperLevelSpellshieldObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [SpellObjectId] = new(
+                    SpellObjectId,
+                    cardNo: "OGS·003/024",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [MossStepperLevelSpellshieldObjectId] = new(
+                    MossStepperLevelSpellshieldObjectId,
+                    cardNo: MossStepperCardNo,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "犬形", "狩猎2"],
+                    ownerId: "P2",
+                    controllerId: "P2")
             });
     }
 

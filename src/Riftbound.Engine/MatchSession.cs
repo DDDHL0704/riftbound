@@ -11144,8 +11144,7 @@ internal static class ActionPromptBuilder
                     state,
                     objectId,
                     IsPromptEnemyFieldObject(state, playerId, objectId)
-                        && state.CardObjects.TryGetValue(objectId, out var targetState)
-                        && CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags) > 0
+                        && SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
                             ? "unit target with spellshield tax"
                             : "unit target"))
                 .ToArray();
@@ -11165,8 +11164,7 @@ internal static class ActionPromptBuilder
                     state,
                     objectId,
                     IsPromptEnemyFieldObject(state, playerId, objectId)
-                        && state.CardObjects.TryGetValue(objectId, out var targetState)
-                        && CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags) > 0
+                        && SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
                             ? "unit target with spellshield tax"
                             : "unit target"))
                 .ToArray();
@@ -12109,8 +12107,68 @@ internal static class ActionPromptBuilder
         }
 
         return Math.Max(
-            CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+            Math.Max(
+                CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+                SourceObjectGrantedSpellshieldTax(state, targetObjectId, targetState)),
             FriendlyFilteredUnitsGrantedSpellshieldTax(state, targetObjectId, targetState));
+    }
+
+    private static int SourceObjectGrantedSpellshieldTax(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !TryFindPromptPublicFieldObjectLocation(state.PlayerZones, objectId, out var targetLocation)
+            || !IsPromptPublicObjectLocationCompatible(state, objectId, targetLocation.Zone))
+        {
+            return 0;
+        }
+
+        var tax = 0;
+        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
+            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
+            .Where(aura => SourceObjectPromptKeywordStaticAuraApplies(state, objectId, cardObject, aura)))
+        {
+            if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+            {
+                continue;
+            }
+
+            tax = Math.Max(
+                tax,
+                CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
+        }
+
+        return tax;
+    }
+
+    private static bool SourceObjectPromptKeywordStaticAuraApplies(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
+    {
+        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
+            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+        {
+            return false;
+        }
+
+        if (aura.RequiredPlayerExperience.HasValue)
+        {
+            var controllerId = EffectivePromptPublicObjectControllerId(state.PlayerZones, objectId, cardObject);
+            if (string.IsNullOrWhiteSpace(controllerId)
+                || !state.PlayerExperience.TryGetValue(controllerId, out var experience)
+                || experience < aura.RequiredPlayerExperience.Value)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static string? BattlefieldGrantUnitExperienceObjectId(

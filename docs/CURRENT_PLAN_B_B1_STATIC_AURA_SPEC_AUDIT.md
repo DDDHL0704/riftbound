@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-02 Supplement: Source-Object Level Spellshield Target Tax
+
+This follow-up extends the source-object `RULE_TEXT` keyword route from combat/Roam checks into resource-keyword target-tax calculation.
+
+`CoreRuleEngine.ResolveSpellshieldTargetTaxMana` now includes `BehaviorSpec.StaticAuras` whose shape matches `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` when calculating an enemy spell target's `法盾` tax. This covers level-gated text such as `UNL-047/219` 踏苔蜥 `{{等级3>}} 我获得{{S}}+1和{{法盾}}` without materializing a `法盾` tag or adding a card-number branch.
+
+`MatchSession.SpellshieldTaxManaForTarget` uses the same source-object keyword route for prompt-side tax calculation, so `PLAY_CARD` prompt source filtering and target labels stay aligned with Core resolution.
+
+Validation: red focused `MossStepperLevelSpellshieldAddsEnemySpellTargetTaxWithoutMaterializedTag` failed before implementation because Incinerate paid only 2 base mana; green focused `SourceObjectLevelPowerStaticAuraTests` passed 11/11; adjacent `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` passed 2160/2160; backend full conformance passed 9137/9137.
+
+Non-closure: this slice only connects source-object level `法盾` to existing Spellshield target-tax routing. Complete resource-keyword breadth, complete B2 keyword breadth, full target timing, P0, and READY remain open.
+
 ## 2026-07-02 Supplement: Source-Object Level RULE_TEXT Keyword Aura
 
 This follow-up extends the shared source-object keyword route beyond filtered tag checks to level-gated official source-object keyword text.

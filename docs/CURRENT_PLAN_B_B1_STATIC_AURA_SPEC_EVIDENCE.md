@@ -6,6 +6,15 @@
 
 This evidence records the current B1 static-aura data-driven slices.
 
+## 2026-07-02 Supplement Evidence: Source-Object Level Spellshield Target Tax
+
+- `CoreRuleEngine.ResolveSpellshieldTargetTaxMana` now considers source-object `RULE_TEXT` keyword auras through `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` and `GrantedResourceKeywordAmount`.
+- `MatchSession.SpellshieldTaxManaForTarget` now considers the same source-object keyword auras through prompt-public field checks and controller experience gates.
+- `UNL-047/219` 踏苔蜥 is the focused representative: at controller level 3 its `SOURCE_OBJECT_LEVEL_KEYWORD` `法盾` grant adds 1 mana to an enemy spell target tax even when the object tags do not contain `法盾`.
+- The prompt guard verifies that Incinerate is hidden at 2 available mana and available at 3 available mana against the dynamically granted `法盾` target.
+- Validation passed: red focused `MossStepperLevelSpellshieldAddsEnemySpellTargetTaxWithoutMaterializedTag` before implementation; focused `SourceObjectLevelPowerStaticAuraTests` 11/11; adjacent `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` 2160/2160; backend full conformance 9137/9137.
+- Non-closure: this does not finish complete resource-keyword breadth, complete target timing, full B2 keyword breadth, P0, or READY.
+
 ## 2026-07-01 Supplement Evidence: Static-Aura Helper Surface Closure
 
 - `StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura`, `TryGetBattlefieldFilteredUnitsKeywordAura`, `TryGetFriendlySingleDefendingUnitPowerAura`, and the private `TryGetAura` helper have been removed from the engine helper surface.

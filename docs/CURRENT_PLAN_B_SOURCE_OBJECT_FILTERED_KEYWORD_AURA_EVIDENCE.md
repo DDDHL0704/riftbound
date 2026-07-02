@@ -37,6 +37,8 @@ After this slice:
 - `StaticAuraParser` now parses level-gated source-object keyword text into `SOURCE_OBJECT_LEVEL_KEYWORD` auras with `RequiredPlayerExperience`.
 - `CoreRuleEngine` applies level-gated source-object keyword auras to combat keyword recomputation and Roam permission only when the source controller has the required experience.
 - `MatchSession` projects `RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:*` continuous effects and prompt Roam metadata through the same controller-experience gate.
+- `CoreRuleEngine` now applies the same source-object keyword aura route to resource keywords used by target-tax calculation. A level-gated `法盾` grant contributes Spellshield tax from `BehaviorSpec.StaticAuras` even when the target object has no materialized `法盾` tag.
+- `MatchSession` prompt filtering and target labeling use the same source-object keyword aura tax route, so an enemy spell source is hidden when it cannot pay the dynamic level-gated `法盾` tax.
 
 ## Test Evidence
 
@@ -53,6 +55,10 @@ After this slice:
 - 2026-07-02 focused level-keyword gate `SourceObjectLevelPowerStaticAuraTests|BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives` passed `8/8`.
 - 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Roam|MoveUnit|MatchRecovery` passed `2197/2197`.
 - 2026-07-02 backend full conformance passed `9133/9133`.
+- 2026-07-02 source-object level Spellshield red guard failed before implementation because `MossStepperLevelSpellshieldAddsEnemySpellTargetTaxWithoutMaterializedTag` paid only the 2 mana base cost instead of 3 total mana.
+- 2026-07-02 focused source-object level Spellshield target-tax gate `SourceObjectLevelPowerStaticAuraTests` passed `11/11`.
+- 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Spellshield|MatchRecovery` passed `2160/2160`.
+- 2026-07-02 backend full conformance passed `9137/9137`.
 
 ## Non-Claims
 
