@@ -24,6 +24,7 @@ write_png() {
 write_evidence_bundle() {
   local bundle_dir="$1"
   local revision="$2"
+  local manual_confirmation_mode="${3:-1}"
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -57,6 +58,7 @@ EOF
 ## Machine Check
 
 - Status: passed
+- Manual confirmation mode: ${manual_confirmation_mode}
 
 ## Manual Confirmations
 
@@ -102,8 +104,28 @@ if ! rg -q "SHA256SUMS.*README\\.md|README\\.md.*SHA256SUMS" "${missing_output}"
   fail "verifier did not explain the missing README.md checksum coverage"
 fi
 
+manual_mode_bundle="${tmp_dir}/manual-mode/riftbound-human-playtest-evidence"
+write_evidence_bundle "${manual_mode_bundle}" "${revision}" "0"
+(
+  cd "${manual_mode_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+manual_mode_package="${tmp_dir}/manual-mode-zero.tar.gz"
+make_package "${manual_mode_bundle}" "${manual_mode_package}"
+
+manual_mode_output="${tmp_dir}/manual-mode-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${manual_mode_package}" >"${manual_mode_output}" 2>&1; then
+  fail "verifier accepted package whose report was not produced with manual confirmation mode"
+fi
+
+if ! rg -q "Manual confirmation mode" "${manual_mode_output}"; then
+  echo "Expected manual confirmation mode rejection output:" >&2
+  cat "${manual_mode_output}" >&2
+  fail "verifier did not explain the missing manual confirmation mode"
+fi
+
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"
-write_evidence_bundle "${covered_bundle}" "${revision}"
+write_evidence_bundle "${covered_bundle}" "${revision}" "1"
 (
   cd "${covered_bundle}"
   shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS

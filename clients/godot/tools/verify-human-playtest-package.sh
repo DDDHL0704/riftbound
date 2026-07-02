@@ -213,6 +213,7 @@ require_git_revision_on_main() {
 require_git_revision_on_main
 require_report_line "- Git worktree: clean" "clean git worktree"
 require_report_line "- Require clean git: 1" "required clean git marker"
+require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"
 require_report_line "- [x] Player B final screenshot shows the server result panel." "player B result confirmation"
@@ -257,7 +258,7 @@ P5 evidence package passed machine verification:
   package: ${package_path}
   required files: present
   checksums: valid
-  report: clean git, clean-git required, git revision on origin/main, all human confirmations checked
+  report: clean git, clean-git required, manual confirmation mode, git revision on origin/main, all human confirmations checked
   screenshots: valid PNG result screenshots
   logs: match lifecycle/result screenshots present, no crash/error/rejection patterns
 EOF
