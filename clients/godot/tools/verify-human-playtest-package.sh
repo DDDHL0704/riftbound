@@ -71,6 +71,8 @@ fi
 report="${bundle_dir}/playtest-report.md"
 player_a_log="${bundle_dir}/player-a.log"
 player_b_log="${bundle_dir}/player-b.log"
+player_a_result="${bundle_dir}/player-a-result.png"
+player_b_result="${bundle_dir}/player-b-result.png"
 
 require_report_line() {
   local line="$1"
@@ -86,6 +88,56 @@ require_log_match() {
   local label="$3"
   if [[ -s "${path}" ]] && ! rg -q "${pattern}" "${path}"; then
     failures+=("${label} missing from $(basename "${path}")")
+  fi
+}
+
+require_png_screenshot() {
+  local path="$1"
+  local label="$2"
+  local header=""
+  local signature=""
+  local ihdr_length=""
+  local ihdr_type=""
+  local width_hex=""
+  local height_hex=""
+  local sips_output=""
+  local width=0
+  local height=0
+
+  if [[ ! -s "${path}" ]]; then
+    return
+  fi
+
+  header="$(od -An -tx1 -N24 "${path}" | tr -d ' \n')"
+  signature="${header:0:16}"
+  ihdr_length="${header:16:8}"
+  ihdr_type="${header:24:8}"
+  width_hex="${header:32:8}"
+  height_hex="${header:40:8}"
+
+  if [[ "${signature}" != "89504e470d0a1a0a" || "${ihdr_length}" != "0000000d" || "${ihdr_type}" != "49484452" ]]; then
+    failures+=("${label} is not a PNG screenshot")
+    return
+  fi
+
+  if command -v sips >/dev/null 2>&1; then
+    if ! sips_output="$(sips -g pixelWidth -g pixelHeight "${path}" 2>/dev/null)"; then
+      failures+=("${label} is not a readable PNG screenshot")
+      return
+    fi
+
+    width="$(awk '/pixelWidth:/ {print $2}' <<<"${sips_output}")"
+    height="$(awk '/pixelHeight:/ {print $2}' <<<"${sips_output}")"
+    if [[ ! "${width}" =~ ^[0-9]+$ || ! "${height}" =~ ^[0-9]+$ || "${width}" == "0" || "${height}" == "0" ]]; then
+      failures+=("${label} has invalid PNG dimensions")
+    fi
+    return
+  fi
+
+  width=$((16#${width_hex}))
+  height=$((16#${height_hex}))
+  if (( width <= 0 || height <= 0 )); then
+    failures+=("${label} has invalid PNG dimensions")
   fi
 }
 
@@ -107,6 +159,8 @@ require_log_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a
 require_log_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
 require_log_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
 require_log_match "Visual screenshot saved: .*player-b-result\\.png" "${player_b_log}" "player B result screenshot log"
+require_png_screenshot "${player_a_result}" "player A result screenshot"
+require_png_screenshot "${player_b_result}" "player B result screenshot"
 
 if compgen -G "${bundle_dir}/*.log" >/dev/null; then
   if rg -n "Message queue out of memory|handle_crash|Exception|ERROR|FATAL|REJECTED|rejected|sharing violation" "${bundle_dir}"/*.log >/dev/null; then
@@ -134,5 +188,6 @@ P5 evidence package passed machine verification:
   required files: present
   checksums: valid
   report: clean git, clean-git required, all human confirmations checked
+  screenshots: valid PNG result screenshots
   logs: match lifecycle/result screenshots present, no crash/error/rejection patterns
 EOF
