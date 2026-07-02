@@ -12,6 +12,12 @@ screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room
 wait_for_windows="${RIFTBOUND_WAIT:-1}"
 min_table_cards="${RIFTBOUND_SCREENSHOT_MIN_TABLE_CARDS:-0}"
 quit_after="${RIFTBOUND_QUIT_AFTER:-}"
+extra_godot_args="${RIFTBOUND_EXTRA_GODOT_ARGS:-}"
+extra_user_args=()
+
+if [[ -n "${extra_godot_args}" ]]; then
+  read -r -a extra_user_args <<<"${extra_godot_args}"
+fi
 
 handle_a="${RIFTBOUND_HANDLE_A:-player-a-${room}}"
 handle_b="${RIFTBOUND_HANDLE_B:-player-b-${room}}"
@@ -64,6 +70,7 @@ launch_player() {
     --riftbound-player-key="${player_key}" \
     --riftbound-visual-screenshot="${shot}" \
     --riftbound-visual-screenshot-min-table-cards="${min_table_cards}" \
+    "${extra_user_args[@]}" \
     >"${log}" 2>&1 &
   launched_pid="$!"
 }

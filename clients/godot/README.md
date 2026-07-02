@@ -210,6 +210,9 @@ The stack helper runs Godot `--headless --build-solutions` before opening
 windows so a clean worktree can run `Main.tscn` with the generated C# script
 metadata. Set `RIFTBOUND_BUILD_GODOT=0` only when reusing an already-built local
 client.
+Set `RIFTBOUND_EXTRA_GODOT_ARGS="--riftbound-smoke-auto-ready ..."` to append
+the same extra Godot user arguments to both launched clients for simulated or
+diagnostic runs. Do not use auto-smoke output as final two-human P5 evidence.
 
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
