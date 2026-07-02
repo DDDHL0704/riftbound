@@ -128,6 +128,7 @@ expect_final_gate_value_rejection() {
 }
 
 expect_final_gate_rejection "RIFTBOUND_CONFIRM_MANUAL"
+expect_final_gate_rejection "RIFTBOUND_CHECK_EVIDENCE"
 expect_final_gate_rejection "RIFTBOUND_PACKAGE_EVIDENCE"
 expect_final_gate_rejection "RIFTBOUND_VERIFY_EVIDENCE_PACKAGE"
 expect_final_gate_rejection "RIFTBOUND_BUILD_GODOT"
