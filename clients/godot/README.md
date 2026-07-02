@@ -256,10 +256,11 @@ need to skip the final package verification during script development:
 clients/godot/tools/verify-human-playtest-package.sh /tmp/riftbound-human-playtest.tar.gz
 ```
 
-The verifier checks the package structure, `SHA256SUMS`, clean-git report
-markers, a report Git revision contained in `origin/main`, all five human
-confirmation boxes, match lifecycle logs, final result screenshot logs, valid
-PNG result screenshots, and absence of crash/rejection/auto-smoke evidence.
+The verifier checks the package structure, valid `SHA256SUMS` coverage for all
+required evidence files, clean-git report markers, a report Git revision
+contained in `origin/main`, all five human confirmation boxes, match lifecycle
+logs, final result screenshot logs, valid PNG result screenshots, and absence
+of crash/rejection/auto-smoke evidence.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`

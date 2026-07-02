@@ -40,6 +40,14 @@ required_files=(
   "player-b-result.png"
   "playtest-report.md"
 )
+checksum_required_files=(
+  "README.md"
+  "player-a.log"
+  "player-b.log"
+  "player-a-result.png"
+  "player-b-result.png"
+  "playtest-report.md"
+)
 
 staging_dir="$(mktemp -d)"
 cleanup() {
@@ -67,6 +75,31 @@ done
 if (( ${#failures[@]} == 0 )); then
   if ! (cd "${bundle_dir}" && shasum -a 256 -c SHA256SUMS >/dev/null); then
     failures+=("SHA256SUMS verification failed")
+  fi
+
+  checksum_covers_file() {
+    local file="$1"
+    awk -v want="${file}" '
+      {
+        name = $2
+        sub(/^\*/, "", name)
+        sub(/^\.\//, "", name)
+        if (name == want) {
+          found = 1
+        }
+      }
+      END { exit found ? 0 : 1 }
+    ' "${bundle_dir}/SHA256SUMS"
+  }
+
+  for file in "${checksum_required_files[@]}"; do
+    if ! checksum_covers_file "${file}"; then
+      failures+=("SHA256SUMS does not cover ${file}")
+    fi
+  done
+
+  if [[ -s "${bundle_dir}/api.log" ]] && ! checksum_covers_file "api.log"; then
+    failures+=("SHA256SUMS does not cover api.log")
   fi
 fi
 

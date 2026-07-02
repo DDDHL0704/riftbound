@@ -89,15 +89,6 @@ for file in "${required_files[@]}"; do
 done
 cp "${report_path}" "${bundle_dir}/playtest-report.md"
 
-if [[ -s "${evidence_dir}/api.log" ]]; then
-  cp "${evidence_dir}/api.log" "${bundle_dir}/api.log"
-fi
-
-(
-  cd "${bundle_dir}"
-  shasum -a 256 ./* > SHA256SUMS
-)
-
 cat >"${bundle_dir}/README.md" <<EOF
 # Riftbound Godot Human Playtest Evidence
 
@@ -110,6 +101,25 @@ This package is evidence material only. It does not prove the human-only
 confirmations unless playtest-report.md contains checked manual confirmation
 boxes produced after the real two-player playtest.
 EOF
+
+checksum_files=(
+  "README.md"
+  "player-a.log"
+  "player-b.log"
+  "player-a-result.png"
+  "player-b-result.png"
+  "playtest-report.md"
+)
+
+if [[ -s "${evidence_dir}/api.log" ]]; then
+  cp "${evidence_dir}/api.log" "${bundle_dir}/api.log"
+  checksum_files+=("api.log")
+fi
+
+(
+  cd "${bundle_dir}"
+  shasum -a 256 "${checksum_files[@]}" > SHA256SUMS
+)
 
 tar -czf "${output_path}" -C "${staging_dir}" "${bundle_name}"
 
