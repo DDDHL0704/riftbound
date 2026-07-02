@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest high-cost spell insight execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest unit-play boon execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 unit-play boon execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(...)` is removed.
+- `CoreRuleEngine.TryResolveBattlefieldPlayUnitPayOneBoonTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger`.
+- `IsBattlefieldPlayUnitPayBoonTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON`, `BATTLEFIELD_UNIT_PLAYED`, `TargetScope=PLAYED_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, and positive `BoonCount`. Existing battlefield-destination gate, controlled non-boon source-unit requirement, battlefield-source control guard, mana availability/payment, `BATTLEFIELD_TRIGGER_RESOLVED` / `COST_PAID` / `BOON_GRANTED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldPlayUnitBoonTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 2; `Is*CardNo(...)` helper count remains 0 for `BattlefieldTriggerSpecRules`. This slice does not close optional trigger choice prompts, complete payment-choice breadth for non-window auto-pay battlefield triggers, complete unit-play trigger timing breadth, the other B4 execution helpers, APNAP/simultaneous ordering, P0 full objective, or READY.
+- Validation: red/green guard 1/1, focused parser / P79 runtime / GameHub / official-deck Idol Valley route 8/8, adjacent `BattlefieldPlayUnitBoon|IdolValley|BattlefieldTriggerSpec|PlayCard|Boon|GameHub|FullGameEndToEnd|MatchRecovery` 2696/2696, backend full conformance 9117/9117.
 
 The 2026-07-02 high-cost spell insight execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -613,7 +622,7 @@ The 2026-06-25 unit-play boon follow-up moves another implemented battlefield tr
   - `TargetScope = PLAYED_UNIT_AT_THIS_BATTLEFIELD`
   - `ManaCost = 1`
   - `BoonCount = 1`
-- `CoreRuleEngine.TryResolveBattlefieldPlayUnitPayOneBoonTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(...)` and reads both the mana cost and boon count from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.TryResolveBattlefieldPlayUnitPayOneBoonTrigger` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger` and reads both the mana cost and boon count from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldPlayUnitPayOneBoonCardNo` constant.
 - The old `BattlefieldPlayUnitPayOneBoonCardNo` / `IsBattlefieldPlayUnitPayOneBoonCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `85` total / `81` in `CoreRuleEngine`; Core battlefield helper count is `37`.
 

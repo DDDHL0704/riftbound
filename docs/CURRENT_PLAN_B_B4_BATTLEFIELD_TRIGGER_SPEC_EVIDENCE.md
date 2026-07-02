@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Unit-Play Boon Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-218/219` Idol Valley / 偶像谷 official text for paying 1 when a player plays a unit there to give that unit Boon.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger, out trigger)`.
+- `IsBattlefieldPlayUnitPayBoonTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON`, `Timing=BATTLEFIELD_UNIT_PLAYED`, `TargetScope=PLAYED_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, and positive `BoonCount`.
+- `CoreRuleEngine.TryResolveBattlefieldPlayUnitPayOneBoonTrigger` uses that generic predicate route and keeps existing battlefield-destination gating, controlled non-boon source-unit requirement, controlled battlefield-source guard, mana availability/payment, `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, `BOON_GRANTED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing unit-play boon paths continue to pay the parsed mana cost only when the controlling player can afford it, grant Boon to the played unit only when it does not already have Boon, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Idol Valley official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldPlayUnitBoonTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Idol Valley route 8/8; adjacent `BattlefieldPlayUnitBoon|IdolValley|BattlefieldTriggerSpec|PlayCard|Boon|GameHub|FullGameEndToEnd|MatchRecovery` 2696/2696; backend full conformance 9117/9117.
+
 ## 2026-07-02 High-Cost Spell Insight Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-211/219` Lost Library / 失落书库 official text for performing Insight when you play a spell after spending at least 4 mana while that battlefield is controlled by you.

@@ -34132,12 +34132,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battlefieldObjectId = string.Empty;
+        var triggerKind = string.Empty;
         var manaCost = 0;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardObject.CardNo, out var trigger)
-                || trigger.BoonCount.GetValueOrDefault() <= 0
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldPlayUnitPayBoonTrigger,
+                    out var trigger)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             {
                 continue;
@@ -34150,6 +34153,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             battlefieldObjectId = objectId;
+            triggerKind = trigger.Kind;
             manaCost = triggerManaCost;
             break;
         }
@@ -34177,7 +34181,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldPlayUnitPayBoon,
+                ["trigger"] = triggerKind,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["targetObjectId"] = stackItem.SourceObjectId,
                 ["destination"] = stackItem.Destination,
@@ -34191,14 +34195,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["mana"] = manaCost,
                 ["power"] = 0,
-                ["reason"] = TriggerKinds.BattlefieldPlayUnitPayBoon
+                ["reason"] = triggerKind
             }));
         GrantLegendBoon(
             cardObjects,
             stackItem.SourceObjectId,
             playerId,
             battlefieldObjectId,
-            TriggerKinds.BattlefieldPlayUnitPayBoon,
+            triggerKind,
             events);
         return true;
     }
