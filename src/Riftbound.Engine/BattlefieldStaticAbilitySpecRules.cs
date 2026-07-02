@@ -92,12 +92,12 @@ internal static class BattlefieldStaticAbilitySpecRules
         return TryGetStaticAbility(cardNo, kind, out ability);
     }
 
-    public static bool TryGetBattlefieldExtraStandbyDestinationAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldExtraStandbyDestinationAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
+        return string.Equals(
+            ability.Kind,
             StaticAbilityKinds.BattlefieldExtraStandbyDestination,
-            out ability);
+            StringComparison.Ordinal);
     }
 
     public static bool TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(string? cardNo, out StaticAbilitySpec ability)

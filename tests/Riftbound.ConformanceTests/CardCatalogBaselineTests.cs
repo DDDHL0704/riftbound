@@ -6568,6 +6568,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldExtraStandbyStaticAbilityUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldExtraStandbyDestinationAbility",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldStaticAbilitySpecRules.TryGetAbility",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BattlefieldSpecDomainHelpersDoNotUseCardNumberHelperNames()
     {
         var coreRuleEnginePath = Path.Combine(

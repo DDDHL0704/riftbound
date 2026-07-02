@@ -16086,7 +16086,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
-            || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(candidate.CardNo, out _)
+            || !BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                candidate.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
+                out _)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
         {
             return false;
@@ -26584,7 +26587,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
+                out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetAbility(

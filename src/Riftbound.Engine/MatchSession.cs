@@ -17827,7 +17827,10 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Battlefields.Where(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                    cardObject.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             : [];
     }
@@ -17931,7 +17934,10 @@ internal static class ActionPromptBuilder
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,
                 out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
+                out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardObject.CardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardObject.CardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetAbility(

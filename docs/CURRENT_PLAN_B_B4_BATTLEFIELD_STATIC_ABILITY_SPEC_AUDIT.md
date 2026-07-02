@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield granted legend attach-armament static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield extra-standby destination static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -164,12 +164,28 @@ Validation: red/green focused guard `BattlefieldGrantLegendAttachArmamentStaticA
 
 Non-closure: this slice only closes the granted legend attach-armament static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete granted-ability modeling, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Extra-Standby Destination Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(...)` and routes Bandle Tree-style extra standby destination permission through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_EXTRA_STANDBY_DESTINATION`. `CoreRuleEngine.TryGetBattlefieldExtraStandbyObject`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.ControlledBattlefieldExtraStandbyObjects`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility, out _)`.
+
+Existing `OGN·278/298` / `OGN·278a/298` official behavior, controlled battlefield-source filtering, server-authored `HIDE_CARD` destination metadata, `CARD_HIDDEN.destinationZone = BATTLEFIELD`, cleanup after control loss, rejected destination no-mutation guard, hidden-info checks, and official-deck score-victory replays remain compatible.
+
+Validation: red/green focused guard `BattlefieldExtraStandbyStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / GameHub seed / official-deck accepted+cleanup+rejected route 11/11; adjacent `BandleTree|BattlefieldExtraStandby|ExtraStandby|HideCard|Standby|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2629/2629; backend full conformance 9129/9129.
+
+Non-closure: this slice only closes the extra-standby destination static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete extra-standby hidden-info breadth, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest extra-standby destination static ability generic-predicate guard red/green: passed `1/1`;
+- latest extra-standby parser / P79 runtime / GameHub seed / official-deck accepted+cleanup+rejected route focused validation: passed `11/11`;
+- latest BandleTree / BattlefieldExtraStandby / ExtraStandby / HideCard / Standby / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2629/2629`;
+- backend full conformance after the extra-standby generic-predicate increment: passed `9129/9129`;
 - latest granted legend attach-armament static ability generic-predicate guard red/green: passed `1/1`;
 - latest granted legend attach-armament parser / P79 runtime / GameHub seed / official-deck accepted+rejected route focused validation: passed `10/10`;
 - latest PoroForge / LegendAttachArmament / LegendAct / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2586/2586`;
