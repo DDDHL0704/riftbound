@@ -2,12 +2,13 @@
 
 Date: 2026-06-28
 
-Status: focused B4 Poro Forge official-deck rejected-command replay accepted; project remains **NOT READY**.
+Status: focused B4 battlefield winning-score static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
 These slices move implemented battlefield static abilities away from engine card-number branching:
 
+- `OGN·276/298` / `OGN·276a/298` official text: `赢得游戏所需的分数+1。`
 - `OGN·295/298` official text: `单位无法从此处移动到基地。`
 - `SFD·216/221` official text: `单位无法被打出到此处。`
 - `SFD·211/221` official text: `如果此战场受你控制，则友方{{回响}}的费用减少{{1}}。`
@@ -18,6 +19,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `UNL-206/219` official text: `如果此处的一名单位在战斗中被摧毁，其控制者可以选择支付{{A}}{{A}}{{A}}，以此改为移除其所受伤害、将其变为休眠状态、并将其召回。`
 - `SFD·208/221` official text: `如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”`
 - `RuleTextParser` now parses those texts as `StaticAbilitySpec` with:
+  - `Kind = BATTLEFIELD_WINNING_SCORE_INCREASE`, `Amount = 1`
   - `Kind = BATTLEFIELD_PREVENT_MOVE_TO_BASE`
   - `Kind = BATTLEFIELD_PREVENT_UNIT_PLAY`
   - `Kind = BATTLEFIELD_ECHO_COST_REDUCTION`, `Amount = 1`
@@ -51,6 +53,18 @@ These slices move implemented battlefield static abilities away from engine card
 - `MatchSession` extra-standby prompt destination filtering and battlefield-object recognition use the same static ability spec query instead of the old Bandle Tree card-number allow-list.
 - `MatchSession` battlefield-object recognition uses the same static ability spec query instead of the old Blood Altar card-number allow-list.
 - `MatchSession` legend-action prompt source filtering and battlefield-object recognition use the same static ability spec query instead of the old Poro Forge card-number allow-list; development seed data keeps `SFD·208/221` only as a seed card identity.
+
+## 2026-07-02 Supplement: Battlefield Winning-Score Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(...)` and routes Mind and Balance-style winning-score threshold modifiers through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, predicate, out ability)` now delegates to a generic `CardStaticAbilitySpecRules.TryGetStaticAbility(...)` predicate overload. `BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_WINNING_SCORE_INCREASE` plus positive `Amount`.
+
+`CoreRuleEngine`, `MatchSession`, and `MatchRecovery` now compute effective winning score and battlefield rule-card recognition by enumerating `BehaviorSpec.StaticAbilities` through that predicate. Existing `OGN·276/298` / `OGN·276a/298` official behavior, `MATCH_WON.winningScore` payloads, prompt threshold checks, recovery validation, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldWinningScoreStaticAbilityUsesGenericSpecPredicate` 1/1; focused winning-score parser / P79 runtime / GameHub seed / official-deck route 8/8; adjacent `BattlefieldStatic|WinningScore|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2550/2550; backend full conformance 9120/9120.
+
+Non-closure: this slice only closes the winning-score static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete battlefield lifecycle, complete score-delay physical `此处` scoping, P0, and READY remain open.
 
 ## Non-Closure
 

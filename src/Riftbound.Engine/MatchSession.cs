@@ -5070,8 +5070,10 @@ public sealed record ResolutionResult(
 
     private static int BattlefieldWinningScoreIncreaseAmount(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
-            && ability.Amount > 0
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out var ability)
                 ? ability.Amount
                 : 0;
     }
@@ -12762,8 +12764,10 @@ internal static class ActionPromptBuilder
 
     private static int PromptBattlefieldWinningScoreIncreaseAmount(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
-            && ability.Amount > 0
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out var ability)
                 ? ability.Amount
                 : 0;
     }
@@ -17912,7 +17916,10 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardObject.CardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardObject.CardNo)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)

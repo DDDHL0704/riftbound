@@ -12387,8 +12387,10 @@ public static class MatchRecoveryValidator
 
     private static int BattlefieldWinningScoreIncreaseAmountForRecovery(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
-            && ability.Amount > 0
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out var ability)
                 ? ability.Amount
                 : 0;
     }

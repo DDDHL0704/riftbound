@@ -80,6 +80,17 @@ internal static class CardStaticAbilitySpecRules
 
     public static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
+        return TryGetStaticAbility(
+            cardNo,
+            candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal),
+            out ability);
+    }
+
+    public static bool TryGetStaticAbility(
+        string? cardNo,
+        Func<StaticAbilitySpec, bool> predicate,
+        out StaticAbilitySpec ability)
+    {
         ability = default!;
         if (string.IsNullOrWhiteSpace(cardNo))
         {
@@ -91,7 +102,7 @@ internal static class CardStaticAbilitySpecRules
             return false;
         }
 
-        var match = abilities.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = abilities.FirstOrDefault(predicate);
         if (match is null)
         {
             return false;

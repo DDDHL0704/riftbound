@@ -4,6 +4,20 @@ namespace Riftbound.Engine;
 
 internal static class BattlefieldStaticAbilitySpecRules
 {
+    public static bool TryGetAbility(string? cardNo, Func<StaticAbilitySpec, bool> predicate, out StaticAbilitySpec ability)
+    {
+        return CardStaticAbilitySpecRules.TryGetStaticAbility(cardNo, predicate, out ability);
+    }
+
+    public static bool IsBattlefieldWinningScoreIncreaseAbility(StaticAbilitySpec ability)
+    {
+        return string.Equals(
+                ability.Kind,
+                StaticAbilityKinds.BattlefieldWinningScoreIncrease,
+                StringComparison.Ordinal)
+            && ability.Amount > 0;
+    }
+
     public static bool TryGetBattlefieldPreventMoveToBaseAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(
@@ -70,14 +84,6 @@ internal static class BattlefieldStaticAbilitySpecRules
         return TryGetStaticAbility(
             cardNo,
             StaticAbilityKinds.BattlefieldScoreDelayUntilTurn,
-            out ability);
-    }
-
-    public static bool TryGetBattlefieldWinningScoreIncreaseAbility(string? cardNo, out StaticAbilitySpec ability)
-    {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.BattlefieldWinningScoreIncrease,
             out ability);
     }
 

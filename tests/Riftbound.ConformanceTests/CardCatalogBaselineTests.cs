@@ -6089,6 +6089,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldWinningScoreStaticAbilityUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains(
+                "TryGetBattlefieldWinningScoreIncreaseAbility",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                "BattlefieldStaticAbilitySpecRules.TryGetAbility",
+                StringComparison.Ordinal)
+                && source.Contains(
+                    "BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BattlefieldExtraStandbyStaticAbilityDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(

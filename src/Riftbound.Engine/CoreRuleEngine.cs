@@ -26583,7 +26583,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardNo)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardNo, MoveUnitRoamKeyword)
@@ -26614,8 +26617,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int BattlefieldWinningScoreIncreaseAmount(string? cardNo)
     {
-        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
-            && ability.Amount > 0
+        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
+                out var ability)
                 ? ability.Amount
                 : 0;
     }
