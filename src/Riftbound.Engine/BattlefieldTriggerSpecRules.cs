@@ -212,6 +212,16 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.MillCount is > 0;
     }
 
+    public static bool IsBattlefieldConquerRecycleRuneTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerRecycleRune, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedRuneInBase, StringComparison.Ordinal)
+            && string.Equals(trigger.RecycleSourceZone, TriggerZones.Base, StringComparison.Ordinal)
+            && string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            && trigger.RecycleCount is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -257,14 +267,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerRecycleRuneTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerRecycleRune,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerConsumeBoonDrawTrigger(string? cardNo, out TriggerSpec trigger)

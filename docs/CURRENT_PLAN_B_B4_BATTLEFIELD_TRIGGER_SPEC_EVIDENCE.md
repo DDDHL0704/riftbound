@@ -1,8 +1,18 @@
 # Plan B / B4 Battlefield Trigger Spec Evidence
 
-Date: 2026-07-01
+Date: 2026-07-02
 
 Project status: **NOT READY**.
+
+## 2026-07-02 Conquer Recycle-Rune Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·287/298` Thunder Sigil / 雷霆之纹 official text `当你征服此处时，回收一枚你的符文。`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerRecycleRuneTrigger, out trigger)`.
+- `IsBattlefieldConquerRecycleRuneTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RecycleSourceZone=BASE`, `RecycleDestinationZone=MAIN_DECK`, and positive `RecycleCount`.
+- `CoreRuleEngine.ResolveBattlefieldConquerRecycleRuneTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, controlled base-rune selection, base-to-main-deck-bottom movement, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_RECYCLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer recycle-rune paths continue to move the parsed count of controlled base runes to the conquering player's main-deck bottom, preserve hidden main-deck ordering boundaries, and route official-deck replay through the same parsed Thunder Sigil trigger.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerRecycleRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: baseline backend full 9101/9101; focused guard / parser / Thunder Sigil representatives / official-deck route 5/5; adjacent `ThunderSigil|BattlefieldConquerRecycleRune|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery|CardCatalogBaseline` 2728/2728; backend full conformance 9102/9102.
 
 ## 2026-07-01 Conquer Mill Execution Helper Evidence
 
@@ -438,7 +448,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path still moves the top con
 
 The 2026-06-27 B0 follow-up adds an official-deck action-log replay for Minefield (`SFD·212/221`). It selects the BehaviorSpec battlefield source through normal opening prompts, stages official `UNL-057/219` Wildclaw Beastmaster and opposing `OGN·096/298` Watchful Sentinel at that battlefield, resolves the `DECLARE_BATTLE` conquered path, asserts the parsed mill trigger plus hidden-safe `CARDS_MILLED` payload, then replays the resulting action log to the final score-victory state hash.
 
-The conquer recycle-rune follow-up parser path turns the Sigil of Thunder official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RecycleCount=1`, `RecycleSourceZone=BASE`, and `RecycleDestinationZone=MAIN_DECK`. Runtime no longer checks `OGN·287/298` through `BattlefieldConquerRecycleRuneCardNo` / `IsBattlefieldConquerRecycleRuneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer recycle-rune follow-up parser path turns the Sigil of Thunder official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RecycleCount=1`, `RecycleSourceZone=BASE`, and `RecycleDestinationZone=MAIN_DECK`. Runtime no longer checks `OGN·287/298` through `BattlefieldConquerRecycleRuneCardNo` / `IsBattlefieldConquerRecycleRuneCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerRecycleRuneTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still selects a controlled rune in the conquering player's base, moves it to the bottom of that player's main deck, and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`. The recycle count and source/destination zones now come from the parsed spec, and the existing opponent-controlled base rune guard remains covered.
 
@@ -673,6 +683,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer mill Minefield backend full follow-up: `8832/8832`;
 - conquer recycle-rune focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer recycle-rune adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `276/276`;
+- conquer recycle-rune execution-helper focused guard / parser / runtime / GameHub / official-deck route: `5/5`;
+- conquer recycle-rune execution-helper adjacent ThunderSigil / BattlefieldConquerRecycleRune / BattlefieldConquer / BattlefieldTriggerSpec / FullGameEndToEnd / GameHubJoin / MatchRecovery / CardCatalogBaseline follow-up: `2728/2728`;
+- conquer recycle-rune execution-helper backend full conformance: `9102/9102`;
 - conquer recycle-rune Thunder Sigil B0 action-log replay follow-up: `1/1`;
 - conquer recycle-rune Thunder Sigil B0 full-game follow-up: `83/83`;
 - conquer recycle-rune Thunder Sigil B0 adjacent / hidden-info follow-up: `2076/2076`;

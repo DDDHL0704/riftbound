@@ -1,10 +1,19 @@
 # Plan B / B4 Battlefield Trigger Spec Audit
 
-Date: 2026-07-01
+Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer mill execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer recycle-rune execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer recycle-rune execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(...)` is removed.
+- `CoreRuleEngine.ResolveBattlefieldConquerRecycleRuneTrigger` now routes through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerRecycleRuneTrigger`.
+- `IsBattlefieldConquerRecycleRuneTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`, `BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RecycleSourceZone=BASE`, `RecycleDestinationZone=MAIN_DECK`, and positive `RecycleCount`. Existing conquered-battlefield source discovery, controlled base-rune selection, base-to-main-deck-bottom movement, `BATTLEFIELD_TRIGGER_RESOLVED` / `CARDS_RECYCLED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerRecycleRuneTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 17. This slice does not close optional rune choice prompts, complete base/main-deck replacement breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: baseline backend full 9101/9101, focused guard / parser / Thunder Sigil representatives / official-deck route 5/5, adjacent `ThunderSigil|BattlefieldConquerRecycleRune|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|GameHubJoin|MatchRecovery|CardCatalogBaseline` 2728/2728, backend full conformance 9102/9102.
 
 The 2026-07-01 conquer mill execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -680,9 +689,9 @@ The 2026-06-25 conquer recycle-rune follow-up moves another implemented conquere
   - `RecycleCount = 1`
   - `RecycleSourceZone = BASE`
   - `RecycleDestinationZone = MAIN_DECK`
-- `CoreRuleEngine.ResolveBattlefieldConquerRecycleRuneTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(...)` and reads the rune count and source/destination zones from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.ResolveBattlefieldConquerRecycleRuneTrigger` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerRecycleRuneTrigger, out trigger)` and reads the rune count and source/destination zones from `BehaviorSpec.Triggers`.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerRecycleRuneCardNo` constant.
-- The old `BattlefieldConquerRecycleRuneCardNo` / `IsBattlefieldConquerRecycleRuneCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `72` total / `68` in `CoreRuleEngine`; Core battlefield helper count is `24`.
+- The old `BattlefieldConquerRecycleRuneCardNo` / `IsBattlefieldConquerRecycleRuneCardNo` card-number branch was removed in that slice. Its then-current source-helper count for `private static bool Is*CardNo(...)` was `72` total / `68` in `CoreRuleEngine`; current helper-closure counts are tracked in the 2026-07-02 / 2026-07-01 execution-helper sections above.
 
 The 2026-06-28 B0 replay follow-up adds no runtime rule changes. It proves the parsed `OGN·287/298` Thunder Sigil / 雷霆之纹 route can be reached from a verified legal official-deck opening, start from a focused midgame `START_BATTLE` state, recycle one controlled base rune to the bottom of the main deck, and replay through score victory to the same final state hash.
 
