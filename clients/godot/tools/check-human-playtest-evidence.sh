@@ -167,6 +167,14 @@ if [[ -s "${player_b_log}" ]]; then
   require_literal_match "Visual screenshot saved: ${player_b_result}" "${player_b_log}" "player B result screenshot log"
 fi
 
+if [[ -s "${player_a_log}" && -s "${player_b_log}" ]] && cmp -s "${player_a_log}" "${player_b_log}"; then
+  failures+=("player A and player B logs are identical")
+fi
+
+if [[ -s "${player_a_result}" && -s "${player_b_result}" ]] && cmp -s "${player_a_result}" "${player_b_result}"; then
+  failures+=("player A and player B result screenshots are identical")
+fi
+
 if compgen -G "${evidence_dir}/*.log" >/dev/null; then
   if rg -n "Message queue out of memory|handle_crash|Exception|ERROR|FATAL|REJECTED|rejected|sharing violation" "${evidence_dir}"/*.log; then
     failures+=("error/rejection pattern found in logs")
