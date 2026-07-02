@@ -42,6 +42,15 @@ evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${
 verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
 created_worktree=0
 
+if [[ "${RIFTBOUND_EXTRA_GODOT_ARGS:-}" == *"--riftbound-smoke-auto-"* ]]; then
+  cat >&2 <<'EOF'
+Refusing final clean-main human playtest with automated smoke Godot arguments.
+Use clients/godot/tools/run-local-simulated-playtest-stack.sh for automated
+diagnostics; final P5 evidence must come from two human operators.
+EOF
+  exit 2
+fi
+
 if [[ "${fetch_ref}" != "0" ]]; then
   git -C "${repo_root}" fetch origin main
 fi
