@@ -2378,7 +2378,7 @@ public sealed record MatchState
         foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
             .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura))
         {
-            if (!SourceObjectKeywordStaticAuraApplies(cardObject, aura))
+            if (!SourceObjectKeywordStaticAuraApplies(state, objectId, cardObject, aura))
             {
                 continue;
             }
@@ -2410,10 +2410,29 @@ public sealed record MatchState
         return effects;
     }
 
-    private static bool SourceObjectKeywordStaticAuraApplies(CardObjectState cardObject, StaticAuraSpec aura)
+    private static bool SourceObjectKeywordStaticAuraApplies(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
     {
-        return string.IsNullOrWhiteSpace(aura.TargetFilter)
-            || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
+        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
+            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+        {
+            return false;
+        }
+
+        if (aura.RequiredPlayerExperience.HasValue)
+        {
+            var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
+            if (string.IsNullOrWhiteSpace(controllerId)
+                || !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static (
@@ -2429,6 +2448,15 @@ public sealed record MatchState
                 "CoreRuleEngine.HasSourceObjectFilteredStaticKeyword",
                 "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
                 "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal))
+        {
+            return (
+                "RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD",
+                "CoreRuleEngine.HasSourceObjectLevelStaticKeyword",
+                "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
         }
 
         return (
@@ -9740,7 +9768,7 @@ internal static class ActionPromptBuilder
 
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
-            || HasSourceObjectFilteredPromptKeyword(sourceState, MoveUnitRoamKeyword)
+            || HasSourceObjectFilteredPromptKeyword(state, sourceState, MoveUnitRoamKeyword)
             || HasFriendlyFilteredUnitsGrantedKeyword(
                 state,
                 sourceObjectId,
@@ -9777,7 +9805,10 @@ internal static class ActionPromptBuilder
             .Select(group => group.First());
     }
 
-    private static bool HasSourceObjectFilteredPromptKeyword(CardObjectState sourceState, string keyword)
+    private static bool HasSourceObjectFilteredPromptKeyword(
+        MatchState state,
+        CardObjectState sourceState,
+        string keyword)
     {
         if (!sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -9790,6 +9821,10 @@ internal static class ActionPromptBuilder
             .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
             .Where(aura => string.IsNullOrWhiteSpace(aura.TargetFilter)
                 || StaticAuraSpecRules.TargetMatchesFilter(aura, sourceState))
+            .Where(aura => !aura.RequiredPlayerExperience.HasValue
+                || (!string.IsNullOrWhiteSpace(sourceState.ControllerId)
+                    && state.PlayerExperience.TryGetValue(sourceState.ControllerId, out var experience)
+                    && experience >= aura.RequiredPlayerExperience.Value))
             .Any(aura => aura.GrantedKeyword is { Length: > 0 } grantedKeyword
                 && CardCombatKeywordRules.KeywordAmount([grantedKeyword], keyword) > 0);
     }

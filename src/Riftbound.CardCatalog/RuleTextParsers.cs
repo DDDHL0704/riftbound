@@ -2516,6 +2516,8 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var levelSourceKeywordAdded = TryAddSourceObjectLevelKeywordAuras(auras, segment);
+
             var sourceObjectLevelPowerMatch = Regex.Match(
                 segment,
                 @"\{\{等级(\d+)>\}\}\s*我获得\{\{S\}\}\+(\d+)",
@@ -2535,6 +2537,11 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
                     RequiredPlayerExperience: sourceObjectLevelExperience));
+                continue;
+            }
+
+            if (levelSourceKeywordAdded)
+            {
                 continue;
             }
 
@@ -3114,6 +3121,49 @@ public static class StaticAuraParser
                 "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                 targetFilter,
                 GrantedKeyword: grantedKeyword));
+            added = true;
+        }
+
+        return added;
+    }
+
+    private static bool TryAddSourceObjectLevelKeywordAuras(List<StaticAuraSpec> auras, string segment)
+    {
+        var levelSourceKeywordMatch = Regex.Match(
+            segment,
+            @"\{\{等级(?<experience>\d+)>\}\}\s*我获得(?<grants>[^。]+)",
+            RegexOptions.CultureInvariant);
+        if (!levelSourceKeywordMatch.Success
+            || !int.TryParse(levelSourceKeywordMatch.Groups["experience"].Value, out var requiredExperience))
+        {
+            return false;
+        }
+
+        var added = false;
+        foreach (Match keywordMatch in Regex.Matches(
+            levelSourceKeywordMatch.Groups["grants"].Value,
+            @"\{\{([^}]+)\}\}(?!\+)",
+            RegexOptions.CultureInvariant))
+        {
+            var grantedKeyword = keywordMatch.Groups[1].Value.Trim();
+            if (string.IsNullOrWhiteSpace(grantedKeyword)
+                || string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            auras.Add(new StaticAuraSpec(
+                StaticAuraKinds.SourceObjectLevelKeyword,
+                RuleTextLayer,
+                "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                StaticAuraTargetScopes.SourceObject,
+                StaticAuraParticipantScopes.SourceObject,
+                0,
+                segment,
+                BehaviorImplementationStatuses.Unimplemented,
+                "Static keyword aura parsed for B2 routing; execution is available when source-object keyword checks read BehaviorSpec.StaticAuras.",
+                GrantedKeyword: grantedKeyword,
+                RequiredPlayerExperience: requiredExperience));
             added = true;
         }
 

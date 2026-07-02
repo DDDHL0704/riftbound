@@ -14,6 +14,10 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
     private const string MossStepperCardNo = "UNL-047/219";
     private const string MossStepperBattlefieldObjectId = "P1-MOSS-STEPPER-BATTLEFIELD";
     private const string MossStepperDefenderObjectId = "P2-MOSS-STEPPER-DEFENDER";
+    private const string WindrunnerObjectId = "P1-WINDRUNNER-LEVEL-KEYWORD";
+    private const string WindrunnerCardNo = "UNL-075/219";
+    private const string WindrunnerOriginBattlefieldObjectId = "P1-WINDRUNNER-ORIGIN";
+    private const string WindrunnerDestinationBattlefieldObjectId = "P1-WINDRUNNER-DESTINATION";
 
     [Fact]
     public void CrystalhandHunterLevelStaticPowerProjectsSourceObjectAuraAtRequiredExperience()
@@ -54,6 +58,70 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             state.ContinuousEffects,
             effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal)
                 && string.Equals(effect.SourceObjectId, CrystalhandHunterObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void WindrunnerLevelRoamProjectsSourceObjectKeywordAuraAtRequiredExperience()
+    {
+        var state = BuildWindrunnerLevelKeywordState(playerOneExperience: 3);
+
+        var keywordAura = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, WindrunnerObjectId, StringComparison.Ordinal));
+
+        Assert.Equal($"RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:{WindrunnerObjectId}:{CardCombatKeywordNames.Roam}", keywordAura.EffectId);
+        Assert.Equal("OBJECT", keywordAura.Scope);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", keywordAura.Duration);
+        Assert.Equal(WindrunnerObjectId, keywordAura.TargetObjectId);
+        Assert.Equal(WindrunnerObjectId, keywordAura.SourceObjectId);
+        Assert.Equal(0, keywordAura.PowerDelta);
+        Assert.Equal(3, keywordAura.BasePower);
+        Assert.Equal(3, keywordAura.EffectivePower);
+        Assert.Equal(WindrunnerCardNo, keywordAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.HasSourceObjectLevelStaticKeyword", keywordAura.SourcePath);
+        Assert.True(keywordAura.IsLayerEngineFoundationOnly);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE", keywordAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE", keywordAura.Lifecycle);
+        Assert.Equal([WindrunnerObjectId], keywordAura.ParticipantObjectIds);
+        Assert.Equal([WindrunnerObjectId], keywordAura.SourceDependencyObjectIds);
+        Assert.Equal([WindrunnerObjectId], keywordAura.TargetDependencyObjectIds);
+        Assert.Equal([WindrunnerObjectId], keywordAura.ParticipantDependencyObjectIds);
+    }
+
+    [Fact]
+    public void WindrunnerLevelRoamDoesNotProjectBelowRequiredExperience()
+    {
+        var state = BuildWindrunnerLevelKeywordState(playerOneExperience: 2);
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, WindrunnerObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task WindrunnerLevelRoamAllowsPreciseBattlefieldMovementWithoutPrintedRoamTag()
+    {
+        var state = BuildWindrunnerLevelKeywordMoveState(playerOneExperience: 3);
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, state.CardObjects[WindrunnerObjectId].Tags);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-windrunner-level-roam", "P1", CommandTypes.MoveUnit),
+            new MoveUnitCommand(
+                WindrunnerObjectId,
+                $"BATTLEFIELD:{WindrunnerOriginBattlefieldObjectId}",
+                $"BATTLEFIELD:{WindrunnerDestinationBattlefieldObjectId}",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            WindrunnerDestinationBattlefieldObjectId,
+            result.State.ObjectLocations[WindrunnerObjectId].BattlefieldObjectId);
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, result.State.CardObjects[WindrunnerObjectId].Tags);
     }
 
     [Fact]
@@ -144,6 +212,82 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [CrystalhandHunterObjectId] = CrystalhandHunter(CrystalhandHunterObjectId)
+            });
+    }
+
+    private static MatchState BuildWindrunnerLevelKeywordState(int playerOneExperience)
+    {
+        return new MatchState(
+            "source-object-level-keyword-static-aura-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = playerOneExperience,
+                ["P2"] = 0
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [WindrunnerObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [WindrunnerObjectId] = Windrunner(WindrunnerObjectId)
+            });
+    }
+
+    private static MatchState BuildWindrunnerLevelKeywordMoveState(int playerOneExperience)
+    {
+        return new MatchState(
+            "source-object-level-keyword-static-aura-move-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = playerOneExperience,
+                ["P2"] = 0
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [WindrunnerObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [WindrunnerObjectId] = Windrunner(WindrunnerObjectId)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [WindrunnerObjectId] = new("P1", "BATTLEFIELD", WindrunnerOriginBattlefieldObjectId)
             });
     }
 
@@ -268,6 +412,17 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             cardNo: CrystalhandHunterCardNo,
             power: 2,
             tags: [CardObjectTags.UnitCard, "约德尔人", "狩猎"],
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState Windrunner(string objectId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: WindrunnerCardNo,
+            power: 3,
+            tags: [CardObjectTags.UnitCard, "犬形", "狩猎2"],
             ownerId: "P1",
             controllerId: "P1");
     }

@@ -2,7 +2,7 @@
 
 Date: 2026-06-30
 
-Supplement: 2026-07-01
+Supplement: 2026-07-01, 2026-07-02
 
 Project status: **NOT READY**.
 
@@ -14,9 +14,14 @@ The stable catalog effect id `BILGEWATER_BULLY_NO_BOON_ROAM_PLAY_UNIT` remains c
 
 The 2026-07-01 follow-up removes the remaining source-object filtered keyword kind selector from the engine consumption path. Runtime, prompt, and projection now identify source-object keyword auras by `RULE_TEXT` layer plus `SOURCE_OBJECT` target/participant scope rather than by `StaticAuraKinds.SourceObjectFilteredKeyword`.
 
+The 2026-07-02 follow-up extends the same source-object keyword route to level-gated official text such as `UNL-075/219` 风行狐, `UNL-047/219` 踏苔蜥, and `UNL-113/219` / `UNL-113a/219` 易. These cards now parse `{{等级N>}} 我获得...` keyword grants as `BehaviorSpec.StaticAuras` with `RequiredPlayerExperience`, and runtime/prompt/projection checks enforce that controller experience threshold through the shared source-object keyword predicate.
+
 ## Authority
 
 - `data/official/card-catalog.zh-CN.json` row `OGN·125/298` 比尔吉沃特恶霸: if the source has a boon, it gains `游走`.
+- `data/official/card-catalog.zh-CN.json` row `UNL-075/219` 风行狐: at level 3, the source gains `{{S}}+1` and `游走`.
+- `data/official/card-catalog.zh-CN.json` row `UNL-047/219` 踏苔蜥: at level 3, the source gains `{{S}}+1` and `法盾`.
+- `data/official/card-catalog.zh-CN.json` rows `UNL-113/219` and `UNL-113a/219` 易: at level 6, the source gains `法盾` and `游走`.
 - `docs/rules-evidence-index.md` already records `p2-preflight-play-bilgewater-bully-no-boon-roam-static` and `p4-play-bilgewater-bully-target-rejected` as audited representative paths.
 - Existing representative tests cover both the boon-present and boon-absent Roam permission paths.
 
@@ -37,6 +42,8 @@ The 2026-07-01 follow-up removes the remaining source-object filtered keyword ki
 - `CoreRuleEngine` enumerates `StaticAuraSpecRules.GetStaticAuras(cardNo)` and applies the optional `TargetFilter` for Roam permission and combat keyword recomputation.
 - `MatchSession` reads the same scope predicate for prompt Roam permission and continuous-effect projection.
 - `StaticAuraSpecRules.TryGetSourceObjectFilteredKeywordAura` has been removed so new runtime code cannot reintroduce the kind-specific selector.
+- `StaticAuraParser` now parses `{{等级N>}} 我获得...` keyword grants into `StaticAuraKinds.SourceObjectLevelKeyword` with `RequiredPlayerExperience=N`.
+- `CoreRuleEngine`, `MatchSession`, and prompt Roam metadata reuse the source-object keyword applicability path and reject level-gated keyword grants until the source controller has the required experience.
 
 ## Validation
 
@@ -51,7 +58,10 @@ The 2026-07-01 follow-up removes the remaining source-object filtered keyword ki
 - 2026-07-01 focused routing gate `SourceObjectKeywordStaticAuraExecutionRoutesThroughBehaviorSpecScope|BilgewaterBullyBoonRoamSourceIdentityUsesSourceObjectFilteredKeywordAura|P79BilgewaterBully` passed `4/4`.
 - 2026-07-01 adjacent / hidden-info gate `BattlefieldStaticAuraSpecRoutingGuardTests|MovementSourceIdentityGuardTests|CardCatalogBaselineTests|P79BilgewaterBully|PreciseRoam|MoveUnit|MatchRecovery` passed `2411/2411`.
 - 2026-07-01 backend full conformance passed `9066/9066`.
+- 2026-07-02 focused level-keyword gate `SourceObjectLevelPowerStaticAuraTests|BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives` passed `8/8`.
+- 2026-07-02 adjacent / hidden-info gate `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Roam|MoveUnit|MatchRecovery` passed `2197/2197`.
+- 2026-07-02 backend full conformance passed `9133/9133`.
 
 ## Holdbacks
 
-This does not close complete source-object filtered keyword official breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, P0 full objective, or READY.
+This does not close complete source-object keyword official breadth, complete Roam timing, complete movement lifecycle, complete boon-token family, P0 full objective, or READY.

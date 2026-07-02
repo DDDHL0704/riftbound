@@ -6,6 +6,18 @@
 
 These B1 slices advance Plan B by moving implemented `STATIC_AURA` projection and combat-power recompute surfaces from card-number allow-lists toward `BehaviorSpec` data.
 
+## 2026-07-02 Supplement: Source-Object Level RULE_TEXT Keyword Aura
+
+This follow-up extends the shared source-object keyword route beyond filtered tag checks to level-gated official source-object keyword text.
+
+`StaticAuraParser` now parses `{{等级N>}} 我获得...` keyword grants into `StaticAuraKinds.SourceObjectLevelKeyword` with `Layer=RULE_TEXT`, `TargetScope=SOURCE_OBJECT`, `ParticipantScope=SOURCE_OBJECT`, `GrantedKeyword`, and `RequiredPlayerExperience=N`. `StaticAuraSpecRules.IsSourceObjectKeywordStaticAura` continues to identify the route by BehaviorSpec shape rather than by card number.
+
+`CoreRuleEngine` now passes `MatchState` into source-object keyword aura applicability so combat keyword recomputation and precise `ROAM` movement permission require the source controller to meet `RequiredPlayerExperience`. `MatchSession` uses the same experience gate for continuous-effect projection and prompt Roam permission, emitting `RULE_TEXT:SOURCE_OBJECT_LEVEL_KEYWORD:*` only while the source is public, on the field, a unit, and its controller has enough experience.
+
+Validation: red/green focused `SourceObjectLevelPowerStaticAuraTests|BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives` passed 8/8 after initially failing because no level keyword aura was parsed/projected; adjacent `SourceObjectLevelPower|SourceObjectKeyword|StaticAura|Roam|MoveUnit|MatchRecovery` passed 2197/2197; backend full conformance passed 9133/9133.
+
+Non-closure: this slice only covers level-gated source-object keyword grants represented by Windrunner Fox / Moss Stepper / Yi-style official text. Complete source-object keyword official breadth, full Roam timing, movement lifecycle breadth, LayerEngine timestamp/order semantics, B2 keyword breadth, P0, and READY remain open.
+
 ## 2026-07-01 Supplement: Static-Aura Helper Surface Closure
 
 This follow-up removes the remaining `StaticAuraSpecRules.TryGet*Aura` helper surface and finishes routing the friendly single-defender POWER path through a scope predicate.

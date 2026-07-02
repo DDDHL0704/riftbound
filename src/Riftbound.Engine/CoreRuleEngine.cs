@@ -19968,6 +19968,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         keywordBonus = Math.Max(
             keywordBonus,
             ResolveSourceObjectKeywordStaticAuraBonus(
+                state,
                 cardObject,
                 combatKeyword));
         keywordBonus = Math.Max(
@@ -20122,7 +20123,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static int ResolveSourceObjectKeywordStaticAuraBonus(CardObjectState cardObject, string combatKeyword)
+    private static int ResolveSourceObjectKeywordStaticAuraBonus(
+        MatchState state,
+        CardObjectState cardObject,
+        string combatKeyword)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -20133,16 +20137,33 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
             .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
-            .Where(aura => SourceObjectKeywordStaticAuraApplies(cardObject, aura))
+            .Where(aura => SourceObjectKeywordStaticAuraApplies(state, cardObject, aura))
             .Select(aura => GrantedCombatKeywordAmount(aura, combatKeyword))
             .DefaultIfEmpty(0)
             .Max();
     }
 
-    private static bool SourceObjectKeywordStaticAuraApplies(CardObjectState cardObject, StaticAuraSpec aura)
+    private static bool SourceObjectKeywordStaticAuraApplies(
+        MatchState state,
+        CardObjectState cardObject,
+        StaticAuraSpec aura)
     {
-        return string.IsNullOrWhiteSpace(aura.TargetFilter)
-            || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
+        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
+            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+        {
+            return false;
+        }
+
+        if (aura.RequiredPlayerExperience.HasValue)
+        {
+            if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                || !StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static int ResolveSourceObjectPowerStaticAuraBonus(MatchState state, CardObjectState cardObject)
@@ -31064,7 +31085,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
-            || HasSourceObjectKeywordStaticAura(sourceState, MoveUnitRoamKeyword)
+            || HasSourceObjectKeywordStaticAura(state, sourceState, MoveUnitRoamKeyword)
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 state.PlayerZones,
@@ -31074,7 +31095,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
     }
 
-    private static bool HasSourceObjectKeywordStaticAura(CardObjectState sourceState, string keyword)
+    private static bool HasSourceObjectKeywordStaticAura(
+        MatchState state,
+        CardObjectState sourceState,
+        string keyword)
     {
         if (!sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -31085,7 +31109,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
             .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
-            .Where(aura => SourceObjectKeywordStaticAuraApplies(sourceState, aura))
+            .Where(aura => SourceObjectKeywordStaticAuraApplies(state, sourceState, aura))
             .Any(aura => GrantedCombatKeywordAmount(aura, keyword) > 0);
     }
 

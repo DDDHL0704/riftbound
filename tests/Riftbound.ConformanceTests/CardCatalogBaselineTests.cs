@@ -1586,6 +1586,33 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, levelSourceAura.Status);
         }
 
+        foreach (var (cardNo, requiredExperience, grantedKeywords) in new (string CardNo, int RequiredExperience, string[] GrantedKeywords)[]
+        {
+            ("UNL-047/219", 3, [CardResourceKeywordNames.Spellshield]),
+            ("UNL-075/219", 3, [CardCombatKeywordNames.Roam]),
+            ("UNL-113/219", 6, [CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Roam]),
+            ("UNL-113a/219", 6, [CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Roam])
+        })
+        {
+            var levelSource = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var levelKeywordAuras = levelSource.StaticAuras
+                .Where(aura => string.Equals(aura.Kind, StaticAuraKinds.SourceObjectLevelKeyword, StringComparison.Ordinal))
+                .OrderBy(aura => aura.GrantedKeyword, StringComparer.Ordinal)
+                .ToArray();
+            Assert.Equal(grantedKeywords.OrderBy(keyword => keyword, StringComparer.Ordinal), levelKeywordAuras.Select(aura => aura.GrantedKeyword));
+            foreach (var aura in levelKeywordAuras)
+            {
+                Assert.Equal(ContinuousEffectLayers.RuleText, aura.Layer);
+                Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", aura.Duration);
+                Assert.Equal(StaticAuraTargetScopes.SourceObject, aura.TargetScope);
+                Assert.Equal(StaticAuraParticipantScopes.SourceObject, aura.ParticipantScope);
+                Assert.Equal(0, aura.PowerDeltaPerParticipant);
+                Assert.Equal(requiredExperience, aura.RequiredPlayerExperience);
+                Assert.Contains($"{{{{等级{requiredExperience}>}}}} 我获得", aura.Text, StringComparison.Ordinal);
+                Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+            }
+        }
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
