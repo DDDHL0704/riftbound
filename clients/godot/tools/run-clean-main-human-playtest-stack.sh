@@ -38,6 +38,7 @@ fetch_ref="${RIFTBOUND_CLEAN_WORKTREE_FETCH:-1}"
 keep_worktree="${RIFTBOUND_KEEP_CLEAN_WORKTREE:-0}"
 user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
 room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
+screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
@@ -86,6 +87,9 @@ fi
 if [[ "${ref}" != "origin/main" ]]; then
   disabled_final_gates+=("RIFTBOUND_CLEAN_WORKTREE_REF=${ref}")
 fi
+if [[ -e "${screenshot_dir}" && -n "$(find "${screenshot_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+  disabled_final_gates+=("RIFTBOUND_SCREENSHOT_DIR=${screenshot_dir} is not empty")
+fi
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -96,7 +100,7 @@ Refusing final clean-main human playtest with disabled final P5 evidence gates:
 Final P5 evidence requires a fetched origin/main clean worktree, manual
 confirmations, evidence checking, evidence packaging, package verification, a
 fresh Godot build, waiting for both Godot windows to exit, and no automatic
-Godot quit timer. Set
+Godot quit timer. The evidence directory must be new or empty. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF
@@ -145,6 +149,7 @@ Started clean-main Riftbound Godot human playtest stack.
   ref: ${ref}
   fetch origin/main: ${fetch_ref}
   keep worktree: ${keep_worktree}
+  evidence dir: ${screenshot_dir}
   evidence package: ${evidence_package}
   manual confirmations: ${confirm_manual}
   check evidence: ${check_evidence}
@@ -166,6 +171,7 @@ Final P5 operator checklist:
 EOF
 
 export RIFTBOUND_ROOM="${room}"
+export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
 export RIFTBOUND_REQUIRE_CLEAN_GIT="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
 export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"

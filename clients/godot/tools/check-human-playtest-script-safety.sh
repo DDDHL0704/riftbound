@@ -107,8 +107,9 @@ expect_final_gate_rejection() {
 expect_final_gate_value_rejection() {
   local env_name="$1"
   local env_value="$2"
-  local output_path="${tmp_dir}/${env_name}-${env_value}-output.log"
-  local worktree_path="${tmp_dir}/${env_name}-${env_value}-worktree"
+  local value_key="${env_value//[^A-Za-z0-9_.-]/_}"
+  local output_path="${tmp_dir}/${env_name}-${value_key}-output.log"
+  local worktree_path="${tmp_dir}/${env_name}-${value_key}-worktree"
 
   if env \
     PATH="${fake_bin}:${PATH}" \
@@ -136,6 +137,11 @@ expect_final_gate_rejection "RIFTBOUND_WAIT"
 expect_final_gate_rejection "RIFTBOUND_CLEAN_WORKTREE_FETCH"
 expect_final_gate_value_rejection "RIFTBOUND_CLEAN_WORKTREE_REF" "HEAD"
 expect_final_gate_value_rejection "RIFTBOUND_QUIT_AFTER" "10"
+
+stale_screenshot_dir="${tmp_dir}/stale-screenshots"
+mkdir -p "${stale_screenshot_dir}"
+printf 'old evidence\n' >"${stale_screenshot_dir}/player-a.log"
+expect_final_gate_value_rejection "RIFTBOUND_SCREENSHOT_DIR" "${stale_screenshot_dir}"
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
