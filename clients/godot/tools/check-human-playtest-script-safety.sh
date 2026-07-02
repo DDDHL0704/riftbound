@@ -293,4 +293,37 @@ fi
 rg -q "\\.NET executable|dotnet" "${missing_dotnet_output}" \
   || fail "clean-main human playtest precheck did not explain the missing .NET executable"
 
+blocked_parent_file="${tmp_dir}/blocked-parent"
+printf 'not a directory\n' >"${blocked_parent_file}"
+
+blocked_screenshot_parent_output="${tmp_dir}/blocked-screenshot-parent-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${tmp_dir}/blocked-screenshot-parent-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  RIFTBOUND_SCREENSHOT_DIR="${blocked_parent_file}/screens" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${blocked_screenshot_parent_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted a screenshot directory under a file parent"
+fi
+
+rg -q "RIFTBOUND_SCREENSHOT_DIR|evidence dir|parent" "${blocked_screenshot_parent_output}" \
+  || fail "clean-main human playtest precheck did not explain the blocked screenshot parent"
+
+blocked_package_parent_output="${tmp_dir}/blocked-package-parent-precheck-output.log"
+if PATH="${fake_bin}:${PATH}" \
+  RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+  RIFTBOUND_CLEAN_WORKTREE_DIR="${tmp_dir}/blocked-package-parent-worktree" \
+  RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_GODOT_BIN="${fake_godot_bin}" \
+  RIFTBOUND_DOTNET_BIN="${fake_dotnet_bin}" \
+  RIFTBOUND_EVIDENCE_PACKAGE="${blocked_parent_file}/human-playtest.tar.gz" \
+  "${script_dir}/run-clean-main-human-playtest-stack.sh" --precheck >"${blocked_package_parent_output}" 2>&1; then
+  fail "clean-main human playtest precheck accepted an evidence package under a file parent"
+fi
+
+rg -q "RIFTBOUND_EVIDENCE_PACKAGE|evidence package|parent" "${blocked_package_parent_output}" \
+  || fail "clean-main human playtest precheck did not explain the blocked evidence package parent"
+
 echo "Human playtest script safety checks passed."

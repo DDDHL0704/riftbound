@@ -91,6 +91,33 @@ fingerprint_secret() {
   printf '%s...%s' "${secret:0:4}" "${secret: -4}"
 }
 
+validate_output_parent() {
+  local target="$1"
+  local label="$2"
+  local parent
+  local existing_parent
+
+  parent="$(dirname "${target}")"
+  existing_parent="${parent}"
+  while [[ ! -e "${existing_parent}" && "${existing_parent}" != "/" ]]; do
+    existing_parent="$(dirname "${existing_parent}")"
+  done
+
+  if [[ -e "${parent}" && ! -d "${parent}" ]]; then
+    disabled_final_gates+=("${label} parent is not a directory: ${parent}")
+    return
+  fi
+
+  if [[ -e "${existing_parent}" && ! -d "${existing_parent}" ]]; then
+    disabled_final_gates+=("${label} nearest existing parent is not a directory: ${existing_parent}")
+    return
+  fi
+
+  if [[ -d "${existing_parent}" && ! -w "${existing_parent}" ]]; then
+    disabled_final_gates+=("${label} parent is not writable: ${existing_parent}")
+  fi
+}
+
 if [[ "${extra_godot_args}" == *"--riftbound-smoke-auto-"* ]]; then
   cat >&2 <<'EOF'
 Refusing final clean-main human playtest with automated smoke Godot arguments.
@@ -140,12 +167,17 @@ fi
 if [[ "${player_key_a}" == "${player_key_b}" ]]; then
   disabled_final_gates+=("RIFTBOUND_PLAYER_KEY_A and RIFTBOUND_PLAYER_KEY_B must be distinct")
 fi
+if [[ -e "${screenshot_dir}" && ! -d "${screenshot_dir}" ]]; then
+  disabled_final_gates+=("RIFTBOUND_SCREENSHOT_DIR=${screenshot_dir} exists but is not a directory")
+fi
 if [[ -e "${screenshot_dir}" && -n "$(find "${screenshot_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   disabled_final_gates+=("RIFTBOUND_SCREENSHOT_DIR=${screenshot_dir} is not empty")
 fi
 if [[ -e "${evidence_package}" ]]; then
   disabled_final_gates+=("RIFTBOUND_EVIDENCE_PACKAGE=${evidence_package} already exists")
 fi
+validate_output_parent "${screenshot_dir}" "RIFTBOUND_SCREENSHOT_DIR"
+validate_output_parent "${evidence_package}" "RIFTBOUND_EVIDENCE_PACKAGE"
 if [[ -n "${playtest_report}" ]]; then
   disabled_final_gates+=("RIFTBOUND_PLAYTEST_REPORT=${playtest_report}")
 fi
@@ -161,8 +193,8 @@ confirmations, a clean-git report marker, evidence checking, evidence packaging,
 package verification, a fresh Godot build, waiting for both Godot windows to
 exit, no automatic Godot quit timer, and no extra client arguments. The evidence
 directory must be new or empty, the evidence package path must not already
-exist, and the playtest report must be generated inside the new evidence
-directory. Set
+exist, their output parent directories must be writable directories, and the
+playtest report must be generated inside the new evidence directory. Set
 RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development; that
 output is not valid final P5 evidence.
 EOF

@@ -50,7 +50,8 @@ contracts change.
   requires clean pushed `origin/main`, distinct handles/player keys, manual
   confirmations, evidence packaging, and package verification. Its `--precheck`
   mode validates the final gate settings, configured Godot/.NET executables,
-  and fetches `origin/main` without launching the Godot windows.
+  evidence output parents, and fetches `origin/main` without launching the Godot
+  windows.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots and writes
   `playtest-report.md`.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.

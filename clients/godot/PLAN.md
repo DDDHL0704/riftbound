@@ -41,7 +41,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 3. Prepare for the final two-human P5 run:
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
      before both operators start, so final evidence gate and local
-     Godot/.NET executable mistakes are caught without opening Godot windows;
+     Godot/.NET executable/output-path mistakes are caught without opening
+     Godot windows;
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh`;
    - have two human operators play from preconstructed decks to the server
      result panel;
