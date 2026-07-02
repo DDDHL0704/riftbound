@@ -27,7 +27,7 @@ After this slice:
 - `CardBehaviorRegistry` stores `UnitHighCostSpellPowerModifierEffectKind=OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` on the official `OGS·006/024` behavior row.
 - `BehaviorSpecCatalogBuilder` projects that behavior-row effect id into `TriggerSpec.EffectKind` for the parsed `UNIT_HIGH_COST_SPELL_POWER_MODIFIER` trigger.
 - `CoreRuleEngine.ResolveUnitHighCostSpellPowerModifierTriggers` emits the compatibility trigger id and effect kind from `triggerSpec.EffectKind`.
-- `MatchRecovery` source-card validation now calls `SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(...)` instead of comparing against `OgsLuxHighCostSpellCardNoForRecovery`.
+- `MatchRecovery` source-card validation now calls `SpellPlayedTriggerSpecRules.TryGetTrigger(..., SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger, ...)` instead of comparing against `OgsLuxHighCostSpellCardNoForRecovery`.
 - Public event, trigger queue, fixture, and recovery effectKind values remain `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3`.
 
 ## Test Evidence

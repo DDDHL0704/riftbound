@@ -10,7 +10,7 @@ This slice removes the OGS Lux high-cost spell power emitted-effect constant fro
 
 The public compatibility effect id `OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3` is preserved for trigger queue, event, fixture, and recovery compatibility, but it now lives on the `OGS·006/024` behavior row and is projected into `TriggerSpec.EffectKind`. Core reads the effect id from the parsed trigger spec instead of owning an OGS Lux-specific constant.
 
-2026-06-30 follow-up: `MatchRecovery` no longer owns `OgsLuxHighCostSpellCardNoForRecovery`. Recovered snapshot, authoritative-state, and spectator replay source-card validation now use `SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceCardNo, out _)`, matching the runtime TriggerSpec source selector while preserving the public effect id.
+2026-06-30 follow-up: `MatchRecovery` no longer owns `OgsLuxHighCostSpellCardNoForRecovery`. Recovered snapshot, authoritative-state, and spectator replay source-card validation now use the same `SpellPlayedTriggerSpecRules.TryGetTrigger(sourceCardNo, SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger, out _)` route as runtime TriggerSpec source selection while preserving the public effect id.
 
 ## Authority
 

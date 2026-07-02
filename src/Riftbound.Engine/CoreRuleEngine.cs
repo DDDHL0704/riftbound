@@ -29682,8 +29682,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (cardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger(legendState.CardNo, out var triggerSpec)
-                && IsLegendHighCostSpellDrawTriggerSpec(triggerSpec)
+                && SpellPlayedTriggerSpecRules.TryGetTrigger(
+                    legendState.CardNo,
+                    SpellPlayedTriggerSpecRules.IsLegendHighCostSpellDrawTrigger,
+                    out var triggerSpec)
                 && paidMana >= triggerSpec.MinimumPaidMana.GetValueOrDefault()
                 && triggerSpec.DrawCount.GetValueOrDefault() > 0)
             {
@@ -29694,14 +29696,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsLegendHighCostSpellDrawTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
-            && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 
     private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
@@ -30674,10 +30668,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var legendState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                || !SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger(
+                || !SpellPlayedTriggerSpecRules.TryGetTrigger(
                     legendState.CardNo,
-                    out var trigger)
-                || !IsLegendHighCostSpellBanishCompletionTriggerSpec(trigger))
+                    SpellPlayedTriggerSpecRules.IsLegendHighCostSpellBanishCompletionTrigger,
+                    out var trigger))
             {
                 continue;
             }
@@ -30690,17 +30684,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsLegendHighCostSpellBanishCompletionTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellBanishCompletion, StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
-            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
-            && trigger.BanishCount.GetValueOrDefault() > 0
-            && trigger.RuneCallCount.GetValueOrDefault() > 0
-            && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
@@ -33995,15 +33978,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
                 && IsFaceUpNonStandbyUnit(sourceState)
-                && SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger(sourceState.CardNo, out var triggerSpec)
-                && IsUnitSpellPlayedPowerModifierTriggerSpec(triggerSpec))
+                && SpellPlayedTriggerSpecRules.TryGetTrigger(
+                    sourceState.CardNo,
+                    SpellPlayedTriggerSpecRules.IsUnitSpellPlayedPowerModifierTrigger,
+                    out _))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
-            if (!SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger(
+            if (!SpellPlayedTriggerSpecRules.TryGetTrigger(
                     sourceState.CardNo,
-                    out var triggerSpec)
-                || !IsUnitSpellPlayedPowerModifierTriggerSpec(triggerSpec))
+                    SpellPlayedTriggerSpecRules.IsUnitSpellPlayedPowerModifierTrigger,
+                    out var triggerSpec))
             {
                 continue;
             }
@@ -34048,15 +34033,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static bool IsUnitSpellPlayedPowerModifierTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Kind, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            && trigger.PowerDelta.GetValueOrDefault() != 0;
-    }
-
     private static void ResolveUnitHighCostSpellPowerModifierTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -34074,16 +34050,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
                 && IsFaceUpNonStandbyUnit(sourceState)
-                && SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceState.CardNo, out var triggerSpec)
-                && IsUnitHighCostSpellPowerModifierTriggerSpec(triggerSpec)
+                && SpellPlayedTriggerSpecRules.TryGetTrigger(
+                    sourceState.CardNo,
+                    SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger,
+                    out var triggerSpec)
                 && paidMana >= triggerSpec.MinimumPaidMana.GetValueOrDefault())
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
-            if (!SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(
+            if (!SpellPlayedTriggerSpecRules.TryGetTrigger(
                     sourceState.CardNo,
-                    out var triggerSpec)
-                || !IsUnitHighCostSpellPowerModifierTriggerSpec(triggerSpec))
+                    SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger,
+                    out var triggerSpec))
             {
                 continue;
             }
@@ -34122,17 +34100,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var powerEvent);
             events.Add(powerEvent);
         }
-    }
-
-    private static bool IsUnitHighCostSpellPowerModifierTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(trigger.Kind, TriggerKinds.UnitHighCostSpellPowerModifier, StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
-            && trigger.PowerDelta.GetValueOrDefault() != 0
-            && !string.IsNullOrWhiteSpace(trigger.EffectKind);
     }
 
     private static void ResolveSourceReadyOnEquipmentPlayedTriggers(

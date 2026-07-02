@@ -20918,7 +20918,10 @@ public static class MatchRecoveryValidator
 
             if (objectCardNos is not null
                 && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
-                && !SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(sourceCardNo, out _))
+                && !SpellPlayedTriggerSpecRules.TryGetTrigger(
+                    sourceCardNo,
+                    SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger,
+                    out _))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
                 AddTriggerQueueSourceCardSpecMismatch(

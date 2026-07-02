@@ -8,39 +8,7 @@ internal static class SpellPlayedTriggerSpecRules
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>>> TriggersByCardNo =
         new(BuildTriggerMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public static bool TryGetUnitSpellPlayedPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitSpellPlayedPowerModifier,
-            out trigger);
-    }
-
-    public static bool TryGetUnitHighCostSpellPowerModifierTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.UnitHighCostSpellPowerModifier,
-            out trigger);
-    }
-
-    public static bool TryGetLegendHighCostSpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.LegendHighCostSpellDrawOne,
-            out trigger);
-    }
-
-    public static bool TryGetLegendHighCostSpellBanishCompletionTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.LegendHighCostSpellBanishCompletion,
-            out trigger);
-    }
-
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
+    public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate, out TriggerSpec trigger)
     {
         trigger = default!;
         if (string.IsNullOrWhiteSpace(cardNo))
@@ -53,7 +21,7 @@ internal static class SpellPlayedTriggerSpecRules
             return false;
         }
 
-        var match = triggers.FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = triggers.FirstOrDefault(predicate);
         if (match is null)
         {
             return false;
@@ -61,6 +29,45 @@ internal static class SpellPlayedTriggerSpecRules
 
         trigger = match;
         return true;
+    }
+
+    public static bool IsUnitSpellPlayedPowerModifierTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitSpellPlayedPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta.GetValueOrDefault() != 0;
+    }
+
+    public static bool IsUnitHighCostSpellPowerModifierTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.UnitHighCostSpellPowerModifier, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.PowerDelta.GetValueOrDefault() != 0
+            && !string.IsNullOrWhiteSpace(trigger.EffectKind);
+    }
+
+    public static bool IsLegendHighCostSpellDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.DrawCount.GetValueOrDefault() > 0;
+    }
+
+    public static bool IsLegendHighCostSpellBanishCompletionTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellBanishCompletion, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
+            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.BanishCount.GetValueOrDefault() > 0
+            && trigger.RuneCallCount.GetValueOrDefault() > 0
+            && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()

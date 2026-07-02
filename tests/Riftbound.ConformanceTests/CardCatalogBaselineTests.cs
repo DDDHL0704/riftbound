@@ -5273,10 +5273,36 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.IsLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OgsLuxHighCostSpellCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SpellPlayedTriggerSpecRulesUseGenericSpecPredicateSurface()
+    {
+        var spellPlayedRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "SpellPlayedTriggerSpecRules.cs");
+        var source = File.ReadAllText(spellPlayedRulesPath);
+
+        Assert.DoesNotContain("TryGetUnitSpellPlayedPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetUnitHighCostSpellPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetLegendHighCostSpellDrawTrigger", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetLegendHighCostSpellBanishCompletionTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", source, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitSpellPlayedPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsUnitHighCostSpellPowerModifierTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsLegendHighCostSpellDrawTrigger", source, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsLegendHighCostSpellBanishCompletionTrigger", source, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5293,7 +5319,9 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("JhinHighCostSpellManaThreshold", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("JhinCompletionSpellCount", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("JhinBanishedHighCostSpellMarker", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.IsLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5309,7 +5337,9 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ResolveRavenbloomStudentSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("RavenbloomStudentSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

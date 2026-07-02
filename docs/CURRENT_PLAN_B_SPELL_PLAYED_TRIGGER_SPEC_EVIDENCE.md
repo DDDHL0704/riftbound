@@ -14,6 +14,17 @@ This file records concrete evidence for routing OGS Lux high-cost spell, Ravenbl
 - `CoreRuleEngine` no longer defines `OgsLuxHighCostSpellPowerEffectKind`.
 - The representative behavior-field evidence is recorded in `docs/CURRENT_PLAN_B_SPELL_PLAYED_TRIGGER_EFFECT_KIND_SPEC_EVIDENCE.md`.
 
+## 2026-07-02 Follow-up Evidence
+
+- `SpellPlayedTriggerSpecRules` now exposes a single generic `TryGetTrigger(cardNo, predicate, out trigger)` lookup and shared shape predicates for `UNIT_SPELL_PLAYED_POWER_MODIFIER`, `UNIT_HIGH_COST_SPELL_POWER_MODIFIER`, `LEGEND_HIGH_COST_SPELL_DRAW_ONE`, and `LEGEND_HIGH_COST_SPELL_BANISH_COMPLETION`.
+- The former public per-effect getters `TryGetUnitSpellPlayedPowerModifierTrigger`, `TryGetUnitHighCostSpellPowerModifierTrigger`, `TryGetLegendHighCostSpellDrawTrigger`, and `TryGetLegendHighCostSpellBanishCompletionTrigger` have been removed.
+- `CoreRuleEngine` no longer owns duplicate private `Is...TriggerSpec` predicates for these four spell-play shapes; runtime source discovery calls the shared `SpellPlayedTriggerSpecRules.TryGetTrigger(..., Is...Trigger, ...)` predicates.
+- `MatchRecovery` source-card validation for the preserved OGS Lux compatibility trigger queue now uses the same generic unit high-cost spell-power predicate route.
+- `CardCatalogBaselineTests.SpellPlayedTriggerSpecRulesUseGenericSpecPredicateSurface`, `HighCostSpellTriggersDoNotUseLuxSpecificResolver`, `HighCostSpellTriggersDoNotUseJhinSpecificResolver`, and `SpellPlayedPowerTriggersDoNotUseRavenbloomSpecificResolver` lock the public rules surface and Core/Recovery call sites against reintroducing the removed per-effect getters.
+- Focused red/green guard and representative runtime set passed `61/61` for the current follow-up.
+- Adjacent spell-play / recovery / full-game set passed `2604/2604` for the current follow-up.
+- Backend full conformance passed `9140/9140` for the current follow-up.
+
 ## 1. Official Source
 
 - `data/official/card-catalog.zh-CN.json`: `OGS·006/024` 拉克丝 has official text `每当你打出费用不低于{{5}}的法术时，让我本回合内{{S}}+3。`
@@ -72,7 +83,7 @@ The parser evidence is covered by `BehaviorSpecCatalogParsesLegendHighCostSpellB
 
 ## 3. Runtime Evidence
 
-- `SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger(cardNo, out trigger)`, `TryGetUnitSpellPlayedPowerModifierTrigger(cardNo, out trigger)`, `TryGetLegendHighCostSpellDrawTrigger(cardNo, out trigger)`, and `TryGetLegendHighCostSpellBanishCompletionTrigger(cardNo, out trigger)` build their trigger map from `BehaviorSpecCatalogBuilder`.
+- `SpellPlayedTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` builds its trigger map from `BehaviorSpecCatalogBuilder` and is paired with shared predicates for unit spell-play power, unit high-cost spell power, legend high-cost spell draw, and legend high-cost banish completion.
 - `CoreRuleEngine.ResolveUnitHighCostSpellPowerModifierTriggers` scans the spell player's controlled field units, requires a face-up non-standby unit, reads `MinimumPaidMana`, `PowerDelta`, and `Duration` from the parsed `TriggerSpec`, and applies the power modifier to the source unit.
 - The old `ResolveOgsLuxHighCostSpellPlayedTriggers` helper is removed, and `HighCostSpellTriggersDoNotUseLuxSpecificResolver` blocks reintroducing that Lux-specific resolver.
 - `CoreRuleEngine.ResolveUnitSpellPlayedPowerModifierTriggers` scans the spell player's controlled field units, requires a face-up non-standby unit whose card number has the parsed no-threshold spell-play power trigger, reads `PowerDelta` and `Duration` from the parsed `TriggerSpec`, emits `UNIT_SPELL_PLAYED_POWER_MODIFIER` as the trigger/effect kind, and applies the power modifier to the source unit.
