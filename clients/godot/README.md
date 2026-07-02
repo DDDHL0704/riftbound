@@ -271,6 +271,18 @@ machine checks pass, it writes `playtest-report.md` in the evidence directory
 with those manual confirmation boxes. To have the checker prompt for and record
 those confirmations, run it with `RIFTBOUND_CONFIRM_MANUAL=1`.
 
+To archive a completed local/LAN playtest for the final Playable v1 handoff,
+package the evidence directory after the checker passes:
+
+```sh
+RIFTBOUND_CONFIRM_MANUAL=1 \
+clients/godot/tools/package-human-playtest-evidence.sh /tmp/riftbound-human-playtest-human-local-test
+```
+
+The package contains both player logs, both result screenshots,
+`playtest-report.md`, and `SHA256SUMS`. It is still only valid for P5 when the
+report includes the real two-human manual confirmations.
+
 Quick-match G2 smoke uses the server-owned matchmaking queue instead of a shared
 manual room id:
 
