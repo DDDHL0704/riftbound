@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield extra-standby destination static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield destroyed-in-battle recall static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -176,12 +176,28 @@ Validation: red/green focused guard `BattlefieldExtraStandbyStaticAbilityUsesGen
 
 Non-closure: this slice only closes the extra-standby destination static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete extra-standby hidden-info breadth, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Destroyed-In-Battle Recall Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(...)` and routes Blood Altar-style battle-destroyed recall replacement through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` plus positive `Amount`. `CoreRuleEngine.TryApplyBattlefieldDestroyedInBattleRecallReplacement`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility, out ability)`.
+
+Existing `UNL-206/219` official behavior, `DECLARE_BATTLE_COMBAT_DAMAGE` timing gate, controlled battlefield-source filtering, `Amount = 3` mana payment, damage removal, exhaustion, recall-to-base replacement, fallback destruction when unable to pay, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldDestroyedInBattleRecallStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / GameHub seed / official-deck route 7/7; adjacent `BloodAltar|BattleDestroyedRecall|DeclareBattle|BattleDamageAssignment|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2643/2643; backend full conformance 9130/9130.
+
+Non-closure: this slice only closes the destroyed-in-battle recall static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete battle-destroyed replacement / payment prompt breadth, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest destroyed-in-battle recall static ability generic-predicate guard red/green: passed `1/1`;
+- latest destroyed-in-battle recall parser / P79 runtime / GameHub seed / official-deck route focused validation: passed `7/7`;
+- latest BloodAltar / BattleDestroyedRecall / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2643/2643`;
+- backend full conformance after the destroyed-in-battle recall generic-predicate increment: passed `9130/9130`;
 - latest extra-standby destination static ability generic-predicate guard red/green: passed `1/1`;
 - latest extra-standby parser / P79 runtime / GameHub seed / official-deck accepted+cleanup+rejected route focused validation: passed `11/11`;
 - latest BandleTree / BattlefieldExtraStandby / ExtraStandby / HideCard / Standby / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2629/2629`;

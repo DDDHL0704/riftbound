@@ -17929,7 +17929,10 @@ internal static class ActionPromptBuilder
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
             || StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardObject.CardNo)
             || BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardObject.CardNo)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetAbility(
                 cardObject.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,

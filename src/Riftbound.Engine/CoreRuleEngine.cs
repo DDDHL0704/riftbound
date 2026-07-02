@@ -21488,8 +21488,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !TryGetFieldControllerId(playerZones, battlefieldObjectId, out var battlefieldControllerId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, battlefieldControllerId)
-            || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(
+            || !BattlefieldStaticAbilitySpecRules.TryGetAbility(
                 battlefieldState.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility,
                 out var replacementAbility)
             || replacementAbility.Amount <= 0)
         {
@@ -26582,7 +26583,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardNo)
             || BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardNo)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetAbility(
                 cardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,

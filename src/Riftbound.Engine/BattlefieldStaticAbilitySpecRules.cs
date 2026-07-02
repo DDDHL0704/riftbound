@@ -100,12 +100,13 @@ internal static class BattlefieldStaticAbilitySpecRules
             StringComparison.Ordinal);
     }
 
-    public static bool TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldDestroyedInBattlePayRecallReplacementAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
-            StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
-            out ability);
+        return string.Equals(
+                ability.Kind,
+                StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
+                StringComparison.Ordinal)
+            && ability.Amount > 0;
     }
 
     private static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
