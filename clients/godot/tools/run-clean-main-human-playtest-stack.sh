@@ -42,6 +42,8 @@ evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
 package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
 verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
+build_godot="${RIFTBOUND_BUILD_GODOT:-1}"
+wait_for_windows="${RIFTBOUND_WAIT:-1}"
 allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 created_worktree=0
 
@@ -64,6 +66,12 @@ fi
 if [[ "${verify_evidence_package}" != "1" ]]; then
   disabled_final_gates+=("RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=${verify_evidence_package}")
 fi
+if [[ "${build_godot}" == "0" ]]; then
+  disabled_final_gates+=("RIFTBOUND_BUILD_GODOT=0")
+fi
+if [[ "${wait_for_windows}" == "0" ]]; then
+  disabled_final_gates+=("RIFTBOUND_WAIT=0")
+fi
 
 if (( ${#disabled_final_gates[@]} > 0 )); then
   if [[ "${allow_incomplete_evidence}" != "1" ]]; then
@@ -71,9 +79,10 @@ if (( ${#disabled_final_gates[@]} > 0 )); then
 Refusing final clean-main human playtest with disabled final P5 evidence gates:
   - ${disabled_final_gates[*]}
 
-Final P5 evidence requires manual confirmations, evidence packaging, and package
-verification. Set RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper
-development; that output is not valid final P5 evidence.
+Final P5 evidence requires manual confirmations, evidence packaging, package
+verification, a fresh Godot build, and waiting for both Godot windows to exit.
+Set RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper development;
+that output is not valid final P5 evidence.
 EOF
     exit 2
   fi
@@ -123,6 +132,8 @@ Started clean-main Riftbound Godot human playtest stack.
   manual confirmations: ${confirm_manual}
   package evidence: ${package_evidence}
   verify evidence package: ${verify_evidence_package}
+  build Godot: ${build_godot}
+  wait for windows: ${wait_for_windows}
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.
