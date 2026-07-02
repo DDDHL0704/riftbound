@@ -9,6 +9,7 @@ room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 api_log="${RIFTBOUND_API_LOG:-${screenshot_dir}/api.log}"
 dotnet_bin="${RIFTBOUND_DOTNET_BIN:-${HOME}/.dotnet/dotnet}"
+godot_bin="${RIFTBOUND_GODOT_BIN:-/Applications/Godot_dotnet.app/Contents/MacOS/Godot}"
 keep_api="${RIFTBOUND_KEEP_API:-0}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
 package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-0}"
@@ -81,14 +82,14 @@ else
 fi
 
 if [[ "${build_godot}" != "0" ]]; then
-  if [[ ! -x "${dotnet_bin}" ]]; then
-    echo ".NET executable not found: ${dotnet_bin}" >&2
-    echo "Set RIFTBOUND_DOTNET_BIN to the dotnet executable." >&2
+  if [[ ! -x "${godot_bin}" ]]; then
+    echo "Godot executable not found: ${godot_bin}" >&2
+    echo "Set RIFTBOUND_GODOT_BIN to the Godot 4 .NET binary." >&2
     exit 1
   fi
 
   echo "Building Riftbound Godot client."
-  "${dotnet_bin}" build "${repo_root}/clients/godot/Riftbound.GodotClient.csproj"
+  "${godot_bin}" --headless --build-solutions --path "${repo_root}/clients/godot" --quit
 fi
 
 export RIFTBOUND_SERVER="${server}"

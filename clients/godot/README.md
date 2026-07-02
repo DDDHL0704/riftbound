@@ -206,9 +206,10 @@ RIFTBOUND_SCREENSHOT_DIR=/tmp/human-local-test \
 clients/godot/tools/run-local-human-playtest-stack.sh
 ```
 
-The stack helper builds the Godot C# client before opening windows so a clean
-worktree can run `Main.tscn` without editor-side generated assemblies. Set
-`RIFTBOUND_BUILD_GODOT=0` only when reusing an already-built local client.
+The stack helper runs Godot `--headless --build-solutions` before opening
+windows so a clean worktree can run `Main.tscn` with the generated C# script
+metadata. Set `RIFTBOUND_BUILD_GODOT=0` only when reusing an already-built local
+client.
 
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
