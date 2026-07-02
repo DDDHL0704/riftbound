@@ -82,6 +82,33 @@ if ! rg -q "automated smoke" "${auto_output}"; then
   fail "clean-main human playtest did not explain the automated smoke rejection"
 fi
 
+expect_final_gate_rejection() {
+  local env_name="$1"
+  local output_path="${tmp_dir}/${env_name}-output.log"
+  local worktree_path="${tmp_dir}/${env_name}-worktree"
+
+  if env \
+    PATH="${fake_bin}:${PATH}" \
+    RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
+    RIFTBOUND_CLEAN_WORKTREE_FETCH=0 \
+    RIFTBOUND_CLEAN_WORKTREE_DIR="${worktree_path}" \
+    RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+    "${env_name}=0" \
+    "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${output_path}" 2>&1; then
+    fail "clean-main human playtest accepted ${env_name}=0"
+  fi
+
+  if ! rg -q "final P5 evidence|${env_name}" "${output_path}"; then
+    echo "Expected final evidence gate rejection output for ${env_name}=0:" >&2
+    cat "${output_path}" >&2
+    fail "clean-main human playtest did not explain the ${env_name}=0 rejection"
+  fi
+}
+
+expect_final_gate_rejection "RIFTBOUND_CONFIRM_MANUAL"
+expect_final_gate_rejection "RIFTBOUND_PACKAGE_EVIDENCE"
+expect_final_gate_rejection "RIFTBOUND_VERIFY_EVIDENCE_PACKAGE"
+
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
 PATH="${fake_bin}:${PATH}" \

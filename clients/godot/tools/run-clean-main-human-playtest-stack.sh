@@ -15,7 +15,7 @@ Useful environment overrides:
   RIFTBOUND_CLEAN_WORKTREE_FETCH=0
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1
   RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz
-  RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=0
+  RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1
 
 The wrapped stack defaults to:
   RIFTBOUND_REQUIRE_CLEAN_GIT=1
@@ -39,7 +39,10 @@ keep_worktree="${RIFTBOUND_KEEP_CLEAN_WORKTREE:-0}"
 user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
 room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
+confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-1}"
+package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
 verify_evidence_package="${RIFTBOUND_VERIFY_EVIDENCE_PACKAGE:-1}"
+allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 created_worktree=0
 
 if [[ "${RIFTBOUND_EXTRA_GODOT_ARGS:-}" == *"--riftbound-smoke-auto-"* ]]; then
@@ -49,6 +52,37 @@ Use clients/godot/tools/run-local-simulated-playtest-stack.sh for automated
 diagnostics; final P5 evidence must come from two human operators.
 EOF
   exit 2
+fi
+
+disabled_final_gates=()
+if [[ "${confirm_manual}" != "1" ]]; then
+  disabled_final_gates+=("RIFTBOUND_CONFIRM_MANUAL=${confirm_manual}")
+fi
+if [[ "${package_evidence}" != "1" ]]; then
+  disabled_final_gates+=("RIFTBOUND_PACKAGE_EVIDENCE=${package_evidence}")
+fi
+if [[ "${verify_evidence_package}" != "1" ]]; then
+  disabled_final_gates+=("RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=${verify_evidence_package}")
+fi
+
+if (( ${#disabled_final_gates[@]} > 0 )); then
+  if [[ "${allow_incomplete_evidence}" != "1" ]]; then
+    cat >&2 <<EOF
+Refusing final clean-main human playtest with disabled final P5 evidence gates:
+  - ${disabled_final_gates[*]}
+
+Final P5 evidence requires manual confirmations, evidence packaging, and package
+verification. Set RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1 only for wrapper
+development; that output is not valid final P5 evidence.
+EOF
+    exit 2
+  fi
+
+  cat >&2 <<EOF
+WARNING: clean-main human playtest is running with disabled final P5 evidence gates:
+  - ${disabled_final_gates[*]}
+This run is for wrapper development only and is not valid final P5 evidence.
+EOF
 fi
 
 if [[ "${fetch_ref}" != "0" ]]; then
@@ -86,6 +120,8 @@ Started clean-main Riftbound Godot human playtest stack.
   ref: ${ref}
   keep worktree: ${keep_worktree}
   evidence package: ${evidence_package}
+  manual confirmations: ${confirm_manual}
+  package evidence: ${package_evidence}
   verify evidence package: ${verify_evidence_package}
 
 The evidence checker will run inside the clean worktree, so
@@ -95,11 +131,11 @@ EOF
 export RIFTBOUND_ROOM="${room}"
 export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
 export RIFTBOUND_REQUIRE_CLEAN_GIT="${RIFTBOUND_REQUIRE_CLEAN_GIT:-1}"
-export RIFTBOUND_CONFIRM_MANUAL="${RIFTBOUND_CONFIRM_MANUAL:-1}"
-export RIFTBOUND_PACKAGE_EVIDENCE="${RIFTBOUND_PACKAGE_EVIDENCE:-1}"
+export RIFTBOUND_CONFIRM_MANUAL="${confirm_manual}"
+export RIFTBOUND_PACKAGE_EVIDENCE="${package_evidence}"
 
 "${clean_worktree}/clients/godot/tools/run-local-human-playtest-stack.sh"
 
-if [[ "${RIFTBOUND_PACKAGE_EVIDENCE}" != "0" && "${verify_evidence_package}" != "0" ]]; then
+if [[ "${package_evidence}" != "0" && "${verify_evidence_package}" != "0" ]]; then
   "${clean_worktree}/clients/godot/tools/verify-human-playtest-package.sh" "${RIFTBOUND_EVIDENCE_PACKAGE}"
 fi

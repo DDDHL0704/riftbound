@@ -256,11 +256,14 @@ real completed match. The wrapper defaults to `RIFTBOUND_REQUIRE_CLEAN_GIT=1`,
 `RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=1`. It removes the temporary worktree after
 the run unless `RIFTBOUND_KEEP_CLEAN_WORKTREE=1` is set. It refuses to start if
 `RIFTBOUND_EXTRA_GODOT_ARGS` contains any `--riftbound-smoke-auto-*` flag; use
-the simulated preflight wrapper for automated diagnostics instead.
+the simulated preflight wrapper for automated diagnostics instead. It also
+refuses to start if manual confirmations, evidence packaging, or final package
+verification are disabled. For wrapper development only, set
+`RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE=1` before disabling one of those
+gates; that output is not valid final P5 evidence.
 
 The wrapper runs this verifier automatically by default; run it manually only
-for an existing package, or set `RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=0` when you
-need to skip the final package verification during script development:
+for an existing package:
 
 ```sh
 clients/godot/tools/verify-human-playtest-package.sh /tmp/riftbound-human-playtest.tar.gz
