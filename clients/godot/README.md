@@ -261,10 +261,14 @@ clients/godot/tools/run-clean-main-human-playtest-stack.sh
 ```
 
 The wrapper prints the final P5 operator checklist before launching the two
-clients. Two human players must operate the clients, use preconstructed decks,
-play to the server result panel, keep both final screenshots, and confirm from
-those screenshots that opponent hands and hidden cards are shown only as card
-backs/counts before answering the manual prompts.
+clients and also writes `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md` before
+the Godot windows open. Two human players must operate the clients, use
+preconstructed decks, play to the server result panel, keep both final
+screenshots, and confirm from those screenshots that opponent hands and hidden
+cards are shown only as card backs/counts before answering the manual prompts.
+If the terminal scrollback is lost during the run, use `OPERATOR_GUIDE.md` to
+recover the room, player handles, evidence directory, package path, and final
+operator checklist.
 
 Set `RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz` to choose
 the output tarball path. If unset, the wrapper writes
@@ -404,8 +408,10 @@ mixed into the final package, and it refuses an existing
 also refuses custom `RIFTBOUND_PLAYTEST_REPORT` paths; the report must be
 generated inside the new evidence directory. It also requires distinct
 `RIFTBOUND_HANDLE_A`/`RIFTBOUND_HANDLE_B` and
-`RIFTBOUND_PLAYER_KEY_A`/`RIFTBOUND_PLAYER_KEY_B` values. If the wrapper
-development escape hatch is used, the report is marked
+`RIFTBOUND_PLAYER_KEY_A`/`RIFTBOUND_PLAYER_KEY_B` values. Before launching the
+windows it writes `OPERATOR_GUIDE.md` into the fresh evidence directory with the
+room, player handles, evidence/package paths, and the final P5 operator
+checklist. If the wrapper development escape hatch is used, the report is marked
 `Incomplete human evidence: 1` and the final package verifier rejects it. Final
 evidence needs two human operators to close the Godot windows after reaching the
 server result panel; automatic quit timers and extra client arguments are only

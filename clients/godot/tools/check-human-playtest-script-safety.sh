@@ -239,10 +239,14 @@ rg -q "incomplete evidence marker: 1" "${incomplete_output}" \
 
 safe_output="${tmp_dir}/safe-output.log"
 safe_worktree="${tmp_dir}/safe-worktree"
+safe_evidence_dir="${tmp_dir}/safe-evidence"
+safe_evidence_package="${tmp_dir}/safe-evidence.tar.gz"
 PATH="${fake_bin}:${PATH}" \
   RIFTBOUND_FAKE_GIT_LOG="${fake_git_log}" \
   RIFTBOUND_CLEAN_WORKTREE_DIR="${safe_worktree}" \
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1 \
+  RIFTBOUND_SCREENSHOT_DIR="${safe_evidence_dir}" \
+  RIFTBOUND_EVIDENCE_PACKAGE="${safe_evidence_package}" \
   "${script_dir}/run-clean-main-human-playtest-stack.sh" >"${safe_output}" 2>&1
 
 rg -q "wrapped human stack ran" "${safe_output}" \
@@ -256,6 +260,19 @@ rg -q "two human players|Two human players" "${safe_output}" \
 
 rg -q "hidden cards|card backs|backs/counts" "${safe_output}" \
   || fail "clean-main human playtest checklist did not mention hidden-information verification"
+
+safe_operator_guide="${safe_evidence_dir}/OPERATOR_GUIDE.md"
+[[ -s "${safe_operator_guide}" ]] \
+  || fail "clean-main human playtest did not write OPERATOR_GUIDE.md into the evidence directory"
+
+rg -q "Riftbound Godot P5 Operator Guide|Final P5 operator checklist" "${safe_operator_guide}" \
+  || fail "OPERATOR_GUIDE.md does not identify the final P5 operator checklist"
+
+rg -q "Room:|Player A handle:|Player B handle:" "${safe_operator_guide}" \
+  || fail "OPERATOR_GUIDE.md does not record room and player handles"
+
+rg -q "preconstructed decks|server result panel|hidden cards.*card backs/counts|Evidence package:" "${safe_operator_guide}" \
+  || fail "OPERATOR_GUIDE.md does not record the required P5 operator instructions"
 
 precheck_output="${tmp_dir}/precheck-output.log"
 precheck_worktree="${tmp_dir}/precheck-worktree"

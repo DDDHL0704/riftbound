@@ -53,7 +53,10 @@ contracts change.
   evidence output parents, custom clean-worktree paths, and fetches
   `origin/main` without launching the Godot windows. With the default local
   server it also refuses an already-running API on port 5088 so the clean
-  worktree owns the server process for final evidence.
+  worktree owns the server process for final evidence. When the real run starts,
+  it writes `OPERATOR_GUIDE.md` into the fresh evidence directory before
+  launching Godot so the operators have the room, player handles,
+  evidence/package paths, and final checklist outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, and writes
   `playtest-report.md`.

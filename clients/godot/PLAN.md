@@ -27,8 +27,11 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   still user-owned.
 - P5 evidence collection has been hardened: final runs must come from clean
   pushed `origin/main`, must not use auto-smoke or auto-quit arguments, must
-  record manual confirmations, and must now prove both player identities and the
-  shared room in logs and reports.
+  record manual confirmations, must prove both player identities and the shared
+  room in logs and reports, and now write an evidence-directory
+  `OPERATOR_GUIDE.md` before the Godot windows launch so operators can recover
+  the room, handles, evidence path, package path, and checklist if terminal
+  scrollback is lost.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 
@@ -44,6 +47,9 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
      Godot/.NET executable/output-path/custom-worktree/stale-local-API mistakes
      are caught without opening Godot windows;
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh`;
+   - keep `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md` available during the
+     run for the room, player handles, evidence/package paths, and final P5
+     operator checklist;
    - have two human operators play from preconstructed decks to the server
      result panel;
    - verify both final screenshots show the result panel and hidden opponent

@@ -119,6 +119,39 @@ validate_output_parent() {
   fi
 }
 
+write_operator_guide() {
+  mkdir -p "${screenshot_dir}"
+
+  cat >"${screenshot_dir}/OPERATOR_GUIDE.md" <<EOF
+# Riftbound Godot P5 Operator Guide
+
+- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+- Source repo: ${repo_root}
+- Clean worktree: ${clean_worktree}
+- Ref: ${ref}
+- Server: ${server}
+- Room: ${room}
+- Player A handle: ${handle_a}
+- Player B handle: ${handle_b}
+- Evidence directory: ${screenshot_dir}
+- Evidence package: ${evidence_package}
+- Playtest report: ${screenshot_dir}/playtest-report.md
+
+## Final P5 operator checklist
+
+1. Two human players operate the two Godot clients.
+2. Both players use preconstructed decks, submit decks, and ready up.
+3. Play the match to the server result panel on both clients.
+4. Confirm both final screenshots show the server result panel.
+5. Confirm each player sees opponent hand and hidden cards only as card backs/counts.
+6. Answer the manual confirmation prompts only after checking the final screenshots.
+
+This guide is written before the Godot windows launch so the operators can
+recover the room, player handles, evidence directory, and package path even if
+the terminal scrollback is lost.
+EOF
+}
+
 if [[ "${extra_godot_args}" == *"--riftbound-smoke-auto-"* ]]; then
   cat >&2 <<'EOF'
 Refusing final clean-main human playtest with automated smoke Godot arguments.
@@ -306,6 +339,7 @@ trap cleanup EXIT
 
 git -C "${repo_root}" worktree add --detach "${clean_worktree}" "${ref}"
 created_worktree=1
+write_operator_guide
 
 cat <<EOF
 Started clean-main Riftbound Godot human playtest stack.
@@ -331,6 +365,7 @@ Started clean-main Riftbound Godot human playtest stack.
   quit after: ${quit_after:-<unset>}
   extra Godot args: ${extra_godot_args:-<unset>}
   incomplete human evidence: ${incomplete_human_evidence}
+  operator guide: ${screenshot_dir}/OPERATOR_GUIDE.md
 
 The evidence checker will run inside the clean worktree, so
 RIFTBOUND_REQUIRE_CLEAN_GIT=1 can pass without touching unrelated local edits.
