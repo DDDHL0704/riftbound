@@ -23,7 +23,7 @@ No official data file was edited.
   - `CreatedTokenDestination=OWNER_BASE`
   - `CreatedTokenExhausted=true`
   - `CreatedTokenKeywords=[反应]`
-- `UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(...)` exposes the parsed trigger shape to the shared engine.
+- `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathCreateDormantGoldTrigger, ...)` exposes the parsed trigger shape to the shared engine.
 - `CoreRuleEngine` ordered-trigger stack resolution and single-trigger immediate resolution both call `CreateBaseEquipmentTokensFromTrigger(...)`.
 - `CoreRuleEngine` no longer defines `HonestBrokerCardNo`, `HonestBrokerLastBreathCreateGoldEffectKind`, or `HonestBrokerLastBreathCreateGoldBehavior`.
 - Runtime-created Honest Broker Gold tokens now carry `[CARD_TYPE:EQUIPMENT, 反应, 金币]` tags while preserving the existing exhausted base-equipment token object shape and public event kind.

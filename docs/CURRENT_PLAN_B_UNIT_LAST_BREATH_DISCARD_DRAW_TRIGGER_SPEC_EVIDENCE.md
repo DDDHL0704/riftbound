@@ -21,7 +21,7 @@ No official data file was edited.
   - `TargetScope=SOURCE_UNIT`
   - `DiscardCount=2`
   - `DrawCount=2`
-- `UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(...)` exposes the parsed trigger shape to the shared engine.
+- `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathDiscardDrawTrigger, ...)` exposes the parsed trigger shape to the shared engine.
 - `ResolveUndercoverAgentLastBreathPlayerId(...)` now accepts a destroyed source through the parsed TriggerSpec plus the shared visible unit boundary.
 - `ResolveUndercoverAgentLastBreathStackItem(...)` reads discard and draw counts from TriggerSpec while keeping the existing hand-choice prompt and shortfall behavior.
 - `CoreRuleEngine` no longer defines `UndercoverAgentCardNo` or `UndercoverAgentLastBreathEffectKind`.

@@ -23,7 +23,7 @@ Honest Broker:
 
 - Before this slice, `CoreRuleEngine.ResolveHonestBrokerLastBreathGoldPlayerId(...)` used the Core constant `HonestBrokerLastBreathSourceEffectKind = HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT` to select the source row.
 - After this slice, `CoreRuleEngine` no longer contains `HonestBrokerLastBreathSourceEffectKind`.
-- The source predicate now reads `UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(...)` and validates the parsed TriggerSpec shape.
+- The source predicate now reads `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathCreateDormantGoldTrigger, ...)` and validates the parsed TriggerSpec shape.
 - Trigger queue and stack effect kind remain `HONEST_BROKER_LAST_BREATH_CREATE_GOLD`.
 
 Guerrilla Warfare:

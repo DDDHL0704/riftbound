@@ -6699,10 +6699,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
-                out var triggerSpec)
-            || !IsUnitLastBreathDrawOneTriggerSpec(triggerSpec))
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger,
+                out var triggerSpec))
         {
             return null;
         }
@@ -6733,10 +6733,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
                 out var triggerSpec)
-            || !IsUnitLastBreathCallRuneOneTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -6758,10 +6758,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateBaseUnitTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
                 out triggerSpec)
-            || !IsUnitLastBreathCreateBaseUnitTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -6788,10 +6788,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
-                out triggerSpec)
-            || !IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(triggerSpec))
+                UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
+                out triggerSpec))
         {
             return null;
         }
@@ -6811,10 +6811,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
-                out var triggerSpec)
-            || !IsUnitLastBreathDiscardDrawTriggerSpec(triggerSpec))
+                UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
+                out var triggerSpec))
         {
             return null;
         }
@@ -6851,10 +6851,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !IsFaceUpNonStandbyUnit(destroyedState)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
-                out var triggerSpec)
-            || !IsUnitLastBreathCreateDormantGoldTriggerSpec(triggerSpec))
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
+                out var triggerSpec))
         {
             return null;
         }
@@ -6876,10 +6876,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger,
                 out triggerSpec)
-            || !IsUnitLastBreathPowerfulDrawTriggerSpec(triggerSpec)
             || destroyedState.Power < triggerSpec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold))
         {
             return null;
@@ -6897,10 +6897,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState destroyedState)
     {
-        if (!UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(
+        if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger,
                 out var triggerSpec)
-            || !IsUnitLastBreathDrawIfNotAloneTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -6925,10 +6925,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState destroyedState)
     {
-        if (!UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger(
+        if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
                 out var triggerSpec)
-            || !IsUnitLastBreathDrawIfAloneTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -7103,10 +7103,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 sourceObjectId,
                 destroyedOwnerPlayerId,
-                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger,
                 out _,
-                out var triggerSpec)
-                || !IsFriendlyDestroyedPowerUntilEndTriggerSpec(triggerSpec))
+                out var triggerSpec))
             {
                 continue;
             }
@@ -7151,10 +7150,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 sourceObjectId,
                 destroyedOwnerPlayerId,
-                TriggerKinds.UnitFirstFriendlyDestroyedDrawOne,
+                UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger,
                 out _,
-                out var triggerSpec)
-                || !IsUnitFirstFriendlyDestroyedDrawTriggerSpec(triggerSpec))
+                out var triggerSpec))
             {
                 continue;
             }
@@ -7193,7 +7191,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 sourceObjectId,
                 destroyedOwnerPlayerId,
-                TriggerKinds.UnitFriendlyDestroyedGainExperience,
+                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger,
                 out _,
                 out var triggerSpec))
             {
@@ -7216,7 +7214,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId,
         string controllerId,
-        string triggerKind,
+        Func<TriggerSpec, bool> triggerPredicate,
         out CardObjectState sourceState,
         out TriggerSpec triggerSpec)
     {
@@ -7225,12 +7223,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!cardObjects.TryGetValue(sourceObjectId, out var candidateSourceState)
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 candidateSourceState.CardNo,
-                triggerKind,
+                triggerPredicate,
                 out var candidateTriggerSpec)
-            || !string.Equals(
-                candidateTriggerSpec.TargetScope,
-                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
-                StringComparison.Ordinal)
             || !candidateSourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidateSourceState.IsFaceDown
             || candidateSourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -7252,162 +7246,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool IsFriendlyDestroyedPowerUntilEndTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(
-                trigger.TargetScope,
-                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            && trigger.PowerDelta is not null;
-    }
-
-    private static bool IsUnitFirstFriendlyDestroyedDrawTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitFirstFriendlyDestroyedDrawOne,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(
-                trigger.TargetScope,
-                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
-                StringComparison.Ordinal)
-            && trigger.DrawCount is > 0
-            && trigger.OncePerTurn == true;
-    }
-
-    private static bool IsUnitLastBreathDrawIfAloneTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathDrawIfAlone,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.DrawCount is > 0
-            && trigger.RequiresNoOtherFriendlyUnitAtSamePosition == true;
-    }
-
-    private static bool IsUnitLastBreathDrawOneTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathDrawOne,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.DrawCount is > 0;
-    }
-
-    private static bool IsUnitLastBreathCallRuneOneTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathCallRuneOne,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.RuneCallCount is > 0;
-    }
-
-    private static bool IsUnitLastBreathCreateDormantGoldTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathCreateDormantGold,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.CreatedTokenCount is > 0
-            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            && string.Equals(
-                trigger.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal)
-            && trigger.CreatedTokenExhausted == true;
-    }
-
-    private static bool IsUnitLastBreathCreateBaseUnitTriggerSpec(TriggerSpec trigger)
-    {
-        return IsUnitLastBreathCreateBaseUnitEffectKind(trigger.Kind)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.CreatedTokenCount is > 0
-            && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            && trigger.CreatedTokenPower is > 0
-            && string.Equals(
-                trigger.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal);
-    }
-
-    private static bool IsUnitLastBreathDiscardDrawTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathDiscardDraw,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.DiscardCount is > 0
-            && trigger.DrawCount is > 0;
-    }
-
-    private static bool IsUnitLastBreathPowerfulDrawTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathPowerfulDraw,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.DrawCount is > 0
-            && trigger.RequiredPowerThreshold is > 0;
-    }
-
-    private static bool IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceBattlefieldUnits, StringComparison.Ordinal)
-            && trigger.DamageAmount is > 0;
-    }
-
-    private static bool IsUnitLastBreathCreateBaseUnitEffectKind(string? effectKind)
-    {
-        return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
-            || string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateRobots, StringComparison.Ordinal)
-            || string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateWarhawk, StringComparison.Ordinal);
-    }
-
-    private static bool IsUnitLastBreathDrawIfNotAloneTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitLastBreathDrawIfNotAlone,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
-            && trigger.DrawCount is > 0
-            && trigger.RequiresOtherFriendlyUnitAtSamePosition == true;
-    }
-
     private static int UnitFirstFriendlyDestroyedDrawCount(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId)
     {
         return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger(sourceState.CardNo, out var trigger)
-            && IsUnitFirstFriendlyDestroyedDrawTriggerSpec(trigger)
+            && UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger,
+                out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -7423,8 +7270,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int UnitLastBreathDrawIfAloneDrawCount(string? cardNo)
     {
-        return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger(cardNo, out var trigger)
-            && IsUnitLastBreathDrawIfAloneTriggerSpec(trigger)
+        return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                cardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
+                out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -7440,8 +7289,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int UnitLastBreathDrawOneDrawCount(string? cardNo)
     {
-        return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(cardNo, out var trigger)
-            && IsUnitLastBreathDrawOneTriggerSpec(trigger)
+        return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                cardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger,
+                out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -7457,8 +7308,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int UnitLastBreathCallRuneCount(string? cardNo)
     {
-        return UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(cardNo, out var trigger)
-            && IsUnitLastBreathCallRuneOneTriggerSpec(trigger)
+        return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                cardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
+                out var trigger)
                 ? trigger.RuneCallCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -7474,8 +7327,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int UnitLastBreathDrawIfNotAloneDrawCount(string? cardNo)
     {
-        return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(cardNo, out var trigger)
-            && IsUnitLastBreathDrawIfNotAloneTriggerSpec(trigger)
+        return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                cardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger,
+                out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -7485,8 +7340,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId)
     {
         return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceState.CardNo, out var trigger)
-            && IsUnitLastBreathPowerfulDrawTriggerSpec(trigger)
+            && UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceState.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger,
+                out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(2)
                 : 2;
     }
@@ -7524,10 +7381,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 sourceObjectId,
                 destroyedControllerId,
-                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger,
                 out _,
                 out var triggerSpec)
-                || !IsUnitDestroyedNonMinionCreateMinionTriggerSpec(triggerSpec)
                 || !IsUnitDestroyedNonMinionCreateMinionTriggerTarget(destroyedState, removalResult, triggerSpec))
             {
                 continue;
@@ -26757,27 +26613,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
     }
 
-    private static bool IsUnitDestroyedNonMinionCreateMinionTriggerSpec(TriggerSpec trigger)
-    {
-        return string.Equals(
-                trigger.Kind,
-                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
-                StringComparison.Ordinal)
-            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
-            && string.Equals(
-                trigger.TargetScope,
-                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
-                StringComparison.Ordinal)
-            && trigger.ExcludesTokens == true
-            && trigger.CreatedTokenCount is > 0
-            && string.Equals(trigger.CreatedTokenName, "随从", StringComparison.Ordinal)
-            && trigger.CreatedTokenPower is > 0
-            && string.Equals(
-                trigger.CreatedTokenDestination,
-                TriggerTokenDestinations.OwnerBase,
-                StringComparison.Ordinal);
-    }
-
     private static bool IsUnitDestroyedNonMinionCreateMinionTriggerTarget(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult,
@@ -35154,7 +34989,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
 
-        if (IsUnitLastBreathCreateBaseUnitEffectKind(stackItem.EffectKind))
+        if (UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitEffectKind(stackItem.EffectKind))
         {
             return ResolveUnitLastBreathCreateBaseUnitStackItem(state, stackItem);
         }
@@ -37904,8 +37739,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathPowerfulDraw, StringComparison.Ordinal))
             {
                 var powerfulDrawCount = cardObjects.TryGetValue(trigger.SourceObjectId, out var sourceState)
-                    && UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceState.CardNo, out var triggerSpec)
-                    && IsUnitLastBreathPowerfulDrawTriggerSpec(triggerSpec)
+                    && UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                        sourceState.CardNo,
+                        UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger,
+                        out var triggerSpec)
                         ? triggerSpec.DrawCount.GetValueOrDefault(2)
                         : 2;
                 var drawApplication = ApplyDrawToPlayer(
@@ -38673,15 +38510,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        var hasTrigger = UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateBaseUnitTrigger(
+        var hasTrigger = UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 stackItem.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
                 out var trigger)
-            && IsUnitLastBreathCreateBaseUnitTriggerSpec(trigger)
             && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal);
         if (!hasTrigger)
         {
-            hasTrigger = UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
-                && IsUnitLastBreathCreateBaseUnitTriggerSpec(trigger);
+            hasTrigger = UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(
+                stackItem.EffectKind,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
+                out trigger);
         }
 
         if (hasTrigger)
@@ -38732,10 +38571,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (TryReadTriggerBattlefieldObjectId(stackItem.StackItemId, out var battlefieldObjectId))
         {
             var damageAmount = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-                && UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(
+                && UnitDestroyedTriggerSpecRules.TryGetTrigger(
                     sourceState.CardNo,
+                    UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
                     out var triggerSpec)
-                && IsUnitLastBreathSourceBattlefieldAoeDamageTriggerSpec(triggerSpec)
                     ? triggerSpec.DamageAmount.GetValueOrDefault(4)
                     : 4;
             var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -38785,7 +38624,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects.ToArray();
         var rngCursor = state.RngCursor;
         var triggerSpec = TryGetLastBreathDiscardDrawTrigger(stackItem, out var matchedTrigger)
-            && IsUnitLastBreathDiscardDrawTriggerSpec(matchedTrigger)
+            && UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(matchedTrigger)
                 ? matchedTrigger
                 : null;
         var discardCount = triggerSpec?.DiscardCount.GetValueOrDefault(2) ?? 2;
@@ -38960,11 +38799,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger,
                 out var sourceState,
                 out var triggerSpec)
             && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
-            && IsFriendlyDestroyedPowerUntilEndTriggerSpec(triggerSpec))
+            && UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger(triggerSpec))
         {
             var powerBehavior = new CardBehaviorDefinition(
                 sourceState.CardNo ?? string.Empty,
@@ -39024,7 +38863,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.CardObjects,
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                TriggerKinds.UnitFriendlyDestroyedGainExperience,
+                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger,
                 out var sourceState,
                 out var triggerSpec)
             && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal))
@@ -39079,11 +38918,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger,
                 out _,
                 out var triggerSpec)
             && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
-            && IsUnitDestroyedNonMinionCreateMinionTriggerSpec(triggerSpec))
+            && UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger(triggerSpec))
         {
             CreateViktorDestroyedNonMinionMinionToken(
                 playerZones,
@@ -39291,7 +39130,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
-            && !IsUnitLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
+            && !UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
     }
@@ -39310,27 +39149,36 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
     {
-        if (UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(stackItem.CardNo, out trigger)
-            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal)
-            && IsUnitLastBreathCreateDormantGoldTriggerSpec(trigger))
-        {
-            return true;
-        }
-
-        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
-            && IsUnitLastBreathCreateDormantGoldTriggerSpec(trigger);
-    }
-
-    private static bool TryGetLastBreathDiscardDrawTrigger(StackItemState stackItem, out TriggerSpec trigger)
-    {
-        if (UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(stackItem.CardNo, out trigger)
+        if (UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                stackItem.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
+                out trigger)
             && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal))
         {
             return true;
         }
 
-        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(stackItem.EffectKind, out trigger)
-            && string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
+        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(
+            stackItem.EffectKind,
+            UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
+            out trigger);
+    }
+
+    private static bool TryGetLastBreathDiscardDrawTrigger(StackItemState stackItem, out TriggerSpec trigger)
+    {
+        if (UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                stackItem.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
+                out trigger)
+            && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(
+            stackItem.EffectKind,
+            UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
+            out trigger);
     }
 
     private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(

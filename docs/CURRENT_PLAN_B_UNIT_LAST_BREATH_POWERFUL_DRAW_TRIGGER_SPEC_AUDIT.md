@@ -40,7 +40,7 @@ Not changed:
 | Requirement | Evidence | Verdict |
 |---|---|---|
 | Unsung Hero last-breath powerful draw text is represented as data | `RuleTextParser` emits `TriggerKinds.UnitLastBreathPowerfulDraw`, `Timing=UNIT_DESTROYED`, `TargetScope=SOURCE_UNIT`, `DrawCount=2`, `RequiredPowerThreshold=5` | Accepted |
-| Runtime source selection reads TriggerSpec | `ResolveUnsungHeroLastBreathDrawPlayerId(...)` now uses `UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(...)` plus source unit / face-up / non-standby checks | Accepted |
+| Runtime source selection reads TriggerSpec | `ResolveUnsungHeroLastBreathDrawPlayerId(...)` now uses `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathPowerfulDrawTrigger, ...)` plus source unit / face-up / non-standby checks | Accepted |
 | Runtime draw count reads TriggerSpec | immediate and stack last-breath draw paths derive draw count from `TriggerSpec.DrawCount` with compatibility fallback | Accepted |
 | Public wire compatibility is preserved | `TriggerKinds.UnitLastBreathPowerfulDraw` keeps the existing effect string `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2`; existing recovery and trigger tests remain green | Accepted |
 | Core no longer owns Unsung local constants | `UnsungHeroCardNo`, `UnsungHeroLastBreathSourceEffectKind`, and `UnsungHeroLastBreathPowerfulDrawEffectKind` are absent from `CoreRuleEngine`; the guard test blocks reintroduction | Accepted |

@@ -20,7 +20,7 @@ No official data file was edited.
   - `TargetScope=SOURCE_UNIT`
   - `DrawCount=2`
   - `RequiredPowerThreshold=5`
-- `UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(...)` exposes the parsed trigger shape to the shared engine.
+- `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathPowerfulDrawTrigger, ...)` exposes the parsed trigger shape to the shared engine.
 - `ResolveUnsungHeroLastBreathDrawPlayerId(...)` now accepts a destroyed source through the parsed TriggerSpec plus the shared visible unit boundary.
 - Immediate and stack resolution paths read draw count from TriggerSpec while preserving the existing trigger queue and event shape.
 - `CoreRuleEngine` no longer defines `UnsungHeroCardNo`, `UnsungHeroLastBreathSourceEffectKind`, or `UnsungHeroLastBreathPowerfulDrawEffectKind`.

@@ -19,11 +19,11 @@ No official data file was edited.
   - `Timing=UNIT_DESTROYED`
   - `TargetScope=SOURCE_BATTLEFIELD_UNITS`
   - `DamageAmount=4`
-- `UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(...)` exposes the parsed trigger shape to the shared engine.
+- `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathSourceBattlefieldAoeDamageTrigger, ...)` exposes the parsed trigger shape to the shared engine.
 - `ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(...)` accepts a destroyed source through the parsed TriggerSpec plus visible unit boundary checks.
 - Stack resolution reads damage amount from TriggerSpec while preserving the existing trigger queue, stack and recovery shape.
 - `CoreRuleEngine` no longer defines `KogmawCardNo`, `KogmawLastBreathAoeEffectKind`, or `KogmawLastBreathDamage`, and no longer has Kogmaw-named helper/local paths.
-- `MatchRecovery` no longer defines `KogmawCardNoForRecovery`; recovered snapshot, authoritative-state and spectator replay source-card checks now call `UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(...)`.
+- `MatchRecovery` no longer defines `KogmawCardNoForRecovery`; recovered snapshot, authoritative-state and spectator replay source-card checks now call `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathSourceBattlefieldAoeDamageTrigger, ...)`.
 - The public effect string remains `OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT`, so existing recovery and replay wire shapes remain compatible.
 
 ## 3. Test Evidence

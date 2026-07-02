@@ -42,7 +42,7 @@ Not changed:
 | Requirement | Evidence | Verdict |
 |---|---|---|
 | Honest Broker last-breath Gold text is represented as data | `RuleTextParser` emits `TriggerKinds.UnitLastBreathCreateDormantGold`, `Timing=UNIT_DESTROYED`, `TargetScope=SOURCE_UNIT`, `CreatedTokenCount=1`, `CreatedTokenName=金币`, `CreatedTokenDestination=OWNER_BASE`, `CreatedTokenExhausted=true`, `CreatedTokenKeywords=[反应]` | Accepted |
-| Runtime token creation reads `TriggerSpec` | `CoreRuleEngine` now resolves ordered and immediate Honest Broker trigger paths through `UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(...)` and `CreateBaseEquipmentTokensFromTrigger(...)` | Accepted |
+| Runtime token creation reads `TriggerSpec` | `CoreRuleEngine` now resolves ordered and immediate Honest Broker trigger paths through `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathCreateDormantGoldTrigger, ...)` and `CreateBaseEquipmentTokensFromTrigger(...)` | Accepted |
 | Core no longer owns Honest Broker local token behavior | `HonestBrokerCardNo`, `HonestBrokerLastBreathCreateGoldEffectKind`, and `HonestBrokerLastBreathCreateGoldBehavior` were removed from `CoreRuleEngine`; the guard test blocks reintroduction | Accepted |
 | Existing trigger queue behavior remains intact | Honest Broker trigger queue / ordering / stack resolution representatives remain green | Accepted |
 | Gold token tags now match the parsed token identity | runtime created token tags now include `CARD_TYPE:EQUIPMENT`, `金币`, and `反应`; existing representative assertions were updated accordingly | Accepted |

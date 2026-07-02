@@ -42,7 +42,7 @@ Not changed:
 | Requirement | Evidence | Verdict |
 |---|---|---|
 | Undercover Agent last-breath discard/draw text is represented as data | `RuleTextParser` emits `TriggerKinds.UnitLastBreathDiscardDraw`, `Timing=UNIT_DESTROYED`, `TargetScope=SOURCE_UNIT`, `DiscardCount=2`, `DrawCount=2` | Accepted |
-| Runtime source selection reads TriggerSpec | `ResolveUndercoverAgentLastBreathPlayerId(...)` now uses `UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(...)` and validates source unit / face-up / non-standby boundaries | Accepted |
+| Runtime source selection reads TriggerSpec | `ResolveUndercoverAgentLastBreathPlayerId(...)` now uses `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsLastBreathDiscardDrawTrigger, ...)` and validates source unit / face-up / non-standby boundaries | Accepted |
 | Runtime hand-choice counts read TriggerSpec | `ResolveUndercoverAgentLastBreathStackItem(...)` derives required/max discard count and draw count from `TriggerSpec` with compatibility fallback | Accepted |
 | Public wire compatibility is preserved | `TriggerKinds.UnitLastBreathDiscardDraw` keeps the existing effect string `UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT`; existing recovery and trigger tests remain green | Accepted |
 | Core no longer owns Undercover local effect constant | `UndercoverAgentCardNo` and `UndercoverAgentLastBreathEffectKind` are absent from `CoreRuleEngine`; the guard test blocks reintroduction | Accepted |

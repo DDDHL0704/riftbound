@@ -20707,7 +20707,10 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && objectCardNos is not null
             && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo)
-            && !UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger(sourceCardNo, out _))
+            && !UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
+                out _))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
             AddTriggerQueueSourceCardSpecMismatch(
@@ -22444,7 +22447,10 @@ public static class MatchRecoveryValidator
                     GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
                     StringComparison.Ordinal))
             {
-                if (!UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedPowerUntilEndTrigger(sourceCardNo, out _))
+                if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                        sourceCardNo,
+                        UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger,
+                        out _))
                 {
                     var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
                     AddTriggerQueueSourceCardSpecMismatch(
@@ -22462,7 +22468,10 @@ public static class MatchRecoveryValidator
                          SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
                          StringComparison.Ordinal))
             {
-                if (!UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(sourceCardNo, out _))
+                if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                        sourceCardNo,
+                        UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger,
+                        out _))
                 {
                     var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
                     AddTriggerQueueSourceCardSpecMismatch(
@@ -22480,7 +22489,10 @@ public static class MatchRecoveryValidator
                          ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
                          StringComparison.Ordinal))
             {
-                if (!UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger(sourceCardNo, out _))
+                if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                        sourceCardNo,
+                        UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger,
+                        out _))
                 {
                     var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
                     AddTriggerQueueSourceCardSpecMismatch(
@@ -22498,7 +22510,10 @@ public static class MatchRecoveryValidator
                          ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
                          StringComparison.Ordinal))
             {
-                if (!UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger(sourceCardNo, out _))
+                if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                        sourceCardNo,
+                        UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger,
+                        out _))
                 {
                     var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
                     AddTriggerQueueSourceCardSpecMismatch(
@@ -23548,43 +23563,64 @@ public static class MatchRecoveryValidator
         if (string.Equals(expectedEffectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = WatchfulSentinelLastBreathDrawSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, SadPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = SadPoroLastBreathDrawSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = LoyalPoroLastBreathDrawSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = UnsungHeroLastBreathPowerfulDrawSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = ScoutingWarhawkLastBreathCallRuneSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, HonestBrokerLastBreathCreateGoldEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = HonestBrokerLastBreathCreateGoldSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, UndercoverAgentLastBreathEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = UndercoverAgentLastBreathDiscardDrawSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger(sourceCardNo, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
+                out _);
         }
 
         if (string.Equals(expectedEffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery, StringComparison.Ordinal)
@@ -23592,7 +23628,11 @@ public static class MatchRecoveryValidator
             || string.Equals(expectedEffectKind, MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery, StringComparison.Ordinal))
         {
             expectedTriggerSpecLabel = UnitLastBreathCreateBaseUnitSourceTriggerSpecLabelForRecovery;
-            return UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, expectedEffectKind, out _);
+            return UnitDestroyedTriggerSpecRules.TryGetTrigger(
+                sourceCardNo,
+                trigger => UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger(trigger)
+                    && string.Equals(trigger.Kind, expectedEffectKind, StringComparison.Ordinal),
+                out _);
         }
 
         expectedTriggerSpecLabel = string.Empty;

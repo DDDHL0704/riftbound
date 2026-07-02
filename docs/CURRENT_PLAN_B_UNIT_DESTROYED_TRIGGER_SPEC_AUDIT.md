@@ -1,23 +1,30 @@
 # Plan B / Unit Destroyed Trigger Spec Audit
 
 Date: 2026-06-25
-Updated: 2026-06-30
+Updated: 2026-07-02
 
 Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, destroyed non-minion create-minion, last-breath draw-if-alone, last-breath draw-if-not-alone, last-breath draw-one, last-breath call-rune, and last-breath create-base-unit TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
+2026-07-02 selector-surface cleanup:
+
+- `UnitDestroyedTriggerSpecRules` no longer exposes public per-effect selectors such as `TryGetFriendlyDestroyed...`, `TryGetFirstFriendlyDestroyed...`, `TryGetDestroyedNonMinion...`, or `TryGetLastBreath...`.
+- Runtime and recovery source validation now use the generic `TryGetTrigger(cardNo, predicate, out trigger)` / `TryGetTriggerByKind(kind, predicate, out trigger)` surface with shared public shape predicates such as `IsFriendlyDestroyedGainExperienceTrigger`, `IsDestroyedNonMinionCreateMinionTrigger`, and `IsLastBreathCreateBaseUnitTrigger`.
+- The same public predicates now own the parsed `TriggerSpec` shape checks previously duplicated in `CoreRuleEngine`, while object-state checks such as face-up / non-standby / destroyed-target context remain in the engine path.
+- Public stack effect strings and trigger id suffixes remain unchanged.
+
 2026-06-30 standard last-breath recovery follow-up:
 
 - `MatchRecovery` no longer owns standard last-breath source-card recovery constants for Sad Poro, Loyal Poro, Unsung Hero, Scouting Warhawk, Honest Broker, Undercover Agent, Mechanical Trickster, Ironclad Vanguard, or Muddy Dredger.
 - Recovered snapshot, authoritative-state, and spectator replay source-card validation now reads `BehaviorSpec.Triggers` through `UnitDestroyedTriggerSpecRules`:
-  - `TryGetLastBreathDrawIfAloneTrigger(sourceCardNo, out _)`
-  - `TryGetLastBreathDrawIfNotAloneTrigger(sourceCardNo, out _)`
-  - `TryGetLastBreathPowerfulDrawTrigger(sourceCardNo, out _)`
-  - `TryGetLastBreathCallRuneOneTrigger(sourceCardNo, out _)`
-  - `TryGetLastBreathCreateDormantGoldTrigger(sourceCardNo, out _)`
-  - `TryGetLastBreathDiscardDrawTrigger(sourceCardNo, out _)`
-  - exact `TryGetTrigger(sourceCardNo, expectedEffectKind, out _)` for `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`, `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, and `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`.
+  - `TryGetTrigger(sourceCardNo, IsLastBreathDrawIfAloneTrigger, out _)`
+  - `TryGetTrigger(sourceCardNo, IsLastBreathDrawIfNotAloneTrigger, out _)`
+  - `TryGetTrigger(sourceCardNo, IsLastBreathPowerfulDrawTrigger, out _)`
+  - `TryGetTrigger(sourceCardNo, IsLastBreathCallRuneOneTrigger, out _)`
+  - `TryGetTrigger(sourceCardNo, IsLastBreathCreateDormantGoldTrigger, out _)`
+  - `TryGetTrigger(sourceCardNo, IsLastBreathDiscardDrawTrigger, out _)`
+  - exact `TryGetTrigger(sourceCardNo, trigger => IsLastBreathCreateBaseUnitTrigger(trigger) && trigger.Kind == expectedEffectKind, out _)` for `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`, `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`, and `MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK`.
 - The old `GetStandardLastBreathSourceCardNosForRecovery` helper is removed. Public effect strings and trigger id suffixes remain unchanged.
 
 This slice moves the implemented friendly-destroyed experience trigger away from engine card-number branching:
@@ -29,10 +36,10 @@ This slice moves the implemented friendly-destroyed experience trigger away from
   - `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`
   - `ExperienceCount = 1`
 - `TriggerKinds.UnitFriendlyDestroyedGainExperience` keeps the existing effect-kind value for stack / replay compatibility while exposing a generic engine name.
-- `CoreRuleEngine.BuildSavageJawfishFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(...)` and emits the effect id from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.BuildSavageJawfishFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through `UnitDestroyedTriggerSpecRules.TryGetTrigger(..., IsFriendlyDestroyedGainExperienceTrigger, ...)` and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveSavageJawfishFriendlyDestroyedExperienceStackItem` now validates the source through the same TriggerSpec path and reads the experience amount from `TriggerSpec.ExperienceCount`.
 - The old `SavageJawfishCardNo` / `IsSavageJawfishCardNo` branch is removed from `CoreRuleEngine`.
-- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `SavageJawfishCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(sourceCardNo, out _)`.
+- 2026-07-02 recovery follow-up: `MatchRecovery` no longer owns `SavageJawfishCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, IsFriendlyDestroyedGainExperienceTrigger, out _)`.
 
 This slice also moves the implemented friendly-destroyed power trigger away from engine card-number branching:
 
@@ -47,7 +54,7 @@ This slice also moves the implemented friendly-destroyed power trigger away from
 - `CoreRuleEngine.BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem` now validates the source through the same TriggerSpec path and reads the power amount from `TriggerSpec.PowerDelta`.
 - The old `GhostlyCentaurCardNo` direct card-number branch is removed from `CoreRuleEngine`.
-- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `GhostlyCentaurCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedPowerUntilEndTrigger(sourceCardNo, out _)`.
+- 2026-07-02 recovery follow-up: `MatchRecovery` no longer owns `GhostlyCentaurCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, IsFriendlyDestroyedPowerUntilEndTrigger, out _)`.
 
 This slice also moves the implemented first-friendly-destroyed draw trigger away from engine card-number branching:
 
@@ -62,7 +69,7 @@ This slice also moves the implemented first-friendly-destroyed draw trigger away
 - `CoreRuleEngine.BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`, while preserving the existing destroyed-owner once-per-turn guard.
 - `CoreRuleEngine` immediate single-trigger resolution and stack resolution now read the draw amount from `TriggerSpec.DrawCount`.
 - The old `ResonantSoulCardNo` direct card-number branch and `ResonantSoulFirstFriendlyDestroyedDrawEffectKind` Core constant are removed from `CoreRuleEngine`.
-- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `ResonantSoulCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger(sourceCardNo, out _)`.
+- 2026-07-02 recovery follow-up: `MatchRecovery` no longer owns `ResonantSoulCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, IsFirstFriendlyDestroyedDrawTrigger, out _)`.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `38` total / `35` in `CoreRuleEngine`; this count is unchanged by the Ghostly Centaur and Resonant Soul slices because the old Core paths used direct card-number comparisons rather than `Is*CardNo(...)` helpers.
 
 This slice also moves the implemented destroyed non-minion create-minion trigger away from engine card-number branching:
@@ -81,7 +88,7 @@ This slice also moves the implemented destroyed non-minion create-minion trigger
 - `CoreRuleEngine.BuildViktorDestroyedNonMinionTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine.ResolveViktorDestroyedNonMinionStackItem` now validates the source through the same TriggerSpec path and reads token count / event reason from the `TriggerSpec`.
 - The old `ViktorDestroyedNonMinionArcCardNo` / `ViktorDestroyedNonMinionOgnCardNo` / `ViktorDestroyedNonMinionOgnAltACardNo` / `IsViktorDestroyedNonMinionCardNo` Core branch is removed from `CoreRuleEngine`.
-- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `ViktorDestroyedNonMinionArcCardNoForRecovery`, `ViktorDestroyedNonMinionOgnCardNoForRecovery`, or `ViktorDestroyedNonMinionOgnAltACardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger(sourceCardNo, out _)`.
+- 2026-07-02 recovery follow-up: `MatchRecovery` no longer owns `ViktorDestroyedNonMinionArcCardNoForRecovery`, `ViktorDestroyedNonMinionOgnCardNoForRecovery`, or `ViktorDestroyedNonMinionOgnAltACardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, IsDestroyedNonMinionCreateMinionTrigger, out _)`.
 - The old friendly-destroyed recovery source-card allow-list helper is removed after Ghostly Centaur, Savage Jawfish, Resonant Soul, and Viktor all moved to TriggerSpec source validation.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `37` total / `34` in `CoreRuleEngine`.
 
@@ -127,7 +134,7 @@ This slice also moves the implemented Watchful Sentinel last-breath draw trigger
 - `CoreRuleEngine.ResolveWatchfulSentinelLastBreathDrawPlayerId` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path while preserving the existing destroyed-unit / graveyard / visible-cleanup checks.
 - `CoreRuleEngine` explicit-destroy and state-based-cleanup trigger construction now emits the effect id from `BehaviorSpec.Triggers`, and stack resolution reads the draw count from `TriggerSpec.DrawCount`.
 - The old `WatchfulSentinelCardNo` and `WatchfulSentinelLastBreathDrawEffectKind` Core constants are removed from `CoreRuleEngine`.
-- 2026-06-30 recovery follow-up: `MatchRecovery` no longer owns `WatchfulSentinelCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(sourceCardNo, out _)`.
+- 2026-07-02 recovery follow-up: `MatchRecovery` no longer owns `WatchfulSentinelCardNoForRecovery`; recovered snapshot, authoritative-state, and spectator replay source-card validation now use `UnitDestroyedTriggerSpecRules.TryGetTrigger(sourceCardNo, IsLastBreathDrawOneTrigger, out _)`.
 - Current source-helper count for `private static bool Is*CardNo(...)` remains `36` total / `33` in `CoreRuleEngine`; this slice removes direct Core card-number/effect-kind constants rather than an `Is*CardNo(...)` helper.
 
 This slice also moves the implemented unit last-breath call-rune trigger away from Scouting Warhawk card-number branching:

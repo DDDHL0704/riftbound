@@ -5768,7 +5768,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("SavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SavageJawfishCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5789,7 +5790,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("GhostlyCentaurCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("GhostlyCentaurCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedPowerUntilEndTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5810,7 +5812,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ResonantSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ResonantSoulCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyedDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5836,7 +5839,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinionCreateMinionTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5860,7 +5864,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsSadPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SadPoroOriginalCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("SadPoroUnleashedCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5882,7 +5887,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("LoyalPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LoyalPoroLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LoyalPoroCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5904,7 +5910,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("WatchfulSentinelCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WatchfulSentinelLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WatchfulSentinelCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5926,7 +5933,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ScoutingWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScoutingWarhawkLastBreathCallRuneEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScoutingWarhawkCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5949,10 +5957,12 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldBehavior", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CreateBaseEquipmentTokensFromTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathCreateDormantGoldTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5973,10 +5983,12 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("UndercoverAgentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UndercoverAgentLastBreathEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("ResolveUndercoverAgentLastBreathStackItem", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UndercoverAgentCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathDiscardDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5998,9 +6010,11 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("UnsungHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UnsungHeroLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UnsungHeroLastBreathPowerfulDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UnsungHeroCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathPowerfulDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -6022,9 +6036,11 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("KogmawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawLastBreathAoeEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawLastBreathDamage", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreathSourceBattlefieldAoeDamageTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -6054,6 +6070,37 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("MuddyDredgerCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("GetStandardLastBreathSourceCardNosForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitDestroyedTriggerRoutingUsesGenericSpecPredicates()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var unitDestroyedRulesPath = Path.Combine(engineRoot, "UnitDestroyedTriggerSpecRules.cs");
+        var unitDestroyedRulesSource = File.ReadAllText(unitDestroyedRulesPath);
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain("public static bool TryGetFriendlyDestroyedGainExperienceTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetFriendlyDestroyedPowerUntilEndTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetFirstFriendlyDestroyedDrawTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetDestroyedNonMinionCreateMinionTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("public static bool TryGetLastBreath", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains("UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyed", StringComparison.Ordinal)
+                || source.Contains("UnitDestroyedTriggerSpecRules.TryGetFirstFriendlyDestroyed", StringComparison.Ordinal)
+                || source.Contains("UnitDestroyedTriggerSpecRules.TryGetDestroyedNonMinion", StringComparison.Ordinal)
+                || source.Contains("UnitDestroyedTriggerSpecRules.TryGetLastBreath", StringComparison.Ordinal));
+        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsFriendlyDestroyedGainExperienceTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsFriendlyDestroyedPowerUntilEndTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsFirstFriendlyDestroyedDrawTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsDestroyedNonMinionCreateMinionTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("public static bool IsLastBreathDrawOneTrigger", unitDestroyedRulesSource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger", string.Concat(engineSources), StringComparison.Ordinal);
     }
 
     [Fact]
