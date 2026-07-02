@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Spell-Power Bonus Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `UNL-205/219` Waste Hall / 废弃大厅 official text for letting the player who plays a spell give one unit they control at that battlefield `{{S}}+1` until end of turn.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldSpellPowerBonusTrigger, out trigger)`.
+- `IsBattlefieldSpellPowerBonusTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_SPELL_POWER_PLUS_1`, `Timing=BATTLEFIELD_SPELL_PLAYED`, `TargetScope=FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`, `Duration=UNTIL_END_OF_TURN`, and non-zero parsed `PowerDelta`.
+- `CoreRuleEngine.TryResolveBattlefieldSpellPowerBonusTrigger` uses that generic predicate route and keeps existing spell-play gating, controlled battlefield-source guard, precise same-battlefield friendly-unit scope, until-end power modifier ledger mutation, `BATTLEFIELD_TRIGGER_RESOLVED`, `POWER_MODIFIED_UNTIL_END_OF_TURN`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing spell-power bonus paths continue to apply the parsed temporary power delta to a controlled unit at the source battlefield, skip units at other battlefields when precise `ObjectLocations` are present, skip opponent-controlled dirty battlefield sources, expose the same GameHub seed result, and replay the Waste Hall official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldSpellPowerBonusTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck Waste Hall route 8/8; adjacent `WasteHall|SpellPowerBonus|FriendlySpell|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery` 2129/2129; backend full conformance 9115/9115.
+
 ## 2026-07-02 Friendly-Spell Draw Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·292/298` Dream Tree / 幻梦之树 official text for drawing once each turn when you use a spell on a friendly unit at that battlefield.

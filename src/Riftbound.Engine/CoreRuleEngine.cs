@@ -33804,16 +33804,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceObjectId = string.Empty;
         var sourceCardNo = string.Empty;
+        var triggerKind = string.Empty;
         var powerDelta = 0;
         var targetObjectId = string.Empty;
         foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardObject.CardNo, out var trigger)
-                || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-                || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
-                || !string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-                || trigger.PowerDelta.GetValueOrDefault() == 0
+                || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                    cardObject.CardNo,
+                    BattlefieldTriggerSpecRules.IsBattlefieldSpellPowerBonusTrigger,
+                    out var trigger)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             {
                 continue;
@@ -33836,6 +33836,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             sourceObjectId = objectId;
             sourceCardNo = cardObject.CardNo ?? string.Empty;
+            triggerKind = trigger.Kind;
             powerDelta = trigger.PowerDelta.GetValueOrDefault();
             break;
         }
@@ -33858,7 +33859,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = sourceObjectId,
                 ["battlefieldCardNo"] = sourceCardNo,
-                ["trigger"] = TriggerKinds.BattlefieldSpellPowerBonus,
+                ["trigger"] = triggerKind,
                 ["playedCardNo"] = stackItem.CardNo,
                 ["targetObjectId"] = targetObjectId,
                 ["powerDelta"] = powerDelta
