@@ -269,6 +269,14 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.ReadyTiming, TriggerReadyTimings.EndOfTurn, StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldConquerReadyEquipmentTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyEquipment, StringComparison.Ordinal)
+            && trigger.EquipmentReadyCount.GetValueOrDefault() > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -314,14 +322,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerReadyEquipmentTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerReadyEquipment,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerPayCreateGoldTrigger(string? cardNo, out TriggerSpec trigger)

@@ -26252,10 +26252,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         const string abilityId = TriggerKinds.BattlefieldConquerReadyEquipment;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyEquipment, StringComparison.Ordinal)
-            || trigger.EquipmentReadyCount.GetValueOrDefault() <= 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyEquipmentTrigger,
+                out var trigger)
             || !TryGetFirstExhaustedFriendlyEquipment(playerZones, cardObjects, playerId, out var equipmentObjectId, out var equipmentState))
         {
             return false;

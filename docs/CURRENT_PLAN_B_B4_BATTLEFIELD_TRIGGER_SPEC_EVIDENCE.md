@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Ready-Equipment Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·221/221` Moonveil Altar / 月帷祭坛 official text `当你征服此处时，你可以选择让一件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyEquipmentTrigger, out trigger)`.
+- `IsBattlefieldConquerReadyEquipmentTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=FRIENDLY_EQUIPMENT`, and positive `EquipmentReadyCount`.
+- `CoreRuleEngine.TryResolveBattlefieldConquerReadyEquipmentTrigger` uses that generic predicate route and keeps existing conquered-battlefield source discovery, exhausted friendly-equipment selection, optional armament detach policy, `BATTLEFIELD_TRIGGER_RESOLVED`, `EQUIPMENT_READIED`, `EQUIPMENT_DETACHED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer ready-equipment paths continue to ready the first controlled exhausted equipment in base / battlefield zones, skip opponent-owned dirty equipment objects, detach attached armament when the parsed trigger allows it, and replay the Moonveil Altar official-deck midgame to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerReadyEquipmentTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Moonveil Altar runtime / GameHub / official-deck route 6/6; adjacent `ReadyEquipment|BattlefieldConquer|BattlefieldTriggerSpec|FullGameEndToEnd|MatchRecovery` 2198/2198; backend full conformance 9108/9108.
+
 ## 2026-07-02 Conquer Ready-Runes-At-End Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `OGN·289/298` Mount Targon / 巨神峰之巅 official text `当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。`
@@ -526,7 +536,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path still schedules the exi
 
 The 2026-06-28 B0 follow-up now also covers this same parsed Mount Targon route through a legal official-deck opening. `OfficialDeckMidgameResolvesMountTargonConquerReadyRunesAtEndAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `OGN·289/298` can be selected in opening setup, that a focused midgame `START_BATTLE` state resolves `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, schedules two delayed end-turn ready markers for two exhausted controlled base runes, a subsequent server-authored `END_TURN` readies those runes and clears the markers, and that the command journal replays through score victory to the same final state hash.
 
-The conquer ready-equipment follow-up parser path turns the Moonveil Altar official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=FRIENDLY_EQUIPMENT`, `EquipmentReadyCount=1`, and `DetachesArmament=true`. Runtime no longer checks `SFD·221/221` through `BattlefieldConquerReadyEquipmentCardNo` / `IsBattlefieldConquerReadyEquipmentCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer ready-equipment follow-up parser path turns the Moonveil Altar official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=FRIENDLY_EQUIPMENT`, `EquipmentReadyCount=1`, and `DetachesArmament=true`. Runtime no longer checks `SFD·221/221` through `BattlefieldConquerReadyEquipmentCardNo` / `IsBattlefieldConquerReadyEquipmentCardNo`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyEquipmentTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still readies the first controlled exhausted equipment in the conquering player's base / battlefield zones, skips opponent-owned dirty equipment objects, and detaches the target when the parsed trigger allows armament detach and the target is attached armament. It emits `BATTLEFIELD_TRIGGER_RESOLVED`, `EQUIPMENT_READIED`, and, when applicable, `EQUIPMENT_DETACHED` with `BATTLEFIELD_CONQUERED_READY_EQUIPMENT`, while preserving existing equipment ownership / controller guards.
 
