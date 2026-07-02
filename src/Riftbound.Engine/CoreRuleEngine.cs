@@ -26580,7 +26580,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         return StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardNo)
             || BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardNo, out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantLegendAttachArmamentAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardNo)

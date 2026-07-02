@@ -17927,7 +17927,10 @@ internal static class ActionPromptBuilder
             || StaticAuraSpecRules.HasBattlefieldKeywordStaticAura(cardObject.CardNo)
             || BattlefieldTriggerSpecRules.HasImplementedBattlefieldTrigger(cardObject.CardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardObject.CardNo, out _)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantLegendAttachArmamentAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
             || StaticAuraSpecRules.HasBattlefieldPowerStaticAura(cardObject.CardNo)
             || StaticAuraSpecRules.HasBattlefieldIsolatedDefenderKeywordModifierStaticAura(cardObject.CardNo)

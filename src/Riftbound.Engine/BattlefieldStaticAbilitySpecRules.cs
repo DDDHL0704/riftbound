@@ -79,12 +79,12 @@ internal static class BattlefieldStaticAbilitySpecRules
             && ability.Amount > 0;
     }
 
-    public static bool TryGetBattlefieldGrantLegendAttachArmamentAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldGrantLegendAttachArmamentAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
+        return string.Equals(
+            ability.Kind,
             StaticAbilityKinds.BattlefieldGrantLegendAttachArmament,
-            out ability);
+            StringComparison.Ordinal);
     }
 
     public static bool TryGetBattlefieldStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)

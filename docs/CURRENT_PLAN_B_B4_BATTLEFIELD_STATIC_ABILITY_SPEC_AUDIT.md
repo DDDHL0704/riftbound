@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield target spell/skill damage-bonus static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield granted legend attach-armament static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -152,12 +152,28 @@ Validation: red/green focused guard `BattlefieldTargetSpellSkillDamageBonusStati
 
 Non-closure: this slice only closes the target spell/skill damage-bonus static ability execution helper. The remaining battlefield static ability per-effect helper surface, all spell/skill damage modifier timing edges, complete battlefield lifecycle, P0, and READY remain open.
 
+## 2026-07-02 Supplement: Battlefield Granted Legend Attach-Armament Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantLegendAttachArmamentAbility(...)` and routes Poro Forge-style granted legend attach-armament battlefield recognition through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`. `CoreRuleEngine.HasImplementedBattlefieldRuleSpec` and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _)`. Existing `RequiredControlledBattlefieldStaticAbilityKind` execution gates already use the generic static ability kind path and remain unchanged.
+
+Existing `SFD·208/221` official behavior, controlled battlefield-source filtering, server-authored `LEGEND_ACT` prompt metadata, legend exhaustion, armament attachment / reattachment, rejected-action no-mutation guard, hidden-info checks, and official-deck score-victory replays remain compatible.
+
+Validation: red/green focused guard `BattlefieldGrantLegendAttachArmamentStaticAbilityUsesGenericSpecPredicate` 1/1; focused parser / P79 runtime / GameHub seed / official-deck accepted+rejected route 10/10; adjacent `PoroForge|LegendAttachArmament|LegendAct|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2586/2586; backend full conformance 9128/9128.
+
+Non-closure: this slice only closes the granted legend attach-armament static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete granted-ability modeling, complete battlefield lifecycle, P0, and READY remain open.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield static abilities, complete battlefield lifecycle, complete movement / control-zone edge cases, full activated ability modeling for granted abilities, all spell/skill damage modifier timing edges, complete extra-standby destination / hidden-info breadth, complete battle-destroyed replacement / payment prompt breadth, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
+- latest granted legend attach-armament static ability generic-predicate guard red/green: passed `1/1`;
+- latest granted legend attach-armament parser / P79 runtime / GameHub seed / official-deck accepted+rejected route focused validation: passed `10/10`;
+- latest PoroForge / LegendAttachArmament / LegendAct / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2586/2586`;
+- backend full conformance after the granted legend attach-armament generic-predicate increment: passed `9128/9128`;
 - latest target spell/skill damage-bonus static ability generic-predicate guard red/green: passed `1/1`;
 - latest target spell/skill damage-bonus parser / P79 runtime / GameHub seed / official-deck route focused validation: passed `7/7`;
 - latest BattlefieldStatic / TargetDamageBonus / TargetSpellSkillDamageBonus / Punishment / Damage / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline adjacent validation: passed `2774/2774`;
