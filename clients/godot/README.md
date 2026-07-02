@@ -206,6 +206,19 @@ RIFTBOUND_SCREENSHOT_DIR=/tmp/human-local-test \
 clients/godot/tools/run-local-human-playtest-stack.sh
 ```
 
+For the final P5 evidence run, have the stack prompt for the human-only
+confirmations and package the evidence immediately after both windows close:
+
+```sh
+RIFTBOUND_CONFIRM_MANUAL=1 \
+RIFTBOUND_PACKAGE_EVIDENCE=1 \
+clients/godot/tools/run-local-human-playtest-stack.sh
+```
+
+Set `RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest.tar.gz` to choose
+the output tarball path. The package is valid P5 evidence only when the prompts
+were answered by the two human operators after a real completed match.
+
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
 paths:
@@ -271,8 +284,8 @@ machine checks pass, it writes `playtest-report.md` in the evidence directory
 with those manual confirmation boxes. To have the checker prompt for and record
 those confirmations, run it with `RIFTBOUND_CONFIRM_MANUAL=1`.
 
-To archive a completed local/LAN playtest for the final Playable v1 handoff,
-package the evidence directory after the checker passes:
+To archive a completed local/LAN playtest manually for the final Playable v1
+handoff, package the evidence directory after the checker passes:
 
 ```sh
 RIFTBOUND_CONFIRM_MANUAL=1 \

@@ -11,6 +11,8 @@ api_log="${RIFTBOUND_API_LOG:-${screenshot_dir}/api.log}"
 dotnet_bin="${RIFTBOUND_DOTNET_BIN:-${HOME}/.dotnet/dotnet}"
 keep_api="${RIFTBOUND_KEEP_API:-0}"
 check_evidence="${RIFTBOUND_CHECK_EVIDENCE:-1}"
+package_evidence="${RIFTBOUND_PACKAGE_EVIDENCE:-0}"
+evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-}"
 
 started_api=0
 api_pid=""
@@ -85,4 +87,17 @@ export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 
 if [[ "${check_evidence}" != "0" ]]; then
   "${script_dir}/check-human-playtest-evidence.sh" "${screenshot_dir}"
+fi
+
+if [[ "${package_evidence}" != "0" ]]; then
+  package_args=("${screenshot_dir}")
+  if [[ -n "${evidence_package}" ]]; then
+    package_args+=("${evidence_package}")
+  fi
+
+  if [[ "${RIFTBOUND_CONFIRM_MANUAL:-0}" == "1" && -s "${screenshot_dir}/playtest-report.md" ]]; then
+    RIFTBOUND_CONFIRM_MANUAL=0 "${script_dir}/package-human-playtest-evidence.sh" "${package_args[@]}"
+  else
+    "${script_dir}/package-human-playtest-evidence.sh" "${package_args[@]}"
+  fi
 fi

@@ -40,9 +40,17 @@ mkdir -p "${output_dir}"
 output_path="$(cd "${output_dir}" && pwd)/$(basename "${output_path}")"
 
 if [[ -s "${report_path}" && "${RIFTBOUND_CONFIRM_MANUAL:-0}" != "1" ]]; then
-  RIFTBOUND_PLAYTEST_REPORT="${report_path}.machine-check" \
-    "${script_dir}/check-human-playtest-evidence.sh" "${evidence_dir}"
-  rm -f "${report_path}.machine-check"
+  machine_check_report="${report_path}.machine-check"
+  machine_check_log="$(mktemp)"
+  if RIFTBOUND_PLAYTEST_REPORT="${machine_check_report}" \
+    "${script_dir}/check-human-playtest-evidence.sh" "${evidence_dir}" >"${machine_check_log}" 2>&1; then
+    rm -f "${machine_check_report}" "${machine_check_log}"
+    echo "Machine recheck passed; preserving existing report: ${report_path}"
+  else
+    cat "${machine_check_log}" >&2 || true
+    rm -f "${machine_check_log}"
+    exit 1
+  fi
 else
   "${script_dir}/check-human-playtest-evidence.sh" "${evidence_dir}"
 fi
@@ -52,7 +60,6 @@ required_files=(
   "player-b.log"
   "player-a-result.png"
   "player-b-result.png"
-  "playtest-report.md"
 )
 
 for file in "${required_files[@]}"; do
@@ -61,6 +68,11 @@ for file in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+if [[ ! -s "${report_path}" ]]; then
+  echo "Required evidence report missing after check: ${report_path}" >&2
+  exit 1
+fi
 
 staging_dir="$(mktemp -d)"
 cleanup() {
@@ -75,6 +87,7 @@ mkdir -p "${bundle_dir}"
 for file in "${required_files[@]}"; do
   cp "${evidence_dir}/${file}" "${bundle_dir}/${file}"
 done
+cp "${report_path}" "${bundle_dir}/playtest-report.md"
 
 if [[ -s "${evidence_dir}/api.log" ]]; then
   cp "${evidence_dir}/api.log" "${bundle_dir}/api.log"
