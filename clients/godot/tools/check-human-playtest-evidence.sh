@@ -42,6 +42,8 @@ require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-0}"
 auto_smoke_found=0
 git_status_output="$(git -C "${repo_root}" status --short 2>/dev/null || true)"
 git_worktree_state="clean"
+min_result_screenshot_width=800
+min_result_screenshot_height=600
 
 if [[ -n "${git_status_output}" ]]; then
   git_worktree_state="dirty"
@@ -68,6 +70,70 @@ require_match() {
   fi
 }
 
+require_minimum_png_dimensions() {
+  local label="$1"
+  local width="$2"
+  local height="$3"
+
+  if (( width < min_result_screenshot_width || height < min_result_screenshot_height )); then
+    failures+=("${label} is too small for final evidence (${width}x${height}, minimum ${min_result_screenshot_width}x${min_result_screenshot_height})")
+  fi
+}
+
+require_png_screenshot() {
+  local path="$1"
+  local label="$2"
+  local header=""
+  local signature=""
+  local ihdr_length=""
+  local ihdr_type=""
+  local width_hex=""
+  local height_hex=""
+  local sips_output=""
+  local width=0
+  local height=0
+
+  if [[ ! -s "${path}" ]]; then
+    return
+  fi
+
+  header="$(od -An -tx1 -N24 "${path}" | tr -d ' \n')"
+  signature="${header:0:16}"
+  ihdr_length="${header:16:8}"
+  ihdr_type="${header:24:8}"
+  width_hex="${header:32:8}"
+  height_hex="${header:40:8}"
+
+  if [[ "${signature}" != "89504e470d0a1a0a" || "${ihdr_length}" != "0000000d" || "${ihdr_type}" != "49484452" ]]; then
+    failures+=("${label} is not a PNG screenshot")
+    return
+  fi
+
+  if command -v sips >/dev/null 2>&1; then
+    if ! sips_output="$(sips -g pixelWidth -g pixelHeight "${path}" 2>/dev/null)"; then
+      failures+=("${label} is not a readable PNG screenshot")
+      return
+    fi
+
+    width="$(awk '/pixelWidth:/ {print $2}' <<<"${sips_output}")"
+    height="$(awk '/pixelHeight:/ {print $2}' <<<"${sips_output}")"
+    if [[ ! "${width}" =~ ^[0-9]+$ || ! "${height}" =~ ^[0-9]+$ || "${width}" == "0" || "${height}" == "0" ]]; then
+      failures+=("${label} has invalid PNG dimensions")
+      return
+    fi
+    require_minimum_png_dimensions "${label}" "${width}" "${height}"
+    return
+  fi
+
+  width=$((16#${width_hex}))
+  height=$((16#${height_hex}))
+  if (( width <= 0 || height <= 0 )); then
+    failures+=("${label} has invalid PNG dimensions")
+    return
+  fi
+  require_minimum_png_dimensions "${label}" "${width}" "${height}"
+}
+
 player_a_log="${evidence_dir}/player-a.log"
 player_b_log="${evidence_dir}/player-b.log"
 player_a_result="${evidence_dir}/player-a-result.png"
@@ -77,6 +143,8 @@ require_file "${player_a_log}" "player A log"
 require_file "${player_b_log}" "player B log"
 require_file "${player_a_result}" "player A result screenshot"
 require_file "${player_b_result}" "player B result screenshot"
+require_png_screenshot "${player_a_result}" "player A result screenshot"
+require_png_screenshot "${player_b_result}" "player B result screenshot"
 
 if [[ -s "${player_a_log}" ]]; then
   require_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
@@ -175,7 +243,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 
 - Status: passed
 - Required logs: present
-- Required result screenshots: present
+- Required result screenshots: present and at least ${min_result_screenshot_width}x${min_result_screenshot_height}
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
 - Manual confirmation mode: ${confirm_manual}
