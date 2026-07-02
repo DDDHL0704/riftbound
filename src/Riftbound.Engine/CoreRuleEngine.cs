@@ -24705,15 +24705,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.IsNullOrWhiteSpace(playerId)
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
-            || trigger.RevealCount is not 1
-            || !string.Equals(trigger.RevealSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(trigger.RevealMatchCardFilter)
-            || !string.Equals(trigger.RevealMatchDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
-            || !string.Equals(trigger.RevealMissDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {
@@ -24738,7 +24733,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["revealedObjectId"] = revealedObjectId,
                 ["revealedIsSpell"] = revealedIsSpell

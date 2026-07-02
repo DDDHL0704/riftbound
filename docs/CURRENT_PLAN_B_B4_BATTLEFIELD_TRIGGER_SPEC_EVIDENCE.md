@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Defend Reveal-Spell-Or-Recycle Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·215/221` Ravenbloom Conservatory / 拉文布鲁姆学院 official text for revealing the top main-deck card when defending that battlefield, putting it into hand if it is a spell, or recycling it otherwise.
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger, out trigger)`.
+- `IsBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE`, `Timing=BATTLEFIELD_DEFENDED`, `RevealCount=1`, `RevealSourceZone=MAIN_DECK`, non-empty `RevealMatchCardFilter`, `RevealMatchDestinationZone=HAND`, and `RevealMissDestinationZone=MAIN_DECK`.
+- `CoreRuleEngine.ResolveBattlefieldDefendRevealSpellTrigger` uses that generic predicate route and keeps existing battlefield-source control gating, controlled top-main-deck prefix handling, spell-filter draw branch, non-spell recycle-to-main-deck-bottom branch, `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, `CARD_DRAWN`, `CARDS_RECYCLED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing defend reveal-spell-or-recycle paths continue to draw the revealed controlled top card only when it matches the parsed spell filter, recycle the revealed non-spell card otherwise, skip opponent-controlled dirty top cards, skip attacker-controlled battlefield sources, and replay both Ravenbloom official-deck midgames to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldDefendRevealSpellTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: red/green guard 1/1; focused parser / P79 runtime / GameHub / official-deck draw+recycle routes 10/10; adjacent `BattlefieldDefend|BattlefieldDefender|BattlefieldTriggerSpec|RevealCard|DeclareBattle|FullGameEndToEnd|MatchRecovery` 2313/2313; backend full conformance 9112/9112.
+
 ## 2026-07-02 Conquer Pay-Ready-Legend Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·210/221` Hall of Legends / 传奇殿堂 official text for paying 1 after conquest to ready your legend.

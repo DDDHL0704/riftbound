@@ -317,6 +317,17 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.LegendReadyCount is 1;
     }
 
+    public static bool IsBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && trigger.RevealCount is 1
+            && string.Equals(trigger.RevealSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(trigger.RevealMatchCardFilter)
+            && string.Equals(trigger.RevealMatchDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            && string.Equals(trigger.RevealMissDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal);
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -362,14 +373,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(string? cardNo, out TriggerSpec trigger)
