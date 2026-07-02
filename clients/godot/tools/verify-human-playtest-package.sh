@@ -28,6 +28,8 @@ if [[ ! -s "${package_path}" ]]; then
   exit 2
 fi
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../../.." && pwd)"
 failures=()
 required_files=(
   "README.md"
@@ -141,6 +143,41 @@ require_png_screenshot() {
   fi
 }
 
+require_git_revision_on_main() {
+  local revision=""
+  local resolved_revision=""
+
+  if [[ ! -s "${report}" ]]; then
+    return
+  fi
+
+  revision="$(awk -F': ' '/^- Git revision:/ {print $2; exit}' "${report}")"
+  if [[ -z "${revision}" || "${revision}" == "unknown" ]]; then
+    failures+=("git revision missing or unknown in playtest-report.md")
+    return
+  fi
+
+  if ! git -C "${repo_root}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    failures+=("unable to verify git revision outside a git worktree")
+    return
+  fi
+
+  if ! resolved_revision="$(git -C "${repo_root}" rev-parse --verify --quiet "${revision}^{commit}")"; then
+    failures+=("git revision ${revision} not found in local repository")
+    return
+  fi
+
+  if ! git -C "${repo_root}" rev-parse --verify --quiet origin/main^{commit} >/dev/null; then
+    failures+=("origin/main not found for git revision verification")
+    return
+  fi
+
+  if ! git -C "${repo_root}" merge-base --is-ancestor "${resolved_revision}" origin/main; then
+    failures+=("git revision ${revision} is not contained in origin/main")
+  fi
+}
+
+require_git_revision_on_main
 require_report_line "- Git worktree: clean" "clean git worktree"
 require_report_line "- Require clean git: 1" "required clean git marker"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
@@ -187,7 +224,7 @@ P5 evidence package passed machine verification:
   package: ${package_path}
   required files: present
   checksums: valid
-  report: clean git, clean-git required, all human confirmations checked
+  report: clean git, clean-git required, git revision on origin/main, all human confirmations checked
   screenshots: valid PNG result screenshots
   logs: match lifecycle/result screenshots present, no crash/error/rejection patterns
 EOF
