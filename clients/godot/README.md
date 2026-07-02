@@ -272,7 +272,8 @@ markers, a report Git revision contained in `origin/main`, manual confirmation
 mode, all five human confirmation boxes, both clients loading preconstructed
 decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
-`800x600`, distinct A/B log and result screenshot files, and absence of
+`800x600`, report/log agreement on the original result screenshot paths,
+distinct A/B log and result screenshot files, and absence of
 crash/rejection/auto-smoke evidence.
 
 For same-machine testing without the script, keep the identities isolated with

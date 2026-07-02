@@ -153,6 +153,15 @@ require_log_match() {
   fi
 }
 
+require_log_literal_match() {
+  local expected="$1"
+  local path="$2"
+  local label="$3"
+  if [[ -s "${path}" ]] && ! grep -Fq -- "${expected}" "${path}"; then
+    failures+=("${label} missing from $(basename "${path}")")
+  fi
+}
+
 require_client_setup_log_matches() {
   local path="$1"
   local label="$2"
@@ -260,6 +269,25 @@ require_git_revision_on_main() {
   fi
 }
 
+require_reported_screenshot_log_path() {
+  local report_label="$1"
+  local log_path="$2"
+  local log_label="$3"
+  local screenshot_path=""
+
+  if [[ ! -s "${report}" || ! -s "${log_path}" ]]; then
+    return
+  fi
+
+  screenshot_path="$(awk -F': ' -v label="${report_label}" '$0 ~ "^- " label ": " {print $2; exit}' "${report}")"
+  if [[ -z "${screenshot_path}" ]]; then
+    failures+=("${report_label} missing from playtest-report.md")
+    return
+  fi
+
+  require_log_literal_match "Visual screenshot saved: ${screenshot_path}" "${log_path}" "${log_label} result screenshot log path"
+}
+
 require_git_revision_on_main
 require_report_line "- Git worktree: clean" "clean git worktree"
 require_report_line "- Require clean git: 1" "required clean git marker"
@@ -282,6 +310,8 @@ require_log_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a
 require_log_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
 require_log_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
 require_log_match "Visual screenshot saved: .*player-b-result\\.png" "${player_b_log}" "player B result screenshot log"
+require_reported_screenshot_log_path "Player A result screenshot" "${player_a_log}" "player A"
+require_reported_screenshot_log_path "Player B result screenshot" "${player_b_log}" "player B"
 
 if [[ -s "${player_a_log}" && -s "${player_b_log}" ]] && cmp -s "${player_a_log}" "${player_b_log}"; then
   failures+=("player A and player B logs are identical")

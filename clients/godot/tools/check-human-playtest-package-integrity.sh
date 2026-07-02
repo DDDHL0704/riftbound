@@ -62,6 +62,14 @@ write_evidence_bundle() {
   local extra_file="${6:-0}"
   local missing_deck_ready="${7:-0}"
   local screenshot_size="${8:-full}"
+  local screenshot_report_paths="${9:-match}"
+  local player_a_result_path="/tmp/riftbound-human-playtest/player-a-result.png"
+  local player_b_result_path="/tmp/riftbound-human-playtest/player-b-result.png"
+
+  if [[ "${screenshot_report_paths}" == "mismatch" ]]; then
+    player_a_result_path="/tmp/old-riftbound-human-playtest/player-a-result.png"
+    player_b_result_path="/tmp/old-riftbound-human-playtest/player-b-result.png"
+  fi
 
   mkdir -p "${bundle_dir}"
   cat >"${bundle_dir}/README.md" <<'EOF'
@@ -76,7 +84,7 @@ SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 Match result rendered
-Visual screenshot saved: /tmp/player-a-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
 
   cat >"${bundle_dir}/player-b.log" <<'EOF'
@@ -85,7 +93,7 @@ SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
-Visual screenshot saved: /tmp/player-b-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
 
   if [[ "${duplicate_logs}" == "1" ]]; then
@@ -95,8 +103,8 @@ SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
-Visual screenshot saved: /tmp/player-a-result.png
-Visual screenshot saved: /tmp/player-b-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
     cp "${bundle_dir}/player-a.log" "${bundle_dir}/player-b.log"
   fi
@@ -105,12 +113,12 @@ EOF
     cat >"${bundle_dir}/player-a.log" <<'EOF'
 MATCH_STARTED
 Match result rendered
-Visual screenshot saved: /tmp/player-a-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
     cat >"${bundle_dir}/player-b.log" <<'EOF'
 MATCH_STARTED
 MATCH_WON
-Visual screenshot saved: /tmp/player-b-result.png
+Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
   fi
 
@@ -128,6 +136,8 @@ EOF
 - Git revision: ${revision}
 - Git worktree: clean
 - Require clean git: 1
+- Player A result screenshot: ${player_a_result_path}
+- Player B result screenshot: ${player_b_result_path}
 
 ## Machine Check
 
@@ -280,6 +290,26 @@ if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; the
   echo "Expected deck/ready rejection output:" >&2
   cat "${missing_deck_ready_output}" >&2
   fail "verifier did not explain the missing deck/ready evidence"
+fi
+
+mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbound-human-playtest-evidence"
+write_evidence_bundle "${mismatched_screenshot_path_bundle}" "${revision}" "1" "0" "0" "0" "0" "full" "mismatch"
+(
+  cd "${mismatched_screenshot_path_bundle}"
+  shasum -a 256 README.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md > SHA256SUMS
+)
+mismatched_screenshot_path_package="${tmp_dir}/mismatched-screenshot-path.tar.gz"
+make_package "${mismatched_screenshot_path_bundle}" "${mismatched_screenshot_path_package}"
+
+mismatched_screenshot_path_output="${tmp_dir}/mismatched-screenshot-path-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${mismatched_screenshot_path_package}" >"${mismatched_screenshot_path_output}" 2>&1; then
+  fail "verifier accepted package whose report and logs disagree on result screenshot paths"
+fi
+
+if ! rg -q "screenshot path|result screenshot log|Player A result screenshot|Player B result screenshot" "${mismatched_screenshot_path_output}"; then
+  echo "Expected screenshot path mismatch rejection output:" >&2
+  cat "${mismatched_screenshot_path_output}" >&2
+  fail "verifier did not explain the mismatched result screenshot paths"
 fi
 
 small_screenshot_bundle="${tmp_dir}/small-screenshot/riftbound-human-playtest-evidence"
