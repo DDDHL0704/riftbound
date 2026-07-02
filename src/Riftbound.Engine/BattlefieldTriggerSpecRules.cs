@@ -250,6 +250,16 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.DrawCountPerParticipant is > 0;
     }
 
+    public static bool IsBattlefieldConquerPowerfulPayDrawTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.DrawCount is > 0
+            && trigger.RequiredPowerThreshold is > 0;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -295,14 +305,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerPowerfulPayDrawTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerPowerfulPayDraw,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldConquerReadyRunesAtEndTrigger(string? cardNo, out TriggerSpec trigger)

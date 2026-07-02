@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer draw-for-other-battlefields execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer powerful pay-draw execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer powerful pay-draw execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(...)` is removed.
+- `CoreRuleEngine.ResolveBattlefieldConquerPowerfulDrawTriggerPayment` and `CoreRuleEngine.TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow` now route through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger`.
+- `IsBattlefieldConquerPowerfulPayDrawTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, positive `DrawCount`, and positive `RequiredPowerThreshold`. Existing conquered-battlefield source discovery, surviving powerful-unit detection, trigger-payment open / accept / decline behavior, payment choice ids, draw application, `PAYMENT_WINDOW_OPENED` / `COST_PAID` / `BATTLEFIELD_TRIGGER_RESOLVED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerPowerfulPayDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 13; `Is*CardNo(...)` helper count remains 0. This slice does not close complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete battlefield lifecycle breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: focused guard / parser / Sunken Temple runtime / GameHub / official-deck paid+decline routes 15/15, adjacent `BattlefieldConquer|TriggerPayment|Powerful|FullGameEndToEnd|MatchRecovery` 2280/2280, backend full conformance 9106/9106.
 
 The 2026-07-02 conquer draw-for-other-battlefields execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -822,7 +831,7 @@ The 2026-06-25 conquer powerful pay-draw follow-up moves another implemented con
   - `RequiredPowerThreshold = 5`
   - `ManaCost = 1`
   - `DrawCount = 1`
-- `CoreRuleEngine.TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(...)`, reads the mana cost / draw count / power threshold from `BehaviorSpec.Triggers`, and builds the payment choice from that parsed cost.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger, out trigger)`, reads the mana cost / draw count / power threshold from `BehaviorSpec.Triggers`, and builds the payment choice from that parsed cost.
 - `CoreRuleEngine.ResolveBattlefieldConquerPowerfulDrawTriggerPayment` revalidates the same parsed trigger after payment and rechecks the selected surviving powerful unit before drawing.
 - The payment-window selector now evaluates all surviving conquest attackers instead of only the first attacker object, matching the official `此战场上留存至少一名{{强力}}单位` condition.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPowerfulPayOneDrawCardNo` constant. The development seed keeps the official card number only as fixture data.
@@ -1231,6 +1240,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `42/42`;
 - adjacent TreasurePile / BattlefieldConquerGold / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2124/2124`;
 - backend full conformance: passed `8736/8736`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-07-02 conquer powerful pay-draw execution-helper follow-up validation:
+
+- focused generic predicate guard / behavior-spec / runtime / GameHub / official-deck paid+decline representative: passed `15/15`;
+- adjacent BattlefieldConquer / TriggerPayment / Powerful / FullGameEndToEnd / MatchRecovery representatives: passed `2280/2280`;
+- backend full conformance: passed `9106/9106`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-06-25 conquer powerful pay-draw follow-up validation:

@@ -4,6 +4,16 @@ Date: 2026-07-02
 
 Project status: **NOT READY**.
 
+## 2026-07-02 Conquer Powerful Pay-Draw Execution Helper Evidence
+
+- This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·218/221` Sunken Temple / 沉没神庙 official text `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(...)` is removed. The accepted path now uses `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger, out trigger)`.
+- `IsBattlefieldConquerPowerfulPayDrawTrigger` validates the parsed `BehaviorSpec.Triggers` shape: `Kind=BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, positive `ManaCost`, positive `DrawCount`, and positive `RequiredPowerThreshold`.
+- `CoreRuleEngine.ResolveBattlefieldConquerPowerfulDrawTriggerPayment` and `CoreRuleEngine.TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow` use that generic predicate route and keep existing conquered-battlefield source discovery, surviving powerful-unit detection, trigger-payment open / accept / decline behavior, payment choice ids, draw application, `PAYMENT_WINDOW_OPENED`, `COST_PAID`, `BATTLEFIELD_TRIGGER_RESOLVED`, hidden-info guarded payloads, and official-deck replay semantics.
+- Existing conquer powerful pay-draw paths continue to open `TRIGGER_PAYMENT` only when a surviving powerful unit is present at the conquered battlefield, use the parsed mana cost and draw count, preserve decline-without-draw behavior, and replay both paid and declined Sunken Temple official-deck midgames to score victory.
+- Source guard: `CardCatalogBaselineTests.BattlefieldConquerPowerfulPayDrawTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Validation: focused guard / parser / Sunken Temple runtime / GameHub / official-deck paid+decline routes 15/15; adjacent `BattlefieldConquer|TriggerPayment|Powerful|FullGameEndToEnd|MatchRecovery` 2280/2280; backend full conformance 9106/9106.
+
 ## 2026-07-02 Conquer Draw-For-Other-Battlefields Execution Helper Evidence
 
 - This follow-up does not introduce a new battlefield text interpretation. It preserves `SFD·217/221` Seat of Power / 权能之座 official text `当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。`
@@ -516,7 +526,7 @@ The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_
 
 The B0 full-game replay follow-up now also covers this same parsed Treasure Pile route through a legal official-deck opening. `OfficialDeckMidgamePaysTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash` verifies that official `SFD·220/221` can be selected in opening setup, that a focused midgame `START_BATTLE` state opens `TRIGGER_PAYMENT` after conquest, that replayable `PAY_COST(SPEND_MANA:1)` creates an exhausted Gold token, and that the command journal replays through score victory to the same final state hash.
 
-The conquer powerful pay-draw follow-up parser path turns the Sunken Temple official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, `RequiredPowerThreshold=5`, `ManaCost=1`, and `DrawCount=1`. Runtime no longer checks `SFD·218/221` through `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo`, and no longer uses `BattlefieldPowerfulDrawManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+The conquer powerful pay-draw follow-up parser path turns the Sunken Temple official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, `RequiredPowerThreshold=5`, `ManaCost=1`, and `DrawCount=1`. Runtime no longer checks `SFD·218/221` through `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo`, and no longer uses `BattlefieldPowerfulDrawManaCost`; it queries `BehaviorSpec.Triggers` via generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger, out trigger)`.
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and draws after successful payment. The prompt cost, trigger id, draw count, and required power threshold now come from the parsed spec. The new multi-attacker regression proves the official `此战场上留存至少一名{{强力}}单位` condition is evaluated over all surviving conquest attackers instead of only the first attacker object.
 

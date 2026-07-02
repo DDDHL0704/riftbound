@@ -1093,17 +1093,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.DrawCount is not > 0
-            || trigger.RequiredPowerThreshold is not > 0
-            || pendingPayment.ManaCost != trigger.ManaCost.Value
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger,
+                out var trigger)
+            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault()
             || !TryGetSurvivingPowerfulUnit(
                 cardObjects,
                 playerZones,
                 powerfulObjectId,
-                trigger.RequiredPowerThreshold.Value,
+                trigger.RequiredPowerThreshold.GetValueOrDefault(),
                 out var resolvedPowerfulObjectId))
         {
             return RejectWithCorePrompts(
@@ -1112,6 +1111,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var drawCount = trigger.DrawCount.GetValueOrDefault();
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
@@ -1156,7 +1156,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["trigger"] = trigger.Kind,
                     ["sourceObjectId"] = sourceObjectId,
                     ["powerfulObjectId"] = resolvedPowerfulObjectId,
-                    ["drawCount"] = trigger.DrawCount.Value,
+                    ["drawCount"] = drawCount,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
                 })
@@ -1167,7 +1167,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             state.PlayerScores,
             intent.PlayerId,
-            trigger.DrawCount.Value,
+            drawCount,
             state.RngCursor,
             events);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -25242,22 +25242,23 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(battlefieldState.CardNo, out var trigger)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.DrawCount is not > 0
-            || trigger.RequiredPowerThreshold is not > 0
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
+                battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger,
+                out var trigger)
             || !TryGetFirstSurvivingPowerfulUnit(
                 cardObjects,
                 playerZones,
                 survivingConquerAttackerObjectIds,
-                trigger.RequiredPowerThreshold.Value,
+                trigger.RequiredPowerThreshold.GetValueOrDefault(),
                 out var powerfulObjectId))
         {
             return false;
         }
 
-        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(trigger.ManaCost.Value);
+        var manaCost = trigger.ManaCost.GetValueOrDefault();
+        var requiredPowerThreshold = trigger.RequiredPowerThreshold.GetValueOrDefault();
+        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
             TriggerPaymentWindow,
@@ -25267,7 +25268,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             TriggerPaymentWindow,
             playerId,
-            manaCost: trigger.ManaCost.Value,
+            manaCost: manaCost,
             legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
             reason: BuildBattlefieldConquerPowerfulDrawPaymentReason(
                 battlefieldId,
@@ -25288,12 +25289,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["powerfulObjectId"] = powerfulObjectId,
-                ["requiredPowerThreshold"] = trigger.RequiredPowerThreshold.Value,
-                ["mana"] = trigger.ManaCost.Value,
+                ["requiredPowerThreshold"] = requiredPowerThreshold,
+                ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
                 {
-                    ["mana"] = trigger.ManaCost.Value,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
