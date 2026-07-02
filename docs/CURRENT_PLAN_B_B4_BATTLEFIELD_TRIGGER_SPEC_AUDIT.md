@@ -2,9 +2,18 @@
 
 Date: 2026-07-02
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer pay-return-unit create-Sand-Soldier execution helper follow-up accepted; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, unit battlefield-held draw, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; latest conquer pay-ready-legend execution helper follow-up accepted; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-07-02 conquer pay-ready-legend execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
+
+- `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(...)` is removed.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayReadyLegendPaymentWindow` and `CoreRuleEngine.ResolveBattlefieldConquerReadyLegendTriggerPayment` now route through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, predicate, out trigger)` with `BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger`.
+- `IsBattlefieldConquerPayReadyLegendTrigger` checks the parsed `BehaviorSpec.Triggers` shape for `BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND`, `BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_LEGEND`, positive `ManaCost`, and `LegendReadyCount=1`. Existing trigger-payment open / accept / decline behavior, exhausted controlled-legend selection, payment choice ids, `PAYMENT_WINDOW_OPENED` / `COST_PAID` / `BATTLEFIELD_TRIGGER_RESOLVED` / `LEGEND_READIED` payloads, hidden-info guarded replay behavior, and official-deck replay behavior stay unchanged.
+- Red/green guard: `BattlefieldConquerPayReadyLegendTriggerUsesGenericSpecPredicate` rejects the removed getter across engine sources and requires the shared generic predicate route.
+- Remaining public `TryGetBattlefield...Trigger` getter count in `BattlefieldTriggerSpecRules` is 8; `Is*CardNo(...)` helper count remains 0 for `BattlefieldTriggerSpecRules`. This slice does not close complete legend target-choice breadth, complete triggered-cost battlefield FUs, complete PaymentEngine breadth, the other B4 execution helpers, APNAP/simultaneous ordering, or READY.
+- Validation: focused guard / parser / Hall of Legends runtime / GameHub / official-deck paid+decline routes 8/8, adjacent `HallOfLegends|ReadyLegend|LegendReadied|TriggerPayment|BattlefieldConquer|FullGameEndToEnd|MatchRecovery` 2273/2273, backend full conformance 9111/9111.
 
 The 2026-07-02 conquer pay-return-unit create-Sand-Soldier execution-helper follow-up removes one B4 per-effect public getter from the battlefield trigger rules surface:
 
@@ -906,7 +915,7 @@ The 2026-06-25 conquer pay-ready-legend follow-up moves another implemented conq
   - `TargetScope = CONTROLLED_LEGEND`
   - `ManaCost = 1`
   - `LegendReadyCount = 1`
-- `CoreRuleEngine.TryOpenBattlefieldConquerPayReadyLegendPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(...)`, reads the mana cost and legend-ready count from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerReadyLegendTriggerPayment` commits the payment before readying the selected exhausted legend.
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayReadyLegendPaymentWindow` now recognizes eligible battlefield sources through generic `BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger, out trigger)`, reads the mana cost and legend-ready count from `BehaviorSpec.Triggers`, and opens `TRIGGER_PAYMENT`; `ResolveBattlefieldConquerReadyLegendTriggerPayment` commits the payment before readying the selected exhausted legend.
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReadyLegendCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReadyLegendCardNo` / `IsBattlefieldConquerPayOneReadyLegendCardNo` card-number branch and `BattlefieldReadyLegendManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `63` total / `59` in `CoreRuleEngine`; Core battlefield helper count is `15`.
 
@@ -1276,6 +1285,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - FullGameEndToEnd: passed `42/42`;
 - adjacent TreasurePile / BattlefieldConquerGold / TriggerPayment / FullGameEndToEnd / MatchRecovery representatives: passed `2124/2124`;
 - backend full conformance: passed `8736/8736`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+
+2026-07-02 conquer pay-ready-legend execution-helper follow-up validation:
+
+- focused generic predicate guard / behavior-spec / runtime / GameHub / official-deck paid+decline representatives: passed `8/8`;
+- adjacent HallOfLegends / ReadyLegend / LegendReadied / TriggerPayment / BattlefieldConquer / FullGameEndToEnd / MatchRecovery representatives: passed `2273/2273`;
+- backend full conformance: passed `9111/9111`;
 - DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 2026-07-02 conquer pay-return-unit create-Sand-Soldier execution-helper follow-up validation:

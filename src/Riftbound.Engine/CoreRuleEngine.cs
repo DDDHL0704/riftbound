@@ -1198,14 +1198,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledLegend, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.LegendReadyCount is not 1
-            || pendingPayment.ManaCost != trigger.ManaCost.Value
+            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault()
             || !playerZones.TryGetValue(intent.PlayerId, out var zones)
             || !zones.LegendZone.Contains(legendObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(legendObjectId, out var legendState)
@@ -25159,19 +25156,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
                 out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledLegend, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.LegendReadyCount is not 1
             || !TryGetFirstExhaustedLegend(playerZones, cardObjects, playerId, out var legendObjectId, out _))
         {
             return false;
         }
 
-        var manaCost = trigger.ManaCost.Value;
+        var manaCost = trigger.ManaCost.GetValueOrDefault();
         var effectKind = RuntimeTriggerEffectKind(trigger);
         var spendManaChoiceId = BuildSpendManaPaymentChoiceId(manaCost);
         var paymentId = PaymentCostRules.BuildPaymentId(

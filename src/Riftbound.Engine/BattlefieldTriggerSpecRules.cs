@@ -308,6 +308,15 @@ internal static class BattlefieldTriggerSpecRules
                 StringComparison.Ordinal);
     }
 
+    public static bool IsBattlefieldConquerPayReadyLegendTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledLegend, StringComparison.Ordinal)
+            && trigger.ManaCost is > 0
+            && trigger.LegendReadyCount is 1;
+    }
+
     public static bool IsImplementedBattlefieldTrigger(TriggerSpec trigger)
     {
         return trigger.Kind switch
@@ -353,14 +362,6 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstTurnScore => true,
             _ => false,
         };
-    }
-
-    public static bool TryGetBattlefieldConquerPayReadyLegendTrigger(string? cardNo, out TriggerSpec trigger)
-    {
-        return TryGetTrigger(
-            cardNo,
-            TriggerKinds.BattlefieldConquerPayReadyLegend,
-            out trigger);
     }
 
     public static bool TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(string? cardNo, out TriggerSpec trigger)
