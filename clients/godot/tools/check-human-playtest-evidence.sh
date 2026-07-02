@@ -84,6 +84,15 @@ require_literal_match() {
   fi
 }
 
+require_client_setup_matches() {
+  local path="$1"
+  local label="$2"
+
+  require_match "Preconstructed decks loaded: [1-9][0-9]*\\." "${path}" "${label} preconstructed deck load"
+  require_match "SubmitDeck receipt accepted=True" "${path}" "${label} SubmitDeck receipt"
+  require_match "Ready receipt accepted=True" "${path}" "${label} Ready receipt"
+}
+
 extract_authenticated_handle() {
   local path="$1"
   sed -nE 's/.*Authenticate: .* \(([^)]+)\)\..*/\1/p' "${path}" | head -n 1
@@ -222,12 +231,14 @@ require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
 
 if [[ -s "${player_a_log}" ]]; then
+  require_client_setup_matches "${player_a_log}" "Player A"
   require_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_a_log}" "match result"
   require_literal_match "Visual screenshot saved: ${player_a_result}" "${player_a_log}" "player A result screenshot log"
 fi
 
 if [[ -s "${player_b_log}" ]]; then
+  require_client_setup_matches "${player_b_log}" "Player B"
   require_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
   require_literal_match "Visual screenshot saved: ${player_b_result}" "${player_b_log}" "player B result screenshot log"
@@ -351,6 +362,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Status: passed
 - Required logs: present
 - Required result screenshots: present and at least ${min_result_screenshot_width}x${min_result_screenshot_height}
+- Client setup: preconstructed deck load, SubmitDeck, and Ready observed for both players
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
 - Manual confirmation mode: ${confirm_manual}

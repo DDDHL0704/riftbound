@@ -45,7 +45,9 @@ resume from repository state instead of conversation history alone.
   `HEALTHCHECK` reached `healthy`.
 - The evidence checker now records the room id and both player handles from the
   Godot logs; final packages must prove the report and logs agree and that the
-  two player identities are distinct.
+  two player identities are distinct. It also rejects raw evidence before manual
+  confirmations if either client lacks preconstructed deck loading plus accepted
+  `SubmitDeck` and `Ready` receipts.
 - Evidence packages include `P5_HANDOFF.md`, generated from the report, so a
   reviewer can quickly verify the room, player identities, result screenshots,
   report file, and manual-confirmation mode.

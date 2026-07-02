@@ -52,7 +52,8 @@ contracts change.
   mode validates the final gate settings, configured Godot/.NET executables,
   evidence output parents, custom clean-worktree paths, and fetches
   `origin/main` without launching the Godot windows.
-- `check-human-playtest-evidence.sh` validates raw logs/screenshots and writes
+- `check-human-playtest-evidence.sh` validates raw logs/screenshots,
+  preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, and writes
   `playtest-report.md`.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean

@@ -362,10 +362,12 @@ clients/godot/tools/check-human-playtest-evidence.sh /tmp/riftbound-human-playte
 
 The checker validates machine-readable gates: both logs exist, both final result
 screenshots are valid PNG files at least `800x600`, the logs include
-`MATCH_STARTED` and `MATCH_WON`/result rendering, and no crash/error/rejection
+preconstructed deck loading, accepted `SubmitDeck` and `Ready` receipts,
+`MATCH_STARTED`, and `MATCH_WON`/result rendering, and no crash/error/rejection
 patterns are present. It records the room id and both player handles from the
-Godot logs, rejects duplicate player identities, and rejects identical A/B logs
-or identical A/B result screenshots before prompting for manual confirmations.
+Godot logs, rejects duplicate player identities, missing deck/ready setup, and
+identical A/B logs or identical A/B result screenshots before prompting for
+manual confirmations.
 It cannot prove that two humans operated the clients or inspect
 hidden-information safety by itself; those remain manual confirmations from the
 final screenshots. When the machine checks pass, it writes `playtest-report.md`

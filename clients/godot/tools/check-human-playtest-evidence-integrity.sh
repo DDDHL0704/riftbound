@@ -42,6 +42,7 @@ write_evidence_dir() {
   local screenshot_log_paths="${3:-actual}"
   local duplicate_screenshots="${4:-0}"
   local duplicate_logs="${5:-0}"
+  local missing_deck_ready="${6:-0}"
   local player_a_screenshot_log="/tmp/player-a-result.png"
   local player_b_screenshot_log="/tmp/player-b-result.png"
   local room_id="fixture-room"
@@ -58,6 +59,9 @@ write_evidence_dir() {
 Authenticate: Registered (${player_a_handle}).
 JoinRoom requested: room=${room_id}, player=${player_a_handle}.
 [b]Joined[/b] type=JOIN room=${room_id} player=${player_a_handle} tick=0 payload=Object
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 Match result rendered
 Visual screenshot saved: ${player_a_screenshot_log}
@@ -67,16 +71,42 @@ EOF
 Authenticate: Registered (${player_b_handle}).
 JoinRoom requested: room=${room_id}, player=${player_b_handle}.
 [b]Joined[/b] type=JOIN room=${room_id} player=${player_b_handle} tick=0 payload=Object
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: ${player_b_screenshot_log}
 EOF
+
+  if [[ "${missing_deck_ready}" == "1" ]]; then
+    cat >"${evidence_dir}/player-a.log" <<EOF
+Authenticate: Registered (${player_a_handle}).
+JoinRoom requested: room=${room_id}, player=${player_a_handle}.
+[b]Joined[/b] type=JOIN room=${room_id} player=${player_a_handle} tick=0 payload=Object
+MATCH_STARTED
+Match result rendered
+Visual screenshot saved: ${player_a_screenshot_log}
+EOF
+
+    cat >"${evidence_dir}/player-b.log" <<EOF
+Authenticate: Registered (${player_b_handle}).
+JoinRoom requested: room=${room_id}, player=${player_b_handle}.
+[b]Joined[/b] type=JOIN room=${room_id} player=${player_b_handle} tick=0 payload=Object
+MATCH_STARTED
+MATCH_WON
+Visual screenshot saved: ${player_b_screenshot_log}
+EOF
+  fi
 
   if [[ "${duplicate_logs}" == "1" ]]; then
     cat >"${evidence_dir}/player-a.log" <<EOF
 Authenticate: Registered (${player_a_handle}).
 JoinRoom requested: room=${room_id}, player=${player_a_handle}.
 [b]Joined[/b] type=JOIN room=${room_id} player=${player_a_handle} tick=0 payload=Object
+Preconstructed decks loaded: 9.
+SubmitDeck receipt accepted=True state=ACCEPTED
+Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
 MATCH_WON
 Visual screenshot saved: ${player_a_screenshot_log}
@@ -177,6 +207,20 @@ if ! rg -q "Player A handle|Player B handle|distinct|duplicate" "${duplicate_ide
   echo "Expected duplicate identity rejection output:" >&2
   cat "${duplicate_identity_output}" >&2
   fail "evidence checker did not explain the duplicate player identities"
+fi
+
+missing_deck_ready_dir="${tmp_dir}/missing-deck-ready"
+write_evidence_dir "${missing_deck_ready_dir}" "full" "actual" "0" "0" "1"
+missing_deck_ready_output="${tmp_dir}/missing-deck-ready-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${missing_deck_ready_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${missing_deck_ready_dir}" >"${missing_deck_ready_output}" 2>&1; then
+  fail "evidence checker accepted logs without preconstructed deck submit/ready evidence"
+fi
+
+if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; then
+  echo "Expected deck/ready rejection output:" >&2
+  cat "${missing_deck_ready_output}" >&2
+  fail "evidence checker did not explain the missing deck/ready evidence"
 fi
 
 incomplete_evidence_dir="${tmp_dir}/incomplete"
