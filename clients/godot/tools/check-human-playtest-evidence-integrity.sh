@@ -37,18 +37,26 @@ write_full_size_png() {
 write_evidence_dir() {
   local evidence_dir="$1"
   local screenshot_size="${2:-full}"
+  local screenshot_log_paths="${3:-actual}"
+  local player_a_screenshot_log="/tmp/player-a-result.png"
+  local player_b_screenshot_log="/tmp/player-b-result.png"
+
+  if [[ "${screenshot_log_paths}" == "actual" ]]; then
+    player_a_screenshot_log="${evidence_dir}/player-a-result.png"
+    player_b_screenshot_log="${evidence_dir}/player-b-result.png"
+  fi
 
   mkdir -p "${evidence_dir}"
-  cat >"${evidence_dir}/player-a.log" <<'EOF'
+  cat >"${evidence_dir}/player-a.log" <<EOF
 MATCH_STARTED
 Match result rendered
-Visual screenshot saved: /tmp/player-a-result.png
+Visual screenshot saved: ${player_a_screenshot_log}
 EOF
 
-  cat >"${evidence_dir}/player-b.log" <<'EOF'
+  cat >"${evidence_dir}/player-b.log" <<EOF
 MATCH_STARTED
 MATCH_WON
-Visual screenshot saved: /tmp/player-b-result.png
+Visual screenshot saved: ${player_b_screenshot_log}
 EOF
 
   if [[ "${screenshot_size}" == "small" ]]; then
@@ -76,6 +84,20 @@ if ! rg -q "screenshot.*too small|too small.*screenshot|minimum" "${small_output
   echo "Expected small screenshot rejection output:" >&2
   cat "${small_output}" >&2
   fail "evidence checker did not explain the too-small result screenshots"
+fi
+
+mismatched_log_dir="${tmp_dir}/mismatched-log-path"
+write_evidence_dir "${mismatched_log_dir}" "full" "mismatch"
+mismatched_log_output="${tmp_dir}/mismatched-log-path-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${mismatched_log_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${mismatched_log_dir}" >"${mismatched_log_output}" 2>&1; then
+  fail "evidence checker accepted result screenshot log paths from another directory"
+fi
+
+if ! rg -q "screenshot log.*player-a-result\\.png|screenshot log.*player-b-result\\.png|result screenshot log" "${mismatched_log_output}"; then
+  echo "Expected mismatched screenshot log path rejection output:" >&2
+  cat "${mismatched_log_output}" >&2
+  fail "evidence checker did not explain the mismatched result screenshot log path"
 fi
 
 covered_evidence_dir="${tmp_dir}/covered"

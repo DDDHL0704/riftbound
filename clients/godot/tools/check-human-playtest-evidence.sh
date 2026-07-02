@@ -70,6 +70,15 @@ require_match() {
   fi
 }
 
+require_literal_match() {
+  local expected="$1"
+  local path="$2"
+  local label="$3"
+  if ! grep -Fq -- "${expected}" "${path}"; then
+    failures+=("${label} not found in ${path}")
+  fi
+}
+
 require_minimum_png_dimensions() {
   local label="$1"
   local width="$2"
@@ -149,13 +158,13 @@ require_png_screenshot "${player_b_result}" "player B result screenshot"
 if [[ -s "${player_a_log}" ]]; then
   require_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_a_log}" "match result"
-  require_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a_log}" "player A result screenshot log"
+  require_literal_match "Visual screenshot saved: ${player_a_result}" "${player_a_log}" "player A result screenshot log"
 fi
 
 if [[ -s "${player_b_log}" ]]; then
   require_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
-  require_match "Visual screenshot saved: .*player-b-result\\.png" "${player_b_log}" "player B result screenshot log"
+  require_literal_match "Visual screenshot saved: ${player_b_result}" "${player_b_log}" "player B result screenshot log"
 fi
 
 if compgen -G "${evidence_dir}/*.log" >/dev/null; then
