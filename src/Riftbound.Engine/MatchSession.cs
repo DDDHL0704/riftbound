@@ -17499,7 +17499,10 @@ internal static class ActionPromptBuilder
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                    cardObject.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -17932,7 +17935,10 @@ internal static class ActionPromptBuilder
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility,
                 out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardObject.CardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardObject.CardNo, out _)

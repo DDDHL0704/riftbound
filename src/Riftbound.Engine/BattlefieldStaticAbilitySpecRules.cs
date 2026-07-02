@@ -35,12 +35,12 @@ internal static class BattlefieldStaticAbilitySpecRules
             StringComparison.Ordinal);
     }
 
-    public static bool TryGetBattlefieldPreventUnitPlayAbility(string? cardNo, out StaticAbilitySpec ability)
+    public static bool IsBattlefieldPreventUnitPlayAbility(StaticAbilitySpec ability)
     {
-        return TryGetStaticAbility(
-            cardNo,
+        return string.Equals(
+            ability.Kind,
             StaticAbilityKinds.BattlefieldPreventUnitPlay,
-            out ability);
+            StringComparison.Ordinal);
     }
 
     public static bool TryGetBattlefieldEchoCostReductionAbility(string? cardNo, out StaticAbilitySpec ability)

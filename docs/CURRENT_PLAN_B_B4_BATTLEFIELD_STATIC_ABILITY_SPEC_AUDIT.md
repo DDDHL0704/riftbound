@@ -2,7 +2,7 @@
 
 Date: 2026-06-28
 
-Status: focused B4 battlefield prevent-move-to-base static ability generic-predicate route accepted; project remains **NOT READY**.
+Status: focused B4 battlefield prevent-unit-play static ability generic-predicate route accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -91,6 +91,18 @@ Existing `OGN·295/298` official behavior, server-authored `MOVE_UNIT` prompt fi
 Validation: red/green focused guard `BattlefieldPreventMoveToBaseStaticAbilityUsesGenericSpecPredicate` 1/1; focused static-restriction parser / P79 runtime / prompt / official-deck route 7/7; adjacent `BattlefieldStatic|PreventMoveToBase|MoveUnit|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2631/2631; backend full conformance 9122/9122.
 
 Non-closure: this slice only closes the prevent-move-to-base static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete movement / control-zone edge cases, complete battlefield lifecycle, P0, and READY remain open.
+
+## 2026-07-02 Supplement: Battlefield Prevent Unit-Play Static Ability Generic Predicate
+
+This follow-up removes `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(...)` and routes Falling Rocks-style unit-play prevention through the generic battlefield static ability predicate path.
+
+`BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility` validates the parsed `StaticAbilitySpec` shape by `Kind = BATTLEFIELD_PREVENT_UNIT_PLAY`. `CoreRuleEngine.HasBattlefieldStaticPreventUnitPlayToBattlefield`, `CoreRuleEngine.HasImplementedBattlefieldRuleSpec`, `MatchSession.PromptBattlefieldStaticPreventsUnitPlayToBattlefield`, and `MatchSession` battlefield rule-card recognition now use `BattlefieldStaticAbilitySpecRules.TryGetAbility(cardNo, BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility, out _)`.
+
+Existing `SFD·216/221` official behavior, server-authored `PLAY_CARD` destination filtering, rejected battlefield-destination command behavior, no-mutation state hash, hidden-info checks, and official-deck score-victory replay remain compatible.
+
+Validation: red/green focused guard `BattlefieldPreventUnitPlayStaticAbilityUsesGenericSpecPredicate` 1/1; focused static-restriction parser / P79 runtime / prompt / official-deck route 6/6; adjacent `BattlefieldStatic|PreventUnitPlay|PlayCard|FullGameEndToEnd|MatchRecovery|CardCatalogBaseline` 2804/2804; backend full conformance 9123/9123.
+
+Non-closure: this slice only closes the prevent-unit-play static ability execution helper. The remaining battlefield static ability per-effect helper surface, complete play destination policy / timing-window breadth, complete battlefield lifecycle, P0, and READY remain open.
 
 ## Non-Closure
 

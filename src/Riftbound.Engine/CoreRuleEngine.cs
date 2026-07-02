@@ -26596,7 +26596,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility,
                 out _)
             || HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardNo, MoveUnitRoamKeyword)
-            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
+            || BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                cardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility,
+                out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
@@ -31113,7 +31116,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                    cardObject.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
