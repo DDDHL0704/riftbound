@@ -80,6 +80,7 @@ write_evidence_bundle() {
 # Riftbound Godot Human Playtest Evidence
 
 Package integrity fixture.
+- Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 EOF
 
   cat >"${bundle_dir}/player-a.log" <<'EOF'
@@ -476,6 +477,27 @@ if ! rg -q "Machine hidden-information boundary|hidden information" "${missing_v
   echo "Expected visual-review hidden-boundary rejection output:" >&2
   cat "${missing_visual_hidden_boundary_output}" >&2
   fail "verifier did not explain the missing visual review hidden information boundary"
+fi
+
+missing_readme_hidden_boundary_bundle="${tmp_dir}/missing-readme-hidden-boundary/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_readme_hidden_boundary_bundle}" "${revision}"
+sed -i '' '/Machine hidden-information boundary/d' "${missing_readme_hidden_boundary_bundle}/README.md"
+(
+  cd "${missing_readme_hidden_boundary_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_readme_hidden_boundary_package="${tmp_dir}/missing-readme-hidden-boundary.tar.gz"
+make_package "${missing_readme_hidden_boundary_bundle}" "${missing_readme_hidden_boundary_package}"
+
+missing_readme_hidden_boundary_output="${tmp_dir}/missing-readme-hidden-boundary-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_readme_hidden_boundary_package}" >"${missing_readme_hidden_boundary_output}" 2>&1; then
+  fail "verifier accepted package whose README omitted hidden information boundary evidence"
+fi
+
+if ! rg -q "README.*hidden information|hidden information.*README" "${missing_readme_hidden_boundary_output}"; then
+  echo "Expected README hidden-boundary rejection output:" >&2
+  cat "${missing_readme_hidden_boundary_output}" >&2
+  fail "verifier did not explain the missing README hidden information boundary"
 fi
 
 missing_operator_guide_bundle="${tmp_dir}/missing-operator-guide/riftbound-human-playtest-evidence"

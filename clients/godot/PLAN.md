@@ -34,8 +34,9 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   scrollback is lost.
 - P5 evidence now also requires machine-readable hidden-information boundary
   logs from both Godot clients: zero opponent hand faces and zero hidden card
-  identity leaks. The generated handoff and visual review files repeat that
-  checked conclusion, but the human screenshot confirmation remains required.
+  identity leaks. The package README, generated handoff, and visual review files
+  repeat that checked conclusion, but the human screenshot confirmation remains
+  required.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 

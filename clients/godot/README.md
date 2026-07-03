@@ -402,8 +402,10 @@ see the room, both player handles, result screenshot filenames, and the machine
 hidden-information boundary conclusion. `VISUAL_REVIEW.md` is a focused
 checklist for inspecting the final screenshots for result-panel visibility and
 hidden-information safety, and it repeats the same machine boundary conclusion.
-The package is still only valid for P5 when the report includes the real
-two-human manual confirmations.
+The package `README.md` also repeats that checked machine boundary conclusion,
+and the package verifier requires all three generated review surfaces to stay in
+sync with the report. The package is still only valid for P5 when the report
+includes the real two-human manual confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper

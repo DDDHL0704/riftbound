@@ -72,8 +72,8 @@ contracts change.
   `VISUAL_REVIEW.md`, and absence of auto-smoke markers.
   It also requires both client logs and the report to include the machine hidden
   information boundary check: zero opponent hand faces and zero hidden identity
-  leaks, and requires the generated handoff and visual review files to repeat
-  that report conclusion.
+  leaks, and requires the package README plus generated handoff and visual
+  review files to repeat that report conclusion.
 
 ## Standard Gates
 

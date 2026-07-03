@@ -140,6 +140,7 @@ if (( ${#failures[@]} == 0 )); then
 fi
 
 report="${bundle_dir}/playtest-report.md"
+readme="${bundle_dir}/README.md"
 operator_guide="${bundle_dir}/OPERATOR_GUIDE.md"
 handoff="${bundle_dir}/P5_HANDOFF.md"
 visual_review="${bundle_dir}/VISUAL_REVIEW.md"
@@ -308,6 +309,27 @@ require_visual_review_consistency() {
   require_visual_review_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "visual review hidden information boundary"
   require_visual_review_literal_match "opponent hand and hidden cards only as card backs and counts" "visual review hidden-information checklist"
   require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
+}
+
+require_readme_literal_match() {
+  local expected="$1"
+  local label="$2"
+
+  if [[ -s "${readme}" ]] && ! grep -Fq -- "${expected}" "${readme}"; then
+    failures+=("${label} missing from README.md")
+  fi
+}
+
+require_readme_consistency() {
+  local hidden_information_boundary=""
+
+  if [[ ! -s "${readme}" || ! -s "${report}" ]]; then
+    return
+  fi
+
+  hidden_information_boundary="$(report_field "Hidden information boundary")"
+
+  require_readme_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "README hidden information boundary"
 }
 
 require_operator_guide_literal_match() {
@@ -509,6 +531,7 @@ fi
 require_report_identity_consistency
 require_handoff_consistency
 require_visual_review_consistency
+require_readme_consistency
 require_operator_guide_consistency
 require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"

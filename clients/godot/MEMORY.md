@@ -71,6 +71,9 @@ resume from repository state instead of conversation history alone.
   reviewer can quickly verify the room, player identities, result screenshots,
   report file, machine hidden-information boundary conclusion, and
   manual-confirmation mode.
+- Evidence package `README.md` also repeats the machine hidden-information
+  boundary conclusion from the checked report, and the verifier rejects packages
+  where that README summary is missing.
 - Evidence packages now include `OPERATOR_GUIDE.md`; the packager copies the
   runtime guide from the evidence directory, or generates a fallback from the
   checked report for manual packaging. The verifier requires this file and its
