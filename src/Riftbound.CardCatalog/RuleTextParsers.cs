@@ -459,7 +459,7 @@ public static class TriggerParser
             TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle,
             TriggerTimings.SourceUnitPlayed,
             match.Value,
-            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared source-unit-played TriggerSpec resolution.",
+            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw and rune-call spell representative paths through shared source-unit-played TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.ControlledSpellInGraveyard,
             PlayCount: 1,
             PlayOriginZone: TriggerZones.Graveyard,
