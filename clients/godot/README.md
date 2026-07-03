@@ -307,9 +307,11 @@ mode, all five human confirmation boxes, both clients loading preconstructed
 decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
 `800x600`, report/log agreement on the original result screenshot paths,
-distinct A/B log and result screenshot files, the `OPERATOR_GUIDE.md` operator
-checklist, the `VISUAL_REVIEW.md` screenshot checklist, and absence of
-crash/rejection/auto-smoke evidence.
+distinct A/B log and result screenshot files, both client logs reporting
+`Hidden info boundary ok` with `opponentHandFaces=0` and
+`hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md` operator checklist, the
+`VISUAL_REVIEW.md` screenshot checklist, and absence of crash/rejection/
+auto-smoke evidence.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
@@ -370,17 +372,18 @@ clients/godot/tools/check-human-playtest-evidence.sh /tmp/riftbound-human-playte
 The checker validates machine-readable gates: both logs exist, both final result
 screenshots are valid PNG files at least `800x600`, the logs include
 preconstructed deck loading, accepted `SubmitDeck` and `Ready` receipts,
-`MATCH_STARTED`, and `MATCH_WON`/result rendering, and no crash/error/rejection
-patterns are present. It records the room id and both player handles from the
-Godot logs, rejects duplicate player identities, missing deck/ready setup, and
-identical A/B logs or identical A/B result screenshots before prompting for
-manual confirmations.
-It cannot prove that two humans operated the clients or inspect
-hidden-information safety by itself; those remain manual confirmations from the
-final screenshots. When the machine checks pass, it writes `playtest-report.md`
-in the evidence directory with those identity fields and manual confirmation
-boxes. To have the checker prompt for and record those confirmations, run it
-with `RIFTBOUND_CONFIRM_MANUAL=1`.
+`MATCH_STARTED`, `MATCH_WON`/result rendering, and `Hidden info boundary ok`
+with `opponentHandFaces=0` plus `hiddenCardIdentityLeaks=0`, and no
+crash/error/rejection patterns are present. It records the room id and both
+player handles from the Godot logs, rejects duplicate player identities, missing
+deck/ready setup, hidden-boundary violations, and identical A/B logs or
+identical A/B result screenshots before prompting for manual confirmations. It
+cannot prove that two humans operated the clients, and the final screenshots
+must still be inspected by humans for hidden-information safety. When the
+machine checks pass, it writes `playtest-report.md` in the evidence directory
+with those identity fields, the hidden-boundary machine-check line, and manual
+confirmation boxes. To have the checker prompt for and record those
+confirmations, run it with `RIFTBOUND_CONFIRM_MANUAL=1`.
 
 To archive a completed local/LAN playtest manually for the final Playable v1
 handoff, package the evidence directory after the checker passes:

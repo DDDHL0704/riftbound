@@ -63,13 +63,16 @@ contracts change.
   launching Godot so the operators have the room, player handles,
   evidence/package paths, and final checklist outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
-  preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, and writes
-  `playtest-report.md`.
+  preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
+  information boundary log lines, and writes `playtest-report.md`.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
   identity consistency, `OPERATOR_GUIDE.md`, `P5_HANDOFF.md`,
   `VISUAL_REVIEW.md`, and absence of auto-smoke markers.
+  It also requires both client logs and the report to include the machine hidden
+  information boundary check: zero opponent hand faces and zero hidden identity
+  leaks.
 
 ## Standard Gates
 

@@ -93,6 +93,18 @@ require_client_setup_matches() {
   require_match "Ready receipt accepted=True" "${path}" "${label} Ready receipt"
 }
 
+require_hidden_boundary_matches() {
+  local path="$1"
+  local label="$2"
+
+  require_match "Hidden info boundary ok: .*opponentHandFaces=0.*hiddenCardIdentityLeaks=0" \
+    "${path}" "${label} hidden information boundary"
+
+  if rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
+    failures+=("${label} hidden information boundary violation found in ${path}")
+  fi
+}
+
 extract_authenticated_handle() {
   local path="$1"
   sed -nE 's/.*Authenticate: .* \(([^)]+)\)\..*/\1/p' "${path}" | head -n 1
@@ -232,6 +244,7 @@ require_png_screenshot "${player_b_result}" "player B result screenshot"
 
 if [[ -s "${player_a_log}" ]]; then
   require_client_setup_matches "${player_a_log}" "Player A"
+  require_hidden_boundary_matches "${player_a_log}" "Player A"
   require_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_a_log}" "match result"
   require_literal_match "Visual screenshot saved: ${player_a_result}" "${player_a_log}" "player A result screenshot log"
@@ -239,6 +252,7 @@ fi
 
 if [[ -s "${player_b_log}" ]]; then
   require_client_setup_matches "${player_b_log}" "Player B"
+  require_hidden_boundary_matches "${player_b_log}" "Player B"
   require_match "MATCH_STARTED" "${player_b_log}" "MATCH_STARTED"
   require_match "MATCH_WON|Match result rendered" "${player_b_log}" "match result"
   require_literal_match "Visual screenshot saved: ${player_b_result}" "${player_b_log}" "player B result screenshot log"
@@ -363,6 +377,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Required logs: present
 - Required result screenshots: present and at least ${min_result_screenshot_width}x${min_result_screenshot_height}
 - Client setup: preconstructed deck load, SubmitDeck, and Ready observed for both players
+- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
 - Manual confirmation mode: ${confirm_manual}

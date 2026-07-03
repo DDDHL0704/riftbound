@@ -363,6 +363,18 @@ require_client_setup_log_matches() {
   require_log_match "Ready receipt accepted=True" "${path}" "${label} Ready receipt"
 }
 
+require_hidden_boundary_log_matches() {
+  local path="$1"
+  local label="$2"
+
+  require_log_match "Hidden info boundary ok: .*opponentHandFaces=0.*hiddenCardIdentityLeaks=0" \
+    "${path}" "${label} hidden information boundary"
+
+  if [[ -s "${path}" ]] && rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
+    failures+=("${label} hidden information boundary violation found in $(basename "${path}")")
+  fi
+}
+
 require_minimum_png_dimensions() {
   local label="$1"
   local width="$2"
@@ -492,6 +504,7 @@ require_report_identity_consistency
 require_handoff_consistency
 require_visual_review_consistency
 require_operator_guide_consistency
+require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"
@@ -505,6 +518,8 @@ fi
 
 require_client_setup_log_matches "${player_a_log}" "player A"
 require_client_setup_log_matches "${player_b_log}" "player B"
+require_hidden_boundary_log_matches "${player_a_log}" "player A"
+require_hidden_boundary_log_matches "${player_b_log}" "player B"
 require_log_match "MATCH_STARTED" "${player_a_log}" "MATCH_STARTED"
 require_log_match "MATCH_WON|Match result rendered" "${player_a_log}" "match result"
 require_log_match "Visual screenshot saved: .*player-a-result\\.png" "${player_a_log}" "player A result screenshot log"
@@ -552,5 +567,5 @@ P5 evidence package passed machine verification:
   checksums: valid
   report: clean git, clean-git required, manual confirmation mode, git revision on origin/main, all human confirmations checked
   screenshots: valid PNG result screenshots at least ${min_result_screenshot_width}x${min_result_screenshot_height}
-  logs: match lifecycle/result screenshots present, no crash/error/rejection patterns
+  logs: match lifecycle/result screenshots and hidden-information boundary present, no crash/error/rejection patterns
 EOF

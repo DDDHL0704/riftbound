@@ -2191,11 +2191,13 @@ public partial class Main : Control
                 return;
             }
 
+            var hiddenBoundaryLogLine = HiddenInfoBoundaryLogLine(tableSections.Sections);
             QueueMainThread(nameof(ApplyBoardSummary), summary);
             QueueMainThread(nameof(ApplyHandCards), views);
             QueueMainThread(nameof(ApplySnapshotSections), tableSections.Sections);
             AppendLog(
                 $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
+            AppendLog(hiddenBoundaryLogLine);
             QueueVisualScreenshotIfReady(tableSections.CardCount);
         }
         catch (Exception ex)
@@ -2312,6 +2314,99 @@ public partial class Main : Control
         var wireTable = await BuildWireTableSectionAsync(snapshot, table, objectIndex);
         sections.Add(wireTable.Section);
         return (sections, wireTable.CardCount, wireTable.OfficialImageCount);
+    }
+
+    private static string HiddenInfoBoundaryLogLine(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
+    {
+        if (sections.Count != 1
+            || !sections[0].TryGetValue("kind", out var kind)
+            || !string.Equals(kind.AsString(), "wireTable", StringComparison.Ordinal)
+            || !sections[0].TryGetValue("opponent", out var opponentValue))
+        {
+            return "Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0";
+        }
+
+        var opponent = opponentValue.AsGodotDictionary();
+        var opponentHand = CardArray(opponent, "hand");
+        var opponentHandFaces = CountFaceCards(opponentHand);
+        var opponentHandBacks = GodotInt(opponent, "handHiddenCount") + CountHiddenCards(opponentHand);
+        var opponentStandbyFaces = 0;
+        var opponentStandbyBacks = 0;
+        var hiddenCardIdentityLeaks = CountHiddenIdentityLeaks(opponentHand);
+
+        if (sections[0].TryGetValue("lanes", out var lanesValue)
+            && lanesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is { } lanes)
+        {
+            foreach (var lane in lanes)
+            {
+                var opponentStandby = CardArray(lane, "opponentStandby");
+                opponentStandbyFaces += CountFaceCards(opponentStandby);
+                opponentStandbyBacks += GodotInt(lane, "hiddenStandbyCount") + CountHiddenCards(opponentStandby);
+                hiddenCardIdentityLeaks += CountHiddenIdentityLeaks(opponentStandby);
+            }
+        }
+
+        var status = opponentHandFaces == 0 && hiddenCardIdentityLeaks == 0
+            ? "ok"
+            : "VIOLATION";
+        return $"Hidden info boundary {status}: opponentHandFaces={opponentHandFaces} opponentHandBacks={opponentHandBacks} opponentStandbyFaces={opponentStandbyFaces} opponentStandbyBacks={opponentStandbyBacks} hiddenCardIdentityLeaks={hiddenCardIdentityLeaks}";
+    }
+
+    private static Godot.Collections.Array<Godot.Collections.Dictionary> CardArray(
+        Godot.Collections.Dictionary container,
+        string key)
+    {
+        return container.TryGetValue(key, out var value)
+            ? value.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+    }
+
+    private static int GodotInt(Godot.Collections.Dictionary container, string key)
+    {
+        return container.TryGetValue(key, out var value)
+            ? Math.Max(0, value.AsInt32())
+            : 0;
+    }
+
+    private static int CountFaceCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
+    {
+        return cards.Count(card => IsFaceCard(card) && HasVisibleIdentityFields(card));
+    }
+
+    private static int CountHiddenCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
+    {
+        return cards.Count(IsHiddenCard);
+    }
+
+    private static int CountHiddenIdentityLeaks(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
+    {
+        return cards.Count(card => IsHiddenCard(card) && HasVisibleIdentityFields(card));
+    }
+
+    private static bool IsFaceCard(Godot.Collections.Dictionary card)
+    {
+        return (!card.TryGetValue("visible", out var visibleValue) || visibleValue.AsBool())
+            && (!card.TryGetValue("faceDown", out var faceDownValue) || !faceDownValue.AsBool());
+    }
+
+    private static bool IsHiddenCard(Godot.Collections.Dictionary card)
+    {
+        return (card.TryGetValue("visible", out var visibleValue) && !visibleValue.AsBool())
+            || (card.TryGetValue("faceDown", out var faceDownValue) && faceDownValue.AsBool());
+    }
+
+    private static bool HasVisibleIdentityFields(Godot.Collections.Dictionary card)
+    {
+        foreach (var key in new[] { "cardNo", "cardName", "category", "trait", "effectText", "rarityName", "colorText", "imagePath" })
+        {
+            if (card.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value.AsString()))
+            {
+                return true;
+            }
+        }
+
+        return (card.TryGetValue("energy", out var energy) && energy.AsInt32() >= 0)
+            || (card.TryGetValue("power", out var power) && power.AsInt32() >= 0);
     }
 
     private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildWireTableSectionAsync(

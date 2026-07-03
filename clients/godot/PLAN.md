@@ -32,6 +32,9 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   `OPERATOR_GUIDE.md` before the Godot windows launch so operators can recover
   the room, handles, evidence path, package path, and checklist if terminal
   scrollback is lost.
+- P5 evidence now also requires machine-readable hidden-information boundary
+  logs from both Godot clients: zero opponent hand faces and zero hidden card
+  identity leaks. The human screenshot confirmation remains required.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 

@@ -90,6 +90,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 Match result rendered
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
@@ -102,6 +103,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
@@ -115,6 +117,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
@@ -128,6 +131,7 @@ Authenticate: Registered (player-a-fixture).
 JoinRoom requested: room=fixture-room, player=player-a-fixture.
 [b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 Match result rendered
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-a-result.png
 EOF
@@ -136,6 +140,7 @@ Authenticate: Registered (player-b-fixture).
 JoinRoom requested: room=fixture-room, player=player-b-fixture.
 [b]Joined[/b] type=JOIN room=fixture-room player=player-b-fixture tick=0 payload=Object
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
@@ -165,6 +170,7 @@ EOF
 ## Machine Check
 
 - Status: passed
+- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
 ## Manual Confirmations
@@ -356,6 +362,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: /tmp/riftbound-human-playtest/player-b-result.png
 EOF
@@ -514,6 +521,48 @@ if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; the
   echo "Expected deck/ready rejection output:" >&2
   cat "${missing_deck_ready_output}" >&2
   fail "verifier did not explain the missing deck/ready evidence"
+fi
+
+missing_hidden_boundary_bundle="${tmp_dir}/missing-hidden-boundary/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_hidden_boundary_bundle}" "${revision}"
+sed -i '' '/Hidden info boundary/d' "${missing_hidden_boundary_bundle}/player-a.log" "${missing_hidden_boundary_bundle}/player-b.log"
+(
+  cd "${missing_hidden_boundary_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_hidden_boundary_package="${tmp_dir}/missing-hidden-boundary.tar.gz"
+make_package "${missing_hidden_boundary_bundle}" "${missing_hidden_boundary_package}"
+
+missing_hidden_boundary_output="${tmp_dir}/missing-hidden-boundary-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_hidden_boundary_package}" >"${missing_hidden_boundary_output}" 2>&1; then
+  fail "verifier accepted package without hidden information boundary evidence"
+fi
+
+if ! rg -q "Hidden info boundary|hidden information" "${missing_hidden_boundary_output}"; then
+  echo "Expected hidden boundary rejection output:" >&2
+  cat "${missing_hidden_boundary_output}" >&2
+  fail "verifier did not explain the missing hidden information boundary evidence"
+fi
+
+hidden_leak_bundle="${tmp_dir}/hidden-leak/riftbound-human-playtest-evidence"
+write_evidence_bundle "${hidden_leak_bundle}" "${revision}"
+printf 'Hidden info boundary VIOLATION: opponentHandFaces=1 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=1\n' >>"${hidden_leak_bundle}/player-a.log"
+(
+  cd "${hidden_leak_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+hidden_leak_package="${tmp_dir}/hidden-leak.tar.gz"
+make_package "${hidden_leak_bundle}" "${hidden_leak_package}"
+
+hidden_leak_output="${tmp_dir}/hidden-leak-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${hidden_leak_package}" >"${hidden_leak_output}" 2>&1; then
+  fail "verifier accepted package with hidden information boundary violation"
+fi
+
+if ! rg -q "Hidden info boundary|hidden information|identity leak" "${hidden_leak_output}"; then
+  echo "Expected hidden leak rejection output:" >&2
+  cat "${hidden_leak_output}" >&2
+  fail "verifier did not explain the hidden information boundary violation"
 fi
 
 mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbound-human-playtest-evidence"

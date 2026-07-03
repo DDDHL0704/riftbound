@@ -60,6 +60,13 @@ resume from repository state instead of conversation history alone.
   two player identities are distinct. It also rejects raw evidence before manual
   confirmations if either client lacks preconstructed deck loading plus accepted
   `SubmitDeck` and `Ready` receipts.
+- The Godot client logs `Hidden info boundary ok` for every rendered table
+  snapshot. The evidence checker and final package verifier now require both
+  client logs to report `opponentHandFaces=0` and `hiddenCardIdentityLeaks=0`,
+  and reject any hidden-boundary `VIOLATION` or nonzero opponent hand face /
+  hidden identity leak count. This does not replace the final screenshot human
+  confirmation, but it makes hidden-info safety machine-checkable in the P5
+  evidence package.
 - Evidence packages include `P5_HANDOFF.md`, generated from the report, so a
   reviewer can quickly verify the room, player identities, result screenshots,
   report file, and manual-confirmation mode.

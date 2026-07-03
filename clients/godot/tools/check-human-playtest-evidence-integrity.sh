@@ -63,6 +63,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
 Match result rendered
 Visual screenshot saved: ${player_a_screenshot_log}
 EOF
@@ -75,6 +76,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: ${player_b_screenshot_log}
 EOF
@@ -108,6 +110,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: ${player_a_screenshot_log}
 EOF
@@ -195,6 +198,7 @@ JoinRoom requested: room=fixture-room, player=player-a-fixture.
 [b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 MATCH_STARTED
 MATCH_WON
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
 Visual screenshot saved: ${duplicate_identity_dir}/player-b-result.png
 EOF
 duplicate_identity_output="${tmp_dir}/duplicate-identity-output.log"
@@ -221,6 +225,36 @@ if ! rg -q "Preconstructed|SubmitDeck|Ready" "${missing_deck_ready_output}"; the
   echo "Expected deck/ready rejection output:" >&2
   cat "${missing_deck_ready_output}" >&2
   fail "evidence checker did not explain the missing deck/ready evidence"
+fi
+
+missing_hidden_boundary_dir="${tmp_dir}/missing-hidden-boundary"
+write_evidence_dir "${missing_hidden_boundary_dir}" "full"
+sed -i '' '/Hidden info boundary/d' "${missing_hidden_boundary_dir}/player-a.log" "${missing_hidden_boundary_dir}/player-b.log"
+missing_hidden_boundary_output="${tmp_dir}/missing-hidden-boundary-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${missing_hidden_boundary_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${missing_hidden_boundary_dir}" >"${missing_hidden_boundary_output}" 2>&1; then
+  fail "evidence checker accepted logs without hidden information boundary evidence"
+fi
+
+if ! rg -q "Hidden info boundary|hidden information" "${missing_hidden_boundary_output}"; then
+  echo "Expected hidden boundary rejection output:" >&2
+  cat "${missing_hidden_boundary_output}" >&2
+  fail "evidence checker did not explain the missing hidden information boundary evidence"
+fi
+
+hidden_leak_dir="${tmp_dir}/hidden-leak"
+write_evidence_dir "${hidden_leak_dir}" "full"
+printf 'Hidden info boundary VIOLATION: opponentHandFaces=1 opponentHandBacks=4 hiddenCardIdentityLeaks=1\n' >>"${hidden_leak_dir}/player-a.log"
+hidden_leak_output="${tmp_dir}/hidden-leak-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${hidden_leak_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${hidden_leak_dir}" >"${hidden_leak_output}" 2>&1; then
+  fail "evidence checker accepted hidden information boundary violation logs"
+fi
+
+if ! rg -q "Hidden info boundary|hidden information|identity leak" "${hidden_leak_output}"; then
+  echo "Expected hidden leak rejection output:" >&2
+  cat "${hidden_leak_output}" >&2
+  fail "evidence checker did not explain the hidden information boundary violation"
 fi
 
 incomplete_evidence_dir="${tmp_dir}/incomplete"
