@@ -45,7 +45,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 1. Keep the Godot client build and evidence scripts green after every scoped
    change.
 2. Run visible clean-main simulated preflights after pushed changes to catch
-   obvious window, result-panel, screenshot, or evidence regressions.
+   obvious window, result-panel, screenshot, inksteel style, or evidence
+   regressions.
 3. Prepare for the final two-human P5 run:
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
      before both operators start, so final evidence gate and local
@@ -59,6 +60,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
      result panel;
    - verify both final screenshots show the result panel and hidden opponent
      information only as card backs/counts;
+   - optionally run `check-inksteel-screenshot-style.sh` on both result
+     screenshots as a visual drift guard before handoff;
    - answer manual prompts truthfully;
    - keep the verified evidence tarball, including `OPERATOR_GUIDE.md`,
      `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`.

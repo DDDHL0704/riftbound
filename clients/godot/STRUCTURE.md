@@ -65,6 +65,9 @@ contracts change.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
   information boundary log lines, and writes `playtest-report.md`.
+- `check-inksteel-screenshot-style.sh` samples result screenshot pixels to catch
+  obvious drift away from the selected black/ivory inksteel route. It is a visual
+  regression guard, not a replacement for human screenshot review.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
@@ -83,6 +86,8 @@ contracts change.
   `clients/godot/tools/check-human-playtest-evidence-integrity.sh`
 - Package verifier tests:
   `clients/godot/tools/check-human-playtest-package-integrity.sh`
+- Inksteel screenshot style tests:
+  `clients/godot/tools/check-inksteel-screenshot-style-integrity.sh`
 - Clean simulated wrapper tests:
   `clients/godot/tools/check-clean-main-simulated-playtest-script.sh`
 - Shell syntax: `find clients/godot/tools -name '*.sh' -print0 | xargs -0 -n1 bash -n`

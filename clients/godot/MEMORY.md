@@ -32,6 +32,11 @@ resume from repository state instead of conversation history alone.
 - Visual preflight: `clients/godot/tools/run-clean-main-simulated-playtest-stack.sh`
   opens two visible Godot windows from clean `origin/main`, but it uses
   auto-smoke and is not final P5 evidence.
+- `clients/godot/tools/check-inksteel-screenshot-style.sh` is a lightweight
+  screenshot palette guard for the selected black/ivory inksteel route. It
+  samples result screenshots and rejects obvious bright-gray UI, orange/gold
+  dominance, or dropped neutral linework. Use it after visible preflights; it
+  does not replace human visual review.
 - Final P5 path: `clients/godot/tools/run-clean-main-human-playtest-stack.sh`
   must be run from a clean pushed `main`, with two human operators, manual
   confirmations, final result screenshots, evidence packaging, and package

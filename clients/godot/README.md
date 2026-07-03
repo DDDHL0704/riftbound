@@ -236,6 +236,20 @@ clients/godot/tools/run-clean-main-simulated-playtest-stack.sh
 This avoids local dirty files affecting the preflight. It still uses auto-smoke
 actions and is not valid final P5 evidence.
 
+After a visible simulated or human run writes result screenshots, run the
+inksteel style sanity check to catch obvious visual drift back to bright gray
+controls, gold/orange dominance, or missing linework:
+
+```sh
+clients/godot/tools/check-inksteel-screenshot-style.sh \
+  /tmp/riftbound-simulated-playtest-ROOM/player-a-result.png \
+  /tmp/riftbound-simulated-playtest-ROOM/player-b-result.png
+```
+
+This palette check is a regression guard for the selected black/ivory inksteel
+route. It does not replace opening the screenshots and doing the final human
+result-panel and hidden-information review.
+
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
 worktree, prompts for the human-only confirmations, and packages the evidence
@@ -312,6 +326,12 @@ distinct A/B log and result screenshot files, both client logs reporting
 `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md` operator checklist, the
 `VISUAL_REVIEW.md` screenshot checklist, and absence of crash/rejection/
 auto-smoke evidence.
+
+For visual-regression evidence, separately run
+`clients/godot/tools/check-inksteel-screenshot-style.sh` on both result
+screenshots after the visible run. The final package verifier remains focused on
+machine-readable playtest evidence and the explicit human screenshot
+confirmations.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
