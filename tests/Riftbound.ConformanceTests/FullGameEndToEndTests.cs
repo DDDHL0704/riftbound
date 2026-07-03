@@ -32,6 +32,7 @@ public sealed class FullGameEndToEndTests
     private const string VayneConquestPayReturnCardNo = "OGN·035/298";
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string AggressiveDragonhoundCardNo = "SFD·006/221";
+    private const string CrystalInhibitorMechanicalUnitCardNo = "SFD·007/221";
     private const string LegionRearguardCardNo = "OGN·010/298";
     private const string MoltenDrakeCardNo = "OGN·011/298";
     private const string LongSwordEquipmentCardNo = "SFD·022/221";
@@ -397,6 +398,59 @@ public sealed class FullGameEndToEndTests
             session,
             paid,
             "b0-vayne-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameRejectsRumbleInsufficientGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildRumbleConquestGraveyardMechanicalOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-insufficient-conquest-payment-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildRumbleConquestGraveyardMechanicalPaymentMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var paymentOpened = await SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-rumble-conquest-payment");
+
+        AssertRumbleConquestGraveyardMechanicalPaymentOpened(paymentOpened);
+
+        var insufficient = await RejectRumbleConquestGraveyardMechanicalPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-rumble-conquest-insufficient-payment");
+
+        AssertRumbleConquestGraveyardMechanicalInsufficientPayment(paymentOpened, insufficient);
+
+        var declined = await DeclineTriggerPaymentAsync(
+            session,
+            insufficient,
+            "P1",
+            "b0-rumble-conquest-decline-after-insufficient-payment");
+
+        AssertTriggerPaymentDeclined(paymentOpened, declined, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-rumble-conquest-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
@@ -5330,6 +5384,79 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, vayneObjectId, StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertRumbleConquestGraveyardMechanicalPaymentOpened(ResolutionResult result)
+    {
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && sourceObjectId is string source
+            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
+            && string.Equals(sourceObject.CardNo, RumbleChampionCardNo, StringComparison.Ordinal));
+        var rumbleObjectId = Assert.IsType<string>(conqueredEvent.Payload["sourceObjectId"]);
+        var recycledObjectId = FindBaseUnitByCardNo(result.State, "P1", CrystalInhibitorMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Rumble conquest payment assertion could not find recycled unit in base.");
+        var playedObjectId = FindGraveyardCardObjectByCardNo(result.State, "P1", ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Rumble conquest payment assertion could not find graveyard mechanical unit.");
+
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("P1", payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(2, payment.ManaCost);
+        Assert.Equal(["SPEND_MANA:2", "DECLINE"], payment.LegalPaymentChoiceIds);
+
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, openedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
+        Assert.Equal(recycledObjectId, openedEvent.Payload["recycledObjectId"]);
+        Assert.Equal(playedObjectId, openedEvent.Payload["playedObjectId"]);
+        Assert.Equal(4, openedEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(2, openedEvent.Payload["manaCostReduction"]);
+        Assert.Equal(2, openedEvent.Payload["reducedManaCost"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertRumbleConquestGraveyardMechanicalInsufficientPayment(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        var openedEvent = Assert.Single(paymentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
+        var rumbleObjectId = Assert.IsType<string>(openedEvent.Payload["sourceObjectId"]);
+        var recycledObjectId = Assert.IsType<string>(openedEvent.Payload["recycledObjectId"]);
+        var playedObjectId = Assert.IsType<string>(openedEvent.Payload["playedObjectId"]);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(paymentOpened.State.PendingPayment, result.State.PendingPayment);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.Contains(recycledObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(recycledObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(playedObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(playedObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[recycledObjectId].Zone);
+        Assert.Equal(TriggerZones.Graveyard, result.State.ObjectLocations[playedObjectId].Zone);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -15174,6 +15301,107 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string rumblePlayerId,
+        string intentId)
+    {
+        Assert.Equal(rumblePlayerId, current.State.ActivePlayerId);
+        var opponentId = OpponentOf(current.State, rumblePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[rumblePlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Rumble conquest driver could not find DECLARE_BATTLE for {rumblePlayerId}.");
+        var rumbleObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            rumblePlayerId,
+            RumbleChampionCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Rumble conquest driver could not find a ready Rumble attacker.");
+        var battlefieldId = current.State.ObjectLocations[rumbleObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Rumble conquest driver could not locate Rumble's battlefield.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(rumbleObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+        Assert.NotNull(FindBaseUnitByCardNo(current.State, rumblePlayerId, CrystalInhibitorMechanicalUnitCardNo));
+        Assert.NotNull(FindGraveyardCardObjectByCardNo(current.State, rumblePlayerId, ProgressGloryMechanicalUnitCardNo));
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds,
+            maxPowerExclusive: current.State.CardObjects[rumbleObjectId].Power)
+            ?? throw new InvalidOperationException(
+                $"B0 Rumble conquest driver could not find a legal ready defender below Rumble power: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [rumbleObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            rumblePlayerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+        if (declared.State.PendingPayment is not null)
+        {
+            return declared;
+        }
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        if (result.State.PendingPayment is not null)
+        {
+            AssertNoHiddenZoneLeak(result);
+            return result;
+        }
+
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        if (result.State.PendingPayment is not null)
+        {
+            AssertNoHiddenZoneLeak(result);
+            return result;
+        }
+
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        Assert.NotNull(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> RejectRumbleConquestGraveyardMechanicalPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Rumble insufficient-payment driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("SPEND_MANA:2", payment.LegalPaymentChoiceIds);
+        Assert.True(
+            current.State.RunePools[playerId].Mana < 2,
+            $"B0 Rumble insufficient-payment driver expected less than 2 mana before rejection: pool={JsonSerializer.Serialize(current.State.RunePools[playerId])}; state={DescribeState(current.State)}");
+
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldConquerGoldDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -20685,6 +20913,18 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown);
     }
 
+    private static string? FindGraveyardCardObjectByCardNo(
+        MatchState state,
+        string playerId,
+        string cardNo)
+    {
+        return state.PlayerZones[playerId].Graveyard.FirstOrDefault(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+            && state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "GRAVEYARD", StringComparison.Ordinal));
+    }
+
     private static string FindLegendObjectByCardNo(
         MatchState state,
         string playerId,
@@ -21111,6 +21351,20 @@ public sealed class FullGameEndToEndTests
                 JhinChampionCardNo,
                 [
                     VayneConquestPayReturnCardNo
+                ]));
+    }
+
+    private static OfficialDecklist BuildRumbleConquestGraveyardMechanicalOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                RumbleLegendCardNo,
+                RumbleChampionCardNo,
+                [
+                    CrystalInhibitorMechanicalUnitCardNo,
+                    ProgressGloryMechanicalUnitCardNo
                 ]));
     }
 
@@ -23564,6 +23818,140 @@ public sealed class FullGameEndToEndTests
             IsAttacking = false,
             IsDefending = false,
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[vayneObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildRumbleConquestGraveyardMechanicalPaymentMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [CrystalInhibitorMechanicalUnitCardNo, ProgressGloryMechanicalUnitCardNo],
+                    new RunePool(
+                        mana: 1,
+                        power: 0,
+                        new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P1");
+        var rumbleObjectId = midgameState.PlayerZones["P1"].ChampionZone.SingleOrDefault(objectId =>
+            midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, RumbleChampionCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 Rumble setup could not find Rumble in P1 champion zone.");
+        var recycledObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            CrystalInhibitorMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Rumble setup could not find recycled Crystal Inhibitor in P1 hand.");
+        var graveyardMechanicalObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            ProgressGloryMechanicalUnitCardNo)
+            ?? throw new InvalidOperationException("B0 Rumble setup could not find Progress Glory in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Rumble setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        var displacedP1BaseObjectIds = p1Zones.Base
+            .Where(objectId => !string.Equals(objectId, recycledObjectId, StringComparison.Ordinal))
+            .ToArray();
+        playerZones["P1"] = p1Zones with
+        {
+            MainDeck = p1Zones.MainDeck.Concat(displacedP1BaseObjectIds).ToArray(),
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, recycledObjectId, StringComparison.Ordinal)
+                    && !string.Equals(objectId, graveyardMechanicalObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            Base = [recycledObjectId],
+            Battlefields = p1Zones.Battlefields.Concat([rumbleObjectId]).ToArray(),
+            ChampionZone = p1Zones.ChampionZone.Where(objectId => !string.Equals(objectId, rumbleObjectId, StringComparison.Ordinal)).ToArray(),
+            Graveyard = p1Zones.Graveyard.Concat([graveyardMechanicalObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in displacedP1BaseObjectIds)
+        {
+            objectLocations[objectId] = new ObjectLocationState("P1", "MAIN_DECK");
+        }
+
+        objectLocations[rumbleObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[recycledObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[graveyardMechanicalObjectId] = new ObjectLocationState("P1", "GRAVEYARD");
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[rumbleObjectId] = cardObjects[rumbleObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[rumbleObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[recycledObjectId] = cardObjects[recycledObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[recycledObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[graveyardMechanicalObjectId] = cardObjects[graveyardMechanicalObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[graveyardMechanicalObjectId]),
             OwnerId = "P1",
             ControllerId = "P1"
         };
