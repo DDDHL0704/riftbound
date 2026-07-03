@@ -25002,29 +25002,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                 trigger,
                 out var spellObjectId,
                 out var spellState,
-                out var spellBehavior))
+                out var spellBehavior,
+                out var spellTargetObjectIds))
         {
             return false;
         }
 
         addActivationEvent(spellObjectId);
+        var playedPayload = new Dictionary<string, object?>
+        {
+            ["playerId"] = playerId,
+            ["sourceObjectId"] = sourceObjectId,
+            ["sourceCardNo"] = sourceCardNo,
+            ["playedObjectId"] = spellObjectId,
+            ["playedCardNo"] = spellState.CardNo,
+            ["playedCardManaCost"] = EffectiveCardManaCost(spellState, spellBehavior),
+            ["sourceZone"] = TriggerZones.Graveyard,
+            ["destinationZone"] = TriggerZones.Stack,
+            ["effectId"] = trigger.Kind,
+            ["ignorePlayManaCost"] = trigger.IgnorePlayManaCost == true,
+            ["payPlayPowerCosts"] = trigger.PayPlayPowerCosts == true
+        };
+        if (spellTargetObjectIds.Count > 0)
+        {
+            playedPayload["targetObjectIds"] = spellTargetObjectIds.ToArray();
+        }
+
         events.Add(new GameEvent(
             "CARD_PLAYED_FROM_GRAVEYARD",
             playedEventMessage,
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["sourceCardNo"] = sourceCardNo,
-                ["playedObjectId"] = spellObjectId,
-                ["playedCardNo"] = spellState.CardNo,
-                ["playedCardManaCost"] = EffectiveCardManaCost(spellState, spellBehavior),
-                ["sourceZone"] = TriggerZones.Graveyard,
-                ["destinationZone"] = TriggerZones.Stack,
-                ["effectId"] = trigger.Kind,
-                ["ignorePlayManaCost"] = trigger.IgnorePlayManaCost == true,
-                ["payPlayPowerCosts"] = trigger.PayPlayPowerCosts == true
-            }));
+            playedPayload));
         var sourceZones = playerZones[playerId];
         playerZones[playerId] = sourceZones with
         {
@@ -25036,7 +25043,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             spellObjectId,
             spellBehavior.EffectKind,
             spellState.CardNo,
-            [],
+            spellTargetObjectIds,
             spellBehavior.DamageAmount,
             1,
             [],
@@ -25084,11 +25091,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         TriggerSpec trigger,
         out string spellObjectId,
         out CardObjectState spellState,
-        out CardBehaviorDefinition spellBehavior)
+        out CardBehaviorDefinition spellBehavior,
+        out IReadOnlyList<string> spellTargetObjectIds)
     {
         spellObjectId = string.Empty;
         spellState = default!;
         spellBehavior = default!;
+        spellTargetObjectIds = [];
         if (!playerZones.TryGetValue(playerId, out var zones)
             || !string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
             || !string.Equals(trigger.PlayDestinationZone, TriggerZones.Stack, StringComparison.Ordinal)
@@ -25105,7 +25114,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId)
                 || !CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior)
                 || !IsSpellPlayBehavior(candidateBehavior)
-                || !IsNoTargetFreePlayRecycleRepresentativeSpell(candidateBehavior)
+                || !TryBuildFreePlayRecycleRepresentativeSpellTargets(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    candidateBehavior,
+                    out var candidateTargetObjectIds)
                 || candidateBehavior.BanishesSourceOnResolution)
             {
                 continue;
@@ -25127,10 +25141,74 @@ public sealed class CoreRuleEngine : IRuleEngine
             spellObjectId = candidateObjectId;
             spellState = candidateState;
             spellBehavior = candidateBehavior;
+            spellTargetObjectIds = candidateTargetObjectIds;
             return true;
         }
 
         return false;
+    }
+
+    private static bool TryBuildFreePlayRecycleRepresentativeSpellTargets(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyList<string> targetObjectIds)
+    {
+        if (IsNoTargetFreePlayRecycleRepresentativeSpell(behavior))
+        {
+            targetObjectIds = [];
+            return true;
+        }
+
+        if (!IsSingleFriendlyUnitReturnCallRuneRepresentativeSpell(behavior)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            targetObjectIds = [];
+            return false;
+        }
+
+        var friendlyUnitTargetObjectIds = zones.Base
+            .Concat(zones.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var targetState)
+                && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !targetState.IsFaceDown
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
+            .ToArray();
+        if (friendlyUnitTargetObjectIds.Length != 1)
+        {
+            targetObjectIds = [];
+            return false;
+        }
+
+        targetObjectIds = friendlyUnitTargetObjectIds;
+        return true;
+    }
+
+    private static bool IsSingleFriendlyUnitReturnCallRuneRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        if (behavior.RequiredTargetCount != 1
+            || behavior.MinTargetCount > 1
+            || !string.Equals(behavior.TargetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
+            || !behavior.ReturnsTargetToHand
+            || behavior.RuneCallCountAfterTargetReturn <= 0)
+        {
+            return false;
+        }
+
+        var minimalReturnCallRuneBehavior = new CardBehaviorDefinition(
+            behavior.CardNo,
+            behavior.DisplayName,
+            behavior.ManaCost,
+            behavior.EffectKind,
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            MinTargetCount: behavior.MinTargetCount,
+            ReturnsTargetToHand: true,
+            RuneCallCountAfterTargetReturn: behavior.RuneCallCountAfterTargetReturn);
+        return behavior == minimalReturnCallRuneBehavior;
     }
 
     private static bool IsNoTargetFreePlayRecycleRepresentativeSpell(CardBehaviorDefinition behavior)

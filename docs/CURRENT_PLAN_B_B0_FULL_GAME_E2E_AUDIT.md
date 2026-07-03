@@ -2,7 +2,7 @@
 
 Date: 2026-07-03
 
-Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Gemstone Seer other-friendly static-granted Predict official-deck replay, Prescient Mech static-granted Predict official-deck replay, armaments, Vex spell-stack, Vex battlefields, Vex response, Poppy standby, and Poppy Demacia preconstructed catalog score-victory replay, Vayne unit-conquest pay-return official-deck-derived replay, Flameclaw level active-entry/source-object static-power official-deck replay, Bandle Soldier level active-entry official-deck replay, Fiercewing controlled-Dragon active-entry official-deck replay, Aggressive Dragonhound unconditional active-entry official-deck replay, and Moss Stepper source-object level Spellshield target-tax official-deck replay evidence accepted; project remains **NOT READY**.
+Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Gemstone Seer other-friendly static-granted Predict official-deck replay, Prescient Mech static-granted Predict official-deck replay, armaments, Vex spell-stack, Vex battlefields, Vex response, Poppy standby, and Poppy Demacia preconstructed catalog score-victory replay, Vayne unit-conquest pay-return official-deck-derived replay, Flameclaw level active-entry/source-object static-power official-deck replay, Bandle Soldier level active-entry official-deck replay, Fiercewing controlled-Dragon active-entry official-deck replay, Aggressive Dragonhound unconditional active-entry official-deck replay, Moss Stepper source-object level Spellshield target-tax official-deck replay, and Kai'Sa target-bearing graveyard-spell official-deck replay evidence accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -26,6 +26,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official low-curve initial state, the full mirrored Jhin, distinct Jhin-vs-Rumble, and standby-heavy Jhin-vs-Poppy `SUBMIT_DECK` -> `READY` -> `MULLIGAN` -> gameplay -> `DECLARE_BATTLE` -> score-victory command streams replay through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from `PreconstructedDeckCatalog.Build(...)`, the currently shippable `jhin-lowcurve`, `rumble-lowcurve`, `lillia-lowcurve`, `rumble-armaments`, `vex-spells`, `vex-battlefields`, `vex-response`, `poppy-standby`, and `poppy-demacia` decklists drive the same full `SUBMIT_DECK` -> `READY` -> `MULLIGAN` -> gameplay -> `DECLARE_BATTLE` -> score-victory action-log replay route to the same final state hash and recovered event payload hash across all seventy-two ordered distinct deck pairings; `rumble-armaments` requires official `SFD·085/221` Ornn, `SFD·008/221` Sentinel Adept, and `SFD·022/221` Long Sword so the served catalog covers equipment / Tempered representatives, `vex-spells` requires official `UNL-232/219` Vex, `UNL-055/219` Vex champion, `OGN·183/298` Card Trick, and `OGN·180/298` Flowing Time Mirror so the served catalog covers implemented spell-stack representatives, `vex-battlefields` requires official `UNL-232/219` Vex, `UNL-055/219` Vex champion, `OGN·183/298` Card Trick, `OGN·180/298` Flowing Time Mirror, `UNL-211/219` Lost Library, `OGN·294/298` Trifarian Training Grounds, and `OGN·297/298` Wind Hill so the served catalog covers spell-stack plus battlefield-rule representatives, `vex-response` requires official `UNL-232/219` Vex, `UNL-055/219` Vex champion, `UNL-194/219` Shadow, and `OGN·197/298` Teemo so the served catalog covers battle-response / standby-reaction representatives plus hero-matching official exclusive main-deck cards, `poppy-standby` requires official `UNL-203/219` Poppy, `UNL-116/219` Poppy champion, `OGN·135/298` Pakaa Cub, and `OGN·278/298` Bandle Tree so the served catalog covers standby / extra-standby destination representatives instead of only low-curve unit lists, and `poppy-demacia` requires official `UNL-203/219` Poppy, `UNL-116/219` Poppy champion, `OGS·013/024` Garen, `UNL-092/219` Demacia Envoy, and `OGN·279/298` Fortified Position so the served catalog covers same-battlefield static-aura and defend-grant-Steadfast representatives;
 - from a legal official Jhin/Lillia opening-derived midgame state, official `OGN·035/298` Vayne conquers against official `OGN·096/298` Watchful Sentinel, opens the BehaviorSpec-driven `UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND` trigger-payment window, pays `PAY_COST(SPEND_MANA:1)`, returns itself to owner hand, then continues through score victory and action-log replay to the same final state hash;
+- from a legal official Kai'Sa opening-derived midgame state, official `OGN·112/298` Kai'Sa conquers against official `OGN·096/298` Watchful Sentinel with official `OGN·104/298` Reconsider in P1 graveyard, activates the BehaviorSpec-driven `UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` bridge, carries the single safe friendly-unit target in `targetObjectIds`, returns Kai'Sa to owner hand, calls one exhausted rune, recycles Reconsider to the main-deck bottom, then continues through score victory and action-log replay to the same final state hash;
 - from a seated official Lillia initial state, the full multi-defender `DECLARE_BATTLE` -> `ASSIGN_COMBAT_DAMAGE` command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Lillia / Taric / LeBlanc / Wildclaw Beastmaster initial state, the full `PLAY_CARD` / `MOVE_UNIT` staging -> reversed defender declaration -> server-authored `ASSIGN_COMBAT_DAMAGE` command stream replays through `MatchActionLogReplayer` to the same final state hash while Taric's printed `壁垒` orders him before LeBlanc's `后排`;
 - from a seated official Vex initial state, the full Shadow `DECLARE_BATTLE` -> `ACTIVATE_ABILITY` -> stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
@@ -283,6 +284,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks, force required official cards into legal low-curve Lillia / Vex decks for the damage-assignment and response-activation routes, support required official exclusive units, and skip `待命` units when choosing the representative play / move unit.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` turn start to advance pending battlefield tasks after turn-start ready / draw / score state is built.
@@ -316,6 +318,8 @@ This Forbidden Wasteland increment additionally proves a legal official Vex / Ru
 This Treasure Pile increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield trigger-payment route through both `TRIGGER_PAYMENT` branches: replayable `PAY_COST(SPEND_MANA:1)` creates an exhausted Gold token, while replayable `PAY_COST(DECLINE)` closes the trigger window without `COST_PAID`, token creation, or hidden-info leakage. Both branches continue through score victory and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
 This Fizz source-unit-played increment additionally proves a legal official orange-purple `UNL-201/219` / `UNL-119/219` deck opening can carry required `SFD·140/221` Fizz and `OGN·134/298` Mobilize into a focused midgame `PLAY_CARD` route, resolve the BehaviorSpec `SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` trigger through stack pass-pass, call one exhausted rune, recycle Mobilize to the main deck, and continue through score victory and action-log replay. It still does not close optional trigger-choice prompts, explicit graveyard spell selection, power-cost prompt routing, targeted graveyard spell breadth, complete source-unit-played breadth, or READY.
+
+This Kai'Sa target-bearing graveyard-spell increment proves a legal official red/blue `OGN·247/298` deck opening can carry official `OGN·112/298` Kai'Sa and `OGN·104/298` Reconsider into a focused midgame `DECLARE_BATTLE` route, resolve the BehaviorSpec `UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` trigger with the single safe friendly-unit target, return Kai'Sa to owner hand, call one exhausted rune, recycle Reconsider to the main deck, and continue through score victory and action-log replay. It still does not close optional trigger-choice prompts, explicit graveyard spell selection, prompt-authored target choice, arbitrary / multi-target targeted spell breadth, power-cost prompt routing, complete Kai'Sa breadth, or READY.
 
 This Sunken Temple increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield powerful-unit trigger-payment route through both `TRIGGER_PAYMENT` branches: replayable `PAY_COST(SPEND_MANA:1)` draws one controlled main-deck card, while replayable `PAY_COST(DECLINE)` closes the trigger window without `COST_PAID`, draw, or hidden-info leakage. Both branches continue through score victory and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
@@ -393,6 +397,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Kai'Sa target-bearing graveyard-spell official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpell"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Kai'Sa target-bearing graveyard-spell adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Kaisa|FullyQualifiedName~UnitConquest|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~SourceUnitPlayed|FullyQualifiedName~Stack|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 3022, Failed: 0, Skipped: 0, Total: 3022
+```
+
+Latest backend full validation after Kai'Sa target-bearing graveyard-spell official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9165, Failed: 0, Skipped: 0, Total: 9165
+```
 
 Latest Fizz source-unit-played official-deck replay focused validation passed:
 

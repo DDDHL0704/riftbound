@@ -246,11 +246,49 @@ The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prom
 
 The Fizz source-unit-played action-log replay regression proves a legal official deck opening can carry the BehaviorSpec graveyard-spell bridge into the B0 score-victory route. `OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official `UNL-201/219` / `UNL-119/219` orange-purple deck submission/opening with required official `SFD·140/221` Fizz and `OGN·134/298` Mobilize, derives a focused midgame state with Mobilize in the controller's graveyard and enough mana to play Fizz, submits prompt-authored `PLAY_CARD`, resolves `SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` through stack pass-pass, calls one exhausted rune via Mobilize, recycles Mobilize to the bottom of the main deck, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close optional yes/no prompts, explicit graveyard spell selection, power-cost prompt routing, targeted graveyard spells, or complete source-unit-played breadth.
 
+The Kai'Sa target-bearing graveyard spell action-log replay regression proves a legal official `OGN·247/298` Kai'Sa deck opening can carry the same BehaviorSpec graveyard-spell bridge through one safe targeted spell shape. `OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash` derives a focused midgame with official `OGN·112/298` Kai'Sa conquering against official `OGN·096/298` Watchful Sentinel and official blue `OGN·104/298` Reconsider in the controller's graveyard. The shared bridge only auto-selects a target when the spell requires one friendly unit and the public friendly-unit target set has exactly one object; in this replay it carries Kai'Sa in `targetObjectIds`, returns Kai'Sa to owner hand, calls one exhausted rune, recycles Reconsider to the bottom of the main deck, then continues through score-victory action-log replay to the same final state hash. This slice extends runtime coverage for that narrow target-bearing return/call-rune representative; it does not close explicit graveyard spell selection, prompt-authored target selection, arbitrary / multi-target targeted spells, power-cost prompt routing, or complete Kai'Sa breadth.
+
 ## Hidden Information Evidence
 
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` checks exact JSON string values in each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids without prefix false positives between similar object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. The Card Trick regression adds stack-target coverage: private-zone target ids in stack snapshots are redacted through the same viewer visibility path and spectator recovery now expects `HIDDEN` for those targets. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Kai'Sa target-bearing graveyard-spell official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpell"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Kai'Sa target-bearing graveyard-spell adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Kaisa|FullyQualifiedName~UnitConquest|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~SourceUnitPlayed|FullyQualifiedName~Stack|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 3022, Failed: 0, Skipped: 0, Total: 3022
+```
+
+Latest backend full validation after Kai'Sa target-bearing graveyard-spell official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9165, Failed: 0, Skipped: 0, Total: 9165
+```
 
 Latest Fizz source-unit-played official-deck replay focused validation passed:
 
