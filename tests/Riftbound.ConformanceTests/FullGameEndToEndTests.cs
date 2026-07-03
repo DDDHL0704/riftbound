@@ -407,6 +407,51 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildRumbleConquestGraveyardMechanicalOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-paid-conquest-payment-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildRumbleConquestGraveyardMechanicalPaymentMidgameInitialState(openingResult.State, p1Mana: 2);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var paymentOpened = await SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-rumble-conquest-paid-payment");
+
+        AssertRumbleConquestGraveyardMechanicalPaymentOpened(paymentOpened);
+
+        var paid = await PayRumbleConquestGraveyardMechanicalPaymentAsync(
+            session,
+            paymentOpened,
+            "P1",
+            "b0-rumble-conquest-pay");
+
+        AssertRumbleConquestGraveyardMechanicalPaid(paymentOpened, paid);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            paid,
+            "b0-rumble-conquest-paid-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameRejectsRumbleInsufficientGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -5425,6 +5470,84 @@ public sealed class FullGameEndToEndTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertRumbleConquestGraveyardMechanicalPaid(
+        ResolutionResult paymentOpened,
+        ResolutionResult result)
+    {
+        var openedEvent = Assert.Single(paymentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
+        var payment = paymentOpened.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Rumble paid-payment assertion expected an opened payment.");
+        var rumbleObjectId = Assert.IsType<string>(openedEvent.Payload["sourceObjectId"]);
+        var recycledObjectId = Assert.IsType<string>(openedEvent.Payload["recycledObjectId"]);
+        var playedObjectId = Assert.IsType<string>(openedEvent.Payload["playedObjectId"]);
+
+        Assert.Null(result.State.PendingPayment);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+
+        var costPaid = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, costPaid.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, costPaid.Payload["paymentWindow"]);
+        Assert.Equal(2, costPaid.Payload["mana"]);
+        Assert.Equal(["SPEND_MANA:2"], Assert.IsType<string[]>(costPaid.Payload["paymentChoiceIds"]));
+
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, conquestTrigger.Payload["effectId"]);
+        Assert.Equal(payment.PaymentId, conquestTrigger.Payload["paymentId"]);
+        Assert.Equal(recycledObjectId, conquestTrigger.Payload["recycledObjectId"]);
+        Assert.Equal(playedObjectId, conquestTrigger.Payload["playedObjectId"]);
+        Assert.Equal(4, conquestTrigger.Payload["playedCardManaCost"]);
+        Assert.Equal(2, conquestTrigger.Payload["manaCostReduction"]);
+        Assert.Equal(2, conquestTrigger.Payload["reducedManaCost"]);
+        Assert.Equal(2, conquestTrigger.Payload["paidManaCost"]);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal([recycledObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerZones.Field, recycleEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.MainDeck, recycleEvent.Payload["destinationZone"]);
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, recycleEvent.Payload["reason"]);
+        Assert.Equal(payment.PaymentId, recycleEvent.Payload["paymentId"]);
+
+        var playEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
+        Assert.Equal(rumbleObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Base, playEvent.Payload["destinationZone"]);
+        Assert.Equal(ProgressGloryMechanicalUnitCardNo, playEvent.Payload["playedCardNo"]);
+        Assert.Equal(4, playEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(2, playEvent.Payload["manaCostReduction"]);
+        Assert.Equal(2, playEvent.Payload["reducedManaCost"]);
+        Assert.Equal(2, playEvent.Payload["paidManaCost"]);
+        Assert.Equal(payment.PaymentId, playEvent.Payload["paymentId"]);
+
+        var paymentWindowClosedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.False(Assert.IsType<bool>(paymentWindowClosedEvent.Payload["declined"]));
+        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(rumbleObjectId, paymentWindowClosedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(recycledObjectId, paymentWindowClosedEvent.Payload["recycledObjectId"]);
+        Assert.Equal(playedObjectId, paymentWindowClosedEvent.Payload["playedObjectId"]);
+
+        Assert.DoesNotContain(recycledObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(recycledObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(playedObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(playedObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[recycledObjectId].Zone);
+        Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[playedObjectId].Zone);
+        Assert.Equal(ProgressGloryMechanicalUnitCardNo, result.State.CardObjects[playedObjectId].CardNo);
+        Assert.Contains("机械", result.State.CardObjects[playedObjectId].Tags);
+        Assert.False(result.State.CardObjects[playedObjectId].IsExhausted);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -15376,6 +15499,35 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> PayRumbleConquestGraveyardMechanicalPaymentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var payment = current.State.PendingPayment
+            ?? throw new InvalidOperationException("B0 Rumble payment driver expected a pending payment.");
+        Assert.Equal(playerId, payment.PlayerId);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Contains("SPEND_MANA:2", payment.LegalPaymentChoiceIds);
+        if (current.State.RunePools[playerId].Mana < 2)
+        {
+            throw new InvalidOperationException(
+                $"B0 Rumble payment driver expected at least 2 mana before paying: pool={JsonSerializer.Serialize(current.State.RunePools[playerId])}; state={DescribeState(current.State)}");
+        }
+
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> RejectRumbleConquestGraveyardMechanicalPaymentAsync(
         MatchSession session,
         ResolutionResult current,
@@ -23849,7 +24001,7 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildRumbleConquestGraveyardMechanicalPaymentMidgameInitialState(MatchState state)
+    private static MatchState BuildRumbleConquestGraveyardMechanicalPaymentMidgameInitialState(MatchState state, int p1Mana = 1)
     {
         var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
             state,
@@ -23858,7 +24010,7 @@ public sealed class FullGameEndToEndTests
                 ["P1"] = (
                     [CrystalInhibitorMechanicalUnitCardNo, ProgressGloryMechanicalUnitCardNo],
                     new RunePool(
-                        mana: 1,
+                        mana: p1Mana,
                         power: 0,
                         new Dictionary<string, int>(StringComparer.Ordinal))),
                 ["P2"] = (

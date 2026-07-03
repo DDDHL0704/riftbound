@@ -12,7 +12,7 @@
 
 2026-07-03 补充：Plan B / Source Unit Played 触发同样以官网卡面与核心规则为权威来源。`SFD·140/221` 菲兹官方文本要求打出源单位时可从控制者废牌堆打出一个法力费用不高于 3 的法术、免除法力费用、仍支付符能费用，并在该法术结算后回收；本批只实现并记录无目标抽牌法术代表路径，证据见 `docs/CURRENT_PLAN_B_SOURCE_UNIT_PLAYED_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-03 Plan B / Source Unit Played Fizz 条目。完整可选选择、显式废牌堆法术选择、符能支付 prompt、目标法术和 broader stack handoff 仍不得标记完成。
 
-2026-07-03 补充：Plan B / B3 兰博单位征服触发以官网卡面与核心规则为权威来源。`SFD·026/221` / `SFD·026a/221` 兰博官方文本要求征服战场后可选择回收另一名友方单位，以此从控制者废牌堆打出一名 `机械` 属性单位，并将所需法力费用减去被回收单位的战力；本批实现并记录回收 4 战力友方单位后把 4 费墓地机械单位减到 0 费并打到基地的代表路径，以及回收 2 战力友方单位后打开 `TRIGGER_PAYMENT` / `PAY_COST(SPEND_MANA:2)`、支付后再回收/打出、拒绝时不移动区域、支付不足时保留窗口和区域不变的代表路径。支付不足路径另由合法 Rumble 官方 deck opening 派生中局、score victory 和 action-log final-state replay 代表承载。证据见 `docs/CURRENT_PLAN_B_B3_UNIT_CONQUEST_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-03 Plan B / B3 Rumble 条目。完整可选选择、显式回收/墓地目标选择、战场目的地选择和完整兰博家族 breadth 仍不得标记完成。
+2026-07-03 补充：Plan B / B3 兰博单位征服触发以官网卡面与核心规则为权威来源。`SFD·026/221` / `SFD·026a/221` 兰博官方文本要求征服战场后可选择回收另一名友方单位，以此从控制者废牌堆打出一名 `机械` 属性单位，并将所需法力费用减去被回收单位的战力；本批实现并记录回收 4 战力友方单位后把 4 费墓地机械单位减到 0 费并打到基地的代表路径，以及回收 2 战力友方单位后打开 `TRIGGER_PAYMENT` / `PAY_COST(SPEND_MANA:2)`、支付后再回收/打出、拒绝时不移动区域、支付不足时保留窗口和区域不变的代表路径。支付成功与支付不足路径另由合法 Rumble 官方 deck opening 派生中局、score victory 和 action-log final-state replay 代表承载。证据见 `docs/CURRENT_PLAN_B_B3_UNIT_CONQUEST_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-03 Plan B / B3 Rumble 条目。完整可选选择、显式回收/墓地目标选择、战场目的地选择和完整兰博家族 breadth 仍不得标记完成。
 
 ## 2. 当前官方 PDF 清单
 
