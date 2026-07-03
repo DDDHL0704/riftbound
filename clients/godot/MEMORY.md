@@ -99,7 +99,9 @@ resume from repository state instead of conversation history alone.
   runtime guide from the evidence directory, or generates a fallback from the
   checked report for manual packaging. The verifier requires this file and its
   checksum coverage so the final tarball keeps the operator-facing room,
-  player, evidence, and hidden-information checklist context.
+  player, evidence, and hidden-information checklist context. It also requires
+  non-empty `Evidence package:` and `Playtest report:` fields so the packaged
+  guide remains a recoverable handoff index.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots. It repeats the machine

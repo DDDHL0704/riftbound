@@ -350,6 +350,20 @@ require_operator_guide_literal_match() {
   fi
 }
 
+require_operator_guide_field() {
+  local prefix="$1"
+  local label="$2"
+
+  if [[ -s "${operator_guide}" ]] && ! awk -v prefix="${prefix}" '
+    index($0, prefix) == 1 && length(substr($0, length(prefix) + 1)) > 0 {
+      found = 1
+    }
+    END { exit found ? 0 : 1 }
+  ' "${operator_guide}"; then
+    failures+=("${label} missing from OPERATOR_GUIDE.md")
+  fi
+}
+
 require_operator_guide_consistency() {
   local room=""
   local player_a_handle=""
@@ -377,6 +391,9 @@ require_operator_guide_consistency() {
   if [[ -n "${evidence_dir}" ]]; then
     require_operator_guide_literal_match "- Evidence directory: ${evidence_dir}" "operator guide evidence directory"
   fi
+
+  require_operator_guide_field "- Evidence package: " "operator guide evidence package path"
+  require_operator_guide_field "- Playtest report: " "operator guide playtest report path"
 
   if [[ -n "${player_a_result}" ]]; then
     require_operator_guide_literal_match "$(dirname "${player_a_result}")" "operator guide result screenshot directory"

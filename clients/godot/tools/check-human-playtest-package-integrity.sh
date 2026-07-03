@@ -650,6 +650,68 @@ make_package "${operator_guide_bundle}" "${operator_guide_package}"
 
 "${script_dir}/verify-human-playtest-package.sh" "${operator_guide_package}" >/dev/null
 
+missing_operator_package_path_bundle="${tmp_dir}/missing-operator-package-path/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_operator_package_path_bundle}" "${revision}"
+python3 - "${missing_operator_package_path_bundle}/OPERATOR_GUIDE.md" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8").splitlines()
+path.write_text(
+    "\n".join(line for line in lines if not line.startswith("- Evidence package: ")) + "\n",
+    encoding="utf-8",
+)
+PY
+(
+  cd "${missing_operator_package_path_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_operator_package_path_package="${tmp_dir}/missing-operator-package-path.tar.gz"
+make_package "${missing_operator_package_path_bundle}" "${missing_operator_package_path_package}"
+
+missing_operator_package_path_output="${tmp_dir}/missing-operator-package-path-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_operator_package_path_package}" >"${missing_operator_package_path_output}" 2>&1; then
+  fail "verifier accepted operator guide without the evidence package path"
+fi
+
+if ! rg -q "OPERATOR_GUIDE|operator guide|Evidence package|evidence package" "${missing_operator_package_path_output}"; then
+  echo "Expected missing operator evidence package rejection output:" >&2
+  cat "${missing_operator_package_path_output}" >&2
+  fail "verifier did not explain the missing operator evidence package path"
+fi
+
+missing_operator_report_path_bundle="${tmp_dir}/missing-operator-report-path/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_operator_report_path_bundle}" "${revision}"
+python3 - "${missing_operator_report_path_bundle}/OPERATOR_GUIDE.md" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8").splitlines()
+path.write_text(
+    "\n".join(line for line in lines if not line.startswith("- Playtest report: ")) + "\n",
+    encoding="utf-8",
+)
+PY
+(
+  cd "${missing_operator_report_path_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_operator_report_path_package="${tmp_dir}/missing-operator-report-path.tar.gz"
+make_package "${missing_operator_report_path_bundle}" "${missing_operator_report_path_package}"
+
+missing_operator_report_path_output="${tmp_dir}/missing-operator-report-path-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_operator_report_path_package}" >"${missing_operator_report_path_output}" 2>&1; then
+  fail "verifier accepted operator guide without the playtest report path"
+fi
+
+if ! rg -q "OPERATOR_GUIDE|operator guide|Playtest report|playtest report" "${missing_operator_report_path_output}"; then
+  echo "Expected missing operator playtest report rejection output:" >&2
+  cat "${missing_operator_report_path_output}" >&2
+  fail "verifier did not explain the missing operator playtest report path"
+fi
+
 extra_file_bundle="${tmp_dir}/extra-file/riftbound-human-playtest-evidence"
 write_evidence_bundle "${extra_file_bundle}" "${revision}" "1" "0" "0" "1"
 (

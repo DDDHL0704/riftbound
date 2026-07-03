@@ -90,7 +90,9 @@ contracts change.
   review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
   inksteel style machine check, then re-runs the inksteel style guard on the
-  packaged result screenshots.
+  packaged result screenshots. `OPERATOR_GUIDE.md` must also keep non-empty
+  evidence-package and playtest-report path fields so a reviewer can recover the
+  handoff files without terminal scrollback.
 
 ## Standard Gates
 
