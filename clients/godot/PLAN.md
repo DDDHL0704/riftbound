@@ -37,6 +37,10 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   identity leaks. The package README, generated handoff, and visual review files
   repeat that checked conclusion, but the human screenshot confirmation remains
   required.
+- P5 evidence now records the inksteel screenshot style guard in the machine
+  report and repeats it in the package README, handoff, and visual review files.
+  This catches obvious visual drift while still requiring human screenshot
+  confirmation.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 
@@ -61,8 +65,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
      result panel;
    - verify both final screenshots show the result panel and hidden opponent
      information only as card backs/counts;
-   - optionally run `check-inksteel-screenshot-style.sh` on both result
-     screenshots as a visual drift guard before handoff;
+   - keep the `Inksteel style: passed` report line from the evidence checker as
+     a visual drift guard before handoff;
    - answer manual prompts truthfully;
    - keep the verified evidence tarball, including `OPERATOR_GUIDE.md`,
      `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`.

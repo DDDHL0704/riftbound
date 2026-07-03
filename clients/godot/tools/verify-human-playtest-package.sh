@@ -251,6 +251,7 @@ require_handoff_consistency() {
   local player_b_handle=""
   local git_revision=""
   local manual_confirmation_mode=""
+  local inksteel_style=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${handoff}" || ! -s "${report}" ]]; then
@@ -262,6 +263,7 @@ require_handoff_consistency() {
   player_b_handle="$(report_field "Player B handle")"
   git_revision="$(report_field "Git revision")"
   manual_confirmation_mode="$(report_field "Manual confirmation mode")"
+  inksteel_style="$(report_field "Inksteel style")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_handoff_literal_match "# Riftbound Godot P5 Handoff" "P5 handoff title"
@@ -272,6 +274,7 @@ require_handoff_consistency() {
   require_handoff_literal_match "- Player A result screenshot: player-a-result.png" "P5 handoff player A screenshot"
   require_handoff_literal_match "- Player B result screenshot: player-b-result.png" "P5 handoff player B screenshot"
   require_handoff_literal_match "- Report: playtest-report.md" "P5 handoff report"
+  require_handoff_literal_match "- Inksteel style: ${inksteel_style}" "P5 handoff inksteel style"
   require_handoff_literal_match "- Hidden information boundary: ${hidden_information_boundary}" "P5 handoff hidden information boundary"
   require_handoff_literal_match "- Manual confirmation mode: ${manual_confirmation_mode}" "P5 handoff manual confirmation mode"
 }
@@ -289,6 +292,7 @@ require_visual_review_consistency() {
   local room=""
   local player_a_handle=""
   local player_b_handle=""
+  local inksteel_style=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${visual_review}" || ! -s "${report}" ]]; then
@@ -298,6 +302,7 @@ require_visual_review_consistency() {
   room="$(report_field "Room")"
   player_a_handle="$(report_field "Player A handle")"
   player_b_handle="$(report_field "Player B handle")"
+  inksteel_style="$(report_field "Inksteel style")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_visual_review_literal_match "# Riftbound Godot Visual Review" "visual review title"
@@ -306,6 +311,7 @@ require_visual_review_consistency() {
   require_visual_review_literal_match "- Player B handle: ${player_b_handle}" "visual review player B handle"
   require_visual_review_literal_match "- Player A result screenshot: player-a-result.png" "visual review player A screenshot"
   require_visual_review_literal_match "- Player B result screenshot: player-b-result.png" "visual review player B screenshot"
+  require_visual_review_literal_match "- Machine inksteel style: ${inksteel_style}" "visual review inksteel style"
   require_visual_review_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "visual review hidden information boundary"
   require_visual_review_literal_match "opponent hand and hidden cards only as card backs and counts" "visual review hidden-information checklist"
   require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
@@ -321,14 +327,17 @@ require_readme_literal_match() {
 }
 
 require_readme_consistency() {
+  local inksteel_style=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${readme}" || ! -s "${report}" ]]; then
     return
   fi
 
+  inksteel_style="$(report_field "Inksteel style")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
+  require_readme_literal_match "- Machine inksteel style: ${inksteel_style}" "README inksteel style"
   require_readme_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "README hidden information boundary"
 }
 
@@ -533,6 +542,7 @@ require_handoff_consistency
 require_visual_review_consistency
 require_readme_consistency
 require_operator_guide_consistency
+require_report_line "- Inksteel style: passed" "inksteel style machine check"
 require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"

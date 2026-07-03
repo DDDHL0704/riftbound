@@ -66,7 +66,8 @@ contracts change.
   evidence/package paths, and final checklist outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
-  information boundary log lines, and writes `playtest-report.md`.
+  information boundary log lines, the inksteel screenshot style guard, and
+  writes `playtest-report.md`.
 - `check-inksteel-screenshot-style.sh` samples result screenshot pixels to catch
   obvious drift away from the selected black/ivory inksteel route. It is a visual
   regression guard, not a replacement for human screenshot review.
@@ -78,7 +79,9 @@ contracts change.
   It also requires both client logs and the report to include the machine hidden
   information boundary check: zero opponent hand faces and zero hidden identity
   leaks, and requires the package README plus generated handoff and visual
-  review files to repeat that report conclusion.
+  review files to repeat that report conclusion. It also requires the report,
+  package README, handoff, and visual review files to include the passed
+  inksteel style machine check.
 
 ## Standard Gates
 

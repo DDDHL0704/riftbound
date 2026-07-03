@@ -80,6 +80,7 @@ write_evidence_bundle() {
 # Riftbound Godot Human Playtest Evidence
 
 Package integrity fixture.
+- Machine inksteel style: passed
 - Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 EOF
 
@@ -171,6 +172,7 @@ EOF
 ## Machine Check
 
 - Status: passed
+- Inksteel style: passed
 - Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -193,6 +195,7 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Inksteel style: passed
 - Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -210,6 +213,7 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Machine inksteel style: passed
 - Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 
 - Both screenshots show the server result panel.
@@ -500,6 +504,69 @@ if ! rg -q "README.*hidden information|hidden information.*README" "${missing_re
   fail "verifier did not explain the missing README hidden information boundary"
 fi
 
+missing_handoff_inksteel_style_bundle="${tmp_dir}/missing-handoff-inksteel-style/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_handoff_inksteel_style_bundle}" "${revision}"
+sed -i '' '/Inksteel style/d' "${missing_handoff_inksteel_style_bundle}/P5_HANDOFF.md"
+(
+  cd "${missing_handoff_inksteel_style_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_handoff_inksteel_style_package="${tmp_dir}/missing-handoff-inksteel-style.tar.gz"
+make_package "${missing_handoff_inksteel_style_bundle}" "${missing_handoff_inksteel_style_package}"
+
+missing_handoff_inksteel_style_output="${tmp_dir}/missing-handoff-inksteel-style-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_handoff_inksteel_style_package}" >"${missing_handoff_inksteel_style_output}" 2>&1; then
+  fail "verifier accepted package whose P5 handoff omitted inksteel style evidence"
+fi
+
+if ! rg -q "Inksteel style|inksteel" "${missing_handoff_inksteel_style_output}"; then
+  echo "Expected handoff inksteel-style rejection output:" >&2
+  cat "${missing_handoff_inksteel_style_output}" >&2
+  fail "verifier did not explain the missing P5 handoff inksteel style"
+fi
+
+missing_visual_inksteel_style_bundle="${tmp_dir}/missing-visual-inksteel-style/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_visual_inksteel_style_bundle}" "${revision}"
+sed -i '' '/Machine inksteel style/d' "${missing_visual_inksteel_style_bundle}/VISUAL_REVIEW.md"
+(
+  cd "${missing_visual_inksteel_style_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_visual_inksteel_style_package="${tmp_dir}/missing-visual-inksteel-style.tar.gz"
+make_package "${missing_visual_inksteel_style_bundle}" "${missing_visual_inksteel_style_package}"
+
+missing_visual_inksteel_style_output="${tmp_dir}/missing-visual-inksteel-style-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_visual_inksteel_style_package}" >"${missing_visual_inksteel_style_output}" 2>&1; then
+  fail "verifier accepted package whose visual review omitted inksteel style evidence"
+fi
+
+if ! rg -q "Machine inksteel style|inksteel" "${missing_visual_inksteel_style_output}"; then
+  echo "Expected visual-review inksteel-style rejection output:" >&2
+  cat "${missing_visual_inksteel_style_output}" >&2
+  fail "verifier did not explain the missing visual review inksteel style"
+fi
+
+missing_readme_inksteel_style_bundle="${tmp_dir}/missing-readme-inksteel-style/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_readme_inksteel_style_bundle}" "${revision}"
+sed -i '' '/Machine inksteel style/d' "${missing_readme_inksteel_style_bundle}/README.md"
+(
+  cd "${missing_readme_inksteel_style_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_readme_inksteel_style_package="${tmp_dir}/missing-readme-inksteel-style.tar.gz"
+make_package "${missing_readme_inksteel_style_bundle}" "${missing_readme_inksteel_style_package}"
+
+missing_readme_inksteel_style_output="${tmp_dir}/missing-readme-inksteel-style-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_readme_inksteel_style_package}" >"${missing_readme_inksteel_style_output}" 2>&1; then
+  fail "verifier accepted package whose README omitted inksteel style evidence"
+fi
+
+if ! rg -q "README.*inksteel|inksteel.*README" "${missing_readme_inksteel_style_output}"; then
+  echo "Expected README inksteel-style rejection output:" >&2
+  cat "${missing_readme_inksteel_style_output}" >&2
+  fail "verifier did not explain the missing README inksteel style"
+fi
+
 missing_operator_guide_bundle="${tmp_dir}/missing-operator-guide/riftbound-human-playtest-evidence"
 write_evidence_bundle "${missing_operator_guide_bundle}" "${revision}"
 rm -f "${missing_operator_guide_bundle}/OPERATOR_GUIDE.md"
@@ -629,6 +696,27 @@ if ! rg -q "Hidden info boundary|hidden information|identity leak" "${hidden_lea
   echo "Expected hidden leak rejection output:" >&2
   cat "${hidden_leak_output}" >&2
   fail "verifier did not explain the hidden information boundary violation"
+fi
+
+missing_inksteel_style_bundle="${tmp_dir}/missing-inksteel-style/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_inksteel_style_bundle}" "${revision}"
+sed -i '' '/Inksteel style/d' "${missing_inksteel_style_bundle}/playtest-report.md"
+(
+  cd "${missing_inksteel_style_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_inksteel_style_package="${tmp_dir}/missing-inksteel-style.tar.gz"
+make_package "${missing_inksteel_style_bundle}" "${missing_inksteel_style_package}"
+
+missing_inksteel_style_output="${tmp_dir}/missing-inksteel-style-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_inksteel_style_package}" >"${missing_inksteel_style_output}" 2>&1; then
+  fail "verifier accepted package without inksteel style evidence"
+fi
+
+if ! rg -q "Inksteel style|inksteel" "${missing_inksteel_style_output}"; then
+  echo "Expected inksteel style rejection output:" >&2
+  cat "${missing_inksteel_style_output}" >&2
+  fail "verifier did not explain the missing inksteel style evidence"
 fi
 
 mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbound-human-playtest-evidence"

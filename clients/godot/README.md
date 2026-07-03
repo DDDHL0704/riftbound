@@ -325,17 +325,19 @@ mode, all five human confirmation boxes, both clients loading preconstructed
 decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
 `800x600`, report/log agreement on the original result screenshot paths,
-distinct A/B log and result screenshot files, both client logs reporting
-`Hidden info boundary ok` with `opponentHandFaces=0` and
-`hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md` operator checklist, the
-`VISUAL_REVIEW.md` screenshot checklist, and absence of crash/rejection/
-auto-smoke evidence.
+distinct A/B log and result screenshot files, the report `Inksteel style:
+passed` line, both client logs reporting `Hidden info boundary ok` with
+`opponentHandFaces=0` and `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md`
+operator checklist, the `VISUAL_REVIEW.md` screenshot checklist, and absence of
+crash/rejection/auto-smoke evidence. The package README, handoff, and visual
+review summaries repeat the inksteel style and hidden-information machine
+checks from the report.
 
-For visual-regression evidence, separately run
+For visual-regression evidence outside the clean-main wrappers, separately run
 `clients/godot/tools/check-inksteel-screenshot-style.sh` on both result
-screenshots after the visible run. The final package verifier remains focused on
-machine-readable playtest evidence and the explicit human screenshot
-confirmations.
+screenshots after the visible run. The evidence checker records the passing
+inksteel style guard in `playtest-report.md`; the final package verifier still
+requires the explicit human screenshot confirmations.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
@@ -426,10 +428,11 @@ see the room, both player handles, result screenshot filenames, and the machine
 hidden-information boundary conclusion. `VISUAL_REVIEW.md` is a focused
 checklist for inspecting the final screenshots for result-panel visibility and
 hidden-information safety, and it repeats the same machine boundary conclusion.
-The package `README.md` also repeats that checked machine boundary conclusion,
-and the package verifier requires all three generated review surfaces to stay in
-sync with the report. The package is still only valid for P5 when the report
-includes the real two-human manual confirmations.
+The package `README.md` also repeats the checked inksteel style and machine
+hidden-information conclusions, and the package verifier requires all three
+generated review surfaces to stay in sync with the report. The package is still
+only valid for P5 when the report includes the real two-human manual
+confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper
