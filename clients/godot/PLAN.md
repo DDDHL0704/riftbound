@@ -39,8 +39,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   required.
 - P5 evidence now records the inksteel screenshot style guard in the machine
   report and repeats it in the package README, handoff, and visual review files.
-  This catches obvious visual drift while still requiring human screenshot
-  confirmation.
+  The final package verifier also re-runs that guard on the packaged screenshots,
+  while still requiring human screenshot confirmation.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 

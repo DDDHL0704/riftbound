@@ -28,15 +28,44 @@ write_small_png() {
 write_full_size_png() {
   local path="$1"
   local suffix="${2:-}"
-  local small_path="${path}.small"
 
-  if ! command -v sips >/dev/null 2>&1; then
-    fail "sips is required to build full-size PNG fixtures"
-  fi
+  python3 - "${path}" <<'PY'
+import sys
+from PIL import Image, ImageDraw
 
-  write_small_png "${small_path}"
-  sips -z 900 1440 "${small_path}" --out "${path}" >/dev/null
-  rm -f "${small_path}"
+path = sys.argv[1]
+image = Image.new("RGB", (1440, 900), (5, 6, 6))
+draw = ImageDraw.Draw(image)
+for x in range(8, 1136, 56):
+    draw.line((x, 96, x, 890), fill=(155, 149, 128), width=2)
+for y in range(108, 840, 72):
+    draw.line((0, y, 1136, y), fill=(161, 154, 132), width=2)
+for rect in ((22, 118, 682, 300), (108, 442, 444, 636), (806, 442, 1144, 636), (1152, 16, 1424, 536)):
+    draw.rectangle(rect, outline=(185, 176, 148), width=3, fill=(18, 18, 16))
+draw.rectangle((22, 120, 300, 298), outline=(158, 36, 28), width=3)
+draw.rectangle((604, 128, 680, 292), outline=(143, 113, 56), width=3)
+image.save(path)
+PY
+  printf '%s' "${suffix}" >>"${path}"
+}
+
+write_bright_gray_png() {
+  local path="$1"
+  local suffix="${2:-}"
+
+  python3 - "${path}" <<'PY'
+import sys
+from PIL import Image, ImageDraw
+
+path = sys.argv[1]
+image = Image.new("RGB", (1440, 900), (184, 184, 184))
+draw = ImageDraw.Draw(image)
+for x in range(40, 1400, 140):
+    draw.rectangle((x, 80, x + 96, 820), outline=(238, 238, 238), width=6, fill=(150, 150, 150))
+for y in range(120, 840, 120):
+    draw.line((24, y, 1416, y), fill=(224, 224, 224), width=8)
+image.save(path)
+PY
   printf '%s' "${suffix}" >>"${path}"
 }
 
@@ -47,6 +76,11 @@ write_result_png() {
 
   if [[ "${size}" == "small" ]]; then
     write_small_png "${path}" "${suffix}"
+    return
+  fi
+
+  if [[ "${size}" == "bright" ]]; then
+    write_bright_gray_png "${path}" "${suffix}"
     return
   fi
 
@@ -757,6 +791,26 @@ if ! rg -q "screenshot.*too small|too small.*screenshot|minimum" "${small_screen
   echo "Expected small screenshot rejection output:" >&2
   cat "${small_screenshot_output}" >&2
   fail "verifier did not explain the too-small result screenshots"
+fi
+
+bright_style_bundle="${tmp_dir}/bright-style/riftbound-human-playtest-evidence"
+write_evidence_bundle "${bright_style_bundle}" "${revision}" "1" "0" "0" "0" "0" "bright"
+(
+  cd "${bright_style_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+bright_style_package="${tmp_dir}/bright-style.tar.gz"
+make_package "${bright_style_bundle}" "${bright_style_package}"
+
+bright_style_output="${tmp_dir}/bright-style-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${bright_style_package}" >"${bright_style_output}" 2>&1; then
+  fail "verifier accepted package whose result screenshots drift from inksteel style"
+fi
+
+if ! rg -q "inksteel|style|bright|screenshot" "${bright_style_output}"; then
+  echo "Expected package screenshot style rejection output:" >&2
+  cat "${bright_style_output}" >&2
+  fail "verifier did not explain the inksteel screenshot style rejection"
 fi
 
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"

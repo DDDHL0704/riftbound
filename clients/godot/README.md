@@ -331,7 +331,9 @@ passed` line, both client logs reporting `Hidden info boundary ok` with
 operator checklist, the `VISUAL_REVIEW.md` screenshot checklist, and absence of
 crash/rejection/auto-smoke evidence. The package README, handoff, and visual
 review summaries repeat the inksteel style and hidden-information machine
-checks from the report.
+checks from the report. The verifier also re-runs the inksteel style guard on
+the packaged result screenshots, so replacing screenshots after report
+generation is caught.
 
 For visual-regression evidence outside the clean-main wrappers, separately run
 `clients/godot/tools/check-inksteel-screenshot-style.sh` on both result

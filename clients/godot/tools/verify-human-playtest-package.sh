@@ -476,6 +476,32 @@ require_png_screenshot() {
   require_minimum_png_dimensions "${label}" "${width}" "${height}"
 }
 
+require_inksteel_screenshot_style() {
+  local output_path=""
+  local output_summary=""
+
+  if [[ ! -s "${player_a_result}" || ! -s "${player_b_result}" ]]; then
+    return
+  fi
+
+  if [[ ! -x "${script_dir}/check-inksteel-screenshot-style.sh" ]]; then
+    failures+=("inksteel screenshot style checker missing: ${script_dir}/check-inksteel-screenshot-style.sh")
+    return
+  fi
+
+  output_path="$(mktemp)"
+  if "${script_dir}/check-inksteel-screenshot-style.sh" \
+    "${player_a_result}" \
+    "${player_b_result}" >"${output_path}" 2>&1; then
+    rm -f "${output_path}"
+    return
+  fi
+
+  output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
+  rm -f "${output_path}"
+  failures+=("inksteel screenshot style check failed for packaged result screenshots: ${output_summary}")
+}
+
 require_git_revision_on_main() {
   local revision=""
   local resolved_revision=""
@@ -574,6 +600,7 @@ fi
 
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
+require_inksteel_screenshot_style
 
 if [[ -s "${player_a_result}" && -s "${player_b_result}" ]] && cmp -s "${player_a_result}" "${player_b_result}"; then
   failures+=("player A and player B result screenshots are identical")

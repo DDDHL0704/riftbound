@@ -81,7 +81,8 @@ contracts change.
   leaks, and requires the package README plus generated handoff and visual
   review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
-  inksteel style machine check.
+  inksteel style machine check, then re-runs the inksteel style guard on the
+  packaged result screenshots.
 
 ## Standard Gates
 

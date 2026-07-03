@@ -83,7 +83,9 @@ resume from repository state instead of conversation history alone.
   where that README summary is missing.
 - Evidence packages also repeat the checked `Inksteel style: passed` machine
   conclusion in `README.md`, `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`; the
-  verifier rejects packages where any of those summaries drift from the report.
+  verifier rejects packages where any of those summaries drift from the report
+  or where the packaged result screenshots no longer pass the inksteel style
+  guard.
 - Evidence packages now include `OPERATOR_GUIDE.md`; the packager copies the
   runtime guide from the evidence directory, or generates a fallback from the
   checked report for manual packaging. The verifier requires this file and its
