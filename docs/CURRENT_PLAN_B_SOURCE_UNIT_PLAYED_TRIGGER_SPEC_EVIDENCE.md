@@ -8,6 +8,7 @@ Project status: **NOT READY**.
 
 - `data/official/card-catalog.zh-CN.json`: `SFD·140/221` 菲兹 has official text `当你打出我时，你可以选择从你的废牌堆中打出一个法力费用不高于{{3}}的法术，无需支付其法力费用（仍需支付所有符能费用）。打出该法术后，将其回收。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·134/298` 动员 is an official 2-mana no-target spell with text `召出一枚休眠的符文。如果你无法达成，则抽一张牌。`, used as the source-unit-played no-target rune-call / failed-rune-call draw representative for the same graveyard-spell bridge.
+- `data/official/card-catalog.zh-CN.json`: `OGN·104/298` 择日再战 is an official 1-mana target-bearing spell with text `让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。`, used as the focused exact-one friendly-unit return/call-rune representative for the shared source-unit-played graveyard-spell bridge. It is not claimed as a legal Fizz B0 official-deck representative because the currently covered Fizz official deck is orange/purple while 择日再战 is blue.
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text plus the core play/stack/zone rules remain the local authority inputs for this representative slice.
 
 ## BehaviorSpec Evidence
@@ -20,17 +21,19 @@ Project status: **NOT READY**.
 - `SourceUnitPlayedTriggerTests.FizzPlaysLowCostGraveyardSpellAndRecyclesItAfterSourceUnitPlayed` verifies a real `PLAY_CARD` / pass-pass stack resolution for `SFD·140/221` 菲兹. After the source unit enters the controller's base, the shared source-unit-played TriggerSpec route chooses controlled graveyard `OGN·048/298` 冥想 with mana cost 2, emits `SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED`, emits `CARD_PLAYED_FROM_GRAVEYARD` with `sourceZone = GRAVEYARD`, `destinationZone = STACK`, `ignorePlayManaCost = true`, and `payPlayPowerCosts = true`, resolves the no-target draw spell through existing stack resolution, then emits `CARDS_RECYCLED` and moves the played spell to the controller's main deck.
 - `SourceUnitPlayedTriggerTests.FizzPlaysLowCostGraveyardRuneSpellAndRecyclesItAfterSourceUnitPlayed` verifies the same route can choose controlled graveyard `OGN·134/298` 动员 with mana cost 2, emit `CARD_PLAYED_FROM_GRAVEYARD`, reuse existing stack resolution to call one exhausted rune from the controller's rune deck, then recycle 动员 to the controller's main deck.
 - `SourceUnitPlayedTriggerTests.FizzGraveyardRuneSpellDrawsAndRecyclesWhenRuneCallFailsAfterSourceUnitPlayed` verifies the same 动员 route when the controller's rune deck is empty: stack resolution emits `RUNES_CALLED` with count 0, applies 动员's official fallback draw one, then recycles the played spell to the controller's main deck.
+- `SourceUnitPlayedTriggerTests.FizzPlaysTargetedGraveyardRuneSpellAndRecyclesItAfterSourceUnitPlayed` verifies the shared source-unit-played route can also carry the exact-one friendly-unit return/call-rune shape. After 菲兹 enters base as the only public friendly unit target, the bridge plays controlled graveyard `OGN·104/298` 择日再战, emits `CARD_PLAYED_FROM_GRAVEYARD.targetObjectIds = [菲兹]`, returns 菲兹 to owner hand, calls one exhausted rune, then recycles 择日再战 to the controller's main deck.
 - `FullGameEndToEndTests.OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash` starts from legal official orange/purple `UNL-201/219` / `UNL-119/219` deck submission/opening with required `SFD·140/221` 菲兹 and `OGN·134/298` 动员, derives a focused midgame state, submits server-authored `PLAY_CARD` for 菲兹, resolves the BehaviorSpec source-unit-played graveyard 动员 route through stack pass-pass, then continues through score victory and verifies `MatchActionLogReplayer` reaches the same final state hash.
-- The graveyard spell execution helper is shared with the existing Kai'Sa conquest representative. It is intentionally limited to no-target draw and no-target rune-call spells that can reuse existing stack resolution without extra target, power-cost prompt, experience, pending-payment, token-state handoff, or source-zone replacement.
+- The graveyard spell execution helper is shared with the existing Kai'Sa conquest representative. It is intentionally limited to no-target draw / rune-call spells and the exact-one friendly-unit return/call-rune spell shape that can reuse existing stack resolution without prompt-authored target selection, power-cost prompt, experience, pending-payment, token-state handoff, or source-zone replacement.
 
 ## Validation
 
 - 2026-07-03 focused source-unit-played TriggerSpec parser + runtime draw / rune-call / failed-rune-call representatives: `4/4` passing.
 - 2026-07-03 focused B0 official-deck Fizz graveyard-rune-spell replay: `1/1` passing.
-- 2026-07-03 adjacent SourceUnitPlayed / UnitConquest graveyard-spell helper / FullGameEndToEnd / Stack / CardCatalogBaseline / MatchRecovery representatives: `3016/3016` passing.
-- 2026-07-03 backend full conformance after B0 Fizz official-deck replay: `9164/9164` passing.
+- 2026-07-03 focused source-unit-played exact-one friendly-unit target-bearing graveyard-spell representative: `1/1` passing.
+- 2026-07-03 adjacent SourceUnitPlayed / UnitConquest graveyard-spell helper / FullGameEndToEnd / Stack / CardCatalogBaseline / MatchRecovery representatives after exact-one target-bearing representative: `3018/3018` passing.
+- 2026-07-03 backend full conformance after exact-one target-bearing source-unit-played representative: `9166/9166` passing.
 
 ## Residual Risk
 
-- Complete optional yes/no prompts, explicit graveyard spell selection, targeted spell legality, power-cost prompt routing, and broader spell effect state handoff remain open.
-- This slice does not claim full official 菲兹 coverage; it only closes the no-target draw and no-target rune-call representative paths for the official graveyard-spell free-play and recycle text.
+- Complete optional yes/no prompts, explicit graveyard spell selection, prompt-authored target selection, arbitrary / multi-target target-bearing spell legality, power-cost prompt routing, and broader spell effect state handoff remain open.
+- This slice does not claim full official 菲兹 coverage; it closes the no-target draw, no-target rune-call, failed-rune-call draw fallback, and focused exact-one friendly-unit return/call-rune representative paths for the official graveyard-spell free-play and recycle text.
