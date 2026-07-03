@@ -313,6 +313,50 @@ public sealed class NaturalUnitConquestTriggerTests
     }
 
     [Fact]
+    public async Task RumbleInsufficientReducedGraveyardMechanicalPaymentRejectsAndKeepsWindow()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await engine.ResolveAsync(
+            BuildNaturalConquestRumbleState(recycledUnitPower: 2, p1Mana: 1),
+            new PlayerIntent("intent-natural-unit-conquest-rumble-open-insufficient-payment", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [RumbleObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var payment = AssertRumblePaymentOpen(opened);
+        Assert.Equal(1, opened.State.RunePools["P1"].Mana);
+
+        var insufficient = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-unit-conquest-rumble-insufficient-payment", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayTwoMana]),
+            CancellationToken.None);
+
+        Assert.False(insufficient.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, insufficient.ErrorCode);
+        Assert.Equal(opened.State.PendingPayment, insufficient.State.PendingPayment);
+        Assert.Equal(1, insufficient.State.RunePools["P1"].Mana);
+        Assert.Contains(RumbleRecycledUnitObjectId, insufficient.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(RumbleRecycledUnitObjectId, insufficient.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(RumbleGraveyardMechanicalUnitObjectId, insufficient.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(RumbleGraveyardMechanicalUnitObjectId, insufficient.State.PlayerZones["P1"].Base);
+        Assert.Equal(TriggerZones.Base, insufficient.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
+        Assert.Equal(TriggerZones.Graveyard, insufficient.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
+        Assert.DoesNotContain(insufficient.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(insufficient.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(insufficient.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, RumbleGraveyardMechanicalUnitObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest()
     {
         var result = await new CoreRuleEngine().ResolveAsync(
