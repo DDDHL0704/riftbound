@@ -115,6 +115,21 @@ internal static class UnitConquestTriggerSpecRules
                 && trigger.IgnorePlayManaCost == true
                 && trigger.PayPlayPowerCosts == true
                 && trigger.RecyclePlayedCardOnResolution == true,
+            TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit => string.Equals(
+                    trigger.TargetScope,
+                    TriggerTargetScopes.OtherControlledUnitOnField,
+                    StringComparison.Ordinal)
+                && trigger.RecycleCount is > 0
+                && string.Equals(trigger.RecycleSourceZone, TriggerZones.Field, StringComparison.Ordinal)
+                && string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+                && trigger.PlayCount is > 0
+                && string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+                && string.Equals(trigger.PlayDestinationZone, TriggerZones.Base, StringComparison.Ordinal)
+                && string.Equals(
+                    trigger.PlayCardFilter,
+                    $"{TriggerCardFilters.TagPrefix}{CardObjectTags.UnitCard};{TriggerCardFilters.TagPrefix}机械",
+                    StringComparison.Ordinal)
+                && trigger.ReducePlayManaCostByRecycledUnitPower == true,
             _ => false
         };
     }

@@ -3156,6 +3156,40 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("SFD·026/221")]
+    [InlineData("SFD·026a/221")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var rumble = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            rumble.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherControlledUnitOnField, trigger.TargetScope);
+        Assert.Equal(1, trigger.RecycleCount);
+        Assert.Equal(TriggerZones.Field, trigger.RecycleSourceZone);
+        Assert.Equal(TriggerZones.MainDeck, trigger.RecycleDestinationZone);
+        Assert.Equal(1, trigger.PlayCount);
+        Assert.Equal(TriggerZones.Graveyard, trigger.PlayOriginZone);
+        Assert.Equal(TriggerZones.Base, trigger.PlayDestinationZone);
+        Assert.Equal($"{TriggerCardFilters.TagPrefix}{CardObjectTags.UnitCard};{TriggerCardFilters.TagPrefix}机械", trigger.PlayCardFilter);
+        Assert.True(trigger.ReducePlayManaCostByRecycledUnitPower);
+        Assert.True(trigger.Optional);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("回收另一名友方单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("从废牌堆中打出一名“机械”属性单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("所需法力费用减去被回收单位的战力", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest recycle-friendly-unit play-graveyard-mechanical-unit trigger parsed for B3 payment/zone routing; execution is available for zero-mana-after-reduction representative paths through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTrigger()
     {

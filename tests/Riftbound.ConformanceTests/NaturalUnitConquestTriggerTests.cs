@@ -10,6 +10,9 @@ public sealed class NaturalUnitConquestTriggerTests
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
     private const string KaisaSpellObjectId = "P1-NATURAL-CONQUEST-KAISA-SPELL";
     private const string KaisaSpellDrawObjectId = "P1-NATURAL-CONQUEST-KAISA-SPELL-DRAW";
+    private const string RumbleObjectId = "P1-NATURAL-CONQUEST-RUMBLE";
+    private const string RumbleRecycledUnitObjectId = "P1-NATURAL-CONQUEST-RUMBLE-RECYCLED-UNIT";
+    private const string RumbleGraveyardMechanicalUnitObjectId = "P1-NATURAL-CONQUEST-RUMBLE-GRAVEYARD-MECH";
     private const string TreantObjectId = "P1-NATURAL-CONQUEST-TREANT";
     private const string YetiObjectId = "P1-NATURAL-CONQUEST-YETI";
     private const string TryndamereObjectId = "P1-NATURAL-CONQUEST-TRYNDAMERE";
@@ -118,6 +121,63 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.DoesNotContain(KaisaSpellObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal([KaisaSpellObjectId], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[KaisaSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task RumbleRecyclesFriendlyUnitAndPlaysGraveyardMechanicalUnitAfterNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestRumbleState(),
+            new PlayerIntent("intent-natural-unit-conquest-rumble-graveyard-mechanical", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [RumbleObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, conquestTrigger.Payload["effectId"]);
+        Assert.Equal(RumbleRecycledUnitObjectId, conquestTrigger.Payload["recycledObjectId"]);
+        Assert.Equal(RumbleGraveyardMechanicalUnitObjectId, conquestTrigger.Payload["playedObjectId"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
+        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldObjectId"]);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal([RumbleRecycledUnitObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, recycleEvent.Payload["reason"]);
+        Assert.Equal(TriggerZones.Field, recycleEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.MainDeck, recycleEvent.Payload["destinationZone"]);
+
+        var playEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, RumbleGraveyardMechanicalUnitObjectId, StringComparison.Ordinal));
+        Assert.Equal(RumbleObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1", playEvent.Payload["ownerPlayerId"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Base, playEvent.Payload["destinationZone"]);
+        Assert.Equal(4, playEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(4, playEvent.Payload["manaCostReduction"]);
+        Assert.Equal(0, playEvent.Payload["reducedManaCost"]);
+        Assert.Equal(0, playEvent.Payload["paidManaCost"]);
+
+        Assert.DoesNotContain(RumbleRecycledUnitObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Contains(RumbleRecycledUnitObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(RumbleGraveyardMechanicalUnitObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(RumbleGraveyardMechanicalUnitObjectId, result.State.PlayerZones["P1"].Graveyard);
+
+        var mechanicalUnit = result.State.CardObjects[RumbleGraveyardMechanicalUnitObjectId];
+        Assert.Equal("SFD·065/221", mechanicalUnit.CardNo);
+        Assert.Contains(CardObjectTags.UnitCard, mechanicalUnit.Tags);
+        Assert.Contains("机械", mechanicalUnit.Tags);
+        Assert.False(mechanicalUnit.IsExhausted);
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
+        Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
     }
 
     [Fact]
@@ -370,6 +430,70 @@ public sealed class NaturalUnitConquestTriggerTests
                 [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId),
                 [KaisaSpellObjectId] = new("P1", "GRAVEYARD"),
                 [KaisaSpellDrawObjectId] = new("P1", "MAIN_DECK")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
+    private static MatchState BuildNaturalConquestRumbleState()
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new(
+                BattlefieldId,
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [RumbleObjectId] = Unit(RumbleObjectId, "P1", 4, "SFD·026/221") with
+            {
+                Tags = [CardObjectTags.UnitCard, "机械", "约德尔人"]
+            },
+            [RumbleRecycledUnitObjectId] = Unit(RumbleRecycledUnitObjectId, "P1", 4),
+            [RumbleGraveyardMechanicalUnitObjectId] = Unit(RumbleGraveyardMechanicalUnitObjectId, "P1", 2, "SFD·065/221") with
+            {
+                ManaCost = 4,
+                IsExhausted = true,
+                Tags = [CardObjectTags.UnitCard, "机械"]
+            },
+            [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
+        };
+
+        return new MatchState(
+            "natural-unit-conquest-rumble-graveyard-mechanical-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldId, RumbleObjectId],
+                    Base = [RumbleRecycledUnitObjectId],
+                    Graveyard = [RumbleGraveyardMechanicalUnitObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            cardObjects: cardObjects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [RumbleObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [RumbleRecycledUnitObjectId] = new("P1", "BASE"),
+                [RumbleGraveyardMechanicalUnitObjectId] = new("P1", "GRAVEYARD"),
+                [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
             },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
     }

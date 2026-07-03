@@ -23784,6 +23784,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        var unitConquestPlayGraveyardMechanicalUnitTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit,
+                StringComparison.Ordinal));
+        if (unitConquestPlayGraveyardMechanicalUnitTrigger is not null
+            && TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger(
+                playerZones,
+                cardObjects,
+                playerId,
+                battlefieldObjectId,
+                activationReason,
+                unitObjectId,
+                unitState,
+                unitConquestPlayGraveyardMechanicalUnitTrigger,
+                events))
+        {
+            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+            return true;
+        }
+
         var unitConquestSelfBoonTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
             string.Equals(trigger.Kind, TriggerKinds.UnitConquestGrantSelfBoon, StringComparison.Ordinal));
         if (unitConquestSelfBoonTrigger is not null)
@@ -24134,6 +24155,194 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             out drawApplication,
             out nextUntilEndOfTurnEffects);
+    }
+
+    private static bool TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldObjectId,
+        string activationReason,
+        string unitObjectId,
+        CardObjectState unitState,
+        TriggerSpec trigger,
+        List<GameEvent> events)
+    {
+        if (!TryGetFirstRecyclableOtherControlledUnit(
+                playerZones,
+                cardObjects,
+                playerId,
+                unitObjectId,
+                out var recycledObjectId,
+                out var recycledState)
+            || !TryGetFirstPlayableGraveyardMechanicalUnit(
+                playerZones,
+                cardObjects,
+                playerId,
+                trigger,
+                recycledState.Power,
+                out var playedObjectId,
+                out var playedState,
+                out var printedManaCost,
+                out var reducedManaCost)
+            || !TryMoveTargetToOwnerMainDeck(
+                playerZones,
+                cardObjects,
+                recycledObjectId,
+                "BOTTOM",
+                out _,
+                out _)
+            || !TryPlayGraveyardCardToBase(playerZones, cardObjects, playerId, playedObjectId))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "UNIT_CONQUEST_EFFECT_ACTIVATED",
+            $"{unitObjectId} 的征服效果已激活",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = unitObjectId,
+                ["unitObjectId"] = unitObjectId,
+                ["unitCardNo"] = unitState.CardNo,
+                ["effectId"] = trigger.Kind,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["reason"] = activationReason,
+                ["recycledObjectId"] = recycledObjectId,
+                ["playedObjectId"] = playedObjectId,
+                ["recycledUnitPower"] = recycledState.Power,
+                ["playedCardNo"] = playedState.CardNo,
+                ["playedCardManaCost"] = printedManaCost,
+                ["manaCostReduction"] = Math.Max(0, printedManaCost - reducedManaCost),
+                ["reducedManaCost"] = reducedManaCost,
+                ["paidManaCost"] = 0
+            }));
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{unitObjectId} 的征服效果回收友方单位",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = unitObjectId,
+                ["cardIds"] = new[] { recycledObjectId },
+                ["count"] = 1,
+                ["sourceZone"] = TriggerZones.Field,
+                ["destinationZone"] = TriggerZones.MainDeck,
+                ["reason"] = trigger.Kind
+            }));
+        events.Add(new GameEvent(
+            "UNIT_PLAYED_TO_BASE",
+            $"{unitObjectId} 的征服效果打出废牌堆机械单位到基地",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = unitObjectId,
+                ["targetObjectId"] = playedObjectId,
+                ["ownerPlayerId"] = playerId,
+                ["sourceZone"] = TriggerZones.Graveyard,
+                ["destinationZone"] = TriggerZones.Base,
+                ["effectId"] = trigger.Kind,
+                ["playedCardNo"] = playedState.CardNo,
+                ["playedCardManaCost"] = printedManaCost,
+                ["recycledObjectId"] = recycledObjectId,
+                ["recycledUnitPower"] = recycledState.Power,
+                ["manaCostReduction"] = Math.Max(0, printedManaCost - reducedManaCost),
+                ["reducedManaCost"] = reducedManaCost,
+                ["paidManaCost"] = 0
+            }));
+        return true;
+    }
+
+    private static bool TryGetFirstRecyclableOtherControlledUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        out string targetObjectId,
+        out CardObjectState targetState)
+    {
+        targetObjectId = string.Empty;
+        targetState = default!;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var candidateObjectId in zones.Base.Concat(zones.Battlefields))
+        {
+            if (string.Equals(candidateObjectId, sourceObjectId, StringComparison.Ordinal)
+                || !cardObjects.TryGetValue(candidateObjectId, out var candidateState)
+                || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || candidateState.IsFaceDown
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId))
+            {
+                continue;
+            }
+
+            targetObjectId = candidateObjectId;
+            targetState = candidateState;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetFirstPlayableGraveyardMechanicalUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        TriggerSpec trigger,
+        int recycledUnitPower,
+        out string targetObjectId,
+        out CardObjectState targetState,
+        out int printedManaCost,
+        out int reducedManaCost)
+    {
+        targetObjectId = string.Empty;
+        targetState = default!;
+        printedManaCost = 0;
+        reducedManaCost = 0;
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || !string.Equals(trigger.PlayDestinationZone, TriggerZones.Base, StringComparison.Ordinal)
+            || trigger.PlayCount.GetValueOrDefault() <= 0)
+        {
+            return false;
+        }
+
+        foreach (var candidateObjectId in zones.Graveyard)
+        {
+            if (!cardObjects.TryGetValue(candidateObjectId, out var candidateState)
+                || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !candidateState.Tags.Contains("机械", StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId))
+            {
+                continue;
+            }
+
+            var candidateManaCost = candidateState.ManaCost;
+            if (candidateManaCost <= 0
+                && CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior))
+            {
+                candidateManaCost = candidateBehavior.ManaCost;
+            }
+
+            var candidateReducedManaCost = trigger.ReducePlayManaCostByRecycledUnitPower == true
+                ? Math.Max(0, candidateManaCost - Math.Max(0, recycledUnitPower))
+                : candidateManaCost;
+            if (candidateReducedManaCost != 0)
+            {
+                continue;
+            }
+
+            targetObjectId = candidateObjectId;
+            targetState = candidateState;
+            printedManaCost = candidateManaCost;
+            reducedManaCost = candidateReducedManaCost;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryResolveSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTriggers(

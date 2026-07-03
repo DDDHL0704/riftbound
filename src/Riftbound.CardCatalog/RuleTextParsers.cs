@@ -919,6 +919,29 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitConquestRecycleFriendlyPlayGraveyardMechanicalUnitMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，你可以选择回收另一名友方单位，以此从废牌堆中打出一名“机械”属性单位，将其所需法力费用减去被回收单位的战力。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestRecycleFriendlyPlayGraveyardMechanicalUnitMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest recycle-friendly-unit play-graveyard-mechanical-unit trigger parsed for B3 payment/zone routing; execution is available for zero-mana-after-reduction representative paths through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.OtherControlledUnitOnField,
+                RecycleCount: 1,
+                RecycleSourceZone: TriggerZones.Field,
+                RecycleDestinationZone: TriggerZones.MainDeck,
+                PlayCount: 1,
+                PlayOriginZone: TriggerZones.Graveyard,
+                PlayDestinationZone: TriggerZones.Base,
+                PlayCardFilter: $"{TriggerCardFilters.TagPrefix}CARD_TYPE:UNIT;{TriggerCardFilters.TagPrefix}机械",
+                ReducePlayManaCostByRecycledUnitPower: true,
+                Optional: true);
+        }
+
         var unitFriendlyDestroyedGainExperienceMatch = Regex.Match(
             segment,
             @"当另一名友方单位被摧毁时，获得([0-9一两二三四五六七八九十]+)经验。?$",

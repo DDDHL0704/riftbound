@@ -151,6 +151,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND";
     public const string UnitConquestPlayLowCostGraveyardSpellRecycle =
         "UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
+    public const string UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit =
+        "UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT";
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitMovedCreateDormantGold =
@@ -260,6 +262,7 @@ public static class TriggerTargetScopes
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
+    public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
@@ -301,6 +304,7 @@ public static class TriggerZones
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
     public const string Stack = "STACK";
+    public const string Field = "FIELD";
 }
 
 public static class TriggerCardFilters
@@ -527,6 +531,7 @@ public sealed record TriggerSpec(
     string? PlayCardFilter = null,
     bool? RequiresPlayedCardManaCostLessThanCurrentScore = null,
     int? MaximumPlayedCardManaCost = null,
+    bool? ReducePlayManaCostByRecycledUnitPower = null,
     bool? IgnorePlayManaCost = null,
     bool? PayPlayPowerCosts = null,
     bool? RecyclePlayedCardOnResolution = null,
