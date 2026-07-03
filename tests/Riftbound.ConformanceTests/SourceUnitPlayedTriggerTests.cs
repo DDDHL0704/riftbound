@@ -14,6 +14,7 @@ public sealed class SourceUnitPlayedTriggerTests
     private const string FizzRuneFallbackDrawObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-RUNE-FALLBACK-DRAW";
     private const string FizzTargetedRuneSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-RUNE-SPELL";
     private const string FizzTargetedCalledRuneObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-CALLED-RUNE";
+    private const string FizzExtraFriendlyUnitObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-EXTRA-FRIENDLY-UNIT";
 
     [Fact]
     public async Task FizzPlaysLowCostGraveyardSpellAndRecyclesItAfterSourceUnitPlayed()
@@ -175,7 +176,7 @@ public sealed class SourceUnitPlayedTriggerTests
     public async Task FizzPlaysTargetedGraveyardRuneSpellAndRecyclesItAfterSourceUnitPlayed()
     {
         var p2Pass = await ResolveFizzPlayThroughStackAsync(
-            BuildFizzTargetedGraveyardRuneSpellState(),
+            BuildFizzTargetedGraveyardRuneSpellState(extraFriendlyUnitTarget: false),
             "intent-fizz-targeted-rune-spell");
 
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
@@ -226,6 +227,38 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.Equal([FizzTargetedRuneSpellObjectId], p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(TriggerZones.Hand, p2Pass.State.ObjectLocations[FizzObjectId].Zone);
         Assert.Equal(TriggerZones.MainDeck, p2Pass.State.ObjectLocations[FizzTargetedRuneSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task FizzDoesNotAutoSelectTargetedGraveyardRuneSpellWhenMultipleFriendlyTargetsAreLegal()
+    {
+        var p2Pass = await ResolveFizzPlayThroughStackAsync(
+            BuildFizzTargetedGraveyardRuneSpellState(extraFriendlyUnitTarget: true),
+            "intent-fizz-targeted-rune-spell-multiple-targets");
+
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzTargetedRuneSpellObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+
+        Assert.Contains(FizzObjectId, p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains(FizzExtraFriendlyUnitObjectId, p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(FizzObjectId, p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Contains(FizzTargetedRuneSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(FizzTargetedCalledRuneObjectId, p2Pass.State.PlayerZones["P1"].RuneDeck);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[FizzObjectId].Zone);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[FizzExtraFriendlyUnitObjectId].Zone);
+        Assert.Equal(TriggerZones.Graveyard, p2Pass.State.ObjectLocations[FizzTargetedRuneSpellObjectId].Zone);
     }
 
     private static MatchState BuildFizzGraveyardSpellState()
@@ -339,7 +372,7 @@ public sealed class SourceUnitPlayedTriggerTests
             objectLocations: objectLocations);
     }
 
-    private static MatchState BuildFizzTargetedGraveyardRuneSpellState()
+    private static MatchState BuildFizzTargetedGraveyardRuneSpellState(bool extraFriendlyUnitTarget)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -347,6 +380,19 @@ public sealed class SourceUnitPlayedTriggerTests
             [FizzTargetedRuneSpellObjectId] = Spell(FizzTargetedRuneSpellObjectId, "P1", "OGN·104/298", 1),
             [FizzTargetedCalledRuneObjectId] = Rune(FizzTargetedCalledRuneObjectId, "P1")
         };
+        var p1Base = Array.Empty<string>();
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            [FizzObjectId] = new("P1", TriggerZones.Hand),
+            [FizzTargetedRuneSpellObjectId] = new("P1", TriggerZones.Graveyard),
+            [FizzTargetedCalledRuneObjectId] = new("P1", "RUNE_DECK")
+        };
+        if (extraFriendlyUnitTarget)
+        {
+            cardObjects[FizzExtraFriendlyUnitObjectId] = Unit(FizzExtraFriendlyUnitObjectId, "P1", 2, "SFD·125/221", []);
+            p1Base = [FizzExtraFriendlyUnitObjectId];
+            objectLocations[FizzExtraFriendlyUnitObjectId] = new("P1", TriggerZones.Base);
+        }
 
         return new MatchState(
             roomId: "source-unit-played-fizz-targeted-graveyard-rune-spell-room",
@@ -372,6 +418,7 @@ public sealed class SourceUnitPlayedTriggerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
+                    Base = p1Base,
                     Hand = [FizzObjectId],
                     Graveyard = [FizzTargetedRuneSpellObjectId],
                     RuneDeck = [FizzTargetedCalledRuneObjectId]
@@ -379,12 +426,7 @@ public sealed class SourceUnitPlayedTriggerTests
                 ["P2"] = PlayerZones.Empty
             },
             cardObjects: cardObjects,
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                [FizzObjectId] = new("P1", TriggerZones.Hand),
-                [FizzTargetedRuneSpellObjectId] = new("P1", TriggerZones.Graveyard),
-                [FizzTargetedCalledRuneObjectId] = new("P1", "RUNE_DECK")
-            });
+            objectLocations: objectLocations);
     }
 
     private static async Task<ResolutionResult> ResolveFizzPlayThroughStackAsync(
