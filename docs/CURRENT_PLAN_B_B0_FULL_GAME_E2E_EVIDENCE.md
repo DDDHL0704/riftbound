@@ -1,6 +1,6 @@
 # Plan B / B0 Full-Game E2E Evidence
 
-Date: 2026-06-30
+Date: 2026-07-03
 
 Project status: **NOT READY**.
 
@@ -244,11 +244,49 @@ The response-activation regression proves that a legal official deck pair can re
 
 The Swift spell-duel stack-priority regression proves that `STACK_PRIORITY` prompts can expose a server-authored `PLAY_CARD` candidate for an eligible official Swift spell while preserving Swift / Reaction window separation. `SwiftSpellPromptAndPlayCardAreLegalInSpellDuelStackPriorityWindow` starts from a minimal legal state where a pending stack item carries `TimingContext=SPELL_DUEL_OPEN`, priority is on P2, P2 has official `UNL-007/219` Punishment in hand, and a public battlefield unit is a legal target. The prompt exposes `PLAY_CARD` with only the current player's source and public target choices; submitting the command spends 2 mana, removes Punishment from hand, and adds a new `PUNISHMENT_DAMAGE_3` stack item that inherits `SPELL_DUEL_OPEN`. `P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows` remains green, so ordinary `NEUTRAL_CLOSED` priority windows still reject Swift unless the pending stack context is spell-duel. This slice changes shared timing behavior and one official Behavior definition; it does not close ordinary priority Swift, complete Swift / Reaction timing, complete spell-duel lifecycle, all target-bearing Swift spells, or READY.
 
+The Fizz source-unit-played action-log replay regression proves a legal official deck opening can carry the BehaviorSpec graveyard-spell bridge into the B0 score-victory route. `OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash` records legal official `UNL-201/219` / `UNL-119/219` orange-purple deck submission/opening with required official `SFD·140/221` Fizz and `OGN·134/298` Mobilize, derives a focused midgame state with Mobilize in the controller's graveyard and enough mana to play Fizz, submits prompt-authored `PLAY_CARD`, resolves `SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` through stack pass-pass, calls one exhausted rune via Mobilize, recycles Mobilize to the bottom of the main deck, then continues through score-victory action-log replay to the same final state hash. This slice changes only test / evidence coverage; it does not close optional yes/no prompts, explicit graveyard spell selection, power-cost prompt routing, targeted graveyard spells, or complete source-unit-played breadth.
+
 ## Hidden Information Evidence
 
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` checks exact JSON string values in each viewer snapshot after accepted full-game steps and rejects exposure of opponent hand, main-deck and rune-deck object ids without prefix false positives between similar object ids. The current guard is centralized through `FullGameEndToEndTests.AssertAccepted`, so every accepted result routed through the shared B0 helper performs this hidden-zone snapshot check immediately. The battlefield extra-standby regression also asserts the `CARD_HIDDEN` payload for the Bandle Tree destination omits `cardNo` while preserving the public battlefield destination. The Card Trick regression adds stack-target coverage: private-zone target ids in stack snapshots are redacted through the same viewer visibility path and spectator recovery now expects `HIDDEN` for those targets. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
 
 ## Validation
+
+Latest Fizz source-unit-played official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFizzGraveyardRuneSpell"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Fizz source-unit-played adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~SourceUnitPlayed|FullyQualifiedName~UnitConquest|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~Stack|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 3016, Failed: 0, Skipped: 0, Total: 3016
+```
+
+Latest backend full validation after Fizz source-unit-played official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9164, Failed: 0, Skipped: 0, Total: 9164
+```
 
 Latest Gemstone Seer other-friendly static-granted Predict official-deck replay focused validation passed:
 

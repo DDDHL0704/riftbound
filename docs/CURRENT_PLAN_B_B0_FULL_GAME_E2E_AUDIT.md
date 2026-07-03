@@ -1,6 +1,6 @@
 # Plan B / B0 Full-Game E2E Audit
 
-Date: 2026-06-30
+Date: 2026-07-03
 
 Status: focused B0 base standby reaction spell-duel / battle-response battlefield-context, Tide Caller standby-reaction swap, SFD Teemo shared standby-reaction metadata, face-up Teemo defend-trigger counted-damage / battlefield-effect target multiplexing, Gemstone Seer other-friendly static-granted Predict official-deck replay, Prescient Mech static-granted Predict official-deck replay, armaments, Vex spell-stack, Vex battlefields, Vex response, Poppy standby, and Poppy Demacia preconstructed catalog score-victory replay, Vayne unit-conquest pay-return official-deck-derived replay, Flameclaw level active-entry/source-object static-power official-deck replay, Bandle Soldier level active-entry official-deck replay, Fiercewing controlled-Dragon active-entry official-deck replay, Aggressive Dragonhound unconditional active-entry official-deck replay, and Moss Stepper source-object level Spellshield target-tax official-deck replay evidence accepted; project remains **NOT READY**.
 
@@ -282,6 +282,7 @@ This standby reaction replay slice also adds no runtime rule changes. It extends
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash`.
 - Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks, force required official cards into legal low-curve Lillia / Vex decks for the damage-assignment and response-activation routes, support required official exclusive units, and skip `待命` units when choosing the representative play / move unit.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` turn start to advance pending battlefield tasks after turn-start ready / draw / score state is built.
@@ -313,6 +314,8 @@ This Rumble legend increment additionally proves a legal official Rumble deck ca
 This Forbidden Wasteland increment additionally proves a legal official Vex / Rumble deck opening can carry a battlefield isolated-defender RULE_TEXT keyword modifier through a focused midgame battle declaration, real defender damage, score victory, and action-log replay. It also adds direct projection coverage for the isolated-defender condition. It still does not close complete battlefield RULE_TEXT keyword-modifier breadth, complete official deck archetype breadth, or READY.
 
 This Treasure Pile increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield trigger-payment route through both `TRIGGER_PAYMENT` branches: replayable `PAY_COST(SPEND_MANA:1)` creates an exhausted Gold token, while replayable `PAY_COST(DECLINE)` closes the trigger window without `COST_PAID`, token creation, or hidden-info leakage. Both branches continue through score victory and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
+
+This Fizz source-unit-played increment additionally proves a legal official orange-purple `UNL-201/219` / `UNL-119/219` deck opening can carry required `SFD·140/221` Fizz and `OGN·134/298` Mobilize into a focused midgame `PLAY_CARD` route, resolve the BehaviorSpec `SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` trigger through stack pass-pass, call one exhausted rune, recycle Mobilize to the main deck, and continue through score victory and action-log replay. It still does not close optional trigger-choice prompts, explicit graveyard spell selection, power-cost prompt routing, targeted graveyard spell breadth, complete source-unit-played breadth, or READY.
 
 This Sunken Temple increment additionally proves a legal official Vex deck opening can carry a BehaviorSpec-driven conquered-battlefield powerful-unit trigger-payment route through both `TRIGGER_PAYMENT` branches: replayable `PAY_COST(SPEND_MANA:1)` draws one controlled main-deck card, while replayable `PAY_COST(DECLINE)` closes the trigger window without `COST_PAID`, draw, or hidden-info leakage. Both branches continue through score victory and action-log replay. It still does not close complete triggered-cost battlefield FUs, complete powerful-unit condition breadth, complete PaymentEngine breadth, complete official deck archetype breadth, or READY.
 
@@ -390,6 +393,42 @@ Open follow-up:
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
+
+Latest Fizz source-unit-played official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameResolvesFizzGraveyardRuneSpell"
+```
+
+Result:
+
+```text
+Passed: 1, Failed: 0, Skipped: 0, Total: 1
+```
+
+Latest Fizz source-unit-played adjacent / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~SourceUnitPlayed|FullyQualifiedName~UnitConquest|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~Stack|FullyQualifiedName~CardCatalogBaseline|FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 3016, Failed: 0, Skipped: 0, Total: 3016
+```
+
+Latest backend full validation after Fizz source-unit-played official-deck replay passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9164, Failed: 0, Skipped: 0, Total: 9164
+```
 
 Latest Poppy standby preconstructed catalog replay focused validation passed:
 

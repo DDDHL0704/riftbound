@@ -14,6 +14,10 @@ public sealed class FullGameEndToEndTests
     private const string RumbleChampionCardNo = "SFD·026/221";
     private const string KaisaLegendCardNo = "OGN·247/298";
     private const string KaisaGraveyardSpellConquestCardNo = "OGN·112/298";
+    private const string VoidReaverLegendCardNo = "UNL-201/219";
+    private const string KhaZixChampionCardNo = "UNL-119/219";
+    private const string FizzSourceUnitPlayedCardNo = "SFD·140/221";
+    private const string MobilizeSpellCardNo = "OGN·134/298";
     private const string DariusLegendCardNo = "OGN·253/298";
     private const string MasterYiIntroSingleDefenderStaticAuraLegendCardNo = "OGS·019/024";
     private const string MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo = "UNL-191/219";
@@ -440,6 +444,43 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesFizzGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildFizzSourceUnitPlayedGraveyardRuneSpellOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-fizz-graveyard-rune-spell-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildFizzSourceUnitPlayedGraveyardRuneSpellMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var playResult = await SubmitFizzSourceUnitPlayedGraveyardRuneSpellAsync(
+            session,
+            current,
+            "P1",
+            "b0-fizz-source-unit-played-graveyard-rune-spell");
+
+        AssertFizzSourceUnitPlayedGraveyardRuneSpellResolved(playResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            playResult,
+            "b0-fizz-source-unit-played-graveyard-rune-spell-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5509,6 +5550,55 @@ public sealed class FullGameEndToEndTests
         Assert.Equal([spellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
         Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
 
+        Assert.DoesNotContain(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(spellObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[spellObjectId].Zone);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertFizzSourceUnitPlayedGraveyardRuneSpellResolved(ResolutionResult result)
+    {
+        var sourceTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && sourceObjectId is string source
+            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
+            && string.Equals(sourceObject.CardNo, FizzSourceUnitPlayedCardNo, StringComparison.Ordinal));
+        var fizzObjectId = Assert.IsType<string>(sourceTrigger.Payload["sourceObjectId"]);
+
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, sourceTrigger.Payload["effectId"]);
+        var spellObjectId = Assert.IsType<string>(sourceTrigger.Payload["targetObjectId"]);
+        Assert.Equal("SOURCE_UNIT_PLAYED", sourceTrigger.Payload["reason"]);
+
+        var playEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal(fizzObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal(FizzSourceUnitPlayedCardNo, playEvent.Payload["sourceCardNo"]);
+        Assert.Equal(MobilizeSpellCardNo, playEvent.Payload["playedCardNo"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Stack, playEvent.Payload["destinationZone"]);
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["ignorePlayManaCost"]));
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["payPlayPowerCosts"]));
+
+        var runeEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", runeEvent.Payload["playerId"]);
+        Assert.Equal(1, runeEvent.Payload["count"]);
+        var calledRuneObjectId = Assert.Single(Assert.IsType<string[]>(runeEvent.Payload["runeObjectIds"]));
+        Assert.Contains(calledRuneObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(calledRuneObjectId, result.State.PlayerZones["P1"].RuneDeck);
+        Assert.True(result.State.CardObjects[calledRuneObjectId].IsExhausted);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, fizzObjectId, StringComparison.Ordinal));
+        Assert.Equal([spellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.Contains(fizzObjectId, result.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(spellObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
@@ -15566,6 +15656,47 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitFizzSourceUnitPlayedGraveyardRuneSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string fizzPlayerId,
+        string intentId)
+    {
+        Assert.Equal(fizzPlayerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[fizzPlayerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 Fizz source-unit-played driver could not find PLAY_CARD for {fizzPlayerId}: {DescribeState(current.State)}");
+        var fizzObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            fizzPlayerId,
+            FizzSourceUnitPlayedCardNo)
+            ?? throw new InvalidOperationException("B0 Fizz source-unit-played driver could not find Fizz in P1 hand.");
+        Assert.NotNull(FindGraveyardCardObjectByCardNo(current.State, fizzPlayerId, MobilizeSpellCardNo));
+        Assert.NotEmpty(current.State.PlayerZones[fizzPlayerId].RuneDeck);
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(fizzObjectId, legalSourceIds);
+
+        var command = new PlayCardCommand(
+            fizzObjectId,
+            FizzSourceUnitPlayedCardNo,
+            [],
+            Destination: "BASE");
+        var played = await session.SubmitAsync(
+            fizzPlayerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(played);
+        AssertNoHiddenZoneLeak(played);
+
+        var result = await ResolveStackPassPassAsync(session, played, $"{intentId}-resolve");
+        Assert.Null(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -21675,6 +21806,20 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildFizzSourceUnitPlayedGraveyardRuneSpellOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                VoidReaverLegendCardNo,
+                KhaZixChampionCardNo,
+                [
+                    FizzSourceUnitPlayedCardNo,
+                    MobilizeSpellCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return BuildSameBattlefieldStaticAuraOfficialDeck(
@@ -24259,6 +24404,80 @@ public sealed class FullGameEndToEndTests
                 .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
+        };
+    }
+
+    private static MatchState BuildFizzSourceUnitPlayedGraveyardRuneSpellMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [FizzSourceUnitPlayedCardNo, MobilizeSpellCardNo],
+                    new RunePool(
+                        mana: 3,
+                        power: 0,
+                        new Dictionary<string, int>(StringComparer.Ordinal)))
+            });
+        var fizzObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            FizzSourceUnitPlayedCardNo)
+            ?? throw new InvalidOperationException("B0 Fizz setup could not find Fizz in P1 hand.");
+        var spellObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            MobilizeSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Fizz setup could not find Mobilize in P1 hand.");
+        Assert.NotEmpty(midgameState.PlayerZones["P1"].RuneDeck);
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, spellObjectId, StringComparison.Ordinal)).ToArray(),
+            Graveyard = p1Zones.Graveyard.Concat([spellObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[fizzObjectId] = new ObjectLocationState("P1", "HAND");
+        objectLocations[spellObjectId] = new ObjectLocationState("P1", "GRAVEYARD");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[fizzObjectId] = cardObjects[fizzObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[fizzObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[spellObjectId] = cardObjects[spellObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[spellObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerScores = new Dictionary<string, int>(midgameState.PlayerScores, StringComparer.Ordinal)
+            {
+                ["P1"] = 3,
+                ["P2"] = 0
+            }
         };
     }
 
