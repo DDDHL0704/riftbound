@@ -8,15 +8,15 @@ internal static class RunestoneTheme
     public static readonly Color Basalt = new(0.055f, 0.055f, 0.052f, 1f);
     public static readonly Color BasaltLift = new(0.105f, 0.105f, 0.098f, 1f);
     public static readonly Color Stone = new(0.225f, 0.22f, 0.2f, 1f);
-    public static readonly Color Rune = new(0.86f, 0.79f, 0.62f, 1f);
-    public static readonly Color RuneDim = new(0.64f, 0.58f, 0.43f, 0.58f);
-    public static readonly Color Brass = new(0.84f, 0.62f, 0.25f, 1f);
-    public static readonly Color BrassDim = new(0.48f, 0.36f, 0.18f, 0.86f);
+    public static readonly Color Rune = new(0.88f, 0.85f, 0.76f, 1f);
+    public static readonly Color RuneDim = new(0.68f, 0.65f, 0.56f, 0.58f);
+    public static readonly Color Brass = new(0.63f, 0.52f, 0.34f, 1f);
+    public static readonly Color BrassDim = new(0.38f, 0.31f, 0.21f, 0.76f);
     public static readonly Color Ink = new(0.9f, 0.87f, 0.78f, 1f);
     public static readonly Color MutedInk = new(0.58f, 0.56f, 0.5f, 1f);
     public static readonly Color Warning = new(0.86f, 0.25f, 0.18f, 1f);
-    public static readonly Color Crimson = new(0.66f, 0.075f, 0.07f, 1f);
-    public static readonly Color CrimsonDim = new(0.42f, 0.055f, 0.055f, 0.72f);
+    public static readonly Color Crimson = new(0.58f, 0.055f, 0.052f, 1f);
+    public static readonly Color CrimsonDim = new(0.34f, 0.042f, 0.042f, 0.62f);
     public static readonly Color Ivory = new(0.88f, 0.84f, 0.74f, 1f);
     public static readonly Color Steel = new(0.24f, 0.25f, 0.24f, 1f);
 
@@ -110,9 +110,9 @@ internal static class RunestoneTheme
         button.AddThemeColorOverride("font_hover_color", Colors.White);
         button.AddThemeColorOverride("font_pressed_color", Colors.White);
         button.AddThemeColorOverride("font_disabled_color", MutedInk);
-        button.AddThemeStyleboxOverride("normal", ButtonStyle(new Color(0.06f, 0.057f, 0.052f, 0.94f), Steel));
-        button.AddThemeStyleboxOverride("hover", ButtonStyle(new Color(0.13f, 0.12f, 0.105f, 0.98f), Crimson));
-        button.AddThemeStyleboxOverride("pressed", ButtonStyle(new Color(0.16f, 0.06f, 0.045f, 1f), Brass));
+        button.AddThemeStyleboxOverride("normal", ButtonStyle(new Color(0.045f, 0.044f, 0.041f, 0.9f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.34f)));
+        button.AddThemeStyleboxOverride("hover", ButtonStyle(new Color(0.08f, 0.077f, 0.068f, 0.96f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.64f)));
+        button.AddThemeStyleboxOverride("pressed", ButtonStyle(new Color(0.105f, 0.04f, 0.036f, 1f), Brass));
         button.AddThemeStyleboxOverride("disabled", ButtonStyle(new Color(0.035f, 0.035f, 0.033f, 0.74f), new Color(0.16f, 0.15f, 0.13f, 0.72f)));
         button.AddThemeStyleboxOverride("focus", ButtonStyle(BasaltLift, Brass));
     }
@@ -121,15 +121,15 @@ internal static class RunestoneTheme
     {
         return surface switch
         {
-            RunestoneSurface.Table => (new Color(0.025f, 0.024f, 0.022f, 0.98f), Brass, 4),
-            RunestoneSurface.Rail => (new Color(0.045f, 0.043f, 0.039f, 0.94f), Steel, 3),
-            RunestoneSurface.Zone => (new Color(0.035f, 0.035f, 0.032f, 0.86f), new Color(0.47f, 0.43f, 0.34f, 0.78f), 3),
-            RunestoneSurface.Slot => (new Color(0.02f, 0.02f, 0.018f, 0.58f), new Color(0.62f, 0.58f, 0.48f, 0.42f), 3),
-            RunestoneSurface.Card => (new Color(0.12f, 0.105f, 0.082f, 1f), Brass, 5),
-            RunestoneSurface.CardBack => (new Color(0.035f, 0.024f, 0.022f, 1f), Crimson, 5),
-            RunestoneSurface.Stack => (new Color(0.028f, 0.028f, 0.026f, 0.94f), BrassDim, 3),
-            RunestoneSurface.Result => (new Color(0.105f, 0.062f, 0.045f, 0.98f), Brass, 4),
-            _ => (new Color(0.04f, 0.04f, 0.036f, 0.9f), Steel, 3)
+            RunestoneSurface.Table => (new Color(0.012f, 0.012f, 0.011f, 0.76f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.64f), 3),
+            RunestoneSurface.Rail => (new Color(0.018f, 0.018f, 0.017f, 0.76f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.34f), 2),
+            RunestoneSurface.Zone => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.075f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.48f), 2),
+            RunestoneSurface.Slot => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.04f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.36f), 2),
+            RunestoneSurface.Card => (new Color(0.052f, 0.05f, 0.046f, 0.98f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.58f), 4),
+            RunestoneSurface.CardBack => (new Color(0.024f, 0.022f, 0.021f, 0.98f), new Color(Crimson.R, Crimson.G, Crimson.B, 0.72f), 4),
+            RunestoneSurface.Stack => (new Color(0.016f, 0.016f, 0.015f, 0.78f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.26f), 2),
+            RunestoneSurface.Result => (new Color(0.014f, 0.014f, 0.013f, 0.94f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.74f), 3),
+            _ => (new Color(0.026f, 0.026f, 0.024f, 0.84f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.3f), 2)
         };
     }
 

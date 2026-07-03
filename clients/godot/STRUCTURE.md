@@ -9,8 +9,8 @@ contracts change.
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
   uses the `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
 - `scenes/Main.tscn` is a single `Control` root with lobby/session controls,
-  deck controls, a snapshot/table scroll area, result panel, right-side official
-  card preview, prompt panel, and hidden log panel.
+  deck controls, a snapshot/table scroll area, an overlay result panel,
+  right-side official card preview, prompt panel, and hidden log panel.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -19,6 +19,9 @@ contracts change.
 - `Main.cs` is the application coordinator: argument parsing, session identity,
   API and hub clients, lobby/deck flow, prompt rendering and submission, smoke
   helpers, snapshot rendering, result panel, screenshot capture, and theme setup.
+  It keeps lobby/deck chrome visible during the `ROOM` state, then hides it for
+  non-room battle snapshots so the tabletop owns the combat viewport without
+  blocking deck selection.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
@@ -30,7 +33,9 @@ contracts change.
 ## Visual Layer
 
 - `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` define
-  the procedural inksteel visual style selected for the client.
+  the procedural inksteel visual style selected for the client: low-saturation
+  black/ivory linework, translucent ink-wash zones, restrained crimson and muted
+  antique-gold accents.
 - `CardControlRenderer.cs` owns tabletop layout, card frames, card backs,
   visible card faces, rune tracks, zone panels, prompt-source highlights, and
   card hover/click feedback.

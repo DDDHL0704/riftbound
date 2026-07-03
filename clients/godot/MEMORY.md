@@ -17,6 +17,11 @@ resume from repository state instead of conversation history alone.
 - `scripts/RunestoneTheme.cs` and `scripts/RunestoneBackdrop.cs` implement the
   selected style route C: black-white inksteel tabletop with restrained crimson
   and antique-gold accents.
+- Latest P3 correction after visual review: the combat viewport now preserves
+  route C by using muted black/ivory linework and translucent ink-wash zones.
+  Lobby/session/deck rows remain visible in `ROOM` so humans can choose decks,
+  then collapse for non-room battle snapshots. The result panel is a root-level
+  overlay so it no longer pushes or compresses the tabletop in final screenshots.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -74,6 +79,12 @@ resume from repository state instead of conversation history alone.
   `/tmp/riftbound-simulated-playtest-clean-sim-latest-203656`; it is useful
   regression evidence only and remains invalid for final P5 because it contains
   auto-smoke markers.
+- Latest local dirty-worktree visual correction check:
+  `/tmp/riftbound-simulated-playtest-sim-local-094334` opened two visible Godot
+  windows, kept deck/lobby controls visible in `ROOM`, collapsed that chrome in
+  result screenshots, rendered the compact overlay result panel, and preserved
+  opponent hidden hands as backs/counts. It is regression evidence only because
+  it is automated and not captured from clean pushed `main`.
 
 ## Open Risks
 

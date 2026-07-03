@@ -157,23 +157,6 @@ layout_mode = 2
 autowrap_mode = 2
 text = "等待服务端快照"
 
-[node name="ResultFrame" type="PanelContainer" parent="Controls"]
-visible = false
-layout_mode = 2
-
-[node name="ResultBox" type="HBoxContainer" parent="Controls/ResultFrame"]
-layout_mode = 2
-
-[node name="ResultSummary" type="Label" parent="Controls/ResultFrame/ResultBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-autowrap_mode = 2
-text = "No result"
-
-[node name="ReturnLobbyButton" type="Button" parent="Controls/ResultFrame/ResultBox"]
-layout_mode = 2
-text = "返回大厅"
-
 [node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
 custom_minimum_size = Vector2(0, 600)
 layout_mode = 2
@@ -194,6 +177,29 @@ vertical_scroll_mode = 0
 
 [node name="HandRow" type="HBoxContainer" parent="Controls/HandScroll"]
 layout_mode = 2
+
+[node name="ResultFrame" type="PanelContainer" parent="."]
+visible = false
+z_index = 20
+layout_mode = 1
+anchors_preset = 0
+offset_left = 24.0
+offset_top = 132.0
+offset_right = 760.0
+offset_bottom = 308.0
+
+[node name="ResultBox" type="HBoxContainer" parent="ResultFrame"]
+layout_mode = 2
+
+[node name="ResultSummary" type="Label" parent="ResultFrame/ResultBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "No result"
+
+[node name="ReturnLobbyButton" type="Button" parent="ResultFrame/ResultBox"]
+layout_mode = 2
+text = "返回大厅"
 
 [node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
 layout_mode = 1

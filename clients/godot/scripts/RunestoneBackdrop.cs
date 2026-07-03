@@ -32,8 +32,8 @@ public partial class RunestoneBackdrop : Control
     {
         const float tileWidth = 150f;
         const float tileHeight = 118f;
-        var vertical = new Color(0.56f, 0.53f, 0.44f, 0.13f);
-        var horizontal = new Color(0.7f, 0.66f, 0.54f, 0.1f);
+        var vertical = new Color(0.68f, 0.66f, 0.58f, 0.075f);
+        var horizontal = new Color(0.82f, 0.79f, 0.68f, 0.06f);
 
         for (var x = 0f; x <= size.X; x += tileWidth)
         {
@@ -55,7 +55,7 @@ public partial class RunestoneBackdrop : Control
             DrawLine(
                 new Vector2(x, y),
                 new Vector2(x + length, y + Jitter(i, 409, 12f)),
-                new Color(0.8f, 0.76f, 0.62f, 0.07f),
+                new Color(0.86f, 0.84f, 0.75f, 0.045f),
                 1f);
         }
     }
@@ -65,22 +65,43 @@ public partial class RunestoneBackdrop : Control
         var rightEdge = MathF.Max(380f, size.X - 336f);
         var left = 18f;
         var width = MathF.Max(260f, rightEdge - left - 16f);
-        var top = size.Y * 0.28f;
-        var height = size.Y * 0.42f;
+        var top = MathF.Max(96f, size.Y * 0.12f);
+        var height = MathF.Max(420f, size.Y - top - 66f);
         var rect = new Rect2(left, top, width, height);
 
-        DrawRect(rect, new Color(0.018f, 0.018f, 0.016f, 0.56f));
-        DrawRect(rect, new Color(0.84f, 0.78f, 0.62f, 0.24f), false, 2f);
-        DrawRect(new Rect2(rect.Position + new Vector2(3, 3), rect.Size - new Vector2(6, 6)), new Color(0.42f, 0.035f, 0.035f, 0.13f), false, 1f);
+        DrawRect(rect, new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.09f));
+        DrawInkWash(rect);
+        DrawRect(rect, new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.32f), false, 2f);
+        DrawRect(new Rect2(rect.Position + new Vector2(3, 3), rect.Size - new Vector2(6, 6)), new Color(RunestoneTheme.BasaltBlack.R, RunestoneTheme.BasaltBlack.G, RunestoneTheme.BasaltBlack.B, 0.4f), false, 1f);
 
         var midY = rect.Position.Y + rect.Size.Y * 0.5f;
-        DrawLine(new Vector2(rect.Position.X + 18f, midY), new Vector2(rect.End.X - 18f, midY), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.22f), 2f);
-        DrawLine(new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.Position.Y + 14f), new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.End.Y - 14f), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.24f), 2f);
+        DrawLine(new Vector2(rect.Position.X + 18f, midY), new Vector2(rect.End.X - 18f, midY), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.28f), 2f);
+        DrawLine(new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.Position.Y + 14f), new Vector2(rect.Position.X + rect.Size.X * 0.5f, rect.End.Y - 14f), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.12f), 1.4f);
 
         for (var i = 0; i < 18; i++)
         {
             var x = rect.Position.X + 42f + i * ((rect.Size.X - 84f) / 17f);
             DrawRuneTick(new Vector2(x, midY), i);
+        }
+    }
+
+    private void DrawInkWash(Rect2 rect)
+    {
+        for (var i = 0; i < 72; i++)
+        {
+            var x = rect.Position.X + MathF.Abs(Jitter(i, 503, rect.Size.X * 0.96f));
+            var y = rect.Position.Y + MathF.Abs(Jitter(i, 607, rect.Size.Y * 0.96f));
+            var length = 42f + MathF.Abs(Jitter(i, 709, 92f));
+            var thickness = i % 7 == 0 ? 2f : 1f;
+            var darkStroke = i % 3 != 0;
+            var color = darkStroke
+                ? new Color(0f, 0f, 0f, 0.055f)
+                : new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.05f);
+            DrawLine(
+                new Vector2(x, y),
+                new Vector2(MathF.Min(rect.End.X - 12f, x + length), y + Jitter(i, 811, 28f)),
+                color,
+                thickness);
         }
     }
 
@@ -99,18 +120,18 @@ public partial class RunestoneBackdrop : Control
     private void DrawHeaderPlate(Vector2 size)
     {
         var width = MathF.Max(320f, size.X - 352f);
-        var plate = new Rect2(0, 0, width, 246f);
-        DrawRect(plate, new Color(0.01f, 0.01f, 0.009f, 0.42f));
-        DrawRect(new Rect2(0, plate.End.Y - 2f, width, 2f), new Color(RunestoneTheme.Brass.R, RunestoneTheme.Brass.G, RunestoneTheme.Brass.B, 0.34f));
-        DrawRect(new Rect2(width - 2f, 0, 2f, plate.End.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.18f));
+        var plate = new Rect2(0, 0, width, 112f);
+        DrawRect(plate, new Color(0.01f, 0.01f, 0.009f, 0.36f));
+        DrawRect(new Rect2(0, plate.End.Y - 1f, width, 1f), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.22f));
+        DrawRect(new Rect2(width - 1f, 0, 1f, plate.End.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.1f));
     }
 
     private void DrawSidePanelGlow(Vector2 size)
     {
         var x = MathF.Max(0, size.X - 336f);
-        DrawRect(new Rect2(x, 0, 2f, size.Y), new Color(RunestoneTheme.Brass.R, RunestoneTheme.Brass.G, RunestoneTheme.Brass.B, 0.45f));
-        DrawRect(new Rect2(x + 2f, 0, 22f, size.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.1f));
-        DrawRect(new Rect2(x + 24f, 0, 1f, size.Y), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.12f));
+        DrawRect(new Rect2(x, 0, 1f, size.Y), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.32f));
+        DrawRect(new Rect2(x + 1f, 0, 20f, size.Y), new Color(RunestoneTheme.Crimson.R, RunestoneTheme.Crimson.G, RunestoneTheme.Crimson.B, 0.055f));
+        DrawRect(new Rect2(x + 22f, 0, 1f, size.Y), new Color(RunestoneTheme.Ivory.R, RunestoneTheme.Ivory.G, RunestoneTheme.Ivory.B, 0.08f));
     }
 
     private static float Jitter(int a, int b, float scale)

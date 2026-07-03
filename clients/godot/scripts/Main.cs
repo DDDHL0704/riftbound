@@ -111,6 +111,7 @@ public partial class Main : Control
     private bool _autoSmokeSurrenderSubmitted;
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
+    private bool _battleChromeHidden;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
     private int _snapshotRenderVersion;
@@ -211,8 +212,8 @@ public partial class Main : Control
         _officialCardPreviewFrame = GetNode<PanelContainer>("OfficialCardPreviewFrame");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreview");
         _officialCardPreviewSummary = GetNode<Label>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreviewSummary");
-        _resultFrame = GetNode<PanelContainer>("Controls/ResultFrame");
-        _resultSummary = GetNode<Label>("Controls/ResultFrame/ResultBox/ResultSummary");
+        _resultFrame = GetNode<PanelContainer>("ResultFrame");
+        _resultSummary = GetNode<Label>("ResultFrame/ResultBox/ResultSummary");
         _promptFrame = GetNode<PanelContainer>("PromptFrame");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
@@ -235,7 +236,7 @@ public partial class Main : Control
         _loadDecksButton = GetNode<Button>("Controls/DeckFrame/DeckRow/LoadDecksButton");
         _submitDeckButton = GetNode<Button>("Controls/DeckFrame/DeckRow/SubmitDeckButton");
         _readyButton = GetNode<Button>("Controls/DeckFrame/DeckRow/ReadyButton");
-        _returnLobbyButton = GetNode<Button>("Controls/ResultFrame/ResultBox/ReturnLobbyButton");
+        _returnLobbyButton = GetNode<Button>("ResultFrame/ResultBox/ReturnLobbyButton");
     }
 
     private void InstallRunestoneBackdrop()
@@ -269,7 +270,7 @@ public partial class Main : Control
         var title = GetNodeOrNull<Label>("Title");
         if (title is not null)
         {
-            title.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+            title.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         }
 
         if (_status is not null)
@@ -278,9 +279,9 @@ public partial class Main : Control
         }
 
         ApplyLobbyFrame(_sessionFrame);
-        ApplyLobbyFrame(_matchmakingFrame, RunestoneSurface.Result);
+        ApplyLobbyFrame(_matchmakingFrame);
         ApplyLobbyFrame(_publicMatchFrame);
-        ApplyLobbyFrame(_deckFrame, RunestoneSurface.Result);
+        ApplyLobbyFrame(_deckFrame);
         ApplyLobbyRowLabels();
 
         if (_boardSummary is not null)
@@ -320,10 +321,10 @@ public partial class Main : Control
             "Controls/DeckFrame/DeckRow/DeckLabel"
         })
         {
-            GetNodeOrNull<Label>(path)?.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+            GetNodeOrNull<Label>(path)?.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         }
 
-        _matchmakingStatus?.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        _matchmakingStatus?.AddThemeColorOverride("font_color", RunestoneTheme.Rune);
     }
 
     private void ApplyMainContentGutter()
@@ -2384,6 +2385,7 @@ public partial class Main : Control
         {
             ["kind"] = "wireTable",
             ["viewerPlayerId"] = viewerPlayerId,
+            ["turnState"] = ReadString(snapshot, "turnState"),
             ["runeDeckSize"] = runeDeckSize,
             ["self"] = self,
             ["opponent"] = opponent,
@@ -3306,6 +3308,8 @@ public partial class Main : Control
 
     public void ApplyMatchResult(Godot.Collections.Dictionary result)
     {
+        SetBattleChromeVisible(battleActive: true);
+
         if (_resultFrame is not null)
         {
             _resultFrame.Visible = true;
@@ -3352,6 +3356,7 @@ public partial class Main : Control
         {
             _resultFrame.Visible = false;
         }
+        SetBattleChromeVisible(battleActive: false);
 
         if (_resultSummary is not null)
         {
@@ -3988,7 +3993,54 @@ public partial class Main : Control
         }
 
         _lastSnapshotSections = sections;
+        SetBattleChromeVisible(HasWireTableSection(sections));
         _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
+    }
+
+    private void SetBattleChromeVisible(bool battleActive)
+    {
+        if (_battleChromeHidden == battleActive)
+        {
+            return;
+        }
+
+        _battleChromeHidden = battleActive;
+        var lobbyVisible = !battleActive;
+        if (_sessionFrame is not null)
+        {
+            _sessionFrame.Visible = lobbyVisible;
+        }
+
+        if (_matchmakingFrame is not null)
+        {
+            _matchmakingFrame.Visible = lobbyVisible;
+        }
+
+        if (_publicMatchFrame is not null)
+        {
+            _publicMatchFrame.Visible = lobbyVisible;
+        }
+
+        if (_deckFrame is not null)
+        {
+            _deckFrame.Visible = lobbyVisible;
+        }
+    }
+
+    private static bool HasWireTableSection(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
+    {
+        if (sections.Count != 1
+            || !sections[0].TryGetValue("kind", out var kind)
+            || !string.Equals(kind.AsString(), "wireTable", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var turnState = sections[0].TryGetValue("turnState", out var turnStateValue)
+            ? turnStateValue.AsString()
+            : string.Empty;
+        return !string.IsNullOrWhiteSpace(turnState)
+            && !string.Equals(turnState, "ROOM", StringComparison.OrdinalIgnoreCase);
     }
 
     private void QueueVisualScreenshotIfReady(int tableCardCount)

@@ -401,7 +401,7 @@ internal sealed class CardControlRenderer
         };
         frame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Stack));
         var label = LabelNode(text, minSize);
-        label.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        label.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         frame.AddChild(label);
         return frame;
     }
@@ -538,7 +538,7 @@ internal sealed class CardControlRenderer
     {
         var tween = frame.CreateTween();
         tween.SetLoops();
-        tween.TweenProperty(frame, "modulate", new Color(1f, 0.86f, 0.54f, 1f), 0.62d)
+        tween.TweenProperty(frame, "modulate", new Color(1f, 0.94f, 0.78f, 1f), 0.62d)
             .SetTrans(Tween.TransitionType.Sine)
             .SetEase(Tween.EaseType.InOut);
         tween.TweenProperty(frame, "modulate", Colors.White, 0.62d)
@@ -549,7 +549,7 @@ internal sealed class CardControlRenderer
     private static void FlashCardPress(Control frame)
     {
         var tween = frame.CreateTween();
-        tween.TweenProperty(frame, "modulate", new Color(1f, 0.74f, 0.38f, 1f), 0.05d)
+        tween.TweenProperty(frame, "modulate", new Color(1f, 0.92f, 0.72f, 1f), 0.05d)
             .SetTrans(Tween.TransitionType.Cubic)
             .SetEase(Tween.EaseType.Out);
         tween.TweenProperty(frame, "modulate", Colors.White, 0.16d)
