@@ -852,6 +852,29 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitConquestPlayLowCostGraveyardSpellRecycleMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，你可以选择从废牌堆中打出一张法力费用低于你当前分数的法术牌，无需支付其法力费用，然后将其回收（仍需支付所有符能费用）。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestPlayLowCostGraveyardSpellRecycleMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.ControlledSpellInGraveyard,
+                PlayCount: 1,
+                PlayOriginZone: TriggerZones.Graveyard,
+                PlayDestinationZone: TriggerZones.Stack,
+                PlayCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:SPELL",
+                RequiresPlayedCardManaCostLessThanCurrentScore: true,
+                IgnorePlayManaCost: true,
+                PayPlayPowerCosts: true,
+                RecyclePlayedCardOnResolution: true,
+                Optional: true);
+        }
+
         var unitFriendlyDestroyedGainExperienceMatch = Regex.Match(
             segment,
             @"当另一名友方单位被摧毁时，获得([0-9一两二三四五六七八九十]+)经验。?$",

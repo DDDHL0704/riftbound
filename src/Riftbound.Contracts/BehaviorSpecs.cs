@@ -149,6 +149,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_ATTACK_OVERKILL_GAIN_SCORE";
     public const string UnitConquestPayReturnSelfToHand =
         "UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND";
+    public const string UnitConquestPlayLowCostGraveyardSpellRecycle =
+        "UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     public const string HandCardsDiscardedReadySourcePower =
@@ -256,6 +258,7 @@ public static class TriggerTargetScopes
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
+    public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
@@ -294,6 +297,7 @@ public static class TriggerZones
     public const string Hand = "HAND";
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
+    public const string Stack = "STACK";
 }
 
 public static class TriggerCardFilters
@@ -514,6 +518,14 @@ public sealed record TriggerSpec(
     string? ReturnOriginZone = null,
     string? ReturnDestinationZone = null,
     string? ReturnCardFilter = null,
+    int? PlayCount = null,
+    string? PlayOriginZone = null,
+    string? PlayDestinationZone = null,
+    string? PlayCardFilter = null,
+    bool? RequiresPlayedCardManaCostLessThanCurrentScore = null,
+    bool? IgnorePlayManaCost = null,
+    bool? PayPlayPowerCosts = null,
+    bool? RecyclePlayedCardOnResolution = null,
     int? RequiredUnitCount = null,
     int? RequiredPowerThreshold = null,
     bool? WinsGame = null,

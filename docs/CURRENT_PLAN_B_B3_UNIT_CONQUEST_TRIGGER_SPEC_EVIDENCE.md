@@ -8,10 +8,14 @@ Project status: **NOT READY**.
 
 2026-07-01 follow-up: unit-conquest runtime routing no longer exposes or calls public `TryGetUnitConquest*` helper methods. `CoreRuleEngine` enumerates `UnitConquestTriggerSpecRules.TriggersForCard(...)`, filters auto-resolvable effects with `IsSupportedUnitConquestTrigger(...)`, and uses the same generic `TryGetTrigger(...)` / `TryGetTriggerByEffectKind(...)` path for Vayne pay-return payment validation.
 
+2026-07-03 follow-up: OGN Kai'Sa's graveyard spell conquest text now parses to `UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` and has a natural-conquest runtime representative for the no-target draw-spell path. The execution bridge is intentionally limited to no-target draw spells that can reuse existing stack resolution without extra target, rune-pool, experience, pending-payment, or token-state handoff. Complete optional choice prompts, power-cost UI, targeted spells, and full official Kai'Sa breadth remain open.
+
 ## Rule Sources
 
 - `data/official/card-catalog.zh-CN.json`: `OGN·039/298` 卡莎 has official text `{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当我征服一处战场时，抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·039a/298` 卡莎 has the same official text.
+- `data/official/card-catalog.zh-CN.json`: `OGN·112/298` 卡莎 has official text `{{游走}}（我可以向其他战场进行移动。）\n当我征服一处战场时，你可以选择从废牌堆中打出一张法力费用低于你当前分数的法术牌，无需支付其法力费用，然后将其回收（仍需支付所有符能费用）。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·112a/298` 卡莎 has the same graveyard-spell unit conquest text.
 - `data/official/card-catalog.zh-CN.json`: `OGN·155/298` 奇亚娜 has official text `{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当我征服一处战场时，抽一张牌或召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-222/219` 坏坏魄罗 has official text `当我征服一处战场时，打出一个休眠的“金币”装备指示物。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·069/221` 坏坏魄罗 has the same official text.
@@ -34,6 +38,7 @@ Project status: **NOT READY**.
 
 - `BehaviorSpecCatalogParsesUnitConquestDrawOneTrigger(OGN·039/298)` verifies that 卡莎's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_DRAW_ONE`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `DrawCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestDrawOneTrigger(OGN·039a/298)` verifies the same shape for the alternate print.
+- `BehaviorSpecCatalogParsesUnitConquestPlayLowCostGraveyardSpellRecycleTrigger` verifies that the two OGN 112 卡莎 prints parse their official graveyard-spell conquest text to `TriggerSpec.Kind = UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE`, `Timing = UNIT_CONQUEST`, `TargetScope = CONTROLLED_SPELL_IN_GRAVEYARD`, `PlayCount = 1`, `PlayOriginZone = GRAVEYARD`, `PlayDestinationZone = STACK`, `PlayCardFilter = TAG:CARD_TYPE:SPELL`, `RequiresPlayedCardManaCostLessThanCurrentScore = true`, `IgnorePlayManaCost = true`, `PayPlayPowerCosts = true`, `RecyclePlayedCardOnResolution = true`, and `Optional = true`.
 - `BehaviorSpecCatalogParsesUnitConquestDrawOneOrCallRuneTrigger` verifies that 奇亚娜's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RuneCallCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(UNL-222/219)` verifies that 坏坏魄罗's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_CREATE_DORMANT_GOLD`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount = 1`, `CreatedTokenName = 金币`, `CreatedTokenDestination = OWNER_BASE`, `CreatedTokenExhausted = true`, and `CreatedTokenKeywords = [反应]`.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(SFD·069/221)` verifies the same shape for the SFD print.
@@ -60,6 +65,7 @@ Project status: **NOT READY**.
 ## Runtime Evidence
 
 - `NaturalUnitConquestTriggerTests.KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·039/298` 卡莎 emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_DRAW_ONE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
+- `NaturalUnitConquestTriggerTests.KaisaPlaysLowCostGraveyardSpellAndRecyclesItAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·112/298` 卡莎 with controller score 3 and controlled graveyard `OGN·048/298` 冥想 (mana cost 2) activates `UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE`, emits `CARD_PLAYED_FROM_GRAVEYARD` with `sourceZone = GRAVEYARD`, `destinationZone = STACK`, `ignorePlayManaCost = true`, and `payPlayPowerCosts = true`, resolves the no-target draw spell through shared stack resolution, then emits `CARDS_RECYCLED` and moves the played spell from graveyard to the controller's main-deck bottom.
 - `NaturalUnitConquestTriggerTests.CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-029/219` 绯红印记树怪 uses its same-battlefield `UNIT_CONQUEST_ADDITIONAL_ACTIVATION` source to activate `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` twice with reason `BATTLEFIELD_CONQUERED`, while the second boon event records `alreadyHadBoon = true` and does not stack another power increase.
 - `NaturalUnitConquestTriggerTests.YetiBrawlerCreatesTwoDormantGoldAfterOverkillNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-018/219` 雪人斗士 with 5 assigned overkill damage emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, and creates two exhausted Gold equipment tokens in the controller's base.
 - `NaturalUnitConquestTriggerTests.TryndamereGainsScoreAfterAttackOverkillNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·034/298` 泰达米尔 with 7 assigned overkill damage emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_ATTACK_OVERKILL_GAIN_SCORE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, adds 1 score after the normal conquest score, and propagates `MATCH_WON` when the extra score reaches the effective winning score.
@@ -86,6 +92,9 @@ Project status: **NOT READY**.
 - Focused official-deck-derived Vayne pay-return replay representative: `1/1` passing.
 - Focused natural unit conquest additional-activation + 清算人竞技场 non-repeat representatives: `5/5` passing.
 - Focused official-deck midgame Treant conquest repeat replay representative: `1/1` passing.
+- Focused Kai'Sa graveyard-spell TriggerSpec parser + natural conquest no-target draw-spell representative: `3/3` passing.
+- 2026-07-03 follow-up adjacent NaturalUnitConquest / UnitConquest / Kai'Sa / Meditation / Stack / CardCatalogBaseline / MatchRecovery representatives: `2888/2888` passing.
+- 2026-07-03 follow-up backend full conformance: `9148/9148` passing.
 - Adjacent `FullGameEndToEnd` / `NaturalUnitConquestTrigger` / `UnitConquest` / `MatchRecovery` representatives: `2034/2034` passing.
 - Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `Score` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2589/2589` passing.
 - Adjacent `OfficialDeckMidgamePaysVayneConquestReturn` / `Vayne` / `UnitConquest` / `TriggerPayment` / `BattlefieldConquer` / `DeclareBattle` / `PaymentEngine` / `FullGameEndToEnd` / `MatchRecovery` / `CardCatalogBaseline` representatives: `3453/3453` passing.
@@ -104,3 +113,4 @@ Project status: **NOT READY**.
 - 绯红印记树怪's conquest-effect additional-activation text now has a natural-conquest representative; complete ordering and multi-source breadth remain open.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - Complete optional yes/no target selection and hidden-information edge cases for targeted conquest effects remain open.
+- Kai'Sa's graveyard-spell conquest execution is currently a no-target draw-spell representative path. Complete optional choice prompts, explicit spell selection, power-cost prompt routing, targeted spell resolution, and broader spell effect state handoff remain open.

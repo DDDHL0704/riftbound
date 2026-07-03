@@ -23759,6 +23759,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        var unitConquestPlayGraveyardSpellTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
+            string.Equals(trigger.Kind, TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, StringComparison.Ordinal));
+        if (unitConquestPlayGraveyardSpellTrigger is not null
+            && TryResolveUnitConquestPlayLowCostGraveyardSpellRecycleTrigger(
+                state,
+                playerZones,
+                cardObjects,
+                nextPlayerScores,
+                nextUntilEndOfTurnEffects,
+                playerId,
+                battlefieldObjectId,
+                activationReason,
+                unitObjectId,
+                unitState,
+                unitConquestPlayGraveyardSpellTrigger,
+                nextRngCursor,
+                events,
+                out var playSpellDrawApplication,
+                out var playSpellUntilEndOfTurnEffects))
+        {
+            drawApplication = playSpellDrawApplication;
+            nextUntilEndOfTurnEffects = playSpellUntilEndOfTurnEffects;
+            return true;
+        }
+
         var unitConquestSelfBoonTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
             string.Equals(trigger.Kind, TriggerKinds.UnitConquestGrantSelfBoon, StringComparison.Ordinal));
         if (unitConquestSelfBoonTrigger is not null)
@@ -24035,6 +24060,255 @@ public sealed class CoreRuleEngine : IRuleEngine
             "UNIT_CONQUEST_EFFECT_ACTIVATED",
             $"{unitObjectId} 的征服效果已激活",
             payload));
+    }
+
+    private static bool TryResolveUnitConquestPlayLowCostGraveyardSpellRecycleTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldObjectId,
+        string activationReason,
+        string unitObjectId,
+        CardObjectState unitState,
+        TriggerSpec trigger,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetFirstPlayableUnitConquestGraveyardSpell(
+                playerZones,
+                cardObjects,
+                playerScores,
+                playerId,
+                trigger,
+                out var spellObjectId,
+                out var spellState,
+                out var spellBehavior))
+        {
+            return false;
+        }
+
+        AddUnitConquestEffectActivatedEvent(
+            events,
+            playerId,
+            unitObjectId,
+            unitState.CardNo,
+            trigger.Kind,
+            battlefieldObjectId,
+            activationReason,
+            spellObjectId);
+        events.Add(new GameEvent(
+            "CARD_PLAYED_FROM_GRAVEYARD",
+            $"{unitObjectId} 的征服效果从废牌堆打出法术",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = unitObjectId,
+                ["sourceCardNo"] = unitState.CardNo,
+                ["playedObjectId"] = spellObjectId,
+                ["playedCardNo"] = spellState.CardNo,
+                ["playedCardManaCost"] = EffectiveCardManaCost(spellState, spellBehavior),
+                ["sourceZone"] = TriggerZones.Graveyard,
+                ["destinationZone"] = TriggerZones.Stack,
+                ["effectId"] = trigger.Kind,
+                ["ignorePlayManaCost"] = trigger.IgnorePlayManaCost == true,
+                ["payPlayPowerCosts"] = trigger.PayPlayPowerCosts == true
+            }));
+
+        var sourceZones = playerZones[playerId];
+        playerZones[playerId] = sourceZones with
+        {
+            Graveyard = RemoveFromZone(sourceZones.Graveyard, spellObjectId)
+        };
+        var stackItem = new StackItemState(
+            $"unit-conquest-{unitObjectId}-{spellObjectId}",
+            playerId,
+            spellObjectId,
+            spellBehavior.EffectKind,
+            spellState.CardNo,
+            [],
+            spellBehavior.DamageAmount,
+            1,
+            [],
+            timingContext: "UNIT_CONQUEST_TRIGGER");
+        var temporaryState = state with
+        {
+            PlayerZones = playerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            CardObjects = cardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            PlayerScores = playerScores.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
+            RngCursor = rngCursor,
+            StackItems = []
+        };
+        var stackResolution = ResolveStackItemEffect(temporaryState, stackItem);
+        ReplaceDictionaryContents(playerZones, stackResolution.PlayerZones);
+        ReplaceDictionaryContents(cardObjects, stackResolution.CardObjects);
+        events.AddRange(stackResolution.Events);
+
+        var nextPlayerScores = stackResolution.PlayerScores;
+        var winnerPlayerId = stackResolution.WinnerPlayerId;
+        var nextRngCursor = stackResolution.RngCursor;
+        nextUntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects;
+        if (trigger.RecyclePlayedCardOnResolution == true
+            && TryRecycleUnitConquestPlayedSpell(
+                playerZones,
+                playerId,
+                unitObjectId,
+                spellObjectId,
+                trigger.Kind,
+                events))
+        {
+            nextRngCursor = stackResolution.RngCursor;
+        }
+
+        drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+        return true;
+    }
+
+    private static bool TryGetFirstPlayableUnitConquestGraveyardSpell(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        TriggerSpec trigger,
+        out string spellObjectId,
+        out CardObjectState spellState,
+        out CardBehaviorDefinition spellBehavior)
+    {
+        spellObjectId = string.Empty;
+        spellState = default!;
+        spellBehavior = default!;
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || !string.Equals(trigger.PlayDestinationZone, TriggerZones.Stack, StringComparison.Ordinal)
+            || trigger.PlayCount.GetValueOrDefault() <= 0)
+        {
+            return false;
+        }
+
+        var currentScore = playerScores.TryGetValue(playerId, out var score) ? score : 0;
+        foreach (var candidateObjectId in zones.Graveyard)
+        {
+            if (!cardObjects.TryGetValue(candidateObjectId, out var candidateState)
+                || !candidateState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId)
+                || !CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior)
+                || !IsSpellPlayBehavior(candidateBehavior)
+                || !IsNoTargetDrawRepresentativeSpell(candidateBehavior)
+                || candidateBehavior.BanishesSourceOnResolution)
+            {
+                continue;
+            }
+
+            var candidateManaCost = EffectiveCardManaCost(candidateState, candidateBehavior);
+            if (trigger.RequiresPlayedCardManaCostLessThanCurrentScore == true
+                && candidateManaCost >= currentScore)
+            {
+                continue;
+            }
+
+            spellObjectId = candidateObjectId;
+            spellState = candidateState;
+            spellBehavior = candidateBehavior;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsNoTargetDrawRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        return behavior.RequiredTargetCount == 0
+            && behavior.MinTargetCount <= 0
+            && behavior.DrawCount > 0
+            && string.Equals(behavior.DrawRecipientKind, CardDrawRecipientKinds.Controller, StringComparison.Ordinal)
+            && string.Equals(behavior.DrawConditionKind, CardDrawConditionKinds.None, StringComparison.Ordinal)
+            && string.Equals(behavior.DynamicDrawCountKind, CardDynamicDrawCountKinds.None, StringComparison.Ordinal)
+            && behavior.DamageAmount == 0
+            && behavior.ConditionalDamageAmount == 0
+            && behavior.RuneCallCount == 0
+            && behavior.DrawCountIfRuneCallFails == 0
+            && behavior.RuneCallCountAfterTargetReturn == 0
+            && behavior.CreatedBaseUnitTokenCount == 0
+            && behavior.CreatedBaseEquipmentTokenCount == 0
+            && behavior.GainExperienceOnPlay == 0
+            && behavior.GainExperienceOnPlayPerFriendlyFieldUnit == 0
+            && !behavior.DestroysTarget
+            && !behavior.RecyclesTargets
+            && !behavior.ReturnsTargetToHand
+            && !behavior.ReturnsAllUnitsToHand
+            && !behavior.ReturnsAllFieldObjectsToHand
+            && !behavior.DiscardsTargetFromHand
+            && !behavior.DiscardsTargetFromOwnerHand
+            && !behavior.PlaysGraveyardTargetToBase
+            && !behavior.PlaysHandTargetToBase
+            && !behavior.CountersTargetStackSpell
+            && !behavior.DestroysAllEquipment
+            && !behavior.DestroysAllUnits
+            && !behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.BanishesSourceOnResolution
+            && !behavior.SchedulesExtraTurnForController
+            && !behavior.GrantsFreeStandbyHidePermission;
+    }
+
+    private static int EffectiveCardManaCost(CardObjectState cardState, CardBehaviorDefinition behavior)
+    {
+        return cardState.ManaCost > 0 ? cardState.ManaCost : behavior.ManaCost;
+    }
+
+    private static bool TryRecycleUnitConquestPlayedSpell(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        string spellObjectId,
+        string reason,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Graveyard.Contains(spellObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Graveyard = RemoveFromZone(zones.Graveyard, spellObjectId),
+            MainDeck = zones.MainDeck.Contains(spellObjectId, StringComparer.Ordinal)
+                ? zones.MainDeck
+                : zones.MainDeck.Concat([spellObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 回收征服效果打出的法术",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = new[] { spellObjectId },
+                ["count"] = 1,
+                ["sourceZone"] = TriggerZones.Graveyard,
+                ["destinationZone"] = TriggerZones.MainDeck,
+                ["reason"] = reason
+            }));
+        return true;
+    }
+
+    private static void ReplaceDictionaryContents<TValue>(
+        Dictionary<string, TValue> target,
+        IReadOnlyDictionary<string, TValue> source)
+    {
+        target.Clear();
+        foreach (var (key, value) in source)
+        {
+            target[key] = value;
+        }
     }
 
     private static bool TryGetFirstFieldEquipment(

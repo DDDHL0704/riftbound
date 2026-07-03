@@ -100,6 +100,21 @@ internal static class UnitConquestTriggerSpecRules
                     StringComparison.Ordinal)
                 && trigger.DestroyCount is > 0
                 && trigger.BoonCount is > 0,
+            TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle => string.Equals(
+                    trigger.TargetScope,
+                    TriggerTargetScopes.ControlledSpellInGraveyard,
+                    StringComparison.Ordinal)
+                && trigger.PlayCount is > 0
+                && string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+                && string.Equals(trigger.PlayDestinationZone, TriggerZones.Stack, StringComparison.Ordinal)
+                && string.Equals(
+                    trigger.PlayCardFilter,
+                    TriggerCardFilters.TagPrefix + CardObjectTags.SpellCard,
+                    StringComparison.Ordinal)
+                && trigger.RequiresPlayedCardManaCostLessThanCurrentScore == true
+                && trigger.IgnorePlayManaCost == true
+                && trigger.PayPlayPowerCosts == true
+                && trigger.RecyclePlayedCardOnResolution == true,
             _ => false
         };
     }

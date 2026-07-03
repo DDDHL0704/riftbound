@@ -3122,6 +3122,40 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("OGN·112/298")]
+    [InlineData("OGN·112a/298")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestPlayLowCostGraveyardSpellRecycleTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var kaisa = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            kaisa.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledSpellInGraveyard, trigger.TargetScope);
+        Assert.Equal(1, trigger.PlayCount);
+        Assert.Equal(TriggerZones.Graveyard, trigger.PlayOriginZone);
+        Assert.Equal(TriggerZones.Stack, trigger.PlayDestinationZone);
+        Assert.Equal($"{TriggerCardFilters.TagPrefix}{CardObjectTags.SpellCard}", trigger.PlayCardFilter);
+        Assert.True(trigger.RequiresPlayedCardManaCostLessThanCurrentScore);
+        Assert.True(trigger.IgnorePlayManaCost);
+        Assert.True(trigger.PayPlayPowerCosts);
+        Assert.True(trigger.RecyclePlayedCardOnResolution);
+        Assert.True(trigger.Optional);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("从废牌堆中打出一张法力费用低于你当前分数的法术牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("无需支付其法力费用", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("将其回收", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
     {
