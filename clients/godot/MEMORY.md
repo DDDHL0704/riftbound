@@ -31,7 +31,9 @@ resume from repository state instead of conversation history alone.
 - Build gate: `~/.dotnet/dotnet build clients/godot/Riftbound.GodotClient.csproj`.
 - Visual preflight: `clients/godot/tools/run-clean-main-simulated-playtest-stack.sh`
   opens two visible Godot windows from clean `origin/main`, but it uses
-  auto-smoke and is not final P5 evidence.
+  auto-smoke and is not final P5 evidence. It runs the inksteel screenshot
+  style guard on both result screenshots by default after the simulated stack
+  finishes.
 - `clients/godot/tools/check-inksteel-screenshot-style.sh` is a lightweight
   screenshot palette guard for the selected black/ivory inksteel route. It
   samples result screenshots and rejects obvious bright-gray UI, orange/gold

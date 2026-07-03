@@ -50,7 +50,9 @@ contracts change.
 - `run-local-human-playtest*.sh` starts local visible two-window playtests.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
-  They are regression evidence, not final P5 evidence.
+  They are regression evidence, not final P5 evidence. The clean-main simulated
+  wrapper also runs the inksteel screenshot style guard on both result
+  screenshots by default.
 - `run-clean-main-human-playtest-stack.sh` is the final P5 collection path. It
   requires clean pushed `origin/main`, distinct handles/player keys, manual
   confirmations, evidence packaging, and package verification. Its `--precheck`

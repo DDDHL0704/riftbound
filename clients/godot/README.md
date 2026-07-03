@@ -234,9 +234,11 @@ clients/godot/tools/run-clean-main-simulated-playtest-stack.sh
 ```
 
 This avoids local dirty files affecting the preflight. It still uses auto-smoke
-actions and is not valid final P5 evidence.
+actions and is not valid final P5 evidence. By default, the clean-main wrapper
+also runs the inksteel style sanity check on both result screenshots after the
+simulated stack finishes.
 
-After a visible simulated or human run writes result screenshots, run the
+After any other visible simulated or human run writes result screenshots, run the
 inksteel style sanity check to catch obvious visual drift back to bright gray
 controls, gold/orange dominance, or missing linework:
 
@@ -248,7 +250,9 @@ clients/godot/tools/check-inksteel-screenshot-style.sh \
 
 This palette check is a regression guard for the selected black/ivory inksteel
 route. It does not replace opening the screenshots and doing the final human
-result-panel and hidden-information review.
+result-panel and hidden-information review. Set
+`RIFTBOUND_CHECK_INKSTEEL_STYLE=0` only when debugging the clean-main simulated
+wrapper itself.
 
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean

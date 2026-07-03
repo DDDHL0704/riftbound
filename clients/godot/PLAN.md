@@ -46,7 +46,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
    change.
 2. Run visible clean-main simulated preflights after pushed changes to catch
    obvious window, result-panel, screenshot, inksteel style, or evidence
-   regressions.
+   regressions. The clean-main simulated wrapper runs the inksteel screenshot
+   style guard by default after the automated result screenshots are written.
 3. Prepare for the final two-human P5 run:
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
      before both operators start, so final evidence gate and local
