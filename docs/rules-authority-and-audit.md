@@ -10,6 +10,8 @@
 
 2026-07-03 补充：Plan B / B3 单位征服触发继续以官网卡面与核心规则为权威来源。`OGN·112/298` / `OGN·112a/298` 卡莎官方文本要求征服战场后可从控制者废牌堆打出费用低于当前分数的法术、免除法力费用、仍支付符能费用并在结算后回收；本批只实现并记录无目标抽牌法术代表路径，证据见 `docs/CURRENT_PLAN_B_B3_UNIT_CONQUEST_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-03 Plan B / B3 Kai'Sa 条目。完整可选选择、符能支付 prompt、目标法术和 APNAP / simultaneous ordering 仍不得标记完成。
 
+2026-07-03 补充：Plan B / Source Unit Played 触发同样以官网卡面与核心规则为权威来源。`SFD·140/221` 菲兹官方文本要求打出源单位时可从控制者废牌堆打出一个法力费用不高于 3 的法术、免除法力费用、仍支付符能费用，并在该法术结算后回收；本批只实现并记录无目标抽牌法术代表路径，证据见 `docs/CURRENT_PLAN_B_SOURCE_UNIT_PLAYED_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-03 Plan B / Source Unit Played Fizz 条目。完整可选选择、显式废牌堆法术选择、符能支付 prompt、目标法术和 broader stack handoff 仍不得标记完成。
+
 ## 2. 当前官方 PDF 清单
 
 这些 PDF 只作为本地规则资料，不提交到 Git。

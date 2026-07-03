@@ -24062,6 +24062,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload));
     }
 
+    private static void AddSourceUnitPlayedEffectActivatedEvent(
+        List<GameEvent> events,
+        string playerId,
+        string sourceObjectId,
+        string? sourceCardNo,
+        string effectId,
+        string reason,
+        string? targetObjectId = null)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = playerId,
+            ["sourceObjectId"] = sourceObjectId,
+            ["sourceCardNo"] = sourceCardNo,
+            ["effectId"] = effectId,
+            ["reason"] = reason
+        };
+        if (!string.IsNullOrWhiteSpace(targetObjectId))
+        {
+            payload["targetObjectId"] = targetObjectId;
+        }
+
+        events.Add(new GameEvent(
+            "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED",
+            $"{sourceObjectId} 的打出触发效果已激活",
+            payload));
+    }
+
     private static bool TryResolveUnitConquestPlayLowCostGraveyardSpellRecycleTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -24079,9 +24107,114 @@ public sealed class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects)
     {
+        return TryResolveGraveyardSpellFreePlayRecycleTrigger(
+            state,
+            playerZones,
+            cardObjects,
+            playerScores,
+            untilEndOfTurnEffects,
+            playerId,
+            unitObjectId,
+            unitState.CardNo,
+            trigger,
+            rngCursor,
+            spellObjectId => AddUnitConquestEffectActivatedEvent(
+                events,
+                playerId,
+                unitObjectId,
+                unitState.CardNo,
+                trigger.Kind,
+                battlefieldObjectId,
+                activationReason,
+                spellObjectId),
+            $"{unitObjectId} 的征服效果从废牌堆打出法术",
+            $"{playerId} 回收征服效果打出的法术",
+            "unit-conquest",
+            "UNIT_CONQUEST_TRIGGER",
+            events,
+            out drawApplication,
+            out nextUntilEndOfTurnEffects);
+    }
+
+    private static bool TryResolveSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTriggers(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        StackItemState stackItem,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
-        if (!TryGetFirstPlayableUnitConquestGraveyardSpell(
+        if (!cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
+        {
+            return false;
+        }
+
+        foreach (var trigger in SourceUnitPlayedTriggerSpecRules.TriggersForCard(sourceState.CardNo)
+            .Where(SourceUnitPlayedTriggerSpecRules.IsSupportedSourceUnitPlayedTrigger))
+        {
+            if (TryResolveGraveyardSpellFreePlayRecycleTrigger(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    untilEndOfTurnEffects,
+                    stackItem.ControllerId,
+                    stackItem.SourceObjectId,
+                    sourceState.CardNo,
+                    trigger,
+                    rngCursor,
+                    spellObjectId => AddSourceUnitPlayedEffectActivatedEvent(
+                        events,
+                        stackItem.ControllerId,
+                        stackItem.SourceObjectId,
+                        sourceState.CardNo,
+                        trigger.Kind,
+                        TriggerTimings.SourceUnitPlayed,
+                        spellObjectId),
+                    $"{stackItem.SourceObjectId} 的打出触发效果从废牌堆打出法术",
+                    $"{stackItem.ControllerId} 回收打出触发效果打出的法术",
+                    "source-unit-played",
+                    "SOURCE_UNIT_PLAYED_TRIGGER",
+                    events,
+                    out drawApplication,
+                    out nextUntilEndOfTurnEffects))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryResolveGraveyardSpellFreePlayRecycleTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string sourceObjectId,
+        string? sourceCardNo,
+        TriggerSpec trigger,
+        long rngCursor,
+        Action<string> addActivationEvent,
+        string playedEventMessage,
+        string recycleEventMessage,
+        string stackItemIdPrefix,
+        string timingContext,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetFirstPlayableGraveyardSpell(
                 playerZones,
                 cardObjects,
                 playerScores,
@@ -24094,23 +24227,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        AddUnitConquestEffectActivatedEvent(
-            events,
-            playerId,
-            unitObjectId,
-            unitState.CardNo,
-            trigger.Kind,
-            battlefieldObjectId,
-            activationReason,
-            spellObjectId);
+        addActivationEvent(spellObjectId);
         events.Add(new GameEvent(
             "CARD_PLAYED_FROM_GRAVEYARD",
-            $"{unitObjectId} 的征服效果从废牌堆打出法术",
+            playedEventMessage,
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
-                ["sourceObjectId"] = unitObjectId,
-                ["sourceCardNo"] = unitState.CardNo,
+                ["sourceObjectId"] = sourceObjectId,
+                ["sourceCardNo"] = sourceCardNo,
                 ["playedObjectId"] = spellObjectId,
                 ["playedCardNo"] = spellState.CardNo,
                 ["playedCardManaCost"] = EffectiveCardManaCost(spellState, spellBehavior),
@@ -24120,14 +24245,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["ignorePlayManaCost"] = trigger.IgnorePlayManaCost == true,
                 ["payPlayPowerCosts"] = trigger.PayPlayPowerCosts == true
             }));
-
         var sourceZones = playerZones[playerId];
         playerZones[playerId] = sourceZones with
         {
             Graveyard = RemoveFromZone(sourceZones.Graveyard, spellObjectId)
         };
         var stackItem = new StackItemState(
-            $"unit-conquest-{unitObjectId}-{spellObjectId}",
+            $"{stackItemIdPrefix}-{sourceObjectId}-{spellObjectId}",
             playerId,
             spellObjectId,
             spellBehavior.EffectKind,
@@ -24136,7 +24260,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             spellBehavior.DamageAmount,
             1,
             [],
-            timingContext: "UNIT_CONQUEST_TRIGGER");
+            timingContext: timingContext);
         var temporaryState = state with
         {
             PlayerZones = playerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
@@ -24156,12 +24280,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextRngCursor = stackResolution.RngCursor;
         nextUntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects;
         if (trigger.RecyclePlayedCardOnResolution == true
-            && TryRecycleUnitConquestPlayedSpell(
+            && TryRecyclePlayedGraveyardSpell(
                 playerZones,
                 playerId,
-                unitObjectId,
+                sourceObjectId,
                 spellObjectId,
                 trigger.Kind,
+                recycleEventMessage,
                 events))
         {
             nextRngCursor = stackResolution.RngCursor;
@@ -24171,7 +24296,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryGetFirstPlayableUnitConquestGraveyardSpell(
+    private static bool TryGetFirstPlayableGraveyardSpell(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
@@ -24209,6 +24334,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             var candidateManaCost = EffectiveCardManaCost(candidateState, candidateBehavior);
             if (trigger.RequiresPlayedCardManaCostLessThanCurrentScore == true
                 && candidateManaCost >= currentScore)
+            {
+                continue;
+            }
+
+            if (trigger.MaximumPlayedCardManaCost is int maximumManaCost
+                && candidateManaCost > maximumManaCost)
             {
                 continue;
             }
@@ -24263,12 +24394,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardState.ManaCost > 0 ? cardState.ManaCost : behavior.ManaCost;
     }
 
-    private static bool TryRecycleUnitConquestPlayedSpell(
+    private static bool TryRecyclePlayedGraveyardSpell(
         Dictionary<string, PlayerZones> playerZones,
         string playerId,
         string sourceObjectId,
         string spellObjectId,
         string reason,
+        string message,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
@@ -24286,7 +24418,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         events.Add(new GameEvent(
             "CARDS_RECYCLED",
-            $"{playerId} 回收征服效果打出的法术",
+            message,
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -35512,6 +35644,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 cardObjects,
                 stackItem));
+
+            if (TryResolveSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTriggers(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    untilEndOfTurnEffects,
+                    stackItem,
+                    rngCursor,
+                    events,
+                    out var sourceUnitPlayedDrawApplication,
+                    out var sourceUnitPlayedUntilEndOfTurnEffects))
+            {
+                playerScores = sourceUnitPlayedDrawApplication.PlayerScores;
+                winnerPlayerId = sourceUnitPlayedDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = sourceUnitPlayedDrawApplication.RngCursor;
+                untilEndOfTurnEffects = sourceUnitPlayedUntilEndOfTurnEffects.ToList();
+            }
 
             if (behavior.SourceNextSpellCostReductionMana > 0
                 && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))

@@ -3157,6 +3157,38 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var fizz = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·140/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            fizz.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, trigger.Kind);
+        Assert.Equal(TriggerTimings.SourceUnitPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledSpellInGraveyard, trigger.TargetScope);
+        Assert.Equal(1, trigger.PlayCount);
+        Assert.Equal(TriggerZones.Graveyard, trigger.PlayOriginZone);
+        Assert.Equal(TriggerZones.Stack, trigger.PlayDestinationZone);
+        Assert.Equal($"{TriggerCardFilters.TagPrefix}{CardObjectTags.SpellCard}", trigger.PlayCardFilter);
+        Assert.Equal(3, trigger.MaximumPlayedCardManaCost);
+        Assert.True(trigger.IgnorePlayManaCost);
+        Assert.True(trigger.PayPlayPowerCosts);
+        Assert.True(trigger.RecyclePlayedCardOnResolution);
+        Assert.True(trigger.Optional);
+        Assert.Contains("当你打出我时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("法力费用不高于{{3}}的法术", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("无需支付其法力费用", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出该法术后，将其回收", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared source-unit-played TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

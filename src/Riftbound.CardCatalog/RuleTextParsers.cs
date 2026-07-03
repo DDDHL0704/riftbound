@@ -400,6 +400,15 @@ public static class TriggerParser
             triggers.Add(legendHighCostSpellBanishCompletionTrigger);
         }
 
+        var hasSourceUnitPlayedLowCostGraveyardSpellTrigger =
+            TryParseSourceUnitPlayedPlayLowCostGraveyardSpellRecycle(
+                text,
+                out var sourceUnitPlayedLowCostGraveyardSpellTrigger);
+        if (hasSourceUnitPlayedLowCostGraveyardSpellTrigger)
+        {
+            triggers.Add(sourceUnitPlayedLowCostGraveyardSpellTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -423,10 +432,45 @@ public static class TriggerParser
             .Where(segment => !hasLegendHighCostSpellBanishCompletionTrigger
                 || !segment.Contains("当你打出一个法术时，如果消耗了不低于", StringComparison.Ordinal)
                 || !segment.Contains("则你可以选择将该法术放逐", StringComparison.Ordinal))
+            .Where(segment => !hasSourceUnitPlayedLowCostGraveyardSpellTrigger
+                || !segment.Contains("当你打出我时，你可以选择从你的废牌堆中打出一个法力费用不高于", StringComparison.Ordinal)
+                || !segment.Contains("的法术", StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 
         return triggers.ToArray();
+    }
+
+    private static bool TryParseSourceUnitPlayedPlayLowCostGraveyardSpellRecycle(
+        string text,
+        out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"当你打出我时，你可以选择从你的废牌堆中打出一个法力费用不高于\{\{([0-9一两二三四五六七八九十]+)\}\}的法术，无需支付其法力费用（仍需支付所有符能费用）。?打出该法术后，将其回收。?",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle,
+            TriggerTimings.SourceUnitPlayed,
+            match.Value,
+            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared source-unit-played TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.ControlledSpellInGraveyard,
+            PlayCount: 1,
+            PlayOriginZone: TriggerZones.Graveyard,
+            PlayDestinationZone: TriggerZones.Stack,
+            PlayCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:SPELL",
+            MaximumPlayedCardManaCost: ParseChineseNumber(match.Groups[1].Value),
+            IgnorePlayManaCost: true,
+            PayPlayPowerCosts: true,
+            RecyclePlayedCardOnResolution: true,
+            Optional: true);
+        return true;
     }
 
     private static bool TryParseLegendHighCostSpellBanishCompletion(string text, out TriggerSpec trigger)

@@ -151,6 +151,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND";
     public const string UnitConquestPlayLowCostGraveyardSpellRecycle =
         "UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
+    public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
+        "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     public const string HandCardsDiscardedReadySourcePower =
@@ -228,6 +230,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
+    public const string SourceUnitPlayed = "SOURCE_UNIT_PLAYED";
     public const string UnitMoved = "UNIT_MOVED";
     public const string UnitBoonGranted = "UNIT_BOON_GRANTED";
     public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
@@ -523,6 +526,7 @@ public sealed record TriggerSpec(
     string? PlayDestinationZone = null,
     string? PlayCardFilter = null,
     bool? RequiresPlayedCardManaCostLessThanCurrentScore = null,
+    int? MaximumPlayedCardManaCost = null,
     bool? IgnorePlayManaCost = null,
     bool? PayPlayPowerCosts = null,
     bool? RecyclePlayedCardOnResolution = null,
