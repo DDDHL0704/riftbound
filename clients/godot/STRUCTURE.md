@@ -9,7 +9,7 @@ contracts change.
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
   uses the `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
 - `scenes/Main.tscn` is a single `Control` root with lobby/session controls,
-  deck controls, a snapshot/table scroll area, an overlay result panel,
+  deck controls, a snapshot/table scroll area, a right-rail result panel,
   right-side official card preview, prompt panel, and hidden log panel.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
@@ -21,7 +21,9 @@ contracts change.
   helpers, snapshot rendering, result panel, screenshot capture, and theme setup.
   It keeps lobby/deck chrome visible during the `ROOM` state, then hides it for
   non-room battle snapshots so the tabletop owns the combat viewport without
-  blocking deck selection.
+  blocking deck selection. In match-result mode, the right rail hides the
+  official-card preview and prompt panel so the result panel does not overlap
+  other right-rail content.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
@@ -71,6 +73,12 @@ contracts change.
 - `check-inksteel-screenshot-style.sh` samples result screenshot pixels to catch
   obvious drift away from the selected black/ivory inksteel route. It is a visual
   regression guard, not a replacement for human screenshot review.
+- `check-battle-layout-scene-integrity.sh` statically checks that the result
+  panel stays in the right information rail between the official preview and
+  prompt panel, so it cannot cover the black/ivory tabletop grid.
+- `check-result-rail-visibility-integrity.sh` statically checks that entering
+  match-result mode hides the right-side card preview and prompt panel, then
+  restores them when returning to the lobby.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
@@ -94,6 +102,10 @@ contracts change.
   `clients/godot/tools/check-human-playtest-package-integrity.sh`
 - Inksteel screenshot style tests:
   `clients/godot/tools/check-inksteel-screenshot-style-integrity.sh`
+- Battle scene layout test:
+  `clients/godot/tools/check-battle-layout-scene-integrity.sh`
+- Result rail visibility test:
+  `clients/godot/tools/check-result-rail-visibility-integrity.sh`
 - Clean simulated wrapper tests:
   `clients/godot/tools/check-clean-main-simulated-playtest-script.sh`
 - Shell syntax: `find clients/godot/tools -name '*.sh' -print0 | xargs -0 -n1 bash -n`

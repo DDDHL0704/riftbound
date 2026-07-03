@@ -21,7 +21,10 @@ resume from repository state instead of conversation history alone.
   route C by using muted black/ivory linework and translucent ink-wash zones.
   Lobby/session/deck rows remain visible in `ROOM` so humans can choose decks,
   then collapse for non-room battle snapshots. The result panel is a root-level
-  overlay so it no longer pushes or compresses the tabletop in final screenshots.
+  overlay in the right rail between the official-card preview and prompt panel,
+  so it no longer pushes, compresses, or covers the tabletop in final
+  screenshots. When match-result mode is active, the official-card preview and
+  prompt panel are hidden so the right rail does not stack overlapping panels.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -39,6 +42,12 @@ resume from repository state instead of conversation history alone.
   samples result screenshots and rejects obvious bright-gray UI, orange/gold
   dominance, or dropped neutral linework. Use it after visible preflights; it
   does not replace human visual review.
+- `clients/godot/tools/check-battle-layout-scene-integrity.sh` is a static scene
+  guard for the selected black/white line layout. It rejects a result panel that
+  drifts back onto the main battle table instead of staying in the right rail.
+- `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
+  behavior guard that keeps match-result mode from overlapping the result panel
+  with the right-side card preview or prompt panel.
 - Final P5 path: `clients/godot/tools/run-clean-main-human-playtest-stack.sh`
   must be run from a clean pushed `main`, with two human operators, manual
   confirmations, final result screenshots, evidence packaging, and package

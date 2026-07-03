@@ -3404,10 +3404,10 @@ public partial class Main : Control
     public void ApplyMatchResult(Godot.Collections.Dictionary result)
     {
         SetBattleChromeVisible(battleActive: true);
+        SetRightRailMatchResultVisible(matchResultVisible: true);
 
         if (_resultFrame is not null)
         {
-            _resultFrame.Visible = true;
             FlashResultFrame(_resultFrame);
         }
 
@@ -3447,10 +3447,7 @@ public partial class Main : Control
         _matchFinished = false;
         _autoSmokeSurrenderSubmitted = false;
         _resultScreenshotSaved = false;
-        if (_resultFrame is not null)
-        {
-            _resultFrame.Visible = false;
-        }
+        SetRightRailMatchResultVisible(matchResultVisible: false);
         SetBattleChromeVisible(battleActive: false);
 
         if (_resultSummary is not null)
@@ -4119,6 +4116,24 @@ public partial class Main : Control
         if (_deckFrame is not null)
         {
             _deckFrame.Visible = lobbyVisible;
+        }
+    }
+
+    private void SetRightRailMatchResultVisible(bool matchResultVisible)
+    {
+        if (_resultFrame is not null)
+        {
+            _resultFrame.Visible = matchResultVisible;
+        }
+
+        if (_officialCardPreviewFrame is not null)
+        {
+            _officialCardPreviewFrame.Visible = !matchResultVisible;
+        }
+
+        if (_promptFrame is not null)
+        {
+            _promptFrame.Visible = !matchResultVisible;
         }
     }
 
