@@ -69,7 +69,8 @@ resume from repository state instead of conversation history alone.
   evidence package.
 - Evidence packages include `P5_HANDOFF.md`, generated from the report, so a
   reviewer can quickly verify the room, player identities, result screenshots,
-  report file, and manual-confirmation mode.
+  report file, machine hidden-information boundary conclusion, and
+  manual-confirmation mode.
 - Evidence packages now include `OPERATOR_GUIDE.md`; the packager copies the
   runtime guide from the evidence directory, or generates a fallback from the
   checked report for manual packaging. The verifier requires this file and its
@@ -77,7 +78,8 @@ resume from repository state instead of conversation history alone.
   player, evidence, and hidden-information checklist context.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
-  hidden-information inspection of both screenshots.
+  hidden-information inspection of both screenshots. It repeats the machine
+  hidden-information boundary conclusion from the checked report.
 - Latest clean pushed-main validation after engine-side commit
   `9ee4d80a4`: a visible clean-main simulated two-window run opened Godot from a
   temporary clean `origin/main` worktree, started the local memory-mode API,

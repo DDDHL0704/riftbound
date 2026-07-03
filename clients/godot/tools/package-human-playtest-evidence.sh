@@ -107,6 +107,7 @@ player_a_handle="$(report_field "Player A handle")"
 player_b_handle="$(report_field "Player B handle")"
 git_revision="$(report_field "Git revision")"
 manual_confirmation_mode="$(report_field "Manual confirmation mode")"
+hidden_information_boundary="$(report_field "Hidden information boundary")"
 
 cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
 # Riftbound Godot P5 Handoff
@@ -119,6 +120,7 @@ cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Hidden information boundary: ${hidden_information_boundary}
 - Manual confirmation mode: ${manual_confirmation_mode}
 
 This handoff summary is machine generated from playtest-report.md and is only
@@ -135,6 +137,7 @@ cat >"${bundle_dir}/VISUAL_REVIEW.md" <<EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Machine hidden-information boundary: ${hidden_information_boundary}
 
 Before accepting this package as final P5 evidence, inspect both result
 screenshots and confirm:
@@ -186,6 +189,7 @@ cat >"${bundle_dir}/README.md" <<EOF
 - Operator guide: OPERATOR_GUIDE.md
 - P5 handoff summary: P5_HANDOFF.md
 - Visual review checklist: VISUAL_REVIEW.md
+- Machine hidden-information boundary: ${hidden_information_boundary}
 - Checksums: SHA256SUMS
 
 This package is evidence material only. It does not prove the human-only

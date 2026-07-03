@@ -192,6 +192,7 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
 This handoff summary is machine generated from the playtest report and is only
@@ -208,6 +209,7 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
+- Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 
 - Both screenshots show the server result panel.
 - Player A sees opponent hand and hidden cards only as card backs and counts.
@@ -432,6 +434,48 @@ if ! rg -q "VISUAL_REVIEW|visual review" "${missing_visual_review_output}"; then
   echo "Expected missing visual review rejection output:" >&2
   cat "${missing_visual_review_output}" >&2
   fail "verifier did not explain the missing visual review checklist"
+fi
+
+missing_handoff_hidden_boundary_bundle="${tmp_dir}/missing-handoff-hidden-boundary/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_handoff_hidden_boundary_bundle}" "${revision}"
+sed -i '' '/Hidden information boundary/d' "${missing_handoff_hidden_boundary_bundle}/P5_HANDOFF.md"
+(
+  cd "${missing_handoff_hidden_boundary_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_handoff_hidden_boundary_package="${tmp_dir}/missing-handoff-hidden-boundary.tar.gz"
+make_package "${missing_handoff_hidden_boundary_bundle}" "${missing_handoff_hidden_boundary_package}"
+
+missing_handoff_hidden_boundary_output="${tmp_dir}/missing-handoff-hidden-boundary-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_handoff_hidden_boundary_package}" >"${missing_handoff_hidden_boundary_output}" 2>&1; then
+  fail "verifier accepted package whose P5 handoff omitted hidden information boundary evidence"
+fi
+
+if ! rg -q "Hidden information boundary|hidden information" "${missing_handoff_hidden_boundary_output}"; then
+  echo "Expected handoff hidden-boundary rejection output:" >&2
+  cat "${missing_handoff_hidden_boundary_output}" >&2
+  fail "verifier did not explain the missing P5 handoff hidden information boundary"
+fi
+
+missing_visual_hidden_boundary_bundle="${tmp_dir}/missing-visual-hidden-boundary/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_visual_hidden_boundary_bundle}" "${revision}"
+sed -i '' '/Machine hidden-information boundary/d' "${missing_visual_hidden_boundary_bundle}/VISUAL_REVIEW.md"
+(
+  cd "${missing_visual_hidden_boundary_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_visual_hidden_boundary_package="${tmp_dir}/missing-visual-hidden-boundary.tar.gz"
+make_package "${missing_visual_hidden_boundary_bundle}" "${missing_visual_hidden_boundary_package}"
+
+missing_visual_hidden_boundary_output="${tmp_dir}/missing-visual-hidden-boundary-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_visual_hidden_boundary_package}" >"${missing_visual_hidden_boundary_output}" 2>&1; then
+  fail "verifier accepted package whose visual review omitted hidden information boundary evidence"
+fi
+
+if ! rg -q "Machine hidden-information boundary|hidden information" "${missing_visual_hidden_boundary_output}"; then
+  echo "Expected visual-review hidden-boundary rejection output:" >&2
+  cat "${missing_visual_hidden_boundary_output}" >&2
+  fail "verifier did not explain the missing visual review hidden information boundary"
 fi
 
 missing_operator_guide_bundle="${tmp_dir}/missing-operator-guide/riftbound-human-playtest-evidence"
