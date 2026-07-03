@@ -33,6 +33,7 @@ repo_root="$(cd "${script_dir}/../../.." && pwd)"
 failures=()
 required_files=(
   "README.md"
+  "OPERATOR_GUIDE.md"
   "P5_HANDOFF.md"
   "VISUAL_REVIEW.md"
   "SHA256SUMS"
@@ -44,6 +45,7 @@ required_files=(
 )
 checksum_required_files=(
   "README.md"
+  "OPERATOR_GUIDE.md"
   "P5_HANDOFF.md"
   "VISUAL_REVIEW.md"
   "player-a.log"
@@ -54,6 +56,7 @@ checksum_required_files=(
 )
 allowed_files=(
   "README.md"
+  "OPERATOR_GUIDE.md"
   "P5_HANDOFF.md"
   "VISUAL_REVIEW.md"
   "SHA256SUMS"
@@ -137,6 +140,7 @@ if (( ${#failures[@]} == 0 )); then
 fi
 
 report="${bundle_dir}/playtest-report.md"
+operator_guide="${bundle_dir}/OPERATOR_GUIDE.md"
 handoff="${bundle_dir}/P5_HANDOFF.md"
 visual_review="${bundle_dir}/VISUAL_REVIEW.md"
 player_a_log="${bundle_dir}/player-a.log"
@@ -300,6 +304,56 @@ require_visual_review_consistency() {
   require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
 }
 
+require_operator_guide_literal_match() {
+  local expected="$1"
+  local label="$2"
+
+  if [[ -s "${operator_guide}" ]] && ! grep -Fq -- "${expected}" "${operator_guide}"; then
+    failures+=("${label} missing from OPERATOR_GUIDE.md")
+  fi
+}
+
+require_operator_guide_consistency() {
+  local room=""
+  local player_a_handle=""
+  local player_b_handle=""
+  local player_a_result=""
+  local player_b_result=""
+  local evidence_dir=""
+
+  if [[ ! -s "${operator_guide}" || ! -s "${report}" ]]; then
+    return
+  fi
+
+  room="$(report_field "Room")"
+  player_a_handle="$(report_field "Player A handle")"
+  player_b_handle="$(report_field "Player B handle")"
+  player_a_result="$(report_field "Player A result screenshot")"
+  player_b_result="$(report_field "Player B result screenshot")"
+  evidence_dir="$(report_field "Evidence directory")"
+
+  require_operator_guide_literal_match "# Riftbound Godot P5 Operator Guide" "operator guide title"
+  require_operator_guide_literal_match "- Room: ${room}" "operator guide room"
+  require_operator_guide_literal_match "- Player A handle: ${player_a_handle}" "operator guide player A handle"
+  require_operator_guide_literal_match "- Player B handle: ${player_b_handle}" "operator guide player B handle"
+
+  if [[ -n "${evidence_dir}" ]]; then
+    require_operator_guide_literal_match "- Evidence directory: ${evidence_dir}" "operator guide evidence directory"
+  fi
+
+  if [[ -n "${player_a_result}" ]]; then
+    require_operator_guide_literal_match "$(dirname "${player_a_result}")" "operator guide result screenshot directory"
+  elif [[ -n "${player_b_result}" ]]; then
+    require_operator_guide_literal_match "$(dirname "${player_b_result}")" "operator guide result screenshot directory"
+  fi
+
+  require_operator_guide_literal_match "Final P5 operator checklist" "operator guide checklist heading"
+  require_operator_guide_literal_match "Two human players operate the two Godot clients" "operator guide two-human checklist"
+  require_operator_guide_literal_match "preconstructed decks" "operator guide preconstructed deck checklist"
+  require_operator_guide_literal_match "server result panel" "operator guide result-panel checklist"
+  require_operator_guide_literal_match "hidden cards only as card backs/counts" "operator guide hidden-information checklist"
+}
+
 require_client_setup_log_matches() {
   local path="$1"
   local label="$2"
@@ -437,6 +491,7 @@ fi
 require_report_identity_consistency
 require_handoff_consistency
 require_visual_review_consistency
+require_operator_guide_consistency
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"

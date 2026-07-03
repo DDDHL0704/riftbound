@@ -55,8 +55,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
    - verify both final screenshots show the result panel and hidden opponent
      information only as card backs/counts;
    - answer manual prompts truthfully;
-   - keep the verified evidence tarball, including `P5_HANDOFF.md` and
-     `VISUAL_REVIEW.md`.
+   - keep the verified evidence tarball, including `OPERATOR_GUIDE.md`,
+     `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`.
 
 ## Stop Conditions
 

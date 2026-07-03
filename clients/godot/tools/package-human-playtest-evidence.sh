@@ -7,8 +7,8 @@ Usage:
   clients/godot/tools/package-human-playtest-evidence.sh /path/to/evidence-dir [output.tar.gz]
 
 Runs the Godot human playtest evidence checker, then packages the logs,
-result screenshots, generated report, visual review checklist, handoff summary,
-and SHA-256 checksums into a tarball.
+result screenshots, generated report, operator guide, visual review checklist,
+handoff summary, and SHA-256 checksums into a tarball.
 
 Set RIFTBOUND_CONFIRM_MANUAL=1 to have the checker prompt for the human-only
 confirmations before packaging.
@@ -150,12 +150,40 @@ hidden-information review is a human visual confirmation recorded in
 playtest-report.md.
 EOF
 
+if [[ -s "${evidence_dir}/OPERATOR_GUIDE.md" ]]; then
+  cp "${evidence_dir}/OPERATOR_GUIDE.md" "${bundle_dir}/OPERATOR_GUIDE.md"
+else
+  cat >"${bundle_dir}/OPERATOR_GUIDE.md" <<EOF
+# Riftbound Godot P5 Operator Guide
+
+- Room: ${room}
+- Player A handle: ${player_a_handle}
+- Player B handle: ${player_b_handle}
+- Evidence directory: ${evidence_dir}
+- Evidence package: ${output_path}
+- Playtest report: playtest-report.md
+
+## Final P5 operator checklist
+
+1. Two human players operate the two Godot clients.
+2. Both players use preconstructed decks, submit decks, and ready up.
+3. Play the match to the server result panel on both clients.
+4. Confirm both final screenshots show the server result panel.
+5. Confirm each player sees opponent hand and hidden cards only as card backs/counts.
+6. Answer the manual confirmation prompts only after checking the final screenshots.
+
+This fallback guide was generated during packaging because the source evidence
+directory did not contain OPERATOR_GUIDE.md.
+EOF
+fi
+
 cat >"${bundle_dir}/README.md" <<EOF
 # Riftbound Godot Human Playtest Evidence
 
 - Packaged at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 - Source evidence directory: ${evidence_dir}
 - Report: playtest-report.md
+- Operator guide: OPERATOR_GUIDE.md
 - P5 handoff summary: P5_HANDOFF.md
 - Visual review checklist: VISUAL_REVIEW.md
 - Checksums: SHA256SUMS
@@ -167,6 +195,7 @@ EOF
 
 checksum_files=(
   "README.md"
+  "OPERATOR_GUIDE.md"
   "P5_HANDOFF.md"
   "VISUAL_REVIEW.md"
   "player-a.log"

@@ -58,6 +58,11 @@ resume from repository state instead of conversation history alone.
 - Evidence packages include `P5_HANDOFF.md`, generated from the report, so a
   reviewer can quickly verify the room, player identities, result screenshots,
   report file, and manual-confirmation mode.
+- Evidence packages now include `OPERATOR_GUIDE.md`; the packager copies the
+  runtime guide from the evidence directory, or generates a fallback from the
+  checked report for manual packaging. The verifier requires this file and its
+  checksum coverage so the final tarball keeps the operator-facing room,
+  player, evidence, and hidden-information checklist context.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots.
