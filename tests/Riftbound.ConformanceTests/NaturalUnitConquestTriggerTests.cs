@@ -6,6 +6,9 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class NaturalUnitConquestTriggerTests
 {
+    private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
+    private const string PayTwoMana = "SPEND_MANA:2";
+    private const string DeclinePayment = "DECLINE";
     private const string BattlefieldId = "P1-NATURAL-UNIT-CONQUEST-BATTLEFIELD";
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
     private const string KaisaSpellObjectId = "P1-NATURAL-CONQUEST-KAISA-SPELL";
@@ -178,6 +181,135 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.False(mechanicalUnit.IsExhausted);
         Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
         Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task RumbleOpensPaymentThenPlaysGraveyardMechanicalUnitWhenReducedCostRemainsAfterNaturalBattlefieldConquest()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await engine.ResolveAsync(
+            BuildNaturalConquestRumbleState(recycledUnitPower: 2, p1Mana: 2),
+            new PlayerIntent("intent-natural-unit-conquest-rumble-open-payment", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [RumbleObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var payment = AssertRumblePaymentOpen(opened);
+        Assert.Equal(2, opened.State.RunePools["P1"].Mana);
+        Assert.Contains(RumbleRecycledUnitObjectId, opened.State.PlayerZones["P1"].Base);
+        Assert.Contains(RumbleGraveyardMechanicalUnitObjectId, opened.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(opened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(opened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, RumbleGraveyardMechanicalUnitObjectId, StringComparison.Ordinal));
+
+        var paid = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-unit-conquest-rumble-pay", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayTwoMana]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+
+        var costPaidEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, costPaidEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, costPaidEvent.Payload["paymentWindow"]);
+        Assert.Equal([PayTwoMana], Assert.IsType<string[]>(costPaidEvent.Payload["paymentChoiceIds"]));
+
+        var conquestTrigger = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, conquestTrigger.Payload["effectId"]);
+        Assert.Equal(payment.PaymentId, conquestTrigger.Payload["paymentId"]);
+        Assert.Equal(2, conquestTrigger.Payload["paidManaCost"]);
+
+        var recycleEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal([RumbleRecycledUnitObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+
+        var playEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, RumbleGraveyardMechanicalUnitObjectId, StringComparison.Ordinal));
+        Assert.Equal(4, playEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(2, playEvent.Payload["manaCostReduction"]);
+        Assert.Equal(2, playEvent.Payload["reducedManaCost"]);
+        Assert.Equal(2, playEvent.Payload["paidManaCost"]);
+        Assert.Equal(payment.PaymentId, playEvent.Payload["paymentId"]);
+
+        var paymentWindowClosedEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.False(Assert.IsType<bool>(paymentWindowClosedEvent.Payload["declined"]));
+        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(RumbleObjectId, paymentWindowClosedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(RumbleRecycledUnitObjectId, paymentWindowClosedEvent.Payload["recycledObjectId"]);
+        Assert.Equal(RumbleGraveyardMechanicalUnitObjectId, paymentWindowClosedEvent.Payload["playedObjectId"]);
+
+        Assert.DoesNotContain(RumbleRecycledUnitObjectId, paid.State.PlayerZones["P1"].Base);
+        Assert.Contains(RumbleRecycledUnitObjectId, paid.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(RumbleGraveyardMechanicalUnitObjectId, paid.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(RumbleGraveyardMechanicalUnitObjectId, paid.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(TriggerZones.MainDeck, paid.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
+        Assert.Equal(TriggerZones.Base, paid.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task RumbleDecliningReducedGraveyardMechanicalPaymentKeepsZonesUnchanged()
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await engine.ResolveAsync(
+            BuildNaturalConquestRumbleState(recycledUnitPower: 2, p1Mana: 2),
+            new PlayerIntent("intent-natural-unit-conquest-rumble-open-decline-payment", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [RumbleObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var payment = AssertRumblePaymentOpen(opened);
+
+        var declined = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-unit-conquest-rumble-decline-payment", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [DeclinePayment]),
+            CancellationToken.None);
+
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Null(declined.State.PendingPayment);
+        Assert.Equal(2, declined.State.RunePools["P1"].Mana);
+        Assert.Contains(RumbleRecycledUnitObjectId, declined.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(RumbleRecycledUnitObjectId, declined.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(RumbleGraveyardMechanicalUnitObjectId, declined.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(RumbleGraveyardMechanicalUnitObjectId, declined.State.PlayerZones["P1"].Base);
+        Assert.Equal(TriggerZones.Base, declined.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
+        Assert.Equal(TriggerZones.Graveyard, declined.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, RumbleGraveyardMechanicalUnitObjectId, StringComparison.Ordinal));
+
+        var paymentWindowClosedEvent = Assert.Single(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.True(Assert.IsType<bool>(paymentWindowClosedEvent.Payload["declined"]));
+        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(RumbleObjectId, paymentWindowClosedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(RumbleRecycledUnitObjectId, paymentWindowClosedEvent.Payload["recycledObjectId"]);
+        Assert.Equal(RumbleGraveyardMechanicalUnitObjectId, paymentWindowClosedEvent.Payload["playedObjectId"]);
     }
 
     [Fact]
@@ -434,7 +566,10 @@ public sealed class NaturalUnitConquestTriggerTests
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
     }
 
-    private static MatchState BuildNaturalConquestRumbleState()
+    private static MatchState BuildNaturalConquestRumbleState(
+        int recycledUnitPower = 4,
+        int p1Mana = 0,
+        int graveyardMechanicalManaCost = 4)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -448,10 +583,10 @@ public sealed class NaturalUnitConquestTriggerTests
             {
                 Tags = [CardObjectTags.UnitCard, "机械", "约德尔人"]
             },
-            [RumbleRecycledUnitObjectId] = Unit(RumbleRecycledUnitObjectId, "P1", 4),
+            [RumbleRecycledUnitObjectId] = Unit(RumbleRecycledUnitObjectId, "P1", recycledUnitPower),
             [RumbleGraveyardMechanicalUnitObjectId] = Unit(RumbleGraveyardMechanicalUnitObjectId, "P1", 2, "SFD·065/221") with
             {
-                ManaCost = 4,
+                ManaCost = graveyardMechanicalManaCost,
                 IsExhausted = true,
                 Tags = [CardObjectTags.UnitCard, "机械"]
             },
@@ -473,6 +608,11 @@ public sealed class NaturalUnitConquestTriggerTests
             turnPlayerId: "P1",
             phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(p1Mana, 0),
+                ["P2"] = RunePool.Empty
+            },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -496,6 +636,47 @@ public sealed class NaturalUnitConquestTriggerTests
                 [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
             },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
+    private static PendingPaymentState AssertRumblePaymentOpen(ResolutionResult result)
+    {
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("P1", payment.PlayerId);
+        Assert.Equal(2, payment.ManaCost);
+        Assert.Contains(PayTwoMana, payment.LegalPaymentChoiceIds);
+        Assert.Contains(DeclinePayment, payment.LegalPaymentChoiceIds);
+
+        var openedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, RumbleObjectId, StringComparison.Ordinal));
+        Assert.Equal(payment.PaymentId, openedEvent.Payload["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
+        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, openedEvent.Payload["trigger"]);
+        Assert.Equal(BattlefieldId, openedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(RumbleRecycledUnitObjectId, openedEvent.Payload["recycledObjectId"]);
+        Assert.Equal(RumbleGraveyardMechanicalUnitObjectId, openedEvent.Payload["playedObjectId"]);
+        Assert.Equal(4, openedEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(2, openedEvent.Payload["manaCostReduction"]);
+        Assert.Equal(2, openedEvent.Payload["reducedManaCost"]);
+        Assert.Equal([PayTwoMana, DeclinePayment], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
+
+        var prompt = result.Prompts["P1"];
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
+        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
+        Assert.Equal(2, Assert.IsType<int>(cost["mana"]));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
+        Assert.Contains(choices, choice => string.Equals(choice.Id, PayTwoMana, StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, DeclinePayment, StringComparison.Ordinal));
+        return payment;
     }
 
     private static MatchState BuildNaturalConquestTreantState()

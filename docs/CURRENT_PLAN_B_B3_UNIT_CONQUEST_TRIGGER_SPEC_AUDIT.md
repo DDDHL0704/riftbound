@@ -8,6 +8,8 @@ Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, 
 
 2026-07-01 follow-up: unit-conquest runtime routing now enumerates `UnitConquestTriggerSpecRules.TriggersForCard(...)` and filters via shared shape predicates. The old public per-effect unit-conquest helper surface is removed; focused NaturalUnitConquestTrigger / TriggerPayment representatives 92/92, adjacent UnitConquest / TriggerPayment / MatchRecovery representatives 2116/2116, and backend full conformance 9078/9078 passed.
 
+2026-07-03 follow-up: SFD Rumble's `UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT` runtime representative now covers both zero-mana-after-reduction and non-zero reduced-mana trigger-payment paths. `CoreRuleEngine` carries the selected recycled unit, selected graveyard mechanical unit, reduced mana cost, and activation reason through the existing `TRIGGER_PAYMENT` reason payload, resolves `PAY_COST(SPEND_MANA:<reducedCost>)` before moving zones, and declines without spending or moving either target. Focused parser + natural Rumble representatives 5/5, adjacent NaturalUnitConquest / UnitConquest / Rumble / Graveyard / TriggerPayment / PayCost / CardCatalogBaseline / MatchRecovery / Stack representatives 3092/3092, and backend full conformance 9155/9155 passed; complete optional target prompts, explicit target selection, insufficient-payment guards, battlefield destination choice, and full official Rumble breadth remain open.
+
 ## Scope
 
 This slice moves implemented unit conquest effects away from engine card-number branching:
@@ -134,6 +136,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
 ## Non-Goals
 
 - This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds natural battle-conquest representative routes including overkill-gated Gold creation, attack-overkill score gain, and pay-return-self-to-hand trigger payment, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` plus a Vayne official-deck-derived pay-return replay representative.
+- It also extends SFD Rumble's conquest recycle / graveyard mechanical unit representative from zero-mana-after-reduction only to the shared `TRIGGER_PAYMENT` / `PAY_COST` path for non-zero reduced mana.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, the full official opening-to-5-cost Treant window, B0 full-game readiness, or project READY.
 

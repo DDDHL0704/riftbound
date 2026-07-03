@@ -928,6 +928,38 @@ public sealed class CoreRuleEngine : IRuleEngine
                 vayneSourceObjectId);
         }
 
+        if (TryReadUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentContext(
+                pendingPayment,
+                out var rumbleEffectKind,
+                out var rumbleBattlefieldId,
+                out var rumbleBattlefieldObjectId,
+                out var rumbleActivationReason,
+                out var rumbleSourceObjectId,
+                out var rumbleRecycledObjectId,
+                out var rumblePlayedObjectId,
+                out var rumblePlayedCardManaCost,
+                out var rumbleRecycledUnitPower,
+                out var rumbleManaCostReduction,
+                out var rumbleReducedManaCost))
+        {
+            return ResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTriggerPayment(
+                state,
+                intent,
+                pendingPayment,
+                submittedChoices,
+                rumbleEffectKind,
+                rumbleBattlefieldId,
+                rumbleBattlefieldObjectId,
+                rumbleActivationReason,
+                rumbleSourceObjectId,
+                rumbleRecycledObjectId,
+                rumblePlayedObjectId,
+                rumblePlayedCardManaCost,
+                rumbleRecycledUnitPower,
+                rumbleManaCostReduction,
+                rumbleReducedManaCost);
+        }
+
         if (TryReadIcevaleArcherAttackPaymentContext(
                 pendingPayment,
                 out var icevaleEffectKind,
@@ -1576,6 +1608,187 @@ public sealed class CoreRuleEngine : IRuleEngine
         return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
+    private static ResolutionResult ResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTriggerPayment(
+        MatchState state,
+        PlayerIntent intent,
+        PendingPaymentState pendingPayment,
+        IReadOnlyList<string> submittedChoices,
+        string effectKind,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string activationReason,
+        string sourceObjectId,
+        string recycledObjectId,
+        string playedObjectId,
+        int expectedPlayedCardManaCost,
+        int expectedRecycledUnitPower,
+        int expectedManaCostReduction,
+        int expectedReducedManaCost)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out _)
+            || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            || !TryGetUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitSource(
+                cardObjects,
+                playerZones,
+                intent.PlayerId,
+                sourceObjectId,
+                out var sourceState,
+                out var trigger)
+            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
+            || !TryGetRecyclableOtherControlledUnit(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                sourceObjectId,
+                recycledObjectId,
+                out var recycledState)
+            || !TryGetPlayableGraveyardMechanicalUnit(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                playedObjectId,
+                trigger,
+                recycledState.Power,
+                out var playedState,
+                out var playedCardManaCost,
+                out var reducedManaCost)
+            || pendingPayment.ManaCost != reducedManaCost
+            || expectedPlayedCardManaCost != playedCardManaCost
+            || expectedRecycledUnitPower != recycledState.Power
+            || expectedManaCostReduction != Math.Max(0, playedCardManaCost - reducedManaCost)
+            || expectedReducedManaCost != reducedManaCost
+            || reducedManaCost <= 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的兰博征服回收/墓地机械单位目标已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var paymentPlan = BuildPendingPaymentPlan(
+            pendingPayment,
+            intent.PlayerId,
+            effectKind,
+            sourceObjectId);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        if (!TryMoveTargetToOwnerMainDeck(
+                playerZones,
+                cardObjects,
+                recycledObjectId,
+                "BOTTOM",
+                out _,
+                out _)
+            || !TryPlayGraveyardCardToBase(playerZones, cardObjects, intent.PlayerId, playedObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前触发支付窗口的兰博征服回收/墓地机械单位目标已不可用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = paymentCommit.RunePools;
+        var manaCostReduction = Math.Max(0, playedCardManaCost - reducedManaCost);
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付兰博征服墓地机械单位触发费用",
+                PaymentCostRules.BuildCostPaidPayload(
+                    paymentPlan,
+                    runePools,
+                    null,
+                    new Dictionary<string, object?>
+                    {
+                        ["mana"] = pendingPayment.ManaCost,
+                        ["power"] = pendingPayment.PowerCost,
+                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
+                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
+                        ["reason"] = effectKind
+                    })),
+            new(
+                "UNIT_CONQUEST_EFFECT_ACTIVATED",
+                $"{sourceObjectId} 的征服效果已激活",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["unitObjectId"] = sourceObjectId,
+                    ["unitCardNo"] = sourceState.CardNo,
+                    ["effectId"] = effectKind,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["reason"] = activationReason,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow,
+                    ["recycledObjectId"] = recycledObjectId,
+                    ["playedObjectId"] = playedObjectId,
+                    ["recycledUnitPower"] = recycledState.Power,
+                    ["playedCardNo"] = playedState.CardNo,
+                    ["playedCardManaCost"] = playedCardManaCost,
+                    ["manaCostReduction"] = manaCostReduction,
+                    ["reducedManaCost"] = reducedManaCost,
+                    ["paidManaCost"] = reducedManaCost
+                }),
+            new(
+                "CARDS_RECYCLED",
+                $"{sourceObjectId} 的征服效果回收友方单位",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["cardIds"] = new[] { recycledObjectId },
+                    ["count"] = 1,
+                    ["sourceZone"] = TriggerZones.Field,
+                    ["destinationZone"] = TriggerZones.MainDeck,
+                    ["reason"] = effectKind,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                }),
+            new(
+                "UNIT_PLAYED_TO_BASE",
+                $"{sourceObjectId} 的征服效果打出废牌堆机械单位到基地",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = playedObjectId,
+                    ["ownerPlayerId"] = intent.PlayerId,
+                    ["sourceZone"] = TriggerZones.Graveyard,
+                    ["destinationZone"] = TriggerZones.Base,
+                    ["effectId"] = effectKind,
+                    ["playedCardNo"] = playedState.CardNo,
+                    ["playedCardManaCost"] = playedCardManaCost,
+                    ["recycledObjectId"] = recycledObjectId,
+                    ["recycledUnitPower"] = recycledState.Power,
+                    ["manaCostReduction"] = manaCostReduction,
+                    ["reducedManaCost"] = reducedManaCost,
+                    ["paidManaCost"] = reducedManaCost,
+                    ["paymentId"] = pendingPayment.PaymentId,
+                    ["paymentWindow"] = pendingPayment.PaymentWindow
+                })
+        };
+        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
+            CardObjects = cardObjects,
+            PendingPayment = null
+        };
+        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
+    }
+
     private static ResolutionResult ResolveIcevaleArcherAttackTriggerPayment(
         MatchState state,
         PlayerIntent intent,
@@ -2118,6 +2331,32 @@ public sealed class CoreRuleEngine : IRuleEngine
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
+        }
+        else if (TryReadUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentContext(
+                     pendingPayment,
+                     out unitConquestEffectKind,
+                     out battlefieldId,
+                     out battlefieldObjectId,
+                     out var activationReason,
+                     out sourceObjectId,
+                     out var recycledObjectId,
+                     out var playedObjectId,
+                     out var playedCardManaCost,
+                     out var recycledUnitPower,
+                     out var manaCostReduction,
+                     out var reducedManaCost))
+        {
+            payload["trigger"] = unitConquestEffectKind;
+            payload["battlefieldId"] = battlefieldId;
+            payload["battlefieldObjectId"] = battlefieldObjectId;
+            payload["activationReason"] = activationReason;
+            payload["sourceObjectId"] = sourceObjectId;
+            payload["recycledObjectId"] = recycledObjectId;
+            payload["playedObjectId"] = playedObjectId;
+            payload["playedCardManaCost"] = playedCardManaCost;
+            payload["recycledUnitPower"] = recycledUnitPower;
+            payload["manaCostReduction"] = manaCostReduction;
+            payload["reducedManaCost"] = reducedManaCost;
         }
         else if (TryReadIcevaleArcherAttackPaymentContext(
                      pendingPayment,
@@ -2980,6 +3219,106 @@ public sealed class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
+        return true;
+    }
+
+    private static string BuildUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentReason(
+        string effectKind,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string activationReason,
+        string sourceObjectId,
+        string recycledObjectId,
+        string playedObjectId,
+        int playedCardManaCost,
+        int recycledUnitPower,
+        int manaCostReduction,
+        int reducedManaCost)
+    {
+        return string.Join(
+            '|',
+            effectKind,
+            battlefieldId,
+            battlefieldObjectId,
+            activationReason,
+            sourceObjectId,
+            recycledObjectId,
+            playedObjectId,
+            playedCardManaCost.ToString(CultureInfo.InvariantCulture),
+            recycledUnitPower.ToString(CultureInfo.InvariantCulture),
+            manaCostReduction.ToString(CultureInfo.InvariantCulture),
+            reducedManaCost.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private static bool TryReadUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentContext(
+        PendingPaymentState pendingPayment,
+        out string effectKind,
+        out string battlefieldId,
+        out string battlefieldObjectId,
+        out string activationReason,
+        out string sourceObjectId,
+        out string recycledObjectId,
+        out string playedObjectId,
+        out int playedCardManaCost,
+        out int recycledUnitPower,
+        out int manaCostReduction,
+        out int reducedManaCost)
+    {
+        effectKind = string.Empty;
+        battlefieldId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        activationReason = string.Empty;
+        sourceObjectId = string.Empty;
+        recycledObjectId = string.Empty;
+        playedObjectId = string.Empty;
+        playedCardManaCost = 0;
+        recycledUnitPower = 0;
+        manaCostReduction = 0;
+        reducedManaCost = 0;
+        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
+        {
+            return false;
+        }
+
+        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
+        if (parts.Length != 11
+            || !UnitConquestTriggerSpecRules.TryGetTriggerByEffectKind(
+                parts[0],
+                trigger => string.Equals(
+                    trigger.Kind,
+                    TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit,
+                    StringComparison.Ordinal),
+                out _)
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2])
+            || string.IsNullOrWhiteSpace(parts[3])
+            || string.IsNullOrWhiteSpace(parts[4])
+            || string.IsNullOrWhiteSpace(parts[5])
+            || string.IsNullOrWhiteSpace(parts[6])
+            || !int.TryParse(parts[7], NumberStyles.Integer, CultureInfo.InvariantCulture, out playedCardManaCost)
+            || !int.TryParse(parts[8], NumberStyles.Integer, CultureInfo.InvariantCulture, out recycledUnitPower)
+            || !int.TryParse(parts[9], NumberStyles.Integer, CultureInfo.InvariantCulture, out manaCostReduction)
+            || !int.TryParse(parts[10], NumberStyles.Integer, CultureInfo.InvariantCulture, out reducedManaCost)
+            || playedCardManaCost < 0
+            || recycledUnitPower < 0
+            || manaCostReduction < 0
+            || reducedManaCost <= 0)
+        {
+            playedCardManaCost = 0;
+            recycledUnitPower = 0;
+            manaCostReduction = 0;
+            reducedManaCost = 0;
+            return false;
+        }
+
+        effectKind = parts[0];
+        battlefieldId = parts[1];
+        battlefieldObjectId = parts[2];
+        activationReason = parts[3];
+        sourceObjectId = parts[4];
+        recycledObjectId = parts[5];
+        playedObjectId = parts[6];
         return true;
     }
 
@@ -17652,13 +17991,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor,
                     naturalUnitConquestEvents,
                     out var naturalUnitConquestDrawApplication,
-                    out var naturalUnitConquestUntilEndOfTurnEffects))
+                    out var naturalUnitConquestUntilEndOfTurnEffects,
+                    out var naturalUnitConquestPendingPayment))
             {
                 combatEvents.AddRange(naturalUnitConquestEvents);
                 playerScores = naturalUnitConquestDrawApplication.PlayerScores;
                 winnerPlayerId = naturalUnitConquestDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                 rngCursor = naturalUnitConquestDrawApplication.RngCursor;
                 untilEndOfTurnEffects = naturalUnitConquestUntilEndOfTurnEffects;
+                pendingPayment ??= naturalUnitConquestPendingPayment;
             }
 
             TryResolveBattlefieldConquerMillTwoTrigger(
@@ -18220,7 +18561,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         rngCursor,
                         battlefieldUnitConquestEvents,
                         out var battlefieldUnitConquestDrawApplication,
-                        out var battlefieldUnitConquestUntilEndOfTurnEffects))
+                        out var battlefieldUnitConquestUntilEndOfTurnEffects,
+                        out var battlefieldUnitConquestPendingPayment))
                 {
                     AddBattlefieldHeldEventIfNeeded(
                         combatEvents,
@@ -18234,6 +18576,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     winnerPlayerId = battlefieldUnitConquestDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                     rngCursor = battlefieldUnitConquestDrawApplication.RngCursor;
                     untilEndOfTurnEffects = battlefieldUnitConquestUntilEndOfTurnEffects;
+                    pendingPayment ??= battlefieldUnitConquestPendingPayment;
                 }
 
                 var battlefieldBoonEvents = new List<GameEvent>();
@@ -23305,10 +23648,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
-        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects,
+        out PendingPaymentState? pendingPayment)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
@@ -23370,7 +23715,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             rngCursor,
             events,
             out drawApplication,
-            out nextUntilEndOfTurnEffects);
+            out nextUntilEndOfTurnEffects,
+            out pendingPayment);
     }
 
     private static bool IsBattlefieldHeldActivateUnitConquestTargetInScope(
@@ -23408,10 +23754,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
-        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects,
+        out PendingPaymentState? pendingPayment)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _))
         {
             return false;
@@ -23443,7 +23791,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             rngCursor,
             events,
             out drawApplication,
-            out nextUntilEndOfTurnEffects);
+            out nextUntilEndOfTurnEffects,
+            out pendingPayment);
     }
 
     private static bool TryResolveUnitConquestTriggerSpecs(
@@ -23461,10 +23810,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
-        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects,
+        out PendingPaymentState? pendingPayment)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        pendingPayment = null;
         if (unitObjectIds.Count == 0)
         {
             return false;
@@ -23492,13 +23843,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     nextUntilEndOfTurnEffects,
                     playerId,
                     battlefieldObjectId,
+                    battlefieldPositionObjectId,
                     activationReason,
                     unitObjectId,
                     assignedOverkillDamageToEnemyUnits,
                     nextRngCursor,
                     events,
                     out var unitDrawApplication,
-                    out var unitUntilEndOfTurnEffects))
+                    out var unitUntilEndOfTurnEffects,
+                    out var unitPendingPayment))
                 {
                     continue;
                 }
@@ -23507,6 +23860,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = unitDrawApplication.WinnerPlayerId ?? winnerPlayerId;
                 nextRngCursor = unitDrawApplication.RngCursor;
                 nextUntilEndOfTurnEffects = unitUntilEndOfTurnEffects;
+                pendingPayment ??= unitPendingPayment;
+                if (pendingPayment is not null)
+                {
+                    drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+                    return true;
+                }
             }
         }
 
@@ -23522,16 +23881,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> untilEndOfTurnEffects,
         string playerId,
         string battlefieldObjectId,
+        string battlefieldPositionObjectId,
         string activationReason,
         string unitObjectId,
         int assignedOverkillDamageToEnemyUnits,
         long rngCursor,
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
-        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects,
+        out PendingPaymentState? pendingPayment)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        pendingPayment = null;
         if (!cardObjects.TryGetValue(unitObjectId, out var unitState))
         {
             return false;
@@ -23795,12 +24157,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 playerId,
                 battlefieldObjectId,
+                battlefieldPositionObjectId,
                 activationReason,
                 unitObjectId,
                 unitState,
                 unitConquestPlayGraveyardMechanicalUnitTrigger,
-                events))
+                state.Tick + 1,
+                events,
+                out var unitConquestPlayGraveyardMechanicalUnitPendingPayment))
         {
+            pendingPayment = unitConquestPlayGraveyardMechanicalUnitPendingPayment;
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
             return true;
         }
@@ -24162,12 +24528,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldObjectId,
+        string battlefieldPositionObjectId,
         string activationReason,
         string unitObjectId,
         CardObjectState unitState,
         TriggerSpec trigger,
-        List<GameEvent> events)
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
     {
+        pendingPayment = null;
         if (!TryGetFirstRecyclableOtherControlledUnit(
                 playerZones,
                 cardObjects,
@@ -24184,8 +24554,33 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var playedObjectId,
                 out var playedState,
                 out var printedManaCost,
-                out var reducedManaCost)
-            || !TryMoveTargetToOwnerMainDeck(
+                out var reducedManaCost))
+        {
+            return false;
+        }
+
+        if (reducedManaCost > 0)
+        {
+            return TryOpenUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentWindow(
+                playerId,
+                battlefieldPositionObjectId,
+                battlefieldObjectId,
+                activationReason,
+                unitObjectId,
+                unitState,
+                trigger,
+                recycledObjectId,
+                recycledState,
+                playedObjectId,
+                playedState,
+                printedManaCost,
+                reducedManaCost,
+                paymentTick,
+                events,
+                out pendingPayment);
+        }
+
+        if (!TryMoveTargetToOwnerMainDeck(
                 playerZones,
                 cardObjects,
                 recycledObjectId,
@@ -24253,6 +24648,90 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryOpenUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentWindow(
+        string playerId,
+        string battlefieldId,
+        string battlefieldObjectId,
+        string activationReason,
+        string sourceObjectId,
+        CardObjectState sourceState,
+        TriggerSpec trigger,
+        string recycledObjectId,
+        CardObjectState recycledState,
+        string playedObjectId,
+        CardObjectState playedState,
+        int playedCardManaCost,
+        int reducedManaCost,
+        long paymentTick,
+        List<GameEvent> events,
+        out PendingPaymentState? pendingPayment)
+    {
+        pendingPayment = null;
+        if (reducedManaCost <= 0)
+        {
+            return false;
+        }
+
+        var manaCostReduction = Math.Max(0, playedCardManaCost - reducedManaCost);
+        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(reducedManaCost);
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            paymentTick,
+            TriggerPaymentWindow,
+            playerId,
+            sourceObjectId: sourceObjectId);
+        pendingPayment = new PendingPaymentState(
+            paymentId,
+            TriggerPaymentWindow,
+            playerId,
+            manaCost: reducedManaCost,
+            legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
+            reason: BuildUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentReason(
+                trigger.Kind,
+                battlefieldId,
+                battlefieldObjectId,
+                activationReason,
+                sourceObjectId,
+                recycledObjectId,
+                playedObjectId,
+                playedCardManaCost,
+                recycledState.Power,
+                manaCostReduction,
+                reducedManaCost));
+        events.Add(new GameEvent(
+            "PAYMENT_WINDOW_OPENED",
+            $"{playerId} 征服战场后等待支付墓地机械单位触发费用",
+            new Dictionary<string, object?>
+            {
+                ["paymentId"] = paymentId,
+                ["paymentWindow"] = TriggerPaymentWindow,
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["trigger"] = trigger.Kind,
+                ["sourceObjectId"] = sourceObjectId,
+                ["unitCardNo"] = sourceState.CardNo,
+                ["activationReason"] = activationReason,
+                ["recycledObjectId"] = recycledObjectId,
+                ["playedObjectId"] = playedObjectId,
+                ["recycledUnitPower"] = recycledState.Power,
+                ["playedCardNo"] = playedState.CardNo,
+                ["playedCardManaCost"] = playedCardManaCost,
+                ["manaCostReduction"] = manaCostReduction,
+                ["reducedManaCost"] = reducedManaCost,
+                ["mana"] = reducedManaCost,
+                ["power"] = 0,
+                ["cost"] = new Dictionary<string, object?>
+                {
+                    ["mana"] = reducedManaCost,
+                    ["power"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
+                },
+                ["paymentChoices"] = new[] { spendManaChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = trigger.Kind
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstRecyclableOtherControlledUnit(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -24270,11 +24749,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var candidateObjectId in zones.Base.Concat(zones.Battlefields))
         {
-            if (string.Equals(candidateObjectId, sourceObjectId, StringComparison.Ordinal)
-                || !cardObjects.TryGetValue(candidateObjectId, out var candidateState)
-                || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || candidateState.IsFaceDown
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId))
+            if (!TryGetRecyclableOtherControlledUnit(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    sourceObjectId,
+                    candidateObjectId,
+                    out var candidateState))
             {
                 continue;
             }
@@ -24285,6 +24766,64 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryGetUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitSource(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string sourceObjectId,
+        out CardObjectState sourceState,
+        out TriggerSpec trigger)
+    {
+        sourceState = default!;
+        trigger = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidateState)
+            || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidateState.IsFaceDown
+            || candidateState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(candidateState, playerId)
+            || !IsObjectOnField(playerZones, sourceObjectId)
+            || !UnitConquestTriggerSpecRules.TryGetTrigger(
+                candidateState.CardNo,
+                candidate => string.Equals(
+                    candidate.Kind,
+                    TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit,
+                    StringComparison.Ordinal)
+                    && UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger(candidate),
+                out trigger))
+        {
+            trigger = default!;
+            return false;
+        }
+
+        sourceState = candidateState;
+        return true;
+    }
+
+    private static bool TryGetRecyclableOtherControlledUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId,
+        out CardObjectState targetState)
+    {
+        targetState = default!;
+        if (string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                && !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+            || !cardObjects.TryGetValue(targetObjectId, out var candidateState)
+            || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidateState.IsFaceDown
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
+        {
+            return false;
+        }
+
+        targetState = candidateState;
+        return true;
     }
 
     private static bool TryGetFirstPlayableGraveyardMechanicalUnit(
@@ -24312,25 +24851,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var candidateObjectId in zones.Graveyard)
         {
-            if (!cardObjects.TryGetValue(candidateObjectId, out var candidateState)
-                || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !candidateState.Tags.Contains("机械", StringComparer.Ordinal)
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId))
-            {
-                continue;
-            }
-
-            var candidateManaCost = candidateState.ManaCost;
-            if (candidateManaCost <= 0
-                && CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior))
-            {
-                candidateManaCost = candidateBehavior.ManaCost;
-            }
-
-            var candidateReducedManaCost = trigger.ReducePlayManaCostByRecycledUnitPower == true
-                ? Math.Max(0, candidateManaCost - Math.Max(0, recycledUnitPower))
-                : candidateManaCost;
-            if (candidateReducedManaCost != 0)
+            if (!TryGetPlayableGraveyardMechanicalUnit(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    candidateObjectId,
+                    trigger,
+                    recycledUnitPower,
+                    out var candidateState,
+                    out var candidateManaCost,
+                    out var candidateReducedManaCost))
             {
                 continue;
             }
@@ -24343,6 +24873,47 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryGetPlayableGraveyardMechanicalUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string targetObjectId,
+        TriggerSpec trigger,
+        int recycledUnitPower,
+        out CardObjectState targetState,
+        out int printedManaCost,
+        out int reducedManaCost)
+    {
+        targetState = default!;
+        printedManaCost = 0;
+        reducedManaCost = 0;
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+            || !string.Equals(trigger.PlayOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || !string.Equals(trigger.PlayDestinationZone, TriggerZones.Base, StringComparison.Ordinal)
+            || trigger.PlayCount.GetValueOrDefault() <= 0
+            || !cardObjects.TryGetValue(targetObjectId, out var candidateState)
+            || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !candidateState.Tags.Contains("机械", StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
+        {
+            return false;
+        }
+
+        targetState = candidateState;
+        printedManaCost = targetState.ManaCost;
+        if (printedManaCost <= 0
+            && CardBehaviorRegistry.TryGetByCardNo(targetState.CardNo ?? string.Empty, out var candidateBehavior))
+        {
+            printedManaCost = candidateBehavior.ManaCost;
+        }
+
+        reducedManaCost = trigger.ReducePlayManaCostByRecycledUnitPower == true
+            ? Math.Max(0, printedManaCost - Math.Max(0, recycledUnitPower))
+            : printedManaCost;
+        return reducedManaCost >= 0;
     }
 
     private static bool TryResolveSourceUnitPlayedPlayLowCostGraveyardSpellRecycleTriggers(
