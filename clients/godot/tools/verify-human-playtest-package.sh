@@ -364,6 +364,24 @@ require_operator_guide_field() {
   fi
 }
 
+require_operator_guide_field_contains() {
+  local prefix="$1"
+  local needle="$2"
+  local label="$3"
+
+  if [[ -s "${operator_guide}" ]] && ! awk -v prefix="${prefix}" -v needle="${needle}" '
+    index($0, prefix) == 1 {
+      value = substr($0, length(prefix) + 1)
+      if (index(value, needle) > 0) {
+        found = 1
+      }
+    }
+    END { exit found ? 0 : 1 }
+  ' "${operator_guide}"; then
+    failures+=("${label} missing from OPERATOR_GUIDE.md")
+  fi
+}
+
 require_operator_guide_consistency() {
   local room=""
   local player_a_handle=""
@@ -394,6 +412,8 @@ require_operator_guide_consistency() {
 
   require_operator_guide_field "- Evidence package: " "operator guide evidence package path"
   require_operator_guide_field "- Playtest report: " "operator guide playtest report path"
+  require_operator_guide_field_contains "- Evidence package: " ".tar.gz" "operator guide evidence package tarball path"
+  require_operator_guide_field_contains "- Playtest report: " "playtest-report.md" "operator guide playtest report file path"
 
   if [[ -n "${player_a_result}" ]]; then
     require_operator_guide_literal_match "$(dirname "${player_a_result}")" "operator guide result screenshot directory"

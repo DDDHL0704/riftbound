@@ -91,8 +91,9 @@ contracts change.
   package README, handoff, and visual review files to include the passed
   inksteel style machine check, then re-runs the inksteel style guard on the
   packaged result screenshots. `OPERATOR_GUIDE.md` must also keep non-empty
-  evidence-package and playtest-report path fields so a reviewer can recover the
-  handoff files without terminal scrollback.
+  evidence-package and playtest-report path fields, and those fields must point
+  to a `.tar.gz` evidence package and `playtest-report.md`, so a reviewer can
+  recover the handoff files without terminal scrollback or placeholder values.
 
 ## Standard Gates
 

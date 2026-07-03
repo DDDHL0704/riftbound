@@ -712,6 +712,62 @@ if ! rg -q "OPERATOR_GUIDE|operator guide|Playtest report|playtest report" "${mi
   fail "verifier did not explain the missing operator playtest report path"
 fi
 
+placeholder_operator_package_path_bundle="${tmp_dir}/placeholder-operator-package-path/riftbound-human-playtest-evidence"
+write_evidence_bundle "${placeholder_operator_package_path_bundle}" "${revision}"
+python3 - "${placeholder_operator_package_path_bundle}/OPERATOR_GUIDE.md" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+path.write_text(text.replace("- Evidence package: /tmp/riftbound-human-playtest.tar.gz", "- Evidence package: TBD"), encoding="utf-8")
+PY
+(
+  cd "${placeholder_operator_package_path_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+placeholder_operator_package_path_package="${tmp_dir}/placeholder-operator-package-path.tar.gz"
+make_package "${placeholder_operator_package_path_bundle}" "${placeholder_operator_package_path_package}"
+
+placeholder_operator_package_path_output="${tmp_dir}/placeholder-operator-package-path-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${placeholder_operator_package_path_package}" >"${placeholder_operator_package_path_output}" 2>&1; then
+  fail "verifier accepted operator guide with a placeholder evidence package path"
+fi
+
+if ! rg -q "OPERATOR_GUIDE|operator guide|Evidence package|evidence package|tar\\.gz" "${placeholder_operator_package_path_output}"; then
+  echo "Expected placeholder operator evidence package rejection output:" >&2
+  cat "${placeholder_operator_package_path_output}" >&2
+  fail "verifier did not explain the placeholder operator evidence package path"
+fi
+
+wrong_operator_report_path_bundle="${tmp_dir}/wrong-operator-report-path/riftbound-human-playtest-evidence"
+write_evidence_bundle "${wrong_operator_report_path_bundle}" "${revision}"
+python3 - "${wrong_operator_report_path_bundle}/OPERATOR_GUIDE.md" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+path.write_text(text.replace("- Playtest report: /tmp/riftbound-human-playtest/playtest-report.md", "- Playtest report: notes.txt"), encoding="utf-8")
+PY
+(
+  cd "${wrong_operator_report_path_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+wrong_operator_report_path_package="${tmp_dir}/wrong-operator-report-path.tar.gz"
+make_package "${wrong_operator_report_path_bundle}" "${wrong_operator_report_path_package}"
+
+wrong_operator_report_path_output="${tmp_dir}/wrong-operator-report-path-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${wrong_operator_report_path_package}" >"${wrong_operator_report_path_output}" 2>&1; then
+  fail "verifier accepted operator guide with a non-report playtest report path"
+fi
+
+if ! rg -q "OPERATOR_GUIDE|operator guide|Playtest report|playtest report|playtest-report\\.md" "${wrong_operator_report_path_output}"; then
+  echo "Expected wrong operator playtest report rejection output:" >&2
+  cat "${wrong_operator_report_path_output}" >&2
+  fail "verifier did not explain the wrong operator playtest report path"
+fi
+
 extra_file_bundle="${tmp_dir}/extra-file/riftbound-human-playtest-evidence"
 write_evidence_bundle "${extra_file_bundle}" "${revision}" "1" "0" "0" "1"
 (
