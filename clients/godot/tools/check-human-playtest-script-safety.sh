@@ -271,6 +271,13 @@ rg -q "Riftbound Godot P5 Operator Guide|Final P5 operator checklist" "${safe_op
 rg -q "Room:|Player A handle:|Player B handle:" "${safe_operator_guide}" \
   || fail "OPERATOR_GUIDE.md does not record room and player handles"
 
+rg -q "Player A key fingerprint: .*\\.\\.\\..*|Player B key fingerprint: .*\\.\\.\\..*" "${safe_operator_guide}" \
+  || fail "OPERATOR_GUIDE.md does not record redacted player key fingerprints"
+
+if rg -q "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" "${safe_operator_guide}"; then
+  fail "OPERATOR_GUIDE.md leaked a full player key instead of a fingerprint"
+fi
+
 rg -q "preconstructed decks|server result panel|hidden cards.*card backs/counts|Evidence package:" "${safe_operator_guide}" \
   || fail "OPERATOR_GUIDE.md does not record the required P5 operator instructions"
 

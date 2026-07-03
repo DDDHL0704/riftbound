@@ -65,7 +65,8 @@ contracts change.
   worktree owns the server process for final evidence. When the real run starts,
   it writes `OPERATOR_GUIDE.md` into the fresh evidence directory before
   launching Godot so the operators have the room, player handles,
-  evidence/package paths, and final checklist outside terminal scrollback.
+  redacted player key fingerprints, evidence/package paths, and final checklist
+  outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
   information boundary log lines, the inksteel screenshot style guard, and

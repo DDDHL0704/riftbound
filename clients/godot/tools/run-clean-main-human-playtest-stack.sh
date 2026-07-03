@@ -133,6 +133,8 @@ write_operator_guide() {
 - Room: ${room}
 - Player A handle: ${handle_a}
 - Player B handle: ${handle_b}
+- Player A key fingerprint: $(fingerprint_secret "${player_key_a}")
+- Player B key fingerprint: $(fingerprint_secret "${player_key_b}")
 - Evidence directory: ${screenshot_dir}
 - Evidence package: ${evidence_package}
 - Playtest report: ${screenshot_dir}/playtest-report.md
@@ -147,8 +149,8 @@ write_operator_guide() {
 6. Answer the manual confirmation prompts only after checking the final screenshots.
 
 This guide is written before the Godot windows launch so the operators can
-recover the room, player handles, evidence directory, and package path even if
-the terminal scrollback is lost.
+recover the room, player handles, player key fingerprints, evidence directory,
+and package path even if the terminal scrollback is lost.
 EOF
 }
 

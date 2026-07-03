@@ -64,8 +64,8 @@ resume from repository state instead of conversation history alone.
 - The final P5 wrapper writes `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md`
   before launching Godot windows. This file mirrors the run parameters and final
   P5 operator checklist so a human handoff can recover the room, player handles,
-  evidence directory, package path, and hidden-information confirmation steps
-  even if the terminal scrollback is lost.
+  redacted player key fingerprints, evidence directory, package path, and
+  hidden-information confirmation steps even if the terminal scrollback is lost.
 - P4 local deployment check has been validated from clean
   `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`: Docker image
   `riftbound-api:p4-docker-192252` built, Production memory-mode container
