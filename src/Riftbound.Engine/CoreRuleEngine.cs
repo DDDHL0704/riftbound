@@ -25213,9 +25213,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsNoTargetFreePlayRecycleRepresentativeSpell(CardBehaviorDefinition behavior)
     {
-        return IsNoTargetFreePlayRecycleShellSafe(behavior)
-            && (IsNoTargetDrawRepresentativeSpell(behavior)
-                || IsNoTargetRuneCallRepresentativeSpell(behavior));
+        return (IsNoTargetFreePlayRecycleShellSafe(behavior)
+                && (IsNoTargetDrawRepresentativeSpell(behavior)
+                    || IsNoTargetRuneCallRepresentativeSpell(behavior)))
+            || IsNoTargetBaseUnitTokenRepresentativeSpell(behavior);
+    }
+
+    private static bool IsNoTargetBaseUnitTokenRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        return IsNoTargetFreePlayRecycleShellSafe(behavior, allowBaseUnitTokens: true)
+            && behavior.CreatedBaseUnitTokenCount > 0
+            && behavior.CreatedBaseUnitTokenPower > 0
+            && !string.IsNullOrWhiteSpace(behavior.CreatedBaseUnitTokenName)
+            && !behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && string.Equals(
+                behavior.CreatedBaseUnitTokenConditionKind,
+                CardTokenCreationConditionKinds.None,
+                StringComparison.Ordinal)
+            && behavior.DrawCount == 0
+            && behavior.RuneCallCount == 0
+            && behavior.DrawCountIfRuneCallFails == 0
+            && string.Equals(
+                behavior.DrawRecipientKind,
+                CardDrawRecipientKinds.Controller,
+                StringComparison.Ordinal)
+            && string.Equals(
+                behavior.DrawConditionKind,
+                CardDrawConditionKinds.None,
+                StringComparison.Ordinal)
+            && string.Equals(
+                behavior.DynamicDrawCountKind,
+                CardDynamicDrawCountKinds.None,
+                StringComparison.Ordinal);
     }
 
     private static bool IsNoTargetDrawRepresentativeSpell(CardBehaviorDefinition behavior)
@@ -25241,14 +25270,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             && behavior.DrawCountIfRuneCallFails >= 0;
     }
 
-    private static bool IsNoTargetFreePlayRecycleShellSafe(CardBehaviorDefinition behavior)
+    private static bool IsNoTargetFreePlayRecycleShellSafe(
+        CardBehaviorDefinition behavior,
+        bool allowBaseUnitTokens = false)
     {
         return behavior.RequiredTargetCount == 0
             && behavior.MinTargetCount <= 0
             && behavior.DamageAmount == 0
             && behavior.ConditionalDamageAmount == 0
             && behavior.RuneCallCountAfterTargetReturn == 0
-            && behavior.CreatedBaseUnitTokenCount == 0
+            && (allowBaseUnitTokens || behavior.CreatedBaseUnitTokenCount == 0)
             && behavior.CreatedBaseEquipmentTokenCount == 0
             && behavior.GainExperienceOnPlay == 0
             && behavior.GainExperienceOnPlayPerFriendlyFieldUnit == 0

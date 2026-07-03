@@ -12,6 +12,7 @@ public sealed class SourceUnitPlayedTriggerTests
     private const string FizzRuneSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-RUNE-SPELL";
     private const string FizzCalledRuneObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-CALLED-RUNE";
     private const string FizzRuneFallbackDrawObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-RUNE-FALLBACK-DRAW";
+    private const string FizzTokenSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TOKEN-SPELL";
     private const string FizzTargetedRuneSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-RUNE-SPELL";
     private const string FizzTargetedCalledRuneObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-CALLED-RUNE";
     private const string FizzExtraFriendlyUnitObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-EXTRA-FRIENDLY-UNIT";
@@ -170,6 +171,56 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.DoesNotContain(FizzRuneSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Equal([FizzRuneSpellObjectId], p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(TriggerZones.MainDeck, p2Pass.State.ObjectLocations[FizzRuneSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task FizzPlaysNoTargetGraveyardTokenSpellAndRecyclesItAfterSourceUnitPlayed()
+    {
+        var p2Pass = await ResolveFizzPlayThroughStackAsync(
+            BuildFizzGraveyardTokenSpellState(),
+            "intent-fizz-token-spell");
+
+        var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, sourceTrigger.Payload["effectId"]);
+        Assert.Equal(FizzTokenSpellObjectId, sourceTrigger.Payload["targetObjectId"]);
+        Assert.Equal(TriggerTimings.SourceUnitPlayed, sourceTrigger.Payload["reason"]);
+
+        var playEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedObjectId"] as string, FizzTokenSpellObjectId, StringComparison.Ordinal));
+        Assert.Equal(FizzObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal("SFD·140/221", playEvent.Payload["sourceCardNo"]);
+        Assert.Equal("OGN·094/298", playEvent.Payload["playedCardNo"]);
+        Assert.Equal(3, playEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Stack, playEvent.Payload["destinationZone"]);
+        Assert.False(playEvent.Payload.ContainsKey("targetObjectIds"));
+
+        var tokenEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzTokenSpellObjectId, StringComparison.Ordinal));
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        Assert.Equal("精灵", tokenEvent.Payload["tokenName"]);
+        Assert.Equal(3, tokenEvent.Payload["power"]);
+        Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
+        Assert.Contains("瞬息", Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]));
+
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.Equal([FizzTokenSpellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.Equal([FizzObjectId, tokenObjectId], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains(tokenObjectId, p2Pass.State.CardObjects);
+        Assert.Contains("瞬息", p2Pass.State.CardObjects[tokenObjectId].Tags);
+        Assert.Equal(3, p2Pass.State.CardObjects[tokenObjectId].Power);
+        Assert.DoesNotContain(FizzTokenSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal([FizzTokenSpellObjectId], p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[tokenObjectId].Zone);
+        Assert.Equal(TriggerZones.MainDeck, p2Pass.State.ObjectLocations[FizzTokenSpellObjectId].Zone);
     }
 
     [Fact]
@@ -370,6 +421,51 @@ public sealed class SourceUnitPlayedTriggerTests
             },
             cardObjects: cardObjects,
             objectLocations: objectLocations);
+    }
+
+    private static MatchState BuildFizzGraveyardTokenSpellState()
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [FizzObjectId] = Unit(FizzObjectId, "P1", 3, "SFD·140/221", ["约德尔人"]),
+            [FizzTokenSpellObjectId] = Spell(FizzTokenSpellObjectId, "P1", "OGN·094/298", 3)
+        };
+
+        return new MatchState(
+            roomId: "source-unit-played-fizz-graveyard-token-spell-room",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [FizzObjectId],
+                    Graveyard = [FizzTokenSpellObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: cardObjects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [FizzObjectId] = new("P1", TriggerZones.Hand),
+                [FizzTokenSpellObjectId] = new("P1", TriggerZones.Graveyard)
+            });
     }
 
     private static MatchState BuildFizzTargetedGraveyardRuneSpellState(bool extraFriendlyUnitTarget)
