@@ -25105,7 +25105,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, candidateObjectId)
                 || !CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior)
                 || !IsSpellPlayBehavior(candidateBehavior)
-                || !IsNoTargetDrawRepresentativeSpell(candidateBehavior)
+                || !IsNoTargetFreePlayRecycleRepresentativeSpell(candidateBehavior)
                 || candidateBehavior.BanishesSourceOnResolution)
             {
                 continue;
@@ -25133,23 +25133,56 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool IsNoTargetFreePlayRecycleRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        return IsNoTargetFreePlayRecycleShellSafe(behavior)
+            && (IsNoTargetDrawRepresentativeSpell(behavior)
+                || IsNoTargetRuneCallRepresentativeSpell(behavior));
+    }
+
     private static bool IsNoTargetDrawRepresentativeSpell(CardBehaviorDefinition behavior)
     {
-        return behavior.RequiredTargetCount == 0
-            && behavior.MinTargetCount <= 0
+        return IsNoTargetFreePlayRecycleShellSafe(behavior)
             && behavior.DrawCount > 0
             && string.Equals(behavior.DrawRecipientKind, CardDrawRecipientKinds.Controller, StringComparison.Ordinal)
             && string.Equals(behavior.DrawConditionKind, CardDrawConditionKinds.None, StringComparison.Ordinal)
             && string.Equals(behavior.DynamicDrawCountKind, CardDynamicDrawCountKinds.None, StringComparison.Ordinal)
-            && behavior.DamageAmount == 0
-            && behavior.ConditionalDamageAmount == 0
             && behavior.RuneCallCount == 0
             && behavior.DrawCountIfRuneCallFails == 0
+            && !behavior.DrawsBeforeRuneCall;
+    }
+
+    private static bool IsNoTargetRuneCallRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        return IsNoTargetFreePlayRecycleShellSafe(behavior)
+            && behavior.RuneCallCount > 0
+            && string.Equals(behavior.DrawRecipientKind, CardDrawRecipientKinds.Controller, StringComparison.Ordinal)
+            && string.Equals(behavior.DrawConditionKind, CardDrawConditionKinds.None, StringComparison.Ordinal)
+            && string.Equals(behavior.DynamicDrawCountKind, CardDynamicDrawCountKinds.None, StringComparison.Ordinal)
+            && (behavior.DrawCount == 0 || behavior.DrawsBeforeRuneCall)
+            && behavior.DrawCountIfRuneCallFails >= 0;
+    }
+
+    private static bool IsNoTargetFreePlayRecycleShellSafe(CardBehaviorDefinition behavior)
+    {
+        return behavior.RequiredTargetCount == 0
+            && behavior.MinTargetCount <= 0
+            && behavior.DamageAmount == 0
+            && behavior.ConditionalDamageAmount == 0
             && behavior.RuneCallCountAfterTargetReturn == 0
             && behavior.CreatedBaseUnitTokenCount == 0
             && behavior.CreatedBaseEquipmentTokenCount == 0
             && behavior.GainExperienceOnPlay == 0
             && behavior.GainExperienceOnPlayPerFriendlyFieldUnit == 0
+            && behavior.TargetEffectAdditionalManaCost == 0
+            && behavior.TargetEffectAdditionalPowerCost == 0
+            && behavior.SourceDrawAdditionalPowerCost == 0
+            && behavior.SourceReadyPowerModifierAdditionalPowerCost == 0
+            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost == 0
+            && !behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
+            && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
             && !behavior.DestroysTarget
             && !behavior.RecyclesTargets
             && !behavior.ReturnsTargetToHand
@@ -25157,15 +25190,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !behavior.ReturnsAllFieldObjectsToHand
             && !behavior.DiscardsTargetFromHand
             && !behavior.DiscardsTargetFromOwnerHand
+            && !behavior.DiscardsAllPlayersHandsThenDraws
             && !behavior.PlaysGraveyardTargetToBase
             && !behavior.PlaysHandTargetToBase
             && !behavior.CountersTargetStackSpell
             && !behavior.DestroysAllEquipment
             && !behavior.DestroysAllUnits
+            && !behavior.DamagesAllBattlefieldUnits
+            && !behavior.DamagesAllEnemyCombatUnits
+            && !behavior.DamagesAllEnemyBattlefieldUnits
+            && !behavior.DrawsControllerAndOtherPlayers
+            && !behavior.CallsRuneForControllerAndOtherPlayers
             && !behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
             && !behavior.BanishesSourceOnResolution
             && !behavior.SchedulesExtraTurnForController
+            && !behavior.PreventsAllSpellAndSkillDamageThisTurn
             && !behavior.GrantsFreeStandbyHidePermission;
     }
 

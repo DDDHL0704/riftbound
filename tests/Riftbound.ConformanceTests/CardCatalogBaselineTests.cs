@@ -3152,7 +3152,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("无需支付其法力费用", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("将其回收", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
-            "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared unit-conquest TriggerSpec resolution.",
+            "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw and rune-call spell representative paths through shared unit-conquest TriggerSpec resolution.",
             trigger.Reason);
     }
 

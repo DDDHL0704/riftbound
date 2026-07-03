@@ -906,7 +906,7 @@ public static class TriggerParser
                 TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle,
                 TriggerTimings.UnitConquest,
                 segment,
-                "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw-spell representative paths through shared unit-conquest TriggerSpec resolution.",
+                "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw and rune-call spell representative paths through shared unit-conquest TriggerSpec resolution.",
                 TargetScope: TriggerTargetScopes.ControlledSpellInGraveyard,
                 PlayCount: 1,
                 PlayOriginZone: TriggerZones.Graveyard,

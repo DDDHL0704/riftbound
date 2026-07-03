@@ -13,6 +13,9 @@ public sealed class NaturalUnitConquestTriggerTests
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
     private const string KaisaSpellObjectId = "P1-NATURAL-CONQUEST-KAISA-SPELL";
     private const string KaisaSpellDrawObjectId = "P1-NATURAL-CONQUEST-KAISA-SPELL-DRAW";
+    private const string KaisaRuneSpellObjectId = "P1-NATURAL-CONQUEST-KAISA-RUNE-SPELL";
+    private const string KaisaCalledRuneObjectId = "P1-NATURAL-CONQUEST-KAISA-CALLED-RUNE";
+    private const string KaisaRuneFallbackDrawObjectId = "P1-NATURAL-CONQUEST-KAISA-RUNE-FALLBACK-DRAW";
     private const string RumbleObjectId = "P1-NATURAL-CONQUEST-RUMBLE";
     private const string RumbleRecycledUnitObjectId = "P1-NATURAL-CONQUEST-RUMBLE-RECYCLED-UNIT";
     private const string RumbleGraveyardMechanicalUnitObjectId = "P1-NATURAL-CONQUEST-RUMBLE-GRAVEYARD-MECH";
@@ -124,6 +127,103 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.DoesNotContain(KaisaSpellObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal([KaisaSpellObjectId], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[KaisaSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task KaisaPlaysLowCostGraveyardRuneSpellAndRecyclesItAfterNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestGraveyardRuneSpellState(runeDeckAvailable: true),
+            new PlayerIntent("intent-natural-unit-conquest-kaisa-graveyard-rune-spell", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [KaisaObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, conquestTrigger.Payload["effectId"]);
+        Assert.Equal(KaisaRuneSpellObjectId, conquestTrigger.Payload["targetObjectId"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
+        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldObjectId"]);
+
+        var playEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedObjectId"] as string, KaisaRuneSpellObjectId, StringComparison.Ordinal));
+        Assert.Equal(KaisaObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal("OGN·134/298", playEvent.Payload["playedCardNo"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Stack, playEvent.Payload["destinationZone"]);
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["ignorePlayManaCost"]));
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["payPlayPowerCosts"]));
+
+        var runeEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaRuneSpellObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", runeEvent.Payload["playerId"]);
+        Assert.Equal(1, runeEvent.Payload["count"]);
+        Assert.Equal([KaisaCalledRuneObjectId], Assert.IsType<string[]>(runeEvent.Payload["runeObjectIds"]));
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal([KaisaRuneSpellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.Contains(KaisaCalledRuneObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(KaisaCalledRuneObjectId, result.State.PlayerZones["P1"].RuneDeck);
+        Assert.True(result.State.CardObjects[KaisaCalledRuneObjectId].IsExhausted);
+        Assert.DoesNotContain(KaisaRuneSpellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal([KaisaRuneSpellObjectId], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[KaisaRuneSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task KaisaGraveyardRuneSpellDrawsAndRecyclesWhenRuneCallFailsAfterNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestGraveyardRuneSpellState(runeDeckAvailable: false),
+            new PlayerIntent("intent-natural-unit-conquest-kaisa-graveyard-rune-spell-fallback-draw", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [KaisaObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, conquestTrigger.Payload["effectId"]);
+        Assert.Equal(KaisaRuneSpellObjectId, conquestTrigger.Payload["targetObjectId"]);
+
+        var runeEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaRuneSpellObjectId, StringComparison.Ordinal));
+        Assert.Equal(0, runeEvent.Payload["count"]);
+        Assert.Empty(Assert.IsType<string[]>(runeEvent.Payload["runeObjectIds"]));
+
+        var drawEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        Assert.Equal(1, drawEvent.Payload["count"]);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal([KaisaRuneSpellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.Equal([KaisaRuneFallbackDrawObjectId], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(KaisaRuneSpellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal([KaisaRuneSpellObjectId], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[KaisaRuneSpellObjectId].Zone);
     }
 
     [Fact]
@@ -610,6 +710,77 @@ public sealed class NaturalUnitConquestTriggerTests
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
     }
 
+    private static MatchState BuildNaturalConquestGraveyardRuneSpellState(bool runeDeckAvailable)
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new(
+                BattlefieldId,
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
+            [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
+            [KaisaRuneSpellObjectId] = Spell(KaisaRuneSpellObjectId, "P1", "OGN·134/298", 2)
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+            [KaisaObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
+            [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId),
+            [KaisaRuneSpellObjectId] = new("P1", "GRAVEYARD")
+        };
+        if (runeDeckAvailable)
+        {
+            cardObjects[KaisaCalledRuneObjectId] = Rune(KaisaCalledRuneObjectId, "P1");
+            objectLocations[KaisaCalledRuneObjectId] = new("P1", "RUNE_DECK");
+        }
+        else
+        {
+            cardObjects[KaisaRuneFallbackDrawObjectId] = Unit(KaisaRuneFallbackDrawObjectId, "P1", 2);
+            objectLocations[KaisaRuneFallbackDrawObjectId] = new("P1", "MAIN_DECK");
+        }
+
+        return new MatchState(
+            "natural-unit-conquest-kaisa-graveyard-rune-spell-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldId, KaisaObjectId],
+                    MainDeck = runeDeckAvailable ? [] : [KaisaRuneFallbackDrawObjectId],
+                    Graveyard = [KaisaRuneSpellObjectId],
+                    RuneDeck = runeDeckAvailable ? [KaisaCalledRuneObjectId] : []
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 3,
+                ["P2"] = 0
+            },
+            cardObjects: cardObjects,
+            objectLocations: objectLocations,
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
     private static MatchState BuildNaturalConquestRumbleState(
         int recycledUnitPower = 4,
         int p1Mana = 0,
@@ -904,6 +1075,15 @@ public sealed class NaturalUnitConquestTriggerTests
             tags: [CardObjectTags.SpellCard],
             manaCost: manaCost,
             cardNo: cardNo,
+            ownerId: playerId,
+            controllerId: playerId);
+    }
+
+    private static CardObjectState Rune(string objectId, string playerId)
+    {
+        return new CardObjectState(
+            objectId,
+            tags: [CardObjectTags.RuneCard],
             ownerId: playerId,
             controllerId: playerId);
     }
