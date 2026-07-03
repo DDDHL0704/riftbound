@@ -2,11 +2,13 @@
 
 Date: 2026-06-29
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, attack-overkill gain-score, pay-return-self-to-hand, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, official-deck midgame Treant replay, official-deck-derived Vayne pay-return replay, and official-deck-derived Rumble paid / insufficient-payment replay slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, overkill create-dormant-Gold, attack-overkill gain-score, pay-return-self-to-hand, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, official-deck midgame Treant replay, official-deck-derived Vayne pay-return replay, official-deck-derived Kai'Sa graveyard-spell replay, and official-deck-derived Rumble paid / insufficient-payment replay slices accepted; project remains **NOT READY**.
 
 2026-06-30 follow-up: Vayne pay-return pending-payment reason parsing and runtime trigger/reason payloads now also read the runtime effect kind from `BehaviorSpec.Triggers` through generic `UnitConquestTriggerSpecRules` effect-kind validation. `CoreRuleEngine` no longer owns `UnitConquestPayReturnSelfToHandEffectKind`. Focused source guard / catalog representatives 5/5, adjacent Vayne / UnitConquest / TriggerPayment / PaymentEngine / MatchRecovery / CardCatalogBaseline representatives 3198/3198, and backend full 9038/9038 passed.
 
 2026-07-01 follow-up: unit-conquest runtime routing now enumerates `UnitConquestTriggerSpecRules.TriggersForCard(...)` and filters via shared shape predicates. The old public per-effect unit-conquest helper surface is removed; focused NaturalUnitConquestTrigger / TriggerPayment representatives 92/92, adjacent UnitConquest / TriggerPayment / MatchRecovery representatives 2116/2116, and backend full conformance 9078/9078 passed.
+
+2026-07-03 follow-up: OGN Kai'Sa's `UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE` representative now has B0 official-deck-derived replay coverage in addition to the natural-conquest no-target draw-spell representative. The official route uses legal `OGN·247/298` Kai'Sa legend / `OGN·112/298` Kai'Sa champion deck construction, stages official blue `UNL-061/219` 台前作秀 as a controlled 2-mana graveyard spell at score 3, resolves `DECLARE_BATTLE`, plays the spell from graveyard to stack with mana ignored, draws one, recycles it to main-deck bottom, then continues through score victory and action-log final-state replay. Focused official-deck-derived Kai'Sa replay representative 1/1, adjacent Kai'Sa / UnitConquest / Stack / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline representatives 3015/3015, and backend full conformance 9159/9159 passed; complete optional spell selection, power-cost prompt routing, targeted spell resolution, and broader stack handoff remain open.
 
 2026-07-03 follow-up: SFD Rumble's `UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT` runtime representative now covers both zero-mana-after-reduction and non-zero reduced-mana trigger-payment paths. `CoreRuleEngine` carries the selected recycled unit, selected graveyard mechanical unit, reduced mana cost, and activation reason through the existing `TRIGGER_PAYMENT` reason payload, resolves `PAY_COST(SPEND_MANA:<reducedCost>)` before moving zones, declines without spending or moving either target, and rejects insufficient mana while keeping the payment window and target zones unchanged. Both the paid and insufficient-payment non-zero reduced-mana paths now run through B0 official-deck-derived Rumble midgame routes: legal deck opening, champion-zone Rumble staged to a battlefield, `SFD·007/221` recycled unit, `SFD·075/221` graveyard mechanical unit, `TRIGGER_PAYMENT(SPEND_MANA:2/DECLINE)`, score victory, and action-log final-state replay. Focused parser + natural Rumble representatives 6/6, focused official-deck-derived Rumble paid / insufficient replay representatives 2/2, adjacent Rumble / UnitConquest / TriggerPayment / PayCost / FullGameEndToEnd / MatchRecovery / CardCatalogBaseline representatives 2680/2680, and backend full conformance 9158/9158 passed; complete optional target prompts, explicit target selection, battlefield destination choice, and full official Rumble breadth remain open.
 
@@ -23,6 +25,17 @@ This slice moves implemented unit conquest effects away from engine card-number 
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 卡莎's representative draw effect from `UnitConquestTriggerSpecRules.TriggersForCard(...)` plus `IsSupportedUnitConquestTrigger(...)`, and reads the emitted effect id plus draw count from `BehaviorSpec.Triggers`.
 - `CoreRuleEngine` now also routes natural `DECLARE_BATTLE` battlefield conquest by surviving conquering units through the same shared `TryResolveUnitConquestTriggerSpecs(...)` helper. `OGN·039/298` 卡莎 is the runtime representative: `BATTLEFIELD_CONQUERED` now activates `UNIT_CONQUEST_DRAW_ONE`, emits `UNIT_CONQUEST_EFFECT_ACTIVATED`, and draws one card without adding a card-number allow-list.
 - The old `KaisaUnitConquestDrawCardNo` / `IsKaisaUnitConquestDrawCardNo` branch is removed.
+- `OGN·112/298` / `OGN·112a/298` 卡莎 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，你可以选择从废牌堆中打出一张法力费用低于你当前分数的法术牌，无需支付其法力费用，然后将其回收。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = CONTROLLED_SPELL_IN_GRAVEYARD`
+  - `PlayOriginZone = GRAVEYARD`
+  - `PlayDestinationZone = STACK`
+  - `RequiresPlayedCardManaCostLessThanCurrentScore = true`
+  - `IgnorePlayManaCost = true`
+  - `RecyclePlayedCardOnResolution = true`
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaLowCostGraveyardSpellAndScoreVictoryActionLogReplaysToFinalStateHash` now carries that no-target draw-spell representative through legal official Kai'Sa deck construction, official `UNL-061/219` graveyard spell resolution, score victory, and action-log final-state replay.
 - `OGN·155/298` 奇亚娜 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，抽一张牌或召出一枚休眠的符文。`
 - `RuleTextParser` now parses that text as `TriggerSpec` with:
   - `Kind = UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE`
@@ -136,6 +149,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
 ## Non-Goals
 
 - This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds natural battle-conquest representative routes including overkill-gated Gold creation, attack-overkill score gain, and pay-return-self-to-hand trigger payment, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` plus a Vayne official-deck-derived pay-return replay representative.
+- It adds official-deck-derived score-victory action-log replay coverage for Kai'Sa's low-cost graveyard spell recycle representative, still limited to no-target draw spells.
 - It also extends SFD Rumble's conquest recycle / graveyard mechanical unit representative from zero-mana-after-reduction only to the shared `TRIGGER_PAYMENT` / `PAY_COST` path for non-zero reduced mana, including B0 official-deck-derived paid and insufficient-payment score-victory action-log replays.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, the full official opening-to-5-cost Treant window, B0 full-game readiness, or project READY.

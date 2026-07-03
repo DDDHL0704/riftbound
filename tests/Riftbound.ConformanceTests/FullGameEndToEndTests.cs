@@ -12,6 +12,8 @@ public sealed class FullGameEndToEndTests
     private const string JhinChampionCardNo = "UNL-022/219";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string RumbleChampionCardNo = "SFD·026/221";
+    private const string KaisaLegendCardNo = "OGN·247/298";
+    private const string KaisaGraveyardSpellConquestCardNo = "OGN·112/298";
     private const string DariusLegendCardNo = "OGN·253/298";
     private const string MasterYiIntroSingleDefenderStaticAuraLegendCardNo = "OGS·019/024";
     private const string MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo = "UNL-191/219";
@@ -402,6 +404,42 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesKaisaLowCostGraveyardSpellAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildKaisaConquestGraveyardSpellOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-kaisa-graveyard-spell-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildKaisaConquestGraveyardSpellMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var battleResult = await SubmitKaisaConquestGraveyardSpellDeclareBattleAsync(
+            session,
+            current,
+            "P1",
+            "b0-kaisa-conquest-graveyard-spell");
+
+        AssertKaisaConquestGraveyardSpellResolved(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-kaisa-conquest-graveyard-spell-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5429,6 +5467,52 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, vayneObjectId, StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertKaisaConquestGraveyardSpellResolved(ResolutionResult result)
+    {
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && sourceObjectId is string source
+            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
+            && string.Equals(sourceObject.CardNo, KaisaGraveyardSpellConquestCardNo, StringComparison.Ordinal));
+        var kaisaObjectId = Assert.IsType<string>(conqueredEvent.Payload["sourceObjectId"]);
+
+        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, kaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, conquestTrigger.Payload["effectId"]);
+        var spellObjectId = Assert.IsType<string>(conquestTrigger.Payload["targetObjectId"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
+
+        var playEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedObjectId"] as string, spellObjectId, StringComparison.Ordinal));
+        Assert.Equal(kaisaObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal(CenterStageSpellCardNo, playEvent.Payload["playedCardNo"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Stack, playEvent.Payload["destinationZone"]);
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["ignorePlayManaCost"]));
+        Assert.True(Assert.IsType<bool>(playEvent.Payload["payPlayPowerCosts"]));
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("count", out var count)
+            && count is 1);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, kaisaObjectId, StringComparison.Ordinal));
+        Assert.Equal([spellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.DoesNotContain(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(spellObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
+        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[spellObjectId].Zone);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -15424,6 +15508,64 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitKaisaConquestGraveyardSpellDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string kaisaPlayerId,
+        string intentId)
+    {
+        Assert.Equal(kaisaPlayerId, current.State.ActivePlayerId);
+        var opponentId = OpponentOf(current.State, kaisaPlayerId);
+        var candidate = EnabledCandidate(current.Prompts[kaisaPlayerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Kai'Sa conquest driver could not find DECLARE_BATTLE for {kaisaPlayerId}.");
+        var kaisaObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            kaisaPlayerId,
+            KaisaGraveyardSpellConquestCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Kai'Sa conquest driver could not find a ready Kai'Sa attacker.");
+        var battlefieldId = current.State.ObjectLocations[kaisaObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Kai'Sa conquest driver could not locate Kai'Sa's battlefield.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(kaisaObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+        Assert.NotNull(FindGraveyardCardObjectByCardNo(current.State, kaisaPlayerId, CenterStageSpellCardNo));
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds,
+            maxPowerExclusive: current.State.CardObjects[kaisaObjectId].Power)
+            ?? throw new InvalidOperationException(
+                $"B0 Kai'Sa conquest driver could not find a legal ready defender below Kai'Sa power: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [kaisaObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            kaisaPlayerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        Assert.Null(result.State.PendingPayment);
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -21520,6 +21662,19 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildKaisaConquestGraveyardSpellOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                KaisaLegendCardNo,
+                KaisaGraveyardSpellConquestCardNo,
+                [
+                    CenterStageSpellCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildSameBattlefieldStaticAuraOfficialDeck(OfficialCardCatalog catalog)
     {
         return BuildSameBattlefieldStaticAuraOfficialDeck(
@@ -23990,6 +24145,112 @@ public sealed class FullGameEndToEndTests
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             CardObjects = cardObjects,
+            UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
+                .Where(effectId => !string.Equals(
+                    effectId,
+                    BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
+                    StringComparison.Ordinal))
+                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+    }
+
+    private static MatchState BuildKaisaConquestGraveyardSpellMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [CenterStageSpellCardNo],
+                    RunePool.Empty),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P1");
+        var kaisaObjectId = midgameState.PlayerZones["P1"].ChampionZone.SingleOrDefault(objectId =>
+            midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, KaisaGraveyardSpellConquestCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 Kai'Sa setup could not find Kai'Sa in P1 champion zone.");
+        var spellObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            CenterStageSpellCardNo)
+            ?? throw new InvalidOperationException("B0 Kai'Sa setup could not find Center Stage in P1 hand.");
+        var defenderObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 Kai'Sa setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var p2Zones = playerZones["P2"];
+        playerZones["P1"] = p1Zones with
+        {
+            Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, spellObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p1Zones.Battlefields.Concat([kaisaObjectId]).ToArray(),
+            ChampionZone = p1Zones.ChampionZone.Where(objectId => !string.Equals(objectId, kaisaObjectId, StringComparison.Ordinal)).ToArray(),
+            Graveyard = p1Zones.Graveyard.Concat([spellObjectId]).ToArray()
+        };
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, defenderObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([defenderObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[kaisaObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[spellObjectId] = new ObjectLocationState("P1", "GRAVEYARD");
+        objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[kaisaObjectId] = cardObjects[kaisaObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[kaisaObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[spellObjectId] = cardObjects[spellObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[spellObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[defenderObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerScores = new Dictionary<string, int>(midgameState.PlayerScores, StringComparer.Ordinal)
+            {
+                ["P1"] = 3,
+                ["P2"] = 0
+            },
             UntilEndOfTurnEffects = midgameState.UntilEndOfTurnEffects
                 .Where(effectId => !string.Equals(
                     effectId,
