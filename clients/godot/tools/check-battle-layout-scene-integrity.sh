@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 scene_path="${repo_root}/clients/godot/scenes/Main.tscn"
+renderer_path="${repo_root}/clients/godot/scripts/CardControlRenderer.cs"
 
 fail() {
   echo "FAILED: $*" >&2
@@ -42,6 +43,14 @@ official = nodes.get((".", "OfficialCardPreviewFrame"))
 if official is None:
     raise AssertionError("OfficialCardPreviewFrame node is missing from Main.tscn")
 
+official_summary = nodes.get(("OfficialCardPreviewFrame/OfficialPreviewBox", "OfficialCardPreviewSummary"))
+if official_summary is None:
+    raise AssertionError("OfficialCardPreviewSummary node is missing from Main.tscn")
+
+official_image = nodes.get(("OfficialCardPreviewFrame/OfficialPreviewBox", "OfficialCardPreview"))
+if official_image is None:
+    raise AssertionError("OfficialCardPreview node is missing from Main.tscn")
+
 prompt = nodes.get((".", "PromptFrame"))
 if prompt is None:
     raise AssertionError("PromptFrame node is missing from Main.tscn")
@@ -57,6 +66,15 @@ prompt_top = 900.0 + number(prompt, "offset_top")
 
 assert number(result, "anchor_left") == 1.0, "ResultFrame must be anchored to the right rail"
 assert number(result, "anchor_right") == 1.0, "ResultFrame must be anchored to the right rail"
+assert value(official, "clip_contents") == "true", (
+    "OfficialCardPreviewFrame must clip overflowing preview content so it cannot cover the result panel"
+)
+assert value(official_summary, "max_lines_visible") == "5", (
+    "OfficialCardPreviewSummary must stay compact inside the right preview rail"
+)
+assert value(official_image, "custom_minimum_size") == "Vector2(268, 240)", (
+    "OfficialCardPreview image must stay compact enough for the preview/result/prompt rail"
+)
 assert result_left >= table_right_edge + 16.0, (
     f"ResultFrame overlaps the main battle table: left={result_left:.0f}, table_right={table_right_edge:.0f}"
 )
@@ -78,3 +96,22 @@ PY_STATUS=$?
 if [[ ${PY_STATUS} -ne 0 ]]; then
   fail "battle layout scene integrity check failed"
 fi
+
+if rg -q "new Vector2\\(1280, 560\\)" "${renderer_path}"; then
+  fail "wire battle table must be responsive to the main battle column, not hard-coded to 1280px"
+fi
+
+if rg -q "contentSize\\.X >= 58f && contentSize\\.Y >= 92f" "${renderer_path}"; then
+  fail "compact tabletop card faces must not render effect text that stretches the black/ivory wire table"
+fi
+
+for expected in \
+  "HandCardFrameSize = new\\(52, 72\\)" \
+  "SignatureCardFrameSize = new\\(64, 86\\)" \
+  "BattlefieldCardFrameSize = new\\(104, 72\\)" \
+  "PileCardFrameSize = new\\(56, 78\\)"
+do
+  if ! rg -q "${expected}" "${renderer_path}"; then
+    fail "wire battle table card sizes must stay compact enough to keep all five table bands visible"
+  fi
+done

@@ -19,14 +19,14 @@ require_pattern() {
 }
 
 require_pattern "SetRightRailMatchResultVisible\\(matchResultVisible: true\\)" \
-  "ApplyMatchResult must put the right rail into match-result mode"
+  "ApplyMatchResult must show the right-rail result panel"
 require_pattern "SetRightRailMatchResultVisible\\(matchResultVisible: false\\)" \
-  "ClearMatchResult must restore the right rail after leaving results"
-require_pattern "_officialCardPreviewFrame\\.Visible = !matchResultVisible" \
-  "match-result mode must hide the official card preview"
-require_pattern "_promptFrame\\.Visible = !matchResultVisible" \
-  "match-result mode must hide the prompt panel"
+  "ClearMatchResult must hide the right-rail result panel after leaving results"
 require_pattern "_resultFrame\\.Visible = matchResultVisible" \
   "match-result mode must own result-frame visibility"
+
+if rg -q "_officialCardPreviewFrame\\.Visible = !matchResultVisible|_promptFrame\\.Visible = !matchResultVisible" "${main_cs}"; then
+  fail "match-result mode must preserve the black/ivory right preview-prompt rail instead of blanking it"
+fi
 
 echo "Result rail visibility integrity checks passed."

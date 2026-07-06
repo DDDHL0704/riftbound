@@ -4125,16 +4125,6 @@ public partial class Main : Control
         {
             _resultFrame.Visible = matchResultVisible;
         }
-
-        if (_officialCardPreviewFrame is not null)
-        {
-            _officialCardPreviewFrame.Visible = !matchResultVisible;
-        }
-
-        if (_promptFrame is not null)
-        {
-            _promptFrame.Visible = !matchResultVisible;
-        }
     }
 
     private static bool HasWireTableSection(Godot.Collections.Array<Godot.Collections.Dictionary> sections)

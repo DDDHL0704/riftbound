@@ -21,9 +21,9 @@ contracts change.
   helpers, snapshot rendering, result panel, screenshot capture, and theme setup.
   It keeps lobby/deck chrome visible during the `ROOM` state, then hides it for
   non-room battle snapshots so the tabletop owns the combat viewport without
-  blocking deck selection. In match-result mode, the right rail hides the
-  official-card preview and prompt panel so the result panel does not overlap
-  other right-rail content.
+  blocking deck selection. In match-result mode, the right rail keeps the
+  official-card preview, result panel, and prompt panel as three visible bands
+  so the black/ivory preview-prompt composition remains intact.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
@@ -38,9 +38,10 @@ contracts change.
   the procedural inksteel visual style selected for the client: low-saturation
   black/ivory linework, translucent ink-wash zones, restrained crimson and muted
   antique-gold accents.
-- `CardControlRenderer.cs` owns tabletop layout, card frames, card backs,
-  visible card faces, rune tracks, zone panels, prompt-source highlights, and
-  card hover/click feedback.
+- `CardControlRenderer.cs` owns tabletop layout, compact table card frames, card
+  backs, visible card faces, rune tracks, zone panels, prompt-source highlights,
+  and card hover/click feedback. The wire table is responsive to the main battle
+  column and keeps the five black/ivory bands visible at 1440x900.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.
@@ -75,11 +76,12 @@ contracts change.
   obvious drift away from the selected black/ivory inksteel route. It is a visual
   regression guard, not a replacement for human screenshot review.
 - `check-battle-layout-scene-integrity.sh` statically checks that the result
-  panel stays in the right information rail between the official preview and
-  prompt panel, so it cannot cover the black/ivory tabletop grid.
+  panel stays in the right information rail between a clipped compact official
+  preview and the prompt panel, that the wire table has no 1280px hard width,
+  and that compact table cards cannot stretch the black/ivory grid.
 - `check-result-rail-visibility-integrity.sh` statically checks that entering
-  match-result mode hides the right-side card preview and prompt panel, then
-  restores them when returning to the lobby.
+  match-result mode shows the result panel without blanking the right-side card
+  preview or prompt panel.
 - `package-human-playtest-evidence.sh` creates the handoff tarball.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
@@ -91,10 +93,12 @@ contracts change.
   review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
   inksteel style machine check, then re-runs the inksteel style guard on the
-  packaged result screenshots. `OPERATOR_GUIDE.md` must also keep non-empty
-  evidence-package and playtest-report path fields, and those fields must point
-  to a `.tar.gz` evidence package and `playtest-report.md`, so a reviewer can
-  recover the handoff files without terminal scrollback or placeholder values.
+  packaged result screenshots. `OPERATOR_GUIDE.md` must also keep redacted
+  Player A/B key fingerprints plus non-empty evidence-package and
+  playtest-report path fields, and those fields must point to a `.tar.gz`
+  evidence package and `playtest-report.md`, so a reviewer can recover the
+  handoff files without terminal scrollback or placeholder values. The verifier
+  rejects missing key fingerprints and full player-key leakage.
 
 ## Standard Gates
 

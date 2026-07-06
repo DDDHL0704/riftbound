@@ -6,18 +6,18 @@ namespace Riftbound.GodotClient;
 
 internal sealed class CardControlRenderer
 {
-    private static readonly Vector2 HandCardFrameSize = new(58, 82);
-    private static readonly Vector2 HandCardContentSize = new(54, 78);
-    private static readonly Vector2 SignatureCardFrameSize = new(72, 100);
-    private static readonly Vector2 SignatureCardContentSize = new(68, 96);
-    private static readonly Vector2 RuneCardFrameSize = new(34, 48);
-    private static readonly Vector2 RuneCardContentSize = new(30, 44);
-    private static readonly Vector2 BattlefieldCardFrameSize = new(112, 80);
-    private static readonly Vector2 BattlefieldCardContentSize = new(108, 76);
-    private static readonly Vector2 StandbyCardFrameSize = new(42, 58);
-    private static readonly Vector2 StandbyCardContentSize = new(38, 54);
-    private static readonly Vector2 PileCardFrameSize = new(64, 90);
-    private static readonly Vector2 PileCardContentSize = new(60, 86);
+    private static readonly Vector2 HandCardFrameSize = new(52, 72);
+    private static readonly Vector2 HandCardContentSize = new(48, 68);
+    private static readonly Vector2 SignatureCardFrameSize = new(64, 86);
+    private static readonly Vector2 SignatureCardContentSize = new(60, 82);
+    private static readonly Vector2 RuneCardFrameSize = new(30, 42);
+    private static readonly Vector2 RuneCardContentSize = new(26, 38);
+    private static readonly Vector2 BattlefieldCardFrameSize = new(104, 72);
+    private static readonly Vector2 BattlefieldCardContentSize = new(100, 68);
+    private static readonly Vector2 StandbyCardFrameSize = new(38, 52);
+    private static readonly Vector2 StandbyCardContentSize = new(34, 48);
+    private static readonly Vector2 PileCardFrameSize = new(56, 78);
+    private static readonly Vector2 PileCardContentSize = new(52, 74);
     private const int RuneDeckSize = 12;
 
     private readonly Action<Godot.Collections.Dictionary> _cardInspected;
@@ -97,7 +97,7 @@ internal sealed class CardControlRenderer
         rows.AddChild(WirePlayerHome(Player(table, "self"), "self"));
         rows.AddChild(WireHandRail(Player(table, "self"), "self"));
 
-        return WireFrame(rows, new Vector2(1280, 560), borderWidth: 2, RunestoneSurface.Table);
+        return WireFrame(rows, new Vector2(0, 560), borderWidth: 2, RunestoneSurface.Table);
     }
 
     private Control WireHandRail(Godot.Collections.Dictionary player, string side)
@@ -720,7 +720,7 @@ internal sealed class CardControlRenderer
         var effect = card.TryGetValue("effectText", out var effectValue)
             ? CompactEffect(effectValue.AsString())
             : string.Empty;
-        if (!string.IsNullOrWhiteSpace(effect) && contentSize.X >= 58f && contentSize.Y >= 92f)
+        if (!string.IsNullOrWhiteSpace(effect) && contentSize.X >= 100f && contentSize.Y >= 120f)
         {
             var effectLabel = LabelNode(effect, new Vector2(contentSize.X, 0));
             effectLabel.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);

@@ -328,12 +328,14 @@ logs, final result screenshot logs, valid PNG result screenshots at least
 distinct A/B log and result screenshot files, the report `Inksteel style:
 passed` line, both client logs reporting `Hidden info boundary ok` with
 `opponentHandFaces=0` and `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md`
-operator checklist, the `VISUAL_REVIEW.md` screenshot checklist, and absence of
-crash/rejection/auto-smoke evidence. The package README, handoff, and visual
-review summaries repeat the inksteel style and hidden-information machine
-checks from the report. The verifier also re-runs the inksteel style guard on
-the packaged result screenshots, so replacing screenshots after report
-generation is caught.
+operator checklist with redacted Player A/B key fingerprints, the
+`VISUAL_REVIEW.md` screenshot checklist, and absence of
+crash/rejection/auto-smoke evidence. It rejects packages where the operator
+guide is missing key fingerprints or leaks a full player key. The package
+README, handoff, and visual review summaries repeat the inksteel style and
+hidden-information machine checks from the report. The verifier also re-runs the
+inksteel style guard on the packaged result screenshots, so replacing
+screenshots after report generation is caught.
 
 For visual-regression evidence outside the clean-main wrappers, separately run
 `clients/godot/tools/check-inksteel-screenshot-style.sh` on both result
@@ -432,9 +434,10 @@ checklist for inspecting the final screenshots for result-panel visibility and
 hidden-information safety, and it repeats the same machine boundary conclusion.
 The package `README.md` also repeats the checked inksteel style and machine
 hidden-information conclusions, and the package verifier requires all three
-generated review surfaces to stay in sync with the report. The package is still
-only valid for P5 when the report includes the real two-human manual
-confirmations.
+generated review surfaces to stay in sync with the report. The packaged
+operator guide must also preserve the redacted Player A/B key fingerprints
+without leaking either full key. The package is still only valid for P5 when the
+report includes the real two-human manual confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper
@@ -449,10 +452,11 @@ generated inside the new evidence directory. It also requires distinct
 `RIFTBOUND_HANDLE_A`/`RIFTBOUND_HANDLE_B` and
 `RIFTBOUND_PLAYER_KEY_A`/`RIFTBOUND_PLAYER_KEY_B` values. Before launching the
 windows it writes `OPERATOR_GUIDE.md` into the fresh evidence directory with the
-room, player handles, evidence/package paths, and the final P5 operator
-checklist. If the wrapper development escape hatch is used, the report is marked
-`Incomplete human evidence: 1` and the final package verifier rejects it. Final
-evidence needs two human operators to close the Godot windows after reaching the
+room, player handles, redacted player-key fingerprints, evidence/package paths,
+and the final P5 operator checklist. If the wrapper development escape hatch is
+used, the report is marked `Incomplete human evidence: 1` and the final package
+verifier rejects it. Final evidence needs two human operators to close the Godot
+windows after reaching the
 server result panel; automatic quit timers and extra client arguments are only
 for simulated diagnostics.
 
