@@ -36,6 +36,13 @@ resume from repository state instead of conversation history alone.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
+- Godot MCP editor access is currently recoverable without restarting Codex by
+  running `clients/godot/tools/start-godot-mcp-primary.sh --start`. This keeps a
+  `godot-mcp-server` primary alive in a detached `screen` session named
+  `riftbound-godot-mcp`, serving the editor WebSocket on `127.0.0.1:6505` and
+  the proxy HTTP bridge on `127.0.0.1:6506`. Use `--status` to confirm health
+  before MCP scene work; the status should be paired with an actual MCP
+  `get_godot_status`/`read_scene` call when claiming editor access.
 
 ## Verification Pattern
 
@@ -67,6 +74,10 @@ resume from repository state instead of conversation history alone.
 - `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
   behavior guard that keeps match-result mode from blanking the right-side card
   preview or prompt panel while showing the result panel.
+- `clients/godot/tools/check-godot-mcp-primary-script.sh` guards the helper used
+  to recover Codex Godot MCP proxy failures. It checks that
+  `start-godot-mcp-primary.sh` supports status/start/stop/restart, uses
+  detached `screen`, and documents the 6505/6506 bridge ports.
 - Final P5 path: `clients/godot/tools/run-clean-main-human-playtest-stack.sh`
   must be run from a clean pushed `main`, with two human operators, manual
   confirmations, final result screenshots, evidence packaging, and package

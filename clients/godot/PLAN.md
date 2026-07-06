@@ -44,6 +44,11 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   is not actually clipped, and still has the right result rail. The final
   package verifier re-runs both guards on the packaged screenshots, while still
   requiring human screenshot confirmation.
+- Godot MCP editor access can be recovered with
+  `clients/godot/tools/start-godot-mcp-primary.sh --start` when the Codex proxy
+  reports `127.0.0.1:6506` connection failures. The helper keeps a primary
+  `godot-mcp-server` in a detached `screen` session and is covered by
+  `check-godot-mcp-primary-script.sh`.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 

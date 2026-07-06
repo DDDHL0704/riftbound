@@ -31,6 +31,20 @@ After Codex reloads MCP tools, open the editor with:
 godot-mono --editor --path clients/godot
 ```
 
+If Codex reports `Failed to reach primary server: connect ECONNREFUSED
+127.0.0.1:6506`, start a durable local primary bridge under `screen`:
+
+```sh
+clients/godot/tools/start-godot-mcp-primary.sh --start
+clients/godot/tools/start-godot-mcp-primary.sh --status
+```
+
+The helper keeps `godot-mcp-server` attached to a detached `screen` session
+named `riftbound-godot-mcp`, with the Godot editor WebSocket on
+`127.0.0.1:6505` and the proxy HTTP bridge on `127.0.0.1:6506`. Use
+`--restart` after changing MCP server settings, and `--stop` when you want to
+shut the bridge down. The log defaults to `/tmp/riftbound-godot-mcp-primary.log`.
+
 Expected MCP evidence: `get_godot_status` reports
 `project_path=/Users/dinghaolin/IdeaProjects/riftbound/clients/godot/`, and
 tools such as `read_file`, `read_scene`, `add_node`, and `attach_script`

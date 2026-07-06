@@ -55,6 +55,13 @@ contracts change.
 
 ## Playtest Tools
 
+- `start-godot-mcp-primary.sh` starts, stops, restarts, or reports the local
+  `godot-mcp-server` primary bridge under a detached `screen` session. Use it
+  when Codex MCP proxy tools report `127.0.0.1:6506` connection failures; it
+  keeps the Godot editor WebSocket on `127.0.0.1:6505` and the proxy HTTP
+  bridge on `127.0.0.1:6506`.
+- `check-godot-mcp-primary-script.sh` statically checks that the MCP primary
+  helper keeps the screen/port/status contract documented above.
 - `run-local-human-playtest*.sh` starts local visible two-window playtests.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
@@ -130,6 +137,8 @@ contracts change.
   `clients/godot/tools/check-battle-layout-scene-integrity.sh`
 - Result rail visibility test:
   `clients/godot/tools/check-result-rail-visibility-integrity.sh`
+- Godot MCP primary helper test:
+  `clients/godot/tools/check-godot-mcp-primary-script.sh`
 - Clean simulated wrapper tests:
   `clients/godot/tools/check-clean-main-simulated-playtest-script.sh`
 - Shell syntax: `find clients/godot/tools -name '*.sh' -print0 | xargs -0 -n1 bash -n`
