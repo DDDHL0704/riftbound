@@ -31,6 +31,7 @@ After this slice:
 - The runtime catalog row is derived from BehaviorSpec and uses typed yellow power through `PowerCostByTrait`.
 - The prompt exposes only legal friendly unit targets and hides source/equipment targets.
 - The stack resolver destroys the target, tracks `DestroyedUnitOwnerIdsThisTurn`, plays exactly one eligible top-five unit when unique, and recycles the rest without public `cardIds` payload.
+- The B0 full-game replay path now proves the same activated ability can be driven from an official-deck-derived state, recorded in the action log, replayed to the final state hash, and carried onward to score victory.
 
 ## Test Evidence
 
@@ -38,7 +39,11 @@ After this slice:
   - `CardCatalogBaselineTests.BehaviorSpecCatalogParsesSeaMonsterHookActivatedAbility`
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityPromptIsBehaviorSpecDriven`
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest`
-- Adjacent PaymentEngine / catalog / recovery / full-game gate is tracked through `PaymentEngineCoverageAuditTests` manifest updates for the new runtime ability row.
+- B0 replay follow-up passed `1/1`:
+  - `FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookActivatedAbilityAndScoreVictoryActionLogReplaysToFinalStateHash`
+- Adjacent SeaMonsterHook / FullGameEndToEnd / MatchRecovery / PaymentEngine regression passed `2921/2921`.
+- Backend full conformance passed `9191/9191`.
+- Adjacent PaymentEngine / catalog / recovery / full-game coverage is tracked through `PaymentEngineCoverageAuditTests` manifest updates for the new runtime ability row.
 
 ## Non-Claims
 

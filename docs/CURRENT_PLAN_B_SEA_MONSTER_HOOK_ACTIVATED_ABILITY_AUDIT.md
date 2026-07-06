@@ -16,6 +16,8 @@ This slice opens the first BehaviorSpec-driven representative path for `OGN·242
 
 The implementation is intentionally representative. It does not implement the full hidden controller-only choice prompt for multiple eligible units.
 
+2026-07-06 follow-up: added B0 official-deck-derived full-game replay coverage for the same representative path. The replay starts from legal official decks, stages a midgame Sea Monster Hook activation, verifies action-log replay to final state hash, and continues to score victory without changing the engine implementation.
+
 ## Authority
 
 Official card data:
@@ -35,6 +37,13 @@ The prior Sea Monster Hook evidence was only the ordinary 0-target equipment pla
 - `P4ActivatedAbilityCatalog` derives this ability row from `BehaviorSpecCatalogBuilder`.
 - `MatchSession` builds target choices from the generic friendly-unit scope.
 - `CoreRuleEngine` resolves activation payment through `PaymentCostRules` and resolves the stack effect without emitting `CARDS_REVEALED`.
+- `FullGameEndToEndTests` now includes a B0 score-victory replay that exercises the BehaviorSpec-derived prompt, payment, stack resolution, private top-five look, unique eligible unit play, recycle event, action log, and final hash replay path.
+
+## Validation
+
+- Focused B0 replay: `1/1`.
+- Adjacent SeaMonsterHook / FullGameEndToEnd / MatchRecovery / PaymentEngine regression: `2921/2921`.
+- Backend full conformance: `9191/9191`.
 
 ## Holdbacks
 
