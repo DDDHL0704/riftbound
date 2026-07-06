@@ -1,12 +1,14 @@
 # 规则权威与重审协议
 
-更新时间：2026-07-03
+更新时间：2026-07-06
 
 ## 1. 结论
 
 从 2026-04-28 起，新项目的底层规则权威由五份官方 PDF 与官网卡牌快照共同构成。旧 Java 项目没有纳入四份 FAQ，因此不能再作为最终规则裁决源，只能作为历史实现参考、fixture 导出工具和回归对照样本。
 
 任何已经开发完成的能力，如果只对齐了旧 Java 行为但没有核对五份 PDF，状态必须降级为 `NEEDS_RULE_AUDIT`，通过重审后才能标记为完成。
+
+2026-07-06 补充：Plan B / B0 LeBlanc Mirror Image official-deck replay 继续以官网卡面与官方构筑规则为权威来源。`UNL-200/219`《镜花水月》是乐芙兰专属法术，`UNL-199/219`《诡术妖姬》传奇与 `UNL-090/219` 乐芙兰英雄单位共享英雄标签“乐芙兰”，因此本批只使用合法 LeBlanc official deck opening 派生中局覆盖该法术；`UNL-200/219` 不能作为合法 Kai'Sa official deck B0 代表。新增 B0 回放通过服务端 `PLAY_CARD` prompt 指定公共战场单位目标，结算活跃“映像”到基地、记录 copied target / token factory metadata、继续 score victory 并 action-log replay 到相同 final state hash。证据见 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`、`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-06 条目；完整复制牌面、忽略复制打出效果、瞬息 token 完整 cleanup、乐芙兰传奇触发打出映像能力、完整目标选择 prompt 和 P0/READY 仍不得标记完成。
 
 2026-07-06 补充：Plan B / shared graveyard-spell free-play recycle bridge 继续以官网卡面为权威来源。`UNL-200/219`《镜花水月》官方文本要求选择一名单位，打出一个活跃“映像”到控制者基地，该映像复制所选单位并获得 `瞬息`；本批仅把共享桥接扩到 `BehaviorSpec` 已能描述的 exact-one copy-target base-unit token 代表形状：当当前公共合法单位目标集合唯一时，菲兹 source-unit-played 与卡莎 unit-conquest 的墓地低费法术路径可自动携带该唯一目标，从 `GRAVEYARD` 临时打到 `STACK`，复用现有 stack resolver 创建复制 `映像` 并在结算后回收；当合法单位目标不唯一时仍不猜选。证据见 `docs/CURRENT_PLAN_B_SOURCE_UNIT_PLAYED_TRIGGER_SPEC_EVIDENCE.md`、`docs/CURRENT_PLAN_B_B3_UNIT_CONQUEST_TRIGGER_SPEC_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-06 条目；完整 optional spell selection prompt、显式墓地法术选择、prompt-authored target selection、多目标 / 任意目标 targeted spell resolution、完整复制语义、符能支付 prompt 和完整 Kai'Sa / Fizz 墓地法术广度仍不得标记完成。
 

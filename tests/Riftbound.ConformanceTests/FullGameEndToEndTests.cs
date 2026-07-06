@@ -29,6 +29,7 @@ public sealed class FullGameEndToEndTests
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string FaerieEphemeralTokenCardNo = "UNL·T07";
     private const string MutantKittenCardNo = "UNL-036/219";
+    private const string LeblancLegendCardNo = "UNL-199/219";
     private const string LeblancCardNo = "UNL-090/219";
     private const string ProphetsOmenSpellCardNo = "SFD·087/221";
     private const string VexLegendCardNo = "UNL-232/219";
@@ -131,6 +132,7 @@ public sealed class FullGameEndToEndTests
     private const string CenterStageSpellCardNo = "UNL-061/219";
     private const string FlowingTimeMirrorSpellCardNo = "OGN·180/298";
     private const string ReconsiderSpellCardNo = "OGN·104/298";
+    private const string MirrorImageSpellCardNo = "UNL-200/219";
     private const string CardTrickSpellCardNo = "OGN·183/298";
     private const string LoyalCraftsmanCardNo = "OGN·211/298";
     private const string SandSoldierTokenCardNo = "SFD·T02";
@@ -481,6 +483,43 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildLeblancMirrorImageOfficialDeck(catalog);
+        var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-leblanc-mirror-image-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildLeblancMirrorImageMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var playResult = await SubmitLeblancMirrorImageSpellAsync(
+            session,
+            current,
+            "P1",
+            "b0-leblanc-mirror-image");
+
+        AssertLeblancMirrorImageResolved(playResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            playResult,
+            "b0-leblanc-mirror-image-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5648,6 +5687,39 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(spellObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
         Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[spellObjectId].Zone);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertLeblancMirrorImageResolved(ResolutionResult result)
+    {
+        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        var spellObjectId = Assert.IsType<string>(tokenEvent.Payload["sourceObjectId"]);
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        var copiedTargetObjectId = Assert.IsType<string>(tokenEvent.Payload["copiedTargetObjectId"]);
+        var copiedTarget = result.State.CardObjects[copiedTargetObjectId];
+        Assert.Equal(WatchfulSentinelCardNo, copiedTarget.CardNo);
+        Assert.Equal("映像", tokenEvent.Payload["tokenName"]);
+        Assert.Equal(copiedTarget.Power, tokenEvent.Payload["power"]);
+        Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
+        Assert.Equal(WatchfulSentinelCardNo, tokenEvent.Payload["copiedCardNo"]);
+        Assert.Equal(WatchfulSentinelCardNo, tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
+        var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
+        Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
+        Assert.Contains(CardObjectTags.UnitCard, tokenTags);
+        Assert.Contains("映像", tokenTags);
+
+        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.Equal(WatchfulSentinelCardNo, tokenState.CardNo);
+        Assert.Equal(copiedTarget.Power, tokenState.Power);
+        Assert.False(tokenState.IsExhausted);
+        Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
+        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
+        Assert.Contains("映像", tokenState.Tags);
+        Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(TriggerZones.Graveyard, result.State.ObjectLocations[spellObjectId].Zone);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -15751,6 +15823,48 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitLeblancMirrorImageSpellAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        Assert.Equal(playerId, current.State.ActivePlayerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard)
+            ?? throw new InvalidOperationException($"B0 LeBlanc Mirror Image driver could not find PLAY_CARD for {playerId}: {DescribeState(current.State)}");
+        var spellObjectId = FindHandCardObjectByCardNo(
+            current.State,
+            playerId,
+            MirrorImageSpellCardNo)
+            ?? throw new InvalidOperationException("B0 LeBlanc Mirror Image driver could not find Mirror Image in P1 hand.");
+        var targetObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 LeBlanc Mirror Image driver could not find Watchful Sentinel on the battlefield.");
+
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(spellObjectId, legalSourceIds);
+        Assert.Contains(targetObjectId, legalTargetIds);
+
+        var command = new PlayCardCommand(
+            spellObjectId,
+            MirrorImageSpellCardNo,
+            [targetObjectId]);
+        var played = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(played);
+        AssertNoHiddenZoneLeak(played);
+        return await ResolveStackPassPassAsync(session, played, $"{intentId}-resolve");
+    }
+
     private static async ValueTask<ResolutionResult> SubmitFizzSourceUnitPlayedGraveyardRuneSpellAsync(
         MatchSession session,
         ResolutionResult current,
@@ -23809,6 +23923,19 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildLeblancMirrorImageOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                LeblancLegendCardNo,
+                LeblancCardNo,
+                [
+                    MirrorImageSpellCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildRumbleLegendFriendlyMechanicalSteadfastAttackerOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -24628,6 +24755,65 @@ public sealed class FullGameEndToEndTests
             PlayerScores = new Dictionary<string, int>(midgameState.PlayerScores, StringComparer.Ordinal)
             {
                 ["P1"] = 3,
+                ["P2"] = 0
+            }
+        };
+    }
+
+    private static MatchState BuildLeblancMirrorImageMidgameInitialState(MatchState state)
+    {
+        var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
+            state,
+            new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
+            {
+                ["P1"] = (
+                    [MirrorImageSpellCardNo],
+                    new RunePool(mana: 3, power: 0, new Dictionary<string, int>(StringComparer.Ordinal))),
+                ["P2"] = (
+                    [WatchfulSentinelCardNo],
+                    RunePool.Empty)
+            });
+        var battlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P2");
+        var targetObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P2",
+            WatchfulSentinelCardNo)
+            ?? throw new InvalidOperationException("B0 LeBlanc Mirror Image setup could not find Watchful Sentinel in P2 hand.");
+
+        var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p2Zones = playerZones["P2"];
+        playerZones["P2"] = p2Zones with
+        {
+            Hand = p2Zones.Hand.Where(objectId => !string.Equals(objectId, targetObjectId, StringComparison.Ordinal)).ToArray(),
+            Battlefields = p2Zones.Battlefields.Concat([targetObjectId]).ToArray()
+        };
+
+        var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[targetObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[targetObjectId] = cardObjects[targetObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = false,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[targetObjectId]),
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+
+        return midgameState with
+        {
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerScores = new Dictionary<string, int>(midgameState.PlayerScores, StringComparer.Ordinal)
+            {
+                ["P1"] = 4,
                 ["P2"] = 0
             }
         };
