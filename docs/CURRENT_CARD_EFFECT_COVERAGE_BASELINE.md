@@ -1829,6 +1829,29 @@ Snapshot entry primary status counts：
 
 是否允许批量 full-official 覆盖：**不允许。**
 
+## Plan B Zhonya's Hourglass Destroy Replacement Baseline
+
+本批记录：
+
+- `FU-fb79eea7fc` / `OGN·077/298` 中娅沙漏新增 public-equipment friendly-unit-destroyed replacement representative route。
+- `BehaviorSpec.Replacements` 解析 `FRIENDLY_UNIT_DESTROYED_DESTROY_SOURCE_RECALL_EXHAUSTED`，`CoreRuleEngine` state-based cleanup 通过共享 `CardReplacementSpecRules` 应用。
+- 覆盖：公开己方装备源替代友方单位 lethal cleanup；装备进 graveyard，单位休眠召回到基地并清伤；face-down standby / opponent source 不作为替代源且不泄漏隐藏身份。
+
+验证：
+
+- Baseline before changes：backend conformance 9183/9183 passed。
+- Focused parser/runtime/source guard：12/12 passed。
+- Adjacent replacement/catalog/recovery：2398/2398 passed。
+- Backend full after implementation：9187/9187 passed。
+
+仍不关闭：
+
+- standby / reaction timing。
+- 多个 replacement choice ordering。
+- full equipment lifecycle / LayerEngine。
+- full FAQ adjudication。
+- 1009/811 full-official、formal 18-step E2E、READY。
+
 ## 37. 阶段 4C-24 E 汇总
 
 阶段 4C-24 名称：Vayne conquer pay-one recall representative baseline。E/A 只更新覆盖矩阵与索引证据，不触碰 `riftbound-dotnet.sln`，不进入 1009 张卡 full-official 实现。

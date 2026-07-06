@@ -10,6 +10,8 @@ public sealed class ZhonyasHourglassGuardTests
     private const string ZhonyasObjectId = "P1-EQUIPMENT-ZHONYAS-HOURGLASS";
     private const string ZhonyasCardNo = "OGN·077/298";
     private const string ZhonyasEffectKind = "ZHONYAS_HOURGLASS_PLAY_EQUIPMENT";
+    private const string ZhonyasReplacementEffectKind =
+        ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted;
 
     [Fact]
     public async Task ZhonyasHourglassPlayCardWithNoTargetsUsesStackAndResolvesToBase()
@@ -58,6 +60,73 @@ public sealed class ZhonyasHourglassGuardTests
             && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-ZHONYAS-HOURGLASS", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["equipmentName"] as string, "中娅沙漏", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["destinationZone"] as string, "BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ZhonyasHourglassReplacementDestroysSourceAndRecallsFriendlyUnitInsteadOfDestroyingIt()
+    {
+        var state = BuildZhonyasReplacementBattleState();
+
+        var result = await DeclareZhonyasBattleAsync(state, "intent-zhonyas-replacement-recall");
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains("P1-BASE-ZHONYAS-HOURGLASS", result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain("P1-BASE-ZHONYAS-HOURGLASS", result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-BASE-ZHONYAS-HOURGLASS"));
+        Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Graveyard);
+
+        var recalledUnit = result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"];
+        Assert.Equal(0, recalledUnit.Damage);
+        Assert.True(recalledUnit.IsExhausted);
+        Assert.False(recalledUnit.IsAttacking);
+        Assert.False(recalledUnit.IsDefending);
+        Assert.Equal("P1", recalledUnit.OwnerId);
+        Assert.Equal("P1", recalledUnit.ControllerId);
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BASE-ZHONYAS-HOURGLASS", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BASE-ZHONYAS-HOURGLASS", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["replacementTargetObjectId"] as string, "P1-BATTLEFIELD-ATTACKER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, ZhonyasReplacementEffectKind, StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BASE-ZHONYAS-HOURGLASS", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ATTACKER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["replacementEffectId"] as string, ZhonyasReplacementEffectKind, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["destroyReason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ATTACKER", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ZhonyasHourglassReplacementIgnoresFaceDownAndOpponentSources()
+    {
+        var state = BuildZhonyasReplacementBattleState(
+            sourceObjectId: "P1-FACE-DOWN-STANDBY-ZHONYAS",
+            sourceFaceDown: true,
+            opponentSourceObjectId: "P2-BASE-ZHONYAS-HOURGLASS");
+
+        var result = await DeclareZhonyasBattleAsync(state, "intent-zhonyas-replacement-hidden-and-opponent-skip");
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-ATTACKER"));
+        Assert.Contains("P1-FACE-DOWN-STANDBY-ZHONYAS", result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects["P1-FACE-DOWN-STANDBY-ZHONYAS"].IsFaceDown);
+        Assert.Null(result.State.CardObjects["P1-FACE-DOWN-STANDBY-ZHONYAS"].CardNo);
+        Assert.Contains("P2-BASE-ZHONYAS-HOURGLASS", result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["replacementEffectId"] as string, ZhonyasReplacementEffectKind, StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ATTACKER", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -332,6 +401,19 @@ public sealed class ZhonyasHourglassGuardTests
             CancellationToken.None);
     }
 
+    private static async Task<ResolutionResult> DeclareZhonyasBattleAsync(MatchState state, string intentId)
+    {
+        return await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent(intentId, "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+    }
+
     private static JsonElement PromptScopedPlayCardRawCommand(
         PlayCardCommand command,
         ActionPromptDto prompt)
@@ -553,6 +635,83 @@ public sealed class ZhonyasHourglassGuardTests
                     ownerId: "P1",
                     controllerId: "P1")
             });
+    }
+
+    private static MatchState BuildZhonyasReplacementBattleState(
+        string sourceObjectId = "P1-BASE-ZHONYAS-HOURGLASS",
+        bool sourceFaceDown = false,
+        string? opponentSourceObjectId = null)
+    {
+        var p1Base = new List<string> { sourceObjectId };
+        var p2Base = new List<string>();
+        if (opponentSourceObjectId is not null)
+        {
+            p2Base.Add(opponentSourceObjectId);
+        }
+
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [sourceObjectId] = Zhonyas(
+                sourceObjectId,
+                isFaceDown: sourceFaceDown,
+                tags: sourceFaceDown ? [CardObjectTags.EquipmentCard, CardObjectTags.Standby] : null),
+            ["P1-BATTLEFIELD-ATTACKER"] = new(
+                "P1-BATTLEFIELD-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-BATTLEFIELD-DEFENDER"] = new(
+                "P2-BATTLEFIELD-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        if (opponentSourceObjectId is not null)
+        {
+            cardObjects[opponentSourceObjectId] = Zhonyas(
+                opponentSourceObjectId,
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        return new MatchState(
+            roomId: "zhonyas-hourglass-replacement-test",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = p1Base.ToArray(),
+                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = p2Base.ToArray(),
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            cardObjects: cardObjects);
     }
 
     private static CardObjectState Zhonyas(

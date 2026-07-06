@@ -151,6 +151,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
     private const string BlueSentinelDelayedTriggerIdPrefix = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
     private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
+    private const string FriendlyUnitDestroyedEquipmentRecallEffectId =
+        ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted;
     private const string BattlefieldDestroyedInBattleRecallEffectId =
         StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement;
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -21704,6 +21706,149 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         ];
         return true;
+    }
+
+    private static bool TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string destroyReason,
+        out IReadOnlyList<GameEvent> events)
+    {
+        events = [];
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (location is null
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, targetObjectId, targetState);
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || !playerZones.TryGetValue(controllerId, out var controllerZones)
+            || !TryGetFriendlyUnitDestroyedEquipmentRecallSource(
+                playerZones,
+                cardObjects,
+                controllerId,
+                targetObjectId,
+                controllerZones,
+                out var sourceObjectId,
+                out var sourceState))
+        {
+            return false;
+        }
+
+        var ownerId = string.IsNullOrWhiteSpace(targetState.OwnerId)
+            ? location.Value.PlayerId
+            : targetState.OwnerId;
+        if (!TryDestroyTarget(playerZones, cardObjects, sourceObjectId, out var sourceRemovalResult))
+        {
+            return false;
+        }
+
+        foreach (var (playerId, zones) in playerZones.ToArray())
+        {
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+            };
+        }
+
+        var updatedControllerZones = playerZones[controllerId];
+        playerZones[controllerId] = updatedControllerZones with
+        {
+            Base = updatedControllerZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? updatedControllerZones.Base
+                : updatedControllerZones.Base.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            OwnerId = ownerId,
+            ControllerId = controllerId,
+            IsAttacking = false,
+            IsDefending = false
+        };
+
+        events =
+        [
+            new GameEvent(
+                "EQUIPMENT_DESTROYED",
+                $"{controllerId} 摧毁装备替代友方单位摧毁",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["sourceCardNo"] = sourceState.CardNo,
+                    ["targetObjectId"] = sourceObjectId,
+                    ["equipmentObjectId"] = sourceObjectId,
+                    ["ownerPlayerId"] = sourceRemovalResult.OwnerPlayerId,
+                    ["destroyedByPlayerId"] = controllerId,
+                    ["destinationZone"] = sourceRemovalResult.DestinationZone,
+                    ["reason"] = FriendlyUnitDestroyedEquipmentRecallEffectId,
+                    ["replacementTargetObjectId"] = targetObjectId,
+                    ["destroyReason"] = destroyReason
+                }),
+            new GameEvent(
+                "UNIT_RECALLED_TO_BASE",
+                $"{targetObjectId} 改为休眠召回",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["sourceCardNo"] = sourceState.CardNo,
+                    ["targetObjectId"] = targetObjectId,
+                    ["ownerPlayerId"] = ownerId,
+                    ["controllerId"] = controllerId,
+                    ["destinationZone"] = "BASE",
+                    ["replacementEffectId"] = FriendlyUnitDestroyedEquipmentRecallEffectId,
+                    ["destroyReason"] = destroyReason,
+                    ["previousDamage"] = targetState.Damage,
+                    ["damage"] = 0,
+                    ["isExhausted"] = true
+                })
+        ];
+        return true;
+    }
+
+    private static bool TryGetFriendlyUnitDestroyedEquipmentRecallSource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string targetObjectId,
+        PlayerZones controllerZones,
+        out string sourceObjectId,
+        out CardObjectState sourceState)
+    {
+        sourceObjectId = string.Empty;
+        sourceState = default!;
+        foreach (var candidateObjectId in controllerZones.Base
+            .Concat(controllerZones.Battlefields)
+            .Where(objectId => !string.Equals(objectId, targetObjectId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(candidateObjectId, out var candidateState)
+                || candidateState.IsFaceDown
+                || string.IsNullOrWhiteSpace(candidateState.CardNo)
+                || !candidateState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidateState, controllerId)
+                || !FindFieldObjectLocation(playerZones, candidateObjectId).HasValue
+                || !CardReplacementSpecRules.TryGetReplacement(
+                    candidateState.CardNo,
+                    CardReplacementSpecRules.IsFriendlyUnitDestroyedDestroySourceRecallExhaustedReplacement,
+                    out _))
+            {
+                continue;
+            }
+
+            sourceObjectId = candidateObjectId;
+            sourceState = candidateState;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryApplyBattlefieldDestroyedInBattleRecallReplacement(
@@ -47030,6 +47175,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 nextRunePools = settRunePools;
                 events.AddRange(settReplacementEvents);
+                continue;
+            }
+            if (TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(
+                    playerZones,
+                    cardObjects,
+                    objectId,
+                    destroyReason,
+                    out var equipmentReplacementEvents))
+            {
+                events.AddRange(equipmentReplacementEvents);
                 continue;
             }
             if (nextRunePools is not null

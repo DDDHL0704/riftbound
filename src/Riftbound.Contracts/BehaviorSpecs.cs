@@ -344,6 +344,12 @@ public static class StaticAbilityKinds
         "SOURCE_UNIT_ENEMY_SPELL_SKILL_TARGET_PROTECTION";
 }
 
+public static class ReplacementKinds
+{
+    public const string FriendlyUnitDestroyedDestroySourceRecallExhausted =
+        "FRIENDLY_UNIT_DESTROYED_DESTROY_SOURCE_RECALL_EXHAUSTED";
+}
+
 public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =

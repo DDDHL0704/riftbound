@@ -3479,6 +3479,15 @@
 - 验证：red focused guard failed on missing structured activated-ability fields；focused Sigil spec / catalog guard 2/2 passed；adjacent SigilResourceSkill / ActivatedAbility / PaymentEngine / MatchRecovery / FullGameEndToEnd / CardCatalogBaseline 3382/3382 passed；backend full conformance 9145/9145 passed；Dev UI build passed。
 - 该证据只关闭 Sigil typed-resource profile 的 BehaviorSpec source migration；不关闭完整 P4 activated ability BehaviorSpec migration、完整 resource-skill official breadth、完整 payment / target timing breadth、P0/P1 或 READY。
 
+## Plan B Zhonya's Hourglass Destroy Replacement Evidence
+
+- 审计入口：`docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_AUDIT.md`。
+- 证据入口：`docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_EVIDENCE.md`。
+- 本批将 `OGN·077/298`《中娅沙漏》官方“下一次当友方单位被摧毁”替代文本解析为 `BehaviorSpec.Replacements` 的 `FRIENDLY_UNIT_DESTROYED_DESTROY_SOURCE_RECALL_EXHAUSTED`，并通过共享 `CardReplacementSpecRules` 在 `CoreRuleEngine` state-based cleanup 中按 spec 应用：公开己方装备源被摧毁，目标友方单位改为休眠召回到基地并清除伤害。
+- 隐藏信息边界：face-down standby Zhonya 和对手控制的 Zhonya 不作为替代源；运行时不读取暗置卡号。
+- 验证：baseline before changes 9183/9183 passed；focused parser/runtime/source guard 12/12 passed；adjacent replacement/catalog/recovery 2398/2398 passed；backend full after implementation 9187/9187 passed。
+- 该证据只关闭 Zhonya public-equipment friendly-unit-destroyed replacement representative route；不关闭 standby/reaction timing、多个 replacement choice ordering、complete equipment lifecycle、full FAQ adjudication、1009/811 full-official、formal 18-step E2E 或 READY。
+
 ## 7. 索引维护规则
 
 - 新增规则能力前，先在本索引中找到证据；找不到就先补索引。

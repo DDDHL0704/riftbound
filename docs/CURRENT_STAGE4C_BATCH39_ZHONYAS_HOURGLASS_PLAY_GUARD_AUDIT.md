@@ -10,4 +10,6 @@ Scope: Zhonya's Hourglass / 中娅沙漏 `OGN·077/298` / cardId `31291` / `FU-f
 - Covered invalid guards with no tick / no events / no payment / no hand movement / no stack / no equipment entry / no leak: source not in hand / wrong zone, opponent source, face-down standby source, insufficient mana.
 - Validation: A/B focused passed 268/268. D did not rerun tests.
 
-Remaining open: standby / reaction timing, destroy replacement recall, full equipment / layer / FAQ, hidden info, 1009/811 full-official, final 18-step E2E.
+2026-07-06 follow-up: public-equipment friendly-unit-destroyed replacement representative evidence now lives in `docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_AUDIT.md` and `docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_EVIDENCE.md`. This 4C-39 document remains the ordinary play-guard audit.
+
+Remaining open: standby / reaction timing, multiple replacement choice ordering, full equipment / layer / FAQ, hidden info, 1009/811 full-official, final 18-step E2E.

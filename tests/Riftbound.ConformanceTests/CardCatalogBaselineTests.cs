@@ -2951,6 +2951,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesFriendlyUnitDestroyedEquipmentRecallReplacement()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var zhonyas = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·077/298", StringComparison.Ordinal));
+        var replacement = Assert.Single(
+            zhonyas.Replacements,
+            candidate => string.Equals(
+                candidate.Kind,
+                ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted,
+                StringComparison.Ordinal));
+        Assert.Equal(ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted, replacement.Kind);
+        Assert.Equal("friendly-unit-destroyed", replacement.AppliesTo);
+        Assert.Contains("下一次当友方单位被摧毁时", replacement.Text, StringComparison.Ordinal);
+        Assert.Contains("将此牌摧毁", replacement.Text, StringComparison.Ordinal);
+        Assert.Contains("休眠状态将该单位召回", replacement.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldActivateUnitConquestEffectsTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -5832,6 +5853,31 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldDestroyedInBattleRecallCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldDestroyedInBattleRecallCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldDestroyedInBattleRecallManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FriendlyUnitDestroyedEquipmentRecallReplacementUsesGenericSpecPredicate()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var engineSources = Directory
+            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
+            .Where(path => !string.Equals(Path.GetFileName(path), "CardBehaviorRegistry.cs", StringComparison.Ordinal))
+            .Select(File.ReadAllText)
+            .ToArray();
+
+        Assert.DoesNotContain(
+            engineSources,
+            source => source.Contains("OGN·077/298", StringComparison.Ordinal)
+                || source.Contains("ZHONYAS", StringComparison.Ordinal)
+                || source.Contains("Zhonyas", StringComparison.Ordinal));
+        Assert.Contains(
+            engineSources,
+            source => source.Contains(
+                    "CardReplacementSpecRules.TryGetReplacement",
+                    StringComparison.Ordinal)
+                && source.Contains(
+                    "CardReplacementSpecRules.IsFriendlyUnitDestroyedDestroySourceRecallExhaustedReplacement",
+                    StringComparison.Ordinal));
     }
 
     [Fact]

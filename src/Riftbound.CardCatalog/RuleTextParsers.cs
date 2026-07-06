@@ -2128,6 +2128,14 @@ public static class ReplacementParser
 
     private static string DetermineKind(string segment)
     {
+        if (segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
+            && segment.Contains("将此牌摧毁", StringComparison.Ordinal)
+            && segment.Contains("休眠状态", StringComparison.Ordinal)
+            && segment.Contains("召回", StringComparison.Ordinal))
+        {
+            return ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted;
+        }
+
         if (segment.Contains("防止", StringComparison.Ordinal)
             || segment.Contains("无效化", StringComparison.Ordinal))
         {
@@ -2139,6 +2147,11 @@ public static class ReplacementParser
 
     private static string DetermineAppliesTo(string segment)
     {
+        if (segment.Contains("友方单位被摧毁", StringComparison.Ordinal))
+        {
+            return "friendly-unit-destroyed";
+        }
+
         if (segment.Contains("伤害", StringComparison.Ordinal))
         {
             return "damage";

@@ -15,4 +15,6 @@ Implementation evidence:
 - Focused validation from A/B: 268/268 passed.
 - Core gap none; no Core change.
 
-Boundary: closes only ordinary hand play-equipment target guard representative evidence. It does not close standby / reaction timing, destroy replacement recall, full equipment / layer / FAQ, hidden info, 1009/811 full-official, or final 18-step E2E.
+2026-07-06 follow-up: public-equipment friendly-unit-destroyed replacement representative evidence now lives in `docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_AUDIT.md` and `docs/CURRENT_PLAN_B_ZHONYAS_DESTROY_REPLACEMENT_EVIDENCE.md`. This 4C-39 document remains the ordinary play-guard evidence.
+
+Boundary: closes only ordinary hand play-equipment target guard representative evidence. It does not close standby / reaction timing, multiple replacement choice ordering, full equipment / layer / FAQ, hidden info, 1009/811 full-official, or final 18-step E2E.
