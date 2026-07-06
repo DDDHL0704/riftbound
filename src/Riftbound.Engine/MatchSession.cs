@@ -10832,7 +10832,9 @@ internal static class ActionPromptBuilder
             && !targetState.IsFaceDown
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
-            && CardBehaviorRegistry.IsImplementedUnitNamed(targetState.CardNo, "提莫");
+            && UnitIdentityCatalog.IsSourceCardNoForIdentity(
+                UnitIdentityCatalog.TeemoUnitIdentityId,
+                targetState.CardNo);
     }
 
     private static bool LegendActionIsPendingFriendlyUnitTarget(
