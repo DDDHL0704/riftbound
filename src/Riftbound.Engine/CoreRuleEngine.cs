@@ -25230,9 +25230,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior.CreatedBaseUnitTokenConditionKind,
                 CardTokenCreationConditionKinds.None,
                 StringComparison.Ordinal)
-            && behavior.DrawCount == 0
             && behavior.RuneCallCount == 0
             && behavior.DrawCountIfRuneCallFails == 0
+            && !behavior.DrawsBeforeRuneCall
             && string.Equals(
                 behavior.DrawRecipientKind,
                 CardDrawRecipientKinds.Controller,
