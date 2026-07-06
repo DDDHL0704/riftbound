@@ -49,7 +49,15 @@ def is_wire_pixel(pixel):
     mx = max(r, g, b)
     mn = min(r, g, b)
     sat = 0.0 if mx == 0 else (mx - mn) / mx
-    return 70 <= luma <= 225 and sat <= 0.38
+    neutral_wire = 70 <= luma <= 225 and sat <= 0.38
+    brass_wire = (
+        80 <= luma <= 190
+        and r >= g >= b
+        and 18 <= (r - g) <= 95
+        and (g - b) >= 25
+        and (r - b) >= 55
+    )
+    return neutral_wire or brass_wire
 
 
 def scan_row_clusters(image, x0, x1):

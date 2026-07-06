@@ -18,7 +18,13 @@ from PIL import Image, ImageDraw
 
 out = Path(sys.argv[1])
 
-def draw_wire(path: Path, include_bottom: bool = True, include_right_result: bool = True):
+def draw_wire(
+    path: Path,
+    include_bottom: bool = True,
+    include_right_result: bool = True,
+    result_line = (178, 171, 145),
+    neutral_right_chrome: bool = True,
+):
     image = Image.new("RGB", (1440, 900), (4, 4, 4))
     draw = ImageDraw.Draw(image)
     line = (178, 171, 145)
@@ -37,12 +43,14 @@ def draw_wire(path: Path, include_bottom: bool = True, include_right_result: boo
         for y in (406, 512):
             draw.line((lane_x0, y, lane_x1, y), fill=line, width=2)
     if include_right_result:
-        draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
-        draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
-        draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+        chrome_line = line if neutral_right_chrome else (12, 12, 10)
+        draw.rectangle((1152, 16, 1424, 396), outline=chrome_line, width=2, fill=(6, 6, 5))
+        draw.rectangle((1152, 406, 1424, 630), outline=result_line, width=2, fill=(11, 10, 9))
+        draw.rectangle((1152, 640, 1424, 884), outline=chrome_line, width=2, fill=(6, 6, 5))
     image.save(path)
 
 draw_wire(out / "wire-layout.png")
+draw_wire(out / "brass-result-rail.png", result_line=(174, 132, 44), neutral_right_chrome=False)
 draw_wire(out / "cropped-bottom-hand.png", include_bottom=False)
 draw_wire(out / "missing-right-result.png", include_right_result=False)
 PY
@@ -51,6 +59,12 @@ PY
   || {
     cat "${tmp_dir}/wire-layout.log" >&2
     fail "wire-layout fixture was rejected"
+  }
+
+"${script_dir}/check-battle-layout-screenshot.sh" "${tmp_dir}/brass-result-rail.png" >"${tmp_dir}/brass-result-rail.log" 2>&1 \
+  || {
+    cat "${tmp_dir}/brass-result-rail.log" >&2
+    fail "brass-result-rail fixture was rejected"
   }
 
 expect_rejection() {

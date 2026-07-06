@@ -66,9 +66,11 @@ resume from repository state instead of conversation history alone.
   screenshot geometry guard for the selected wire-table route. It rejects
   screenshots with too few main-table bands, a table bottom that indicates
   actual clipping rather than the intended reference-image breathing room, or
-  missing right result-rail linework. It was added after a real visual review
-  found that screenshots could pass the inksteel palette guard while still
-  deviating from the black/white wire layout.
+  missing right result-rail linework. The right rail check counts both neutral
+  black/ivory linework and restrained antique-brass result borders, because
+  match-result states legitimately tint the result frame. It was added after a
+  real visual review found that screenshots could pass the inksteel palette
+  guard while still deviating from the black/white wire layout.
 - `clients/godot/tools/check-battle-layout-scene-integrity.sh` is a static scene
   guard for the selected black/white line layout. It rejects a result panel that
   drifts back onto the main battle table, an unclipped/oversized right preview,
