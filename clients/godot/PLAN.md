@@ -40,9 +40,10 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 - P5 evidence now records the inksteel screenshot style guard in the machine
   report and repeats it in the package README, handoff, and visual review files.
   P5 evidence now also records the battle-layout screenshot geometry guard, which
-  checks that the black/ivory wire table is not clipped and still has the right
-  result rail. The final package verifier re-runs both guards on the packaged
-  screenshots, while still requiring human screenshot confirmation.
+  checks that the black/ivory wire table keeps the selected reference layout,
+  is not actually clipped, and still has the right result rail. The final
+  package verifier re-runs both guards on the packaged screenshots, while still
+  requiring human screenshot confirmation.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 

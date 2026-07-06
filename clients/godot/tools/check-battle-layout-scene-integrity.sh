@@ -56,6 +56,10 @@ prompt = nodes.get((".", "PromptFrame"))
 if prompt is None:
     raise AssertionError("PromptFrame node is missing from Main.tscn")
 
+hand_scroll = nodes.get(("Controls", "HandScroll"))
+if hand_scroll is None:
+    raise AssertionError("HandScroll node is missing from Main.tscn")
+
 viewport_width = 1440.0
 table_right_edge = viewport_width - 336.0
 result_left = viewport_width + number(result, "offset_left")
@@ -89,6 +93,9 @@ assert result_bottom <= prompt_top - 8.0, (
     f"ResultFrame should sit above the prompt panel: bottom={result_bottom:.0f}, prompt_top={prompt_top:.0f}"
 )
 assert result_bottom > result_top + 72.0, "ResultFrame is too short for result text and lobby button"
+assert value(hand_scroll, "custom_minimum_size") == "Vector2(0, 0)", (
+    "Legacy HandScroll must not reserve vertical space now that the wire table owns the hand band"
+)
 
 print("Battle layout scene integrity checks passed.")
 PY
@@ -100,6 +107,10 @@ fi
 
 if rg -q "new Vector2\\(1280, 560\\)" "${renderer_path}"; then
   fail "wire battle table must be responsive to the main battle column, not hard-coded to 1280px"
+fi
+
+if ! rg -q "WireFrame\\(rows, new Vector2\\(0, 820\\)" "${renderer_path}"; then
+  fail "wire battle table root must fill the visible combat scroll area instead of floating above the bottom hand border"
 fi
 
 if rg -q "contentSize\\.X >= 58f && contentSize\\.Y >= 92f" "${renderer_path}"; then
@@ -121,8 +132,24 @@ if rg -q "row\\.AddChild\\(WireSite\\(lanes\\.Count" "${renderer_path}"; then
   fail "wire battlefield sites must live inside each lane column, not as detached side panels"
 fi
 
-if ! rg -q "column\\.AddChild\\(WireSite\\(lane\\)\\)" "${renderer_path}"; then
-  fail "wire battlefield lane columns must include their own site band"
+if rg -q "ZoneStrip\\(" "${renderer_path}"; then
+  fail "wire table must not use large left-side label strips; route C requires a centered tabletop grid"
+fi
+
+for expected in \
+  "WireResourceRail\\(Player\\(table, \"opponent\"\\), \"opponent\"\\)" \
+  "WirePlayBand\\(Player\\(table, \"opponent\"\\), \"opponent\", Lanes\\(table\\)\\)" \
+  "WireSiteDivider\\(Lanes\\(table\\)\\)" \
+  "WirePlayBand\\(Player\\(table, \"self\"\\), \"self\", Lanes\\(table\\)\\)" \
+  "WireResourceRail\\(Player\\(table, \"self\"\\), \"self\"\\)"
+do
+  if ! rg -q "${expected}" "${renderer_path}"; then
+    fail "wire table must follow the black/ivory reference order: resource rail, opponent play band, centered site divider, self play band, resource rail"
+  fi
+done
+
+if ! rg -q "private Control WireSiteDivider" "${renderer_path}"; then
+  fail "wire battlefield sites must be rendered in a centered divider band that matches the black/ivory reference layout"
 fi
 
 if ! rg -q "_boardSummary\\.Visible = lobbyVisible" "${main_path}"; then
@@ -137,20 +164,36 @@ from pathlib import Path
 renderer = Path(sys.argv[1])
 text = renderer.read_text(encoding="utf-8")
 
-battlefield = re.search(
-    r"private Control WireBattlefield\(.*?\n    \}",
+play_band = re.search(
+    r"private Control WirePlayBand\(.*?\n    \}",
     text,
     re.DOTALL,
 )
-if battlefield is None:
-    raise AssertionError("WireBattlefield method is missing")
+if play_band is None:
+    raise AssertionError("WirePlayBand method is missing")
 
-heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", battlefield.group(0))]
+heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", play_band.group(0))]
 if not heights:
-    raise AssertionError("WireBattlefield has no fixed vertical budget")
-if max(heights) > 226:
+    raise AssertionError("WirePlayBand has no fixed vertical budget")
+if max(heights) < 144 or max(heights) > 160:
     raise AssertionError(
-        f"WireBattlefield vertical budget is too tall for the 1440x900 five-band table: {max(heights)}"
+        f"WirePlayBand vertical budget should fill the reference table without clipping: {max(heights)}"
+    )
+
+site_divider = re.search(
+    r"private Control WireSiteDivider\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if site_divider is None:
+    raise AssertionError("WireSiteDivider method is missing")
+
+divider_heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", site_divider.group(0))]
+if not divider_heights:
+    raise AssertionError("WireSiteDivider has no fixed vertical budget")
+if max(divider_heights) < 96 or max(divider_heights) > 108:
+    raise AssertionError(
+        f"WireSiteDivider vertical budget should match the centered black/ivory divider: {max(divider_heights)}"
     )
 
 unit_zone = re.search(

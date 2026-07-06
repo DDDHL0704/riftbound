@@ -27,9 +27,12 @@ resume from repository state instead of conversation history alone.
   compresses, or covers the tabletop in final screenshots. Match-result mode
   now preserves the right preview-result-prompt rail instead of blanking it; the
   official preview is clipped and compact, table card faces use compact sizes/no
-  effect text, and the central battlefield renders two lane columns with each
-  lane's site embedded between opponent/self unit bands so all five wire-table
-  bands remain visible at 1440x900.
+  effect text, and the battle table has been realigned to the selected black/ivory
+  reference: opponent resource rail, opponent play band, centered two-site
+  divider, self play band, and self resource rail. The old left-side zone label
+  strips and the obsolete out-of-table hand scroll no longer consume combat
+  layout space, which keeps the visible table closer to the reference image
+  instead of a form-like grid.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -49,16 +52,18 @@ resume from repository state instead of conversation history alone.
   does not replace human visual review.
 - `clients/godot/tools/check-battle-layout-screenshot.sh` is a lightweight
   screenshot geometry guard for the selected wire-table route. It rejects
-  screenshots with too few main-table bands, a bottom hand/table border clipped
-  too high above the viewport bottom, or missing right result-rail linework. It
-  was added after a real visual review found that screenshots could pass the
-  inksteel palette guard while still deviating from the black/white wire layout.
+  screenshots with too few main-table bands, a table bottom that indicates
+  actual clipping rather than the intended reference-image breathing room, or
+  missing right result-rail linework. It was added after a real visual review
+  found that screenshots could pass the inksteel palette guard while still
+  deviating from the black/white wire layout.
 - `clients/godot/tools/check-battle-layout-scene-integrity.sh` is a static scene
   guard for the selected black/white line layout. It rejects a result panel that
   drifts back onto the main battle table, an unclipped/oversized right preview,
-  a 1280px hard-width wire table, central battlefield sites detached as side
-  panels, a battle-visible legacy summary row, or compact table cards that
-  stretch the five table bands.
+  a 1280px hard-width wire table, left-side label-strip table construction,
+  sites rendered inside tall lane columns instead of the center divider, a
+  battle-visible legacy summary row, an obsolete `HandScroll` vertical
+  reservation, or compact table cards that stretch the black/ivory bands.
 - `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
   behavior guard that keeps match-result mode from blanking the right-side card
   preview or prompt panel while showing the result panel.
@@ -133,11 +138,11 @@ resume from repository state instead of conversation history alone.
   regression evidence only and remains invalid for final P5 because it contains
   auto-smoke markers.
 - Latest local dirty-worktree visual correction check:
-  `/tmp/riftbound-simulated-playtest-sim-local-094334` opened two visible Godot
-  windows, kept deck/lobby controls visible in `ROOM`, collapsed that chrome in
-  result screenshots, rendered the compact overlay result panel, and preserved
-  opponent hidden hands as backs/counts. It is regression evidence only because
-  it is automated and not captured from clean pushed `main`.
+  `/tmp/riftbound-sim-wire-reference-134856` opened two visible Godot windows,
+  reached both result panels, passed the inksteel style guard, passed the
+  adjusted battle-layout screenshot guard, and preserved opponent hidden hands
+  as backs/counts. It is regression evidence only because it is automated and
+  not captured from clean pushed `main`.
 
 ## Open Risks
 

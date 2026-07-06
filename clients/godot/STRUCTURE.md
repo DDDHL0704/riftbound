@@ -41,10 +41,12 @@ contracts change.
 - `CardControlRenderer.cs` owns tabletop layout, compact table card frames, card
   backs, visible card faces, rune tracks, zone panels, prompt-source highlights,
   and card hover/click feedback. The wire table is responsive to the main battle
-  column, folds the legacy text summary out of battle snapshots, and keeps the
-  five black/ivory bands visible at 1440x900. The central battlefield renders
-  two lane columns, each with its own opponent-unit, site, and self-unit bands,
-  rather than detaching the sites as side panels.
+  column, folds the legacy text summary and obsolete out-of-table hand rail out
+  of battle snapshots, and follows the selected black/ivory reference layout:
+  opponent resource rail, opponent play band, centered site divider, self play
+  band, and self resource rail. Sites live in the center divider instead of
+  inside tall lane columns, while opponent hidden hand information stays as card
+  backs/counts only.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.
@@ -80,14 +82,16 @@ contracts change.
   obvious drift away from the selected black/ivory inksteel route. It is a visual
   regression guard, not a replacement for human screenshot review.
 - `check-battle-layout-screenshot.sh` samples result screenshots for the
-  black/ivory wire-table geometry: enough horizontal table bands, a bottom
-  hand/table border near the viewport bottom, and right result-rail linework.
-  It catches layout regressions where the palette still passes but the tabletop
-  is clipped or no longer matches the selected wire layout.
+  black/ivory wire-table geometry: enough horizontal table bands, a reference
+  tabletop bottom with intentional breathing room, and right result-rail
+  linework. It catches layout regressions where the palette still passes but the
+  tabletop is clipped or no longer matches the selected wire layout.
 - `check-battle-layout-scene-integrity.sh` statically checks that the result
   panel stays in the right information rail between a clipped compact official
   preview and the prompt panel, that the wire table has no 1280px hard width,
-  and that compact table cards cannot stretch the black/ivory grid.
+  that the legacy out-of-table `HandScroll` no longer reserves battle layout
+  height, that the table follows the resource/play/site/play/resource order, and
+  that compact table cards cannot stretch the black/ivory grid.
 - `check-result-rail-visibility-integrity.sh` statically checks that entering
   match-result mode shows the result panel without blanking the right-side card
   preview or prompt panel.
