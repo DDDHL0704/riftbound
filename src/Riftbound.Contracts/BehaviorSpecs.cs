@@ -340,6 +340,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
     public const string SameBattlefieldEphemeralTurnStartSuppression =
         "SAME_BATTLEFIELD_EPHEMERAL_TURN_START_SUPPRESSION";
+    public const string SourceUnitEnemySpellSkillTargetProtection =
+        "SOURCE_UNIT_ENEMY_SPELL_SKILL_TARGET_PROTECTION";
 }
 
 public static class StaticAuraKinds

@@ -13689,7 +13689,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!IsFieldObject(state.PlayerZones, targetObjectId)
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || string.IsNullOrWhiteSpace(targetState.CardNo)
-            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !TargetProtectionRules.IsLegalActivatedSkillTarget(state, intent.PlayerId, targetObjectId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -14008,7 +14009,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
+            || CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo)
+            || !TargetProtectionRules.IsLegalActivatedSkillTarget(state, intent.PlayerId, targetObjectId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -14814,7 +14816,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(targetState.CardNo)
             || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId))
         {
             return false;
         }
@@ -28783,6 +28786,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
+                || !TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(
+                    state,
+                    intent.PlayerId,
+                    behavior,
+                    targetObjectId)
                 || !IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, targetObjectId)
                 || !IsPublicUnitMainDeckPrimitiveTargetAllowed(state, behavior, targetObjectId)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)

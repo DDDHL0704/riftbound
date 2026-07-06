@@ -2405,6 +2405,25 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var sourceUnitEnemySpellSkillTargetProtectionMatch = Regex.Match(
+                segment,
+                @"^(?:\{\{等级(?<level>\d+)>\}\}\s*)?(?:我无法被敌方法术和技能选作目标|敌方法术和技能无法将我选作目标)。?$",
+                RegexOptions.CultureInvariant);
+            if (sourceUnitEnemySpellSkillTargetProtectionMatch.Success)
+            {
+                var targetProtectionRequiredExperience = sourceUnitEnemySpellSkillTargetProtectionMatch.Groups["level"].Success
+                    && int.TryParse(sourceUnitEnemySpellSkillTargetProtectionMatch.Groups["level"].Value, out var level)
+                        ? level
+                        : (int?)null;
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit enemy spell/skill target protection parsed for spec-driven target legality routing.",
+                    RequiredPlayerExperience: targetProtectionRequiredExperience));
+                continue;
+            }
+
             var unitPowerfulSelfKeywordsMatch = Regex.Match(
                 segment,
                 @"如果我变为\{\{强力\}\}单位，则我获得(?<keywords>.+?)(?:。?（战力达到(?<threshold>[0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",

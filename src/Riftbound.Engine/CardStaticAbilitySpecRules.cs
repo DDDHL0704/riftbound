@@ -58,6 +58,14 @@ internal static class CardStaticAbilitySpecRules
                 StringComparison.Ordinal);
     }
 
+    public static bool IsSourceUnitEnemySpellSkillTargetProtectionAbility(StaticAbilitySpec ability)
+    {
+        return string.Equals(
+            ability.Kind,
+            StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+            StringComparison.Ordinal);
+    }
+
     public static bool TryGetStaticAbility(
         string? cardNo,
         Func<StaticAbilitySpec, bool> predicate,

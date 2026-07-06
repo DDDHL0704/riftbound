@@ -4010,6 +4010,45 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesSourceUnitEnemySpellSkillTargetProtectionStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var baronNashor = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-147/219", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            baronNashor.StaticAbilities,
+            candidate => string.Equals(
+                candidate.Kind,
+                StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                StringComparison.Ordinal));
+
+        Assert.Contains("我无法被敌方法术和技能选作目标", ability.Text, StringComparison.Ordinal);
+        Assert.Null(ability.RequiredPlayerExperience);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+
+        var desertPlunderer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·105/221", StringComparison.Ordinal));
+        var alternativeWordingAbility = Assert.Single(
+            desertPlunderer.StaticAbilities,
+            candidate => string.Equals(
+                candidate.Kind,
+                StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                StringComparison.Ordinal));
+        Assert.Contains("敌方法术和技能无法将我选作目标", alternativeWordingAbility.Text, StringComparison.Ordinal);
+        Assert.Null(alternativeWordingAbility.RequiredPlayerExperience);
+
+        var masterYi = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-059/219", StringComparison.Ordinal));
+        var levelGatedAbility = Assert.Single(
+            masterYi.StaticAbilities,
+            candidate => string.Equals(
+                candidate.Kind,
+                StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                StringComparison.Ordinal));
+        Assert.Equal(16, levelGatedAbility.RequiredPlayerExperience);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldPayPowerScoreTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -4137,6 +4176,45 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CardStaticAbilitySpecRules.TryGetStaticAbility", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SourceUnitEnemySpellSkillTargetProtectionUsesGenericStaticAbilitySpec()
+    {
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var targetProtectionRulesPath = Path.Combine(engineRoot, "TargetProtectionRules.cs");
+        var targetProtectionRulesSource = File.ReadAllText(targetProtectionRulesPath);
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
+        var matchSessionSource = File.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
+
+        Assert.Contains(
+            "CardStaticAbilitySpecRules.TryGetStaticAbility",
+            targetProtectionRulesSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility",
+            targetProtectionRulesSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget",
+            matchSessionSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "TargetProtectionRules.IsLegalActivatedSkillTarget",
+            coreRuleEngineSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "TargetProtectionRules.IsLegalActivatedSkillTarget",
+            matchSessionSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-147", targetProtectionRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-059", targetProtectionRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("Baron", targetProtectionRulesSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MasterYi", targetProtectionRulesSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -11139,6 +11139,7 @@ internal static class ActionPromptBuilder
         {
             var choices = PublicBoardObjects(state)
                 .Where(objectId => IsPromptFieldUnitObject(state, objectId))
+                .Where(objectId => TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, objectId))
                 .Where(objectId => CanPayXerathTargetCost(state, playerId, ability, objectId))
                 .Select(objectId => ObjectChoice(
                     state,
@@ -11159,6 +11160,7 @@ internal static class ActionPromptBuilder
             var choices = PublicBoardObjects(state)
                 .Where(objectId => IsPromptFieldUnitObject(state, objectId))
                 .Where(objectId => IsPromptReadyTargetObject(state, objectId))
+                .Where(objectId => TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, objectId))
                 .Where(objectId => CanPayCrimsonRoseTargetCost(state, playerId, ability, objectId))
                 .Select(objectId => ObjectChoice(
                     state,
@@ -11286,6 +11288,7 @@ internal static class ActionPromptBuilder
         return IsPromptEnemyFieldObject(state, playerId, targetObjectId)
             && IsPromptFieldUnitObject(state, targetObjectId)
             && IsPromptAttackingBattlefieldObject(state, targetObjectId)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId)
             && SamePromptBattlefield(state, sourceObjectId, targetObjectId);
     }
 
@@ -13599,6 +13602,7 @@ internal static class ActionPromptBuilder
         int targetIndex)
     {
         return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
+            && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
             && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
             && IsPromptTargetPowerAllowed(state, objectId, behavior);
