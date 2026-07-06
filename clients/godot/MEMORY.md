@@ -108,8 +108,8 @@ resume from repository state instead of conversation history alone.
   context. It also requires `Evidence package:` to name a `.tar.gz` package and
   `Playtest report:` to name `playtest-report.md` so the packaged guide remains
   a recoverable handoff index instead of accepting placeholder values. Packages
-  missing Player A/B key fingerprints, or leaking a full player key in the guide,
-  are rejected.
+  missing Player A/B key fingerprints, or leaking a full `pk_...` player-key
+  token anywhere in the guide, are rejected.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots. It repeats the machine

@@ -99,7 +99,8 @@ contracts change.
   playtest-report path fields, and those fields must point to a `.tar.gz`
   evidence package and `playtest-report.md`, so a reviewer can recover the
   handoff files without terminal scrollback or placeholder values. The verifier
-  rejects missing key fingerprints and full player-key leakage.
+  rejects missing key fingerprints and any full `pk_...` player-key token leaked
+  anywhere in the guide.
 
 ## Standard Gates
 
