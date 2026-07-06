@@ -47,8 +47,10 @@ contracts change.
   band, and self resource rail. The opponent play band, centered site divider,
   and self play band share one aligned lane shell with fixed left/right home
   columns, so each battlefield stacks as opponent units, site, and self units in
-  the same vertical lane. Opponent hidden hand information stays as card
-  backs/counts only.
+  the same vertical lane. Those home columns are intentionally narrow fixed
+  rails with compact two-column home-card clusters, which keeps the central
+  battlefield lanes visually dominant instead of expanding into large empty
+  side panels. Opponent hidden hand information stays as card backs/counts only.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.

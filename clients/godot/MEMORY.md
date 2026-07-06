@@ -37,7 +37,12 @@ resume from repository state instead of conversation history alone.
   same lane columns. `CardControlRenderer` now routes opponent play, site
   divider, and self play through one shared lane shell with fixed left/right
   home columns, so each battlefield reads as a vertical stack:
-  opponent units -> site -> self units.
+  opponent units -> site -> self units. A later screenshot review found those
+  home columns could still expand into broad empty panels and make the view
+  feel like a stitched table instead of the selected black/ivory reference.
+  The home rails are now fixed at a narrow width and use compact two-column
+  home-card clusters, keeping the battlefield lanes as the visual center of the
+  combat table.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -175,6 +180,13 @@ resume from repository state instead of conversation history alone.
   stacks opponent units, sites, and self units in aligned lane columns. It is
   regression evidence only because it is automated and not captured from clean
   pushed `main`.
+- Latest local dirty-worktree narrow-home-column correction check:
+  `/tmp/riftbound-layout-narrow-155719` opened two visible Godot windows from
+  the current workspace, reached both result panels, passed the inksteel style
+  guard, passed the battle-layout screenshot guard, and verified that the
+  black/ivory table no longer lets home columns expand into large side panels.
+  It is regression evidence only because it is automated and not captured from
+  clean pushed `main`.
 
 ## Open Risks
 

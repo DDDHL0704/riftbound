@@ -152,12 +152,24 @@ if ! rg -q "private Control WireSiteDivider" "${renderer_path}"; then
   fail "wire battlefield sites must be rendered in a centered divider band that matches the black/ivory reference layout"
 fi
 
-if ! rg -q "WireHomeColumnWidth = 258f" "${renderer_path}"; then
-  fail "wire table must use one shared side-column width so battlefield lanes align across opponent, site, and self bands"
+if ! rg -q "WireHomeColumnWidth = 152f" "${renderer_path}"; then
+  fail "wire table home columns must stay narrow so the battlefield lanes dominate the black/ivory reference layout"
 fi
 
 if ! rg -q "private Control WireBattleLaneShell" "${renderer_path}"; then
   fail "wire table must route opponent play, site divider, and self play through one aligned lane shell"
+fi
+
+if ! rg -q "private (static )?Control WireHomeColumnFrame" "${renderer_path}"; then
+  fail "wire table home columns must use a fixed-width frame instead of expanding into large empty panels"
+fi
+
+if ! rg -q "SizeFlagsHorizontal = Control\\.SizeFlags\\.ShrinkCenter" "${renderer_path}"; then
+  fail "wire table home columns must not use ExpandFill horizontally"
+fi
+
+if ! rg -q "Columns = 2" "${renderer_path}"; then
+  fail "wire home cards must be packed into a compact two-column cluster"
 fi
 
 if ! rg -q "private Control WireHomeSpacer" "${renderer_path}"; then
