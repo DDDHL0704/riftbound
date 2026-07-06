@@ -215,6 +215,14 @@ resume from repository state instead of conversation history alone.
   result screenshot path prevents Player B from capturing stale ROOM chrome. It
   is regression evidence only because it is automated and not captured from
   clean pushed `main`.
+- Latest clean pushed-main layout/result proof:
+  `/tmp/riftbound-layout-proof-164938` opened two visible Godot windows from a
+  clean `origin/main@822ca1dd8`, reached both result panels, passed the evidence
+  checker, passed the inksteel style guard, passed the battle-layout screenshot
+  guard, and visually confirmed Player B now captures the result rail instead
+  of stale lobby chrome while the battlefield keeps the narrow-home-column
+  black/ivory layout. It is regression evidence only because it is automated
+  and not final P5 two-human evidence.
 
 ## Open Risks
 
