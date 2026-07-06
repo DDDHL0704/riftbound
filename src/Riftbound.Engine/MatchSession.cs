@@ -858,6 +858,68 @@ public sealed record PendingHandChoiceState
     }
 }
 
+public sealed record PendingCardChoiceState
+{
+    [JsonConstructor]
+    public PendingCardChoiceState(
+        string? choiceId = null,
+        string? choiceWindow = null,
+        string? playerId = null,
+        int requiredCount = 0,
+        int maxCount = 0,
+        IReadOnlyList<string>? legalObjectIds = null,
+        IReadOnlyList<string>? contextObjectIds = null,
+        string? reason = null,
+        string? sourceObjectId = null,
+        string? effectKind = null)
+    {
+        ChoiceId = Normalize(choiceId);
+        ChoiceWindow = Normalize(choiceWindow);
+        PlayerId = Normalize(playerId);
+        RequiredCount = Math.Max(0, requiredCount);
+        MaxCount = Math.Max(RequiredCount, maxCount);
+        LegalObjectIds = NormalizeList(legalObjectIds);
+        ContextObjectIds = NormalizeList(contextObjectIds);
+        Reason = Normalize(reason);
+        SourceObjectId = Normalize(sourceObjectId);
+        EffectKind = Normalize(effectKind);
+    }
+
+    public string ChoiceId { get; init; }
+
+    public string ChoiceWindow { get; init; }
+
+    public string PlayerId { get; init; }
+
+    public int RequiredCount { get; init; }
+
+    public int MaxCount { get; init; }
+
+    public IReadOnlyList<string> LegalObjectIds { get; init; }
+
+    public IReadOnlyList<string> ContextObjectIds { get; init; }
+
+    public string Reason { get; init; }
+
+    public string SourceObjectId { get; init; }
+
+    public string EffectKind { get; init; }
+
+    private static string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string>? values)
+    {
+        return (values ?? [])
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+}
+
 public sealed record MatchState
 {
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
@@ -911,6 +973,7 @@ public sealed record MatchState
         IReadOnlyList<BattleResolutionState>? battleResolutions = null,
         PendingPaymentState? pendingPayment = null,
         PendingHandChoiceState? pendingHandChoice = null,
+        PendingCardChoiceState? pendingCardChoice = null,
         IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources = null)
     {
         RoomId = roomId;
@@ -947,6 +1010,7 @@ public sealed record MatchState
         BattleResolutions = NormalizeBattleResolutions(battleResolutions);
         PendingPayment = NormalizePendingPayment(pendingPayment);
         PendingHandChoice = NormalizePendingHandChoice(pendingHandChoice);
+        PendingCardChoice = NormalizePendingCardChoice(pendingCardChoice);
         TemporaryPaymentResources = NormalizeTemporaryPaymentResources(temporaryPaymentResources);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
@@ -1011,6 +1075,8 @@ public sealed record MatchState
     public PendingPaymentState? PendingPayment { get; init; }
 
     public PendingHandChoiceState? PendingHandChoice { get; init; }
+
+    public PendingCardChoiceState? PendingCardChoice { get; init; }
 
     public IReadOnlyList<TemporaryPaymentResourceState> TemporaryPaymentResources { get; init; }
 
@@ -4097,6 +4163,33 @@ public sealed record MatchState
             pendingHandChoice.EffectKind);
     }
 
+    private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
+    {
+        if (pendingCardChoice is null
+            || string.IsNullOrWhiteSpace(pendingCardChoice.ChoiceId)
+            || string.IsNullOrWhiteSpace(pendingCardChoice.ChoiceWindow)
+            || string.IsNullOrWhiteSpace(pendingCardChoice.PlayerId)
+            || pendingCardChoice.RequiredCount < 0
+            || pendingCardChoice.MaxCount < pendingCardChoice.RequiredCount
+            || pendingCardChoice.LegalObjectIds.Count < pendingCardChoice.RequiredCount
+            || pendingCardChoice.ContextObjectIds.Count == 0)
+        {
+            return null;
+        }
+
+        return new PendingCardChoiceState(
+            pendingCardChoice.ChoiceId,
+            pendingCardChoice.ChoiceWindow,
+            pendingCardChoice.PlayerId,
+            pendingCardChoice.RequiredCount,
+            pendingCardChoice.MaxCount,
+            pendingCardChoice.LegalObjectIds,
+            pendingCardChoice.ContextObjectIds,
+            pendingCardChoice.Reason,
+            pendingCardChoice.SourceObjectId,
+            pendingCardChoice.EffectKind);
+    }
+
     private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
         IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions)
     {
@@ -4207,6 +4300,7 @@ public sealed record ResolutionResult(
             || string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal)
             || string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal)
             || state.PendingHandChoice is not null
+            || state.PendingCardChoice is not null
             || HasOpenStackPriority(state)
             || HasOpenBattleResponsePriority(state)
             || HasOpenBattleDamageAssignmentWindow(state)
@@ -4231,6 +4325,7 @@ public sealed record ResolutionResult(
             && !string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal)
             && state.PendingPayment is null
             && state.PendingHandChoice is null
+            && state.PendingCardChoice is null
             && !HasOpenStackPriority(state)
             && !HasOpenSpellDuelFocus(state)
             && state.TriggerQueue.Count > 1
@@ -4452,6 +4547,7 @@ public sealed record ResolutionResult(
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             && state.PendingPayment is null
             && state.PendingHandChoice is null
+            && state.PendingCardChoice is null
             && state.StackItems.Count == 0
             && battle.IsActive
             && !string.IsNullOrWhiteSpace(battle.BattleId)
@@ -4918,6 +5014,7 @@ public sealed record ResolutionResult(
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, state.PendingPayment),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
+                ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state.PendingCardChoice, viewerPlayerId),
                 ["temporaryPaymentResources"] = state.TemporaryPaymentResources
                     .Where(resource => string.Equals(resource.OwnerPlayerId, viewerPlayerId, StringComparison.Ordinal)
                         || string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal))
@@ -5511,6 +5608,38 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = choice.SourceObjectId,
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
+        };
+        if (ownChoice)
+        {
+            view["legalObjectIds"] = choice.LegalObjectIds;
+        }
+
+        return view;
+    }
+
+    private static Dictionary<string, object?>? BuildPendingCardChoiceSnapshotView(
+        PendingCardChoiceState? choice,
+        string viewerPlayerId)
+    {
+        if (choice is null)
+        {
+            return null;
+        }
+
+        var ownChoice = string.Equals(choice.PlayerId, viewerPlayerId, StringComparison.Ordinal);
+        var view = new Dictionary<string, object?>
+        {
+            ["choiceId"] = choice.ChoiceId,
+            ["choiceWindow"] = choice.ChoiceWindow,
+            ["playerId"] = choice.PlayerId,
+            ["requiredCount"] = choice.RequiredCount,
+            ["maxCount"] = choice.MaxCount,
+            ["reason"] = choice.Reason,
+            ["sourceObjectId"] = choice.SourceObjectId,
+            ["effectKind"] = choice.EffectKind,
+            ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE",
+            ["legalCount"] = choice.LegalObjectIds.Count,
+            ["contextCount"] = choice.ContextObjectIds.Count
         };
         if (ownChoice)
         {
@@ -6578,6 +6707,20 @@ public sealed record ResolutionResult(
                     : WithSurrender("WAIT")));
         }
 
+        if (state.PendingCardChoice is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
+                    ? "请选择要处理的卡牌"
+                    : "等待对手选择卡牌",
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
+                    ? WithSurrender(CommandTypes.ChooseCards)
+                    : WithSurrender("WAIT")));
+        }
+
         if (HasOpenStackPriority(state) || HasOpenBattleResponsePriority(state))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
@@ -6717,6 +6860,7 @@ public sealed record ResolutionResult(
             && state.StackItems.Count == 0
             && state.PendingPayment is null
             && state.PendingHandChoice is null
+            && state.PendingCardChoice is null
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
@@ -7950,6 +8094,11 @@ internal static class ActionPromptBuilder
             return PromptTypes.HandChoice;
         }
 
+        if (state.PendingCardChoice is not null)
+        {
+            return PromptTypes.CardChoice;
+        }
+
         if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
             || HasOpenBattleResponsePriority(state))
         {
@@ -7996,6 +8145,7 @@ internal static class ActionPromptBuilder
             PromptTypes.MainAction => "主行动",
             PromptTypes.PayCost => "支付费用",
             PromptTypes.HandChoice => "选择手牌",
+            PromptTypes.CardChoice => "选择卡牌",
             PromptTypes.StackPriority => "优先行动",
             PromptTypes.SpellDuelFocus => "法术对决",
             PromptTypes.BattleDeclaration => "声明战斗",
@@ -8086,6 +8236,11 @@ internal static class ActionPromptBuilder
             return PromptTypes.HandChoice;
         }
 
+        if (state.PendingCardChoice is not null)
+        {
+            return PromptTypes.CardChoice;
+        }
+
         if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
             || HasOpenBattleResponsePriority(state))
         {
@@ -8135,6 +8290,11 @@ internal static class ActionPromptBuilder
         if (string.Equals(type, PromptTypes.HandChoice, StringComparison.Ordinal))
         {
             return EmptyAsNull(state.PendingHandChoice?.PlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.CardChoice, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.PendingCardChoice?.PlayerId);
         }
 
         if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal))
@@ -8262,6 +8422,7 @@ internal static class ActionPromptBuilder
             ["triggerQueue"] = state.TriggerQueue.Count,
             ["pendingPayment"] = state.PendingPayment is null ? 0 : 1,
             ["pendingHandChoice"] = state.PendingHandChoice is null ? 0 : 1,
+            ["pendingCardChoice"] = state.PendingCardChoice is null ? 0 : 1,
             ["activeBattle"] = state.BattleState.IsActive ? 1 : 0
         };
     }
@@ -8289,6 +8450,7 @@ internal static class ActionPromptBuilder
         AddBattleRelatedObjectIds(state, playerId, relatedObjects);
         AddPendingPaymentRelatedObjectIds(state, playerId, relatedObjects);
         AddPendingHandChoiceRelatedObjectIds(state, playerId, relatedObjects);
+        AddPendingCardChoiceRelatedObjectIds(state, playerId, relatedObjects);
         AddTriggerRelatedObjectIds(state, playerId, relatedObjects);
 
         return relatedObjects
@@ -8370,6 +8532,23 @@ internal static class ActionPromptBuilder
         if (string.Equals(choice.PlayerId, playerId, StringComparison.Ordinal))
         {
             AddRelatedObjectRefs(state, playerId, relatedObjects, choice.LegalObjectIds, "可选手牌");
+        }
+    }
+
+    private static void AddPendingCardChoiceRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
+    {
+        if (state.PendingCardChoice is not { } choice)
+        {
+            return;
+        }
+
+        AddRelatedObjectRef(state, playerId, relatedObjects, choice.SourceObjectId, "选择来源");
+        if (string.Equals(choice.PlayerId, playerId, StringComparison.Ordinal))
+        {
+            AddRelatedObjectRefs(state, playerId, relatedObjects, choice.LegalObjectIds, "可选卡牌");
         }
     }
 
@@ -8559,6 +8738,11 @@ internal static class ActionPromptBuilder
             return HandChoiceMetadataFor(state, playerId);
         }
 
+        if (string.Equals(type, PromptTypes.CardChoice, StringComparison.Ordinal))
+        {
+            return CardChoiceMetadataFor(state, playerId);
+        }
+
         if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
         {
             return AssignCombatDamageMetadataFor(state, playerId);
@@ -8743,6 +8927,7 @@ internal static class ActionPromptBuilder
             CommandTypes.AssignCombatDamage => CandidatePresentation("battle", "assign-damage", "battle", 50),
             CommandTypes.OrderTriggers => CandidatePresentation("choice", "order-triggers", "choice", 60),
             CommandTypes.ChooseHandCards => CandidatePresentation("choice", "choose-hand", "choice", 70),
+            CommandTypes.ChooseCards => CandidatePresentation("choice", "choose-cards", "choice", 75),
             CommandTypes.PlayCard => CandidatePresentation("play", "play-card", "card-action", 100),
             CommandTypes.HideCard => CandidatePresentation("play", "hide-card", "card-action", 110),
             CommandTypes.RevealCard => CandidatePresentation("play", "reveal-card", "card-action", 120),
@@ -11988,6 +12173,7 @@ internal static class ActionPromptBuilder
     {
         if (state.PendingPayment is not null
             || state.PendingHandChoice is not null
+            || state.PendingCardChoice is not null
             || (state.PendingTaskQueue.IsBlocking && !HasOpenBattleResponsePriority(state)))
         {
             return false;
@@ -16199,6 +16385,7 @@ internal static class ActionPromptBuilder
             "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
             "PAY_COST" => PayCostMetadataFor(state, playerId),
             "CHOOSE_HAND_CARDS" => HandChoiceMetadataFor(state, playerId),
+            "CHOOSE_CARDS" => CardChoiceMetadataFor(state, playerId),
             "HIDE_CARD" => HideCardMetadataFor(state, playerId),
             "REVEAL_CARD" => RevealCardMetadataFor(state, playerId),
             "TAP_RUNE" => new Dictionary<string, object?>
@@ -16264,6 +16451,51 @@ internal static class ActionPromptBuilder
         return choice.LegalObjectIds
             .Where(objectId => IsPromptHandCardControlledByPlayerOrLegacyOwned(state, choice.PlayerId, objectId))
             .Select(objectId => ObjectChoice(state, objectId, "可弃置手牌"))
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, object?> CardChoiceMetadataFor(MatchState state, string playerId)
+    {
+        var choice = state.PendingCardChoice;
+        if (choice is null)
+        {
+            return new Dictionary<string, object?>
+            {
+                ["serverCardChoiceState"] = "WAIT"
+            };
+        }
+
+        var ownChoice = string.Equals(choice.PlayerId, playerId, StringComparison.Ordinal);
+        var metadata = new Dictionary<string, object?>
+        {
+            ["choiceId"] = choice.ChoiceId,
+            ["choiceWindow"] = choice.ChoiceWindow,
+            ["choosingPlayerId"] = choice.PlayerId,
+            ["requiredCount"] = choice.RequiredCount,
+            ["maxCount"] = choice.MaxCount,
+            ["reason"] = choice.Reason,
+            ["sourceObjectId"] = choice.SourceObjectId,
+            ["effectKind"] = choice.EffectKind,
+            ["legalCount"] = choice.LegalObjectIds.Count,
+            ["contextCount"] = choice.ContextObjectIds.Count,
+            ["serverCardChoiceState"] = ownChoice ? "PENDING" : "WAITING"
+        };
+
+        if (ownChoice)
+        {
+            metadata["cardChoices"] = PendingCardChoiceDtos(state, choice);
+            metadata["legalObjectIds"] = choice.LegalObjectIds;
+        }
+
+        return metadata;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PendingCardChoiceDtos(
+        MatchState state,
+        PendingCardChoiceState choice)
+    {
+        return choice.LegalObjectIds
+            .Select(objectId => ObjectChoice(state, objectId, "可选卡牌"))
             .ToArray();
     }
 
@@ -18211,6 +18443,7 @@ internal static class ActionPromptBuilder
             "RECYCLE_RUNE" => "回收符文",
             "PAY_COST" => "支付费用",
             "CHOOSE_HAND_CARDS" => "选择手牌",
+            "CHOOSE_CARDS" => "选择卡牌",
             "ASSIGN_COMBAT_DAMAGE" => "分配战斗伤害",
             "ORDER_TRIGGERS" => "排序触发",
             "LEGEND_ACT" => "传奇行动",
@@ -19498,6 +19731,7 @@ public sealed class MatchSession : IMatchSession
             && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal)
             && state.PendingPayment is null
             && state.PendingHandChoice is null
+            && state.PendingCardChoice is null
             && string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.IsNullOrWhiteSpace(state.FocusPlayerId)
             && state.StackItems.Count == 0

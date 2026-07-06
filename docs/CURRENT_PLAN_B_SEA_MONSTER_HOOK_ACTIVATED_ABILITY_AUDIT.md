@@ -12,9 +12,8 @@ This slice opens the first BehaviorSpec-driven representative path for `OGN·242
 - derive a `P4ActivatedAbilityDefinition` from BehaviorSpec instead of a card-number runtime table;
 - expose the legal `ACTIVATE_ABILITY` prompt for ready base equipment sources and friendly unit targets;
 - pay `1` mana plus `1` yellow rune power, exhaust the source, and put the ability on the stack;
-- on stack resolution, destroy the targeted friendly unit, look at the top five main-deck cards without public reveal, auto-play exactly one eligible unit when the legal set is unique, and recycle the rest.
-
-The implementation is intentionally representative. It does not implement the full hidden controller-only choice prompt for multiple eligible units.
+- on stack resolution, destroy the targeted friendly unit, look at the top five main-deck cards without public reveal, auto-play exactly one eligible unit when the legal set is unique, or open a private controller-only card choice when multiple eligible units are available;
+- resolve `CHOOSE_CARDS` by playing the selected eligible unit for free or accepting an empty choice, then privately recycle the remaining looked cards.
 
 2026-07-06 follow-up: added B0 official-deck-derived full-game replay coverage for the same representative path. The replay starts from legal official decks, stages a midgame Sea Monster Hook activation, verifies action-log replay to final state hash, and continues to score victory without changing the engine implementation.
 
@@ -38,13 +37,16 @@ The prior Sea Monster Hook evidence was only the ordinary 0-target equipment pla
 - `MatchSession` builds target choices from the generic friendly-unit scope.
 - `CoreRuleEngine` resolves activation payment through `PaymentCostRules` and resolves the stack effect without emitting `CARDS_REVEALED`.
 - `FullGameEndToEndTests` now includes a B0 score-victory replay that exercises the BehaviorSpec-derived prompt, payment, stack resolution, private top-five look, unique eligible unit play, recycle event, action log, and final hash replay path.
+- `CommandTypes.ChooseCards`, `PromptTypes.CardChoice`, and `PendingCardChoiceState` provide the generic private card-choice window used by Sea Monster Hook multi-eligible top-five resolution. Non-choosing players receive only the pending window summary and counts, not legal/context object ids.
 
 ## Validation
 
 - Focused B0 replay: `1/1`.
-- Adjacent SeaMonsterHook / FullGameEndToEnd / MatchRecovery / PaymentEngine regression: `2921/2921`.
-- Backend full conformance: `9191/9191`.
+- Focused SeaMonsterHook guard: `12/12`.
+- Focused SeaMonsterHook + MatchRecovery hidden-info regression: `2001/2001`.
+- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression: `2923/2923`.
+- Backend full conformance: `9193/9193`.
 
 ## Holdbacks
 
-Full official Sea Monster Hook remains open: multi-eligible controller choice prompt, zero-eligible optional decision surface, FAQ adjudication, complete top-five hidden-info UX, full PaymentEngine matrix, card-matrix fullOfficial, P0/P1, and READY are not closed.
+Full official Sea Monster Hook remains open: FAQ adjudication, complete top-five hidden-info UX across clients/recovery, zero-eligible edge matrix, full PaymentEngine matrix, card-matrix fullOfficial, P0/P1, and READY are not closed.

@@ -32,6 +32,7 @@ After this slice:
 - The prompt exposes only legal friendly unit targets and hides source/equipment targets.
 - The stack resolver destroys the target, tracks `DestroyedUnitOwnerIdsThisTurn`, plays exactly one eligible top-five unit when unique, and recycles the rest without public `cardIds` payload.
 - The B0 full-game replay path now proves the same activated ability can be driven from an official-deck-derived state, recorded in the action log, replayed to the final state hash, and carried onward to score victory.
+- `PendingCardChoiceState` now opens a controller-only `CARD_CHOICE` prompt when multiple eligible top-five units exist. `CHOOSE_CARDS` accepts one selected eligible unit or an empty choice, then recycles the unplayed looked cards with `visibility=LOOKED_NOT_REVEALED` and no public `cardIds`.
 
 ## Test Evidence
 
@@ -41,10 +42,14 @@ After this slice:
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest`
 - B0 replay follow-up passed `1/1`:
   - `FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookActivatedAbilityAndScoreVictoryActionLogReplaysToFinalStateHash`
-- Adjacent SeaMonsterHook / FullGameEndToEnd / MatchRecovery / PaymentEngine regression passed `2921/2921`.
-- Backend full conformance passed `9191/9191`.
+- Multi-eligible / decline follow-up passed in focused SeaMonsterHook guard `12/12`:
+  - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately`
+  - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityTopFiveChoiceCanDeclineAndRecycleAllLookedCardsPrivately`
+- Focused SeaMonsterHook + MatchRecovery hidden-info regression passed `2001/2001`.
+- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression passed `2923/2923`.
+- Backend full conformance passed `9193/9193`.
 - Adjacent PaymentEngine / catalog / recovery / full-game coverage is tracked through `PaymentEngineCoverageAuditTests` manifest updates for the new runtime ability row.
 
 ## Non-Claims
 
-This does not claim full official Sea Monster Hook behavior. The multi-eligible hidden choice prompt, complete optional play decision surface, complete FAQ disposition, full hidden-zone UX, full card-matrix closure, P0/P1, and READY remain open.
+This does not claim full official Sea Monster Hook behavior. Complete FAQ disposition, zero-eligible edge matrix, full hidden-zone UX across all clients/recovery, full card-matrix closure, P0/P1, and READY remain open.

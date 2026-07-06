@@ -720,8 +720,8 @@ public sealed class PaymentEngineCoverageAuditTests
             "SeaMonsterHookGuardTests: SeaMonsterHookActivatedAbilityPromptIsBehaviorSpecDriven prompt source, target and typed-yellow metadata",
             "SeaMonsterHookGuardTests: SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest command commit",
             "SeaMonsterHookGuardTests: COST_PAID / ABILITY_ACTIVATED / UNIT_EXHAUSTED / UNIT_DESTROYED / UNIT_PLAYED_TO_BASE / CARDS_RECYCLED audit assertions",
-            "SeaMonsterHookGuardTests: invalid play-card no-mutation and hidden-info no-reveal guards; activated stale/multi-choice breadth remains deferred",
-            "Complete official hidden controller-only look choice prompt, multiple eligible unit choice, zero-eligible choice handling, FAQ adjudication, and full top-five visibility breadth remain open.",
+            "SeaMonsterHookGuardTests: multi-eligible private CARD_CHOICE prompt and empty-choice recycle-rest guards; invalid play-card no-mutation and hidden-info no-reveal guards",
+            "Complete FAQ adjudication, zero-eligible edge matrix, and full top-five visibility breadth remain open.",
             "Representative coverage only; project remains NOT READY and P0-005 remains open for full-official target-bearing colored ability breadth.",
             [
                 "docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_AUDIT.md",
@@ -3987,9 +3987,11 @@ public sealed class PaymentEngineCoverageAuditTests
                 typeof(SeaMonsterHookGuardTests),
                 [
                     nameof(SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityPromptIsBehaviorSpecDriven),
-                    nameof(SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest)
+                    nameof(SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest),
+                    nameof(SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately),
+                    nameof(SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityTopFiveChoiceCanDeclineAndRecycleAllLookedCardsPrivately)
                 ],
-                "Sea Monster Hook runtime evidence covers BehaviorSpec-derived prompt metadata, typed-yellow payment, source exhaustion, friendly-unit target, stack resolution, unique eligible top-five unit play, recycle-rest count, and no public reveal payload.");
+                "Sea Monster Hook runtime evidence covers BehaviorSpec-derived prompt metadata, typed-yellow payment, source exhaustion, friendly-unit target, stack resolution, unique eligible top-five unit play, multi-eligible private CARD_CHOICE, empty-choice recycle-rest count, and no public reveal payload.");
         }
 
         return abilityId switch

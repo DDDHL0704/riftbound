@@ -38,6 +38,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
+    private const string SeaMonsterHookTopFiveChoiceWindow = "SEA_MONSTER_HOOK_TOP_FIVE_PLAY";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
@@ -211,6 +212,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return Complete(RejectWithCorePrompts(
                 state,
                 "当前需要先完成服务端手牌选择窗口。",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
+        if (state.PendingCardChoice is not null)
+        {
+            return Complete(RejectWithCorePrompts(
+                state,
+                "当前需要先完成服务端卡牌选择窗口。",
                 ErrorCodes.PhaseNotAllowed));
         }
 
@@ -465,6 +474,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(command.CmdType, CommandTypes.ChooseHandCards, StringComparison.Ordinal))
         {
             result = ResolveChooseHandCardsRuntime(state, intent, command);
+            return true;
+        }
+
+        if (string.Equals(command.CmdType, CommandTypes.ChooseCards, StringComparison.Ordinal))
+        {
+            result = ResolveChooseCardsRuntime(state, intent, command);
             return true;
         }
 
@@ -4942,6 +4957,232 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static ResolutionResult ResolveChooseCardsRuntime(
+        MatchState state,
+        PlayerIntent intent,
+        GameCommand command)
+    {
+        if (!TryReadChooseCardsPayload(command, out var choiceId, out var choiceWindow, out var chosenObjectIds)
+            || string.IsNullOrWhiteSpace(choiceId)
+            || string.IsNullOrWhiteSpace(choiceWindow)
+            || chosenObjectIds is null)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 需要 choiceId、choiceWindow 与 chosenObjectIds。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var pendingChoice = state.PendingCardChoice;
+        if (pendingChoice is null)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "当前没有服务端卡牌选择窗口可处理 CHOOSE_CARDS。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(intent.PlayerId, pendingChoice.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "只有当前选择玩家可以提交 CHOOSE_CARDS。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(choiceId, pendingChoice.ChoiceId, StringComparison.Ordinal)
+            || !string.Equals(choiceWindow, pendingChoice.ChoiceWindow, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 与当前服务端卡牌选择窗口不匹配。",
+                ErrorCodes.PromptExpired);
+        }
+
+        var submittedObjectIds = chosenObjectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId.Trim())
+            .ToArray();
+        if (submittedObjectIds.Length != chosenObjectIds.Count
+            || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
+            || submittedObjectIds.Length < pendingChoice.RequiredCount
+            || submittedObjectIds.Length > pendingChoice.MaxCount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 提交数量或重复项非法。",
+                ErrorCodes.InvalidPayload);
+        }
+
+        var legalObjectIds = pendingChoice.LegalObjectIds.ToHashSet(StringComparer.Ordinal);
+        if (submittedObjectIds.Any(objectId => !legalObjectIds.Contains(objectId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 包含非法卡牌对象。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
+            && string.Equals(
+                pendingChoice.EffectKind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal))
+        {
+            return ResolveSeaMonsterHookTopFiveCardChoiceRuntime(
+                state,
+                intent,
+                pendingChoice,
+                submittedObjectIds);
+        }
+
+        return RejectWithCorePrompts(
+            state,
+            "当前卡牌选择窗口尚未由服务端实现。",
+            ErrorCodes.PhaseNotAllowed);
+    }
+
+    private static ResolutionResult ResolveSeaMonsterHookTopFiveCardChoiceRuntime(
+        MatchState state,
+        PlayerIntent intent,
+        PendingCardChoiceState pendingChoice,
+        IReadOnlyList<string> chosenObjectIds)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        if (!playerZones.TryGetValue(intent.PlayerId, out var zones))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 找不到选择玩家区域。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var contextObjectIds = pendingChoice.ContextObjectIds.ToArray();
+        var contextSet = contextObjectIds.ToHashSet(StringComparer.Ordinal);
+        if (contextObjectIds.Length == 0
+            || contextObjectIds.Any(objectId => !zones.MainDeck.Contains(objectId, StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 查看牌集合已失效。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var selectedObjectId = chosenObjectIds.Count == 1
+            ? chosenObjectIds[0]
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(selectedObjectId)
+            && !zones.MainDeck.Contains(selectedObjectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "CHOOSE_CARDS 选择的卡牌不在可处理区域。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        var recycledObjectIds = contextObjectIds
+            .Where(objectId => !string.Equals(objectId, selectedObjectId, StringComparison.Ordinal))
+            .ToArray();
+        var rngCursor = state.RngCursor;
+        var randomizedRecycledObjectIds = RandomizeForMainDeckBottom(
+            recycledObjectIds,
+            state.Seed,
+            rngCursor,
+            pendingChoice.SourceObjectId);
+        if (recycledObjectIds.Length > 1)
+        {
+            rngCursor++;
+        }
+
+        playerZones[intent.PlayerId] = zones with
+        {
+            MainDeck = zones.MainDeck
+                .Where(objectId => !contextSet.Contains(objectId))
+                .Concat(randomizedRecycledObjectIds)
+                .ToArray()
+        };
+
+        if (!string.IsNullOrWhiteSpace(selectedObjectId)
+            && TryPutSelectedMainDeckUnitToBase(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                selectedObjectId,
+                out var selectedState))
+        {
+            cardObjects[selectedObjectId] = selectedState with
+            {
+                OwnerId = string.IsNullOrWhiteSpace(selectedState.OwnerId)
+                    ? intent.PlayerId
+                    : selectedState.OwnerId,
+                ControllerId = intent.PlayerId
+            };
+            events.Add(new GameEvent(
+                "UNIT_PLAYED_TO_BASE",
+                $"{intent.PlayerId} 打出选择的单位到基地",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                    ["targetObjectId"] = selectedObjectId,
+                    ["ownerPlayerId"] = intent.PlayerId,
+                    ["playedByPlayerId"] = intent.PlayerId,
+                    ["sourceZone"] = "MAIN_DECK",
+                    ["destinationZone"] = "BASE",
+                    ["ignoreManaCost"] = true
+                }));
+        }
+
+        if (randomizedRecycledObjectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "CARDS_RECYCLED",
+                $"{intent.PlayerId} 回收 {randomizedRecycledObjectIds.Count} 张查看的牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                    ["count"] = randomizedRecycledObjectIds.Count,
+                    ["zone"] = "MAIN_DECK",
+                    ["visibility"] = "LOOKED_NOT_REVEALED"
+                }));
+        }
+
+        events.Add(new GameEvent(
+            "CARD_CHOICE_RESOLVED",
+            $"{intent.PlayerId} 完成卡牌选择",
+            new Dictionary<string, object?>
+            {
+                ["choiceId"] = pendingChoice.ChoiceId,
+                ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                ["playerId"] = intent.PlayerId,
+                ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                ["effectKind"] = pendingChoice.EffectKind,
+                ["chosenCount"] = chosenObjectIds.Count
+            }));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = state.TurnPlayerId,
+            PlayerZones = playerZones,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
+            CardObjects = cardObjects,
+            RngCursor = rngCursor,
+            PendingCardChoice = null
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
         var cardNo = state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
@@ -5054,6 +5295,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         choiceWindow = string.Empty;
         chosenObjectIds = null;
         if (command is ChooseHandCardsCommand typed)
+        {
+            choiceId = typed.ChoiceId?.Trim() ?? string.Empty;
+            choiceWindow = typed.ChoiceWindow?.Trim() ?? string.Empty;
+            chosenObjectIds = typed.ChosenObjectIds?.ToArray();
+            return true;
+        }
+
+        if (TryGetRawPayload(command, out var payload))
+        {
+            choiceId = ReadText(payload, "choiceId");
+            choiceWindow = ReadText(payload, "choiceWindow");
+            chosenObjectIds = TryReadStrictTextArray(payload, "chosenObjectIds", out var parsedObjectIds)
+                ? parsedObjectIds
+                : null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReadChooseCardsPayload(
+        GameCommand command,
+        out string choiceId,
+        out string choiceWindow,
+        out IReadOnlyList<string>? chosenObjectIds)
+    {
+        choiceId = string.Empty;
+        choiceWindow = string.Empty;
+        chosenObjectIds = null;
+        if (command is ChooseCardsCommand typed)
         {
             choiceId = typed.ChoiceId?.Trim() ?? string.Empty;
             choiceWindow = typed.ChoiceWindow?.Trim() ?? string.Empty;
@@ -30115,8 +30386,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var pendingHandChoice = stackResolution.PendingHandChoice;
+            var pendingCardChoice = stackResolution.PendingCardChoice;
             PendingPaymentState? pendingPayment = null;
             if (pendingHandChoice is null
+                && pendingCardChoice is null
                 && stackResolution.WinnerPlayerId is null
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0)
@@ -30135,11 +30408,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             var returnsToSpellDuel = pendingHandChoice is null
+                && pendingCardChoice is null
                 && pendingPayment is null
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
             var returnsToBattleResponse = pendingHandChoice is null
+                && pendingCardChoice is null
                 && pendingPayment is null
                 && nextStack.Length == 0
                 && queuedTriggers.Length == 0
@@ -30150,13 +30425,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : null;
             var nextPriorityPlayerId = returnsToBattleResponse
                 ? BattleResponsePriorityPlayerId(state, resolvedItem.ControllerId)
-                : pendingHandChoice is not null || pendingPayment is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
+                : pendingHandChoice is not null || pendingCardChoice is not null || pendingPayment is not null || nextStack.Length == 0 || queuedTriggers.Length > 1
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
             {
                 Tick = state.Tick + 1,
-                ActivePlayerId = pendingHandChoice?.PlayerId ?? pendingPayment?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
+                ActivePlayerId = pendingHandChoice?.PlayerId ?? pendingCardChoice?.PlayerId ?? pendingPayment?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
                 TimingState = nextStack.Length == 0
                     ? returnsToSpellDuel
                         ? TimingStates.SpellDuelOpen
@@ -30170,6 +30445,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 TriggerQueue = queuedTriggers,
                 PendingPayment = pendingPayment,
                 PendingHandChoice = pendingHandChoice,
+                PendingCardChoice = pendingCardChoice,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -36965,6 +37241,58 @@ public sealed class CoreRuleEngine : IRuleEngine
                     && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
                     && Math.Max(0, cardObject.Power) <= maxPlayablePower)
                 .ToArray();
+            if (eligibleObjectIds.Length > 1)
+            {
+                var pendingChoice = new PendingCardChoiceState(
+                    choiceId: BuildSeaMonsterHookTopFiveChoiceId(stackItem),
+                    choiceWindow: SeaMonsterHookTopFiveChoiceWindow,
+                    playerId: stackItem.ControllerId,
+                    requiredCount: 0,
+                    maxCount: 1,
+                    legalObjectIds: eligibleObjectIds,
+                    contextObjectIds: viewedObjectIds,
+                    reason: ability.Kind,
+                    sourceObjectId: stackItem.SourceObjectId,
+                    effectKind: ability.EffectKind);
+                events.Add(new GameEvent(
+                    "CARD_CHOICE_REQUESTED",
+                    $"{stackItem.ControllerId} 查看主牌堆顶部并选择可打出的单位",
+                    new Dictionary<string, object?>
+                    {
+                        ["choiceId"] = pendingChoice.ChoiceId,
+                        ["choiceWindow"] = pendingChoice.ChoiceWindow,
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["effectKind"] = ability.EffectKind,
+                        ["requiredCount"] = pendingChoice.RequiredCount,
+                        ["maxCount"] = pendingChoice.MaxCount,
+                        ["legalCount"] = pendingChoice.LegalObjectIds.Count,
+                        ["contextCount"] = pendingChoice.ContextObjectIds.Count
+                    }));
+
+                return new StackResolutionResult(
+                    playerZones,
+                    cardObjects,
+                    state.PlayerScores,
+                    playerExperience,
+                    runePools,
+                    state.UntilEndOfTurnEffects,
+                    null,
+                    events,
+                    destroyedUnitOwnerIds
+                        .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
+                        .Distinct(StringComparer.Ordinal)
+                        .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                        .ToArray(),
+                    null,
+                    [],
+                    null,
+                    [],
+                    rngCursor,
+                    PendingCardChoice: pendingChoice,
+                    ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, playerZones));
+            }
+
             var selectedObjectId = eligibleObjectIds.Length == 1
                 ? eligibleObjectIds[0]
                 : string.Empty;
@@ -40936,6 +41264,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string BuildUndercoverAgentHandChoiceId(StackItemState stackItem)
     {
         return $"CHOICE-{stackItem.StackItemId}";
+    }
+
+    private static string BuildSeaMonsterHookTopFiveChoiceId(StackItemState stackItem)
+    {
+        return $"CARD-CHOICE-{stackItem.StackItemId}";
     }
 
     private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
@@ -49526,6 +49859,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : WithSurrender("WAIT")));
         }
 
+        if (state.PendingCardChoice is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
+                    ? "请选择要处理的卡牌"
+                    : "等待对手选择卡牌",
+                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
+                    ? WithSurrender(CommandTypes.ChooseCards)
+                    : WithSurrender("WAIT")));
+        }
+
         if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
             || IsOpenBattleResponsePriorityWindow(state))
         {
@@ -50013,6 +50360,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<TriggerQueueItemState> TriggerQueue,
         long RngCursor,
         PendingHandChoiceState? PendingHandChoice = null,
+        PendingCardChoiceState? PendingCardChoice = null,
         IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null,
         PendingPaymentState? PendingPayment = null);
 

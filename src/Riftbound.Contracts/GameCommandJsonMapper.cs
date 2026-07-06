@@ -89,6 +89,10 @@ public static class GameCommandJsonMapper
                 Text(cmd, "choiceId"),
                 Text(cmd, "choiceWindow"),
                 StrictTextArray(cmd, "chosenObjectIds")),
+            "CHOOSE_CARDS" => new ChooseCardsCommand(
+                Text(cmd, "choiceId"),
+                Text(cmd, "choiceWindow"),
+                StrictTextArray(cmd, "chosenObjectIds")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

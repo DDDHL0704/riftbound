@@ -302,6 +302,10 @@ public static class MatchActionLogReplayer
                 "pending hand choice",
                 replayInitialState.PendingHandChoice,
                 errors);
+            ValidateNullBaseline(
+                "pending card choice",
+                replayInitialState.PendingCardChoice,
+                errors);
 
             var expectedInitialPlayerId = ReplayInitialPlayerIdFor(replayInitialState);
             if (!string.Equals(replayInitialState.ActivePlayerId, expectedInitialPlayerId, StringComparison.Ordinal))
@@ -1627,6 +1631,11 @@ public static class MatchRecoveryValidator
                 ValidateRawCommandRequiredString(command, rawCommand, "choiceWindow", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "chosenObjectIds", errors);
                 break;
+            case CommandTypes.ChooseCards:
+                ValidateRawCommandRequiredString(command, rawCommand, "choiceId", errors);
+                ValidateRawCommandRequiredString(command, rawCommand, "choiceWindow", errors);
+                ValidateRawCommandStringArray(command, rawCommand, "chosenObjectIds", errors);
+                break;
         }
     }
 
@@ -1918,7 +1927,8 @@ public static class MatchRecoveryValidator
                 or CommandTypes.PayCost
                 or CommandTypes.AssignCombatDamage
                 or CommandTypes.OrderTriggers
-                or CommandTypes.ChooseHandCards => true,
+                or CommandTypes.ChooseHandCards
+                or CommandTypes.ChooseCards => true,
             _ => false
         };
     }
@@ -2280,6 +2290,17 @@ public static class MatchRecoveryValidator
                 "pending hand choice",
                 errors);
             ValidateSnapshotTimingPendingHandChoicePayloadValues(view, errors);
+            ValidateSnapshotTimingObjectPayloadShape(
+                view,
+                "pendingCardChoice",
+                "pending card choice",
+                errors);
+            ValidateSnapshotTimingObjectPayloadPropertyNames(
+                view,
+                "pendingCardChoice",
+                "pending card choice",
+                errors);
+            ValidateSnapshotTimingPendingCardChoicePayloadValues(view, errors);
             ValidateSnapshotTimingTopLevelObjectListPayloadShapes(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
@@ -3745,6 +3766,37 @@ public static class MatchRecoveryValidator
 
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending hand choice";
         ValidatePendingHandChoicePayloadValues(
+            choicePayload,
+            payloadLabel,
+            IsKnownSnapshotPendingHandChoiceState,
+            errors);
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(
+            choicePayload,
+            "legalObjectIds",
+            payloadLabel,
+            "legal object id",
+            errors);
+        ValidateSnapshotPayloadStringListValues(
+            choicePayload,
+            "legalObjectIds",
+            payloadLabel,
+            "legal object id",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingPendingCardChoicePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectValue(view.Snapshot.Timing, "pendingCardChoice", out var choicePayload)
+            || !IsSnapshotPlayerPayloadObject(choicePayload))
+        {
+            return;
+        }
+
+        var payloadLabel = $"snapshot for {view.PlayerId} timing pending card choice";
+        ValidatePendingCardChoicePayloadValues(
             choicePayload,
             payloadLabel,
             IsKnownSnapshotPendingHandChoiceState,
@@ -24805,6 +24857,145 @@ public static class MatchRecoveryValidator
             $"spectator replay frame timing pending hand choice max count 0 does not match authoritative state pending hand choice max count {authoritativeChoice.MaxCount}");
     }
 
+    private static void ValidateSpectatorPendingCardChoicePayload(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeChoice = authoritativeState.PendingCardChoice;
+        if (!timing.TryGetValue("pendingCardChoice", out var choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending card choice is required");
+            AddMissingSpectatorPendingCardChoiceCountDiagnostics(authoritativeChoice, errors);
+            return;
+        }
+
+        if (authoritativeChoice is null)
+        {
+            if (!IsNullSnapshotPayloadValue(choicePayload))
+            {
+                errors.Add("spectator replay frame timing pending card choice must be empty when authoritative state has no pending card choice");
+            }
+
+            return;
+        }
+
+        if (IsNullSnapshotPayloadValue(choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending card choice is required");
+            AddMissingSpectatorPendingCardChoiceCountDiagnostics(authoritativeChoice, errors);
+            return;
+        }
+
+        if (!IsSnapshotPlayerPayloadObject(choicePayload))
+        {
+            errors.Add("spectator replay frame timing pending card choice payload is required");
+            return;
+        }
+
+        ValidateSnapshotPayloadObjectPropertyNames(
+            choicePayload,
+            "spectator replay frame timing pending card choice",
+            errors);
+        ValidatePendingCardChoicePayloadValues(
+            choicePayload,
+            "spectator replay frame timing pending card choice",
+            value => string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal),
+            errors);
+
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceId",
+            "spectator replay frame timing pending card choice id does not match authoritative state pending card choice id",
+            authoritativeChoice.ChoiceId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceWindow",
+            "spectator replay frame timing pending card choice window does not match authoritative state pending card choice window",
+            authoritativeChoice.ChoiceWindow,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "playerId",
+            "spectator replay frame timing pending card choice player does not match authoritative state pending card choice player",
+            authoritativeChoice.PlayerId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "requiredCount",
+            "spectator replay frame timing pending card choice required count does not match authoritative state pending card choice required count",
+            authoritativeChoice.RequiredCount,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "maxCount",
+            "spectator replay frame timing pending card choice max count does not match authoritative state pending card choice max count",
+            authoritativeChoice.MaxCount,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "reason",
+            "spectator replay frame timing pending card choice reason does not match authoritative state pending card choice reason",
+            authoritativeChoice.Reason,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "sourceObjectId",
+            "spectator replay frame timing pending card choice source object does not match authoritative state pending card choice source object",
+            authoritativeChoice.SourceObjectId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "effectKind",
+            "spectator replay frame timing pending card choice effect kind does not match authoritative state pending card choice effect kind",
+            authoritativeChoice.EffectKind,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceState",
+            "spectator replay frame timing pending card choice state does not match authoritative spectator pending card choice state",
+            "WAITING_FOR_CHOICE",
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "legalCount",
+            "spectator replay frame timing pending card choice legal count does not match authoritative state pending card choice legal count",
+            authoritativeChoice.LegalObjectIds.Count,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "contextCount",
+            "spectator replay frame timing pending card choice context count does not match authoritative state pending card choice context count",
+            authoritativeChoice.ContextObjectIds.Count,
+            errors);
+
+        if (TryReadObjectValue(choicePayload, "legalObjectIds", out _))
+        {
+            errors.Add("spectator replay frame timing pending card choice legal object ids must be redacted");
+        }
+
+        if (TryReadObjectValue(choicePayload, "contextObjectIds", out _))
+        {
+            errors.Add("spectator replay frame timing pending card choice context object ids must be redacted");
+        }
+    }
+
+    private static void AddMissingSpectatorPendingCardChoiceCountDiagnostics(
+        PendingCardChoiceState? authoritativeChoice,
+        List<string> errors)
+    {
+        if (authoritativeChoice is null)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"spectator replay frame timing pending card choice required count 0 does not match authoritative state pending card choice required count {authoritativeChoice.RequiredCount}");
+        errors.Add(
+            $"spectator replay frame timing pending card choice max count 0 does not match authoritative state pending card choice max count {authoritativeChoice.MaxCount}");
+    }
+
     private static void ValidateSpectatorPendingHandChoicePayloadValues(
         object? choicePayload,
         List<string> errors)
@@ -24885,6 +25076,88 @@ public static class MatchRecoveryValidator
             "state",
             errors,
             isKnownChoiceState);
+    }
+
+    private static void ValidatePendingCardChoicePayloadValues(
+        object? choicePayload,
+        string payloadLabel,
+        Func<string, bool> isKnownChoiceState,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceId",
+            payloadLabel,
+            "id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceWindow",
+            payloadLabel,
+            "window",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        var requiredCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            choicePayload,
+            "requiredCount",
+            payloadLabel,
+            "required count",
+            errors);
+        var maxCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            choicePayload,
+            "maxCount",
+            payloadLabel,
+            "max count",
+            errors);
+        if (requiredCount is not null
+            && maxCount is not null
+            && maxCount.Value < requiredCount.Value)
+        {
+            errors.Add($"{payloadLabel} max count {maxCount.Value} is less than required count {requiredCount.Value}");
+        }
+
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceState",
+            payloadLabel,
+            "state",
+            errors,
+            isKnownChoiceState);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            choicePayload,
+            "legalCount",
+            payloadLabel,
+            "legal count",
+            errors);
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            choicePayload,
+            "contextCount",
+            payloadLabel,
+            "context count",
+            errors);
     }
 
     private static void ValidateSpectatorRuleQueueCoveragePayloads(
@@ -25596,6 +25869,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
         ValidateAuthoritativeStatePendingPaymentValues(authoritativeState.PendingPayment, errors);
         ValidateAuthoritativeStatePendingHandChoiceValues(authoritativeState.PendingHandChoice, errors);
+        ValidateAuthoritativeStatePendingCardChoiceValues(authoritativeState.PendingCardChoice, errors);
         ValidateAuthoritativeStateUntilEndOfTurnEffectValues(authoritativeState.UntilEndOfTurnEffects, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
@@ -26277,6 +26551,100 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"authoritative state pending hand choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingHandChoice.RequiredCount}");
             }
+        }
+    }
+
+    private static void ValidateAuthoritativeStatePendingCardChoiceValues(
+        PendingCardChoiceState? pendingCardChoice,
+        List<string> errors)
+    {
+        if (pendingCardChoice is null)
+        {
+            return;
+        }
+
+        var choiceId = ValidateAuthoritativeStateRequiredText(
+            "pending card choice id",
+            pendingCardChoice.ChoiceId,
+            errors);
+        var choiceLabel = choiceId ?? "<unknown>";
+        RejectAuthoritativeStateRedactionSentinel("pending card choice id", choiceId, errors);
+
+        var choiceWindow = ValidateAuthoritativeStateRequiredText(
+            $"pending card choice {choiceLabel} window",
+            pendingCardChoice.ChoiceWindow,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending card choice {choiceLabel} window",
+            choiceWindow,
+            errors);
+
+        var reason = ValidateAuthoritativeStateOptionalTextValue(
+            $"pending card choice {choiceLabel} reason",
+            pendingCardChoice.Reason,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending card choice {choiceLabel} reason",
+            reason,
+            errors);
+
+        var sourceObjectId = ValidateAuthoritativeStateOptionalTextValue(
+            $"pending card choice {choiceLabel} source object",
+            pendingCardChoice.SourceObjectId,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending card choice {choiceLabel} source object",
+            sourceObjectId,
+            errors);
+
+        var effectKind = ValidateAuthoritativeStateOptionalTextValue(
+            $"pending card choice {choiceLabel} effect kind",
+            pendingCardChoice.EffectKind,
+            errors);
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending card choice {choiceLabel} effect kind",
+            effectKind,
+            errors);
+
+        if (pendingCardChoice.RequiredCount < 0)
+        {
+            errors.Add(
+                $"authoritative state pending card choice {choiceLabel} required count {pendingCardChoice.RequiredCount} is invalid");
+        }
+
+        if (pendingCardChoice.MaxCount < pendingCardChoice.RequiredCount)
+        {
+            errors.Add(
+                $"authoritative state pending card choice {choiceLabel} max count {pendingCardChoice.MaxCount} is less than required count {pendingCardChoice.RequiredCount}");
+        }
+
+        ValidateAuthoritativeStateStringListValues(
+            $"pending card choice {choiceLabel} legal object",
+            pendingCardChoice.LegalObjectIds,
+            errors,
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
+        ValidateAuthoritativeStateStringListValues(
+            $"pending card choice {choiceLabel} context object",
+            pendingCardChoice.ContextObjectIds,
+            errors,
+            rejectDuplicates: true,
+            rejectRedactionSentinel: true);
+
+        var distinctLegalObjectCount = pendingCardChoice.LegalObjectIds
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+        if (distinctLegalObjectCount < pendingCardChoice.RequiredCount)
+        {
+            errors.Add(
+                $"authoritative state pending card choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingCardChoice.RequiredCount}");
+        }
+
+        if (pendingCardChoice.ContextObjectIds.Count == 0)
+        {
+            errors.Add($"authoritative state pending card choice {choiceLabel} context object count is invalid");
         }
     }
 
@@ -27519,6 +27887,7 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateTriggerQueuePlayers(authoritativeState.TriggerQueue, seatPlayerIds, errors);
         ValidateAuthoritativeStatePendingPaymentPlayer(authoritativeState.PendingPayment, seatPlayerIds, errors);
         ValidateAuthoritativeStatePendingHandChoicePlayer(authoritativeState.PendingHandChoice, seatPlayerIds, errors);
+        ValidateAuthoritativeStatePendingCardChoicePlayer(authoritativeState.PendingCardChoice, seatPlayerIds, errors);
         ValidateAuthoritativeStateTemporaryPaymentResourcePlayers(
             authoritativeState.TemporaryPaymentResources,
             seatPlayerIds,
@@ -28435,6 +28804,30 @@ public static class MatchRecoveryValidator
             errors);
     }
 
+    private static void ValidateAuthoritativeStatePendingCardChoicePlayer(
+        PendingCardChoiceState? pendingCardChoice,
+        IReadOnlySet<string> seatPlayerIds,
+        List<string> errors)
+    {
+        if (pendingCardChoice is null)
+        {
+            return;
+        }
+
+        ValidateAuthoritativeStateRequiredObjectPlayer(
+            "pending card choice player",
+            pendingCardChoice.PlayerId,
+            seatPlayerIds,
+            errors);
+        var choiceLabel = string.IsNullOrWhiteSpace(pendingCardChoice.ChoiceId)
+            ? "<unknown>"
+            : pendingCardChoice.ChoiceId.Trim();
+        RejectAuthoritativeStateRedactionSentinel(
+            $"pending card choice {choiceLabel} player",
+            pendingCardChoice.PlayerId,
+            errors);
+    }
+
     private static void ValidateAuthoritativeStateTemporaryPaymentResourcePlayers(
         IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources,
         IReadOnlySet<string> seatPlayerIds,
@@ -28531,6 +28924,25 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} legal object",
                 authoritativeState.PendingHandChoice.LegalObjectIds,
+                knownObjectIds,
+                errors);
+        }
+
+        if (authoritativeState.PendingCardChoice is not null)
+        {
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+                $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} source object",
+                authoritativeState.PendingCardChoice.SourceObjectId,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
+                authoritativeState.PendingCardChoice.LegalObjectIds,
+                knownObjectIds,
+                errors);
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} context object",
+                authoritativeState.PendingCardChoice.ContextObjectIds,
                 knownObjectIds,
                 errors);
         }
@@ -29791,6 +30203,7 @@ public static class MatchRecoveryValidator
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorPendingCardChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorContinuousEffectPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorTriggerQueuePayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorTemporaryPaymentResourcePayloads(
