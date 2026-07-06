@@ -23,7 +23,9 @@ contracts change.
   non-room battle snapshots so the tabletop owns the combat viewport without
   blocking deck selection. In match-result mode, the right rail keeps the
   official-card preview, result panel, and prompt panel as three visible bands
-  so the black/ivory preview-prompt composition remains intact.
+  so the black/ivory preview-prompt composition remains intact. Result mode
+  also latches battle chrome visibility so stale room snapshots cannot restore
+  lobby controls before final screenshots are captured.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.

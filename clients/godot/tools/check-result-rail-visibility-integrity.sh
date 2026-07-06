@@ -24,6 +24,10 @@ require_pattern "SetRightRailMatchResultVisible\\(matchResultVisible: false\\)" 
   "ClearMatchResult must hide the right-rail result panel after leaving results"
 require_pattern "_resultFrame\\.Visible = matchResultVisible" \
   "match-result mode must own result-frame visibility"
+require_pattern "_matchFinished \\|\\| battleActive" \
+  "match-result mode must keep battle chrome locked even if a stale room snapshot applies later"
+require_pattern "_matchFinished && !battleActive" \
+  "match-result mode must ignore stale non-battle snapshot sections after the result is shown"
 
 if rg -q "_officialCardPreviewFrame\\.Visible = !matchResultVisible|_promptFrame\\.Visible = !matchResultVisible" "${main_cs}"; then
   fail "match-result mode must preserve the black/ivory right preview-prompt rail instead of blanking it"

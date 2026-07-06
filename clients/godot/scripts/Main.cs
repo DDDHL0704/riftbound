@@ -4085,7 +4085,13 @@ public partial class Main : Control
         }
 
         _lastSnapshotSections = sections;
-        SetBattleChromeVisible(HasWireTableSection(sections));
+        var battleActive = HasWireTableSection(sections);
+        SetBattleChromeVisible(_matchFinished || battleActive);
+        if (_matchFinished && !battleActive)
+        {
+            return;
+        }
+
         _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
     }
 

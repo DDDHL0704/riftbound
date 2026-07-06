@@ -10,7 +10,9 @@ resume from repository state instead of conversation history alone.
   infer legality, hidden identities, combat results, or win conditions locally.
 - `scripts/Main.cs` owns session setup, hub connection, lobby controls, prompt
   rendering/submission, smoke helpers, result rendering, and viewport screenshot
-  capture.
+  capture. Match-result mode latches battle chrome visibility so a stale
+  non-battle snapshot cannot reopen lobby/deck controls after the result panel
+  is shown.
 - `scripts/CardControlRenderer.cs` owns the visible table/card presentation:
   hand rows, opponent card backs, rune tracks, base/signature/standby/battlefield
   zones, card hover/click feedback, and prompt-source highlights.
@@ -187,6 +189,19 @@ resume from repository state instead of conversation history alone.
   black/ivory table no longer lets home columns expand into large side panels.
   It is regression evidence only because it is automated and not captured from
   clean pushed `main`.
+- Follow-up clean-main simulated run `/tmp/riftbound-layout-clean-160139`
+  exposed a result-screenshot race: Player B received `MATCH_WON`, but a stale
+  room snapshot could still restore lobby chrome before the screenshot, causing
+  the battle-layout screenshot guard to fail. `Main.ApplySnapshotSections` now
+  respects the match-finished latch when deciding battle chrome visibility and
+  ignores stale non-battle sections after the result is shown.
+- Latest local dirty-worktree result-latch verification:
+  `/tmp/riftbound-result-latch-161628` opened two visible Godot windows,
+  reached both result panels, passed the evidence checker, passed the inksteel
+  style guard, passed the battle-layout screenshot guard, and confirmed Player B
+  no longer captures a stale lobby/ROOM view after `MATCH_WON`. It is
+  regression evidence only because it is automated and not captured from clean
+  pushed `main`.
 
 ## Open Risks
 
