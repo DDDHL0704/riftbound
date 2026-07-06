@@ -98,10 +98,22 @@ resume from repository state instead of conversation history alone.
   to recover Codex Godot MCP proxy failures. It checks that
   `start-godot-mcp-primary.sh` supports status/start/stop/restart, uses
   detached `screen`, and documents the 6505/6506 bridge ports.
+- `clients/godot/tools/check-clean-main-human-session-launcher.sh` guards the
+  detached final P5 launcher so it still runs the final wrapper precheck, uses
+  `screen`, keeps final evidence gates enabled, tells operators how to attach,
+  and does not add smoke, no-wait, or auto-quit behavior.
 - Final P5 path: `clients/godot/tools/run-clean-main-human-playtest-stack.sh`
   must be run from a clean pushed `main`, with two human operators, manual
   confirmations, final result screenshots, evidence packaging, and package
   verification.
+- Detached final P5 launch path:
+  `clients/godot/tools/start-clean-main-human-playtest-session.sh` runs the
+  final wrapper precheck and then starts the same final clean-main human wrapper
+  inside a detached `screen` session. It preserves manual confirmations,
+  clean-git evidence, evidence packaging, package verification, and waiting for
+  both Godot windows; it only keeps Codex from holding the foreground terminal
+  while humans operate the windows. Operators must still attach to the screen
+  session and answer manual confirmations after checking result screenshots.
 - The final P5 wrapper supports `--precheck`; it validates final evidence gates
   and fetches `origin/main` without creating a worktree, opening Godot windows,
   or writing evidence. It also checks the configured Godot binary and local

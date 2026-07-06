@@ -89,6 +89,15 @@ contracts change.
   evidence directory before launching Godot so the operators have the room,
   player handles, redacted player key fingerprints, evidence/package paths, and
   final checklist outside terminal scrollback.
+- `start-clean-main-human-playtest-session.sh` is a convenience launcher for
+  that same final P5 path. It runs the final wrapper precheck, then starts the
+  unmodified clean-main human wrapper in a detached `screen` session while
+  preserving manual confirmations, clean-git evidence, packaging, package
+  verification, and `RIFTBOUND_WAIT=1`. Operators still need to attach with
+  `screen -r ...` after play to answer the manual confirmation prompts; detached
+  launch alone is not final P5 evidence.
+- `check-clean-main-human-session-launcher.sh` statically guards the detached
+  launcher so it cannot become an automated smoke or no-wait path.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
   information boundary log lines, the inksteel screenshot style guard, the
@@ -147,6 +156,8 @@ contracts change.
   `clients/godot/tools/check-result-rail-visibility-integrity.sh`
 - Godot MCP primary helper test:
   `clients/godot/tools/check-godot-mcp-primary-script.sh`
+- Detached final P5 launcher test:
+  `clients/godot/tools/check-clean-main-human-session-launcher.sh`
 - Clean simulated wrapper tests:
   `clients/godot/tools/check-clean-main-simulated-playtest-script.sh`
 - Shell syntax: `find clients/godot/tools -name '*.sh' -print0 | xargs -0 -n1 bash -n`

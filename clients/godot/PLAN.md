@@ -49,6 +49,11 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   reports `127.0.0.1:6506` connection failures. The helper keeps a primary
   `godot-mcp-server` in a detached `screen` session and is covered by
   `check-godot-mcp-primary-script.sh`.
+- Final P5 can also be launched through
+  `clients/godot/tools/start-clean-main-human-playtest-session.sh`, which runs
+  the final precheck and then starts the existing final clean-main wrapper in a
+  detached `screen` session without disabling manual confirmations, package
+  verification, clean-git evidence, or waiting for both Godot windows.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 
@@ -66,7 +71,11 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
      before both operators start, so final evidence gate and local
      Godot/.NET executable/output-path/custom-worktree/stale-local-API mistakes
      are caught without opening Godot windows;
-   - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh`;
+   - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh` directly
+     when Codex should wait in the foreground, or run
+     `clients/godot/tools/start-clean-main-human-playtest-session.sh` when the
+     two operators need a detached `screen` session and will attach later for
+     manual confirmations;
    - keep `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md` available during the
      run for the room, player handles, evidence/package paths, and final P5
      operator checklist;

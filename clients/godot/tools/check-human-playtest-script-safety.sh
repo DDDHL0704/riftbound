@@ -417,4 +417,6 @@ fi
 rg -q "existing.*local.*API|RIFTBOUND_SERVER|127\\.0\\.0\\.1:5088|5088" "${existing_local_api_output}" \
   || fail "clean-main human playtest precheck did not explain the existing local API rejection"
 
+"${script_dir}/check-clean-main-human-session-launcher.sh"
+
 echo "Human playtest script safety checks passed."
