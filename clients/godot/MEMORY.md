@@ -108,10 +108,11 @@ resume from repository state instead of conversation history alone.
   redacted player key fingerprints, evidence directory, package path, and
   hidden-information confirmation steps even if the terminal scrollback is lost.
 - P4 local deployment check has been validated from clean
-  `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`: Docker image
-  `riftbound-api:p4-docker-192252` built, Production memory-mode container
+  `origin/main@5c36f78ddb5a50a363b80276b3fa35515e0edd01`: Docker image
+  `riftbound-api:p4-docker-152848` built, Production memory-mode container
   returned `/health` OK, `/metrics` OK, Dev UI root HTML OK, and Docker
-  `HEALTHCHECK` reached `healthy`.
+  `HEALTHCHECK` reached `healthy`. The validation report is
+  `/tmp/riftbound-p4-docker-152848.report`.
 - The evidence checker now records the room id and both player handles from the
   Godot logs; final packages must prove the report and logs agree and that the
   two player identities are distinct. It also rejects raw evidence before manual

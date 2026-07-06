@@ -49,10 +49,10 @@ With no `ConnectionStrings__Riftbound`, identity and match result state use in-m
 
 Latest validated local deployment check:
 
-- Date: 2026-07-02.
-- Source revision: `origin/main@d73546b396a70e49f8b978e7f549c3618a12461c`.
-- Image tag: `riftbound-api:p4-docker-192252`.
-- Build: `docker build -t riftbound-api:p4-docker-192252 .` from a clean `origin/main` worktree.
+- Date: 2026-07-06.
+- Source revision: `origin/main@5c36f78ddb5a50a363b80276b3fa35515e0edd01`.
+- Image tag: `riftbound-api:p4-docker-152848`.
+- Build: `docker build -t riftbound-api:p4-docker-152848 .` from a clean `origin/main` worktree.
 - Runtime: container started in Production memory mode with configuration supplied through environment variables only.
 - Checks:
   - `GET /health` returned `status=ok`, `persistenceMode=memory`, `signalRScaleMode=single-instance`, and `configuredCorsOriginCount=1`.
