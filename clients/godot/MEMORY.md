@@ -47,7 +47,17 @@ resume from repository state instead of conversation history alone.
   feel like a stitched table instead of the selected black/ivory reference.
   The home rails are now fixed at a narrow width and use compact two-column
   home-card clusters, keeping the battlefield lanes as the visual center of the
-  combat table.
+  combat table. A later user visual review caught that the table could still
+  read as a black/ivory form grid: visible empty home spacers, large lane/site
+  text labels, stretchable card frames, stretchable empty sockets, and full-height
+  rail stack cells were drifting away from the selected reference layout. The
+  renderer now reserves alignment spacers invisibly, uses fixed-size cards and
+  sockets inside HBox containers, replaces lane/site labels with small glyph
+  markers, and keeps deck/rune/public piles as fixed card-sized stacks. Local
+  diagnostic evidence `/tmp/riftbound-layout-countstack-181702` opened two
+  visible Godot windows, reached both result panels, passed the inksteel and
+  battle-layout screenshot guards, and preserved hidden information boundaries;
+  it remains non-final because it used auto-smoke and a dirty worktree.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -90,7 +100,11 @@ resume from repository state instead of conversation history alone.
   reservation, compact table cards that stretch the black/ivory bands, or any
   wire-table implementation where the opponent play band, site divider, and self
   play band do not reserve the same side columns around aligned battlefield
-  lanes.
+  lanes. It also rejects the form-grid regression where empty home spacers are
+  visibly framed, battlefield sockets use large text labels, unit/site sockets
+  nest framed scroll containers, cards or empty slots stretch inside lane HBox
+  containers, or deck/rune/public pile controls expand into full-height rail
+  table cells.
 - `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
   behavior guard that keeps match-result mode from blanking the right-side card
   preview or prompt panel while showing the result panel.

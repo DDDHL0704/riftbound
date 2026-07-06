@@ -224,12 +224,12 @@ internal sealed class CardControlRenderer
 
     private Control WireHomeSpacer()
     {
-        return WireHomeColumnFrame(
-            new Control
-            {
-                CustomMinimumSize = new Vector2(WireHomeColumnWidth, 0),
-                SizeFlagsVertical = Control.SizeFlags.ExpandFill
-            });
+        return new Control
+        {
+            CustomMinimumSize = new Vector2(WireHomeColumnWidth, 0),
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
     }
 
     private static Control WireHomeColumnFrame(Control child)
@@ -326,9 +326,9 @@ internal sealed class CardControlRenderer
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
         var zoneSide = side == "self" ? "self" : "opponent";
-        column.AddChild(BandLabel($"战场 {LaneNumber(lane)} · {(side == "self" ? "我方单位" : "对手单位")}"));
+        column.AddChild(WireLaneMarker(lane, side));
         column.AddChild(WireUnitZone(lane, zoneSide));
-        return WireFrame(column, new Vector2(0, 0), surface: RunestoneSurface.Zone);
+        return WireFrame(column, new Vector2(0, 0), surface: RunestoneSurface.Slot);
     }
 
     private Control WireUnitZone(Godot.Collections.Dictionary lane, string side)
@@ -338,7 +338,8 @@ internal sealed class CardControlRenderer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
-        var units = WireCardFlow(
+        row.AddThemeConstantOverride("separation", 4);
+        var units = WireSocketFlow(
             Cards(lane, side == "self" ? "selfUnits" : "opponentUnits"),
             LaneUnitCardFrameSize,
             LaneUnitCardContentSize,
@@ -347,9 +348,9 @@ internal sealed class CardControlRenderer
         var standby = standbyCards.Count == 0
             ? null
             : WireFrame(
-                WireCardFlow(standbyCards, StandbyCardFrameSize, StandbyCardContentSize, minSlots: 0),
+                WireSocketFlow(standbyCards, StandbyCardFrameSize, StandbyCardContentSize, minSlots: 0),
                 new Vector2(52, 0),
-                surface: RunestoneSurface.Zone);
+                surface: RunestoneSurface.Slot);
 
         if (side == "self" && standby is not null)
         {
@@ -365,12 +366,21 @@ internal sealed class CardControlRenderer
             }
         }
 
-        return WireFrame(row, new Vector2(0, 0), surface: RunestoneSurface.Zone);
+        return row;
     }
 
     private Control WireSiteDivider(Godot.Collections.Array<Godot.Collections.Dictionary> lanes)
     {
-        var row = WireBattleLaneShell(WireHomeSpacer(), WireSiteGrid(lanes), WireHomeSpacer(), 98f);
+        var sites = new VBoxContainer
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        sites.AddThemeConstantOverride("separation", 3);
+        sites.AddChild(WireSiteMarker());
+        sites.AddChild(WireSiteGrid(lanes));
+
+        var row = WireBattleLaneShell(WireHomeSpacer(), sites, WireHomeSpacer(), 98f);
         return WireFrame(row, new Vector2(0, 102), surface: RunestoneSurface.Zone);
     }
 
@@ -393,18 +403,14 @@ internal sealed class CardControlRenderer
 
     private Control WireSiteSocket(Godot.Collections.Dictionary lane)
     {
-        var row = new HBoxContainer
+        var box = new VBoxContainer
         {
             CustomMinimumSize = new Vector2(220, 0),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
-        row.AddThemeConstantOverride("separation", 4);
-        var label = LabelNode($"战场 {LaneNumber(lane)}\n据点", new Vector2(54, 0));
-        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
-        row.AddChild(label);
-        row.AddChild(WireCardFlow(Cards(lane, "site"), BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
-        return WireFrame(row, new Vector2(0, 0), surface: RunestoneSurface.Stack);
+        box.AddChild(WireSocketFlow(Cards(lane, "site"), BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
+        return WireFrame(box, new Vector2(0, 0), surface: RunestoneSurface.Stack);
     }
 
     private Control WirePublicPile(Godot.Collections.Dictionary player, string key, string label)
@@ -412,10 +418,10 @@ internal sealed class CardControlRenderer
         var cards = Cards(player, key);
         if (cards.Count == 0)
         {
-            return WireFrame(EmptySlot(PileCardFrameSize), new Vector2(76, 0), surface: RunestoneSurface.Stack);
+            return EmptySlot(PileCardFrameSize);
         }
 
-        return WireFrame(CardNode(cards[^1], PileCardFrameSize, PileCardContentSize), new Vector2(76, 0), surface: RunestoneSurface.Stack);
+        return CardNode(cards[^1], PileCardFrameSize, PileCardContentSize);
     }
 
     private Control WireStack(string label, int count, Vector2 minSize)
@@ -427,14 +433,73 @@ internal sealed class CardControlRenderer
         };
         box.AddChild(LabelNode(label));
         box.AddChild(LabelNode(count.ToString()));
-        return WireFrame(box, minSize, surface: RunestoneSurface.Stack);
+        var frame = WireFrame(
+            box,
+            new Vector2(MathF.Max(minSize.X, PileCardFrameSize.X), MathF.Max(minSize.Y, PileCardFrameSize.Y)),
+            surface: RunestoneSurface.Stack);
+        frame.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        frame.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        return frame;
     }
 
-    private static Label BandLabel(string text)
+    private static Control WireLaneMarker(Godot.Collections.Dictionary lane, string side)
     {
-        var label = LabelNode(text, new Vector2(0, 18));
-        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
-        return label;
+        var marker = new HBoxContainer
+        {
+            CustomMinimumSize = new Vector2(0, 12),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        marker.AddThemeConstantOverride("separation", 4);
+        marker.AddChild(DecorLine());
+
+        var glyph = LabelNode(side == "self" ? "◇" : "◆", new Vector2(24, 0));
+        glyph.AddThemeColorOverride("font_color", side == "self" ? RunestoneTheme.Ivory : RunestoneTheme.BrassDim);
+        marker.AddChild(glyph);
+
+        var laneId = LabelNode(RomanLane(LaneNumber(lane)), new Vector2(22, 0));
+        laneId.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+        marker.AddChild(laneId);
+
+        marker.AddChild(DecorLine());
+        return marker;
+    }
+
+    private static Control WireSiteMarker()
+    {
+        var marker = new HBoxContainer
+        {
+            CustomMinimumSize = new Vector2(0, 12),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        marker.AddThemeConstantOverride("separation", 6);
+        marker.AddChild(DecorLine());
+
+        var left = LabelNode("◇", new Vector2(18, 0));
+        left.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        marker.AddChild(left);
+
+        var center = LabelNode("◆", new Vector2(18, 0));
+        center.AddThemeColorOverride("font_color", RunestoneTheme.Crimson);
+        marker.AddChild(center);
+
+        var right = LabelNode("◇", new Vector2(18, 0));
+        right.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
+        marker.AddChild(right);
+
+        marker.AddChild(DecorLine());
+        return marker;
+    }
+
+    private static Control DecorLine()
+    {
+        var line = new PanelContainer
+        {
+            CustomMinimumSize = new Vector2(0, 1),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter
+        };
+        line.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Slot));
+        return line;
     }
 
     private Control WireCardFlow(
@@ -464,6 +529,34 @@ internal sealed class CardControlRenderer
         return WireFrame(Scrollable(row), new Vector2(0, 0), surface: RunestoneSurface.Zone);
     }
 
+    private Control WireSocketFlow(
+        Godot.Collections.Array<Godot.Collections.Dictionary> cards,
+        Vector2 frameSize,
+        Vector2 contentSize,
+        int minSlots)
+    {
+        var row = new HBoxContainer
+        {
+            Alignment = BoxContainer.AlignmentMode.Center,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 4);
+
+        foreach (var card in cards)
+        {
+            row.AddChild(CardNode(card, frameSize, contentSize));
+        }
+
+        var emptySlots = cards.Count == 0 ? Math.Max(1, minSlots) : Math.Max(0, minSlots - cards.Count);
+        for (var index = 0; index < emptySlots; index++)
+        {
+            row.AddChild(EmptySlot(frameSize));
+        }
+
+        return row;
+    }
+
     private Control CardNode(
         Godot.Collections.Dictionary card,
         Vector2 frameSize,
@@ -487,6 +580,8 @@ internal sealed class CardControlRenderer
         }
 
         var frame = WireFrame(content, frameSize, borderWidth: promptSource ? 3 : 2, surface: promptSource ? RunestoneSurface.Result : surface);
+        frame.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        frame.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         AttachCardMotion(frame, frameSize, promptSource);
         frame.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
         frame.TooltipText = promptSource
@@ -583,12 +678,18 @@ internal sealed class CardControlRenderer
 
     private static Control EmptySlot(Vector2 size)
     {
-        return WireFrame(new Control { CustomMinimumSize = size }, size, surface: RunestoneSurface.Slot);
+        var slot = WireFrame(new Control { CustomMinimumSize = size }, size, surface: RunestoneSurface.Slot);
+        slot.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        slot.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        return slot;
     }
 
     private static Control BackCard(string label, Vector2 size)
     {
-        return WireFrame(CardBackContent(label, size), size, borderWidth: 2, surface: RunestoneSurface.CardBack);
+        var back = WireFrame(CardBackContent(label, size), size, borderWidth: 2, surface: RunestoneSurface.CardBack);
+        back.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        back.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        return back;
     }
 
     private static Control VisibleCardContent(
@@ -874,6 +975,17 @@ internal sealed class CardControlRenderer
     private static int LaneNumber(Godot.Collections.Dictionary lane)
     {
         return Count(lane, "index") + 1;
+    }
+
+    private static string RomanLane(int lane)
+    {
+        return lane switch
+        {
+            1 => "I",
+            2 => "II",
+            3 => "III",
+            _ => lane.ToString()
+        };
     }
 
     private static string CardStatsLine(Godot.Collections.Dictionary card)

@@ -176,6 +176,15 @@ if ! rg -q "private Control WireHomeSpacer" "${renderer_path}"; then
   fail "wire table must reserve matching empty home columns beside the centered battlefield lanes"
 fi
 
+if rg -q 'BandLabel\(\$"战场 \{LaneNumber\(lane\)\}' "${renderer_path}" \
+  || rg -q 'LabelNode\(\$"战场 \{LaneNumber\(lane\)\}\\n据点"' "${renderer_path}"; then
+  fail "wire battlefield must use card sockets and small markers, not large battle/site text labels"
+fi
+
+if ! rg -q "private Control WireSocketFlow" "${renderer_path}"; then
+  fail "wire battlefield needs a frameless socket flow so slots sit on the mat instead of inside nested form boxes"
+fi
+
 if rg -q "DividerLine\\(" "${renderer_path}"; then
   fail "wire site divider must share the battlefield lane columns instead of floating between detached divider lines"
 fi
@@ -207,6 +216,17 @@ if "WireHomeSpacer" not in play_band.group(0):
     raise AssertionError(
         "play bands must reserve the opposite home column so lane centers line up"
     )
+home_spacer = re.search(
+    r"private Control WireHomeSpacer\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if home_spacer is None:
+    raise AssertionError("WireHomeSpacer method is missing")
+if "WireHomeColumnFrame" in home_spacer.group(0):
+    raise AssertionError(
+        "empty home spacers must be invisible fixed-width reservations, not visible framed panels"
+    )
 if not re.search(r"WireBattleLaneShell\([\s\S]*?148f?\)", play_band.group(0)):
     raise AssertionError("play bands must give the aligned lane shell the full play-band height")
 
@@ -233,6 +253,10 @@ if "WireHomeSpacer" not in site_divider.group(0):
     raise AssertionError(
         "site divider must reserve both home columns so sites sit under battlefield lanes"
     )
+if "WireSiteMarker" not in site_divider.group(0):
+    raise AssertionError(
+        "site divider should keep only small center markers instead of large text labels"
+    )
 if not re.search(r"WireBattleLaneShell\([\s\S]*?98f?\)", site_divider.group(0)):
     raise AssertionError("site divider must give the aligned lane shell the compact divider height")
 
@@ -253,4 +277,58 @@ if unit_zone is None:
     raise AssertionError("WireUnitZone method is missing")
 if "LaneUnitCardFrameSize" not in unit_zone.group(0) or "LaneUnitCardContentSize" not in unit_zone.group(0):
     raise AssertionError("battlefield unit zones must use compact lane card sizes")
+if "WireSocketFlow" not in unit_zone.group(0):
+    raise AssertionError("battlefield unit zones must use frameless socket flow")
+
+public_pile = re.search(
+    r"private Control WirePublicPile\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if public_pile is None:
+    raise AssertionError("WirePublicPile method is missing")
+if "WireFrame(EmptySlot(PileCardFrameSize), new Vector2(76, 0)" in public_pile.group(0):
+    raise AssertionError("empty public piles must be fixed card sockets, not full-height rail table cells")
+
+wire_stack = re.search(
+    r"private Control WireStack\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if wire_stack is None:
+    raise AssertionError("WireStack method is missing")
+if "SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter" not in wire_stack.group(0):
+    raise AssertionError("deck and rune count stacks must stay fixed-size instead of expanding into table cells")
+
+card_node = re.search(
+    r"private Control CardNode\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if card_node is None:
+    raise AssertionError("CardNode method is missing")
+if "SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter" not in card_node.group(0):
+    raise AssertionError("visible card frames must be fixed-size sockets, not HBox-stretched panels")
+if "SizeFlagsVertical = Control.SizeFlags.ShrinkCenter" not in card_node.group(0):
+    raise AssertionError("visible card frames must keep their fixed card height inside wire sockets")
+
+empty_slot = re.search(
+    r"private static Control EmptySlot\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if empty_slot is None:
+    raise AssertionError("EmptySlot method is missing")
+if "SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter" not in empty_slot.group(0):
+    raise AssertionError("empty sockets must keep fixed card width instead of stretching across lanes")
+
+site_socket = re.search(
+    r"private Control WireSiteSocket\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if site_socket is None:
+    raise AssertionError("WireSiteSocket method is missing")
+if "WireCardFlow" in site_socket.group(0):
+    raise AssertionError("site sockets must not wrap the site card in an extra framed scroll container")
 PY

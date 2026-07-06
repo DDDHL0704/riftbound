@@ -123,8 +123,8 @@ internal static class RunestoneTheme
         {
             RunestoneSurface.Table => (new Color(0.012f, 0.012f, 0.011f, 0.76f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.64f), 3),
             RunestoneSurface.Rail => (new Color(0.018f, 0.018f, 0.017f, 0.76f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.34f), 2),
-            RunestoneSurface.Zone => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.075f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.48f), 2),
-            RunestoneSurface.Slot => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.04f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.36f), 2),
+            RunestoneSurface.Zone => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.04f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.46f), 2),
+            RunestoneSurface.Slot => (new Color(Ivory.R, Ivory.G, Ivory.B, 0.018f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.42f), 2),
             RunestoneSurface.Card => (new Color(0.052f, 0.05f, 0.046f, 0.98f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.58f), 4),
             RunestoneSurface.CardBack => (new Color(0.024f, 0.022f, 0.021f, 0.98f), new Color(Crimson.R, Crimson.G, Crimson.B, 0.72f), 4),
             RunestoneSurface.Stack => (new Color(0.016f, 0.016f, 0.015f, 0.78f), new Color(Ivory.R, Ivory.G, Ivory.B, 0.26f), 2),

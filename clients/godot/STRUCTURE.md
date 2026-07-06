@@ -54,7 +54,11 @@ contracts change.
   the same vertical lane. Those home columns are intentionally narrow fixed
   rails with compact two-column home-card clusters, which keeps the central
   battlefield lanes visually dominant instead of expanding into large empty
-  side panels. Opponent hidden hand information stays as card backs/counts only.
+  side panels. Empty home spacers are invisible, table card frames and empty
+  sockets keep fixed dimensions inside HBox containers, lane/site text labels
+  are reduced to small glyph markers, and deck/rune/public piles stay as fixed
+  card-sized stacks rather than expanding into form-like rail cells. Opponent
+  hidden hand information stays as card backs/counts only.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.
