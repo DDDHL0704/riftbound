@@ -9164,6 +9164,39 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesSeaMonsterHookActivatedAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var spec = Assert.Single(specs, candidate => string.Equals(candidate.CardNo, "OGN·242/298", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            spec.ActivatedAbilities,
+            candidate => string.Equals(
+                candidate.Kind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal));
+
+        Assert.Equal("支付{{1}}和{{黄色}}，{{横置}}", ability.CostText);
+        Assert.Contains("摧毁一名友方单位", ability.EffectText, StringComparison.Ordinal);
+        Assert.Contains("查看主牌堆顶部的五张牌", ability.EffectText, StringComparison.Ordinal);
+        Assert.True(ability.ExhaustsSourceAsCost);
+        Assert.True(ability.RequiresBaseEquipmentSource);
+        Assert.Equal(1, ability.ManaCost);
+        Assert.Equal(1, ability.PowerCost);
+        Assert.Equal(RuneTrait.Yellow, ability.PowerCostTrait);
+        Assert.Equal(1, ability.RequiredTargetCount);
+        Assert.Equal(CardTargetScopes.FriendlyUnit, ability.TargetScope);
+        Assert.Equal(5, ability.MainDeckLookCount);
+        Assert.Equal(1, ability.PlayPowerDelta);
+        Assert.True(ability.IgnorePlayManaCost);
+        Assert.True(ability.RecycleUnplayedLookedCards);
+        Assert.Equal(CardObjectTags.UnitCard, ability.PlayCardFilter);
+        Assert.Contains(BehaviorTemplateIds.Destroy, ability.TemplateIds);
+        Assert.Contains(BehaviorTemplateIds.Recycle, ability.TemplateIds);
+    }
+
+    [Fact]
     public async Task OfficialArmamentEquipmentRegistryDefinitionsCarryWeaponSourceTag()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

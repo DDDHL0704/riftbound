@@ -11227,6 +11227,29 @@ internal static class ActionPromptBuilder
             };
         }
 
+        if (string.Equals(
+                ability.Kind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal))
+        {
+            var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
+                ? zones.Base
+                    .Concat(zones.Battlefields)
+                    .Distinct(StringComparer.Ordinal)
+                    .Where(objectId => IsPromptDestroyFriendlyUnitActivatedAbilityTarget(
+                        state,
+                        playerId,
+                        sourceObjectId,
+                        objectId))
+                    .Select(objectId => ObjectChoice(state, objectId, "friendly unit target"))
+                    .ToArray()
+                : [];
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             var choices = state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -11505,6 +11528,27 @@ internal static class ActionPromptBuilder
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
+    }
+
+    private static bool IsPromptDestroyFriendlyUnitActivatedAbilityTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string objectId)
+    {
+        return !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && !cardObject.IsFaceDown
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && (zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool CanPayXerathTargetCost(
@@ -12100,6 +12144,11 @@ internal static class ActionPromptBuilder
                         ? "敌方控制且敌方单位战力较低的战场"
                     : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal)
                         ? "友方单位或装备（成本）"
+                    : string.Equals(
+                        ability.Kind,
+                        ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                        StringComparison.Ordinal)
+                        ? "友方单位"
                         : "服务端目标";
     }
 

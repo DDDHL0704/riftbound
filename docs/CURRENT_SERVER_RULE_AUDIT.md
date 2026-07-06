@@ -2548,6 +2548,16 @@
 - 本批只关闭 Giant Arm Kato ordinary hand play-unit keyword-tag target guard representative evidence。
 - 不关闭 Spellshield target tax、move-to-battlefield trigger、friendly-unit choice / prompt、keyword grant、+power until EOT、LayerEngine / duration cleanup、movement / control matrix、FAQ、1009/811 full-official 或 final 18-step E2E。
 
+## 2026-07-06 Plan B Sea Monster Hook Activated Ability 审计
+
+审计入口：`docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_AUDIT.md`；证据入口：`docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_EVIDENCE.md`。本批已补 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / `FU-2653af0380` activated ability representative runtime：BehaviorSpec 解析官方文本，P4 catalog 派生 ability row，prompt 暴露己方基地公开未横置装备来源与友方公开单位目标，支付 1 法力 + 1 黄色符能并横置来源，pass-pass 后摧毁目标、私下查看五张、在唯一合法单位时免费打到基地并回收其余牌。项目仍 **NOT READY**，`fullOfficial=false`。
+
+- Scope：`ACTIVATE_ABILITY` open-main source/cost/target -> stack -> pass-pass -> destroy / unique free-play / recycle-rest representative。
+- Hidden-info：官方“查看”不生成 public `CARDS_REVEALED`；`CARDS_RECYCLED` 只公开 count / source / zone，不公开 looked `cardIds`。
+- B slice 为 BehaviorSpec-driven runtime + focused conformance；不新增 Sea Monster card-number runtime patch。
+- 本批只关闭唯一合法可打出单位代表路径。
+- 不关闭多合法单位 controller-only choice prompt、完整可选选择、FAQ adjudication、完整 hidden-zone UX、complete PaymentEngine / card matrix、P0/P1 或 READY。
+
 ## 2026-05-10 阶段 4C-40 Sea Monster Hook Play Guard 审计
 
 阶段 4C-40 审计入口：`docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH40_SEA_MONSTER_HOOK_PLAY_GUARD_EVIDENCE.md`。本批已补 Sea Monster Hook / 海兽钓钩 `OGN·242/298` / cardId `31482` / `FU-2653af0380` / `SEA_MONSTER_HOOK_PLAY_EQUIPMENT` 的 play-equipment target guard representative baseline。项目仍 **NOT READY**，`fullOfficial=false`。

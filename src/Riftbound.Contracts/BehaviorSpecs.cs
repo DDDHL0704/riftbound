@@ -38,6 +38,8 @@ public static class BehaviorTemplateIds
 public static class ActivatedAbilityKinds
 {
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
+    public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
+        "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
 }
 
 public static class BehaviorEffectConditionKinds
@@ -576,7 +578,19 @@ public sealed record ActivatedAbilitySpec(
     bool? IsResourceSkill = null,
     bool? PaymentOnlyResource = null,
     string? GeneratedPowerTrait = null,
-    int? GeneratedPower = null);
+    int? GeneratedPower = null,
+    int? ManaCost = null,
+    int? PowerCost = null,
+    string? PowerCostTrait = null,
+    int? RequiredTargetCount = null,
+    string? TargetScope = null,
+    bool? RequiresBaseEquipmentSource = null,
+    bool? RequiresBattlefieldSource = null,
+    int? MainDeckLookCount = null,
+    int? PlayPowerDelta = null,
+    bool? IgnorePlayManaCost = null,
+    bool? RecycleUnplayedLookedCards = null,
+    string? PlayCardFilter = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

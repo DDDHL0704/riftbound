@@ -2176,7 +2176,7 @@ public static class ActivatedAbilityParser
 
     public static IReadOnlyList<ActivatedAbilitySpec> Parse(string text)
     {
-        return TargetParser.SplitRulesText(text)
+        return SplitActivatedAbilitySegments(text)
             .Where(segment => segment.Contains("：", StringComparison.Ordinal)
                 || segment.Contains(":", StringComparison.Ordinal))
             .Select(segment =>
@@ -2189,6 +2189,14 @@ public static class ActivatedAbilityParser
                     return typedResourceSkill;
                 }
 
+                if (TryParseDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest(
+                        cost,
+                        effect,
+                        out var destroyFriendlyUnitLookTopPlay))
+                {
+                    return destroyFriendlyUnitLookTopPlay;
+                }
+
                 return new ActivatedAbilitySpec(
                     cost,
                     effect,
@@ -2197,6 +2205,38 @@ public static class ActivatedAbilityParser
                     "Activated ability parsed for P3 routing only; execution remains unimplemented.");
             })
             .ToArray();
+    }
+
+    private static IReadOnlyList<string> SplitActivatedAbilitySegments(string text)
+    {
+        var segments = new List<string>();
+        var currentActivatedAbility = string.Empty;
+        foreach (var segment in TargetParser.SplitRulesText(text))
+        {
+            if (segment.Contains("：", StringComparison.Ordinal)
+                || segment.Contains(":", StringComparison.Ordinal))
+            {
+                if (!string.IsNullOrWhiteSpace(currentActivatedAbility))
+                {
+                    segments.Add(currentActivatedAbility);
+                }
+
+                currentActivatedAbility = segment;
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentActivatedAbility))
+            {
+                currentActivatedAbility = $"{currentActivatedAbility}。{segment}";
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(currentActivatedAbility))
+        {
+            segments.Add(currentActivatedAbility);
+        }
+
+        return segments;
     }
 
     private static bool TryParseTypedResourceSkill(
@@ -2229,6 +2269,50 @@ public static class ActivatedAbilityParser
             PaymentOnlyResource: true,
             GeneratedPowerTrait: trait,
             GeneratedPower: 1);
+        return true;
+    }
+
+    private static bool TryParseDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest(
+        string cost,
+        string effect,
+        out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var costMatch = Regex.Match(
+            cost,
+            @"^支付\{\{(?<mana>\d+)\}\}和\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}，\{\{横置\}\}$",
+            RegexOptions.CultureInvariant);
+        if (!costMatch.Success
+            || !int.TryParse(costMatch.Groups["mana"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var manaCost)
+            || !ResourceTraitByChineseColor.TryGetValue(costMatch.Groups["trait"].Value, out var trait)
+            || !effect.Contains("摧毁一名友方单位", StringComparison.Ordinal)
+            || !effect.Contains("查看主牌堆顶部的五张牌", StringComparison.Ordinal)
+            || !effect.Contains("战力比被摧毁单位最多高1点", StringComparison.Ordinal)
+            || !effect.Contains("无视费用", StringComparison.Ordinal)
+            || !effect.Contains("回收其余", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        ability = new ActivatedAbilitySpec(
+            cost,
+            effect,
+            EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Unimplemented,
+            "Destroy-friendly-unit top-deck play activated ability parsed for BehaviorSpec-driven P4 routing.",
+            Kind: ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+            ExhaustsSourceAsCost: true,
+            ManaCost: manaCost,
+            PowerCost: 1,
+            PowerCostTrait: trait,
+            RequiredTargetCount: 1,
+            TargetScope: "FRIENDLY_UNIT",
+            RequiresBaseEquipmentSource: true,
+            MainDeckLookCount: 5,
+            PlayPowerDelta: 1,
+            IgnorePlayManaCost: true,
+            RecycleUnplayedLookedCards: true,
+            PlayCardFilter: "CARD_TYPE:UNIT");
         return true;
     }
 }

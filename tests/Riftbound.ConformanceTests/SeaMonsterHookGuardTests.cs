@@ -8,6 +8,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class SeaMonsterHookGuardTests
 {
     private const string SeaMonsterHookObjectId = "P1-EQUIPMENT-SEA-MONSTER-HOOK";
+    private const string SeaMonsterHookBaseObjectId = "P1-BASE-SEA-MONSTER-HOOK";
     private const string SeaMonsterHookCardNo = "OGN·242/298";
     private const string SeaMonsterHookEffectKind = "SEA_MONSTER_HOOK_PLAY_EQUIPMENT";
 
@@ -335,6 +336,132 @@ public sealed class SeaMonsterHookGuardTests
             || string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void SeaMonsterHookActivatedAbilityPromptIsBehaviorSpecDriven()
+    {
+        var ability = SeaMonsterHookActivatedAbility();
+        var state = BuildSeaMonsterHookActivatedAbilityState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Contains(activateCandidate.Sources ?? [], source => string.Equals(source.Id, SeaMonsterHookBaseObjectId, StringComparison.Ordinal));
+        var targetIds = (activateCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Contains("P1-TARGET-UNIT", targetIds);
+        Assert.DoesNotContain(SeaMonsterHookBaseObjectId, targetIds);
+        Assert.DoesNotContain("P1-OTHER-EQUIPMENT", targetIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(activateCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            rawSourceRequirements);
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, SeaMonsterHookBaseObjectId, StringComparison.Ordinal)
+                && string.Equals(requirement["abilityId"] as string, ability.AbilityId, StringComparison.Ordinal));
+        Assert.Equal(SeaMonsterHookCardNo, sourceRequirement["cardNo"]);
+        Assert.Equal(1, sourceRequirement["manaCost"]);
+        Assert.Equal(1, sourceRequirement["minTargetCount"]);
+        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        Assert.True((bool)sourceRequirement["exhaustsSource"]!);
+        var powerCostByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["powerCostByTrait"]);
+        Assert.Equal(1, powerCostByTrait[RuneTrait.Yellow]);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var targetChoices = Assert.Single(targetChoicesByIndex);
+        Assert.Equal("0", targetChoices.Key);
+        Assert.Contains(targetChoices.Value, choice => string.Equals(choice.Id, "P1-TARGET-UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(targetChoices.Value, choice => string.Equals(choice.Id, SeaMonsterHookBaseObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(targetChoices.Value, choice => string.Equals(choice.Id, "P1-OTHER-EQUIPMENT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest()
+    {
+        var engine = new CoreRuleEngine();
+        var ability = SeaMonsterHookActivatedAbility();
+        var state = BuildSeaMonsterHookActivatedAbilityState();
+
+        var activated = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-sea-monster-hook-activate", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                SeaMonsterHookBaseObjectId,
+                ability.AbilityId,
+                ["P1-TARGET-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(1, activated.State.Tick);
+        Assert.Equal(RunePool.Empty, activated.State.RunePools["P1"]);
+        Assert.True(activated.State.CardObjects[SeaMonsterHookBaseObjectId].IsExhausted);
+        Assert.Contains("P1-TARGET-UNIT", activated.State.PlayerZones["P1"].Base);
+        var stackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(SeaMonsterHookBaseObjectId, stackItem.SourceObjectId);
+        Assert.Equal(ability.EffectKind, stackItem.EffectKind);
+        Assert.Equal(["P1-TARGET-UNIT"], stackItem.TargetObjectIds);
+        Assert.Contains(activated.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SeaMonsterHookBaseObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, ability.AbilityId, StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, ability.AbilityId, StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SeaMonsterHookBaseObjectId, StringComparison.Ordinal));
+
+        var p1Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-sea-monster-hook-activate-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-sea-monster-hook-activate-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(
+            [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT", "P1-ELIGIBLE-UNIT"],
+            p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-TARGET-UNIT"));
+        Assert.True(p2Pass.State.CardObjects[SeaMonsterHookBaseObjectId].IsExhausted);
+        Assert.False(p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].IsExhausted);
+        Assert.Equal("P1", p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].ControllerId);
+        Assert.Equal("P1-DECK-KEEP", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.DoesNotContain("P1-ELIGIBLE-UNIT", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-INELIGIBLE-UNIT", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-SPELL", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-EQUIPMENT", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-RUNE", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1"], p2Pass.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-ELIGIBLE-UNIT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceZone"] as string, "MAIN_DECK", StringComparison.Ordinal));
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal(4, recycleEvent.Payload["count"]);
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
+    }
+
     private static async Task<ResolutionResult> PlaySeaMonsterHookAsync(
         CoreRuleEngine engine,
         MatchState state,
@@ -544,6 +671,119 @@ public sealed class SeaMonsterHookGuardTests
             tags: tags ?? [CardObjectTags.EquipmentCard],
             ownerId: ownerId,
             controllerId: controllerId);
+    }
+
+    private static P4ActivatedAbilityDefinition SeaMonsterHookActivatedAbility()
+    {
+        return Assert.Single(
+            P4ActivatedAbilityCatalog.GetAll(),
+            ability => string.Equals(ability.SourceCardNo, SeaMonsterHookCardNo, StringComparison.Ordinal)
+                && string.Equals(
+                    ability.Kind,
+                    ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                    StringComparison.Ordinal));
+    }
+
+    private static MatchState BuildSeaMonsterHookActivatedAbilityState()
+    {
+        return new MatchState(
+            roomId: "sea-monster-hook-activated-ability-test",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Yellow] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P1-ELIGIBLE-UNIT",
+                        "P1-INELIGIBLE-UNIT",
+                        "P1-TOP-SPELL",
+                        "P1-TOP-EQUIPMENT",
+                        "P1-TOP-RUNE",
+                        "P1-DECK-KEEP"
+                    ],
+                    Base =
+                    [
+                        SeaMonsterHookBaseObjectId,
+                        "P1-TARGET-UNIT",
+                        "P1-OTHER-EQUIPMENT"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [SeaMonsterHookBaseObjectId] = SeaMonsterHook(SeaMonsterHookBaseObjectId),
+                ["P1-TARGET-UNIT"] = Unit("P1-TARGET-UNIT", "SFD·125/221", power: 3),
+                ["P1-OTHER-EQUIPMENT"] = Equipment("P1-OTHER-EQUIPMENT", "OGN·077/298"),
+                ["P1-ELIGIBLE-UNIT"] = Unit("P1-ELIGIBLE-UNIT", "SFD·020/221", power: 4),
+                ["P1-INELIGIBLE-UNIT"] = Unit("P1-INELIGIBLE-UNIT", "SFD·148/221", power: 5),
+                ["P1-TOP-SPELL"] = Spell("P1-TOP-SPELL", "SFD·087/221"),
+                ["P1-TOP-EQUIPMENT"] = Equipment("P1-TOP-EQUIPMENT", "OGN·077/298"),
+                ["P1-TOP-RUNE"] = Rune("P1-TOP-RUNE", "SFD·238/221"),
+                ["P1-DECK-KEEP"] = Unit("P1-DECK-KEEP", "SFD·125/221", power: 2)
+            });
+    }
+
+    private static CardObjectState Unit(string objectId, string cardNo, int power)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: cardNo,
+            power: power,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState Equipment(string objectId, string cardNo)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: cardNo,
+            tags: [CardObjectTags.EquipmentCard],
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState Spell(string objectId, string cardNo)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: cardNo,
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState Rune(string objectId, string cardNo)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: cardNo,
+            tags: [CardObjectTags.RuneCard],
+            ownerId: "P1",
+            controllerId: "P1");
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

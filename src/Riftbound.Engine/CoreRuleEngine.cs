@@ -7875,6 +7875,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveEzrealBlueSwiftMoveAbility(state, intent, command, ability);
         }
 
+        if (string.Equals(
+                ability.Kind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal))
+        {
+            return ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestAbility(state, intent, command, ability);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -8129,6 +8137,350 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingTaskQueue.IsBlocking
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "启动技能只能在当前玩家的开放主阶段提交。",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (targetObjectIds.Count != ability.RequiredTargetCount
+            || targetObjectIds.Count != 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该技能需要且只能选择 1 名友方单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractInlinePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds,
+                out var temporaryPaymentResourceActions)
+            || behaviorOptionalCosts.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该技能不接受额外费用。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestSource(
+                state,
+                intent.PlayerId,
+                command.SourceObjectId,
+                ability,
+                out var sourceState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "启动技能来源必须是当前玩家基地中未横置的公开装备。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                command.SourceObjectId,
+                targetObjectIds[0]))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该技能目标必须是友方公开单位。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
+            ? existingPool
+            : RunePool.Empty;
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                ability.PowerCost,
+                powerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "该技能不需要回收符文支付资源动作。",
+                ErrorCodes.InvalidTarget);
+        }
+
+        const string paymentWindow = "ACTIVATE_ABILITY";
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            paymentWindow,
+            intent.PlayerId,
+            command.SourceObjectId,
+            command.AbilityId);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            paymentWindow,
+            intent.PlayerId,
+            baseManaCost: ability.ManaCost,
+            totalManaCost: ability.ManaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost + powerCostByTrait.Values.Sum(),
+            powerCostByTrait: powerCostByTrait,
+            paymentResourceActionIds: paymentResourceActions,
+            reason: ability.EffectKind,
+            sourceObjectId: command.SourceObjectId,
+            abilityId: command.AbilityId,
+            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+                ["powerCostByTrait"] = powerCostByTrait
+            });
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            paymentWindow,
+            paymentId);
+        var inlineTemporaryPayment = BuildInlineTemporaryPaymentWindow(
+            paymentPlan.PaymentId,
+            paymentPlan.PaymentWindow,
+            intent.PlayerId,
+            ability.PowerCost,
+            powerCostByTrait,
+            ability.EffectKind,
+            paymentResourceActions);
+        if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
+                state,
+                inlineTemporaryPayment,
+                temporaryPaymentResourceActions,
+                runePools,
+                out var temporaryAdjustedRunePools,
+                out var nextTemporaryPaymentResources,
+                out var consumedTemporaryPaymentResources,
+                out var temporaryResourceRejection))
+        {
+            return RejectWithCorePrompts(
+                state,
+                temporaryResourceRejection,
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = temporaryAdjustedRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
+            ? paymentAdjustedPool
+            : RunePool.Empty;
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            adjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动该技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentCommit = PaymentCostRules.TryCommitPayment(
+            paymentPlan,
+            runePools,
+            state.PlayerExperience);
+        if (!paymentCommit.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "资源不足，无法启动该技能。",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = paymentCommit.PlayerExperience;
+        if (ability.ExhaustsSourceAsCost)
+        {
+            cardObjects[command.SourceObjectId] = sourceState with
+            {
+                IsExhausted = true
+            };
+        }
+
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ability.EffectKind,
+            sourceState.CardNo ?? ability.SourceCardNo,
+            targetObjectIds,
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerExperience = playerExperience,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
+            TemporaryPaymentResources = nextTemporaryPaymentResources,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>(paymentEvents);
+        events.AddRange(BuildTemporaryPaymentResourcePaymentEvents(
+            inlineTemporaryPayment,
+            intent.PlayerId,
+            consumedTemporaryPaymentResources));
+        events.Add(new GameEvent(
+            "ABILITY_ACTIVATED",
+            $"{intent.PlayerId} 激活{ability.DisplayName}技能",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["sourceObjectId"] = command.SourceObjectId,
+                ["abilityId"] = command.AbilityId,
+                ["effectKind"] = ability.EffectKind,
+                ["targetObjectIds"] = targetObjectIds.ToArray()
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{intent.PlayerId} 支付{ability.DisplayName}技能费用",
+            PaymentCostRules.BuildCostPaidPayload(
+                paymentPlan,
+                runePools,
+                playerExperience,
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = ability.ManaCost,
+                    ["power"] = ability.PowerCost,
+                    ["powerByTrait"] = powerCostByTrait,
+                    ["abilityId"] = command.AbilityId,
+                    ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
+                        .Select(resource => resource.ResourceId)
+                        .ToArray(),
+                    ["temporaryPaymentResourcePower"] = consumedTemporaryPaymentResources
+                        .Sum(resource => resource.ConsumedPower)
+                })));
+        if (ability.ExhaustsSourceAsCost)
+        {
+            events.Add(new GameEvent(
+                "UNIT_EXHAUSTED",
+                $"{ability.DisplayName}横置支付技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true
+                }));
+        }
+
+        events.Add(new GameEvent(
+            "STACK_ITEM_ADDED",
+            $"{ability.DisplayName}技能加入结算链",
+            new Dictionary<string, object?>
+            {
+                ["stackItemId"] = stackItem.StackItemId,
+                ["controllerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardNo"] = stackItem.CardNo,
+                ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                ["effectKind"] = stackItem.EffectKind,
+                ["abilityId"] = command.AbilityId
+            }));
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        P4ActivatedAbilityDefinition ability,
+        out CardObjectState sourceState)
+    {
+        sourceState = new CardObjectState();
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
+            || candidate.IsFaceDown
+            || string.IsNullOrWhiteSpace(candidate.CardNo)
+            || !candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
+            || ability.RequiresBaseEquipmentSource && !IsControlledBaseObject(state, playerId, sourceObjectId)
+            || ability.RequiresBattlefieldSource && !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
+            || ability.ExhaustsSourceAsCost && candidate.IsExhausted)
+        {
+            return false;
+        }
+
+        sourceState = candidate;
+        return true;
+    }
+
+    private static bool IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || targetState.IsFaceDown
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+            || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
     }
 
     private static ResolutionResult ResolveRenataGlascDrawAbility(
@@ -36556,6 +36908,179 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                                                             : "battlefield unit";
     }
 
+    private static StackResolutionResult ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestStackItem(
+        MatchState state,
+        StackItemState stackItem,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (stackItem.TargetObjectIds.Count != 1
+            || !IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(
+                state.PlayerZones,
+                state.CardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.TargetObjectIds[0]))
+        {
+            return NoopStackResolutionResult(state);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = NormalizeExperienceForSeats(state);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        var destroyedUnitOwnerIds = new List<string>();
+        var rngCursor = state.RngCursor;
+        var targetObjectId = stackItem.TargetObjectIds[0];
+        var destroyedPower = cardObjects.TryGetValue(targetObjectId, out var targetState)
+            ? Math.Max(0, targetState.Power)
+            : 0;
+
+        if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
+        {
+            return NoopStackResolutionResult(state);
+        }
+
+        events.Add(BuildFieldRemovalEvent(ability.DisplayName, stackItem, targetObjectId, removalResult));
+        if (removalResult.WasDestroyed
+            && removalResult.WasUnit
+            && !string.IsNullOrWhiteSpace(removalResult.OwnerPlayerId))
+        {
+            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+        }
+
+        if (playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            var lookCount = Math.Max(0, ability.MainDeckLookCount);
+            var viewedObjectIds = zones.MainDeck.Take(lookCount).ToArray();
+            var maxPlayablePower = destroyedPower + Math.Max(0, ability.PlayPowerDelta);
+            var eligibleObjectIds = viewedObjectIds
+                .Where(objectId => ability.IgnorePlayManaCost
+                    && string.Equals(ability.PlayCardFilter, CardObjectTags.UnitCard, StringComparison.Ordinal)
+                    && cardObjects.TryGetValue(objectId, out var cardObject)
+                    && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                    && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+                    && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+                    && Math.Max(0, cardObject.Power) <= maxPlayablePower)
+                .ToArray();
+            var selectedObjectId = eligibleObjectIds.Length == 1
+                ? eligibleObjectIds[0]
+                : string.Empty;
+            var recycledObjectIds = viewedObjectIds
+                .Where(objectId => !string.Equals(objectId, selectedObjectId, StringComparison.Ordinal))
+                .ToArray();
+            var randomizedRecycledObjectIds = ability.RecycleUnplayedLookedCards
+                ? RandomizeForMainDeckBottom(
+                    recycledObjectIds,
+                    state.Seed,
+                    rngCursor,
+                    stackItem.SourceObjectId)
+                : [];
+            if (ability.RecycleUnplayedLookedCards
+                && recycledObjectIds.Length > 1)
+            {
+                rngCursor++;
+            }
+
+            var viewedSet = viewedObjectIds.ToHashSet(StringComparer.Ordinal);
+            playerZones[stackItem.ControllerId] = zones with
+            {
+                MainDeck = zones.MainDeck
+                    .Where(objectId => !viewedSet.Contains(objectId))
+                    .Concat(randomizedRecycledObjectIds)
+                    .ToArray()
+            };
+
+            if (!string.IsNullOrWhiteSpace(selectedObjectId)
+                && TryPutSelectedMainDeckUnitToBase(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    selectedObjectId,
+                    out var selectedState))
+            {
+                cardObjects[selectedObjectId] = selectedState with
+                {
+                    OwnerId = string.IsNullOrWhiteSpace(selectedState.OwnerId)
+                        ? stackItem.ControllerId
+                        : selectedState.OwnerId,
+                    ControllerId = stackItem.ControllerId
+                };
+                events.Add(new GameEvent(
+                    "UNIT_PLAYED_TO_BASE",
+                    $"{stackItem.ControllerId} 打出查看的单位到基地",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = selectedObjectId,
+                        ["ownerPlayerId"] = stackItem.ControllerId,
+                        ["playedByPlayerId"] = stackItem.ControllerId,
+                        ["sourceZone"] = "MAIN_DECK",
+                        ["destinationZone"] = "BASE",
+                        ["ignoreManaCost"] = ability.IgnorePlayManaCost
+                    }));
+            }
+
+            if (randomizedRecycledObjectIds.Count > 0)
+            {
+                events.Add(new GameEvent(
+                    "CARDS_RECYCLED",
+                    $"{stackItem.ControllerId} 回收 {randomizedRecycledObjectIds.Count} 张查看的牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["count"] = randomizedRecycledObjectIds.Count,
+                        ["zone"] = "MAIN_DECK",
+                        ["visibility"] = "LOOKED_NOT_REVEALED"
+                    }));
+            }
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            playerExperience,
+            runePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            destroyedUnitOwnerIds
+                .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                .ToArray(),
+            null,
+            [],
+            null,
+            [],
+            rngCursor,
+            ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, playerZones));
+    }
+
+    private static StackResolutionResult NoopStackResolutionResult(MatchState state)
+    {
+        return new StackResolutionResult(
+            state.PlayerZones,
+            state.CardObjects,
+            state.PlayerScores,
+            state.PlayerExperience,
+            state.RunePools,
+            state.UntilEndOfTurnEffects,
+            null,
+            [],
+            [],
+            null,
+            [],
+            null,
+            [],
+            state.RngCursor);
+    }
+
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
@@ -36672,6 +37197,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
+        }
+
+        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var activatedAbility)
+            && string.Equals(
+                activatedAbility.Kind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal))
+        {
+            return ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestStackItem(
+                state,
+                stackItem,
+                activatedAbility);
         }
 
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior))

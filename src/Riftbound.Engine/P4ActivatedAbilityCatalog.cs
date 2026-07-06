@@ -26,7 +26,14 @@ public sealed record P4ActivatedAbilityDefinition(
     IReadOnlyDictionary<string, int>? PowerCostByTrait = null,
     int ExperienceCost = 0,
     bool RequiresBaseEquipmentSource = false,
-    IReadOnlyDictionary<string, int>? GeneratedPowerByTrait = null);
+    IReadOnlyDictionary<string, int>? GeneratedPowerByTrait = null,
+    string Kind = "",
+    string TargetScope = "",
+    int MainDeckLookCount = 0,
+    int PlayPowerDelta = 0,
+    bool IgnorePlayManaCost = false,
+    bool RecycleUnplayedLookedCards = false,
+    string PlayCardFilter = "");
 
 public sealed record P4DeferredActivatedAbilitySurface(
     string AbilityId,
@@ -602,6 +609,9 @@ public static class P4ActivatedAbilityCatalog
         .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
     ];
 
+    private static readonly Lazy<IReadOnlyList<P4ActivatedAbilityDefinition>> BehaviorSpecActivatedAbilityDefinitions =
+        new(BuildBehaviorSpecActivatedAbilityDefinitions, LazyThreadSafetyMode.ExecutionAndPublication);
+
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
 
@@ -611,7 +621,9 @@ public static class P4ActivatedAbilityCatalog
 
     public static IReadOnlyList<P4ActivatedAbilityDefinition> GetAll()
     {
-        return Definitions;
+        return Definitions
+            .Concat(BehaviorSpecActivatedAbilityDefinitions.Value)
+            .ToArray();
     }
 
     public static IReadOnlyList<P4DeferredActivatedAbilitySurface> GetDeferredSurfaces()
@@ -623,7 +635,7 @@ public static class P4ActivatedAbilityCatalog
         string abilityId,
         out P4ActivatedAbilityDefinition definition)
     {
-        definition = Definitions.FirstOrDefault(candidate => string.Equals(
+        definition = GetAll().FirstOrDefault(candidate => string.Equals(
             candidate.AbilityId,
             abilityId,
             StringComparison.Ordinal))!;
@@ -634,7 +646,7 @@ public static class P4ActivatedAbilityCatalog
         string effectKind,
         out P4ActivatedAbilityDefinition definition)
     {
-        definition = Definitions.FirstOrDefault(candidate => string.Equals(
+        definition = GetAll().FirstOrDefault(candidate => string.Equals(
             candidate.EffectKind,
             effectKind,
             StringComparison.Ordinal))!;
@@ -827,6 +839,91 @@ public static class P4ActivatedAbilityCatalog
             .ToArray();
     }
 
+    private static IReadOnlyList<P4ActivatedAbilityDefinition> BuildBehaviorSpecActivatedAbilityDefinitions()
+    {
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var behaviors = CardBehaviorRegistry.GetAll()
+            .Select(behavior => new ImplementedCardBehavior(
+                behavior.CardNo,
+                behavior.EffectKind,
+                behavior.DisplayName))
+            .ToArray();
+        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
+            catalog.Cards,
+            behaviors);
+
+        return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
+            .SelectMany(spec => spec.ActivatedAbilities
+                .Where(IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility)
+                .Select(ability => DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
+            .OrderBy(definition => definition.SourceCardNo, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(
+        ActivatedAbilitySpec ability)
+    {
+        return string.Equals(
+                ability.Kind,
+                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+                StringComparison.Ordinal)
+            && ability.ExhaustsSourceAsCost == true
+            && ability.ManaCost.GetValueOrDefault() == 1
+            && ability.PowerCost.GetValueOrDefault() == 1
+            && string.Equals(ability.PowerCostTrait, RuneTrait.Yellow, StringComparison.Ordinal)
+            && ability.RequiredTargetCount.GetValueOrDefault() == 1
+            && string.Equals(ability.TargetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
+            && ability.RequiresBaseEquipmentSource == true
+            && ability.MainDeckLookCount.GetValueOrDefault() == 5
+            && ability.PlayPowerDelta.GetValueOrDefault() == 1
+            && ability.IgnorePlayManaCost == true
+            && ability.RecycleUnplayedLookedCards == true
+            && string.Equals(ability.PlayCardFilter, CardObjectTags.UnitCard, StringComparison.Ordinal);
+    }
+
+    private static P4ActivatedAbilityDefinition DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(
+        BehaviorSpec spec,
+        ActivatedAbilitySpec ability)
+    {
+        return new P4ActivatedAbilityDefinition(
+            BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind),
+            spec.CardNo,
+            ability.Kind ?? ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
+            spec.CardName,
+            ability.ManaCost.GetValueOrDefault(),
+            0,
+            ability.RequiredTargetCount.GetValueOrDefault(),
+            RequiresBattlefieldSource: ability.RequiresBattlefieldSource == true,
+            ExhaustsSourceAsCost: ability.ExhaustsSourceAsCost == true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "BehaviorSpec-driven destroy-friendly-unit, look-top-five, optional free unit play, recycle-rest activated ability representative.",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [ability.PowerCostTrait ?? string.Empty] = ability.PowerCost.GetValueOrDefault()
+            },
+            RequiresBaseEquipmentSource: ability.RequiresBaseEquipmentSource == true,
+            Kind: ability.Kind ?? string.Empty,
+            TargetScope: ability.TargetScope ?? string.Empty,
+            MainDeckLookCount: ability.MainDeckLookCount.GetValueOrDefault(),
+            PlayPowerDelta: ability.PlayPowerDelta.GetValueOrDefault(),
+            IgnorePlayManaCost: ability.IgnorePlayManaCost == true,
+            RecycleUnplayedLookedCards: ability.RecycleUnplayedLookedCards == true,
+            PlayCardFilter: ability.PlayCardFilter ?? string.Empty);
+    }
+
+    private static string BuildBehaviorSpecAbilityId(string cardNo, string? kind)
+    {
+        var normalizedCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo);
+        var prefix = new string(normalizedCardNo
+            .Select(character => char.IsLetterOrDigit(character)
+                ? char.ToUpperInvariant(character)
+                : '_')
+            .ToArray());
+        return $"{prefix}_{kind}";
+    }
+
     private static bool IsSigilTypedResourceActivatedAbility(ActivatedAbilitySpec ability)
     {
         return string.Equals(ability.Kind, ActivatedAbilityKinds.TypedResourceSkill, StringComparison.Ordinal)
@@ -914,6 +1011,6 @@ public static class P4ActivatedAbilityCatalog
     private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildSourceCardNosByRepresentativeCardNo()
     {
         return OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(
-            Definitions.Select(definition => definition.SourceCardNo));
+            GetAll().Select(definition => definition.SourceCardNo));
     }
 }
