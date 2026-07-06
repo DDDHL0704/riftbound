@@ -3152,7 +3152,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("无需支付其法力费用", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("将其回收", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
-            "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw, rune-call, base-unit token, and base-unit token plus plain controller draw representative paths through shared unit-conquest TriggerSpec resolution.",
+            "Unit conquest play-low-cost-graveyard-spell trigger parsed for B3 targeting-stack-payment routing; execution is available for no-target draw, rune-call, base-unit token, base-unit token plus plain controller draw, and exact-one copy-target base-unit token representative paths through shared unit-conquest TriggerSpec resolution.",
             trigger.Reason);
     }
 
@@ -3218,7 +3218,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("无需支付其法力费用", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("打出该法术后，将其回收", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
-            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw, rune-call, base-unit token, and base-unit token plus plain controller draw representative paths through shared source-unit-played TriggerSpec resolution.",
+            "Source unit played play-low-cost-graveyard-spell trigger parsed for targeting-stack-payment routing; execution is available for no-target draw, rune-call, base-unit token, base-unit token plus plain controller draw, and exact-one copy-target base-unit token representative paths through shared source-unit-played TriggerSpec resolution.",
             trigger.Reason);
     }
 

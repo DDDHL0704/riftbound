@@ -16,6 +16,8 @@ public sealed class SourceUnitPlayedTriggerTests
     private const string FizzTargetedRuneSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-RUNE-SPELL";
     private const string FizzTargetedCalledRuneObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-TARGETED-CALLED-RUNE";
     private const string FizzExtraFriendlyUnitObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-EXTRA-FRIENDLY-UNIT";
+    private const string FizzCopyTokenSpellObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-COPY-TOKEN-SPELL";
+    private const string FizzExtraCopyTokenTargetObjectId = "P1-SOURCE-UNIT-PLAYED-FIZZ-EXTRA-COPY-TOKEN-TARGET";
 
     [Fact]
     public async Task FizzPlaysLowCostGraveyardSpellAndRecyclesItAfterSourceUnitPlayed()
@@ -312,6 +314,92 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.Equal(TriggerZones.Graveyard, p2Pass.State.ObjectLocations[FizzTargetedRuneSpellObjectId].Zone);
     }
 
+    [Fact]
+    public async Task FizzPlaysCopyTargetGraveyardTokenSpellWhenExactlyOneUnitTargetIsLegal()
+    {
+        var p2Pass = await ResolveFizzPlayThroughStackAsync(
+            BuildFizzCopyTargetGraveyardTokenSpellState(extraUnitTarget: false),
+            "intent-fizz-copy-token-spell");
+
+        var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, sourceTrigger.Payload["effectId"]);
+        Assert.Equal(FizzCopyTokenSpellObjectId, sourceTrigger.Payload["targetObjectId"]);
+        Assert.Equal(TriggerTimings.SourceUnitPlayed, sourceTrigger.Payload["reason"]);
+
+        var playEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedObjectId"] as string, FizzCopyTokenSpellObjectId, StringComparison.Ordinal));
+        Assert.Equal(FizzObjectId, playEvent.Payload["sourceObjectId"]);
+        Assert.Equal("SFD·140/221", playEvent.Payload["sourceCardNo"]);
+        Assert.Equal("UNL-200/219", playEvent.Payload["playedCardNo"]);
+        Assert.Equal(3, playEvent.Payload["playedCardManaCost"]);
+        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
+        Assert.Equal(TriggerZones.Stack, playEvent.Payload["destinationZone"]);
+        Assert.Equal([FizzObjectId], Assert.IsType<string[]>(playEvent.Payload["targetObjectIds"]));
+
+        var tokenEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzCopyTokenSpellObjectId, StringComparison.Ordinal));
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        Assert.Equal("映像", tokenEvent.Payload["tokenName"]);
+        Assert.Equal(3, tokenEvent.Payload["power"]);
+        Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
+        Assert.Equal(FizzObjectId, tokenEvent.Payload["copiedTargetObjectId"]);
+        Assert.Equal("SFD·140/221", tokenEvent.Payload["copiedCardNo"]);
+        Assert.Equal("SFD·140/221", tokenEvent.Payload["tokenCardNo"]);
+        var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
+        Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
+        Assert.Contains("映像", tokenTags);
+        Assert.Contains("约德尔人", tokenTags);
+
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.Equal([FizzCopyTokenSpellObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(TriggerKinds.SourceUnitPlayedPlayLowCostGraveyardSpellRecycle, recycleEvent.Payload["reason"]);
+
+        Assert.Equal([FizzObjectId, tokenObjectId], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal("SFD·140/221", p2Pass.State.CardObjects[tokenObjectId].CardNo);
+        Assert.Equal(3, p2Pass.State.CardObjects[tokenObjectId].Power);
+        Assert.Contains(CardObjectTags.Ephemeral, p2Pass.State.CardObjects[tokenObjectId].Tags);
+        Assert.Contains("映像", p2Pass.State.CardObjects[tokenObjectId].Tags);
+        Assert.Contains("约德尔人", p2Pass.State.CardObjects[tokenObjectId].Tags);
+        Assert.DoesNotContain(FizzCopyTokenSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal([FizzCopyTokenSpellObjectId], p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[tokenObjectId].Zone);
+        Assert.Equal(TriggerZones.MainDeck, p2Pass.State.ObjectLocations[FizzCopyTokenSpellObjectId].Zone);
+    }
+
+    [Fact]
+    public async Task FizzDoesNotAutoSelectCopyTargetGraveyardTokenSpellWhenMultipleUnitTargetsAreLegal()
+    {
+        var p2Pass = await ResolveFizzPlayThroughStackAsync(
+            BuildFizzCopyTargetGraveyardTokenSpellState(extraUnitTarget: true),
+            "intent-fizz-copy-token-spell-multiple-targets");
+
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_PLAYED_FROM_GRAVEYARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzCopyTokenSpellObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
+
+        Assert.Contains(FizzObjectId, p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains(FizzExtraCopyTokenTargetObjectId, p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Contains(FizzCopyTokenSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[FizzObjectId].Zone);
+        Assert.Equal(TriggerZones.Base, p2Pass.State.ObjectLocations[FizzExtraCopyTokenTargetObjectId].Zone);
+        Assert.Equal(TriggerZones.Graveyard, p2Pass.State.ObjectLocations[FizzCopyTokenSpellObjectId].Zone);
+    }
+
     private static MatchState BuildFizzGraveyardSpellState()
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -520,6 +608,67 @@ public sealed class SourceUnitPlayedTriggerTests
                     RuneDeck = [FizzTargetedCalledRuneObjectId]
                 },
                 ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: cardObjects,
+            objectLocations: objectLocations);
+    }
+
+    private static MatchState BuildFizzCopyTargetGraveyardTokenSpellState(bool extraUnitTarget)
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [FizzObjectId] = Unit(FizzObjectId, "P1", 3, "SFD·140/221", ["约德尔人"]),
+            [FizzCopyTokenSpellObjectId] = Spell(FizzCopyTokenSpellObjectId, "P1", "UNL-200/219", 3)
+        };
+        var p2Base = Array.Empty<string>();
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            [FizzObjectId] = new("P1", TriggerZones.Hand),
+            [FizzCopyTokenSpellObjectId] = new("P1", TriggerZones.Graveyard)
+        };
+        if (extraUnitTarget)
+        {
+            cardObjects[FizzExtraCopyTokenTargetObjectId] = Unit(
+                FizzExtraCopyTokenTargetObjectId,
+                "P2",
+                4,
+                "SFD·068/221",
+                ["机械"]);
+            p2Base = [FizzExtraCopyTokenTargetObjectId];
+            objectLocations[FizzExtraCopyTokenTargetObjectId] = new("P2", TriggerZones.Base);
+        }
+
+        return new MatchState(
+            roomId: "source-unit-played-fizz-copy-target-graveyard-token-spell-room",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [FizzObjectId],
+                    Graveyard = [FizzCopyTokenSpellObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = p2Base
+                }
             },
             cardObjects: cardObjects,
             objectLocations: objectLocations);

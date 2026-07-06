@@ -24998,6 +24998,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetFirstPlayableGraveyardSpell(
+                state,
                 playerZones,
                 cardObjects,
                 playerScores,
@@ -25087,6 +25088,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryGetFirstPlayableGraveyardSpell(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
@@ -25110,6 +25112,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentScore = playerScores.TryGetValue(playerId, out var score) ? score : 0;
+        var targetSelectionState = state with
+        {
+            PlayerZones = playerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            CardObjects = cardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
         foreach (var candidateObjectId in zones.Graveyard)
         {
             if (!cardObjects.TryGetValue(candidateObjectId, out var candidateState)
@@ -25118,6 +25125,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !CardBehaviorRegistry.TryGetByCardNo(candidateState.CardNo ?? string.Empty, out var candidateBehavior)
                 || !IsSpellPlayBehavior(candidateBehavior)
                 || !TryBuildFreePlayRecycleRepresentativeSpellTargets(
+                    targetSelectionState,
                     playerZones,
                     cardObjects,
                     playerId,
@@ -25152,6 +25160,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryBuildFreePlayRecycleRepresentativeSpellTargets(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -25162,6 +25171,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             targetObjectIds = [];
             return true;
+        }
+
+        if (IsSingleUnitCopyBaseTokenRepresentativeSpell(behavior))
+        {
+            return TryBuildSingleUnitCopyBaseTokenRepresentativeSpellTarget(
+                state,
+                playerZones,
+                cardObjects,
+                playerId,
+                behavior,
+                out targetObjectIds);
         }
 
         if (!IsSingleFriendlyUnitReturnCallRuneRepresentativeSpell(behavior)
@@ -25189,6 +25209,31 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryBuildSingleUnitCopyBaseTokenRepresentativeSpellTarget(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyList<string> targetObjectIds)
+    {
+        var unitTargetObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => IsTargetObjectInScope(state, playerId, objectId, behavior.TargetScope)
+                && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
+                && CreatedBaseUnitCopyTargetAllowed(state, behavior, [objectId]))
+            .ToArray();
+        if (unitTargetObjectIds.Length != 1)
+        {
+            targetObjectIds = [];
+            return false;
+        }
+
+        targetObjectIds = unitTargetObjectIds;
+        return true;
+    }
+
     private static bool IsSingleFriendlyUnitReturnCallRuneRepresentativeSpell(CardBehaviorDefinition behavior)
     {
         if (behavior.RequiredTargetCount != 1
@@ -25212,6 +25257,75 @@ public sealed class CoreRuleEngine : IRuleEngine
             ReturnsTargetToHand: true,
             RuneCallCountAfterTargetReturn: behavior.RuneCallCountAfterTargetReturn);
         return behavior == minimalReturnCallRuneBehavior;
+    }
+
+    private static bool IsSingleUnitCopyBaseTokenRepresentativeSpell(CardBehaviorDefinition behavior)
+    {
+        return behavior.RequiredTargetCount == 1
+            && behavior.MinTargetCount <= 1
+            && string.Equals(behavior.TargetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
+            && behavior.CreatedBaseUnitTokenCount == 1
+            && !string.IsNullOrWhiteSpace(behavior.CreatedBaseUnitTokenName)
+            && behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && string.Equals(
+                behavior.CreatedBaseUnitTokenConditionKind,
+                CardTokenCreationConditionKinds.None,
+                StringComparison.Ordinal)
+            && behavior.CreatedBaseEquipmentTokenCount == 0
+            && behavior.DrawCount == 0
+            && behavior.RuneCallCount == 0
+            && behavior.DrawCountIfRuneCallFails == 0
+            && !behavior.DrawsBeforeRuneCall
+            && string.Equals(
+                behavior.DrawRecipientKind,
+                CardDrawRecipientKinds.Controller,
+                StringComparison.Ordinal)
+            && string.Equals(
+                behavior.DrawConditionKind,
+                CardDrawConditionKinds.None,
+                StringComparison.Ordinal)
+            && string.Equals(
+                behavior.DynamicDrawCountKind,
+                CardDynamicDrawCountKinds.None,
+                StringComparison.Ordinal)
+            && behavior.DamageAmount == 0
+            && behavior.ConditionalDamageAmount == 0
+            && behavior.RuneCallCountAfterTargetReturn == 0
+            && behavior.GainExperienceOnPlay == 0
+            && behavior.GainExperienceOnPlayPerFriendlyFieldUnit == 0
+            && behavior.TargetEffectAdditionalManaCost == 0
+            && behavior.TargetEffectAdditionalPowerCost == 0
+            && behavior.SourceDrawAdditionalPowerCost == 0
+            && behavior.SourceReadyPowerModifierAdditionalPowerCost == 0
+            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost == 0
+            && !behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
+            && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && !behavior.DestroysTarget
+            && !behavior.RecyclesTargets
+            && !behavior.ReturnsTargetToHand
+            && !behavior.ReturnsAllUnitsToHand
+            && !behavior.ReturnsAllFieldObjectsToHand
+            && !behavior.DiscardsTargetFromHand
+            && !behavior.DiscardsTargetFromOwnerHand
+            && !behavior.DiscardsAllPlayersHandsThenDraws
+            && !behavior.PlaysGraveyardTargetToBase
+            && !behavior.PlaysHandTargetToBase
+            && !behavior.CountersTargetStackSpell
+            && !behavior.DestroysAllEquipment
+            && !behavior.DestroysAllUnits
+            && !behavior.DamagesAllBattlefieldUnits
+            && !behavior.DamagesAllEnemyCombatUnits
+            && !behavior.DamagesAllEnemyBattlefieldUnits
+            && !behavior.DrawsControllerAndOtherPlayers
+            && !behavior.CallsRuneForControllerAndOtherPlayers
+            && !behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.BanishesSourceOnResolution
+            && !behavior.SchedulesExtraTurnForController
+            && !behavior.PreventsAllSpellAndSkillDamageThisTurn
+            && !behavior.GrantsFreeStandbyHidePermission;
     }
 
     private static bool IsNoTargetFreePlayRecycleRepresentativeSpell(CardBehaviorDefinition behavior)
