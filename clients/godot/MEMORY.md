@@ -12,7 +12,10 @@ resume from repository state instead of conversation history alone.
   rendering/submission, smoke helpers, result rendering, and viewport screenshot
   capture. Match-result mode latches battle chrome visibility so a stale
   non-battle snapshot cannot reopen lobby/deck controls after the result panel
-  is shown.
+  is shown. Result screenshots use a dedicated capture path that forces result
+  chrome repeatedly across extra frames before reading the viewport texture,
+  because the normal two-frame visual screenshot path could still capture stale
+  window content on the second client.
 - `scripts/CardControlRenderer.cs` owns the visible table/card presentation:
   hand rows, opponent card backs, rune tracks, base/signature/standby/battlefield
   zones, card hover/click feedback, and prompt-source highlights.
@@ -194,7 +197,10 @@ resume from repository state instead of conversation history alone.
   room snapshot could still restore lobby chrome before the screenshot, causing
   the battle-layout screenshot guard to fail. `Main.ApplySnapshotSections` now
   respects the match-finished latch when deciding battle chrome visibility and
-  ignores stale non-battle sections after the result is shown.
+  ignores stale non-battle sections after the result is shown. Follow-up local
+  runs showed the viewport texture could still be stale with the normal
+  two-frame capture path, so result screenshots now force result chrome over a
+  longer result-specific frame delay before capture.
 - Latest local dirty-worktree result-latch verification:
   `/tmp/riftbound-result-latch-161628` opened two visible Godot windows,
   reached both result panels, passed the evidence checker, passed the inksteel
@@ -202,6 +208,13 @@ resume from repository state instead of conversation history alone.
   no longer captures a stale lobby/ROOM view after `MATCH_WON`. It is
   regression evidence only because it is automated and not captured from clean
   pushed `main`.
+- Latest local dirty-worktree result-screenshot-delay verification:
+  `/tmp/riftbound-result-delay-164653` opened two visible Godot windows, reached
+  both result panels, passed the evidence checker, passed the inksteel style
+  guard, passed the battle-layout screenshot guard, and confirmed the dedicated
+  result screenshot path prevents Player B from capturing stale ROOM chrome. It
+  is regression evidence only because it is automated and not captured from
+  clean pushed `main`.
 
 ## Open Risks
 

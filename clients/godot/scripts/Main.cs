@@ -16,6 +16,7 @@ public partial class Main : Control
     private const int AutoSmokePlayCardTapRuneLimit = 4;
     private const int AutoSmokeBoardActionLimit = 4;
     private const int AutoSmokeTempoActionLimit = 24;
+    private const int ResultScreenshotFrameDelay = 12;
     private const string MatchmakingQueued = "QUEUED";
     private const string MatchmakingMatched = "MATCHED";
     private const string MatchmakingCancelled = "CANCELLED";
@@ -3403,6 +3404,7 @@ public partial class Main : Control
 
     public void ApplyMatchResult(Godot.Collections.Dictionary result)
     {
+        _matchFinished = true;
         SetBattleChromeVisible(battleActive: true);
         SetRightRailMatchResultVisible(matchResultVisible: true);
 
@@ -4097,11 +4099,6 @@ public partial class Main : Control
 
     private void SetBattleChromeVisible(bool battleActive)
     {
-        if (_battleChromeHidden == battleActive)
-        {
-            return;
-        }
-
         _battleChromeHidden = battleActive;
         var lobbyVisible = !battleActive;
         if (_sessionFrame is not null)
@@ -4175,7 +4172,7 @@ public partial class Main : Control
         }
 
         _resultScreenshotSaved = true;
-        CaptureVisualScreenshot(ResultScreenshotPath(_visualScreenshotPath));
+        CaptureResultScreenshot(ResultScreenshotPath(_visualScreenshotPath));
     }
 
     private static string ResultScreenshotPath(string path)
@@ -4193,10 +4190,32 @@ public partial class Main : Control
 
     public async void CaptureVisualScreenshot(string path)
     {
+        await CaptureVisualScreenshotAsync(path, forceResultChrome: false);
+    }
+
+    private async void CaptureResultScreenshot(string path)
+    {
+        await CaptureVisualScreenshotAsync(path, forceResultChrome: true);
+    }
+
+    private async Task CaptureVisualScreenshotAsync(string path, bool forceResultChrome)
+    {
         try
         {
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (forceResultChrome)
+            {
+                ForceResultScreenshotChrome();
+            }
+
+            var frameDelay = forceResultChrome ? ResultScreenshotFrameDelay : 2;
+            for (var frame = 0; frame < frameDelay; frame++)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (forceResultChrome)
+                {
+                    ForceResultScreenshotChrome();
+                }
+            }
 
             var directory = Path.GetDirectoryName(path);
             if (!string.IsNullOrWhiteSpace(directory))
@@ -4219,6 +4238,13 @@ public partial class Main : Control
         {
             AppendLog($"[color=yellow]Visual screenshot failed: {Escape(ex.Message)}[/color]");
         }
+    }
+
+    private void ForceResultScreenshotChrome()
+    {
+        _matchFinished = true;
+        SetBattleChromeVisible(battleActive: true);
+        SetRightRailMatchResultVisible(matchResultVisible: true);
     }
 
     public void ApplyCardPreview(Godot.Collections.Dictionary card)

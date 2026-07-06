@@ -25,7 +25,9 @@ contracts change.
   official-card preview, result panel, and prompt panel as three visible bands
   so the black/ivory preview-prompt composition remains intact. Result mode
   also latches battle chrome visibility so stale room snapshots cannot restore
-  lobby controls before final screenshots are captured.
+  lobby controls before final screenshots are captured; result screenshots use a
+  dedicated capture path that forces result chrome over several frames before
+  reading the viewport texture.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
