@@ -41,7 +41,10 @@ contracts change.
 - `CardControlRenderer.cs` owns tabletop layout, compact table card frames, card
   backs, visible card faces, rune tracks, zone panels, prompt-source highlights,
   and card hover/click feedback. The wire table is responsive to the main battle
-  column and keeps the five black/ivory bands visible at 1440x900.
+  column, folds the legacy text summary out of battle snapshots, and keeps the
+  five black/ivory bands visible at 1440x900. The central battlefield renders
+  two lane columns, each with its own opponent-unit, site, and self-unit bands,
+  rather than detaching the sites as side panels.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.
@@ -100,7 +103,7 @@ contracts change.
   evidence package and `playtest-report.md`, so a reviewer can recover the
   handoff files without terminal scrollback or placeholder values. The verifier
   rejects missing key fingerprints and any full `pk_...` player-key token leaked
-  anywhere in the guide.
+  anywhere in the packaged text evidence files.
 
 ## Standard Gates
 

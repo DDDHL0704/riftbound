@@ -20,13 +20,16 @@ resume from repository state instead of conversation history alone.
 - Latest P3 correction after visual review: the combat viewport now preserves
   route C by using muted black/ivory linework and translucent ink-wash zones.
   Lobby/session/deck rows remain visible in `ROOM` so humans can choose decks,
-  then collapse for non-room battle snapshots. The result panel is a root-level
-  overlay in the right rail between the official-card preview and prompt panel,
-  so it no longer pushes, compresses, or covers the tabletop in final
-  screenshots. Match-result mode now preserves the right preview-result-prompt
-  rail instead of blanking it; the official preview is clipped and compact, and
-  table card faces use compact sizes/no effect text so all five wire-table bands
-  remain visible at 1440x900.
+  then collapse for non-room battle snapshots. The legacy `BoardSummary` text
+  also collapses in battle snapshots so the black/ivory table owns the combat
+  viewport. The result panel is a root-level overlay in the right rail between
+  the official-card preview and prompt panel, so it no longer pushes,
+  compresses, or covers the tabletop in final screenshots. Match-result mode
+  now preserves the right preview-result-prompt rail instead of blanking it; the
+  official preview is clipped and compact, table card faces use compact sizes/no
+  effect text, and the central battlefield renders two lane columns with each
+  lane's site embedded between opponent/self unit bands so all five wire-table
+  bands remain visible at 1440x900.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -47,8 +50,9 @@ resume from repository state instead of conversation history alone.
 - `clients/godot/tools/check-battle-layout-scene-integrity.sh` is a static scene
   guard for the selected black/white line layout. It rejects a result panel that
   drifts back onto the main battle table, an unclipped/oversized right preview,
-  a 1280px hard-width wire table, or compact table cards that stretch the five
-  table bands.
+  a 1280px hard-width wire table, central battlefield sites detached as side
+  panels, a battle-visible legacy summary row, or compact table cards that
+  stretch the five table bands.
 - `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
   behavior guard that keeps match-result mode from blanking the right-side card
   preview or prompt panel while showing the result panel.
@@ -109,7 +113,7 @@ resume from repository state instead of conversation history alone.
   `Playtest report:` to name `playtest-report.md` so the packaged guide remains
   a recoverable handoff index instead of accepting placeholder values. Packages
   missing Player A/B key fingerprints, or leaking a full `pk_...` player-key
-  token anywhere in the guide, are rejected.
+  token anywhere in packaged text evidence, are rejected.
 - Evidence packages include `VISUAL_REVIEW.md`, generated beside the handoff,
   so reviewers have a package-local checklist for result-panel visibility and
   hidden-information inspection of both screenshots. It repeats the machine

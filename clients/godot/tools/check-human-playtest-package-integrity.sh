@@ -708,6 +708,29 @@ if ! rg -q "full player key|OPERATOR_GUIDE|operator guide" "${leaked_operator_fu
   fail "verifier did not explain the full operator key leak"
 fi
 
+leaked_log_full_key_bundle="${tmp_dir}/leaked-log-full-key/riftbound-human-playtest-evidence"
+write_evidence_bundle "${leaked_log_full_key_bundle}" "${revision}"
+cat >>"${leaked_log_full_key_bundle}/player-a.log" <<'EOF'
+Debug player key: pk_fixture_log_key_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+EOF
+(
+  cd "${leaked_log_full_key_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+leaked_log_full_key_package="${tmp_dir}/leaked-log-full-key.tar.gz"
+make_package "${leaked_log_full_key_bundle}" "${leaked_log_full_key_package}"
+
+leaked_log_full_key_output="${tmp_dir}/leaked-log-full-key-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${leaked_log_full_key_package}" >"${leaked_log_full_key_output}" 2>&1; then
+  fail "verifier accepted package logs that leaked a full player key"
+fi
+
+if ! rg -q "full player key|player-a\\.log|player log" "${leaked_log_full_key_output}"; then
+  echo "Expected full log key leak rejection output:" >&2
+  cat "${leaked_log_full_key_output}" >&2
+  fail "verifier did not explain the full log key leak"
+fi
+
 missing_operator_package_path_bundle="${tmp_dir}/missing-operator-package-path/riftbound-human-playtest-evidence"
 write_evidence_bundle "${missing_operator_package_path_bundle}" "${revision}"
 python3 - "${missing_operator_package_path_bundle}/OPERATOR_GUIDE.md" <<'PY'

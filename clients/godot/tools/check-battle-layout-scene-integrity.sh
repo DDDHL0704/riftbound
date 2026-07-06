@@ -4,6 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 scene_path="${repo_root}/clients/godot/scenes/Main.tscn"
 renderer_path="${repo_root}/clients/godot/scripts/CardControlRenderer.cs"
+main_path="${repo_root}/clients/godot/scripts/Main.cs"
 
 fail() {
   echo "FAILED: $*" >&2
@@ -115,3 +116,50 @@ do
     fail "wire battle table card sizes must stay compact enough to keep all five table bands visible"
   fi
 done
+
+if rg -q "row\\.AddChild\\(WireSite\\(lanes\\.Count" "${renderer_path}"; then
+  fail "wire battlefield sites must live inside each lane column, not as detached side panels"
+fi
+
+if ! rg -q "column\\.AddChild\\(WireSite\\(lane\\)\\)" "${renderer_path}"; then
+  fail "wire battlefield lane columns must include their own site band"
+fi
+
+if ! rg -q "_boardSummary\\.Visible = lobbyVisible" "${main_path}"; then
+  fail "battle snapshots must hide the legacy BoardSummary text so the five-band wire table fits the viewport"
+fi
+
+python3 - "${renderer_path}" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+renderer = Path(sys.argv[1])
+text = renderer.read_text(encoding="utf-8")
+
+battlefield = re.search(
+    r"private Control WireBattlefield\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if battlefield is None:
+    raise AssertionError("WireBattlefield method is missing")
+
+heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", battlefield.group(0))]
+if not heights:
+    raise AssertionError("WireBattlefield has no fixed vertical budget")
+if max(heights) > 226:
+    raise AssertionError(
+        f"WireBattlefield vertical budget is too tall for the 1440x900 five-band table: {max(heights)}"
+    )
+
+unit_zone = re.search(
+    r"private Control WireUnitZone\(.*?\n    \}",
+    text,
+    re.DOTALL,
+)
+if unit_zone is None:
+    raise AssertionError("WireUnitZone method is missing")
+if "LaneUnitCardFrameSize" not in unit_zone.group(0) or "LaneUnitCardContentSize" not in unit_zone.group(0):
+    raise AssertionError("battlefield unit zones must use compact lane card sizes")
+PY

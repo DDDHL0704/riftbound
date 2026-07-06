@@ -148,6 +148,28 @@ player_a_log="${bundle_dir}/player-a.log"
 player_b_log="${bundle_dir}/player-b.log"
 player_a_result="${bundle_dir}/player-a-result.png"
 player_b_result="${bundle_dir}/player-b-result.png"
+text_evidence_files=(
+  "README.md"
+  "OPERATOR_GUIDE.md"
+  "P5_HANDOFF.md"
+  "VISUAL_REVIEW.md"
+  "api.log"
+  "player-a.log"
+  "player-b.log"
+  "playtest-report.md"
+)
+
+require_no_full_player_keys() {
+  local file
+  local path
+
+  for file in "${text_evidence_files[@]}"; do
+    path="${bundle_dir}/${file}"
+    if [[ -s "${path}" ]] && rg -q "pk_[A-Za-z0-9_-]{24,}" "${path}"; then
+      failures+=("full player key leaked in ${file}")
+    fi
+  done
+}
 
 require_report_line() {
   local line="$1"
@@ -417,10 +439,6 @@ require_operator_guide_consistency() {
   require_operator_guide_field_contains "- Player A key fingerprint: " "..." "operator guide player A key fingerprint"
   require_operator_guide_field_contains "- Player B key fingerprint: " "..." "operator guide player B key fingerprint"
 
-  if [[ -s "${operator_guide}" ]] && rg -q "pk_[A-Za-z0-9_-]{24,}" "${operator_guide}"; then
-    failures+=("full player key leaked in OPERATOR_GUIDE.md")
-  fi
-
   if [[ -n "${player_a_result}" ]]; then
     require_operator_guide_literal_match "$(dirname "${player_a_result}")" "operator guide result screenshot directory"
   elif [[ -n "${player_b_result}" ]]; then
@@ -611,6 +629,7 @@ require_handoff_consistency
 require_visual_review_consistency
 require_readme_consistency
 require_operator_guide_consistency
+require_no_full_player_keys
 require_report_line "- Inksteel style: passed" "inksteel style machine check"
 require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"

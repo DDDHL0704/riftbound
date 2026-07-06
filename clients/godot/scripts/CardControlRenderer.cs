@@ -12,6 +12,8 @@ internal sealed class CardControlRenderer
     private static readonly Vector2 SignatureCardContentSize = new(60, 82);
     private static readonly Vector2 RuneCardFrameSize = new(30, 42);
     private static readonly Vector2 RuneCardContentSize = new(26, 38);
+    private static readonly Vector2 LaneUnitCardFrameSize = new(46, 58);
+    private static readonly Vector2 LaneUnitCardContentSize = new(42, 54);
     private static readonly Vector2 BattlefieldCardFrameSize = new(104, 72);
     private static readonly Vector2 BattlefieldCardContentSize = new(100, 68);
     private static readonly Vector2 StandbyCardFrameSize = new(38, 52);
@@ -277,15 +279,13 @@ internal sealed class CardControlRenderer
     {
         var row = new HBoxContainer
         {
-            CustomMinimumSize = new Vector2(0, 196),
+            CustomMinimumSize = new Vector2(0, 220),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
         row.AddChild(ZoneStrip("中央战场\n据点 / 单位", new Vector2(96, 0)));
-        row.AddChild(WireSite(lanes.Count > 0 ? lanes[0] : new Godot.Collections.Dictionary()));
         row.AddChild(WireLaneGrid(lanes));
-        row.AddChild(WireSite(lanes.Count > 1 ? lanes[1] : new Godot.Collections.Dictionary()));
-        return WireFrame(row, new Vector2(0, 202), surface: RunestoneSurface.Zone);
+        return WireFrame(row, new Vector2(0, 226), surface: RunestoneSurface.Zone);
     }
 
     private Control WireLaneGrid(Godot.Collections.Array<Godot.Collections.Dictionary> lanes)
@@ -310,8 +310,9 @@ internal sealed class CardControlRenderer
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
-        column.AddChild(BandLabel($"战场 {LaneNumber(lane)} 单位"));
+        column.AddChild(BandLabel($"战场 {LaneNumber(lane)}"));
         column.AddChild(WireUnitZone(lane, "opponent"));
+        column.AddChild(WireSite(lane));
         column.AddChild(WireUnitZone(lane, "self"));
         return WireFrame(column, new Vector2(0, 0), surface: RunestoneSurface.Zone);
     }
@@ -325,8 +326,8 @@ internal sealed class CardControlRenderer
         };
         var units = WireCardFlow(
             Cards(lane, side == "self" ? "selfUnits" : "opponentUnits"),
-            HandCardFrameSize,
-            HandCardContentSize,
+            LaneUnitCardFrameSize,
+            LaneUnitCardContentSize,
             minSlots: 3);
         var standbyCards = Cards(lane, side == "self" ? "selfStandby" : "opponentStandby");
         var standby = standbyCards.Count == 0
@@ -356,16 +357,19 @@ internal sealed class CardControlRenderer
     private Control WireSite(Godot.Collections.Dictionary lane)
     {
         var siteCards = Cards(lane, "site");
-        var column = new VBoxContainer
+        var row = new HBoxContainer
         {
+            CustomMinimumSize = new Vector2(0, 74),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
-        column.AddChild(BandLabel($"战场 {LaneNumber(lane)} 据点"));
-        column.AddChild(WireCardFlow(siteCards, BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
+        var label = LabelNode($"战场 {LaneNumber(lane)}\n据点", new Vector2(78, 0));
+        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
+        row.AddChild(label);
+        row.AddChild(WireCardFlow(siteCards, BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
         return WireFrame(
-            column,
-            new Vector2(124, 0),
+            row,
+            new Vector2(0, 78),
             surface: RunestoneSurface.Zone);
     }
 

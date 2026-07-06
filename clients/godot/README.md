@@ -335,8 +335,8 @@ operator checklist with redacted Player A/B key fingerprints, the
 `VISUAL_REVIEW.md` screenshot checklist, and absence of
 crash/rejection/auto-smoke evidence. It rejects packages where the operator
 guide is missing key fingerprints or leaks any full `pk_...` player-key token.
-The package
-README, handoff, and visual review summaries repeat the inksteel style and
+It also scans the packaged text evidence files for full `pk_...` key tokens.
+The package README, handoff, and visual review summaries repeat the inksteel style and
 hidden-information machine checks from the report. The verifier also re-runs the
 inksteel style guard on the packaged result screenshots, so replacing
 screenshots after report generation is caught.
@@ -440,8 +440,9 @@ The package `README.md` also repeats the checked inksteel style and machine
 hidden-information conclusions, and the package verifier requires all three
 generated review surfaces to stay in sync with the report. The packaged
 operator guide must also preserve the redacted Player A/B key fingerprints
-without leaking any full `pk_...` key token. The package is still only valid for
-P5 when the report includes the real two-human manual confirmations.
+without leaking any full `pk_...` key token, and no packaged text evidence file
+may contain a full player key. The package is still only valid for P5 when the
+report includes the real two-human manual confirmations.
 
 For final P5 collection from pushed `main`, use
 `clients/godot/tools/run-clean-main-human-playtest-stack.sh`. That wrapper

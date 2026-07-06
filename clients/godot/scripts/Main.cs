@@ -4117,6 +4117,11 @@ public partial class Main : Control
         {
             _deckFrame.Visible = lobbyVisible;
         }
+
+        if (_boardSummary is not null)
+        {
+            _boardSummary.Visible = lobbyVisible;
+        }
     }
 
     private void SetRightRailMatchResultVisible(bool matchResultVisible)
