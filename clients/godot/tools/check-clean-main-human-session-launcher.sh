@@ -26,8 +26,10 @@ require_pattern "final_wrapper=.*run-clean-main-human-playtest-stack\\.sh" \
   "launcher must target the final clean-main human wrapper"
 require_pattern "final_wrapper.* --precheck" \
   "launcher must run the final wrapper precheck before opening windows"
-require_pattern "screen -dmS" \
-  "launcher must use a detached screen session"
+require_pattern "screen -L -dmS" \
+  "launcher must use a detached screen session with portable logging supported by macOS screen"
+require_pattern "screenlog\\.0" \
+  "launcher must report the default screen -L log file"
 require_pattern "run-clean-main-human-playtest-stack\\.sh" \
   "launcher must run the final clean-main human wrapper"
 require_pattern "RIFTBOUND_CONFIRM_MANUAL=1" \
@@ -43,8 +45,8 @@ require_pattern "screen -r" \
 require_pattern "OPERATOR_GUIDE.md" \
   "launcher must point operators at the generated guide"
 
-if rg -q "RIFTBOUND_WAIT=0|RIFTBOUND_QUIT_AFTER=|--riftbound-smoke-auto-" "${launcher_path}"; then
-  fail "launcher must not disable waiting, add auto quit, or use automated smoke arguments"
+if rg -q "RIFTBOUND_WAIT=0|RIFTBOUND_QUIT_AFTER=|--riftbound-smoke-auto-|-Logfile" "${launcher_path}"; then
+  fail "launcher must not disable waiting, add auto quit, use automated smoke arguments, or rely on non-portable screen -Logfile"
 fi
 
 echo "Clean-main human session launcher checks passed."

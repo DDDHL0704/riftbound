@@ -50,7 +50,8 @@ room="${RIFTBOUND_ROOM:-human-local-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-human-playtest-${room}}"
 evidence_package="${RIFTBOUND_EVIDENCE_PACKAGE:-/tmp/riftbound-human-playtest-${room}.tar.gz}"
 screen_name="${RIFTBOUND_P5_SCREEN_NAME:-riftbound-p5-${room}}"
-screen_log="${RIFTBOUND_P5_SCREEN_LOG:-/tmp/${screen_name}.log}"
+screen_dir="${RIFTBOUND_P5_SCREEN_DIR:-/tmp/${screen_name}.screen}"
+screen_log="${RIFTBOUND_P5_SCREEN_LOG:-${screen_dir}/screenlog.0}"
 status_file="${RIFTBOUND_P5_STATUS_FILE:-/tmp/${screen_name}.status}"
 
 export RIFTBOUND_ROOM="${room}"
@@ -108,7 +109,7 @@ if screen -ls "${screen_name}" | rg -q "\\.${screen_name}[[:space:]]"; then
   exit 2
 fi
 
-mkdir -p "$(dirname "${screen_log}")" "$(dirname "${status_file}")"
+mkdir -p "${screen_dir}" "$(dirname "${status_file}")"
 rm -f "${screen_log}" "${status_file}"
 
 cat >"${status_file}" <<EOF
@@ -121,6 +122,7 @@ Final P5 detached session
   evidence dir: ${screenshot_dir}
   operator guide: ${screenshot_dir}/OPERATOR_GUIDE.md
   evidence package: ${evidence_package}
+  screen dir: ${screen_dir}
   screen log: ${screen_log}
 
 After both Godot windows reach the result panel, attach to the screen session
@@ -128,8 +130,11 @@ and answer the manual confirmation prompts only after checking both final
 screenshots and hidden-information boundaries.
 EOF
 
-screen -dmS "${screen_name}" -L -Logfile "${screen_log}" bash -lc \
-  "cd $(printf '%q' "${repo_root}") && exec $(printf '%q' "${final_wrapper}")"
+(
+  cd "${screen_dir}"
+  screen -L -dmS "${screen_name}" bash -lc \
+    "cd $(printf '%q' "${repo_root}") && exec $(printf '%q' "${final_wrapper}")"
+)
 
 cat <<EOF
 Started final P5 detached screen session.
@@ -139,6 +144,7 @@ Started final P5 detached screen session.
   operator guide: ${screenshot_dir}/OPERATOR_GUIDE.md
   evidence package: ${evidence_package}
   status file: ${status_file}
+  screen dir: ${screen_dir}
   screen log: ${screen_log}
 
 The wrapped final P5 script still waits for both Godot windows and requires
