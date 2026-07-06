@@ -223,6 +223,14 @@ resume from repository state instead of conversation history alone.
   of stale lobby chrome while the battlefield keeps the narrow-home-column
   black/ivory layout. It is regression evidence only because it is automated
   and not final P5 two-human evidence.
+- Latest clean pushed-main post-precheck proof:
+  `/tmp/riftbound-post-precheck-170034` opened two visible Godot windows from a
+  clean `origin/main@1228c4278`, reached both result panels, passed the evidence
+  checker, passed the inksteel style guard, passed the battle-layout screenshot
+  guard, and visually confirmed the current pushed main still captures the
+  right result rail with the narrow-home-column black/ivory layout. It is
+  regression evidence only because it is automated and not final P5 two-human
+  evidence.
 
 ## Open Risks
 
