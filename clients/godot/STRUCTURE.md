@@ -61,13 +61,14 @@ contracts change.
   confirmations, evidence packaging, and package verification. Its `--precheck`
   mode validates the final gate settings, configured Godot/.NET executables,
   evidence output parents, custom clean-worktree paths, and fetches
-  `origin/main` without launching the Godot windows. With the default local
-  server it also refuses an already-running API on port 5088 so the clean
-  worktree owns the server process for final evidence. When the real run starts,
-  it writes `OPERATOR_GUIDE.md` into the fresh evidence directory before
-  launching Godot so the operators have the room, player handles,
-  redacted player key fingerprints, evidence/package paths, and final checklist
-  outside terminal scrollback.
+  `origin/main` without launching the Godot windows. It also prints the
+  intended player handles plus redacted key fingerprints for pre-run identity
+  review. With the default local server it refuses an already-running API on
+  port 5088 so the clean worktree owns the server process for final evidence.
+  When the real run starts, it writes `OPERATOR_GUIDE.md` into the fresh
+  evidence directory before launching Godot so the operators have the room,
+  player handles, redacted player key fingerprints, evidence/package paths, and
+  final checklist outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
   information boundary log lines, the inksteel screenshot style guard, and

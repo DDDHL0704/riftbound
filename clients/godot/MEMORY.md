@@ -63,8 +63,9 @@ resume from repository state instead of conversation history alone.
   parents. It now also catches invalid or non-empty custom clean-worktree paths
   before operators spend time on the final run. On the default local server, it
   refuses an existing healthy API on port 5088 so the final clean worktree starts
-  and owns the backend used for evidence. Run it immediately before the
-  two-human session.
+  and owns the backend used for evidence. Its success output includes the
+  intended player handles and redacted key fingerprints for identity review.
+  Run it immediately before the two-human session.
 - The final P5 wrapper writes `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md`
   before launching Godot windows. This file mirrors the run parameters and final
   P5 operator checklist so a human handoff can recover the room, player handles,

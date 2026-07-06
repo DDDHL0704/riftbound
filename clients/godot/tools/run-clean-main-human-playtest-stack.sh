@@ -303,6 +303,8 @@ Final P5 precheck passed.
   evidence package: ${evidence_package}
   player A handle: ${handle_a}
   player B handle: ${handle_b}
+  player A key fingerprint: $(fingerprint_secret "${player_key_a}")
+  player B key fingerprint: $(fingerprint_secret "${player_key_b}")
   manual confirmations: ${confirm_manual}
   require clean git: ${require_clean_git}
   check evidence: ${check_evidence}

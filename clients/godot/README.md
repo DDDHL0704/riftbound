@@ -272,7 +272,10 @@ directory, package output, and custom clean-worktree parents are usable writable
 directories, that a custom clean worktree is empty if it already exists, and
 that the default local API port is not already serving another process. It does
 this without creating a worktree, opening Godot windows, or writing evidence.
-After it prints `Final P5 precheck passed`, run the real collection command:
+The precheck output includes the two handles and redacted player-key
+fingerprints so the operators can verify the intended identities before the
+real windows launch. After it prints `Final P5 precheck passed`, run the real
+collection command:
 
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh

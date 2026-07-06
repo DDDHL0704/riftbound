@@ -295,6 +295,9 @@ PATH="${fake_bin}:${PATH}" \
 rg -q "Final P5 precheck passed" "${precheck_output}" \
   || fail "clean-main human playtest precheck did not report success"
 
+rg -q "player A key fingerprint: .*\\.\\.\\..*|player B key fingerprint: .*\\.\\.\\..*" "${precheck_output}" \
+  || fail "clean-main human playtest precheck did not show redacted player key fingerprints"
+
 if rg -q "wrapped human stack ran" "${precheck_output}"; then
   fail "clean-main human playtest precheck launched the wrapped human stack"
 fi
