@@ -36,14 +36,47 @@ from PIL import Image, ImageDraw
 path = sys.argv[1]
 image = Image.new("RGB", (1440, 900), (5, 6, 6))
 draw = ImageDraw.Draw(image)
-for x in range(8, 1136, 56):
-    draw.line((x, 96, x, 890), fill=(155, 149, 128), width=2)
-for y in range(108, 840, 72):
-    draw.line((0, y, 1136, y), fill=(161, 154, 132), width=2)
-for rect in ((22, 118, 682, 300), (108, 442, 444, 636), (806, 442, 1144, 636), (1152, 16, 1424, 536)):
-    draw.rectangle(rect, outline=(185, 176, 148), width=3, fill=(18, 18, 16))
-draw.rectangle((22, 120, 300, 298), outline=(158, 36, 28), width=3)
-draw.rectangle((604, 128, 680, 292), outline=(143, 113, 56), width=3)
+line = (178, 171, 145)
+dim = (78, 76, 66)
+draw.rectangle((22, 58, 1128, 872), outline=line, width=2, fill=(17, 17, 15))
+for y in (170, 310, 582, 720):
+    draw.line((22, y, 1128, y), fill=line, width=2)
+for x in (122, 456, 792, 960):
+    draw.line((x, 58, x, 872), fill=dim, width=2)
+for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
+    draw.rectangle((lane_x0, 342, lane_x1, 578), outline=line, width=2, fill=(61, 59, 52))
+    draw.rectangle((lane_x0 + 80, 418, lane_x1 - 8, 502), outline=line, width=2, fill=(16, 16, 14))
+draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
+draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
+draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+image.save(path)
+PY
+  printf '%s' "${suffix}" >>"${path}"
+}
+
+write_cropped_layout_png() {
+  local path="$1"
+  local suffix="${2:-}"
+
+  python3 - "${path}" <<'PY'
+import sys
+from PIL import Image, ImageDraw
+
+path = sys.argv[1]
+image = Image.new("RGB", (1440, 900), (5, 6, 6))
+draw = ImageDraw.Draw(image)
+line = (178, 171, 145)
+dim = (78, 76, 66)
+draw.rectangle((22, 64, 1128, 774), outline=line, width=2, fill=(17, 17, 15))
+for y in (224, 358, 626, 712):
+    draw.line((22, y, 1128, y), fill=line, width=2)
+for x in (122, 456, 792, 960):
+    draw.line((x, 64, x, 774), fill=dim, width=2)
+for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
+    draw.rectangle((lane_x0, 392, lane_x1, 676), outline=line, width=2, fill=(61, 59, 52))
+draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
+draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
+draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
 image.save(path)
 PY
   printf '%s' "${suffix}" >>"${path}"
@@ -84,6 +117,11 @@ write_result_png() {
     return
   fi
 
+  if [[ "${size}" == "cropped-layout" ]]; then
+    write_cropped_layout_png "${path}" "${suffix}"
+    return
+  fi
+
   write_full_size_png "${path}" "${suffix}"
 }
 
@@ -115,6 +153,7 @@ write_evidence_bundle() {
 
 Package integrity fixture.
 - Machine inksteel style: passed
+- Machine battle layout: passed
 - Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 EOF
 
@@ -207,6 +246,7 @@ EOF
 
 - Status: passed
 - Inksteel style: passed
+- Battle layout: passed
 - Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -230,6 +270,7 @@ EOF
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
 - Inksteel style: passed
+- Battle layout: passed
 - Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -248,8 +289,10 @@ EOF
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
 - Machine inksteel style: passed
+- Machine battle layout: passed
 - Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 
+- Both screenshots show the complete black/ivory wire-table layout without the bottom hand band or right result rail clipped away.
 - Both screenshots show the server result panel.
 - Player A sees opponent hand and hidden cards only as card backs and counts.
 - Player B sees opponent hand and hidden cards only as card backs and counts.
@@ -952,6 +995,27 @@ if ! rg -q "Inksteel style|inksteel" "${missing_inksteel_style_output}"; then
   fail "verifier did not explain the missing inksteel style evidence"
 fi
 
+missing_battle_layout_bundle="${tmp_dir}/missing-battle-layout/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_battle_layout_bundle}" "${revision}"
+sed -i '' '/Battle layout/d' "${missing_battle_layout_bundle}/playtest-report.md"
+(
+  cd "${missing_battle_layout_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_battle_layout_package="${tmp_dir}/missing-battle-layout.tar.gz"
+make_package "${missing_battle_layout_bundle}" "${missing_battle_layout_package}"
+
+missing_battle_layout_output="${tmp_dir}/missing-battle-layout-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_battle_layout_package}" >"${missing_battle_layout_output}" 2>&1; then
+  fail "verifier accepted package without battle-layout screenshot evidence"
+fi
+
+if ! rg -q "Battle layout|battle layout|wire table" "${missing_battle_layout_output}"; then
+  echo "Expected battle-layout evidence rejection output:" >&2
+  cat "${missing_battle_layout_output}" >&2
+  fail "verifier did not explain the missing battle-layout screenshot evidence"
+fi
+
 mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbound-human-playtest-evidence"
 write_evidence_bundle "${mismatched_screenshot_path_bundle}" "${revision}" "1" "0" "0" "0" "0" "full" "mismatch"
 (
@@ -1010,6 +1074,26 @@ if ! rg -q "inksteel|style|bright|screenshot" "${bright_style_output}"; then
   echo "Expected package screenshot style rejection output:" >&2
   cat "${bright_style_output}" >&2
   fail "verifier did not explain the inksteel screenshot style rejection"
+fi
+
+cropped_layout_bundle="${tmp_dir}/cropped-layout/riftbound-human-playtest-evidence"
+write_evidence_bundle "${cropped_layout_bundle}" "${revision}" "1" "0" "0" "0" "0" "cropped-layout"
+(
+  cd "${cropped_layout_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+cropped_layout_package="${tmp_dir}/cropped-layout.tar.gz"
+make_package "${cropped_layout_bundle}" "${cropped_layout_package}"
+
+cropped_layout_output="${tmp_dir}/cropped-layout-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${cropped_layout_package}" >"${cropped_layout_output}" 2>&1; then
+  fail "verifier accepted package whose result screenshots have a clipped wire-table layout"
+fi
+
+if ! rg -q "battle layout|wire table|bottom|right rail|result" "${cropped_layout_output}"; then
+  echo "Expected package battle-layout screenshot rejection output:" >&2
+  cat "${cropped_layout_output}" >&2
+  fail "verifier did not explain the battle-layout screenshot rejection"
 fi
 
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"

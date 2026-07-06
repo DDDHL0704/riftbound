@@ -274,6 +274,7 @@ require_handoff_consistency() {
   local git_revision=""
   local manual_confirmation_mode=""
   local inksteel_style=""
+  local battle_layout=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${handoff}" || ! -s "${report}" ]]; then
@@ -286,6 +287,7 @@ require_handoff_consistency() {
   git_revision="$(report_field "Git revision")"
   manual_confirmation_mode="$(report_field "Manual confirmation mode")"
   inksteel_style="$(report_field "Inksteel style")"
+  battle_layout="$(report_field "Battle layout")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_handoff_literal_match "# Riftbound Godot P5 Handoff" "P5 handoff title"
@@ -297,6 +299,7 @@ require_handoff_consistency() {
   require_handoff_literal_match "- Player B result screenshot: player-b-result.png" "P5 handoff player B screenshot"
   require_handoff_literal_match "- Report: playtest-report.md" "P5 handoff report"
   require_handoff_literal_match "- Inksteel style: ${inksteel_style}" "P5 handoff inksteel style"
+  require_handoff_literal_match "- Battle layout: ${battle_layout}" "P5 handoff battle layout"
   require_handoff_literal_match "- Hidden information boundary: ${hidden_information_boundary}" "P5 handoff hidden information boundary"
   require_handoff_literal_match "- Manual confirmation mode: ${manual_confirmation_mode}" "P5 handoff manual confirmation mode"
 }
@@ -315,6 +318,7 @@ require_visual_review_consistency() {
   local player_a_handle=""
   local player_b_handle=""
   local inksteel_style=""
+  local battle_layout=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${visual_review}" || ! -s "${report}" ]]; then
@@ -325,6 +329,7 @@ require_visual_review_consistency() {
   player_a_handle="$(report_field "Player A handle")"
   player_b_handle="$(report_field "Player B handle")"
   inksteel_style="$(report_field "Inksteel style")"
+  battle_layout="$(report_field "Battle layout")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_visual_review_literal_match "# Riftbound Godot Visual Review" "visual review title"
@@ -334,7 +339,9 @@ require_visual_review_consistency() {
   require_visual_review_literal_match "- Player A result screenshot: player-a-result.png" "visual review player A screenshot"
   require_visual_review_literal_match "- Player B result screenshot: player-b-result.png" "visual review player B screenshot"
   require_visual_review_literal_match "- Machine inksteel style: ${inksteel_style}" "visual review inksteel style"
+  require_visual_review_literal_match "- Machine battle layout: ${battle_layout}" "visual review battle layout"
   require_visual_review_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "visual review hidden information boundary"
+  require_visual_review_literal_match "complete black/ivory wire-table layout" "visual review battle-layout checklist"
   require_visual_review_literal_match "opponent hand and hidden cards only as card backs and counts" "visual review hidden-information checklist"
   require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
 }
@@ -350,6 +357,7 @@ require_readme_literal_match() {
 
 require_readme_consistency() {
   local inksteel_style=""
+  local battle_layout=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${readme}" || ! -s "${report}" ]]; then
@@ -357,9 +365,11 @@ require_readme_consistency() {
   fi
 
   inksteel_style="$(report_field "Inksteel style")"
+  battle_layout="$(report_field "Battle layout")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_readme_literal_match "- Machine inksteel style: ${inksteel_style}" "README inksteel style"
+  require_readme_literal_match "- Machine battle layout: ${battle_layout}" "README battle layout"
   require_readme_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "README hidden information boundary"
 }
 
@@ -563,6 +573,32 @@ require_inksteel_screenshot_style() {
   failures+=("inksteel screenshot style check failed for packaged result screenshots: ${output_summary}")
 }
 
+require_battle_layout_screenshot() {
+  local output_path=""
+  local output_summary=""
+
+  if [[ ! -s "${player_a_result}" || ! -s "${player_b_result}" ]]; then
+    return
+  fi
+
+  if [[ ! -x "${script_dir}/check-battle-layout-screenshot.sh" ]]; then
+    failures+=("battle layout screenshot checker missing: ${script_dir}/check-battle-layout-screenshot.sh")
+    return
+  fi
+
+  output_path="$(mktemp)"
+  if "${script_dir}/check-battle-layout-screenshot.sh" \
+    "${player_a_result}" \
+    "${player_b_result}" >"${output_path}" 2>&1; then
+    rm -f "${output_path}"
+    return
+  fi
+
+  output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
+  rm -f "${output_path}"
+  failures+=("battle layout screenshot check failed for packaged result screenshots: ${output_summary}")
+}
+
 require_git_revision_on_main() {
   local revision=""
   local resolved_revision=""
@@ -631,6 +667,7 @@ require_readme_consistency
 require_operator_guide_consistency
 require_no_full_player_keys
 require_report_line "- Inksteel style: passed" "inksteel style machine check"
+require_report_line "- Battle layout: passed" "battle layout machine check"
 require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
@@ -663,6 +700,7 @@ fi
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
 require_inksteel_screenshot_style
+require_battle_layout_screenshot
 
 if [[ -s "${player_a_result}" && -s "${player_b_result}" ]] && cmp -s "${player_a_result}" "${player_b_result}"; then
   failures+=("player A and player B result screenshots are identical")

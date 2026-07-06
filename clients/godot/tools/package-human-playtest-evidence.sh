@@ -108,6 +108,7 @@ player_b_handle="$(report_field "Player B handle")"
 git_revision="$(report_field "Git revision")"
 manual_confirmation_mode="$(report_field "Manual confirmation mode")"
 inksteel_style="$(report_field "Inksteel style")"
+battle_layout="$(report_field "Battle layout")"
 hidden_information_boundary="$(report_field "Hidden information boundary")"
 
 cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
@@ -122,6 +123,7 @@ cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
 - Inksteel style: ${inksteel_style}
+- Battle layout: ${battle_layout}
 - Hidden information boundary: ${hidden_information_boundary}
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -140,12 +142,15 @@ cat >"${bundle_dir}/VISUAL_REVIEW.md" <<EOF
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
 - Machine inksteel style: ${inksteel_style}
+- Machine battle layout: ${battle_layout}
 - Machine hidden-information boundary: ${hidden_information_boundary}
 
 Before accepting this package as final P5 evidence, inspect both result
 screenshots and confirm:
 
 - Both screenshots show the server result panel.
+- Both screenshots show the complete black/ivory wire-table layout without the
+  bottom hand band or right result rail clipped away.
 - Player A sees opponent hand and hidden cards only as card backs and counts.
 - Player B sees opponent hand and hidden cards only as card backs and counts.
 - No opponent hidden card face, name, text, or identity is visible in either
@@ -193,6 +198,7 @@ cat >"${bundle_dir}/README.md" <<EOF
 - P5 handoff summary: P5_HANDOFF.md
 - Visual review checklist: VISUAL_REVIEW.md
 - Machine inksteel style: ${inksteel_style}
+- Machine battle layout: ${battle_layout}
 - Machine hidden-information boundary: ${hidden_information_boundary}
 - Checksums: SHA256SUMS
 

@@ -40,13 +40,19 @@ resume from repository state instead of conversation history alone.
 - Visual preflight: `clients/godot/tools/run-clean-main-simulated-playtest-stack.sh`
   opens two visible Godot windows from clean `origin/main`, but it uses
   auto-smoke and is not final P5 evidence. It runs the inksteel screenshot
-  style guard on both result screenshots by default after the simulated stack
-  finishes.
+  style guard and the battle-layout screenshot geometry guard on both result
+  screenshots by default after the simulated stack finishes.
 - `clients/godot/tools/check-inksteel-screenshot-style.sh` is a lightweight
   screenshot palette guard for the selected black/ivory inksteel route. It
   samples result screenshots and rejects obvious bright-gray UI, orange/gold
   dominance, or dropped neutral linework. Use it after visible preflights; it
   does not replace human visual review.
+- `clients/godot/tools/check-battle-layout-screenshot.sh` is a lightweight
+  screenshot geometry guard for the selected wire-table route. It rejects
+  screenshots with too few main-table bands, a bottom hand/table border clipped
+  too high above the viewport bottom, or missing right result-rail linework. It
+  was added after a real visual review found that screenshots could pass the
+  inksteel palette guard while still deviating from the black/white wire layout.
 - `clients/godot/tools/check-battle-layout-scene-integrity.sh` is a static scene
   guard for the selected black/white line layout. It rejects a result panel that
   drifts back onto the main battle table, an unclipped/oversized right preview,
@@ -99,11 +105,11 @@ resume from repository state instead of conversation history alone.
 - Evidence package `README.md` also repeats the machine hidden-information
   boundary conclusion from the checked report, and the verifier rejects packages
   where that README summary is missing.
-- Evidence packages also repeat the checked `Inksteel style: passed` machine
-  conclusion in `README.md`, `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`; the
-  verifier rejects packages where any of those summaries drift from the report
-  or where the packaged result screenshots no longer pass the inksteel style
-  guard.
+- Evidence packages also repeat the checked `Inksteel style: passed` and
+  `Battle layout: passed` machine conclusions in `README.md`, `P5_HANDOFF.md`,
+  and `VISUAL_REVIEW.md`; the verifier rejects packages where any of those
+  summaries drift from the report or where the packaged result screenshots no
+  longer pass the inksteel style or battle-layout screenshot guards.
 - Evidence packages now include `OPERATOR_GUIDE.md`; the packager copies the
   runtime guide from the evidence directory, or generates a fallback from the
   checked report for manual packaging. The verifier requires this file and its

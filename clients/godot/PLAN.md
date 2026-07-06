@@ -39,8 +39,10 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
   required.
 - P5 evidence now records the inksteel screenshot style guard in the machine
   report and repeats it in the package README, handoff, and visual review files.
-  The final package verifier also re-runs that guard on the packaged screenshots,
-  while still requiring human screenshot confirmation.
+  P5 evidence now also records the battle-layout screenshot geometry guard, which
+  checks that the black/ivory wire table is not clipped and still has the right
+  result rail. The final package verifier re-runs both guards on the packaged
+  screenshots, while still requiring human screenshot confirmation.
 - `MEMORY.md` records the current implementation shape and open risks for future
   continuation after context compaction.
 
@@ -51,7 +53,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
 2. Run visible clean-main simulated preflights after pushed changes to catch
    obvious window, result-panel, screenshot, inksteel style, or evidence
    regressions. The clean-main simulated wrapper runs the inksteel screenshot
-   style guard by default after the automated result screenshots are written.
+   style guard and battle-layout screenshot geometry guard by default after the
+   automated result screenshots are written.
 3. Prepare for the final two-human P5 run:
    - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
      before both operators start, so final evidence gate and local
@@ -65,8 +68,8 @@ replacement for the top-level goal file; it is the repo-local Godot client plan.
      result panel;
    - verify both final screenshots show the result panel and hidden opponent
      information only as card backs/counts;
-   - keep the `Inksteel style: passed` report line from the evidence checker as
-     a visual drift guard before handoff;
+   - keep the `Inksteel style: passed` and `Battle layout: passed` report lines
+     from the evidence checker as visual drift guards before handoff;
    - answer manual prompts truthfully;
    - keep the verified evidence tarball, including `OPERATOR_GUIDE.md`,
      `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`.

@@ -41,12 +41,14 @@ confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-0}"
 require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-0}"
 incomplete_human_evidence="${RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 check_inksteel_style="${RIFTBOUND_CHECK_INKSTEEL_STYLE:-1}"
+check_battle_layout="${RIFTBOUND_CHECK_BATTLE_LAYOUT:-1}"
 auto_smoke_found=0
 git_status_output="$(git -C "${repo_root}" status --short 2>/dev/null || true)"
 git_worktree_state="clean"
 min_result_screenshot_width=800
 min_result_screenshot_height=600
 inksteel_style_status="skipped"
+battle_layout_status="skipped"
 
 if [[ -n "${git_status_output}" ]]; then
   git_worktree_state="dirty"
@@ -259,6 +261,38 @@ run_inksteel_style_check() {
   failures+=("inksteel screenshot style check failed: ${output_summary}")
 }
 
+run_battle_layout_check() {
+  local output_path=""
+  local output_summary=""
+
+  if [[ "${check_battle_layout}" == "0" ]]; then
+    notes+=("battle layout screenshot check skipped by RIFTBOUND_CHECK_BATTLE_LAYOUT=0")
+    return
+  fi
+
+  if [[ ! -s "${player_a_result}" || ! -s "${player_b_result}" ]]; then
+    return
+  fi
+
+  if [[ ! -x "${script_dir}/check-battle-layout-screenshot.sh" ]]; then
+    failures+=("battle layout screenshot checker missing: ${script_dir}/check-battle-layout-screenshot.sh")
+    return
+  fi
+
+  output_path="$(mktemp)"
+  if "${script_dir}/check-battle-layout-screenshot.sh" \
+    "${player_a_result}" \
+    "${player_b_result}" >"${output_path}" 2>&1; then
+    battle_layout_status="passed"
+    rm -f "${output_path}"
+    return
+  fi
+
+  output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
+  rm -f "${output_path}"
+  failures+=("battle layout screenshot check failed: ${output_summary}")
+}
+
 player_a_log="${evidence_dir}/player-a.log"
 player_b_log="${evidence_dir}/player-b.log"
 player_a_result="${evidence_dir}/player-a-result.png"
@@ -276,6 +310,7 @@ require_file "${player_b_result}" "player B result screenshot"
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
 run_inksteel_style_check
+run_battle_layout_check
 
 if [[ -s "${player_a_log}" ]]; then
   require_client_setup_matches "${player_a_log}" "Player A"
@@ -412,6 +447,7 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Required logs: present
 - Required result screenshots: present and at least ${min_result_screenshot_width}x${min_result_screenshot_height}
 - Inksteel style: ${inksteel_style_status}
+- Battle layout: ${battle_layout_status}
 - Client setup: preconstructed deck load, SubmitDeck, and Ready observed for both players
 - Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed

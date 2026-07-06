@@ -44,6 +44,12 @@ set -euo pipefail
 echo "inksteel style guard ran: $*"
 STUB
     chmod +x "${destination}/clients/godot/tools/check-inksteel-screenshot-style.sh"
+    cat >"${destination}/clients/godot/tools/check-battle-layout-screenshot.sh" <<'STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "battle layout guard ran: $*"
+STUB
+    chmod +x "${destination}/clients/godot/tools/check-battle-layout-screenshot.sh"
     exit 0
     ;;
   "worktree remove --force")
@@ -88,6 +94,8 @@ rg -q "room=clean-sim-test" "${output}" \
   || fail "clean-main simulated wrapper did not preserve RIFTBOUND_ROOM"
 rg -q "inksteel style guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
   || fail "clean-main simulated wrapper did not run the inksteel style guard on both result screenshots"
+rg -q "battle layout guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
+  || fail "clean-main simulated wrapper did not run the battle layout guard on both result screenshots"
 rg -q "worktree add --detach" "${fake_git_log}" \
   || fail "clean-main simulated wrapper did not create a detached clean worktree"
 

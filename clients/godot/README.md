@@ -235,8 +235,8 @@ clients/godot/tools/run-clean-main-simulated-playtest-stack.sh
 
 This avoids local dirty files affecting the preflight. It still uses auto-smoke
 actions and is not valid final P5 evidence. By default, the clean-main wrapper
-also runs the inksteel style sanity check on both result screenshots after the
-simulated stack finishes.
+also runs the inksteel style sanity check and battle-layout screenshot geometry
+check on both result screenshots after the simulated stack finishes.
 
 After any other visible simulated or human run writes result screenshots, run the
 inksteel style sanity check to catch obvious visual drift back to bright gray
@@ -253,6 +253,20 @@ route. It does not replace opening the screenshots and doing the final human
 result-panel and hidden-information review. Set
 `RIFTBOUND_CHECK_INKSTEEL_STYLE=0` only when debugging the clean-main simulated
 wrapper itself.
+
+Also run the battle-layout screenshot check when reviewing result screenshots
+outside the wrappers:
+
+```sh
+clients/godot/tools/check-battle-layout-screenshot.sh \
+  /tmp/riftbound-simulated-playtest-ROOM/player-a-result.png \
+  /tmp/riftbound-simulated-playtest-ROOM/player-b-result.png
+```
+
+This geometry check catches cases where the palette still looks correct but the
+wire table is clipped, the bottom hand band falls off-screen, or the right
+result rail disappears. Set `RIFTBOUND_CHECK_BATTLE_LAYOUT=0` only when
+debugging the clean-main simulated wrapper itself.
 
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
@@ -329,23 +343,25 @@ decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
 `800x600`, report/log agreement on the original result screenshot paths,
 distinct A/B log and result screenshot files, the report `Inksteel style:
-passed` line, both client logs reporting `Hidden info boundary ok` with
+passed` and `Battle layout: passed` lines, both client logs reporting `Hidden info boundary ok` with
 `opponentHandFaces=0` and `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md`
 operator checklist with redacted Player A/B key fingerprints, the
 `VISUAL_REVIEW.md` screenshot checklist, and absence of
 crash/rejection/auto-smoke evidence. It rejects packages where the operator
 guide is missing key fingerprints or leaks any full `pk_...` player-key token.
 It also scans the packaged text evidence files for full `pk_...` key tokens.
-The package README, handoff, and visual review summaries repeat the inksteel style and
-hidden-information machine checks from the report. The verifier also re-runs the
-inksteel style guard on the packaged result screenshots, so replacing
-screenshots after report generation is caught.
+The package README, handoff, and visual review summaries repeat the inksteel
+style, battle-layout, and hidden-information machine checks from the report. The
+verifier also re-runs the inksteel style and battle-layout guards on the
+packaged result screenshots, so replacing screenshots after report generation is
+caught.
 
 For visual-regression evidence outside the clean-main wrappers, separately run
-`clients/godot/tools/check-inksteel-screenshot-style.sh` on both result
+`clients/godot/tools/check-inksteel-screenshot-style.sh` and
+`clients/godot/tools/check-battle-layout-screenshot.sh` on both result
 screenshots after the visible run. The evidence checker records the passing
-inksteel style guard in `playtest-report.md`; the final package verifier still
-requires the explicit human screenshot confirmations.
+style and layout guards in `playtest-report.md`; the final package verifier
+still requires the explicit human screenshot confirmations.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`

@@ -57,8 +57,8 @@ contracts change.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
   They are regression evidence, not final P5 evidence. The clean-main simulated
-  wrapper also runs the inksteel screenshot style guard on both result
-  screenshots by default.
+  wrapper also runs the inksteel screenshot style guard and the battle-layout
+  screenshot geometry guard on both result screenshots by default.
 - `run-clean-main-human-playtest-stack.sh` is the final P5 collection path. It
   requires clean pushed `origin/main`, distinct handles/player keys, manual
   confirmations, evidence packaging, and package verification. Its `--precheck`
@@ -74,11 +74,16 @@ contracts change.
   final checklist outside terminal scrollback.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
-  information boundary log lines, the inksteel screenshot style guard, and
-  writes `playtest-report.md`.
+  information boundary log lines, the inksteel screenshot style guard, the
+  battle-layout screenshot geometry guard, and writes `playtest-report.md`.
 - `check-inksteel-screenshot-style.sh` samples result screenshot pixels to catch
   obvious drift away from the selected black/ivory inksteel route. It is a visual
   regression guard, not a replacement for human screenshot review.
+- `check-battle-layout-screenshot.sh` samples result screenshots for the
+  black/ivory wire-table geometry: enough horizontal table bands, a bottom
+  hand/table border near the viewport bottom, and right result-rail linework.
+  It catches layout regressions where the palette still passes but the tabletop
+  is clipped or no longer matches the selected wire layout.
 - `check-battle-layout-scene-integrity.sh` statically checks that the result
   panel stays in the right information rail between a clipped compact official
   preview and the prompt panel, that the wire table has no 1280px hard width,
@@ -96,8 +101,8 @@ contracts change.
   leaks, and requires the package README plus generated handoff and visual
   review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
-  inksteel style machine check, then re-runs the inksteel style guard on the
-  packaged result screenshots. `OPERATOR_GUIDE.md` must also keep redacted
+  inksteel style and battle-layout machine checks, then re-runs both screenshot
+  guards on the packaged result screenshots. `OPERATOR_GUIDE.md` must also keep redacted
   Player A/B key fingerprints plus non-empty evidence-package and
   playtest-report path fields, and those fields must point to a `.tar.gz`
   evidence package and `playtest-report.md`, so a reviewer can recover the
@@ -115,6 +120,8 @@ contracts change.
   `clients/godot/tools/check-human-playtest-package-integrity.sh`
 - Inksteel screenshot style tests:
   `clients/godot/tools/check-inksteel-screenshot-style-integrity.sh`
+- Battle layout screenshot tests:
+  `clients/godot/tools/check-battle-layout-screenshot-integrity.sh`
 - Battle scene layout test:
   `clients/godot/tools/check-battle-layout-scene-integrity.sh`
 - Result rail visibility test:

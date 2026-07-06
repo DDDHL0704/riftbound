@@ -20,6 +20,7 @@ Useful environment overrides:
   RIFTBOUND_ROOM=sim-clean-local-test
   RIFTBOUND_SCREENSHOT_DIR=/tmp/riftbound-sim-clean-local-test
   RIFTBOUND_CHECK_INKSTEEL_STYLE=0
+  RIFTBOUND_CHECK_BATTLE_LAYOUT=0
 EOF
 }
 
@@ -38,6 +39,7 @@ user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
 room="${RIFTBOUND_ROOM:-sim-clean-main-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-simulated-playtest-${room}}"
 check_inksteel_style="${RIFTBOUND_CHECK_INKSTEEL_STYLE:-1}"
+check_battle_layout="${RIFTBOUND_CHECK_BATTLE_LAYOUT:-1}"
 created_worktree=0
 
 if [[ "${fetch_ref}" != "0" ]]; then
@@ -88,6 +90,12 @@ export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 
 if [[ "${check_inksteel_style}" != "0" ]]; then
   "${clean_worktree}/clients/godot/tools/check-inksteel-screenshot-style.sh" \
+    "${screenshot_dir}/player-a-result.png" \
+    "${screenshot_dir}/player-b-result.png"
+fi
+
+if [[ "${check_battle_layout}" != "0" ]]; then
+  "${clean_worktree}/clients/godot/tools/check-battle-layout-screenshot.sh" \
     "${screenshot_dir}/player-a-result.png" \
     "${screenshot_dir}/player-b-result.png"
 fi
