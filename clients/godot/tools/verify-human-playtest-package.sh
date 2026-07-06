@@ -414,6 +414,12 @@ require_operator_guide_consistency() {
   require_operator_guide_field "- Playtest report: " "operator guide playtest report path"
   require_operator_guide_field_contains "- Evidence package: " ".tar.gz" "operator guide evidence package tarball path"
   require_operator_guide_field_contains "- Playtest report: " "playtest-report.md" "operator guide playtest report file path"
+  require_operator_guide_field_contains "- Player A key fingerprint: " "..." "operator guide player A key fingerprint"
+  require_operator_guide_field_contains "- Player B key fingerprint: " "..." "operator guide player B key fingerprint"
+
+  if [[ -s "${operator_guide}" ]] && rg -q "Player [AB] key fingerprint: .*[^.][A-Za-z0-9_]{24,}$" "${operator_guide}"; then
+    failures+=("full player key leaked in OPERATOR_GUIDE.md")
+  fi
 
   if [[ -n "${player_a_result}" ]]; then
     require_operator_guide_literal_match "$(dirname "${player_a_result}")" "operator guide result screenshot directory"

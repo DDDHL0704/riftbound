@@ -262,6 +262,8 @@ EOF
 - Room: ${room_id}
 - Player A handle: ${player_a_handle}
 - Player B handle: ${player_b_handle}
+- Player A key fingerprint: pk_f...aaaa
+- Player B key fingerprint: pk_f...bbbb
 - Evidence directory: /tmp/riftbound-human-playtest
 - Evidence package: /tmp/riftbound-human-playtest.tar.gz
 - Playtest report: /tmp/riftbound-human-playtest/playtest-report.md
@@ -630,6 +632,8 @@ cat >"${operator_guide_bundle}/OPERATOR_GUIDE.md" <<'EOF'
 - Room: fixture-room
 - Player A handle: player-a-fixture
 - Player B handle: player-b-fixture
+- Player A key fingerprint: pk_f...aaaa
+- Player B key fingerprint: pk_f...bbbb
 - Evidence directory: /tmp/riftbound-human-playtest
 - Evidence package: /tmp/riftbound-human-playtest.tar.gz
 - Playtest report: /tmp/riftbound-human-playtest/playtest-report.md
@@ -649,6 +653,37 @@ operator_guide_package="${tmp_dir}/operator-guide.tar.gz"
 make_package "${operator_guide_bundle}" "${operator_guide_package}"
 
 "${script_dir}/verify-human-playtest-package.sh" "${operator_guide_package}" >/dev/null
+
+missing_operator_key_fingerprint_bundle="${tmp_dir}/missing-operator-key-fingerprint/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_operator_key_fingerprint_bundle}" "${revision}"
+python3 - "${missing_operator_key_fingerprint_bundle}/OPERATOR_GUIDE.md" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8").splitlines()
+path.write_text(
+    "\n".join(line for line in lines if "key fingerprint:" not in line) + "\n",
+    encoding="utf-8",
+)
+PY
+(
+  cd "${missing_operator_key_fingerprint_bundle}"
+  shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
+)
+missing_operator_key_fingerprint_package="${tmp_dir}/missing-operator-key-fingerprint.tar.gz"
+make_package "${missing_operator_key_fingerprint_bundle}" "${missing_operator_key_fingerprint_package}"
+
+missing_operator_key_fingerprint_output="${tmp_dir}/missing-operator-key-fingerprint-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_operator_key_fingerprint_package}" >"${missing_operator_key_fingerprint_output}" 2>&1; then
+  fail "verifier accepted operator guide without player key fingerprints"
+fi
+
+if ! rg -q "OPERATOR_GUIDE|operator guide|key fingerprint" "${missing_operator_key_fingerprint_output}"; then
+  echo "Expected missing operator key fingerprint rejection output:" >&2
+  cat "${missing_operator_key_fingerprint_output}" >&2
+  fail "verifier did not explain the missing operator key fingerprints"
+fi
 
 missing_operator_package_path_bundle="${tmp_dir}/missing-operator-package-path/riftbound-human-playtest-evidence"
 write_evidence_bundle "${missing_operator_package_path_bundle}" "${revision}"
