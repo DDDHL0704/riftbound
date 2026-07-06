@@ -44,8 +44,10 @@ contracts change.
   column, folds the legacy text summary and obsolete out-of-table hand rail out
   of battle snapshots, and follows the selected black/ivory reference layout:
   opponent resource rail, opponent play band, centered site divider, self play
-  band, and self resource rail. Sites live in the center divider instead of
-  inside tall lane columns, while opponent hidden hand information stays as card
+  band, and self resource rail. The opponent play band, centered site divider,
+  and self play band share one aligned lane shell with fixed left/right home
+  columns, so each battlefield stacks as opponent units, site, and self units in
+  the same vertical lane. Opponent hidden hand information stays as card
   backs/counts only.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible

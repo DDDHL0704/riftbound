@@ -152,6 +152,22 @@ if ! rg -q "private Control WireSiteDivider" "${renderer_path}"; then
   fail "wire battlefield sites must be rendered in a centered divider band that matches the black/ivory reference layout"
 fi
 
+if ! rg -q "WireHomeColumnWidth = 258f" "${renderer_path}"; then
+  fail "wire table must use one shared side-column width so battlefield lanes align across opponent, site, and self bands"
+fi
+
+if ! rg -q "private Control WireBattleLaneShell" "${renderer_path}"; then
+  fail "wire table must route opponent play, site divider, and self play through one aligned lane shell"
+fi
+
+if ! rg -q "private Control WireHomeSpacer" "${renderer_path}"; then
+  fail "wire table must reserve matching empty home columns beside the centered battlefield lanes"
+fi
+
+if rg -q "DividerLine\\(" "${renderer_path}"; then
+  fail "wire site divider must share the battlefield lane columns instead of floating between detached divider lines"
+fi
+
 if ! rg -q "_boardSummary\\.Visible = lobbyVisible" "${main_path}"; then
   fail "battle snapshots must hide the legacy BoardSummary text so the five-band wire table fits the viewport"
 fi
@@ -171,6 +187,16 @@ play_band = re.search(
 )
 if play_band is None:
     raise AssertionError("WirePlayBand method is missing")
+if "WireBattleLaneShell" not in play_band.group(0):
+    raise AssertionError(
+        "opponent and self play bands must use the same aligned lane shell"
+    )
+if "WireHomeSpacer" not in play_band.group(0):
+    raise AssertionError(
+        "play bands must reserve the opposite home column so lane centers line up"
+    )
+if not re.search(r"WireBattleLaneShell\([\s\S]*?148f?\)", play_band.group(0)):
+    raise AssertionError("play bands must give the aligned lane shell the full play-band height")
 
 heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", play_band.group(0))]
 if not heights:
@@ -187,6 +213,16 @@ site_divider = re.search(
 )
 if site_divider is None:
     raise AssertionError("WireSiteDivider method is missing")
+if "WireBattleLaneShell" not in site_divider.group(0):
+    raise AssertionError(
+        "site divider must use the same aligned lane shell as the play bands"
+    )
+if "WireHomeSpacer" not in site_divider.group(0):
+    raise AssertionError(
+        "site divider must reserve both home columns so sites sit under battlefield lanes"
+    )
+if not re.search(r"WireBattleLaneShell\([\s\S]*?98f?\)", site_divider.group(0)):
+    raise AssertionError("site divider must give the aligned lane shell the compact divider height")
 
 divider_heights = [int(value) for value in re.findall(r"new Vector2\(0, ([0-9]+)\)", site_divider.group(0))]
 if not divider_heights:

@@ -32,7 +32,12 @@ resume from repository state instead of conversation history alone.
   divider, self play band, and self resource rail. The old left-side zone label
   strips and the obsolete out-of-table hand scroll no longer consume combat
   layout space, which keeps the visible table closer to the reference image
-  instead of a form-like grid.
+  instead of a form-like grid. Follow-up visual review found that the five bands
+  still felt off when opponent units, sites, and self units did not share the
+  same lane columns. `CardControlRenderer` now routes opponent play, site
+  divider, and self play through one shared lane shell with fixed left/right
+  home columns, so each battlefield reads as a vertical stack:
+  opponent units -> site -> self units.
 - Official card fronts are loaded at runtime from catalog `frontImage` URLs via
   `OfficialCardImageLoader` into `user://official-card-cache`; they are not
   committed to git.
@@ -70,7 +75,10 @@ resume from repository state instead of conversation history alone.
   a 1280px hard-width wire table, left-side label-strip table construction,
   sites rendered inside tall lane columns instead of the center divider, a
   battle-visible legacy summary row, an obsolete `HandScroll` vertical
-  reservation, or compact table cards that stretch the black/ivory bands.
+  reservation, compact table cards that stretch the black/ivory bands, or any
+  wire-table implementation where the opponent play band, site divider, and self
+  play band do not reserve the same side columns around aligned battlefield
+  lanes.
 - `clients/godot/tools/check-result-rail-visibility-integrity.sh` is a static
   behavior guard that keeps match-result mode from blanking the right-side card
   preview or prompt panel while showing the result panel.
@@ -154,6 +162,13 @@ resume from repository state instead of conversation history alone.
   adjusted battle-layout screenshot guard, and preserved opponent hidden hands
   as backs/counts. It is regression evidence only because it is automated and
   not captured from clean pushed `main`.
+- Latest local dirty-worktree wire alignment check:
+  `/tmp/riftbound-wire-align-local-145106` opened two visible Godot windows,
+  reached both result panels, passed the inksteel style guard, passed the
+  battle-layout screenshot guard, and verified that the core battlefield now
+  stacks opponent units, sites, and self units in aligned lane columns. It is
+  regression evidence only because it is automated and not captured from clean
+  pushed `main`.
 
 ## Open Risks
 

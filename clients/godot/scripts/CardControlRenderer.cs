@@ -20,6 +20,7 @@ internal sealed class CardControlRenderer
     private static readonly Vector2 StandbyCardContentSize = new(34, 48);
     private static readonly Vector2 PileCardFrameSize = new(56, 78);
     private static readonly Vector2 PileCardContentSize = new(52, 74);
+    private const float WireHomeColumnWidth = 258f;
     private const int RuneDeckSize = 12;
 
     private readonly Action<Godot.Collections.Dictionary> _cardInspected;
@@ -195,32 +196,47 @@ internal sealed class CardControlRenderer
         string side,
         Godot.Collections.Array<Godot.Collections.Dictionary> lanes)
     {
-        var row = new HBoxContainer
-        {
-            CustomMinimumSize = new Vector2(0, 148),
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        row.AddThemeConstantOverride("separation", 4);
-
-        if (side == "opponent")
-        {
-            row.AddChild(WireHomeCluster(player, side));
-            row.AddChild(WireFormationSlots(lanes, side));
-        }
-        else
-        {
-            row.AddChild(WireFormationSlots(lanes, side));
-            row.AddChild(WireHomeCluster(player, side));
-        }
+        var row = WireBattleLaneShell(
+            side == "opponent" ? WireHomeCluster(player, side) : WireHomeSpacer(),
+            WireFormationSlots(lanes, side),
+            side == "self" ? WireHomeCluster(player, side) : WireHomeSpacer(),
+            148f);
 
         return WireFrame(row, new Vector2(0, 152), surface: RunestoneSurface.Rail);
+    }
+
+    private Control WireBattleLaneShell(Control leftHomeColumn, Control laneColumns, Control rightHomeColumn, float height)
+    {
+        var row = new HBoxContainer
+        {
+            CustomMinimumSize = new Vector2(0, height),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        row.AddThemeConstantOverride("separation", 4);
+        row.AddChild(leftHomeColumn);
+        row.AddChild(laneColumns);
+        row.AddChild(rightHomeColumn);
+        return row;
+    }
+
+    private Control WireHomeSpacer()
+    {
+        return WireFrame(
+            new Control
+            {
+                CustomMinimumSize = new Vector2(WireHomeColumnWidth, 0),
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill
+            },
+            new Vector2(WireHomeColumnWidth, 0),
+            surface: RunestoneSurface.Zone);
     }
 
     private Control WireHomeCluster(Godot.Collections.Dictionary player, string side)
     {
         var cluster = new HBoxContainer
         {
-            CustomMinimumSize = new Vector2(250, 0),
+            CustomMinimumSize = new Vector2(WireHomeColumnWidth - 8f, 0),
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
@@ -241,7 +257,7 @@ internal sealed class CardControlRenderer
             cluster.AddChild(WirePublicPile(player, "banished", "放逐"));
         }
 
-        return WireFrame(cluster, new Vector2(258, 0), surface: RunestoneSurface.Zone);
+        return WireFrame(cluster, new Vector2(WireHomeColumnWidth, 0), surface: RunestoneSurface.Zone);
     }
 
     private Control WireSignatureSlot(Godot.Collections.Dictionary player, string key)
@@ -321,27 +337,25 @@ internal sealed class CardControlRenderer
 
     private Control WireSiteDivider(Godot.Collections.Array<Godot.Collections.Dictionary> lanes)
     {
+        var row = WireBattleLaneShell(WireHomeSpacer(), WireSiteGrid(lanes), WireHomeSpacer(), 98f);
+        return WireFrame(row, new Vector2(0, 102), surface: RunestoneSurface.Zone);
+    }
+
+    private Control WireSiteGrid(Godot.Collections.Array<Godot.Collections.Dictionary> lanes)
+    {
         var row = new HBoxContainer
         {
             CustomMinimumSize = new Vector2(0, 98),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill
         };
-        row.AddThemeConstantOverride("separation", 6);
-        row.AddChild(DividerLine());
+        row.AddThemeConstantOverride("separation", 4);
         for (var index = 0; index < 2; index++)
         {
             row.AddChild(WireSiteSocket(lanes.Count > index ? lanes[index] : new Godot.Collections.Dictionary()));
-            if (index == 0)
-            {
-                var seal = LabelNode("◆", new Vector2(26, 0));
-                seal.AddThemeColorOverride("font_color", RunestoneTheme.Brass);
-                row.AddChild(seal);
-            }
         }
 
-        row.AddChild(DividerLine());
-        return WireFrame(row, new Vector2(0, 102), surface: RunestoneSurface.Zone);
+        return WireFrame(row, new Vector2(0, 0), surface: RunestoneSurface.Zone);
     }
 
     private Control WireSiteSocket(Godot.Collections.Dictionary lane)
@@ -358,18 +372,6 @@ internal sealed class CardControlRenderer
         row.AddChild(label);
         row.AddChild(WireCardFlow(Cards(lane, "site"), BattlefieldCardFrameSize, BattlefieldCardContentSize, minSlots: 1));
         return WireFrame(row, new Vector2(0, 0), surface: RunestoneSurface.Stack);
-    }
-
-    private static Control DividerLine()
-    {
-        return WireFrame(
-            new Control
-            {
-                CustomMinimumSize = new Vector2(0, 2),
-                SizeFlagsVertical = Control.SizeFlags.ShrinkCenter
-            },
-            new Vector2(0, 0),
-            surface: RunestoneSurface.Stack);
     }
 
     private Control WirePublicPile(Godot.Collections.Dictionary player, string key, string label)
