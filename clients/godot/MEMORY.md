@@ -202,16 +202,15 @@ resume from repository state instead of conversation history alone.
   hidden-information inspection of both screenshots. It repeats the machine
   hidden-information boundary conclusion from the checked report.
 - Latest clean pushed-main validation after engine-side commit
-  `c3bd210dd`: a visible clean-main simulated two-window run opened Godot from a
+  `955ec59ba`: a visible clean-main simulated two-window run opened Godot from a
   temporary clean `origin/main` worktree, started the local memory-mode API,
   reached both result panels, and wrote 1440x900 result screenshots plus a clean
   machine-check report. The simulated evidence directory was
-  `/tmp/riftbound-main-regression-150937`; it is useful regression evidence only
-  and remains invalid for final P5 because it contains auto-smoke markers. The
-  same latest `origin/main` also passed
-  `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`, so
-  the final two-human evidence entrypoint is ready to launch when both operators
-  are available.
+  `/tmp/riftbound-simulated-playtest-sim-clean-main-112308`; it is useful
+  regression evidence only and remains invalid for final P5 because it contains
+  auto-smoke markers. The run passed the inksteel style guard, battle-layout
+  screenshot guard, client setup receipts, match lifecycle, and hidden-info
+  boundary checks.
 - Latest local dirty-worktree visual correction check:
   `/tmp/riftbound-sim-wire-reference-134856` opened two visible Godot windows,
   reached both result panels, passed the inksteel style guard, passed the
