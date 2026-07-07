@@ -36,6 +36,10 @@ require_pattern "discover_p5_screen_name" \
   "launcher status must auto-discover an existing final P5 screen session"
 require_pattern "print_evidence_status" \
   "launcher status must summarize the current evidence directory"
+require_pattern "print_revision_status" \
+  "launcher status must summarize the running clean-main revision"
+require_pattern "revision status: STALE" \
+  "launcher status must warn when a running final P5 session is behind local origin/main"
 require_pattern "Prompt actions:" \
   "launcher status must show the latest prompt actions from player logs"
 require_pattern "result screenshot" \

@@ -134,10 +134,11 @@ resume from repository state instead of conversation history alone.
   status file when no room/screen override is provided, because macOS `screen`
   filtering by name is not reliable enough for recovering generated P5 room
   suffixes from memory. It also prints a compact evidence snapshot from the
-  current evidence directory, including each player's latest prompt actions,
-  setup receipt state, hidden-information boundary line, and whether initial or
-  result screenshots exist, so a handoff can see whether humans are still at
-  deck submit, mid-match, or ready for manual confirmations.
+  current evidence directory, including the running clean-main revision, whether
+  that revision is stale versus local `origin/main`, each player's latest prompt
+  actions, setup receipt state, hidden-information boundary line, and whether
+  initial or result screenshots exist, so a handoff can see whether humans are
+  still at deck submit, mid-match, or ready for manual confirmations.
 - The final P5 wrapper supports `--precheck`; it validates final evidence gates
   and fetches `origin/main` without creating a worktree, opening Godot windows,
   or writing evidence. It also checks the configured Godot binary and local

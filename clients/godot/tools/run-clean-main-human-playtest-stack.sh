@@ -79,6 +79,7 @@ allow_incomplete_evidence="${RIFTBOUND_ALLOW_INCOMPLETE_HUMAN_EVIDENCE:-0}"
 incomplete_human_evidence=0
 created_worktree=0
 require_owned_local_api=1
+resolved_ref=""
 
 fingerprint_secret() {
   local secret="$1"
@@ -139,6 +140,7 @@ write_operator_guide() {
 - Source repo: ${repo_root}
 - Clean worktree: ${clean_worktree}
 - Ref: ${ref}
+- Resolved revision: ${resolved_ref}
 - Server: ${server}
 - Room: ${room}
 - Player A handle: ${handle_a}
@@ -359,6 +361,7 @@ trap cleanup EXIT
 
 git -C "${repo_root}" worktree add --detach "${clean_worktree}" "${ref}"
 created_worktree=1
+resolved_ref="$(git -C "${clean_worktree}" rev-parse HEAD)"
 write_operator_guide
 
 cat <<EOF
@@ -366,6 +369,7 @@ Started clean-main Riftbound Godot human playtest stack.
   source repo: ${repo_root}
   clean worktree: ${clean_worktree}
   ref: ${ref}
+  resolved revision: ${resolved_ref}
   fetch origin/main: ${fetch_ref}
   keep worktree: ${keep_worktree}
   evidence dir: ${screenshot_dir}

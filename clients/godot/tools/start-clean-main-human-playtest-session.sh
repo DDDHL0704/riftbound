@@ -106,6 +106,69 @@ latest_log_match() {
   fi
 }
 
+operator_guide_field() {
+  local label="$1"
+  local guide_path="${screenshot_dir}/OPERATOR_GUIDE.md"
+
+  if [[ ! -s "${guide_path}" ]]; then
+    return
+  fi
+
+  awk -v prefix="- ${label}: " 'index($0, prefix) == 1 { print substr($0, length(prefix) + 1); exit }' "${guide_path}"
+}
+
+git_revision() {
+  local git_dir="$1"
+  local git_ref="$2"
+
+  if [[ ! -d "${git_dir}" ]]; then
+    return
+  fi
+
+  git -C "${git_dir}" rev-parse "${git_ref}" 2>/dev/null || true
+}
+
+print_revision_status() {
+  local clean_worktree
+  local session_ref
+  local resolved_revision
+  local session_revision
+  local current_origin_revision
+
+  clean_worktree="$(operator_guide_field "Clean worktree")"
+  session_ref="$(operator_guide_field "Ref")"
+  resolved_revision="$(operator_guide_field "Resolved revision")"
+
+  if [[ -n "${clean_worktree}" ]]; then
+    session_revision="$(git_revision "${clean_worktree}" HEAD)"
+  fi
+
+  if [[ -z "${session_revision}" ]]; then
+    session_revision="${resolved_revision}"
+  fi
+
+  current_origin_revision="$(git_revision "${repo_root}" origin/main)"
+
+  if [[ -z "${clean_worktree}${session_ref}${session_revision}${current_origin_revision}" ]]; then
+    return
+  fi
+
+  echo
+  echo "Revision snapshot:"
+  echo "  ref: ${session_ref:-unknown}"
+  echo "  clean worktree: ${clean_worktree:-unknown}"
+  echo "  session revision: ${session_revision:-unavailable}"
+  echo "  local origin/main: ${current_origin_revision:-unavailable}"
+
+  if [[ -n "${session_revision}" && -n "${current_origin_revision}" ]]; then
+    if [[ "${session_revision}" == "${current_origin_revision}" ]]; then
+      echo "  revision status: current with local origin/main"
+    else
+      echo "  revision status: STALE versus local origin/main; restart before final P5 if no human progress is being preserved"
+    fi
+  fi
+}
+
 print_player_evidence_status() {
   local label="$1"
   local log_path="$2"
@@ -204,6 +267,7 @@ if [[ "${mode}" == "status" ]]; then
     cat "${status_file}"
   fi
 
+  print_revision_status
   print_evidence_status
 
   if [[ -s "${screen_log}" ]]; then
