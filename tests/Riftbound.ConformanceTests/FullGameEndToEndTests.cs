@@ -2857,6 +2857,45 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameSkipsMasterYiBelowLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildMasterYiLevelActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-master-yi-below-level-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildMasterYiLevelActiveEntryMidgameInitialState(
+            openingResult.State,
+            playerOneExperience: 10);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            DemaciaEnvoyCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-master-yi-below-level-active-entry",
+            expectReady: false);
+        AssertMasterYiBelowLevelActiveEntrySkipped(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-master-yi-below-level-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -9116,6 +9155,30 @@ public sealed class FullGameEndToEndTests
         ResolutionResult beforePlay,
         ResolutionResult result)
     {
+        AssertMasterYiLevelActiveEntry(
+            beforePlay,
+            result,
+            expectedPlayerExperience: 11,
+            expectedReady: true);
+    }
+
+    private static void AssertMasterYiBelowLevelActiveEntrySkipped(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        AssertMasterYiLevelActiveEntry(
+            beforePlay,
+            result,
+            expectedPlayerExperience: 10,
+            expectedReady: false);
+    }
+
+    private static void AssertMasterYiLevelActiveEntry(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        int expectedPlayerExperience,
+        bool expectedReady)
+    {
         var legendObjectId = FindLegendObjectByCardNo(
             beforePlay.State,
             "P1",
@@ -9127,13 +9190,13 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 Master Yi level active-entry assertion could not locate Demacia Envoy in P1 hand.");
         var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
 
-        Assert.Equal(11, beforePlay.State.PlayerExperience["P1"]);
+        Assert.Equal(expectedPlayerExperience, beforePlay.State.PlayerExperience["P1"]);
         Assert.Contains(legendObjectId, beforePlay.State.PlayerZones["P1"].LegendZone);
         Assert.Contains(unitObjectId, beforePlay.State.PlayerZones["P1"].Hand);
         Assert.True(beforePlay.State.CardObjects[unitObjectId].IsExhausted);
         Assert.Contains(unitObjectId, result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(battlefieldId, result.State.ObjectLocations[unitObjectId].BattlefieldObjectId);
-        Assert.False(result.State.CardObjects[unitObjectId].IsExhausted);
+        Assert.Equal(!expectedReady, result.State.CardObjects[unitObjectId].IsExhausted);
         Assert.Contains(legendObjectId, result.State.PlayerZones["P1"].LegendZone);
 
         var unitEvent = Assert.Single(result.Events, gameEvent =>
@@ -9144,10 +9207,20 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", unitEvent.Payload["playerId"]);
         Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
         Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
-        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
-        Assert.Equal(StaticAbilityKinds.FriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
-        Assert.Equal(legendObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
-        Assert.Equal(MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.Equal(!expectedReady, unitEvent.Payload["isExhausted"]);
+        if (expectedReady)
+        {
+            Assert.Equal(StaticAbilityKinds.FriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+            Assert.Equal(legendObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+            Assert.Equal(MasterYiLevelFriendlyUnitsStaticAuraLegendCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        }
+        else
+        {
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilityKind"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceObjectId"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceCardNo"));
+        }
+
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -29778,7 +29851,9 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildMasterYiLevelActiveEntryMidgameInitialState(MatchState state)
+    private static MatchState BuildMasterYiLevelActiveEntryMidgameInitialState(
+        MatchState state,
+        int playerOneExperience = 11)
     {
         var midgameState = BuildSpecificCardsMidgameInitialState(
             state,
@@ -29810,7 +29885,7 @@ public sealed class FullGameEndToEndTests
         {
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
                 playerId => playerId,
-                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 11 : 0,
+                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? playerOneExperience : 0,
                 StringComparer.Ordinal),
             CardObjects = cardObjects
         };

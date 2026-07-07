@@ -372,6 +372,8 @@ This face-down Molten Drake skipped active-entry increment additionally proves t
 
 This Master Yi level active-entry increment additionally proves a legal official Master Yi level deck opening can carry `FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps P1 at 11 experience with `UNL-191/219` in the legend zone and official `UNL-092/219` Demacia Envoy in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Demacia Envoy enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` plus Master Yi legend source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+This Master Yi below-level skipped active-entry increment additionally proves the same legal official Master Yi level deck opening family keeps `FRIENDLY_UNITS_ENTER_READY` gated below the level-11 requirement. The focused state keeps P1 at 10 experience with `UNL-191/219` in the legend zone and official `UNL-092/219` Demacia Envoy in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Demacia Envoy stays exhausted, `UNIT_PLAYED_TO_BATTLEFIELD` omits entry static-ability metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete level / experience breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 This Bandle Soldier level active-entry increment additionally proves a legal official Poppy deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route for the simple level-gated self-entry text. The focused state keeps P1 at 3 experience with official `UNL-151/219` Bandle Soldier in hand; after the server-authored `PLAY_CARD` to a P1 battlefield, Bandle Soldier enters active at printed 5 power, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 This Fiercewing controlled-Dragon active-entry increment additionally proves a legal official Poppy deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route for controlled-tag self-entry text. The focused state keeps official `OGN·131/298` Dune Drake and `SFD·094/221` Fiercewing in P1 hand; after the server-authored Dune Drake `PLAY_CARD` resolves to P1 base, P1 controls another public `龙` unit, and the subsequent server-authored Fiercewing `PLAY_CARD` to a P1 battlefield enters active at printed 7 power. `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
@@ -925,6 +927,42 @@ Result:
 
 ```text
 Passed: 8884, Failed: 0, Skipped: 0, Total: 8884
+```
+
+Latest Master Yi level/below-level active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameSkipsMasterYiBelowLevelActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Master Yi level/below-level active-entry replay / active-entry / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameSkipsMasterYiBelowLevelActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesMasterYiLevelActiveEntry|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~OfficialDeckMidgameSkipsFaceDownMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result:
+
+```text
+Passed: 2131, Failed: 0, Skipped: 0, Total: 2131
+```
+
+Latest Master Yi below-level skipped active-entry backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9200, Failed: 0, Skipped: 0, Total: 9200
 ```
 
 Latest Molten Drake other-friendly active-entry official-deck replay focused validation passed:

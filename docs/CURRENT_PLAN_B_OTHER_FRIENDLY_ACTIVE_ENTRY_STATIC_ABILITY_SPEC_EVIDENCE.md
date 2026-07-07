@@ -191,6 +191,7 @@ Level-gated source-unit active-entry runtime:
 - MatchRecovery hidden-info / continuous-effect guard regression: 1984/1984 passed.
 - Master Yi level-gated active-entry B0 official-deck replay focused: 1/1 passed.
 - Master Yi level active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2104/2104 passed.
+- Master Yi below-level skipped active-entry B0 official-deck replay focused: 2/2 passed for the level-11 positive plus level-10 skipped pair; adjacent active-entry / FullGameEndToEnd / MatchRecovery regression: 2131/2131 passed; backend full: 9200/9200 passed.
 - Dunehorn low-hand active-entry pre-implementation red: `DunehornLowHandActiveEntryStaticAbilityTests` failed at compile because `SOURCE_UNIT_ENTER_READY` / `MaxControllerHandCount` did not exist.
 - Dunehorn low-hand active-entry focused post-implementation: 3/3 passed.
 - Dunehorn / active-entry / MatchRecovery adjacent regression: 2297/2297 passed.
