@@ -140,13 +140,15 @@ contracts change.
   review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
   inksteel style and battle-layout machine checks, then re-runs both screenshot
-  guards on the packaged result screenshots. `OPERATOR_GUIDE.md` must also keep redacted
-  Player A/B key fingerprints plus non-empty evidence-package and
+  guards on the packaged result screenshots. `OPERATOR_GUIDE.md` must also keep
+  redacted Player A/B key fingerprints plus non-empty evidence-package and
   playtest-report path fields, and those fields must point to a `.tar.gz`
   evidence package and `playtest-report.md`, so a reviewer can recover the
-  handoff files without terminal scrollback or placeholder values. The verifier
-  rejects missing key fingerprints and any full `pk_...` player-key token leaked
-  anywhere in the packaged text evidence files.
+  handoff files without terminal scrollback or placeholder values. When launched
+  through the detached P5 launcher, the runtime guide also records the screen
+  session, attach command, status command, status file, and screen log. The
+  verifier rejects missing key fingerprints and any full `pk_...` player-key
+  token leaked anywhere in the packaged text evidence files.
 
 ## Standard Gates
 

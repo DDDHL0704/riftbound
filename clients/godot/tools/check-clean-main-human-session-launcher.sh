@@ -50,6 +50,10 @@ require_pattern "RIFTBOUND_VERIFY_EVIDENCE_PACKAGE=1" \
   "launcher must preserve package verification"
 require_pattern "RIFTBOUND_REQUIRE_CLEAN_GIT=1" \
   "launcher must require clean-git evidence"
+require_pattern "export RIFTBOUND_P5_SCREEN_NAME" \
+  "launcher must pass the detached screen name into the operator guide"
+require_pattern "export RIFTBOUND_P5_STATUS_FILE" \
+  "launcher must pass the detached status file into the operator guide"
 require_pattern "screen -r" \
   "launcher must tell operators how to attach for manual confirmations"
 require_pattern "OPERATOR_GUIDE.md" \

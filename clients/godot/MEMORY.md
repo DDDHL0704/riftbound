@@ -153,6 +153,10 @@ resume from repository state instead of conversation history alone.
   P5 operator checklist so a human handoff can recover the room, player handles,
   redacted player key fingerprints, evidence directory, package path, and
   hidden-information confirmation steps even if the terminal scrollback is lost.
+  When launched through `start-clean-main-human-playtest-session.sh`, the guide
+  also records the detached `screen` session, attach command, launcher status
+  command, status file, and screen log so operators can resume final manual
+  confirmations from the evidence directory alone.
 - P4 local deployment check has been validated from clean
   `origin/main@5c36f78ddb5a50a363b80276b3fa35515e0edd01`: Docker image
   `riftbound-api:p4-docker-152848` built, Production memory-mode container

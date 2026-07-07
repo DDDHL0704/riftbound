@@ -170,6 +170,10 @@ fi
 export RIFTBOUND_ROOM="${room}"
 export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 export RIFTBOUND_EVIDENCE_PACKAGE="${evidence_package}"
+export RIFTBOUND_P5_SCREEN_NAME="${screen_name}"
+export RIFTBOUND_P5_SCREEN_DIR="${screen_dir}"
+export RIFTBOUND_P5_SCREEN_LOG="${screen_log}"
+export RIFTBOUND_P5_STATUS_FILE="${status_file}"
 export RIFTBOUND_CONFIRM_MANUAL=1
 export RIFTBOUND_REQUIRE_CLEAN_GIT=1
 export RIFTBOUND_CHECK_EVIDENCE=1

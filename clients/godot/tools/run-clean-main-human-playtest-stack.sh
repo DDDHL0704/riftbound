@@ -122,6 +122,16 @@ validate_output_parent() {
 write_operator_guide() {
   mkdir -p "${screenshot_dir}"
 
+  local operator_screen_session="${RIFTBOUND_P5_SCREEN_NAME:-not detached}"
+  local operator_attach_command="not available; this wrapper was not launched through start-clean-main-human-playtest-session.sh"
+  local operator_screen_log="${RIFTBOUND_P5_SCREEN_LOG:-not available}"
+  local operator_status_file="${RIFTBOUND_P5_STATUS_FILE:-not available}"
+  local operator_status_command="${repo_root}/clients/godot/tools/start-clean-main-human-playtest-session.sh --status"
+
+  if [[ -n "${RIFTBOUND_P5_SCREEN_NAME:-}" ]]; then
+    operator_attach_command="screen -r ${RIFTBOUND_P5_SCREEN_NAME}"
+  fi
+
   cat >"${screenshot_dir}/OPERATOR_GUIDE.md" <<EOF
 # Riftbound Godot P5 Operator Guide
 
@@ -138,6 +148,11 @@ write_operator_guide() {
 - Evidence directory: ${screenshot_dir}
 - Evidence package: ${evidence_package}
 - Playtest report: ${screenshot_dir}/playtest-report.md
+- Screen session: ${operator_screen_session}
+- Screen attach command: ${operator_attach_command}
+- Status command: ${operator_status_command}
+- Launcher status file: ${operator_status_file}
+- Screen log: ${operator_screen_log}
 
 ## Final P5 operator checklist
 
@@ -150,7 +165,8 @@ write_operator_guide() {
 
 This guide is written before the Godot windows launch so the operators can
 recover the room, player handles, player key fingerprints, evidence directory,
-and package path even if the terminal scrollback is lost.
+package path, detached screen session, attach command, and status command even
+if the terminal scrollback is lost.
 EOF
 }
 
