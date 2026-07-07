@@ -77,6 +77,7 @@ public sealed class FullGameEndToEndTests
     private const string SeaMonsterHookEquipmentCardNo = "OGN·242/298";
     private const string SeaMonsterHookDestroyedUnitCardNo = "UNL-154/219";
     private const string SeaMonsterHookEligibleTopUnitCardNo = "UNL-163/219";
+    private const string SeaMonsterHookSecondEligibleTopUnitCardNo = "UNL-152/219";
     private const string SeaMonsterHookIneligibleTopUnitCardNo = "UNL-151/219";
     private const string SeaMonsterHookTopSpellCardNo = "UNL-155/219";
     private const string SeaMonsterHookTopEquipmentCardNo = "SFD·153/221";
@@ -1884,6 +1885,51 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog, includeSecondEligibleTopUnit: true);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-multi-choice-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSeaMonsterHookActivatedAbilityMidgameInitialState(
+            openingResult.State,
+            includeSecondEligibleTopUnit: true);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+
+        var (activated, pendingChoice, chosen) = await SubmitSeaMonsterHookActivatedAbilityWithTopFiveChoiceAsync(
+            session,
+            current,
+            "P1",
+            "b0-sea-monster-hook-multi-choice",
+            SeaMonsterHookSecondEligibleTopUnitCardNo);
+        AssertSeaMonsterHookActivatedAbilityTopFiveChoiceResolved(
+            current,
+            activated,
+            pendingChoice,
+            chosen,
+            SeaMonsterHookSecondEligibleTopUnitCardNo);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            chosen,
+            "b0-sea-monster-hook-multi-choice-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ChooseCards, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -7598,6 +7644,102 @@ public sealed class FullGameEndToEndTests
         Assert.DoesNotContain(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(activated);
         AssertNoHiddenZoneLeak(resolved);
+    }
+
+    private static void AssertSeaMonsterHookActivatedAbilityTopFiveChoiceResolved(
+        ResolutionResult beforeActivation,
+        ResolutionResult activated,
+        ResolutionResult pendingChoice,
+        ResolutionResult chosen,
+        string selectedCardNo)
+    {
+        var ability = SeaMonsterHookActivatedAbilityDefinition();
+        var sourceObjectId = beforeActivation.State.PlayerZones["P1"].Base.Single(objectId =>
+            beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, SeaMonsterHookEquipmentCardNo, StringComparison.Ordinal));
+        var destroyedUnitObjectId = beforeActivation.State.PlayerZones["P1"].Base.Single(objectId =>
+            beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, SeaMonsterHookDestroyedUnitCardNo, StringComparison.Ordinal));
+        var topFiveObjectIds = beforeActivation.State.PlayerZones["P1"].MainDeck.Take(5).ToArray();
+        var selectedObjectId = Assert.Single(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, selectedCardNo, StringComparison.Ordinal));
+        var unselectedEligibleObjectId = Assert.Single(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookEligibleTopUnitCardNo, StringComparison.Ordinal));
+        Assert.Contains(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookIneligibleTopUnitCardNo, StringComparison.Ordinal));
+        Assert.Contains(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookTopSpellCardNo, StringComparison.Ordinal));
+        Assert.Contains(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookTopEquipmentCardNo, StringComparison.Ordinal));
+
+        Assert.Equal(new RunePool(1, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Yellow] = 1
+        }), beforeActivation.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty, activated.State.RunePools["P1"]);
+        Assert.True(activated.State.CardObjects[sourceObjectId].IsExhausted);
+        var stackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(sourceObjectId, stackItem.SourceObjectId);
+        Assert.Equal(ability.EffectKind, stackItem.EffectKind);
+        Assert.Equal([destroyedUnitObjectId], stackItem.TargetObjectIds);
+
+        Assert.Empty(pendingChoice.State.StackItems);
+        Assert.NotNull(pendingChoice.State.PendingCardChoice);
+        Assert.Contains(destroyedUnitObjectId, pendingChoice.State.PlayerZones["P1"].Graveyard);
+        Assert.False(pendingChoice.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        Assert.DoesNotContain(pendingChoice.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(pendingChoice.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && Assert.IsType<int>(gameEvent.Payload["requiredCount"]) == 0
+            && Assert.IsType<int>(gameEvent.Payload["maxCount"]) == 1
+            && Assert.IsType<int>(gameEvent.Payload["legalCount"]) == 2);
+
+        Assert.Empty(chosen.State.StackItems);
+        Assert.Null(chosen.State.PendingCardChoice);
+        Assert.Contains(sourceObjectId, chosen.State.PlayerZones["P1"].Base);
+        Assert.Contains(selectedObjectId, chosen.State.PlayerZones["P1"].Base);
+        Assert.Contains(destroyedUnitObjectId, chosen.State.PlayerZones["P1"].Graveyard);
+        Assert.False(chosen.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        Assert.Equal("P1", chosen.State.CardObjects[selectedObjectId].ControllerId);
+        Assert.False(chosen.State.CardObjects[selectedObjectId].IsExhausted);
+        Assert.DoesNotContain(selectedObjectId, chosen.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(unselectedEligibleObjectId, chosen.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(beforeActivation.State.PlayerZones["P1"].MainDeck.Count - 1, chosen.State.PlayerZones["P1"].MainDeck.Count);
+
+        Assert.Contains(chosen.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_CHOICE_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && Assert.IsType<int>(gameEvent.Payload["chosenCount"]) == 1);
+        Assert.Contains(chosen.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, selectedObjectId, StringComparison.Ordinal));
+        var recycled = Assert.Single(chosen.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", recycled.Payload["playerId"]);
+        Assert.Equal(4, recycled.Payload["count"]);
+        Assert.Equal("MAIN_DECK", recycled.Payload["zone"]);
+        Assert.Equal("LOOKED_NOT_REVEALED", recycled.Payload["visibility"]);
+        Assert.False(recycled.Payload.ContainsKey("cardIds"));
+        Assert.DoesNotContain(chosen.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(pendingChoice);
+        AssertNoHiddenZoneLeak(chosen);
     }
 
     private static void AssertBattlefieldEchoCostReductionSpellPlayed(
@@ -17420,6 +17562,66 @@ public sealed class FullGameEndToEndTests
         return (activated, resolved);
     }
 
+    private static async ValueTask<(ResolutionResult Activated, ResolutionResult PendingChoice, ResolutionResult Chosen)> SubmitSeaMonsterHookActivatedAbilityWithTopFiveChoiceAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId,
+        string selectedCardNo)
+    {
+        var (activated, pendingChoice) = await SubmitSeaMonsterHookActivatedAbilityAsync(
+            session,
+            current,
+            playerId,
+            intentId);
+        Assert.Equal(playerId, pendingChoice.State.ActivePlayerId);
+        Assert.Equal(PromptTypes.CardChoice, pendingChoice.Prompts[playerId].View?.Type);
+        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].Actions);
+        var chooseCandidate = Assert.Single(
+            pendingChoice.Prompts[playerId].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
+        Assert.True(chooseCandidate.Enabled);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(chooseCandidate.Metadata);
+        Assert.Equal("SEA_MONSTER_HOOK_TOP_FIVE_PLAY", metadata["choiceWindow"]);
+        Assert.Equal(playerId, metadata["choosingPlayerId"]);
+        Assert.Equal(0, Assert.IsType<int>(metadata["requiredCount"]));
+        Assert.Equal(1, Assert.IsType<int>(metadata["maxCount"]));
+        var cardChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["cardChoices"]).ToArray();
+        Assert.Equal(2, cardChoices.Length);
+        var legalObjectIds = Assert.IsAssignableFrom<IEnumerable<string>>(metadata["legalObjectIds"])
+            .ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(2, legalObjectIds.Count);
+        Assert.All(cardChoices, choice => Assert.Contains(choice.Id, legalObjectIds));
+        var selectedObjectId = pendingChoice.State.PlayerZones[playerId].MainDeck.Take(5).Single(objectId =>
+            pendingChoice.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, selectedCardNo, StringComparison.Ordinal));
+        Assert.Contains(selectedObjectId, legalObjectIds);
+
+        var waitingPrompt = pendingChoice.Prompts.Single(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal)).Value;
+        Assert.False(waitingPrompt.Actionable);
+        Assert.Equal(PromptTypes.CardChoice, waitingPrompt.View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseCards, waitingPrompt.Actions);
+        Assert.DoesNotContain(
+            waitingPrompt.Candidates ?? [],
+            candidate => candidate.Metadata is not null
+                && (candidate.Metadata.ContainsKey("cardChoices") || candidate.Metadata.ContainsKey("legalObjectIds")));
+
+        var choiceId = Assert.IsType<string>(metadata["choiceId"]);
+        var command = new ChooseCardsCommand(
+            choiceId,
+            "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+            [selectedObjectId]);
+        var chosen = await session.SubmitAsync(
+            playerId,
+            $"{intentId}-choose",
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(chosen);
+        AssertNoHiddenZoneLeak(chosen);
+        return (activated, pendingChoice, chosen);
+    }
+
     private static P4ActivatedAbilityDefinition SeaMonsterHookActivatedAbilityDefinition()
     {
         return P4ActivatedAbilityCatalog.GetAll().Single(ability =>
@@ -22916,23 +23118,32 @@ public sealed class FullGameEndToEndTests
         return tunedDeck;
     }
 
-    private static OfficialDecklist BuildSeaMonsterHookActivatedAbilityOfficialDeck(OfficialCardCatalog catalog)
+    private static OfficialDecklist BuildSeaMonsterHookActivatedAbilityOfficialDeck(
+        OfficialCardCatalog catalog,
+        bool includeSecondEligibleTopUnit = false)
     {
+        var requiredCardNos = new List<string>
+        {
+            SeaMonsterHookEquipmentCardNo,
+            SeaMonsterHookDestroyedUnitCardNo,
+            SeaMonsterHookEligibleTopUnitCardNo,
+            SeaMonsterHookIneligibleTopUnitCardNo,
+            SeaMonsterHookTopSpellCardNo,
+            SeaMonsterHookTopEquipmentCardNo,
+            SeaMonsterHookTopOtherSpellCardNo
+        };
+        if (includeSecondEligibleTopUnit)
+        {
+            requiredCardNos.Insert(3, SeaMonsterHookSecondEligibleTopUnitCardNo);
+        }
+
         return WithSlowBattlefields(
             catalog,
             BuildLowCurveOfficialDeck(
                 catalog,
                 PoppyLegendCardNo,
                 PoppyChampionCardNo,
-                [
-                    SeaMonsterHookEquipmentCardNo,
-                    SeaMonsterHookDestroyedUnitCardNo,
-                    SeaMonsterHookEligibleTopUnitCardNo,
-                    SeaMonsterHookIneligibleTopUnitCardNo,
-                    SeaMonsterHookTopSpellCardNo,
-                    SeaMonsterHookTopEquipmentCardNo,
-                    SeaMonsterHookTopOtherSpellCardNo
-                ]));
+                requiredCardNos));
     }
 
     private static OfficialDecklist BuildBattlefieldGrantUnitExperienceOfficialDeck(OfficialCardCatalog catalog)
@@ -24508,6 +24719,13 @@ public sealed class FullGameEndToEndTests
                 paymentId = payCost.PaymentId,
                 paymentWindow = payCost.PaymentWindow,
                 paymentChoiceIds = payCost.PaymentChoiceIds ?? []
+            }),
+            ChooseCardsCommand chooseCards => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = chooseCards.CmdType,
+                choiceId = chooseCards.ChoiceId,
+                choiceWindow = chooseCards.ChoiceWindow,
+                chosenObjectIds = chooseCards.ChosenObjectIds ?? []
             }),
             ActivateAbilityCommand activateAbility => JsonSerializer.SerializeToElement(new
             {
@@ -27241,20 +27459,32 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildSeaMonsterHookActivatedAbilityMidgameInitialState(MatchState state)
+    private static MatchState BuildSeaMonsterHookActivatedAbilityMidgameInitialState(
+        MatchState state,
+        bool includeSecondEligibleTopUnit = false)
     {
+        var stagedCardNos = new List<string>
+        {
+            SeaMonsterHookEquipmentCardNo,
+            SeaMonsterHookDestroyedUnitCardNo,
+            SeaMonsterHookEligibleTopUnitCardNo,
+            SeaMonsterHookIneligibleTopUnitCardNo,
+            SeaMonsterHookTopSpellCardNo,
+            SeaMonsterHookTopEquipmentCardNo
+        };
+        if (includeSecondEligibleTopUnit)
+        {
+            stagedCardNos.Insert(3, SeaMonsterHookSecondEligibleTopUnitCardNo);
+        }
+        else
+        {
+            stagedCardNos.Add(SeaMonsterHookTopOtherSpellCardNo);
+        }
+
         var midgameState = BuildSpecificCardsMidgameInitialState(
             state,
             "P1",
-            [
-                SeaMonsterHookEquipmentCardNo,
-                SeaMonsterHookDestroyedUnitCardNo,
-                SeaMonsterHookEligibleTopUnitCardNo,
-                SeaMonsterHookIneligibleTopUnitCardNo,
-                SeaMonsterHookTopSpellCardNo,
-                SeaMonsterHookTopEquipmentCardNo,
-                SeaMonsterHookTopOtherSpellCardNo
-            ],
+            stagedCardNos,
             new RunePool(
                 mana: 1,
                 power: 0,
@@ -27277,6 +27507,13 @@ public sealed class FullGameEndToEndTests
             "P1",
             SeaMonsterHookEligibleTopUnitCardNo)
             ?? throw new InvalidOperationException("B0 Sea Monster Hook setup could not find eligible top unit in P1 hand.");
+        var secondEligibleUnitObjectId = includeSecondEligibleTopUnit
+            ? FindHandCardObjectByCardNo(
+                midgameState,
+                "P1",
+                SeaMonsterHookSecondEligibleTopUnitCardNo)
+                ?? throw new InvalidOperationException("B0 Sea Monster Hook setup could not find second eligible top unit in P1 hand.")
+            : null;
         var ineligibleUnitObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
@@ -27292,19 +27529,30 @@ public sealed class FullGameEndToEndTests
             "P1",
             SeaMonsterHookTopEquipmentCardNo)
             ?? throw new InvalidOperationException("B0 Sea Monster Hook setup could not find top equipment in P1 hand.");
-        var topOtherSpellObjectId = FindHandCardObjectByCardNo(
-            midgameState,
-            "P1",
-            SeaMonsterHookTopOtherSpellCardNo)
-            ?? throw new InvalidOperationException("B0 Sea Monster Hook setup could not find second top spell in P1 hand.");
-        var topFiveObjectIds = new[]
-        {
-            eligibleUnitObjectId,
-            ineligibleUnitObjectId,
-            topSpellObjectId,
-            topEquipmentObjectId,
-            topOtherSpellObjectId
-        };
+        var topOtherSpellObjectId = includeSecondEligibleTopUnit
+            ? null
+            : FindHandCardObjectByCardNo(
+                midgameState,
+                "P1",
+                SeaMonsterHookTopOtherSpellCardNo)
+                ?? throw new InvalidOperationException("B0 Sea Monster Hook setup could not find second top spell in P1 hand.");
+        var topFiveObjectIds = includeSecondEligibleTopUnit
+            ? new[]
+            {
+                eligibleUnitObjectId,
+                secondEligibleUnitObjectId!,
+                ineligibleUnitObjectId,
+                topSpellObjectId,
+                topEquipmentObjectId
+            }
+            : new[]
+            {
+                eligibleUnitObjectId,
+                ineligibleUnitObjectId,
+                topSpellObjectId,
+                topEquipmentObjectId,
+                topOtherSpellObjectId!
+            };
         var stagedObjectIds = topFiveObjectIds
             .Concat([sourceObjectId, destroyedUnitObjectId])
             .ToHashSet(StringComparer.Ordinal);
@@ -27370,6 +27618,22 @@ public sealed class FullGameEndToEndTests
             OwnerId = "P1",
             ControllerId = "P1"
         };
+        if (includeSecondEligibleTopUnit && secondEligibleUnitObjectId is not null)
+        {
+            cardObjects[secondEligibleUnitObjectId] = cardObjects[secondEligibleUnitObjectId] with
+            {
+                Damage = 0,
+                IsExhausted = false,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                Power = 2,
+                Tags = ApplyRegisteredSourceUnitTags(cardObjects[secondEligibleUnitObjectId]),
+                OwnerId = "P1",
+                ControllerId = "P1"
+            };
+        }
+
         cardObjects[ineligibleUnitObjectId] = cardObjects[ineligibleUnitObjectId] with
         {
             Damage = 0,
@@ -27405,17 +27669,20 @@ public sealed class FullGameEndToEndTests
             OwnerId = "P1",
             ControllerId = "P1"
         };
-        cardObjects[topOtherSpellObjectId] = cardObjects[topOtherSpellObjectId] with
+        if (!includeSecondEligibleTopUnit && topOtherSpellObjectId is not null)
         {
-            Damage = 0,
-            IsExhausted = false,
-            IsFaceDown = false,
-            IsAttacking = false,
-            IsDefending = false,
-            Tags = [CardObjectTags.SpellCard],
-            OwnerId = "P1",
-            ControllerId = "P1"
-        };
+            cardObjects[topOtherSpellObjectId] = cardObjects[topOtherSpellObjectId] with
+            {
+                Damage = 0,
+                IsExhausted = false,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                Tags = [CardObjectTags.SpellCard],
+                OwnerId = "P1",
+                ControllerId = "P1"
+            };
+        }
 
         return midgameState with
         {

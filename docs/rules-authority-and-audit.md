@@ -1,6 +1,6 @@
 # 规则权威与重审协议
 
-更新时间：2026-07-06
+更新时间：2026-07-07
 
 ## 1. 结论
 
@@ -8,7 +8,7 @@
 
 任何已经开发完成的能力，如果只对齐了旧 Java 行为但没有核对五份 PDF，状态必须降级为 `NEEDS_RULE_AUDIT`，通过重审后才能标记为完成。
 
-2026-07-06 补充：Plan B / Sea Monster Hook activated ability representative 继续以官网卡面与官方 catalog 为权威来源。`OGN·242/298`《海兽钓钩》官方文本要求支付 1 法力与 1 黄色符能并横置来源，摧毁一名友方单位，查看主牌堆顶部五张牌，可从中免费打出战力比被摧毁单位最多高 1 点的单位并回收其余牌。本批仅实现 BehaviorSpec-driven 代表路径：合法源为己方基地公开未横置装备，合法目标为友方公开单位；结算时不公开“查看”的五张牌，只有当合法可打出单位唯一时自动打出，回收事件只公开数量。证据见 `docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_AUDIT.md`、`docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-06 条目；完整 controller-only choice prompt、多个合法单位选择、完整 FAQ adjudication、完整 hidden-zone UX、P0/READY 仍不得标记完成。
+2026-07-07 补充：Plan B / Sea Monster Hook activated ability representative 继续以官网卡面与官方 catalog 为权威来源。`OGN·242/298`《海兽钓钩》官方文本要求支付 1 法力与 1 黄色符能并横置来源，摧毁一名友方单位，查看主牌堆顶部五张牌，可从中免费打出战力比被摧毁单位最多高 1 点的单位并回收其余牌。本批仅实现 BehaviorSpec-driven 代表路径：合法源为己方基地公开未横置装备，合法目标为友方公开单位；结算时不公开“查看”的五张牌，合法可打出单位唯一时自动打出，多个合法单位时打开 controller-only `CARD_CHOICE` / `CHOOSE_CARDS` 选择并在 action-log replay 中保留完整 payload，回收事件只公开数量。证据见 `docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_AUDIT.md`、`docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-07 条目；零合法单位 edge matrix、完整 FAQ adjudication、完整 hidden-zone UX、P0/READY 仍不得标记完成。
 
 2026-07-06 补充：Plan B / B0 LeBlanc Mirror Image official-deck replay 继续以官网卡面与官方构筑规则为权威来源。`UNL-200/219`《镜花水月》是乐芙兰专属法术，`UNL-199/219`《诡术妖姬》传奇与 `UNL-090/219` 乐芙兰英雄单位共享英雄标签“乐芙兰”，因此本批只使用合法 LeBlanc official deck opening 派生中局覆盖该法术；`UNL-200/219` 不能作为合法 Kai'Sa official deck B0 代表。新增 B0 回放通过服务端 `PLAY_CARD` prompt 指定公共战场单位目标，结算活跃“映像”到基地、记录 copied target / token factory metadata、继续 score victory 并 action-log replay 到相同 final state hash。证据见 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`、`docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md` 与 `docs/rules-evidence-index.md` 的 2026-07-06 条目；完整复制牌面、忽略复制打出效果、瞬息 token 完整 cleanup、乐芙兰传奇触发打出映像能力、完整目标选择 prompt 和 P0/READY 仍不得标记完成。
 
