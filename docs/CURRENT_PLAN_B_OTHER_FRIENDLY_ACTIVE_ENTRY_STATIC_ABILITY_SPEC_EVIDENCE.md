@@ -170,6 +170,7 @@ Level-gated source-unit active-entry runtime:
 - `tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs` also proves Bandle Soldier enters ready at 3 experience, stays exhausted below level 3, and emits the same self-source entry metadata when the requirement is satisfied.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Jhin deck opening can feed Flameclaw level-gated active-entry and source-object static-power into B0 score victory: P1 has 3 experience, plays `UNL-016/219` directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, projects `SOURCE_OBJECT_POWER` with `PowerDelta=1`, deals 4 real combat damage from base 3 plus static 1, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves a legal official Poppy deck opening can feed `UNL-151/219` Bandle Soldier level-gated active-entry into B0 score victory: P1 has 3 experience, plays Bandle Soldier directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, enters active with printed 5 power and no continuous-effect projection, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves the same official Poppy deck replay keeps Bandle Soldier's `SOURCE_UNIT_ENTER_READY` gated below level 3: the source object is pre-exhausted, P1 has 2 experience, playing Bandle Soldier directly to a battlefield leaves it exhausted with no entry-static metadata, and the same action log replays to the final score-victory state hash without hidden-zone leaks.
 
 ## Validation Evidence
 
@@ -206,6 +207,7 @@ Level-gated source-unit active-entry runtime:
 - Bandle Soldier level-gated source-unit active-entry focused: 6/6 passed.
 - Bandle Soldier level-gated source-unit active-entry + B0 official-deck replay focused: 7/7 passed.
 - Bandle Soldier active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2456/2456 passed.
+- Bandle Soldier below-level skipped active-entry B0 official-deck replay focused: 2/2 passed for the level-3 positive plus level-2 skipped pair; adjacent active-entry / FullGameEndToEnd / MatchRecovery regression: 2583/2583 passed; backend full: 9201/9201 passed.
 - 2026-07-02 CardStaticAbilitySpecRules selector-surface cleanup focused red/green guard `CardStaticAbilityRoutingUsesGenericSpecPredicates`: red 1/1 failing before implementation, then green as part of focused selector gate 3/3 passing.
 - 2026-07-02 selector-surface cleanup adjacent / hidden-info gate `ActiveEntry|LeBlanc|Ephemeral|UnitPowerfulSelfKeyword|CardCatalogBaselineTests|MatchRecovery|FullGameEndToEnd`: 2586/2586 passing.
 - 2026-07-02 selector-surface cleanup backend full conformance: 9143/9143 passing.
@@ -234,6 +236,7 @@ Level-gated source-unit active-entry runtime:
 - Backend full after the Master Yi level active-entry B0 official-deck replay follow-up: 8884/8884 passed.
 - Backend full after the Flameclaw level-gated source-unit active-entry + source-object static-power B0 official-deck replay follow-up: 8971/8971 passed.
 - Backend full after the Bandle Soldier level-gated source-unit active-entry B0 official-deck replay follow-up: 8982/8982 passed.
+- Backend full after the Bandle Soldier below-level skipped active-entry B0 official-deck replay follow-up: 9201/9201 passed.
 - Backend full after the Fiercewing controlled-tag source-unit active-entry B0 official-deck replay follow-up: 8990/8990 passed.
 - Backend full after the unconditional source-unit active-entry B0 official-deck replay follow-up: 8997/8997 passed.
 - Backend full after the Vayne opponent-battlefield source-unit active-entry StaticAbilitySpec follow-up: 9003/9003 passed.

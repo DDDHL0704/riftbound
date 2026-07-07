@@ -186,6 +186,8 @@ The Master Yi below-level active-entry skipped action-log replay regression prov
 
 The Bandle Soldier level active-entry action-log replay regression proves a legal official Poppy deck opening can feed the same `SOURCE_UNIT_ENTER_READY` level-gated source-unit path into the B0 score-victory route without a source-object static aura. `OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening, then starts from a focused midgame play state with P1 official `UNL-151/219` Bandle Soldier in hand and P1 at 3 experience. The server-authored `PLAY_CARD` to a P1 battlefield resolves Bandle Soldier ready, emits `UNIT_PLAYED_TO_BATTLEFIELD` with `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object/card metadata, `isExhausted=false`, printed `power=5`, and continues through score-victory action-log replay to the same final state hash with hidden-info guards. This slice changes only test / evidence coverage; it does not add a runtime card-number branch or close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+The Bandle Soldier below-level active-entry skipped action-log replay regression proves the same official Poppy deck route keeps `SOURCE_UNIT_ENTER_READY` gated below level 3. `OfficialDeckMidgameSkipsBandleSoldierBelowLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records the same legal Poppy deck opening family, then starts from a focused midgame play state with P1 official `UNL-151/219` Bandle Soldier in hand, the source object pre-exhausted, and P1 at 2 experience. The server-authored `PLAY_CARD` to a P1 battlefield leaves Bandle Soldier exhausted at printed 5 power, emits `UNIT_PLAYED_TO_BATTLEFIELD` without entry static-ability metadata, preserves hidden-info guards, and continues through score-victory action-log replay to the same final state hash. This slice tightens the official-deck replay fixture and evidence coverage only; it does not add runtime behavior or close complete active-entry family breadth, complete level / experience breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 The Fiercewing controlled-Dragon active-entry action-log replay regression proves a legal official Poppy deck opening can feed the same `SOURCE_UNIT_ENTER_READY` path through a controlled-tag requirement. `OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening, then starts from a focused midgame play state with P1 official `OGN·131/298` Dune Drake and `SFD·094/221` Fiercewing in hand. The server-authored Dune Drake `PLAY_CARD` resolves to P1 base as another public controlled `龙` unit, then the server-authored Fiercewing `PLAY_CARD` to a P1 battlefield resolves Fiercewing ready, emits `UNIT_PLAYED_TO_BATTLEFIELD` with `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object/card metadata, `isExhausted=false`, printed `power=7`, and continues through score-victory action-log replay to the same final state hash with hidden-info guards. This slice changes shared StaticAbilitySpec parsing / entry-requirement runtime only; it does not add a runtime card-number branch or close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 The Card Trick draw/recycle action-log replay regression proves a legal official Vex deck opening can feed official `OGN·183/298` Card Trick into the B0 score-victory route and expose a real private-zone stack-target redaction issue. `OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening, then starts from a focused midgame play state with Card Trick in P1 hand and controlled top-three main-deck objects. The server-authored `PLAY_CARD` prompt exposes exactly those top-three target choices to P1, the stack resolves by moving the selected card to P1 hand and recycling the unselected top cards to the bottom of P1's main deck, and the command stream continues through score-victory action-log replay to the same final state hash. The shared runtime change is hidden-information scoped: `MatchSession` now projects stack `targetObjectIds` through viewer visibility redaction for hand / main-deck / rune-deck / hidden-standby targets, and `MatchRecovery` validates spectator stack target ids against the same redacted projection. This slice does not add a runtime card-number branch or close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
@@ -2576,6 +2578,42 @@ Result:
 
 ```text
 Passed: 8982, Failed: 0, Skipped: 0, Total: 8982
+```
+
+Latest Bandle Soldier below-level skipped active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameSkipsBandleSoldierBelowLevelActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Bandle Soldier below-level active-entry / full-game / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameSkipsBandleSoldierBelowLevelActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntry|FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~ActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2583, Failed: 0, Skipped: 0, Total: 2583
+```
+
+Latest backend full after Bandle Soldier below-level skipped active-entry official-deck evidence passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 9201, Failed: 0, Skipped: 0, Total: 9201
 ```
 
 Latest Fiercewing controlled-Dragon active-entry official-deck replay focused validation passed:

@@ -3005,6 +3005,46 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameSkipsBandleSoldierBelowLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildBandleSoldierLevelActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-bandle-soldier-below-level-active-entry-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildBandleSoldierLevelActiveEntryMidgameInitialState(
+            openingResult.State,
+            playerOneExperience: 2);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            BandleSoldierLevelActiveEntryCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-bandle-soldier-below-level-active-entry",
+            expectReady: false);
+        AssertBandleSoldierBelowLevelActiveEntrySkipped(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-bandle-soldier-below-level-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -9264,6 +9304,30 @@ public sealed class FullGameEndToEndTests
         ResolutionResult beforePlay,
         ResolutionResult result)
     {
+        AssertBandleSoldierLevelActiveEntry(
+            beforePlay,
+            result,
+            expectedPlayerExperience: 3,
+            expectedReady: true);
+    }
+
+    private static void AssertBandleSoldierBelowLevelActiveEntrySkipped(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        AssertBandleSoldierLevelActiveEntry(
+            beforePlay,
+            result,
+            expectedPlayerExperience: 2,
+            expectedReady: false);
+    }
+
+    private static void AssertBandleSoldierLevelActiveEntry(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        int expectedPlayerExperience,
+        bool expectedReady)
+    {
         var sourceObjectId = FindHandCardObjectByCardNo(
             beforePlay.State,
             "P1",
@@ -9271,11 +9335,12 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 Bandle Soldier level active-entry assertion could not locate Bandle Soldier in P1 hand.");
         var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
 
-        Assert.Equal(3, beforePlay.State.PlayerExperience["P1"]);
+        Assert.Equal(expectedPlayerExperience, beforePlay.State.PlayerExperience["P1"]);
         Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
+        Assert.True(beforePlay.State.CardObjects[sourceObjectId].IsExhausted);
         Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
-        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(!expectedReady, result.State.CardObjects[sourceObjectId].IsExhausted);
         Assert.Equal(5, result.State.CardObjects[sourceObjectId].Power);
         Assert.DoesNotContain(
             result.State.ContinuousEffects,
@@ -9289,11 +9354,21 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", unitEvent.Payload["playerId"]);
         Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
         Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
-        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
+        Assert.Equal(!expectedReady, unitEvent.Payload["isExhausted"]);
         Assert.Equal(5, unitEvent.Payload["power"]);
-        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
-        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
-        Assert.Equal(BandleSoldierLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        if (expectedReady)
+        {
+            Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+            Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+            Assert.Equal(BandleSoldierLevelActiveEntryCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        }
+        else
+        {
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilityKind"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceObjectId"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceCardNo"));
+        }
+
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -31476,7 +31551,9 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildBandleSoldierLevelActiveEntryMidgameInitialState(MatchState state)
+    private static MatchState BuildBandleSoldierLevelActiveEntryMidgameInitialState(
+        MatchState state,
+        int playerOneExperience = 3)
     {
         var midgameState = BuildSpecificCardsForPlayersMidgameInitialState(
             state,
@@ -31489,11 +31566,31 @@ public sealed class FullGameEndToEndTests
                     [],
                     new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
+        var sourceObjectId = FindHandCardObjectByCardNo(
+            midgameState,
+            "P1",
+            BandleSoldierLevelActiveEntryCardNo)
+            ?? throw new InvalidOperationException("B0 Bandle Soldier level active-entry setup could not find Bandle Soldier in P1 hand.");
+
+        var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[sourceObjectId]),
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+
         return midgameState with
         {
+            CardObjects = cardObjects,
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
                 playerId => playerId,
-                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? 3 : 0,
+                playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? playerOneExperience : 0,
                 StringComparer.Ordinal)
         };
     }
