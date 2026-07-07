@@ -190,6 +190,8 @@ The Bandle Soldier below-level active-entry skipped action-log replay regression
 
 The Fiercewing controlled-Dragon active-entry action-log replay regression proves a legal official Poppy deck opening can feed the same `SOURCE_UNIT_ENTER_READY` path through a controlled-tag requirement. `OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening, then starts from a focused midgame play state with P1 official `OGN·131/298` Dune Drake and `SFD·094/221` Fiercewing in hand. The server-authored Dune Drake `PLAY_CARD` resolves to P1 base as another public controlled `龙` unit, then the server-authored Fiercewing `PLAY_CARD` to a P1 battlefield resolves Fiercewing ready, emits `UNIT_PLAYED_TO_BATTLEFIELD` with `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY`, self source object/card metadata, `isExhausted=false`, printed `power=7`, and continues through score-victory action-log replay to the same final state hash with hidden-info guards. This slice changes shared StaticAbilitySpec parsing / entry-requirement runtime only; it does not add a runtime card-number branch or close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+The Fiercewing no-controlled-Dragon active-entry skipped action-log replay regression proves the same official Poppy deck route does not apply `SOURCE_UNIT_ENTER_READY` when its controlled-tag requirement is false. `OfficialDeckMidgameSkipsFiercewingNoControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Poppy deck opening without staging another public controlled `龙` unit, then starts from a focused midgame play state with P1 official `SFD·094/221` Fiercewing in hand and the source object pre-exhausted. The server-authored `PLAY_CARD` to a P1 battlefield leaves Fiercewing exhausted at printed 7 power, emits `UNIT_PLAYED_TO_BATTLEFIELD` without entry static-ability metadata, preserves hidden-info guards, and continues through score-victory action-log replay to the same final state hash. This slice tightens the official-deck replay fixture and evidence coverage only; it does not add runtime behavior or close complete active-entry family breadth, complete controlled-tag breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 The Card Trick draw/recycle action-log replay regression proves a legal official Vex deck opening can feed official `OGN·183/298` Card Trick into the B0 score-victory route and expose a real private-zone stack-target redaction issue. `OfficialDeckMidgameResolvesCardTrickDrawRecycleAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal Vex deck opening, then starts from a focused midgame play state with Card Trick in P1 hand and controlled top-three main-deck objects. The server-authored `PLAY_CARD` prompt exposes exactly those top-three target choices to P1, the stack resolves by moving the selected card to P1 hand and recycling the unselected top cards to the bottom of P1's main deck, and the command stream continues through score-victory action-log replay to the same final state hash. The shared runtime change is hidden-information scoped: `MatchSession` now projects stack `targetObjectIds` through viewer visibility redaction for hand / main-deck / rune-deck / hidden-standby targets, and `MatchRecovery` validates spectator stack target ids against the same redacted projection. This slice does not add a runtime card-number branch or close complete main-deck look/recycle breadth, complete hidden-information matrix, complete spell target breadth, P0 full objective, or READY.
 
 The Flowing Time Mirror ephemeral-cleanup action-log replay regressions prove the existing legal Lost Library B0 route also carries official `OGN·180/298` through the shared `瞬息` start-of-turn lifecycle for both printed target shapes and the LeBlanc suppression representative. `OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash` records the unit target before play, verifies the spell gives P2's same-battlefield `OGN·096/298` Watchful Sentinel the `瞬息` tag, then continues through `END_TURN` until P2's turn start. The match journal must contain exactly one `UNIT_DESTROYED` event for that unit target from an `END_TURN` command with `reason=EPHEMERAL_TURN_START`, `ownerPlayerId=P2`, `destroyedByPlayerId=P2`, and `destinationZone=GRAVEYARD`. `OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` records the equipment target route from a legal official Vex vs Rumble opening, verifies server prompt legality for official `SFD·022/221` Long Sword as public equipment, resolves `OBJECT_TAG_ADDED(tag=瞬息)`, then proves P2's next turn-start `END_TURN` emits exactly one `EQUIPMENT_DESTROYED` with `reason=EPHEMERAL_TURN_START` and moves the equipment to P2 graveyard. `OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash` records the same official spell from a legal Vex vs Lillia opening with P2 `UNL-090/219` LeBlanc and `OGN·096/298` Watchful Sentinel at the same battlefield; it proves P2's next turn-start emits no `UNIT_DESTROYED.reason=EPHEMERAL_TURN_START` for the protected target and then replays through score victory. This slice changes only test / evidence coverage; it does not add runtime behavior or close all ephemeral token/equipment lifecycle edges, P0 full objective, or READY.
@@ -2650,6 +2652,42 @@ Result:
 
 ```text
 Passed: 8990, Failed: 0, Skipped: 0, Total: 8990
+```
+
+Latest Fiercewing no-controlled-Dragon skipped active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameSkipsFiercewingNoControlledDragonActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Fiercewing no-controlled-Dragon active-entry / full-game / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo --filter "FullyQualifiedName~OfficialDeckMidgameSkipsFiercewingNoControlledDragonActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesFiercewingControlledDragonActiveEntry|FullyQualifiedName~ControlledTaggedSourceUnitActiveEntry|FullyQualifiedName~FiercewingControlledDragonActiveEntry|FullyQualifiedName~SourceUnitEnterReady|FullyQualifiedName~SourceUnitLevelActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntry|FullyQualifiedName~BandleSoldierLevelActiveEntry|FullyQualifiedName~FullGameEndToEnd|FullyQualifiedName~MatchRecovery|FullyQualifiedName~CardCatalogBaseline"
+```
+
+Result:
+
+```text
+Passed: 2535, Failed: 0, Skipped: 0, Total: 2535
+```
+
+Latest backend full after Fiercewing no-controlled-Dragon skipped active-entry official-deck evidence passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --nologo
+```
+
+Result:
+
+```text
+Passed: 9202, Failed: 0, Skipped: 0, Total: 9202
 ```
 
 Latest Aggressive Dragonhound unconditional active-entry official-deck replay focused validation passed:

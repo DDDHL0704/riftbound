@@ -85,6 +85,7 @@ Controlled-tag source-unit active-entry runtime:
 - `tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs` proves Fiercewing enters ready when its controller controls another public `龙` unit and emits `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` with self source object/card metadata.
 - The same test proves no other public controlled tagged unit leaves Fiercewing exhausted: no other unit, a friendly face-down standby Dragon, and an opponent-controlled face-up Dragon do not satisfy the parsed requirement and emit no entry-static metadata.
 - `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now proves a legal official Poppy deck opening can feed `SFD·094/221` Fiercewing controlled-Dragon active-entry into B0 score victory: P1 first plays official `OGN·131/298` Dune Drake to base as a public controlled Dragon, then plays Fiercewing directly to a battlefield, receives `SOURCE_UNIT_ENTER_READY` self metadata, enters active with printed 7 power, and replays the same action log to the final score-victory state hash without hidden-zone leaks.
+- `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` now also proves the same official Poppy deck replay keeps Fiercewing's `SOURCE_UNIT_ENTER_READY` gated with no other public controlled Dragon: the source object is pre-exhausted, no other public controlled `龙` unit is staged, playing Fiercewing directly to a battlefield leaves it exhausted with no entry-static metadata, and the same action log replays to the final score-victory state hash without hidden-zone leaks.
 
 Opponent-battlefield source-unit active-entry BehaviorSpec / catalog:
 
@@ -214,6 +215,7 @@ Level-gated source-unit active-entry runtime:
 - Controlled-tag source-unit active-entry pre-implementation red: `ControlledTaggedSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOtherControlledUnitTag` did not exist.
 - Controlled-tag source-unit active-entry + Fiercewing B0 official-deck replay focused: 7/7 passed.
 - Fiercewing controlled-tag active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2427/2427 passed.
+- Fiercewing no-controlled-Dragon skipped active-entry B0 official-deck replay focused: 2/2 passed for the controlled-Dragon positive plus no-controlled-Dragon skipped pair; adjacent active-entry / FullGameEndToEnd / MatchRecovery regression: 2535/2535 passed; backend full: 9202/9202 passed.
 - Opponent-battlefield source-unit active-entry pre-implementation red: `OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests` initially failed at compile because `StaticAbilitySpec.RequiredOpponentControlledBattlefieldCount` did not exist.
 - Opponent-battlefield source-unit active-entry focused post-implementation: 6/6 passed.
 - Opponent-battlefield source-unit active-entry / source-unit active-entry / Vayne trigger-payment adjacent regression: 112/112 passed.
@@ -238,6 +240,7 @@ Level-gated source-unit active-entry runtime:
 - Backend full after the Bandle Soldier level-gated source-unit active-entry B0 official-deck replay follow-up: 8982/8982 passed.
 - Backend full after the Bandle Soldier below-level skipped active-entry B0 official-deck replay follow-up: 9201/9201 passed.
 - Backend full after the Fiercewing controlled-tag source-unit active-entry B0 official-deck replay follow-up: 8990/8990 passed.
+- Backend full after the Fiercewing no-controlled-Dragon skipped active-entry B0 official-deck replay follow-up: 9202/9202 passed.
 - Backend full after the unconditional source-unit active-entry B0 official-deck replay follow-up: 8997/8997 passed.
 - Backend full after the Vayne opponent-battlefield source-unit active-entry StaticAbilitySpec follow-up: 9003/9003 passed.
 - Backend full after the Jungle Elephant unit-destroyed-this-turn source-unit active-entry StaticAbilitySpec follow-up: 9010/9010 passed.
