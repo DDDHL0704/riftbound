@@ -89,6 +89,71 @@ configure_session_paths() {
   status_file="${RIFTBOUND_P5_STATUS_FILE:-/tmp/${screen_name}.status}"
 }
 
+latest_log_match() {
+  local path="$1"
+  local pattern="$2"
+  local fallback="$3"
+  local value=""
+
+  if [[ -s "${path}" ]]; then
+    value="$(rg "${pattern}" "${path}" | tail -n 1 || true)"
+  fi
+
+  if [[ -n "${value}" ]]; then
+    echo "${value}"
+  else
+    echo "${fallback}"
+  fi
+}
+
+print_player_evidence_status() {
+  local label="$1"
+  local log_path="$2"
+  local initial_screenshot="$3"
+  local result_screenshot="$4"
+
+  echo "  ${label}:"
+  if [[ -s "${log_path}" ]]; then
+    echo "    latest prompt: $(latest_log_match "${log_path}" "Prompt actions:" "not observed")"
+    echo "    setup: $(latest_log_match "${log_path}" "SubmitDeck receipt|Ready receipt" "waiting for deck submit/ready")"
+    echo "    hidden info: $(latest_log_match "${log_path}" "Hidden info boundary" "not observed")"
+    echo "    result: $(latest_log_match "${log_path}" "MATCH_WON|Match result rendered|Visual screenshot saved: .*result" "not reached")"
+  else
+    echo "    log: missing"
+  fi
+
+  if [[ -s "${initial_screenshot}" ]]; then
+    echo "    initial screenshot: present"
+  else
+    echo "    initial screenshot: missing"
+  fi
+
+  if [[ -s "${result_screenshot}" ]]; then
+    echo "    result screenshot: present"
+  else
+    echo "    result screenshot: missing"
+  fi
+}
+
+print_evidence_status() {
+  if [[ ! -d "${screenshot_dir}" ]]; then
+    return
+  fi
+
+  echo
+  echo "Evidence snapshot (${screenshot_dir}):"
+  print_player_evidence_status \
+    "Player A" \
+    "${screenshot_dir}/player-a.log" \
+    "${screenshot_dir}/player-a.png" \
+    "${screenshot_dir}/player-a-result.png"
+  print_player_evidence_status \
+    "Player B" \
+    "${screenshot_dir}/player-b.log" \
+    "${screenshot_dir}/player-b.png" \
+    "${screenshot_dir}/player-b-result.png"
+}
+
 if [[ "${mode}" == "status"
   && -z "${RIFTBOUND_P5_SCREEN_NAME:-}"
   && -z "${RIFTBOUND_ROOM:-}" ]]; then
@@ -134,6 +199,8 @@ if [[ "${mode}" == "status" ]]; then
     echo
     cat "${status_file}"
   fi
+
+  print_evidence_status
 
   if [[ -s "${screen_log}" ]]; then
     echo

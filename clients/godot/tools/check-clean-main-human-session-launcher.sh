@@ -34,6 +34,12 @@ require_pattern "screen_session_running" \
   "launcher must use a portable screen list parser when checking running sessions"
 require_pattern "discover_p5_screen_name" \
   "launcher status must auto-discover an existing final P5 screen session"
+require_pattern "print_evidence_status" \
+  "launcher status must summarize the current evidence directory"
+require_pattern "Prompt actions:" \
+  "launcher status must show the latest prompt actions from player logs"
+require_pattern "result screenshot" \
+  "launcher status must show whether final result screenshots exist"
 require_pattern "run-clean-main-human-playtest-stack\\.sh" \
   "launcher must run the final clean-main human wrapper"
 require_pattern "RIFTBOUND_CONFIRM_MANUAL=1" \

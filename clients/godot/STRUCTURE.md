@@ -102,7 +102,10 @@ contracts change.
   launch alone is not final P5 evidence. Its `--status` mode auto-discovers the
   latest `riftbound-p5-*` screen session or status file when a room/screen
   override is not supplied, so operators can recover an active detached final
-  run without remembering the generated room suffix.
+  run without remembering the generated room suffix. The same status output
+  summarizes the current evidence directory by player: latest prompt actions,
+  setup receipts, hidden-information boundary line, and initial/result
+  screenshot presence.
 - `check-clean-main-human-session-launcher.sh` statically guards the detached
   launcher so it cannot become an automated smoke or no-wait path.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
