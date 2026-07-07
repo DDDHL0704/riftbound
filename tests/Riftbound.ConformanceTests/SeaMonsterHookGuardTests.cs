@@ -463,6 +463,62 @@ public sealed class SeaMonsterHookGuardTests
     }
 
     [Fact]
+    public async Task SeaMonsterHookActivatedAbilityWithNoEligibleTopFiveUnitsRecyclesAllLookedCardsPrivatelyWithoutChoice()
+    {
+        var engine = new CoreRuleEngine();
+        var ability = SeaMonsterHookActivatedAbility();
+        var state = BuildSeaMonsterHookActivatedAbilityNoEligibleState();
+
+        var activated = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-sea-monster-hook-no-eligible-activate", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand(
+                SeaMonsterHookBaseObjectId,
+                ability.AbilityId,
+                ["P1-TARGET-UNIT"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            activated.State,
+            new PlayerIntent("intent-sea-monster-hook-no-eligible-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-sea-monster-hook-no-eligible-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Null(p2Pass.State.PendingCardChoice);
+        Assert.Equal(
+            [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT"],
+            p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-TARGET-UNIT"));
+        Assert.Equal("P1-DECK-KEEP", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Contains("P1-INELIGIBLE-UNIT", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-SPELL", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-EQUIPMENT", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-TOP-RUNE", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-SECOND-TOP-SPELL", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(p2Pass.Prompts.Values, prompt => prompt.Actions.Contains(CommandTypes.ChooseCards));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal));
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal(5, recycleEvent.Payload["count"]);
+        Assert.Equal("LOOKED_NOT_REVEALED", recycleEvent.Payload["visibility"]);
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
+    }
+
+    [Fact]
     public async Task SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately()
     {
         var engine = new CoreRuleEngine();
@@ -955,6 +1011,32 @@ public sealed class SeaMonsterHookGuardTests
 
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects["P1-SECOND-ELIGIBLE-UNIT"] = Unit("P1-SECOND-ELIGIBLE-UNIT", "SFD·020/221", power: 4);
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BuildSeaMonsterHookActivatedAbilityNoEligibleState()
+    {
+        var state = BuildSeaMonsterHookActivatedAbilityState();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            MainDeck =
+            [
+                "P1-INELIGIBLE-UNIT",
+                "P1-TOP-SPELL",
+                "P1-TOP-EQUIPMENT",
+                "P1-TOP-RUNE",
+                "P1-SECOND-TOP-SPELL",
+                "P1-DECK-KEEP"
+            ]
+        };
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-SECOND-TOP-SPELL"] = Spell("P1-SECOND-TOP-SPELL", "SFD·151/221");
         return state with
         {
             PlayerZones = playerZones,
