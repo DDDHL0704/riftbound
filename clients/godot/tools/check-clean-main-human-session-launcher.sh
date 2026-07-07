@@ -30,6 +30,10 @@ require_pattern "screen -L -dmS" \
   "launcher must use a detached screen session with portable logging supported by macOS screen"
 require_pattern "screenlog\\.0" \
   "launcher must report the default screen -L log file"
+require_pattern "screen_session_running" \
+  "launcher must use a portable screen list parser when checking running sessions"
+require_pattern "discover_p5_screen_name" \
+  "launcher status must auto-discover an existing final P5 screen session"
 require_pattern "run-clean-main-human-playtest-stack\\.sh" \
   "launcher must run the final clean-main human wrapper"
 require_pattern "RIFTBOUND_CONFIRM_MANUAL=1" \
@@ -45,8 +49,8 @@ require_pattern "screen -r" \
 require_pattern "OPERATOR_GUIDE.md" \
   "launcher must point operators at the generated guide"
 
-if rg -q "RIFTBOUND_WAIT=0|RIFTBOUND_QUIT_AFTER=|--riftbound-smoke-auto-|-Logfile" "${launcher_path}"; then
-  fail "launcher must not disable waiting, add auto quit, use automated smoke arguments, or rely on non-portable screen -Logfile"
+if rg -q "RIFTBOUND_WAIT=0|RIFTBOUND_QUIT_AFTER=|--riftbound-smoke-auto-|-Logfile|screen -ls" "${launcher_path}"; then
+  fail "launcher must not disable waiting, add auto quit, use automated smoke arguments, or rely on non-portable screen -Logfile/screen -ls behavior"
 fi
 
 echo "Clean-main human session launcher checks passed."

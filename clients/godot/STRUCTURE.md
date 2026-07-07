@@ -99,7 +99,10 @@ contracts change.
   preserving manual confirmations, clean-git evidence, packaging, package
   verification, and `RIFTBOUND_WAIT=1`. Operators still need to attach with
   `screen -r ...` after play to answer the manual confirmation prompts; detached
-  launch alone is not final P5 evidence.
+  launch alone is not final P5 evidence. Its `--status` mode auto-discovers the
+  latest `riftbound-p5-*` screen session or status file when a room/screen
+  override is not supplied, so operators can recover an active detached final
+  run without remembering the generated room suffix.
 - `check-clean-main-human-session-launcher.sh` statically guards the detached
   launcher so it cannot become an automated smoke or no-wait path.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,

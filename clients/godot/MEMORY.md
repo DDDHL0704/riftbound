@@ -129,7 +129,11 @@ resume from repository state instead of conversation history alone.
   while humans operate the windows. Operators must still attach to the screen
   session and answer manual confirmations after checking result screenshots.
   The launcher uses portable macOS `screen -L` logging and reports the resulting
-  `screenlog.0` path instead of relying on GNU-style `screen -Logfile`.
+  `screenlog.0` path instead of relying on GNU-style `screen -Logfile`. Its
+  `--status` mode auto-discovers the latest `riftbound-p5-*` screen session or
+  status file when no room/screen override is provided, because macOS `screen`
+  filtering by name is not reliable enough for recovering generated P5 room
+  suffixes from memory.
 - The final P5 wrapper supports `--precheck`; it validates final evidence gates
   and fetches `origin/main` without creating a worktree, opening Godot windows,
   or writing evidence. It also checks the configured Godot binary and local
