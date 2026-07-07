@@ -2782,6 +2782,45 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameSkipsFaceDownMoltenDrakeOtherFriendlyActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildMoltenDrakeOtherFriendlyActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-face-down-molten-drake-other-friendly-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildMoltenDrakeOtherFriendlyActiveEntryMidgameInitialState(
+            openingResult.State,
+            faceDownMoltenDrake: true);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            LegionRearguardCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-face-down-molten-drake-other-friendly-active-entry",
+            expectReady: false);
+        AssertFaceDownMoltenDrakeOtherFriendlyActiveEntrySkipped(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-face-down-molten-drake-other-friendly-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesMasterYiLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -9003,10 +9042,34 @@ public sealed class FullGameEndToEndTests
         ResolutionResult beforePlay,
         ResolutionResult result)
     {
-        var moltenObjectId = FindBaseUnitByCardNo(
-            beforePlay.State,
-            "P1",
-            MoltenDrakeCardNo)
+        AssertMoltenDrakeOtherFriendlyActiveEntry(
+            beforePlay,
+            result,
+            faceDownMoltenDrake: false,
+            expectedReady: true);
+    }
+
+    private static void AssertFaceDownMoltenDrakeOtherFriendlyActiveEntrySkipped(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        AssertMoltenDrakeOtherFriendlyActiveEntry(
+            beforePlay,
+            result,
+            faceDownMoltenDrake: true,
+            expectedReady: false);
+    }
+
+    private static void AssertMoltenDrakeOtherFriendlyActiveEntry(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        bool faceDownMoltenDrake,
+        bool expectedReady)
+    {
+        var moltenObjectId = beforePlay.State.PlayerZones["P1"].Base.FirstOrDefault(objectId =>
+            beforePlay.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, MoltenDrakeCardNo, StringComparison.Ordinal)
+            && cardObject.IsFaceDown == faceDownMoltenDrake)
             ?? throw new InvalidOperationException("B0 Molten Drake active-entry assertion could not locate source Molten Drake in P1 base.");
         var legionObjectId = FindHandCardObjectByCardNo(
             beforePlay.State,
@@ -9016,11 +9079,11 @@ public sealed class FullGameEndToEndTests
         var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
 
         Assert.Contains(moltenObjectId, beforePlay.State.PlayerZones["P1"].Base);
-        Assert.False(beforePlay.State.CardObjects[moltenObjectId].IsFaceDown);
+        Assert.Equal(faceDownMoltenDrake, beforePlay.State.CardObjects[moltenObjectId].IsFaceDown);
         Assert.Contains(legionObjectId, beforePlay.State.PlayerZones["P1"].Hand);
         Assert.Contains(legionObjectId, result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(battlefieldId, result.State.ObjectLocations[legionObjectId].BattlefieldObjectId);
-        Assert.False(result.State.CardObjects[legionObjectId].IsExhausted);
+        Assert.Equal(!expectedReady, result.State.CardObjects[legionObjectId].IsExhausted);
         Assert.Contains(moltenObjectId, result.State.PlayerZones["P1"].Base);
 
         var unitEvent = Assert.Single(result.Events, gameEvent =>
@@ -9031,10 +9094,20 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", unitEvent.Payload["playerId"]);
         Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
         Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
-        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
-        Assert.Equal(StaticAbilityKinds.OtherFriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
-        Assert.Equal(moltenObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
-        Assert.Equal(MoltenDrakeCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.Equal(!expectedReady, unitEvent.Payload["isExhausted"]);
+        if (expectedReady)
+        {
+            Assert.Equal(StaticAbilityKinds.OtherFriendlyUnitsEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+            Assert.Equal(moltenObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+            Assert.Equal(MoltenDrakeCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        }
+        else
+        {
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilityKind"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceObjectId"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceCardNo"));
+        }
+
         Assert.False(unitEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
         AssertNoHiddenZoneLeak(result);
     }
@@ -29631,7 +29704,9 @@ public sealed class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildMoltenDrakeOtherFriendlyActiveEntryMidgameInitialState(MatchState state)
+    private static MatchState BuildMoltenDrakeOtherFriendlyActiveEntryMidgameInitialState(
+        MatchState state,
+        bool faceDownMoltenDrake = false)
     {
         var midgameState = BuildSpecificCardsMidgameInitialState(
             state,
@@ -29673,10 +29748,13 @@ public sealed class FullGameEndToEndTests
         {
             Damage = 0,
             IsExhausted = false,
-            IsFaceDown = false,
+            IsFaceDown = faceDownMoltenDrake,
             IsAttacking = false,
             IsDefending = false,
-            Tags = ApplyRegisteredSourceUnitTags(cardObjects[moltenObjectId]),
+            Tags = ApplyRegisteredSourceUnitTags(cardObjects[moltenObjectId])
+                .Concat(faceDownMoltenDrake ? [CardObjectTags.Standby] : Array.Empty<string>())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray(),
             OwnerId = "P1",
             ControllerId = "P1"
         };

@@ -197,6 +197,7 @@ Level-gated source-unit active-entry runtime:
 - Dunehorn low-hand active-entry B0 official-deck replay focused: 1/1 passed.
 - Dunehorn low-hand active-entry replay / active-entry / FullGameEndToEnd / MatchRecovery adjacent regression: 2100/2100 passed.
 - Dunehorn high-hand active-entry skipped B0 official-deck replay focused: 2/2 passed for the low-hand positive plus high-hand skipped pair; adjacent active-entry / FullGameEndToEnd / MatchRecovery regression: 2129/2129 passed; backend full: 9198/9198 passed.
+- Molten Drake face-down skipped active-entry B0 official-deck replay focused: 2/2 passed for the face-up positive plus face-down skipped pair; adjacent active-entry / FullGameEndToEnd / MatchRecovery regression: 2132/2132 passed; backend full: 9199/9199 passed.
 - Flameclaw level-gated source-unit active-entry pre-implementation red: `SourceUnitLevelActiveEntryStaticAbilityTests` had no matching parsed `SOURCE_UNIT_ENTER_READY` spec and observed Flameclaw still exhausted at 3 experience.
 - Flameclaw level-gated source-unit active-entry focused post-implementation: 3/3 passed.
 - Flameclaw level-gated active-entry + source-object static-power B0 official-deck replay focused: 4/4 passed.

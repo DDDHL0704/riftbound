@@ -368,6 +368,8 @@ This Dunehorn Beast high-hand active-entry skipped increment additionally proves
 
 This Molten Drake other-friendly active-entry increment additionally proves a legal official Jhin deck opening can carry `OTHER_FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps public face-up P1 `OGN·011/298` Molten Drake in base and official `OGN·010/298` Legion Rearguard in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Legion Rearguard enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=OTHER_FRIENDLY_UNITS_ENTER_READY` plus Molten Drake source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
+This face-down Molten Drake skipped active-entry increment additionally proves the same legal official Jhin deck opening family ignores hidden standby source objects for `OTHER_FRIENDLY_UNITS_ENTER_READY`. The focused state keeps P1 `OGN·011/298` Molten Drake in base face down and official `OGN·010/298` Legion Rearguard in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Legion Rearguard stays exhausted, `UNIT_PLAYED_TO_BATTLEFIELD` omits entry static-ability metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete standby/reaction breadth, complete official deck archetype breadth, P0 full objective, or READY.
+
 This Master Yi level active-entry increment additionally proves a legal official Master Yi level deck opening can carry `FRIENDLY_UNITS_ENTER_READY` into the B0 score-victory route. The focused state keeps P1 at 11 experience with `UNL-191/219` in the legend zone and official `UNL-092/219` Demacia Envoy in hand; after the server-authored `PLAY_CARD` to a P1 battlefield without `HASTE_READY`, Demacia Envoy enters active, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=FRIENDLY_UNITS_ENTER_READY` plus Master Yi legend source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
 
 This Bandle Soldier level active-entry increment additionally proves a legal official Poppy deck opening can carry `SOURCE_UNIT_ENTER_READY` into the B0 score-victory route for the simple level-gated self-entry text. The focused state keeps P1 at 3 experience with official `UNL-151/219` Bandle Soldier in hand; after the server-authored `PLAY_CARD` to a P1 battlefield, Bandle Soldier enters active at printed 5 power, `UNIT_PLAYED_TO_BATTLEFIELD` records `entryStaticAbilityKind=SOURCE_UNIT_ENTER_READY` plus self source object/card metadata, and the command stream continues through score victory and final-state replay. It still does not close complete active-entry family breadth, complete official deck archetype breadth, P0 full objective, or READY.
@@ -959,6 +961,42 @@ Result:
 
 ```text
 Passed: 8883, Failed: 0, Skipped: 0, Total: 8883
+```
+
+Latest Molten Drake face-up/face-down other-friendly active-entry official-deck replay focused validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameSkipsFaceDownMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry"
+```
+
+Result:
+
+```text
+Passed: 2, Failed: 0, Skipped: 0, Total: 2
+```
+
+Latest Molten Drake face-up/face-down active-entry replay / active-entry / hidden-info adjacent validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~OfficialDeckMidgameSkipsFaceDownMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~MoltenDrakeOtherFriendlyActiveEntry|FullyQualifiedName~LegionRearguardHasteReadyEntry|FullyQualifiedName~OfficialDeckMidgameSkipsDunehornBeastHighHandActiveEntry|FullyQualifiedName~OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntry|FullyQualifiedName~DunehornLowHandActiveEntryStaticAbility|FullyQualifiedName~MasterYiLevelActiveEntryStaticAbility|FullyQualifiedName~RenataTokenActiveEntryStaticAbility|FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~MatchRecoveryTests"
+```
+
+Result:
+
+```text
+Passed: 2132, Failed: 0, Skipped: 0, Total: 2132
+```
+
+Latest Molten Drake face-down skipped active-entry backend full validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore
+```
+
+Result:
+
+```text
+Passed: 9199, Failed: 0, Skipped: 0, Total: 9199
 ```
 
 Latest Dunehorn Beast low-hand active-entry official-deck replay focused validation passed:
