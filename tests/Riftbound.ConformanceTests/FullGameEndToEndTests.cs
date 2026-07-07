@@ -2673,6 +2673,43 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameSkipsDunehornBeastHighHandActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildDunehornBeastHighHandActiveEntryOfficialDeck(catalog);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog);
+        var (_, openingResult) = await DriveOfficialDecksToUnitBattlefieldHeldDrawOpeningAsync(
+            "b0-full-game-dunehorn-beast-high-hand-active-entry-replay-room",
+            p1Deck,
+            p2Deck);
+        var initialState = BuildDunehornBeastHighHandActiveEntryMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+
+        var played = await PlaySpecificUnitToBattlefieldAsync(
+            session,
+            "P1",
+            current,
+            DunehornBeastCardNo,
+            BattlefieldDestinationFor(current.State, "P1"),
+            "b0-dunehorn-beast-high-hand-active-entry",
+            expectReady: false);
+        AssertDunehornBeastHighHandActiveEntrySkipped(current, played);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            played,
+            "b0-dunehorn-beast-high-hand-active-entry-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesAggressiveDragonhoundUnconditionalActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -8860,6 +8897,33 @@ public sealed class FullGameEndToEndTests
         ResolutionResult beforePlay,
         ResolutionResult result)
     {
+        AssertDunehornBeastActiveEntry(
+            beforePlay,
+            result,
+            expectedHandCountBeforePlay: 3,
+            expectedHandCountAfterPlay: 2,
+            expectedReady: true);
+    }
+
+    private static void AssertDunehornBeastHighHandActiveEntrySkipped(
+        ResolutionResult beforePlay,
+        ResolutionResult result)
+    {
+        AssertDunehornBeastActiveEntry(
+            beforePlay,
+            result,
+            expectedHandCountBeforePlay: 4,
+            expectedHandCountAfterPlay: 3,
+            expectedReady: false);
+    }
+
+    private static void AssertDunehornBeastActiveEntry(
+        ResolutionResult beforePlay,
+        ResolutionResult result,
+        int expectedHandCountBeforePlay,
+        int expectedHandCountAfterPlay,
+        bool expectedReady)
+    {
         var sourceObjectId = FindHandCardObjectByCardNo(
             beforePlay.State,
             "P1",
@@ -8867,12 +8931,12 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 Dunehorn Beast active-entry assertion could not locate source Dunehorn in P1 hand.");
         var battlefieldId = BattlefieldObjectIdForPlayer(beforePlay.State, "P1");
 
-        Assert.Equal(3, beforePlay.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(expectedHandCountBeforePlay, beforePlay.State.PlayerZones["P1"].Hand.Count);
         Assert.Contains(sourceObjectId, beforePlay.State.PlayerZones["P1"].Hand);
         Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(battlefieldId, result.State.ObjectLocations[sourceObjectId].BattlefieldObjectId);
-        Assert.False(result.State.CardObjects[sourceObjectId].IsExhausted);
-        Assert.Equal(2, result.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(!expectedReady, result.State.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(expectedHandCountAfterPlay, result.State.PlayerZones["P1"].Hand.Count);
         Assert.DoesNotContain(sourceObjectId, result.State.PlayerZones["P1"].Hand);
 
         var unitEvent = Assert.Single(result.Events, gameEvent =>
@@ -8883,10 +8947,20 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", unitEvent.Payload["playerId"]);
         Assert.Equal("BATTLEFIELD", unitEvent.Payload["destinationZone"]);
         Assert.Equal($"BATTLEFIELD:{battlefieldId}", unitEvent.Payload["destination"]);
-        Assert.Equal(false, unitEvent.Payload["isExhausted"]);
-        Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
-        Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
-        Assert.Equal(DunehornBeastCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        Assert.Equal(!expectedReady, unitEvent.Payload["isExhausted"]);
+        if (expectedReady)
+        {
+            Assert.Equal(StaticAbilityKinds.SourceUnitEnterReady, unitEvent.Payload["entryStaticAbilityKind"]);
+            Assert.Equal(sourceObjectId, unitEvent.Payload["entryStaticAbilitySourceObjectId"]);
+            Assert.Equal(DunehornBeastCardNo, unitEvent.Payload["entryStaticAbilitySourceCardNo"]);
+        }
+        else
+        {
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilityKind"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceObjectId"));
+            Assert.False(unitEvent.Payload.ContainsKey("entryStaticAbilitySourceCardNo"));
+        }
+
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -15716,7 +15790,8 @@ public sealed class FullGameEndToEndTests
         ResolutionResult current,
         string cardNo,
         string battlefieldDestination,
-        string intentPrefix)
+        string intentPrefix,
+        bool expectReady = true)
     {
         var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
             ?? throw new InvalidOperationException($"B0 shadow-response driver could not find {cardNo} in {playerId}'s hand.");
@@ -15735,7 +15810,7 @@ public sealed class FullGameEndToEndTests
                 && resolved.State.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
             ?? throw new InvalidOperationException($"B0 shadow-response driver could not find battlefield {cardNo} for {playerId}.");
-        Assert.False(resolved.State.CardObjects[battlefieldObjectId].IsExhausted);
+        Assert.Equal(!expectReady, resolved.State.CardObjects[battlefieldObjectId].IsExhausted);
         return resolved;
     }
 
@@ -23766,6 +23841,22 @@ public sealed class FullGameEndToEndTests
                 ]));
     }
 
+    private static OfficialDecklist BuildDunehornBeastHighHandActiveEntryOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return WithSlowBattlefields(
+            catalog,
+            BuildLowCurveOfficialDeck(
+                catalog,
+                JhinLegendCardNo,
+                JhinChampionCardNo,
+                [
+                    DunehornBeastCardNo,
+                    WatchfulSentinelCardNo,
+                    WatchfulSentinelCardNo,
+                    WatchfulSentinelCardNo
+                ]));
+    }
+
     private static OfficialDecklist BuildAggressiveDragonhoundUnconditionalActiveEntryOfficialDeck(OfficialCardCatalog catalog)
     {
         return WithSlowBattlefields(
@@ -29418,25 +29509,47 @@ public sealed class FullGameEndToEndTests
 
     private static MatchState BuildDunehornBeastLowHandActiveEntryMidgameInitialState(MatchState state)
     {
-        var midgameState = BuildSpecificCardsMidgameInitialState(
+        return BuildDunehornBeastActiveEntryMidgameInitialState(
             state,
-            "P1",
             [
-                DunehornBeastCardNo,
                 WatchfulSentinelCardNo,
                 WatchfulSentinelCardNo
             ],
+            "low-hand");
+    }
+
+    private static MatchState BuildDunehornBeastHighHandActiveEntryMidgameInitialState(MatchState state)
+    {
+        return BuildDunehornBeastActiveEntryMidgameInitialState(
+            state,
+            [
+                WatchfulSentinelCardNo,
+                WatchfulSentinelCardNo,
+                WatchfulSentinelCardNo
+            ],
+            "high-hand");
+    }
+
+    private static MatchState BuildDunehornBeastActiveEntryMidgameInitialState(
+        MatchState state,
+        IReadOnlyList<string> fillerCardNos,
+        string diagnosticName)
+    {
+        var midgameState = BuildSpecificCardsMidgameInitialState(
+            state,
+            "P1",
+            new[] { DunehornBeastCardNo }.Concat(fillerCardNos).ToArray(),
             new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
         var sourceObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
             DunehornBeastCardNo)
-            ?? throw new InvalidOperationException("B0 Dunehorn Beast active-entry setup could not find Dunehorn Beast in P1 hand.");
+            ?? throw new InvalidOperationException($"B0 Dunehorn Beast {diagnosticName} active-entry setup could not find Dunehorn Beast in P1 hand.");
         var fillerHandObjectIds = midgameState.PlayerZones["P1"].Hand
             .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal))
-            .Take(2)
+            .Take(fillerCardNos.Count)
             .ToArray();
-        Assert.Equal(2, fillerHandObjectIds.Length);
+        Assert.Equal(fillerCardNos.Count, fillerHandObjectIds.Length);
 
         var keptHandObjectIds = new[] { sourceObjectId }
             .Concat(fillerHandObjectIds)
