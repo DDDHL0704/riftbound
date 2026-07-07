@@ -18,9 +18,12 @@ Useful environment overrides:
   RIFTBOUND_SCREENSHOT_DIR=/tmp/riftbound-human-playtest-human-local-170000
   RIFTBOUND_EVIDENCE_PACKAGE=/tmp/riftbound-human-playtest-human-local-170000.tar.gz
   RIFTBOUND_P5_SCREEN_NAME=riftbound-p5-human-local-170000
+  RIFTBOUND_P5_STATUS_FETCH=0
 
 When --status is used without overrides, the launcher reports the latest
 running riftbound-p5-* screen session, falling back to the latest status file.
+By default, --status refreshes origin/main before comparing the active session
+revision; set RIFTBOUND_P5_STATUS_FETCH=0 for offline status checks.
 EOF
 }
 
@@ -134,6 +137,7 @@ print_revision_status() {
   local resolved_revision
   local session_revision
   local current_origin_revision
+  local origin_refresh_status="skipped"
 
   clean_worktree="$(operator_guide_field "Clean worktree")"
   session_ref="$(operator_guide_field "Ref")"
@@ -147,6 +151,14 @@ print_revision_status() {
     session_revision="${resolved_revision}"
   fi
 
+  if [[ "${RIFTBOUND_P5_STATUS_FETCH:-1}" != "0" ]]; then
+    if git -C "${repo_root}" fetch origin main >/dev/null 2>&1; then
+      origin_refresh_status="fetched"
+    else
+      origin_refresh_status="fetch failed; using local origin/main"
+    fi
+  fi
+
   current_origin_revision="$(git_revision "${repo_root}" origin/main)"
 
   if [[ -z "${clean_worktree}${session_ref}${session_revision}${current_origin_revision}" ]]; then
@@ -158,6 +170,7 @@ print_revision_status() {
   echo "  ref: ${session_ref:-unknown}"
   echo "  clean worktree: ${clean_worktree:-unknown}"
   echo "  session revision: ${session_revision:-unavailable}"
+  echo "  origin/main refresh: ${origin_refresh_status}"
   echo "  local origin/main: ${current_origin_revision:-unavailable}"
 
   if [[ -n "${session_revision}" && -n "${current_origin_revision}" ]]; then

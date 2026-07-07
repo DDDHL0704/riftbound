@@ -38,6 +38,10 @@ require_pattern "print_evidence_status" \
   "launcher status must summarize the current evidence directory"
 require_pattern "print_revision_status" \
   "launcher status must summarize the running clean-main revision"
+require_pattern "fetch origin main" \
+  "launcher status must refresh origin/main before comparing the running clean-main revision"
+require_pattern "RIFTBOUND_P5_STATUS_FETCH" \
+  "launcher status must allow an offline status check without fetching origin/main"
 require_pattern "revision status: STALE" \
   "launcher status must warn when a running final P5 session is behind local origin/main"
 require_pattern "Prompt actions:" \

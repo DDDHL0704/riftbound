@@ -103,10 +103,11 @@ contracts change.
   latest `riftbound-p5-*` screen session or status file when a room/screen
   override is not supplied, so operators can recover an active detached final
   run without remembering the generated room suffix. The same status output
-  summarizes the running clean-main revision and warns when it is stale versus
-  local `origin/main`, then summarizes the current evidence directory by player:
-  latest prompt actions, setup receipts, hidden-information boundary line, and
-  initial/result screenshot presence.
+  refreshes local `origin/main`, summarizes the running clean-main revision, and
+  warns when it is stale versus the refreshed reference. Offline operators can
+  set `RIFTBOUND_P5_STATUS_FETCH=0` to skip the refresh. It then summarizes the
+  current evidence directory by player: latest prompt actions, setup receipts,
+  hidden-information boundary line, and initial/result screenshot presence.
 - `check-clean-main-human-session-launcher.sh` statically guards the detached
   launcher so it cannot become an automated smoke or no-wait path.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
