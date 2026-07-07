@@ -35,6 +35,7 @@ After this slice:
 - `PendingCardChoiceState` now opens a controller-only `CARD_CHOICE` prompt when multiple eligible top-five units exist. `CHOOSE_CARDS` accepts one selected eligible unit or an empty choice, then recycles the unplayed looked cards with `visibility=LOOKED_NOT_REVEALED` and no public `cardIds`.
 - The B0 multi-eligible replay path now proves that the private `CARD_CHOICE` / `CHOOSE_CARDS` branch is recorded with complete raw payload, replays to the same final state hash, and can continue to score victory without exposing the looked card ids to the non-choosing player.
 - The zero-eligible path now has direct and B0 replay evidence: no `CARD_CHOICE` window opens, no unit is played, all five looked cards are recycled with `visibility=LOOKED_NOT_REVEALED`, and replay reaches the same final state hash.
+- The multi-eligible empty-choice path now has B0 replay evidence: `CHOOSE_CARDS` may carry an empty `chosenObjectIds` payload, no unit is played, all five looked cards are recycled privately, and replay reaches the same final state hash.
 
 ## Test Evidence
 
@@ -46,6 +47,8 @@ After this slice:
   - `FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookActivatedAbilityAndScoreVictoryActionLogReplaysToFinalStateHash`
 - B0 multi-eligible replay follow-up passed `1/1`:
   - `FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash`
+- B0 multi-eligible decline replay follow-up passed `1/1`:
+  - `FullGameEndToEndTests.OfficialDeckMidgameDeclinesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash`
 - Zero-eligible follow-up passed focused guard `1/1`:
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithNoEligibleTopFiveUnitsRecyclesAllLookedCardsPrivatelyWithoutChoice`
 - B0 zero-eligible replay follow-up passed `1/1`:
@@ -54,8 +57,8 @@ After this slice:
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately`
   - `SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityTopFiveChoiceCanDeclineAndRecycleAllLookedCardsPrivately`
 - Focused SeaMonsterHook + MatchRecovery hidden-info regression passed `2001/2001`.
-- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression passed `2926/2926`.
-- Backend full conformance passed `9196/9196`.
+- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression passed `2927/2927`.
+- Backend full conformance passed `9197/9197`.
 - Adjacent PaymentEngine / catalog / recovery / full-game coverage is tracked through `PaymentEngineCoverageAuditTests` manifest updates for the new runtime ability row.
 
 ## Non-Claims

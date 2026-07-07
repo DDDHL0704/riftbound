@@ -21,6 +21,8 @@ This slice opens the first BehaviorSpec-driven representative path for `OGN·242
 
 2026-07-07 follow-up: added focused and B0 official-deck-derived replay coverage for the zero-eligible top-five branch. The replay verifies that no `CARD_CHOICE` window opens, all looked cards are recycled privately, action-log replay reaches the same final state hash, and the game can still continue to score victory.
 
+2026-07-07 follow-up: added B0 official-deck-derived replay coverage for declining the multi-eligible top-five choice. The replay opens the private `CARD_CHOICE` window, submits `CHOOSE_CARDS` with an empty `chosenObjectIds` payload, recycles all looked cards privately, verifies action-log replay to the same final state hash, and continues to score victory.
+
 ## Authority
 
 Official card data:
@@ -40,7 +42,7 @@ The prior Sea Monster Hook evidence was only the ordinary 0-target equipment pla
 - `P4ActivatedAbilityCatalog` derives this ability row from `BehaviorSpecCatalogBuilder`.
 - `MatchSession` builds target choices from the generic friendly-unit scope.
 - `CoreRuleEngine` resolves activation payment through `PaymentCostRules` and resolves the stack effect without emitting `CARDS_REVEALED`.
-- `FullGameEndToEndTests` now includes B0 score-victory replays that exercise the BehaviorSpec-derived prompt, payment, stack resolution, private top-five look, unique eligible unit auto-play, multi-eligible private card choice, zero-eligible recycle-all, recycle event, action log, and final hash replay path.
+- `FullGameEndToEndTests` now includes B0 score-victory replays that exercise the BehaviorSpec-derived prompt, payment, stack resolution, private top-five look, unique eligible unit auto-play, multi-eligible private card choice, multi-eligible empty choice, zero-eligible recycle-all, recycle event, action log, and final hash replay path.
 - `CommandTypes.ChooseCards`, `PromptTypes.CardChoice`, and `PendingCardChoiceState` provide the generic private card-choice window used by Sea Monster Hook multi-eligible top-five resolution. Non-choosing players receive only the pending window summary and counts, not legal/context object ids.
 - `FullGameEndToEndTests.RawCommand(...)` now preserves `ChooseCardsCommand` payload fields so B0 action-log replay can recover private card-choice submissions deterministically.
 
@@ -48,12 +50,13 @@ The prior Sea Monster Hook evidence was only the ordinary 0-target equipment pla
 
 - Focused B0 replay: `1/1`.
 - Focused multi-eligible B0 replay: `1/1`.
+- Focused multi-eligible decline B0 replay: `1/1`.
 - Focused zero-eligible guard: `1/1`.
 - Focused zero-eligible B0 replay: `1/1`.
 - Focused SeaMonsterHook guard: `13/13`.
 - Focused SeaMonsterHook + MatchRecovery hidden-info regression: `2001/2001`.
-- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression: `2926/2926`.
-- Backend full conformance: `9196/9196`.
+- Adjacent SeaMonsterHook / CardChoice / ChooseCards / FullGameEndToEnd / MatchRecovery / PaymentEngine regression: `2927/2927`.
+- Backend full conformance: `9197/9197`.
 
 ## Holdbacks
 

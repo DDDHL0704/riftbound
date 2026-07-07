@@ -1936,6 +1936,49 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDeckMidgameDeclinesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog, includeSecondEligibleTopUnit: true);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-choice-decline-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildSeaMonsterHookActivatedAbilityMidgameInitialState(
+            openingResult.State,
+            includeSecondEligibleTopUnit: true);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+
+        var (activated, pendingChoice, declined) = await SubmitSeaMonsterHookActivatedAbilityDecliningTopFiveChoiceAsync(
+            session,
+            current,
+            "P1",
+            "b0-sea-monster-hook-choice-decline");
+        AssertSeaMonsterHookActivatedAbilityTopFiveChoiceDeclined(
+            current,
+            activated,
+            pendingChoice,
+            declined);
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            declined,
+            "b0-sea-monster-hook-choice-decline-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ChooseCards, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task OfficialDeckMidgameResolvesSeaMonsterHookNoEligibleTopFiveRecycleAndScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -7780,6 +7823,74 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(activated);
         AssertNoHiddenZoneLeak(pendingChoice);
         AssertNoHiddenZoneLeak(chosen);
+    }
+
+    private static void AssertSeaMonsterHookActivatedAbilityTopFiveChoiceDeclined(
+        ResolutionResult beforeActivation,
+        ResolutionResult activated,
+        ResolutionResult pendingChoice,
+        ResolutionResult declined)
+    {
+        var ability = SeaMonsterHookActivatedAbilityDefinition();
+        var sourceObjectId = beforeActivation.State.PlayerZones["P1"].Base.Single(objectId =>
+            beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, SeaMonsterHookEquipmentCardNo, StringComparison.Ordinal));
+        var destroyedUnitObjectId = beforeActivation.State.PlayerZones["P1"].Base.Single(objectId =>
+            beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, SeaMonsterHookDestroyedUnitCardNo, StringComparison.Ordinal));
+        var topFiveObjectIds = beforeActivation.State.PlayerZones["P1"].MainDeck.Take(5).ToArray();
+        Assert.Contains(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookEligibleTopUnitCardNo, StringComparison.Ordinal));
+        Assert.Contains(
+            topFiveObjectIds,
+            objectId => beforeActivation.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, SeaMonsterHookSecondEligibleTopUnitCardNo, StringComparison.Ordinal));
+
+        Assert.Equal(RunePool.Empty, activated.State.RunePools["P1"]);
+        Assert.True(activated.State.CardObjects[sourceObjectId].IsExhausted);
+        var stackItem = Assert.Single(activated.State.StackItems);
+        Assert.Equal(sourceObjectId, stackItem.SourceObjectId);
+        Assert.Equal(ability.EffectKind, stackItem.EffectKind);
+        Assert.Equal([destroyedUnitObjectId], stackItem.TargetObjectIds);
+
+        Assert.Empty(pendingChoice.State.StackItems);
+        Assert.NotNull(pendingChoice.State.PendingCardChoice);
+        Assert.Contains(pendingChoice.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && Assert.IsType<int>(gameEvent.Payload["legalCount"]) == 2);
+
+        Assert.Empty(declined.State.StackItems);
+        Assert.Null(declined.State.PendingCardChoice);
+        Assert.Contains(sourceObjectId, declined.State.PlayerZones["P1"].Base);
+        Assert.Contains(destroyedUnitObjectId, declined.State.PlayerZones["P1"].Graveyard);
+        Assert.False(declined.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        Assert.DoesNotContain(topFiveObjectIds, objectId => declined.State.PlayerZones["P1"].Base.Contains(objectId, StringComparer.Ordinal));
+        Assert.Equal(
+            beforeActivation.State.PlayerZones["P1"].MainDeck.Skip(5).First(),
+            declined.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal(beforeActivation.State.PlayerZones["P1"].MainDeck.Count, declined.State.PlayerZones["P1"].MainDeck.Count);
+
+        Assert.Contains(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_CHOICE_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+            && Assert.IsType<int>(gameEvent.Payload["chosenCount"]) == 0);
+        Assert.DoesNotContain(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        var recycled = Assert.Single(declined.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
+        Assert.Equal("P1", recycled.Payload["playerId"]);
+        Assert.Equal(5, recycled.Payload["count"]);
+        Assert.Equal("MAIN_DECK", recycled.Payload["zone"]);
+        Assert.Equal("LOOKED_NOT_REVEALED", recycled.Payload["visibility"]);
+        Assert.False(recycled.Payload.ContainsKey("cardIds"));
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(pendingChoice);
+        AssertNoHiddenZoneLeak(declined);
     }
 
     private static void AssertSeaMonsterHookActivatedAbilityNoEligibleTopFiveResolved(
@@ -17736,6 +17847,48 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(chosen);
         AssertNoHiddenZoneLeak(chosen);
         return (activated, pendingChoice, chosen);
+    }
+
+    private static async ValueTask<(ResolutionResult Activated, ResolutionResult PendingChoice, ResolutionResult Declined)> SubmitSeaMonsterHookActivatedAbilityDecliningTopFiveChoiceAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var (activated, pendingChoice) = await SubmitSeaMonsterHookActivatedAbilityAsync(
+            session,
+            current,
+            playerId,
+            intentId);
+        Assert.Equal(playerId, pendingChoice.State.ActivePlayerId);
+        Assert.Equal(PromptTypes.CardChoice, pendingChoice.Prompts[playerId].View?.Type);
+        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].Actions);
+        var chooseCandidate = Assert.Single(
+            pendingChoice.Prompts[playerId].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
+        Assert.True(chooseCandidate.Enabled);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(chooseCandidate.Metadata);
+        Assert.Equal("SEA_MONSTER_HOOK_TOP_FIVE_PLAY", metadata["choiceWindow"]);
+        Assert.Equal(playerId, metadata["choosingPlayerId"]);
+        Assert.Equal(0, Assert.IsType<int>(metadata["requiredCount"]));
+        Assert.Equal(1, Assert.IsType<int>(metadata["maxCount"]));
+        Assert.Equal(2, Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["cardChoices"]).Count());
+        Assert.Equal(2, Assert.IsAssignableFrom<IEnumerable<string>>(metadata["legalObjectIds"]).Count());
+
+        var choiceId = Assert.IsType<string>(metadata["choiceId"]);
+        var command = new ChooseCardsCommand(
+            choiceId,
+            "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+            []);
+        var declined = await session.SubmitAsync(
+            playerId,
+            $"{intentId}-decline",
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(declined);
+        AssertNoHiddenZoneLeak(declined);
+        return (activated, pendingChoice, declined);
     }
 
     private static P4ActivatedAbilityDefinition SeaMonsterHookActivatedAbilityDefinition()
