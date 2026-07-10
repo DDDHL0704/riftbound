@@ -9,10 +9,11 @@ deterministic visual verification requires them; record the source here.
 | Path | Source | License | Notes |
 | --- | --- | --- | --- |
 | `icon.svg` | Local placeholder | Project-local | Temporary vector icon for the Godot project. |
-| `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored legacy procedural visual theme | Project-local | Current runtime only. The black/ivory inksteel route is being replaced by a neutral minimal theme. |
-| `scripts/CardControlRenderer.cs`, `scripts/Main.cs`, `scenes/Main.tscn` | Project-authored legacy UI and motion | Project-local | Current runtime only. Wire-table frames and the permanent prompt rail will be removed after replacement parity. |
+| `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored legacy procedural visual theme | Project-local | Fallback-only. The normal runtime uses the neutral minimal theme. |
+| `scripts/CardControlRenderer.cs` | Project-authored legacy UI and motion | Project-local | Fallback-only while prompt interaction parity is completed. |
 | Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; this remains the default path. |
 | `scenes/components/OfficialCardView.tscn` | Project-authored minimal wrapper around runtime official card fronts | Project-local | Adds only neutral fallback, count badge, focus, selection, target, disabled, and hidden states outside the official face. |
+| `scenes/overlays/CardInspectOverlay.tscn`, `scenes/overlays/ResultOverlay.tscn` | Project-authored minimal UI | Project-local | Uses theme surfaces and runtime official card art; no additional raster assets were introduced. |
 
 ## Approved Asset Direction
 

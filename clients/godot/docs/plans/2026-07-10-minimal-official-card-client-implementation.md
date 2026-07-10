@@ -353,35 +353,42 @@ the official artwork now carries card identity instead of custom mini frames.
   `ResultOverlay.ShowResult(Dictionary result)`, `HideResult()`, and
   `ReturnLobbyRequested`.
 
-- [ ] **Step 1: Write and run the failing overlay check**
+- [x] **Step 1: Write and run the failing overlay check**
 
 Require centered full-screen overlay anchors, Escape-close behavior for inspect,
 a return-lobby button for result, and no raw `serverTick`, `source`, or prompt
 panel inside either scene.
 
-- [ ] **Step 2: Implement card inspection**
+- [x] **Step 2: Implement card inspection**
 
 The overlay displays one large uncropped official image plus safe catalog text.
 `ShowCard` returns without opening when `visible=false` or `faceDown=true`.
 
-- [ ] **Step 3: Implement result presentation**
+- [x] **Step 3: Implement result presentation**
 
 The result overlay shows localized win/loss, winner, score, and reason over the
 latched final table. It replaces the narrow right-rail `ResultFrame`.
 
-- [ ] **Step 4: Wire existing preview and result callbacks**
+- [x] **Step 4: Wire existing preview and result callbacks**
 
 `Main.ApplyCardPreview` delegates to `CardInspectOverlay`; `ApplyMatchResult`
 delegates to `ResultOverlay` while preserving the existing screenshot latch and
 server-authoritative result event.
 
-- [ ] **Step 5: Build and capture inspect/result proof**
+- [x] **Step 5: Build and capture inspect/result proof**
 
 Use a visible two-window smoke that previews the first visible card and reaches
 `MATCH_WON`. Inspect both final screenshots and verify hidden opponent cards
 cannot open the inspect overlay.
 
-- [ ] **Step 6: Commit**
+Visible 1440x900 evidence is archived under
+`screenshots/units/m4-card-inspect-*` and `screenshots/units/m4-result-*`.
+Both clients rendered official-card tables before capture, and the result smoke
+did not submit `SURRENDER` until the table had rendered at least once. The paired
+visible-run logs record zero opponent hand faces, zero opponent standby faces,
+and zero hidden identity leaks.
+
+- [x] **Step 6: Commit**
 
 Commit message: `Add focused card and result overlays`.
 

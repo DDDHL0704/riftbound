@@ -5,6 +5,13 @@ resume from repository state instead of conversation history alone.
 
 ## Current Shape
 
+- The active minimal client now has focused lobby and match screens, official
+  card views, a centered card-inspection overlay, and a centered result overlay.
+  `Main.cs` remains the transport/coordinator boundary, but the normal runtime
+  no longer exposes the legacy preview or result rail. The latest visible M4
+  proof is under `screenshots/units/m4-card-inspect-*` and
+  `screenshots/units/m4-result-*`; both clients reported zero opponent hand
+  faces, zero opponent standby faces, and zero hidden identity leaks.
 - The Godot client remains server-authoritative: it renders server snapshots and
   prompts, then submits server-provided commands or prompt templates. It must not
   infer legality, hidden identities, combat results, or win conditions locally.

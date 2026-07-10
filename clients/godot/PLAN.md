@@ -36,6 +36,13 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
+- Focused card inspection and result presentation are complete. Visible cards
+  open in a centered overlay with one large uncropped official face and safe
+  catalog text; face-down or non-visible cards are rejected before display.
+  Authoritative match results now use a centered win/loss overlay over the
+  latched final table, with only viewer-safe winner, score, and reason text.
+  Visible two-window 1440x900 evidence is archived under
+  `screenshots/units/m4-card-inspect-*` and `screenshots/units/m4-result-*`.
 - The responsive official-card match screen is complete. It presents opponent
   summary/back, two aligned battlefields, self public zones, a readable hand,
   and a stable bottom action host without the old permanent right rail. The old
@@ -54,9 +61,10 @@ wire-table and final P5 evidence push are no longer the active product route.
 - Multi-window session isolation, SignalR/HTTP transport, official card catalog
   loading, preconstructed decks, prompt submission, hidden-information logging,
   screenshot capture, and final evidence tooling already exist and are retained.
-- The coordinator remains concentrated in `Main.cs`; prompt controls, inspect,
-  and result presentation still use legacy internals until the next focused
-  migration units. The procedural wire table is no longer the default runtime.
+- The coordinator remains concentrated in `Main.cs`; prompt controls still use
+  legacy internals until the next focused migration unit. Card inspection and
+  result presentation now use focused overlay scenes, and the procedural wire
+  table is no longer the default runtime.
 - The current client can reach a result through automated smoke, but the recent
   visual audit found that a human cannot reliably scan or operate it as a card
   game. P5 is paused until the interaction and layout rebuild is complete.

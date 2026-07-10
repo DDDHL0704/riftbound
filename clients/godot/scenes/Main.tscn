@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.cs" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/screens/LobbyScreen.tscn" id="2_lobby"]
 [ext_resource type="PackedScene" path="res://scenes/screens/MatchScreen.tscn" id="3_match"]
+[ext_resource type="PackedScene" path="res://scenes/overlays/CardInspectOverlay.tscn" id="4_inspect"]
+[ext_resource type="PackedScene" path="res://scenes/overlays/ResultOverlay.tscn" id="5_result"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -72,6 +74,14 @@ layout_mode = 2
 [node name="MatchScreen" parent="." instance=ExtResource("3_match")]
 visible = false
 z_index = 10
+layout_mode = 1
+
+[node name="CardInspectOverlay" parent="." instance=ExtResource("4_inspect")]
+visible = false
+layout_mode = 1
+
+[node name="ResultOverlay" parent="." instance=ExtResource("5_result")]
+visible = false
 layout_mode = 1
 
 [node name="ResultFrame" type="PanelContainer" parent="."]

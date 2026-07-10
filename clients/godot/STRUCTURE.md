@@ -10,10 +10,11 @@ contracts change.
   uses a 1440x900 reference viewport with responsive expansion, uses the
   `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
 - `scenes/Main.tscn` is a single `Control` shell that switches between the
-  focused `LobbyScreen` and full-viewport `MatchScreen`. The temporary legacy
-  battle renderer remains mounted only behind the default-off
-  `UseLegacyCardTableFallback`; preview, prompt, result, snapshot, and hidden log
-  controls are invisible in the normal lobby and match paths.
+  focused `LobbyScreen` and full-viewport `MatchScreen`, then mounts centered
+  `CardInspectOverlay` and `ResultOverlay` scenes above them. The temporary
+  legacy battle renderer remains mounted only behind the default-off
+  `UseLegacyCardTableFallback`; prompt, snapshot, and hidden log controls are
+  invisible in the normal lobby and match paths.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -48,12 +49,13 @@ wire-table height.
   It shows the lobby during the `ROOM` state, then hides it for non-room battle
   snapshots so the tabletop owns the combat viewport without blocking deck
   selection. Lobby deck submission and ready affordances mirror enabled
-  `SUBMIT_DECK` and `READY` candidates from the current server prompt. Until the
-  centered Task 4 overlay lands, only the legacy result panel may overlay the
-  new table; the preview and prompt rails remain hidden. Result mode latches
-  match visibility so stale room snapshots cannot restore lobby controls before
-  final screenshots are captured, and delayed result capture keeps that panel
-  stable while reading the viewport texture.
+  `SUBMIT_DECK` and `READY` candidates from the current server prompt. It routes
+  visible card activation into `CardInspectOverlay` and maps authoritative
+  results into viewer-safe fields for `ResultOverlay`; the legacy preview and
+  result rail remain fallback-only. Result mode latches match visibility so
+  stale room snapshots cannot restore lobby controls before final screenshots
+  are captured, and delayed result capture waits for the render server before
+  reading the viewport texture.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
@@ -79,6 +81,15 @@ wire-table height.
   player identifiers, and indexes only visible object IDs for future prompt
   state. `check-minimal-match-scene.sh` rejects fixed wire geometry, permanent
   right rails, debug identifiers, and hidden-card identity copies.
+- `scenes/overlays/CardInspectOverlay.tscn` and
+  `scripts/ui/CardInspectOverlay.cs` own full-card inspection. The overlay
+  rejects hidden/face-down dictionaries before calling `OfficialCardView`,
+  closes with Escape or its explicit button, and restores prior keyboard focus.
+- `scenes/overlays/ResultOverlay.tscn` and `scripts/ui/ResultOverlay.cs` own the
+  centered authoritative match result and return-to-lobby action. They consume
+  only localized outcome, viewer-relative winner, score, and reason fields; raw
+  player IDs, ticks, prompt metadata, and transport fields never enter the
+  overlay.
 - `scripts/ui/MinimalTheme.cs` owns the replacement graphite palette, readable
   text, compact surface styles, button states, and semantic selection colors.
 - `scenes/components/OfficialCardView.tscn` and
@@ -208,6 +219,7 @@ wire-table height.
 
 - Build: `~/.dotnet/dotnet build clients/godot/Riftbound.GodotClient.csproj`
 - Focused lobby scene: `clients/godot/tools/check-minimal-lobby-scene.sh`
+- Focused overlays: `clients/godot/tools/check-minimal-overlays.sh`
 - Script safety: `clients/godot/tools/check-human-playtest-script-safety.sh`
 - Evidence checker tests:
   `clients/godot/tools/check-human-playtest-evidence-integrity.sh`

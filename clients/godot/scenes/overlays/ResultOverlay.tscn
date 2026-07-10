@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ResultOverlay.cs" id="1_result"]
+
+[node name="ResultOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+z_index = 110
+script = ExtResource("1_result")
+
+[node name="DimLayer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.025, 0.03, 0.04, 0.82)
+
+[node name="ResultCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultPanel" type="PanelContainer" parent="ResultCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 360)
+layout_mode = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="ResultCenter/ResultPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="ResultContent" type="VBoxContainer" parent="ResultCenter/ResultPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ResultKicker" type="Label" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "对局结束"
+horizontal_alignment = 1
+
+[node name="ResultHeadline" type="Label" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胜利 / 失败"
+horizontal_alignment = 1
+
+[node name="WinnerSummary" type="Label" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胜者：你 / 对手"
+horizontal_alignment = 1
+
+[node name="ScoreSummary" type="Label" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胜利分数：未公布"
+horizontal_alignment = 1
+
+[node name="ReasonSummary" type="Label" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "原因：服务端确认对局结束"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ReturnButton" type="Button" parent="ResultCenter/ResultPanel/ContentMargin/ResultContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "返回大厅"

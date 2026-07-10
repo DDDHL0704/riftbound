@@ -1,0 +1,102 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/CardInspectOverlay.cs" id="1_inspect"]
+[ext_resource type="PackedScene" path="res://scenes/components/OfficialCardView.tscn" id="2_card"]
+
+[node name="CardInspectOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+z_index = 100
+script = ExtResource("1_inspect")
+
+[node name="DimLayer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.025, 0.03, 0.04, 0.86)
+
+[node name="InspectCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InspectPanel" type="PanelContainer" parent="InspectCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(780, 560)
+layout_mode = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="InspectCenter/InspectPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="InspectContent" type="HBoxContainer" parent="InspectCenter/InspectPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="CardCenter" type="CenterContainer" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent"]
+custom_minimum_size = Vector2(330, 500)
+layout_mode = 2
+
+[node name="InspectCard" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/CardCenter" instance=ExtResource("2_card")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 446)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Details" type="VBoxContainer" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent"]
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/Details"]
+layout_mode = 2
+
+[node name="InspectTitle" type="Label" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/Details/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "卡牌详情"
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/Details/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(88, 40)
+layout_mode = 2
+text = "关闭"
+
+[node name="SummaryScroll" type="ScrollContainer" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/Details"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="InspectSummary" type="Label" parent="InspectCenter/InspectPanel/ContentMargin/InspectContent/Details/SummaryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+autowrap_mode = 2
+text = ""

@@ -63,6 +63,8 @@ public partial class Main : Control
     private Control? _controls;
     private LobbyScreen? _lobbyScreen;
     private MatchScreen? _matchScreen;
+    private CardInspectOverlay? _cardInspectOverlay;
+    private ResultOverlay? _resultOverlay;
     private Label? _boardSummary;
     private ScrollContainer? _snapshotScroll;
     private ScrollContainer? _legacyHandScroll;
@@ -99,6 +101,7 @@ public partial class Main : Control
     private bool _autoSmokeSurrenderSubmitted;
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
+    private volatile bool _battleTableRendered;
     private bool _battleChromeHidden;
     private bool _matchmakingWaiting;
     private bool _lobbyCanSubmitDeckFromPrompt;
@@ -113,6 +116,8 @@ public partial class Main : Control
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
     private Godot.Collections.Array<Godot.Collections.Dictionary>? _lastSnapshotSections;
+    private Godot.Collections.Dictionary? _lastAppliedPromptView;
+    private Godot.Collections.Dictionary _lastViewerResult = new();
 
     public Main()
     {
@@ -200,6 +205,8 @@ public partial class Main : Control
         _controls = GetNode<Control>("Controls");
         _lobbyScreen = GetNode<LobbyScreen>("Controls/LobbyScreen");
         _matchScreen = GetNode<MatchScreen>("MatchScreen");
+        _cardInspectOverlay = GetNode<CardInspectOverlay>("CardInspectOverlay");
+        _resultOverlay = GetNode<ResultOverlay>("ResultOverlay");
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
         _snapshotScroll = GetNode<ScrollContainer>("Controls/SnapshotScroll");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
@@ -260,6 +267,9 @@ public partial class Main : Control
             _matchScreen.ApplyTheme();
         }
 
+        _cardInspectOverlay?.ApplyTheme();
+        _resultOverlay?.ApplyTheme();
+
         if (_boardSummary is not null)
         {
             _boardSummary.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
@@ -304,6 +314,7 @@ public partial class Main : Control
         _lobbyScreen.SubmitDeckRequested += () => _ = SubmitSelectedDeckAsync();
         _lobbyScreen.ReadyRequested += () => _ = ReadyAsync();
         _matchScreen!.CardActivated += ApplyCardPreview;
+        _resultOverlay!.ReturnLobbyRequested += () => _ = ReturnToLobbyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
 
@@ -1488,6 +1499,7 @@ public partial class Main : Control
 
         if (_autoSmokeSurrender
             && !_autoSmokeSurrenderSubmitted
+            && _battleTableRendered
             && TryGetEnabledPromptAction(actions, "SURRENDER", requireTemplate: false, out var surrenderAction))
         {
             var label = surrenderAction.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Surrender";
@@ -3435,17 +3447,31 @@ public partial class Main : Control
     {
         _matchFinished = true;
         SetBattleChromeVisible(battleActive: true);
-        SetRightRailMatchResultVisible(matchResultVisible: true);
+        _cardInspectOverlay?.HideCard();
+        _lastViewerResult = BuildViewerResult(result);
 
-        if (_resultFrame is not null)
+        if (UseLegacyCardTableFallback)
         {
-            FlashResultFrame(_resultFrame);
+            _resultOverlay?.HideResult();
+            SetRightRailMatchResultVisible(matchResultVisible: true);
+            if (_resultFrame is not null)
+            {
+                FlashResultFrame(_resultFrame);
+            }
+
+            if (_resultSummary is not null)
+            {
+                _resultSummary.Text = MatchResultSummaryForViewer(result);
+                _resultSummary.AddThemeColorOverride("font_color", MatchResultFontColor(result));
+            }
         }
-
-        if (_resultSummary is not null)
+        else
         {
-            _resultSummary.Text = MatchResultSummaryForViewer(result);
-            _resultSummary.AddThemeColorOverride("font_color", MatchResultFontColor(result));
+            SetRightRailMatchResultVisible(matchResultVisible: false);
+            if (_resultOverlay is not null)
+            {
+                _resultOverlay.ShowResult(_lastViewerResult);
+            }
         }
 
         QueueResultScreenshotIfReady();
@@ -3476,8 +3502,13 @@ public partial class Main : Control
     public void ClearMatchResult()
     {
         _matchFinished = false;
+        _battleTableRendered = false;
+        _lastAppliedPromptView = null;
         _autoSmokeSurrenderSubmitted = false;
         _resultScreenshotSaved = false;
+        _lastViewerResult = new Godot.Collections.Dictionary();
+        _cardInspectOverlay?.HideCard();
+        _resultOverlay?.HideResult();
         SetRightRailMatchResultVisible(matchResultVisible: false);
         SetBattleChromeVisible(battleActive: false);
         _matchScreen?.RenderSections([]);
@@ -3486,6 +3517,47 @@ public partial class Main : Control
         {
             _resultSummary.Text = "No result";
         }
+    }
+
+    private Godot.Collections.Dictionary BuildViewerResult(Godot.Collections.Dictionary result)
+    {
+        var winnerPlayerId = ResultString(result, "winnerPlayerId");
+        var surrenderedPlayerId = ResultString(result, "surrenderedPlayerId");
+        var reason = ResultString(result, "reason");
+        var winningScore = Math.Max(0, ResultInt(result, "winningScore"));
+        var knownWinner = !string.IsNullOrWhiteSpace(winnerPlayerId);
+        var youWon = knownWinner
+            && string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal);
+
+        return new Godot.Collections.Dictionary
+        {
+            ["outcome"] = knownWinner ? youWon ? "胜利" : "失败" : "对局结束",
+            ["winner"] = knownWinner ? youWon ? "你" : "对手" : string.Empty,
+            ["score"] = winningScore,
+            ["reason"] = ViewerResultReason(reason, surrenderedPlayerId, winningScore)
+        };
+    }
+
+    private string ViewerResultReason(string reason, string surrenderedPlayerId, int winningScore)
+    {
+        if (!string.IsNullOrWhiteSpace(surrenderedPlayerId))
+        {
+            var youSurrendered = string.Equals(
+                surrenderedPlayerId,
+                _authenticatedHandle,
+                StringComparison.Ordinal);
+            return youSurrendered ? "你投降" : "对手投降";
+        }
+
+        return reason.ToUpperInvariant() switch
+        {
+            "SURRENDER" => "投降",
+            "SCORE" or "SCORE_THRESHOLD" or "VICTORY_POINTS" => "达到胜利分数",
+            "TIMEOUT" => "对局超时",
+            "DISCONNECT" => "连接中断判定",
+            _ when winningScore > 0 => "达到胜利分数",
+            _ => "服务端确认对局结束"
+        };
     }
 
     private string MatchResultSummaryForViewer(Godot.Collections.Dictionary result)
@@ -3570,6 +3642,7 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
+        _lastAppliedPromptView = view.Duplicate(true);
         RefreshLobbySetupStateFromPrompt(actions);
         RefreshPromptHighlights(actions);
         var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
@@ -4124,13 +4197,30 @@ public partial class Main : Control
         if (battleActive && !UseLegacyCardTableFallback)
         {
             _matchScreen.RenderSections(sections);
+            _battleTableRendered = true;
+            if (_lastAppliedPromptView is not null)
+            {
+                _ = RunAutoSmokePromptAsync(_lastAppliedPromptView);
+            }
             return;
         }
 
+        if (!_matchFinished)
+        {
+            _battleTableRendered = false;
+        }
         _matchScreen.RenderSections([]);
         if (UseLegacyCardTableFallback)
         {
             _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
+            if (battleActive)
+            {
+                _battleTableRendered = true;
+                if (_lastAppliedPromptView is not null)
+                {
+                    _ = RunAutoSmokePromptAsync(_lastAppliedPromptView);
+                }
+            }
         }
         else
         {
@@ -4195,6 +4285,15 @@ public partial class Main : Control
         if (_resultFrame is not null && !battleActive)
         {
             _resultFrame.Visible = false;
+        }
+
+        if (!battleActive)
+        {
+            _cardInspectOverlay?.HideCard();
+            if (!_matchFinished)
+            {
+                _resultOverlay?.HideResult();
+            }
         }
 
         if (_controls is not null)
@@ -4293,6 +4392,14 @@ public partial class Main : Control
                 }
             }
 
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            RenderingServer.ForceDraw();
+            RenderingServer.ForceSync();
+            if (forceResultChrome)
+            {
+                LogResultScreenshotLayout();
+            }
+
             var directory = Path.GetDirectoryName(path);
             if (!string.IsNullOrWhiteSpace(directory))
             {
@@ -4316,15 +4423,54 @@ public partial class Main : Control
         }
     }
 
+    private void LogResultScreenshotLayout()
+    {
+        var panel = GetNodeOrNull<PanelContainer>("ResultOverlay/ResultCenter/ResultPanel");
+        var button = GetNodeOrNull<Button>("ResultOverlay/ResultCenter/ResultPanel/ContentMargin/ResultContent/ReturnButton");
+        var styleType = panel is null
+            ? "missing"
+            : panel.GetThemeStylebox("panel").GetType().Name;
+        AppendLog(
+            $"Result screenshot layout: overlayVisible={_resultOverlay?.IsVisibleInTree()} "
+            + $"overlaySize={_resultOverlay?.Size} panelVisible={panel?.IsVisibleInTree()} "
+            + $"panelPosition={panel?.GlobalPosition} panelSize={panel?.Size} panelStyle={styleType} "
+            + $"buttonVisible={button?.IsVisibleInTree()} buttonPosition={button?.GlobalPosition} buttonSize={button?.Size}");
+    }
+
     private void ForceResultScreenshotChrome()
     {
         _matchFinished = true;
         SetBattleChromeVisible(battleActive: true);
-        SetRightRailMatchResultVisible(matchResultVisible: true);
+        if (UseLegacyCardTableFallback)
+        {
+            SetRightRailMatchResultVisible(matchResultVisible: true);
+            _resultOverlay?.HideResult();
+        }
+        else
+        {
+            SetRightRailMatchResultVisible(matchResultVisible: false);
+            if (_resultOverlay is not null && _lastViewerResult.Count > 0)
+            {
+                _resultOverlay.ShowResult(_lastViewerResult);
+            }
+        }
     }
 
     public void ApplyCardPreview(Godot.Collections.Dictionary card)
     {
+        var visible = card.TryGetValue("visible", out var visibleValue) && visibleValue.AsBool();
+        var faceDown = card.TryGetValue("faceDown", out var faceDownValue) && faceDownValue.AsBool();
+        if (!visible || faceDown || _cardInspectOverlay is null)
+        {
+            return;
+        }
+
+        _cardInspectOverlay.ShowCard(card);
+        if (!UseLegacyCardTableFallback)
+        {
+            return;
+        }
+
         if (_officialCardPreviewSummary is not null)
         {
             _officialCardPreviewSummary.Text = CardControlRenderer.PreviewSummary(card);
