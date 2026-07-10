@@ -18,61 +18,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main")
 
-[node name="Title" type="Label" parent="."]
+[node name="LobbyScreen" parent="." instance=ExtResource("2_lobby")]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 16.0
-offset_top = 10.0
-offset_right = -336.0
-offset_bottom = 34.0
-grow_horizontal = 2
-text = "Riftbound 符文战场"
-
-[node name="Controls" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 64.0
-offset_right = -16.0
-offset_bottom = -16.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="LobbyScreen" parent="Controls" instance=ExtResource("2_lobby")]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BoardSummary" type="Label" parent="Controls"]
-visible = false
-layout_mode = 2
-autowrap_mode = 2
-text = "等待服务端快照"
-
-[node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
-visible = false
-custom_minimum_size = Vector2(0, 600)
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 2
-
-[node name="SnapshotRows" type="VBoxContainer" parent="Controls/SnapshotScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HandScroll" type="ScrollContainer" parent="Controls"]
-visible = false
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 2
-horizontal_scroll_mode = 2
-vertical_scroll_mode = 0
-
-[node name="HandRow" type="HBoxContainer" parent="Controls/HandScroll"]
-layout_mode = 2
 
 [node name="MatchScreen" parent="." instance=ExtResource("3_match")]
 visible = false
@@ -98,93 +45,6 @@ layout_mode = 1
 [node name="DamageAssignmentOverlay" parent="." instance=ExtResource("8_damage")]
 visible = false
 layout_mode = 1
-
-[node name="ResultFrame" type="PanelContainer" parent="."]
-visible = false
-z_index = 20
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -320.0
-offset_top = 450.0
-offset_right = -16.0
-offset_bottom = 570.0
-grow_horizontal = 0
-
-[node name="ResultBox" type="HBoxContainer" parent="ResultFrame"]
-layout_mode = 2
-
-[node name="ResultSummary" type="Label" parent="ResultFrame/ResultBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-autowrap_mode = 2
-text = "No result"
-
-[node name="ReturnLobbyButton" type="Button" parent="ResultFrame/ResultBox"]
-layout_mode = 2
-text = "返回大厅"
-
-[node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
-visible = false
-clip_contents = true
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -320.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 442.0
-grow_horizontal = 0
-
-[node name="OfficialPreviewBox" type="VBoxContainer" parent="OfficialCardPreviewFrame"]
-layout_mode = 2
-
-[node name="OfficialCardPreviewSummary" type="Label" parent="OfficialCardPreviewFrame/OfficialPreviewBox"]
-layout_mode = 2
-autowrap_mode = 2
-clip_text = true
-max_lines_visible = 5
-text = "点击可见卡牌查看详情"
-
-[node name="OfficialCardPreview" type="TextureRect" parent="OfficialCardPreviewFrame/OfficialPreviewBox"]
-custom_minimum_size = Vector2(268, 240)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="PromptFrame" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -320.0
-offset_top = -322.0
-offset_right = -16.0
-offset_bottom = -16.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="PromptBox" type="VBoxContainer" parent="PromptFrame"]
-layout_mode = 2
-
-[node name="PromptSummary" type="Label" parent="PromptFrame/PromptBox"]
-layout_mode = 2
-autowrap_mode = 2
-text = "暂无行动"
-
-[node name="PromptScroll" type="ScrollContainer" parent="PromptFrame/PromptBox"]
-custom_minimum_size = Vector2(0, 244)
-layout_mode = 2
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 2
-
-[node name="PromptActions" type="VBoxContainer" parent="PromptFrame/PromptBox/PromptScroll"]
-layout_mode = 2
 
 [node name="Log" type="RichTextLabel" parent="."]
 visible = false

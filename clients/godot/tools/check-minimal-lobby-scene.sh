@@ -21,17 +21,11 @@ rg -q 'name="SubmitDeckButton"' "$scene"
 rg -q 'name="ReadyButton"' "$scene"
 ! rg -q 'name="(SnapshotScroll|PromptScroll|Log)"' "$scene"
 
-# The focused lobby must not overlap the legacy match rail.
-awk '
-  /\[node name="(OfficialCardPreviewFrame|PromptFrame|ResultFrame)"/ { in_panel = 1; visible = 0; next }
-  /^\[node / && in_panel { if (!visible) exit 1; in_panel = 0 }
-  in_panel && /^visible = false$/ { visible = 1 }
-  END { if (in_panel && !visible) exit 1 }
-' "$main_scene"
-rg -q '_officialCardPreviewFrame.Visible = battleActive' "$main_script"
-rg -q '_promptFrame.Visible = battleActive' "$main_script"
-rg -A4 '\[node name="LobbyScreen" parent="Controls"' "$main_scene" \
-  | rg -q '^size_flags_vertical = 3$'
+# The focused lobby is a direct full-viewport screen. The retired match rail is
+# absent rather than merely hidden beside it.
+! rg -q 'name="(OfficialCardPreviewFrame|PromptFrame|ResultFrame|SnapshotScroll|HandScroll)"' "$main_scene"
+rg -A2 '\[node name="LobbyScreen" parent="\."' "$main_scene" \
+  | rg -q '^layout_mode = 1$'
 
 # Lobby affordances mirror server prompt candidates and never expose internal player IDs.
 rg -q 'RefreshLobbySetupStateFromPrompt' "$main_script"
@@ -52,4 +46,4 @@ done
 ! rg -q '胜者：\{winnerPlayerId\}|投降：\{surrenderedPlayerId\}' "$main_script"
 
 # The minimal client no longer installs the legacy procedural table backdrop.
-! rg -q '^        InstallRunestoneBackdrop\(\);$' "$main_script"
+! rg -q 'InstallRunestoneBackdrop|RunestoneTheme|UseLegacyCardTableFallback' "$main_script"

@@ -5,6 +5,14 @@ resume from repository state instead of conversation history alone.
 
 ## Current Shape
 
+- Task 7 removed the obsolete runtime path. `Main.tscn` contains only the lobby,
+  match screen, focused overlays, and a hidden log sink. `CardControlRenderer`,
+  `RunestoneTheme`, `RunestoneBackdrop`, and `RunestoneSurface` plus their UID
+  files are deleted; `OfficialCardView` now uses `CardTextureLoader`. The client
+  enforces a 1280x720 minimum and defines inspect/cancel/confirm/previous/next
+  input actions. Visible two-window captures at 1280x720, 1440x900, and
+  1920x1080 are under `screenshots/units/m7-*`; MCP input moved focus through the
+  current lobby scene and reported zero errors.
 - Task 6 replaced the guarded legacy special-prompt fallback with three focused
   root overlays. `MulliganOverlay` intersects current `sourceChoices` with the
   latest visible self-hand cards before showing official faces and submits only
@@ -41,12 +49,6 @@ resume from repository state instead of conversation history alone.
   chrome repeatedly across extra frames before reading the viewport texture,
   because the normal two-frame visual screenshot path could still capture stale
   window content on the second client.
-- `scripts/CardControlRenderer.cs` owns the visible table/card presentation:
-  hand rows, opponent card backs, rune tracks, base/signature/standby/battlefield
-  zones, card hover/click feedback, and prompt-source highlights.
-- `scripts/RunestoneTheme.cs` and `scripts/RunestoneBackdrop.cs` implement the
-  selected style route C: black-white inksteel tabletop with restrained crimson
-  and antique-gold accents.
 - Latest P3 correction after visual review: the combat viewport now preserves
   route C by using muted black/ivory linework and translucent ink-wash zones.
   Lobby/session/deck rows remain visible in `ROOM` so humans can choose decks,

@@ -110,7 +110,7 @@ public partial class MulliganOverlay : Control
         Visible = true;
         MoveToFront();
         Refresh();
-        _cancelButton.GrabFocus();
+        FocusFirstControl();
         return enabled;
     }
 
@@ -118,6 +118,22 @@ public partial class MulliganOverlay : Control
     {
         Reset();
         Visible = false;
+    }
+
+    public bool ConfirmCurrent()
+    {
+        if (!_canUsePrompt || _confirmButton.Disabled)
+        {
+            return false;
+        }
+
+        Confirm();
+        return true;
+    }
+
+    public void ResetSelection()
+    {
+        Cancel();
     }
 
     private void RenderCards()
@@ -163,6 +179,18 @@ public partial class MulliganOverlay : Control
         _summary.Text = $"选择 {count} 张（可选 {_minSelectionCount} 至 {_maxSelectionCount} 张）";
         _confirmButton.Disabled = !_canUsePrompt || count < _minSelectionCount || count > _maxSelectionCount;
         _cancelButton.Disabled = false;
+    }
+
+    private void FocusFirstControl()
+    {
+        var firstCard = _cards.GetChildren().OfType<OfficialCardView>().FirstOrDefault();
+        if (firstCard is not null)
+        {
+            firstCard.GrabFocus();
+            return;
+        }
+
+        _cancelButton.GrabFocus();
     }
 
     private void ShowDisabled()

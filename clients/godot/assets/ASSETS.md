@@ -9,10 +9,9 @@ deterministic visual verification requires them; record the source here.
 | Path | Source | License | Notes |
 | --- | --- | --- | --- |
 | `icon.svg` | Local placeholder | Project-local | Temporary vector icon for the Godot project. |
-| `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored legacy procedural visual theme | Project-local | Fallback-only. The normal runtime uses the neutral minimal theme. |
-| `scripts/CardControlRenderer.cs` | Project-authored legacy UI and motion | Project-local | Fallback-only while prompt interaction parity is completed. |
 | Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; this remains the default path. |
 | `scenes/components/OfficialCardView.tscn` | Project-authored minimal wrapper around runtime official card fronts | Project-local | Adds only neutral fallback, count badge, focus, selection, target, disabled, and hidden states outside the official face. |
+| `scripts/ui/CardTextureLoader.cs` | Project-authored runtime loader | Project-local | Decodes cached official PNG/JPEG/WebP fronts and rotates official battlefield images when the safe snapshot requests it; no new raster asset. |
 | `scenes/components/ActionBar.tscn` | Project-authored minimal UI | Project-local | Localized server action and selection controls; no raster asset or custom card treatment was introduced. |
 | `scenes/overlays/CardInspectOverlay.tscn`, `scenes/overlays/ResultOverlay.tscn` | Project-authored minimal UI | Project-local | Uses theme surfaces and runtime official card art; no additional raster assets were introduced. |
 | `scenes/overlays/MulliganOverlay.tscn`, `TriggerOrderOverlay.tscn`, `DamageAssignmentOverlay.tscn` | Project-authored minimal UI | Project-local | Focused server-prompt controls. Mulligan reuses runtime official card fronts; trigger and damage overlays add no raster assets. |

@@ -77,7 +77,7 @@ public partial class TriggerOrderOverlay : Control
         Visible = true;
         MoveToFront();
         RenderRows();
-        _cancelButton.GrabFocus();
+        FocusSelectedRow();
         return _canUsePrompt;
     }
 
@@ -85,6 +85,22 @@ public partial class TriggerOrderOverlay : Control
     {
         Reset();
         Visible = false;
+    }
+
+    public bool ConfirmCurrent()
+    {
+        if (!_canUsePrompt || _confirmButton.Disabled)
+        {
+            return false;
+        }
+
+        Confirm();
+        return true;
+    }
+
+    public void ResetSelection()
+    {
+        Cancel();
     }
 
     private void RenderRows()
@@ -104,6 +120,7 @@ public partial class TriggerOrderOverlay : Control
             {
                 _selectedIndex = rowIndex;
                 RenderRows();
+                FocusSelectedRow();
             };
             if (index == _selectedIndex)
             {
@@ -134,6 +151,21 @@ public partial class TriggerOrderOverlay : Control
         _confirmButton.Disabled = !_canUsePrompt || _triggers.Count == 0;
     }
 
+    private void FocusSelectedRow()
+    {
+        if (_selectedIndex >= 0
+            && _selectedIndex < _rows.GetChildCount()
+            && _rows.GetChild(_selectedIndex) is HBoxContainer row
+            && row.GetChildCount() > 0
+            && row.GetChild(0) is Button select)
+        {
+            select.GrabFocus();
+            return;
+        }
+
+        _cancelButton.GrabFocus();
+    }
+
     private void MoveSelected(int delta)
     {
         Move(_selectedIndex, delta);
@@ -150,6 +182,7 @@ public partial class TriggerOrderOverlay : Control
         (_triggers[index], _triggers[targetIndex]) = (_triggers[targetIndex], _triggers[index]);
         _selectedIndex = targetIndex;
         RenderRows();
+        FocusSelectedRow();
     }
 
     private bool CanMoveWithinControllerBlock(int index, int delta)

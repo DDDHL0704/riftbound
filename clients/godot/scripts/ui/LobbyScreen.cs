@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace Riftbound.GodotClient.Ui;
@@ -23,6 +24,7 @@ public partial class LobbyScreen : AppScreen
     private OptionButton _deckSelect = null!;
     private Button _connectButton = null!;
     private Button _reconnectButton = null!;
+    private Button _createPublicMatchButton = null!;
     private Button _queueButton = null!;
     private Button _cancelQueueButton = null!;
     private Button _joinPublicMatchButton = null!;
@@ -55,6 +57,7 @@ public partial class LobbyScreen : AppScreen
         _deckSelect = GetNode<OptionButton>("%DeckSelect");
         _connectButton = GetNode<Button>("%ConnectButton");
         _reconnectButton = GetNode<Button>("%ReconnectButton");
+        _createPublicMatchButton = GetNode<Button>("%CreatePublicMatchButton");
         _queueButton = GetNode<Button>("%QueueButton");
         _cancelQueueButton = GetNode<Button>("%CancelQueueButton");
         _joinPublicMatchButton = GetNode<Button>("%JoinPublicMatchButton");
@@ -63,7 +66,7 @@ public partial class LobbyScreen : AppScreen
 
         _connectButton.Pressed += () => ConnectRequested?.Invoke();
         _reconnectButton.Pressed += () => ReconnectRequested?.Invoke();
-        GetNode<Button>("%CreatePublicMatchButton").Pressed += () => CreatePublicMatchRequested?.Invoke();
+        _createPublicMatchButton.Pressed += () => CreatePublicMatchRequested?.Invoke();
         _queueButton.Pressed += () => QueueRequested?.Invoke();
         _cancelQueueButton.Pressed += () => CancelQueueRequested?.Invoke();
         _joinPublicMatchButton.Pressed += () => JoinPublicMatchRequested?.Invoke();
@@ -71,6 +74,7 @@ public partial class LobbyScreen : AppScreen
         _readyButton.Pressed += () => ReadyRequested?.Invoke();
 
         ApplyTheme();
+        ConfigureFocusLoop();
         SetStatus("未连接", connected: false, waiting: false);
         SetSetupState(canSubmitDeck: false, canReady: false, "连接服务器后即可选择房间和卡组。");
     }
@@ -81,6 +85,49 @@ public partial class LobbyScreen : AppScreen
         _readyButton.AddThemeStyleboxOverride("normal", MinimalTheme.Panel(MinimalTheme.Selectable));
         _readyButton.AddThemeStyleboxOverride("hover", MinimalTheme.Panel(new Color(MinimalTheme.Selectable, 0.84f)));
         _readyButton.AddThemeStyleboxOverride("focus", MinimalTheme.Outline(OfficialCardVisualState.Selected));
+    }
+
+    public override void SetScreenVisible(bool visible)
+    {
+        base.SetScreenVisible(visible);
+        if (visible)
+        {
+            Callable.From(FocusPrimaryControl).CallDeferred();
+        }
+    }
+
+    private void FocusPrimaryControl()
+    {
+        if (IsVisibleInTree())
+        {
+            _handleInput.GrabFocus();
+        }
+    }
+
+    private void ConfigureFocusLoop()
+    {
+        List<Control> controls =
+        [
+            _handleInput,
+            _roomInput,
+            _connectButton,
+            _reconnectButton,
+            _createPublicMatchButton,
+            _queueButton,
+            _cancelQueueButton,
+            _publicMatchSelect,
+            _joinPublicMatchButton,
+            _deckSelect,
+            _submitDeckButton,
+            _readyButton
+        ];
+        for (var index = 0; index < controls.Count; index++)
+        {
+            controls[index].FocusPrevious = controls[index].GetPathTo(
+                controls[(index - 1 + controls.Count) % controls.Count]);
+            controls[index].FocusNext = controls[index].GetPathTo(
+                controls[(index + 1) % controls.Count]);
+        }
     }
 
     public void SetStatus(string text, bool connected, bool waiting)

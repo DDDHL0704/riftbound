@@ -84,6 +84,7 @@ public partial class ActionBar : Control
         }
 
         ClearSelectionDisplay();
+        ConfigureFocusLoop();
     }
 
     public void ShowSelection(
@@ -124,6 +125,7 @@ public partial class ActionBar : Control
         _submitButton.Visible = true;
         _submitButton.Text = state.CanSubmit ? "确认提交" : "完成选择后提交";
         _submitButton.Disabled = _pending || !state.CanSubmit;
+        ConfigureFocusLoop();
     }
 
     public void ClearSelectionDisplay()
@@ -139,6 +141,7 @@ public partial class ActionBar : Control
         ClearChildren(_stepChoices);
         _cancelButton.Visible = false;
         _submitButton.Visible = false;
+        ConfigureFocusLoop();
     }
 
     public void SetWaiting(string guidance)
@@ -179,6 +182,50 @@ public partial class ActionBar : Control
         {
             _selectionSummary.Text = "已提交，等待服务器确认。";
         }
+
+        ConfigureFocusLoop();
+    }
+
+    public bool FocusAdjacentAction(int direction)
+    {
+        var controls = FocusableControls();
+        if (controls.Count == 0)
+        {
+            return false;
+        }
+
+        var focused = GetViewport().GuiGetFocusOwner();
+        var currentIndex = controls.FindIndex(control => control == focused);
+        var nextIndex = currentIndex < 0
+            ? direction < 0 ? controls.Count - 1 : 0
+            : (currentIndex + Math.Sign(direction) + controls.Count) % controls.Count;
+        controls[nextIndex].GrabFocus();
+        return true;
+    }
+
+    public bool ConfirmCurrent()
+    {
+        if (GetViewport().GuiGetFocusOwner() is not Button focused
+            || !IsAncestorOf(focused)
+            || focused.Disabled
+            || !focused.IsVisibleInTree())
+        {
+            return false;
+        }
+
+        focused.EmitSignal(Button.SignalName.Pressed);
+        return true;
+    }
+
+    public bool CancelCurrent()
+    {
+        if (_pending || _current is null)
+        {
+            return false;
+        }
+
+        CancelRequested?.Invoke();
+        return true;
     }
 
     private void SubmitCurrent()
@@ -187,6 +234,37 @@ public partial class ActionBar : Control
         {
             SubmitRequested?.Invoke(state);
         }
+    }
+
+    private void ConfigureFocusLoop()
+    {
+        var controls = FocusableControls();
+        for (var index = 0; index < controls.Count; index++)
+        {
+            var previous = controls[(index - 1 + controls.Count) % controls.Count];
+            var next = controls[(index + 1) % controls.Count];
+            controls[index].FocusPrevious = controls[index].GetPathTo(previous);
+            controls[index].FocusNext = controls[index].GetPathTo(next);
+        }
+    }
+
+    private List<Button> FocusableControls()
+    {
+        var controls = _actionChoices.GetChildren().OfType<Button>()
+            .Concat(_stepChoices.GetChildren().OfType<Button>())
+            .Where(button => button.Visible && !button.Disabled)
+            .ToList();
+        if (_cancelButton.Visible && !_cancelButton.Disabled)
+        {
+            controls.Add(_cancelButton);
+        }
+
+        if (_submitButton.Visible && !_submitButton.Disabled)
+        {
+            controls.Add(_submitButton);
+        }
+
+        return controls;
     }
 
     private static string FriendlyChoiceLabel(string label)

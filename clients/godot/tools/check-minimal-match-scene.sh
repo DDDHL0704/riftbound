@@ -66,31 +66,16 @@ rg -q '"我方"' "$renderer"
 ! rg -q '(^|[^0-9])820([^0-9]|$)|(^|[^0-9])320([^0-9]|$)|(^|[^0-9])336([^0-9]|$)' "$scene" "$screen" "$renderer"
 ! rg -q 'Riftbound\.Engine|EngineLegality|IsLegal(Action|Target|Choice)?' "$screen" "$renderer"
 
-# Main mounts the match screen beside (not inside) the lobby flow and keeps the
-# legacy renderer behind an explicit default-off temporary fallback.
+# Main mounts one match screen beside the lobby. No fallback renderer remains.
 rg -q 'MatchScreen.tscn' "$main_scene"
 rg -q '\[node name="MatchScreen" parent="\." instance=ExtResource' "$main_scene"
-rg -q '\[Export\] public bool UseLegacyCardTableFallback \{ get; set; \} = false;' "$main_script"
 rg -q 'GetNode<MatchScreen>\("MatchScreen"\)' "$main_script"
 rg -q '_matchScreen\.RenderSections\(sections\)' "$main_script"
-rg -q 'legacyBattleVisible = battleActive && UseLegacyCardTableFallback' "$main_script"
-! rg -q '_controls\.OffsetRight = battleActive \? -336f' "$main_script"
+! rg -q 'UseLegacyCardTableFallback|CardControlRenderer|legacyBattleVisible|_controls\.OffsetRight' "$main_script"
 
-# Hidden standby faces are a boundary violation, and shutdown frees detached
-# dynamic controls synchronously instead of leaving them queued past exit.
+# Hidden standby faces are a boundary violation, and shutdown releases all
+# official-card texture references before disconnecting.
 rg -A4 'var status = opponentHandFaces == 0' "$main_script" \
   | rg -q 'opponentStandbyFaces == 0'
-rg -q 'FreeNodeChildrenImmediately' "$main_script"
-sed -n '/private static void ClearChildren(Node parent)/,/^    }/p' "$renderer" \
-  | rg -q 'child\.Free\(\);'
-! sed -n '/private static void ClearChildren(Node parent)/,/^    }/p' "$renderer" \
-  | rg -q 'QueueFree'
-! sed -n '/public void ApplyPrompt(/,/^    }/p' "$main_script" \
-  | rg -q 'QueueFree'
-
-# Early focused-prompt branches must run before allocating the generic row;
-# otherwise every mulligan/special prompt leaves one orphan PromptCard.
-prompt_action_node="$(sed -n '/private Control PromptActionNode(/,/private Control PromptSpecialActionNode(/p' "$main_script")"
-prompt_branch_line="$(printf '%s\n' "$prompt_action_node" | rg -n 'MULLIGAN' | head -1 | cut -d: -f1)"
-prompt_row_line="$(printf '%s\n' "$prompt_action_node" | rg -n 'var row = PromptCard' | head -1 | cut -d: -f1)"
-test "$prompt_row_line" -gt "$prompt_branch_line"
+rg -q 'ReleaseTextureReferences\(this\)' "$main_script"
+! rg -q 'PromptActionNode|PromptCard|PromptSelectionStepNode|OptionButton' "$main_script"

@@ -36,6 +36,15 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
+- The responsive/keyboard/legacy-removal pass is complete. `Main.tscn` now
+  mounts one lobby, one match screen, focused overlays, and the hidden log sink;
+  the old snapshot rows, hand rail, prompt form, preview frame, and result rail
+  are gone. `CardControlRenderer`, `RunestoneTheme`, `RunestoneBackdrop`, and
+  `RunestoneSurface` are deleted. Official cards use the small independent
+  `CardTextureLoader`. Five project input actions drive visible focus, inspect,
+  cancel, confirm, and action cycling without changing server candidate rules.
+  Fresh non-headless 1280x720, 1440x900, and 1920x1080 evidence plus MCP focus
+  evidence is archived under `screenshots/units/m7-*`.
 - The contextual action bar, prompt-owned selection controller, and dedicated
   special-prompt overlays are complete. Enabled actions come only from the
   current server prompt; direct card and safe choice activation accepts exact
@@ -77,9 +86,8 @@ wire-table and final P5 evidence push are no longer the active product route.
   screenshot capture, and final evidence tooling already exist and are retained.
 - The coordinator remains concentrated in `Main.cs`; ordinary prompt actions
   use the focused action bar, and mulligan, trigger ordering, and combat damage
-  use dedicated root overlays. The old special prompt fallback no longer opens
-  in the minimal runtime. The procedural wire table is no longer the default
-  runtime.
+  use dedicated root overlays. There is no fallback table or generic prompt
+  runtime left.
 - The current client can reach a result through automated smoke, but the recent
   visual audit found that a human cannot reliably scan or operate it as a card
   game. P5 is paused until the interaction and layout rebuild is complete.

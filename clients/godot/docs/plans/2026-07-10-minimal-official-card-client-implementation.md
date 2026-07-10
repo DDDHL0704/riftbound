@@ -578,13 +578,13 @@ Commit message: `Replace generic Godot prompt forms`.
 - Produces: one active minimal runtime path with no old wire-table or right-rail
   rendering dependency.
 
-- [ ] **Step 1: Write the responsive/legacy failing check**
+- [x] **Step 1: Write the responsive/legacy failing check**
 
 Require 1280x720, 1440x900, and 1920x1080 layout assertions; reject runtime
 references to the old `WireTableNode`, fixed 820 px table height, old
 `PromptScroll`, and right-rail result ownership.
 
-- [ ] **Step 2: Add keyboard focus and shortcuts**
+- [x] **Step 2: Add keyboard focus and shortcuts**
 
 Define `ui_inspect_card`, `ui_cancel_selection`, `ui_confirm_action`,
 `ui_action_previous`, and `ui_action_next` input actions.
@@ -592,13 +592,13 @@ Set deterministic focus neighbors across lobby, hand, table, action bar, and
 overlays. Escape cancels local selection or closes the top overlay; Enter
 submits only an enabled focused action.
 
-- [ ] **Step 3: Capture all supported viewports**
+- [x] **Step 3: Capture all supported viewports**
 
 Run the visible stack at 1280x720, 1440x900, and 1920x1080. Inspect text,
 official card aspect ratio, hand overlap, both battlefields, action bar, and
 overlays. Fix any clipped or unreachable control.
 
-- [ ] **Step 4: Remove the legacy runtime path**
+- [x] **Step 4: Remove the legacy runtime path**
 
 After screenshot and protocol parity, delete or disconnect wire-table rendering,
 the permanent right prompt rail, obsolete preview/result frames, and unused
@@ -606,7 +606,7 @@ inksteel theme code. Keep evidence tooling only where it remains valid; replace
 legacy palette/layout guards with checks for readable cards, visible action bar,
 and result overlay presence.
 
-- [ ] **Step 5: Run adjacent checks**
+- [x] **Step 5: Run adjacent checks**
 
 Run:
 
@@ -619,7 +619,7 @@ clients/godot/tools/check-human-playtest-package-integrity.sh
 git diff --check -- clients/godot
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Commit message: `Remove the obsolete Godot wire-table path`.
 

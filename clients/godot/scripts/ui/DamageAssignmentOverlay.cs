@@ -65,7 +65,7 @@ public partial class DamageAssignmentOverlay : Control
         Visible = true;
         MoveToFront();
         RenderRows();
-        _cancelButton.GrabFocus();
+        FocusFirstControl();
         return _canUsePrompt;
     }
 
@@ -75,7 +75,23 @@ public partial class DamageAssignmentOverlay : Control
         Visible = false;
     }
 
-    private void RenderRows()
+    public bool ConfirmCurrent()
+    {
+        if (!_canUsePrompt || _confirmButton.Disabled)
+        {
+            return false;
+        }
+
+        Confirm();
+        return true;
+    }
+
+    public void ResetSelection()
+    {
+        Cancel();
+    }
+
+    private void RenderRows(string focusSourceId = "", string focusTargetId = "")
     {
         ClearChildren(_rows);
         foreach (var assignment in _assignments)
@@ -115,6 +131,8 @@ public partial class DamageAssignmentOverlay : Control
                     assignment.SourceObjectId,
                     targetId,
                     (int)Math.Round(value));
+                spinBox.SetMeta("sourceObjectId", assignment.SourceObjectId);
+                spinBox.SetMeta("targetObjectId", targetId);
                 targetRow.AddChild(spinBox);
                 row.AddChild(targetRow);
             }
@@ -125,6 +143,37 @@ public partial class DamageAssignmentOverlay : Control
         var completed = _assignments.Count(assignment => RemainingDamage(assignment) == 0);
         _summary.Text = $"已完成 {completed} / {_assignments.Count} 个伤害来源。";
         _confirmButton.Disabled = !_canUsePrompt || !HasValidServerDistribution();
+        if (!string.IsNullOrWhiteSpace(focusSourceId) && !string.IsNullOrWhiteSpace(focusTargetId))
+        {
+            FocusStepper(focusSourceId, focusTargetId);
+        }
+    }
+
+    private void FocusFirstControl()
+    {
+        var firstStepper = FindChildren("*", "SpinBox", recursive: true, owned: false)
+            .OfType<SpinBox>()
+            .FirstOrDefault(spinBox => spinBox.Editable);
+        if (firstStepper is not null)
+        {
+            firstStepper.GrabFocus();
+            return;
+        }
+
+        _cancelButton.GrabFocus();
+    }
+
+    private void FocusStepper(string sourceObjectId, string targetObjectId)
+    {
+        var stepper = FindChildren("*", "SpinBox", recursive: true, owned: false)
+            .OfType<SpinBox>()
+            .FirstOrDefault(candidate =>
+                candidate.GetMeta("sourceObjectId", string.Empty).AsString() == sourceObjectId
+                && candidate.GetMeta("targetObjectId", string.Empty).AsString() == targetObjectId);
+        if (stepper is not null)
+        {
+            stepper.GrabFocus();
+        }
     }
 
     private void DamageValueChanged(string sourceObjectId, string targetObjectId, int damage)
@@ -135,7 +184,7 @@ public partial class DamageAssignmentOverlay : Control
         }
 
         _damageByPair[(sourceObjectId, targetObjectId)] = Math.Max(0, damage);
-        RenderRows();
+        RenderRows(sourceObjectId, targetObjectId);
     }
 
     private int RemainingDamage(DamageAssignmentPromptItem assignment)

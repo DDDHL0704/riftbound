@@ -19,6 +19,20 @@ public partial class OfficialCardView : PanelContainer
 
     public bool PreserveOfficialAspect => true;
 
+    public bool TryGetVisibleCard(out Godot.Collections.Dictionary card)
+    {
+        var visible = ReadBool(_card, "visible", true);
+        var faceDown = ReadBool(_card, "faceDown", false);
+        if (_card.Count == 0 || !visible || faceDown || _state == OfficialCardVisualState.Hidden)
+        {
+            card = new Godot.Collections.Dictionary();
+            return false;
+        }
+
+        card = _card.Duplicate(true);
+        return true;
+    }
+
     public override void _Ready()
     {
         _cardTexture = GetNode<TextureRect>("%CardTexture");
@@ -133,6 +147,11 @@ public partial class OfficialCardView : PanelContainer
         }
 
         AcceptEvent();
+        Activate();
+    }
+
+    public void Activate()
+    {
         if (IsInteractive(_state) && _card.Count > 0)
         {
             EmitSignal(SignalName.Activated, _card);
@@ -150,7 +169,7 @@ public partial class OfficialCardView : PanelContainer
 
     private static Texture2D? LoadTexture(string path, bool rotated)
     {
-        return CardControlRenderer.LoadTextureFromImagePath(path, rotated);
+        return CardTextureLoader.Load(path, rotated);
     }
 
     private static string ReadString(

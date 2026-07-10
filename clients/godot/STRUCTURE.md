@@ -11,10 +11,9 @@ contracts change.
   `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
 - `scenes/Main.tscn` is a single `Control` shell that switches between the
   focused `LobbyScreen` and full-viewport `MatchScreen`, then mounts centered
-  `CardInspectOverlay` and `ResultOverlay` scenes above them. The temporary
-  legacy battle renderer remains mounted only behind the default-off
-  `UseLegacyCardTableFallback`; prompt, snapshot, and hidden log controls are
-  invisible in the normal lobby and match paths.
+  card-inspect, result, mulligan, trigger-order, and damage-assignment overlays
+  above them. The only non-product child is the hidden log sink; no legacy
+  battle renderer, prompt form, preview rail, or right result rail is mounted.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -32,8 +31,8 @@ step lands. The approved replacement is documented in
   external focus/selection/target state;
 - enabled server prompt sources and choices drive direct card/zone selection;
   local selection never decides legality;
-- the current wire table, tiny custom card frames, permanent right prompt rail,
-  and raw technical summaries are removed only after behavior parity is proven.
+- the former wire table, custom card frames, permanent right prompt rail, and
+  raw technical summaries have been removed after prompt parity was proven.
 
 The target supports 1440x900 and 1920x1080, with 1280x720 as the minimum
 supported viewport. New layout code must not preserve the current fixed 820 px
@@ -51,8 +50,7 @@ wire-table height.
   selection. Lobby deck submission and ready affordances mirror enabled
   `SUBMIT_DECK` and `READY` candidates from the current server prompt. It routes
   visible card activation into `CardInspectOverlay` and maps authoritative
-  results into viewer-safe fields for `ResultOverlay`; the legacy preview and
-  result rail remain fallback-only. Result mode latches match visibility so
+  results into viewer-safe fields for `ResultOverlay`. Result mode latches match visibility so
   stale room snapshots cannot restore lobby controls before final screenshots
   are captured, and delayed result capture waits for the render server before
   reading the viewport texture.
@@ -131,26 +129,13 @@ wire-table height.
   rendering harness for trigger-order and damage-assignment overlays. Fixture
   dictionaries mirror server conformance metadata and pass through the real
   `SpecialPromptCommandBuilder`; neither file is referenced by `Main.tscn`.
-- `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` are
-  legacy battle presentation retained only until parity migration finishes.
-  The procedural backdrop is no longer installed by the app shell.
-- `CardControlRenderer.cs` temporarily owns the legacy tabletop layout, compact table card frames, card
-  backs, visible card faces, rune tracks, zone panels, prompt-source highlights,
-  and card hover/click feedback. The wire table is responsive to the main battle
-  column, folds the legacy text summary and obsolete out-of-table hand rail out
-  of battle snapshots, and follows the selected black/ivory reference layout:
-  opponent resource rail, opponent play band, centered site divider, self play
-  band, and self resource rail. The opponent play band, centered site divider,
-  and self play band share one aligned lane shell with fixed left/right home
-  columns, so each battlefield stacks as opponent units, site, and self units in
-  the same vertical lane. Those home columns are intentionally narrow fixed
-  rails with compact two-column home-card clusters, which keeps the central
-  battlefield lanes visually dominant instead of expanding into large empty
-  side panels. Empty home spacers are invisible, table card frames and empty
-  sockets keep fixed dimensions inside HBox containers, lane/site text labels
-  are reduced to small glyph markers, and deck/rune/public piles stay as fixed
-  card-sized stacks rather than expanding into form-like rail cells. Opponent
-  hidden hand information stays as card backs/counts only.
+- `scripts/ui/CardTextureLoader.cs` is the only disk-image decoder used by
+  `OfficialCardView`. It supports PNG, JPEG, WebP, and the server-supplied
+  counterclockwise battlefield orientation without any legacy frame code.
+- `project.godot`, `Main.HandleKeyboardAction`, `LobbyScreen`, and `ActionBar`
+  define deterministic keyboard behavior. The window minimum is 1280x720;
+  inspect/cancel/confirm/previous/next actions route to only the visible top
+  overlay or current server prompt controls.
 - `CardViewFactory.cs`, `CardViewData.cs`, `SnapshotCardRef.cs`,
   `OfficialCardCatalogService.cs`, and `OfficialCardImageLoader.cs` map visible
   server card refs to display data and runtime-cached official art.

@@ -44,9 +44,7 @@ public partial class Main : Control
 
     [Export] public string ServerUrl { get; set; } = "http://127.0.0.1:5088";
     [Export] public bool AutoConnectOnReady { get; set; } = true;
-    [Export] public bool UseLegacyCardTableFallback { get; set; } = false;
     [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
-    [Export] public string PreviewCardNo { get; set; } = "UNL-181/219";
 
     private static readonly JsonSerializerOptions ClientJsonOptions = CreateClientJsonOptions();
     private readonly CancellationTokenSource _shutdown = new();
@@ -55,14 +53,12 @@ public partial class Main : Control
     private readonly List<PublicMatchDto> _publicMatches = [];
     private readonly OfficialCardImageLoader _cardImageLoader = new();
     private readonly CardViewFactory _cardViewFactory;
-    private readonly CardControlRenderer _cardControlRenderer;
     private readonly PromptInteractionController _promptInteractionController = new();
     private readonly object _promptHighlightLock = new();
     private readonly HashSet<string> _promptSourceObjectIds = new(StringComparer.Ordinal);
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
     private RichTextLabel? _log;
-    private Control? _controls;
     private LobbyScreen? _lobbyScreen;
     private MatchScreen? _matchScreen;
     private CardInspectOverlay? _cardInspectOverlay;
@@ -70,20 +66,6 @@ public partial class Main : Control
     private MulliganOverlay? _mulliganOverlay;
     private TriggerOrderOverlay? _triggerOrderOverlay;
     private DamageAssignmentOverlay? _damageAssignmentOverlay;
-    private Label? _boardSummary;
-    private ScrollContainer? _snapshotScroll;
-    private ScrollContainer? _legacyHandScroll;
-    private VBoxContainer? _snapshotRows;
-    private HBoxContainer? _handRow;
-    private TextureRect? _officialCardPreview;
-    private Label? _officialCardPreviewSummary;
-    private PanelContainer? _officialCardPreviewFrame;
-    private PanelContainer? _promptFrame;
-    private PanelContainer? _resultFrame;
-    private Label? _resultSummary;
-    private Label? _promptSummary;
-    private VBoxContainer? _promptActions;
-    private Button? _returnLobbyButton;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
     private string _visualScreenshotPath = string.Empty;
@@ -110,7 +92,6 @@ public partial class Main : Control
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
     private volatile bool _battleTableRendered;
-    private bool _battleChromeHidden;
     private bool _matchmakingWaiting;
     private bool _lobbyCanSubmitDeckFromPrompt;
     private bool _lobbyCanReadyFromPrompt;
@@ -131,14 +112,14 @@ public partial class Main : Control
     public Main()
     {
         _cardViewFactory = new CardViewFactory(_cardImageLoader);
-        _cardControlRenderer = new CardControlRenderer(ApplyCardPreview, IsPromptSourceObject);
     }
 
     public override async void _Ready()
     {
         RenderingServer.SetDefaultClearColor(MinimalTheme.AppBackground);
+        GetWindow().MinSize = new Vector2I(1280, 720);
         BindNodes();
-        ApplyRunestoneTheme();
+        ApplyMinimalTheme();
         WireButtons();
         SetBattleChromeVisible(battleActive: false);
         var args = CommandLineArgs();
@@ -175,7 +156,7 @@ public partial class Main : Control
             : await _sessionStore.LoadAsync();
         _session = ApplyCommandLineOverrides(_session, args);
         ApplySessionToInputs();
-        _officialCatalogLoadTask = LoadOfficialCardPreviewAsync();
+        _officialCatalogLoadTask = LoadOfficialCatalogAsync();
         _ = LoadDecksAsync();
         _ = LoadPublicMatchesAsync();
 
@@ -212,66 +193,114 @@ public partial class Main : Control
         GC.Collect();
     }
 
+    public override void _UnhandledInput(InputEvent input)
+    {
+        if (input is InputEventKey { Echo: true } || !HandleKeyboardAction(input))
+        {
+            return;
+        }
+
+        GetViewport().SetInputAsHandled();
+    }
+
+    private bool HandleKeyboardAction(InputEvent input)
+    {
+        if (_cardInspectOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection"))
+            {
+                _cardInspectOverlay.HideCard();
+                return true;
+            }
+
+            return false;
+        }
+
+        if (_resultOverlay?.IsVisibleInTree() == true)
+        {
+            return false;
+        }
+
+        if (_mulliganOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection"))
+            {
+                _mulliganOverlay.ResetSelection();
+                return true;
+            }
+
+            return input.IsActionPressed("ui_confirm_action") && _mulliganOverlay.ConfirmCurrent();
+        }
+
+        if (_triggerOrderOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection"))
+            {
+                _triggerOrderOverlay.ResetSelection();
+                return true;
+            }
+
+            return input.IsActionPressed("ui_confirm_action") && _triggerOrderOverlay.ConfirmCurrent();
+        }
+
+        if (_damageAssignmentOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection"))
+            {
+                _damageAssignmentOverlay.ResetSelection();
+                return true;
+            }
+
+            return input.IsActionPressed("ui_confirm_action") && _damageAssignmentOverlay.ConfirmCurrent();
+        }
+
+        if (input.IsActionPressed("ui_inspect_card")
+            && GetViewport().GuiGetFocusOwner() is OfficialCardView focusedCard
+            && focusedCard.TryGetVisibleCard(out var card))
+        {
+            ApplyCardPreview(card);
+            return true;
+        }
+
+        if (_matchScreen?.IsVisibleInTree() != true)
+        {
+            return false;
+        }
+
+        if (input.IsActionPressed("ui_cancel_selection"))
+        {
+            return _matchScreen.ActionBar.CancelCurrent();
+        }
+
+        if (input.IsActionPressed("ui_confirm_action"))
+        {
+            return _matchScreen.ActionBar.ConfirmCurrent();
+        }
+
+        if (input.IsActionPressed("ui_action_previous"))
+        {
+            return _matchScreen.ActionBar.FocusAdjacentAction(-1);
+        }
+
+        return input.IsActionPressed("ui_action_next")
+            && _matchScreen.ActionBar.FocusAdjacentAction(1);
+    }
+
     private void BindNodes()
     {
         _log = GetNode<RichTextLabel>("Log");
-        _controls = GetNode<Control>("Controls");
-        _lobbyScreen = GetNode<LobbyScreen>("Controls/LobbyScreen");
+        _lobbyScreen = GetNode<LobbyScreen>("LobbyScreen");
         _matchScreen = GetNode<MatchScreen>("MatchScreen");
         _cardInspectOverlay = GetNode<CardInspectOverlay>("CardInspectOverlay");
         _resultOverlay = GetNode<ResultOverlay>("ResultOverlay");
         _mulliganOverlay = GetNode<MulliganOverlay>("MulliganOverlay");
         _triggerOrderOverlay = GetNode<TriggerOrderOverlay>("TriggerOrderOverlay");
         _damageAssignmentOverlay = GetNode<DamageAssignmentOverlay>("DamageAssignmentOverlay");
-        _boardSummary = GetNode<Label>("Controls/BoardSummary");
-        _snapshotScroll = GetNode<ScrollContainer>("Controls/SnapshotScroll");
-        _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
-        _legacyHandScroll = GetNode<ScrollContainer>("Controls/HandScroll");
-        _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
-        _officialCardPreviewFrame = GetNode<PanelContainer>("OfficialCardPreviewFrame");
-        _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreview");
-        _officialCardPreviewSummary = GetNode<Label>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreviewSummary");
-        _resultFrame = GetNode<PanelContainer>("ResultFrame");
-        _resultSummary = GetNode<Label>("ResultFrame/ResultBox/ResultSummary");
-        _promptFrame = GetNode<PanelContainer>("PromptFrame");
-        _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
-        _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
-        _returnLobbyButton = GetNode<Button>("ResultFrame/ResultBox/ReturnLobbyButton");
     }
 
-    private void InstallRunestoneBackdrop()
+    private void ApplyMinimalTheme()
     {
-        if (GetNodeOrNull<RunestoneBackdrop>("RunestoneBackdrop") is not null)
-        {
-            return;
-        }
-
-        var backdrop = new RunestoneBackdrop
-        {
-            Name = "RunestoneBackdrop",
-            AnchorLeft = 0,
-            AnchorTop = 0,
-            AnchorRight = 1,
-            AnchorBottom = 1,
-            OffsetLeft = 0,
-            OffsetTop = 0,
-            OffsetRight = 0,
-            OffsetBottom = 0,
-            MouseFilter = MouseFilterEnum.Ignore
-        };
-        AddChild(backdrop);
-        MoveChild(backdrop, 0);
-    }
-
-    private void ApplyRunestoneTheme()
-    {
-        ApplyMainContentGutter();
-        RunestoneTheme.ApplyToTree(this);
-        var title = GetNodeOrNull<Label>("Title");
-        if (title is not null)
-        {
-            title.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
-        }
+        MinimalTheme.Apply(this);
 
         if (_lobbyScreen is not null)
         {
@@ -288,38 +317,6 @@ public partial class Main : Control
         _mulliganOverlay?.ApplyTheme();
         _triggerOrderOverlay?.ApplyTheme();
         _damageAssignmentOverlay?.ApplyTheme();
-
-        if (_boardSummary is not null)
-        {
-            _boardSummary.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
-        }
-
-        if (_officialCardPreviewFrame is not null)
-        {
-            _officialCardPreviewFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Card, 2));
-        }
-
-        if (_promptFrame is not null)
-        {
-            _promptFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 2));
-        }
-
-        if (_resultFrame is not null)
-        {
-            _resultFrame.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(RunestoneSurface.Result, 3));
-        }
-    }
-
-    private void ApplyMainContentGutter()
-    {
-        foreach (var path in new[] { "Title", "Controls" })
-        {
-            var control = GetNodeOrNull<Control>(path);
-            if (control is not null)
-            {
-                control.OffsetLeft = Math.Max(control.OffsetLeft, 24f);
-            }
-        }
     }
 
     private void WireButtons()
@@ -346,7 +343,6 @@ public partial class Main : Control
         _damageAssignmentOverlay!.Confirmed += assignments => _ = SubmitCurrentDamageAssignmentsAsync(assignments);
         _damageAssignmentOverlay.Cancelled += ReopenSpecialPromptOverlay;
         _resultOverlay!.ReturnLobbyRequested += () => _ = ReturnToLobbyAsync();
-        _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
 
     private void HandleMatchCardActivated(Godot.Collections.Dictionary card)
@@ -596,14 +592,6 @@ public partial class Main : Control
     private void ReleaseRuntimeUiResources()
     {
         ReleaseTextureReferences(this);
-        if (_officialCardPreview is not null)
-        {
-            _officialCardPreview.Texture = null;
-        }
-
-        FreeNodeChildrenImmediately(_snapshotRows);
-        FreeNodeChildrenImmediately(_handRow);
-        FreeNodeChildrenImmediately(_promptActions);
     }
 
     private static void ReleaseTextureReferences(Node? node)
@@ -625,20 +613,6 @@ public partial class Main : Control
     }
 
     private static void ClearNodeChildren(Node? node)
-    {
-        if (node is null)
-        {
-            return;
-        }
-
-        foreach (var child in node.GetChildren())
-        {
-            node.RemoveChild(child);
-            child.Free();
-        }
-    }
-
-    private static void FreeNodeChildrenImmediately(Node? node)
     {
         if (node is null)
         {
@@ -718,7 +692,7 @@ public partial class Main : Control
         }
     }
 
-    private async Task LoadOfficialCardPreviewAsync()
+    private async Task LoadOfficialCatalogAsync()
     {
         try
         {
@@ -726,44 +700,13 @@ public partial class Main : Control
                 .LoadSnapshotAsync(OfficialCatalogSnapshotPath, _shutdown.Token);
             _officialCatalog = catalog;
             AppendLog($"Official catalog loaded: {catalog.Count} cards.");
-
-            if (!catalog.TryGetValue(PreviewCardNo, out var card))
-            {
-                AppendLog($"[color=yellow]Official preview card not found: {Escape(PreviewCardNo)}[/color]");
-                return;
-            }
-
-            var imagePath = await _cardImageLoader.LoadOfficialFrontImagePathAsync(card, _shutdown.Token);
-            if (string.IsNullOrWhiteSpace(imagePath))
-            {
-                AppendLog($"[color=yellow]No official front image for {Escape(card.CardNo)} {Escape(card.CardName)}[/color]");
-                return;
-            }
-
-            QueueMainThread(nameof(ApplyOfficialCardPreviewPath), imagePath);
-            var preview = new CardViewData(
-                string.Empty,
-                card.CardNo,
-                card.CardName,
-                card.CardCategoryName,
-                card.Energy ?? -1,
-                card.Power ?? -1,
-                card.Trait,
-                card.EffectText,
-                card.RarityName,
-                card.ColorText,
-                Visible: true,
-                FaceDown: false,
-                imagePath);
-            QueueMainThread(nameof(ApplyOfficialCardPreviewSummary), preview.PreviewSummary);
-            AppendLog($"Official card image loaded: {Escape(card.CardNo)} {Escape(card.CardName)}.");
         }
         catch (OperationCanceledException)
         {
         }
         catch (Exception ex)
         {
-            AppendLog($"[color=yellow]Official image preview unavailable: {Escape(ex.Message)}[/color]");
+            AppendLog($"[color=yellow]Official card catalog unavailable: {Escape(ex.Message)}[/color]");
         }
     }
 
@@ -1288,13 +1231,6 @@ public partial class Main : Control
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
-    }
-
-    private async Task SubmitPromptTemplateAsync(
-        Godot.Collections.Dictionary action,
-        IReadOnlyList<PromptSelector> selectors)
-    {
-        await SubmitPromptTemplateAsync(action, PromptSelection.FromSelectors(selectors));
     }
 
     private async Task SubmitPromptTemplateAsync(
@@ -2434,7 +2370,6 @@ public partial class Main : Control
             var table = element.TryGetProperty("table", out var tableElement) && tableElement.ValueKind == JsonValueKind.Object
                 ? tableElement
                 : default;
-            var summary = BuildSnapshotSummary(element, table);
             var handCards = VisibleHandCards(element, table);
             if (_officialCatalogLoadTask is { IsCompleted: false } catalogLoadTask)
             {
@@ -2468,8 +2403,6 @@ public partial class Main : Control
             }
 
             var hiddenBoundaryLogLine = HiddenInfoBoundaryLogLine(tableSections.Sections);
-            QueueMainThread(nameof(ApplyBoardSummary), summary);
-            QueueMainThread(nameof(ApplyHandCards), views);
             QueueMainThread(nameof(ApplySnapshotSections), tableSections.Sections);
             AppendLog(
                 $"Snapshot table rendered: visibleHand={views.Count}, handOfficialImages={officialImageCount}, tableCards={tableSections.CardCount}, tableOfficialImages={tableSections.OfficialImageCount}.");
@@ -2510,27 +2443,13 @@ public partial class Main : Control
             }
 
             _autoSmokePreviewRendered = true;
-            var summary = CardControlRenderer.PreviewSummary(card);
+            var summary = card.TryGetValue("previewSummary", out var summaryValue)
+                ? summaryValue.AsString()
+                : "可见卡牌";
             QueueMainThread(nameof(ApplyCardPreview), card);
             AppendLog($"Auto smoke: previewing first visible card: {Escape(summary.Replace('\n', ' '))}");
             return;
         }
-    }
-
-    private string BuildSnapshotSummary(JsonElement snapshot, JsonElement table)
-    {
-        var tick = ReadLong(snapshot, "tick");
-        var turn = ReadInt(snapshot, "turnNumber");
-        var turnState = ReadString(snapshot, "turnState");
-        var active = ReadString(snapshot, "activePlayerId");
-        var players = table.ValueKind == JsonValueKind.Object
-            && table.TryGetProperty("players", out var playersElement)
-            && playersElement.ValueKind == JsonValueKind.Array
-            ? playersElement.EnumerateArray().Select(PlayerSummary).ToArray()
-            : [];
-
-        var playerSummary = players.Length == 0 ? "players: unknown" : string.Join(" | ", players);
-        return $"tick {tick} / turn {turn} / state {turnState} / active {active} / {playerSummary}";
     }
 
     private static Godot.Collections.Dictionary? SnapshotMatchResultView(JsonElement snapshot)
@@ -2565,20 +2484,6 @@ public partial class Main : Control
             ["serverTick"] = ReadLong(snapshot, "tick"),
             ["source"] = "snapshot"
         };
-    }
-
-    private static string PlayerSummary(JsonElement player)
-    {
-        var zones = player.TryGetProperty("zones", out var zonesElement) && zonesElement.ValueKind == JsonValueKind.Object
-            ? zonesElement
-            : default;
-        var id = ReadString(player, "playerId");
-        var seat = ReadString(player, "seat");
-        var hand = ReadArrayCount(zones, "hand");
-        var hidden = ReadInt(zones, "handHidden");
-        var main = ReadInt(zones, "mainDeckCount");
-        var rune = ReadInt(zones, "runeDeckCount");
-        return $"{id} {seat} hand {hand}+{hidden} deck {main} rune {rune}";
     }
 
     private async Task<(Godot.Collections.Array<Godot.Collections.Dictionary> Sections, int CardCount, int OfficialImageCount)> BuildTableSectionsAsync(
@@ -3730,14 +3635,6 @@ public partial class Main : Control
         _log.AppendText($"{text}\n");
     }
 
-    public void ApplyBoardSummary(string text)
-    {
-        if (_boardSummary is not null)
-        {
-            _boardSummary.Text = text;
-        }
-    }
-
     public void ApplyMatchResult(Godot.Collections.Dictionary result)
     {
         _matchFinished = true;
@@ -3745,53 +3642,12 @@ public partial class Main : Control
         _cardInspectOverlay?.HideCard();
         _lastViewerResult = BuildViewerResult(result);
 
-        if (UseLegacyCardTableFallback)
+        if (_resultOverlay is not null)
         {
-            _resultOverlay?.HideResult();
-            SetRightRailMatchResultVisible(matchResultVisible: true);
-            if (_resultFrame is not null)
-            {
-                FlashResultFrame(_resultFrame);
-            }
-
-            if (_resultSummary is not null)
-            {
-                _resultSummary.Text = MatchResultSummaryForViewer(result);
-                _resultSummary.AddThemeColorOverride("font_color", MatchResultFontColor(result));
-            }
-        }
-        else
-        {
-            SetRightRailMatchResultVisible(matchResultVisible: false);
-            if (_resultOverlay is not null)
-            {
-                _resultOverlay.ShowResult(_lastViewerResult);
-            }
+            _resultOverlay.ShowResult(_lastViewerResult);
         }
 
         QueueResultScreenshotIfReady();
-    }
-
-    private void FlashResultFrame(PanelContainer resultFrame)
-    {
-        resultFrame.Modulate = new Color(1f, 0.82f, 0.46f, 1f);
-        var tween = resultFrame.CreateTween();
-        tween.TweenProperty(resultFrame, "modulate", Colors.White, 0.28d)
-            .SetTrans(Tween.TransitionType.Cubic)
-            .SetEase(Tween.EaseType.Out);
-    }
-
-    private Color MatchResultFontColor(Godot.Collections.Dictionary result)
-    {
-        var winnerPlayerId = ResultString(result, "winnerPlayerId");
-        if (string.IsNullOrWhiteSpace(winnerPlayerId))
-        {
-            return RunestoneTheme.Ivory;
-        }
-
-        return string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal)
-            ? RunestoneTheme.Brass
-            : RunestoneTheme.Warning;
     }
 
     public void ClearMatchResult()
@@ -3807,14 +3663,8 @@ public partial class Main : Control
         HideSpecialPromptOverlays();
         _promptInteractionController.ClearSelection();
         _matchScreen?.ActionBar.SetWaiting("等待服务端提供下一步行动。");
-        SetRightRailMatchResultVisible(matchResultVisible: false);
         SetBattleChromeVisible(battleActive: false);
         _matchScreen?.RenderSections([]);
-
-        if (_resultSummary is not null)
-        {
-            _resultSummary.Text = "No result";
-        }
     }
 
     private Godot.Collections.Dictionary BuildViewerResult(Godot.Collections.Dictionary result)
@@ -3858,42 +3708,6 @@ public partial class Main : Control
         };
     }
 
-    private string MatchResultSummaryForViewer(Godot.Collections.Dictionary result)
-    {
-        var winnerPlayerId = ResultString(result, "winnerPlayerId");
-        var surrenderedPlayerId = ResultString(result, "surrenderedPlayerId");
-        var reason = ResultString(result, "reason");
-        var winningScore = ResultInt(result, "winningScore");
-        var knownWinner = !string.IsNullOrWhiteSpace(winnerPlayerId);
-        var youWon = knownWinner && string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal);
-        var lines = new List<string>
-        {
-            knownWinner ? youWon ? "对局结束 · 胜利" : "对局结束 · 失败" : "对局结束"
-        };
-
-        if (knownWinner)
-        {
-            lines.Add($"胜者：{(youWon ? "你" : "对手")}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(surrenderedPlayerId))
-        {
-            var youSurrendered = string.Equals(surrenderedPlayerId, _authenticatedHandle, StringComparison.Ordinal);
-            lines.Add($"投降：{(youSurrendered ? "你" : "对手")}");
-        }
-
-        if (winningScore > 0)
-        {
-            lines.Add($"胜利分数：{winningScore}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(reason))
-        {
-            lines.Add($"原因：{ResultReasonLabel(reason)}");
-        }
-
-        return string.Join("\n", lines);
-    }
 
     private static string ResultString(Godot.Collections.Dictionary result, string key)
     {
@@ -3905,38 +3719,8 @@ public partial class Main : Control
         return result.TryGetValue(key, out var value) ? value.AsInt32() : -1;
     }
 
-    private static string ResultReasonLabel(string reason)
-    {
-        return reason switch
-        {
-            "SURRENDER" => "投降",
-            _ => reason
-        };
-    }
-
-    public void ApplyHandCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
-    {
-        if (!UseLegacyCardTableFallback || _handRow is null)
-        {
-            return;
-        }
-
-        _cardControlRenderer.RenderHandCards(_handRow, cards);
-    }
-
     public void ApplyPrompt(Godot.Collections.Dictionary view)
     {
-        if (_promptActions is null)
-        {
-            return;
-        }
-
-        foreach (var child in _promptActions.GetChildren())
-        {
-            _promptActions.RemoveChild(child);
-            child.Free();
-        }
-
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
@@ -3947,40 +3731,6 @@ public partial class Main : Control
         TryStageAutoSmokeUiAction();
         RefreshLobbySetupStateFromPrompt(actions);
         RefreshPromptHighlights(actions);
-        var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
-        if (_promptFrame is not null)
-        {
-            _promptFrame.AddThemeStyleboxOverride(
-                "panel",
-                RunestoneTheme.FrameStyle(actionable ? RunestoneSurface.Result : RunestoneSurface.Chrome, actionable ? 3 : 1));
-        }
-
-        if (_promptSummary is not null)
-        {
-            _promptSummary.Text = PromptGuidanceSummary(view, actions);
-            _promptSummary.AddThemeColorOverride("font_color", actionable ? RunestoneTheme.Brass : RunestoneTheme.MutedInk);
-        }
-
-        if (!UseLegacyCardTableFallback)
-        {
-            RedrawLastSnapshotSections();
-            return;
-        }
-
-        if (actions.Count == 0)
-        {
-            _promptActions.AddChild(MutedLabel("等待服务端提供可展示的候选。"));
-            RunestoneTheme.ApplyToTree(_promptActions);
-            RedrawLastSnapshotSections();
-            return;
-        }
-
-        foreach (var action in actions.OrderBy(PromptActionSortKey).ThenBy(PromptActionLabel))
-        {
-            _promptActions.AddChild(PromptActionNode(action));
-        }
-
-        RunestoneTheme.ApplyToTree(_promptActions);
         RedrawLastSnapshotSections();
     }
 
@@ -4051,12 +3801,6 @@ public partial class Main : Control
 
     private void RedrawLastSnapshotSections()
     {
-        if (UseLegacyCardTableFallback && _snapshotRows is not null && _lastSnapshotSections is not null)
-        {
-            _cardControlRenderer.RenderSnapshotSections(_snapshotRows, _lastSnapshotSections);
-            return;
-        }
-
         RefreshPromptInteractionVisuals();
     }
 
@@ -4215,263 +3959,10 @@ public partial class Main : Control
         }
 
         RefreshPromptInteractionVisuals();
-        if (_promptFrame is not null && !UseLegacyCardTableFallback)
-        {
-            _promptFrame.Visible = false;
-        }
-
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
         ShowSpecialPromptOverlays(actions);
-    }
-
-    private static string PromptGuidanceSummary(
-        Godot.Collections.Dictionary view,
-        Godot.Collections.Array<Godot.Collections.Dictionary> actions)
-    {
-        var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
-        var message = view.TryGetValue("message", out var messageValue) ? messageValue.AsString() : string.Empty;
-        var reason = view.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
-        var enabledCount = actions.Count(action =>
-            action.TryGetValue("enabled", out var enabledValue)
-            && enabledValue.AsBool()
-            && !string.Equals(
-                action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty,
-                "WAIT",
-                StringComparison.Ordinal));
-        var detail = !string.IsNullOrWhiteSpace(message)
-            ? message
-            : !string.IsNullOrWhiteSpace(reason)
-                ? reason
-                : actionable
-                    ? "请选择一个服务端候选行动。"
-                    : "对手正在行动，请稍候。";
-        var headline = actionable ? "轮到你行动" : "等待对手行动";
-        return $"{headline}\n{detail}\n{enabledCount} / {actions.Count} 个服务端候选可提交";
-    }
-
-    private static int PromptActionSortKey(Godot.Collections.Dictionary action)
-    {
-        var actionName = PromptActionName(action);
-        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-        var primary = actionName switch
-        {
-            "PASS_PRIORITY" or "PASS_FOCUS" or "PASS" or "END_TURN" => 0,
-            "MULLIGAN" or "READY" or "SUBMIT_DECK" => 1,
-            "TAP_RUNE" or "PLAY_CARD" or "MOVE_UNIT" or "DECLARE_BATTLE" => 2,
-            "ASSIGN_COMBAT_DAMAGE" or "ORDER_TRIGGERS" => 3,
-            "SURRENDER" => 8,
-            "WAIT" => 9,
-            _ => 4
-        };
-        return enabled ? primary : primary + 10;
-    }
-
-    private static string PromptActionName(Godot.Collections.Dictionary action)
-    {
-        return action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
-    }
-
-    private static string PromptActionLabel(Godot.Collections.Dictionary action)
-    {
-        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : string.Empty;
-        return ActionDisplayName(PromptActionName(action), label);
-    }
-
-    private static VBoxContainer PromptCard()
-    {
-        var row = new VBoxContainer
-        {
-            Name = "PromptCard",
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        row.AddThemeConstantOverride("separation", 5);
-        return row;
-    }
-
-    private static Control PromptActionHeader(
-        string actionName,
-        string label,
-        bool enabled,
-        bool canSubmit,
-        bool hasTemplate)
-    {
-        var row = new VBoxContainer
-        {
-            Name = "PromptActionHeader",
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        row.AddThemeConstantOverride("separation", 1);
-        var stateText = canSubmit ? "可提交" : enabled && hasTemplate ? "需选择" : enabled ? "待处理" : "等待";
-        var title = new Label
-        {
-            Text = $"{ActionDisplayName(actionName, label)} · {stateText}",
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart
-        };
-        title.AddThemeColorOverride("font_color", enabled ? RunestoneTheme.Ink : RunestoneTheme.MutedInk);
-        row.AddChild(title);
-        return row;
-    }
-
-    private static string PromptSubmitLabel(string actionName, string fallback)
-    {
-        return actionName switch
-        {
-            "PASS_PRIORITY" => "让过优先权",
-            "PASS_FOCUS" => "让过焦点",
-            "PASS" => "让过",
-            "END_TURN" => "结束回合",
-            "READY" => "准备",
-            "SUBMIT_DECK" => "提交构筑",
-            "MULLIGAN" => "确认起手",
-            "SURRENDER" => "投降",
-            _ => ActionDisplayName(actionName, fallback)
-        };
-    }
-
-    private static string ActionDisplayName(string actionName, string fallback)
-    {
-        if (!string.IsNullOrWhiteSpace(fallback)
-            && !string.Equals(fallback, actionName, StringComparison.Ordinal)
-            && !fallback.Contains('_', StringComparison.Ordinal))
-        {
-            return fallback;
-        }
-
-        return actionName switch
-        {
-            "ASSIGN_COMBAT_DAMAGE" => "分配伤害",
-            "DECLARE_BATTLE" => "宣战",
-            "END_TURN" => "结束回合",
-            "HIDE_CARD" => "隐藏卡牌",
-            "MOVE_UNIT" => "移动单位",
-            "MULLIGAN" => "起手调度",
-            "ORDER_TRIGGERS" => "排序触发",
-            "PASS" => "让过",
-            "PASS_FOCUS" => "让过焦点",
-            "PASS_PRIORITY" => "让过优先权",
-            "PLAY_CARD" => "打出卡牌",
-            "READY" => "准备",
-            "RECYCLE_RUNE" => "回收符文",
-            "REVEAL_CARD" => "展示卡牌",
-            "SUBMIT_DECK" => "提交构筑",
-            "SURRENDER" => "投降",
-            "TAP_RUNE" => "横置符文",
-            "WAIT" => "等待",
-            _ => string.IsNullOrWhiteSpace(fallback) ? "服务端行动" : fallback
-        };
-    }
-
-    private static Label PromptReasonLabel(bool enabled, string reason, string fallback)
-    {
-        var text = !string.IsNullOrWhiteSpace(reason)
-            ? reason
-            : enabled
-                ? fallback
-                : "服务端当前未开放此候选。";
-        return MutedLabel(text);
-    }
-
-    private static Label MutedLabel(string text)
-    {
-        var label = new Label
-        {
-            Text = text,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        label.AddThemeColorOverride("font_color", RunestoneTheme.MutedInk);
-        return label;
-    }
-
-    private static void FlashActionButton(Button button)
-    {
-        button.Modulate = new Color(1f, 0.78f, 0.42f, 1f);
-        var tween = button.CreateTween();
-        tween.TweenProperty(button, "modulate", Colors.White, 0.18d)
-            .SetTrans(Tween.TransitionType.Cubic)
-            .SetEase(Tween.EaseType.Out);
-    }
-
-    private Control PromptActionNode(Godot.Collections.Dictionary action)
-    {
-        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Action";
-        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
-        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
-        var submitKind = action.TryGetValue("submitKind", out var submitKindValue) ? submitKindValue.AsString() : "unsupported";
-        var cmdType = action.TryGetValue("cmdType", out var cmdTypeValue) ? cmdTypeValue.AsString() : string.Empty;
-        var promptId = action.TryGetValue("promptId", out var promptIdValue) ? promptIdValue.AsString() : string.Empty;
-        var snapshotTick = action.TryGetValue("snapshotTick", out var snapshotTickValue) ? snapshotTickValue.AsInt64() : -1L;
-        var hasTemplate = action.TryGetValue("hasTemplate", out var hasTemplateValue) && hasTemplateValue.AsBool();
-        if (string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
-        {
-            return PromptSpecialOverlayNotice(actionName, label);
-        }
-
-        if (string.Equals(actionName, "ORDER_TRIGGERS", StringComparison.Ordinal)
-            || string.Equals(actionName, "ASSIGN_COMBAT_DAMAGE", StringComparison.Ordinal))
-        {
-            return PromptSpecialOverlayNotice(actionName, label);
-        }
-
-        var row = PromptCard();
-        var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
-        var selectors = new List<PromptSelector>();
-        row.AddChild(PromptActionHeader(actionName, label, enabled, canSubmit, hasTemplate));
-
-        if (hasTemplate
-            && action.TryGetValue("selectionSteps", out var stepValue)
-            && stepValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is { } steps)
-        {
-            foreach (var step in steps)
-            {
-                var selectorNode = PromptSelectionStepNode(step, enabled);
-                selectors.Add(selectorNode.Selector);
-                row.AddChild(selectorNode.Node);
-            }
-        }
-
-        var button = new Button
-        {
-            Disabled = !canSubmit,
-            Text = canSubmit ? PromptSubmitLabel(actionName, label) : "等待服务端候选",
-            TooltipText = string.IsNullOrWhiteSpace(reason) ? ActionDisplayName(actionName, label) : reason
-        };
-        button.Pressed += () =>
-        {
-            FlashActionButton(button);
-            if (hasTemplate)
-            {
-                _ = SubmitPromptTemplateAsync(action, selectors);
-            }
-            else
-            {
-                _ = SubmitPromptActionAsync(submitKind, cmdType, promptId, snapshotTick, label);
-            }
-        };
-        row.AddChild(button);
-        row.AddChild(PromptReasonLabel(enabled, reason, hasTemplate ? "选择后将按服务端模板提交。" : "一键提交服务端候选。"));
-        return row;
-    }
-
-    private static Control PromptSpecialOverlayNotice(string actionName, string label)
-    {
-        return MutedLabel($"{ActionDisplayName(actionName, label)} 将在专用覆盖层中处理。");
-    }
-
-    private async Task SubmitSpecialPromptAsync(Godot.Collections.Dictionary action)
-    {
-        if (!TryBuildSpecialPromptCommand(action, out var payload, out _, out var reason))
-        {
-            AppendLog($"[color=yellow]Prompt action requires server metadata: {Escape(reason)}[/color]");
-            return;
-        }
-
-        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : "special";
-        await SubmitPromptPayloadAsync(action, payload, actionName.ToLowerInvariant());
     }
 
     private async Task SubmitSpecialPromptAsync(
@@ -4482,76 +3973,9 @@ public partial class Main : Control
         await SubmitPromptPayloadAsync(action, payload, intentSuffix);
     }
 
-    private static string CompactPromptChoiceLabel(string label)
-    {
-        var trimmed = label.Trim();
-        const int maxLength = 34;
-        return trimmed.Length <= maxLength ? trimmed : $"{trimmed[..(maxLength - 1)]}…";
-    }
-
-    private static string ShortPromptChoiceId(string id)
-    {
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return "(未命名选项)";
-        }
-
-        var trimmed = id.Trim();
-        const int maxLength = 30;
-        return trimmed.Length <= maxLength ? trimmed : $"…{trimmed[^maxLength..]}";
-    }
-
-    private static PromptSelectorNode PromptSelectionStepNode(Godot.Collections.Dictionary step, bool enabled)
-    {
-        var role = step.TryGetValue("role", out var roleValue) ? roleValue.AsString() : string.Empty;
-        var label = step.TryGetValue("label", out var labelValue) ? labelValue.AsString() : role;
-        var required = step.TryGetValue("required", out var requiredValue) && requiredValue.AsBool();
-        var choices = step.TryGetValue("choices", out var choicesValue)
-            ? choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
-            : [];
-        var row = new VBoxContainer
-        {
-            Name = "PromptSelectionStep",
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        row.AddThemeConstantOverride("separation", 2);
-        row.AddChild(MutedLabel(required ? $"{label} *" : label));
-
-        var selector = new OptionButton
-        {
-            Disabled = !enabled || choices.Count == 0,
-            CustomMinimumSize = new Vector2(260, 0),
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-        };
-        if (!required)
-        {
-            selector.AddItem("(无)");
-            selector.SetItemMetadata(0, string.Empty);
-        }
-
-        foreach (var choice in choices)
-        {
-            var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
-            var choiceLabel = choice.TryGetValue("label", out var textValue) ? textValue.AsString() : choiceId;
-            selector.AddItem(string.IsNullOrWhiteSpace(choiceLabel)
-                ? ShortPromptChoiceId(choiceId)
-                : CompactPromptChoiceLabel(choiceLabel));
-            selector.SetItemMetadata(selector.ItemCount - 1, choiceId);
-        }
-
-        if (choices.Count == 0)
-        {
-            selector.AddItem("(无可选项)");
-            selector.SetItemMetadata(selector.ItemCount - 1, string.Empty);
-        }
-
-        row.AddChild(selector);
-        return new PromptSelectorNode(row, new PromptSelector(role, selector));
-    }
-
     public void ApplySnapshotSections(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
     {
-        if (_snapshotRows is null || _matchScreen is null)
+        if (_matchScreen is null)
         {
             return;
         }
@@ -4564,7 +3988,7 @@ public partial class Main : Control
             return;
         }
 
-        if (battleActive && !UseLegacyCardTableFallback)
+        if (battleActive)
         {
             _matchScreen.RenderSections(sections);
             _battleTableRendered = true;
@@ -4580,33 +4004,12 @@ public partial class Main : Control
             return;
         }
 
-        if (!_matchFinished)
-        {
-            _battleTableRendered = false;
-        }
+        _battleTableRendered = false;
         _matchScreen.RenderSections([]);
-        if (UseLegacyCardTableFallback)
-        {
-            _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
-            if (battleActive)
-            {
-                _battleTableRendered = true;
-                if (_lastAppliedPromptView is not null)
-                {
-                    _ = RunAutoSmokePromptAsync(_lastAppliedPromptView);
-                }
-            }
-        }
-        else
-        {
-            ClearNodeChildren(_snapshotRows);
-        }
     }
 
     private void SetBattleChromeVisible(bool battleActive)
     {
-        _battleChromeHidden = battleActive;
-        var legacyBattleVisible = battleActive && UseLegacyCardTableFallback;
         var lobbyVisible = !battleActive;
         if (_lobbyScreen is not null)
         {
@@ -4615,51 +4018,7 @@ public partial class Main : Control
 
         if (_matchScreen is not null)
         {
-            _matchScreen.SetScreenVisible(battleActive && !UseLegacyCardTableFallback);
-        }
-
-        if (_boardSummary is not null)
-        {
-            _boardSummary.Visible = legacyBattleVisible;
-        }
-
-        if (_snapshotScroll is not null)
-        {
-            _snapshotScroll.Visible = legacyBattleVisible;
-        }
-
-        if (_legacyHandScroll is not null)
-        {
-            _legacyHandScroll.Visible = legacyBattleVisible;
-        }
-
-        if (_officialCardPreviewFrame is not null)
-        {
-            if (UseLegacyCardTableFallback)
-            {
-                _officialCardPreviewFrame.Visible = battleActive;
-            }
-            else
-            {
-                _officialCardPreviewFrame.Visible = false;
-            }
-        }
-
-        if (_promptFrame is not null)
-        {
-            if (UseLegacyCardTableFallback)
-            {
-                _promptFrame.Visible = battleActive;
-            }
-            else
-            {
-                _promptFrame.Visible = false;
-            }
-        }
-
-        if (_resultFrame is not null && !battleActive)
-        {
-            _resultFrame.Visible = false;
+            _matchScreen.SetScreenVisible(battleActive);
         }
 
         if (!battleActive)
@@ -4671,18 +4030,6 @@ public partial class Main : Control
             }
         }
 
-        if (_controls is not null)
-        {
-            _controls.OffsetRight = legacyBattleVisible ? -336f : -16f;
-        }
-    }
-
-    private void SetRightRailMatchResultVisible(bool matchResultVisible)
-    {
-        if (_resultFrame is not null)
-        {
-            _resultFrame.Visible = matchResultVisible;
-        }
     }
 
     private static bool HasWireTableSection(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
@@ -4816,18 +4163,9 @@ public partial class Main : Control
     {
         _matchFinished = true;
         SetBattleChromeVisible(battleActive: true);
-        if (UseLegacyCardTableFallback)
+        if (_resultOverlay is not null && _lastViewerResult.Count > 0)
         {
-            SetRightRailMatchResultVisible(matchResultVisible: true);
-            _resultOverlay?.HideResult();
-        }
-        else
-        {
-            SetRightRailMatchResultVisible(matchResultVisible: false);
-            if (_resultOverlay is not null && _lastViewerResult.Count > 0)
-            {
-                _resultOverlay.ShowResult(_lastViewerResult);
-            }
+            _resultOverlay.ShowResult(_lastViewerResult);
         }
     }
 
@@ -4841,23 +4179,6 @@ public partial class Main : Control
         }
 
         _cardInspectOverlay.ShowCard(card);
-        if (!UseLegacyCardTableFallback)
-        {
-            return;
-        }
-
-        if (_officialCardPreviewSummary is not null)
-        {
-            _officialCardPreviewSummary.Text = CardControlRenderer.PreviewSummary(card);
-        }
-
-        if (_officialCardPreview is null)
-        {
-            return;
-        }
-
-        var imagePath = card.TryGetValue("imagePath", out var imagePathValue) ? imagePathValue.AsString() : string.Empty;
-        _officialCardPreview.Texture = CardControlRenderer.LoadTextureFromImagePath(imagePath);
     }
 
     public void ApplyDeckOptions()
@@ -4908,26 +4229,6 @@ public partial class Main : Control
         _lobbyScreen.SetPublicMatches(matches);
     }
 
-    public void ApplyOfficialCardPreviewPath(string imagePath)
-    {
-        if (_officialCardPreview is not null)
-        {
-            _officialCardPreview.Texture = CardControlRenderer.LoadTextureFromImagePath(imagePath);
-        }
-    }
-
-    public void ApplyOfficialCardPreviewSummary(string text)
-    {
-        if (_officialCardPreviewSummary is not null)
-        {
-            _officialCardPreviewSummary.Text = text;
-        }
-    }
-
-    private sealed record PromptSelector(string Role, OptionButton Control);
-
-    private sealed record PromptSelectorNode(Control Node, PromptSelector Selector);
-
     private sealed record PromptSelection(
         string? SourceId,
         IReadOnlyList<string> TargetObjectIds,
@@ -4952,56 +4253,6 @@ public partial class Main : Control
                 Array.Empty<string>());
         }
 
-        public static PromptSelection FromSelectors(IEnumerable<PromptSelector> selectors)
-        {
-            string? sourceId = null;
-            string? destinationId = null;
-            string? mode = null;
-            var targets = new List<string>();
-            var optionalCosts = new List<string>();
-
-            foreach (var selector in selectors)
-            {
-                var selected = SelectedChoiceId(selector.Control);
-                if (string.IsNullOrWhiteSpace(selected))
-                {
-                    continue;
-                }
-
-                switch (selector.Role)
-                {
-                    case "source":
-                        sourceId ??= selected;
-                        break;
-                    case "target":
-                        targets.Add(selected);
-                        break;
-                    case "destination":
-                        destinationId ??= selected;
-                        break;
-                    case "mode":
-                        mode ??= selected;
-                        break;
-                    case "optionalCost":
-                        optionalCosts.Add(selected);
-                        break;
-                }
-            }
-
-            return new PromptSelection(sourceId, targets, destinationId, mode, optionalCosts);
-        }
-
-        private static string SelectedChoiceId(OptionButton control)
-        {
-            var selected = control.Selected;
-            if (selected < 0 || selected >= control.ItemCount)
-            {
-                return string.Empty;
-            }
-
-            var metadata = control.GetItemMetadata(selected);
-            return metadata.VariantType == Variant.Type.String ? metadata.AsString() : string.Empty;
-        }
     }
 
     private void QueueMainThread(StringName method, Variant value)
