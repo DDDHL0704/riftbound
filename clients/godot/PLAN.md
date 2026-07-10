@@ -31,6 +31,8 @@ wire-table and final P5 evidence push are no longer the active product route.
   of 1280x720.
 - Design specification:
   `docs/2026-07-10-minimal-official-card-client-design.md`.
+- Executable implementation plan:
+  `docs/plans/2026-07-10-minimal-official-card-client-implementation.md`.
 
 ## Current Status
 
