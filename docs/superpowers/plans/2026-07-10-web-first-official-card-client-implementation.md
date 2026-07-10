@@ -48,13 +48,13 @@
 - Consumes: existing `app-frame`, `main-nav`, `Button`, and route state.
 - Produces: `game-app-shell`, `game-primary-nav`, shared color/focus/card-size variables, and `check:playable-surface`.
 
-- [ ] Create `check-playable-surface.mjs` to fail until `game-client.css` is imported after `globals.css`, the shell exposes `data-game-shell`, and the primary navigation contains only play, cards, decks, and settings destinations.
-- [ ] Run `npm run check:playable-surface`; expected result is a nonzero exit with the missing surface markers.
-- [ ] Add the route-focused stylesheet import and simplify the visible navigation while retaining secondary routes in a labelled overflow group.
-- [ ] Implement neutral graphite tokens, focus rings, buttons, forms, reduced motion, and 1280x720 constraints in `game-client.css`.
-- [ ] Run `npm run check:playable-surface` and `npm run typecheck:strict`; both must pass.
-- [ ] Capture the lobby at 1440x900 and inspect for overflow, contrast, and obvious wireframe styling.
-- [ ] Commit the visual foundation as one reviewable unit.
+- [x] Create `check-playable-surface.mjs` to fail until `game-client.css` is imported after `globals.css`, the shell exposes `data-game-shell`, and the primary navigation contains only play, cards, decks, and settings destinations.
+- [x] Run `npm run check:playable-surface`; expected result is a nonzero exit with the missing surface markers.
+- [x] Add the route-focused stylesheet import and simplify the visible navigation while retaining secondary routes in a labelled overflow group.
+- [x] Implement neutral graphite tokens, focus rings, buttons, forms, reduced motion, and 1280x720 constraints in `game-client.css`.
+- [x] Run `npm run check:playable-surface` and `npm run typecheck:strict`; both must pass.
+- [x] Capture the lobby at 1440x900 and inspect for overflow, contrast, and obvious wireframe styling.
+- [x] Commit the visual foundation as one reviewable unit.
 
 ### Task 3: Make Lobby and Room Play-First
 

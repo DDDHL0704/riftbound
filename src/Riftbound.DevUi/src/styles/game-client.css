@@ -1,0 +1,493 @@
+:root {
+  --game-bg: #101416;
+  --game-surface: #171c1f;
+  --game-surface-raised: #202629;
+  --game-surface-soft: #282f32;
+  --game-border: #3a4143;
+  --game-border-strong: #555e60;
+  --game-text: #f2eee5;
+  --game-text-muted: #b8b8b0;
+  --game-text-dim: #858b88;
+  --game-gold: #d7ad57;
+  --game-blue: #63a7d8;
+  --game-green: #68b684;
+  --game-red: #d36b65;
+  --game-shadow: 0 18px 48px rgb(0 0 0 / 28%);
+  --game-card-ratio: 0.7142857;
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background: var(--game-bg);
+  color: var(--game-text);
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+button,
+a,
+input,
+select,
+summary,
+[tabindex]:not([tabindex="-1"]) {
+  outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  box-shadow: 0 0 0 3px rgb(99 167 216 / 42%);
+}
+
+.game-app-shell.app-frame {
+  min-height: 100vh;
+  background: var(--game-bg);
+  color: var(--game-text);
+}
+
+.game-app-shell:not(.app-frame-match) {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+}
+
+.game-app-shell .app-content {
+  min-width: 0;
+  min-height: 100vh;
+  background: var(--game-bg);
+}
+
+.game-app-shell .main-nav {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: auto;
+  height: 100vh;
+  padding: 24px 16px 18px;
+  overflow-y: auto;
+  border: 0;
+  border-right: 1px solid var(--game-border);
+  background: #14191b;
+  box-sizing: border-box;
+}
+
+.game-app-shell .brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--game-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.game-app-shell .brand-mark:hover {
+  background: var(--game-surface-raised);
+}
+
+.game-app-shell .brand-mark svg {
+  flex: 0 0 auto;
+  color: var(--game-gold);
+}
+
+.game-app-shell .brand-mark div {
+  display: grid;
+  gap: 2px;
+}
+
+.game-app-shell .brand-mark strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.game-app-shell .brand-mark span {
+  color: var(--game-text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.game-primary-nav {
+  display: grid;
+  gap: 5px;
+}
+
+.game-app-shell .main-nav .button,
+.game-app-shell .main-nav button:not(.brand-mark) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--game-text-muted);
+  box-sizing: border-box;
+}
+
+.game-app-shell .main-nav .button:hover,
+.game-app-shell .main-nav button:not(.brand-mark):hover {
+  border-color: var(--game-border);
+  background: var(--game-surface-raised);
+  color: var(--game-text);
+}
+
+.game-app-shell .main-nav .nav-active,
+.game-app-shell .main-nav [aria-current="page"] {
+  border-color: rgb(215 173 87 / 45%);
+  background: rgb(215 173 87 / 10%);
+  color: var(--game-text);
+}
+
+.game-app-shell .main-nav .nav-active svg,
+.game-app-shell .main-nav [aria-current="page"] svg {
+  color: var(--game-gold);
+}
+
+.game-secondary-nav {
+  margin-top: auto;
+  border-top: 1px solid var(--game-border);
+  padding-top: 12px;
+}
+
+.game-secondary-nav summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: var(--game-text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.game-secondary-nav summary::-webkit-details-marker {
+  display: none;
+}
+
+.game-secondary-nav summary:hover {
+  background: var(--game-surface-raised);
+  color: var(--game-text);
+}
+
+.game-secondary-nav > div {
+  display: grid;
+  gap: 3px;
+  padding-top: 5px;
+}
+
+.game-secondary-nav > div .button,
+.game-secondary-nav > div button {
+  min-height: 36px !important;
+  font-size: 13px;
+}
+
+.game-app-shell .nav-footnote {
+  margin: 0;
+  padding: 0 10px;
+  color: var(--game-text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.game-app-shell .page-grid {
+  width: min(1180px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 42px 0 64px;
+  box-sizing: border-box;
+}
+
+.game-app-shell .page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 28px;
+  padding: 0 0 22px;
+  border: 0;
+  border-bottom: 1px solid var(--game-border);
+  background: transparent;
+}
+
+.game-app-shell .page-header h1,
+.game-app-shell .page-header h2 {
+  margin: 4px 0 0;
+  color: var(--game-text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.game-app-shell .eyebrow {
+  color: var(--game-gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.game-app-shell .panel,
+.game-app-shell .empty-panel,
+.game-app-shell .seat-card,
+.game-app-shell .lobby-form,
+.game-app-shell .lobby-discovery-panel {
+  border: 1px solid var(--game-border);
+  border-radius: 7px;
+  background: var(--game-surface);
+  color: var(--game-text);
+  box-shadow: none;
+}
+
+.game-app-shell input,
+.game-app-shell select,
+.game-app-shell textarea {
+  min-height: 42px;
+  border: 1px solid var(--game-border-strong);
+  border-radius: 5px;
+  background: #0f1315;
+  color: var(--game-text);
+}
+
+.game-app-shell input::placeholder,
+.game-app-shell textarea::placeholder {
+  color: var(--game-text-dim);
+}
+
+.game-app-shell .button,
+.game-app-shell button:not(.brand-mark) {
+  border: 1px solid var(--game-border-strong);
+  border-radius: 5px;
+  background: var(--game-surface-raised);
+  color: var(--game-text);
+  box-shadow: none;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.game-app-shell .button:hover:not(:disabled),
+.game-app-shell button:hover:not(:disabled) {
+  border-color: var(--game-gold);
+  background: var(--game-surface-soft);
+}
+
+.game-app-shell .button:active:not(:disabled),
+.game-app-shell button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.game-app-shell .button:disabled,
+.game-app-shell button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.game-app-shell .status-pill {
+  border: 1px solid var(--game-border);
+  border-radius: 999px;
+  background: var(--game-surface-raised);
+  color: var(--game-text-muted);
+}
+
+.game-app-shell .status-info {
+  border-color: rgb(99 167 216 / 56%);
+  color: #b7ddf5;
+}
+
+.game-app-shell .status-good {
+  border-color: rgb(104 182 132 / 56%);
+  color: #b9e3c7;
+}
+
+.game-app-shell .status-bad {
+  border-color: rgb(211 107 101 / 58%);
+  color: #f2b4af;
+}
+
+/* The legacy DevUi intentionally ends with a high-specificity monochrome skin. */
+.game-app-shell.app-frame:not(.app-frame-match),
+.game-app-shell.app-frame:not(.app-frame-match) .app-content {
+  background: var(--game-bg);
+  color: var(--game-text);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav {
+  border-color: var(--game-border);
+  background: #14191b;
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) :where(h1, h2, h3, p, span, strong, small, em, dt, dd, label, li) {
+  color: inherit;
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .page-header,
+.game-app-shell.app-frame:not(.app-frame-match) .command-center,
+.game-app-shell.app-frame:not(.app-frame-match) .filter-bar,
+.game-app-shell.app-frame:not(.app-frame-match) .coverage-strip,
+.game-app-shell.app-frame:not(.app-frame-match) .audit-banner,
+.game-app-shell.app-frame:not(.app-frame-match) .lobby-form,
+.game-app-shell.app-frame:not(.app-frame-match) .lobby-discovery-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .profile-match-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .profile-leaderboard-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .match-command-row,
+.game-app-shell.app-frame:not(.app-frame-match) .room-actions,
+.game-app-shell.app-frame:not(.app-frame-match) .room-log-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .room-submission-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .room-workflow-surface,
+.game-app-shell.app-frame:not(.app-frame-match) .deck-summary,
+.game-app-shell.app-frame:not(.app-frame-match) .room-flow-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .settings-grid,
+.game-app-shell.app-frame:not(.app-frame-match) .diagnostic-card,
+.game-app-shell.app-frame:not(.app-frame-match) .seat-card,
+.game-app-shell.app-frame:not(.app-frame-match) .empty-panel,
+.game-app-shell.app-frame:not(.app-frame-match) .status-grid article,
+.game-app-shell.app-frame:not(.app-frame-match) .deck-section,
+.game-app-shell.app-frame:not(.app-frame-match) .public-match-row,
+.game-app-shell.app-frame:not(.app-frame-match) .profile-match-row,
+.game-app-shell.app-frame:not(.app-frame-match) .profile-leaderboard-row {
+  border-color: var(--game-border);
+  background: var(--game-surface);
+  color: var(--game-text);
+  box-shadow: none;
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .page-header {
+  border-width: 0 0 1px;
+  background: transparent;
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .brand-mark svg,
+.game-app-shell.app-frame:not(.app-frame-match) .eyebrow {
+  color: var(--game-gold);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .page-header h1,
+.game-app-shell.app-frame:not(.app-frame-match) .page-header h2 {
+  color: var(--game-text);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .brand-mark span,
+.game-app-shell.app-frame:not(.app-frame-match) .page-header p,
+.game-app-shell.app-frame:not(.app-frame-match) .command-center p,
+.game-app-shell.app-frame:not(.app-frame-match) .audit-banner p,
+.game-app-shell.app-frame:not(.app-frame-match) .room-log-panel p,
+.game-app-shell.app-frame:not(.app-frame-match) .room-log-entry span,
+.game-app-shell.app-frame:not(.app-frame-match) .room-submission-panel p,
+.game-app-shell.app-frame:not(.app-frame-match) .room-submission-panel dt,
+.game-app-shell.app-frame:not(.app-frame-match) .empty-hint,
+.game-app-shell.app-frame:not(.app-frame-match) .nav-footnote {
+  color: var(--game-text-muted);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .status-pill,
+.game-app-shell.app-frame:not(.app-frame-match) .button {
+  border-color: var(--game-border-strong);
+  background: var(--game-surface-raised);
+  color: var(--game-text);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .nav-active,
+.game-app-shell.app-frame:not(.app-frame-match) .button:hover:not(:disabled) {
+  background: var(--game-surface-soft);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav .button,
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav button:not(.brand-mark) {
+  border-color: transparent;
+  background: transparent;
+  color: var(--game-text-muted);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav .button:hover,
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav button:not(.brand-mark):hover {
+  border-color: var(--game-border);
+  background: var(--game-surface-raised);
+  color: var(--game-text);
+}
+
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav .nav-active,
+.game-app-shell.app-frame:not(.app-frame-match) .main-nav [aria-current="page"] {
+  border-color: rgb(215 173 87 / 45%);
+  background: rgb(215 173 87 / 10%);
+  color: var(--game-text);
+}
+
+@media (max-width: 1040px) {
+  .game-app-shell:not(.app-frame-match) {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .game-app-shell .main-nav {
+    padding-inline: 10px;
+  }
+
+  .game-app-shell .brand-mark {
+    justify-content: center;
+  }
+
+  .game-app-shell .brand-mark div,
+  .game-app-shell .main-nav .button span,
+  .game-app-shell .main-nav button:not(.brand-mark) span,
+  .game-app-shell .nav-footnote,
+  .game-secondary-nav summary:not(svg) {
+    font-size: 0;
+  }
+
+  .game-app-shell .main-nav .button,
+  .game-app-shell .main-nav button:not(.brand-mark),
+  .game-secondary-nav summary {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .game-app-shell .page-grid {
+    width: min(100% - 36px, 1180px);
+  }
+
+  .game-app-shell .page-header h1,
+  .game-app-shell .page-header h2 {
+    font-size: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
