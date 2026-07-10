@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.cs" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/screens/LobbyScreen.tscn" id="2_lobby"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -22,17 +23,6 @@ offset_bottom = 34.0
 grow_horizontal = 2
 text = "Riftbound 符文战场"
 
-[node name="Status" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 16.0
-offset_top = 36.0
-offset_right = -336.0
-offset_bottom = 58.0
-grow_horizontal = 2
-text = "未连接"
-
 [node name="Controls" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -40,124 +30,23 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
 offset_top = 64.0
-offset_right = -336.0
+offset_right = -16.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SessionFrame" type="PanelContainer" parent="Controls"]
+[node name="LobbyScreen" parent="Controls" instance=ExtResource("2_lobby")]
 layout_mode = 2
-
-[node name="SessionRow" type="HBoxContainer" parent="Controls/SessionFrame"]
-layout_mode = 2
-
-[node name="HandleLabel" type="Label" parent="Controls/SessionFrame/SessionRow"]
-layout_mode = 2
-text = "玩家"
-
-[node name="HandleInput" type="LineEdit" parent="Controls/SessionFrame/SessionRow"]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-text = "godot"
-
-[node name="RoomLabel" type="Label" parent="Controls/SessionFrame/SessionRow"]
-layout_mode = 2
-text = "房间"
-
-[node name="RoomInput" type="LineEdit" parent="Controls/SessionFrame/SessionRow"]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "godot-local"
-
-[node name="ConnectButton" type="Button" parent="Controls/SessionFrame/SessionRow"]
-layout_mode = 2
-text = "连接"
-
-[node name="ReconnectButton" type="Button" parent="Controls/SessionFrame/SessionRow"]
-layout_mode = 2
-text = "重连"
-
-[node name="MatchmakingFrame" type="PanelContainer" parent="Controls"]
-layout_mode = 2
-
-[node name="MatchmakingRow" type="HBoxContainer" parent="Controls/MatchmakingFrame"]
-layout_mode = 2
-
-[node name="MatchmakingLabel" type="Label" parent="Controls/MatchmakingFrame/MatchmakingRow"]
-layout_mode = 2
-text = "大厅"
-
-[node name="MatchmakingStatus" type="Label" parent="Controls/MatchmakingFrame/MatchmakingRow"]
-custom_minimum_size = Vector2(240, 0)
-layout_mode = 2
-text = "Idle"
-
-[node name="CreatePublicMatchButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
-layout_mode = 2
-text = "创建公开房"
-
-[node name="QueueMatchmakingButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
-layout_mode = 2
-text = "快速匹配"
-
-[node name="CancelMatchmakingButton" type="Button" parent="Controls/MatchmakingFrame/MatchmakingRow"]
-layout_mode = 2
-text = "取消排队"
-
-[node name="PublicMatchFrame" type="PanelContainer" parent="Controls"]
-layout_mode = 2
-
-[node name="PublicMatchRow" type="HBoxContainer" parent="Controls/PublicMatchFrame"]
-layout_mode = 2
-
-[node name="PublicMatchLabel" type="Label" parent="Controls/PublicMatchFrame/PublicMatchRow"]
-layout_mode = 2
-text = "公开房"
-
-[node name="PublicMatchSelect" type="OptionButton" parent="Controls/PublicMatchFrame/PublicMatchRow"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-
-[node name="RefreshPublicMatchesButton" type="Button" parent="Controls/PublicMatchFrame/PublicMatchRow"]
-layout_mode = 2
-text = "刷新"
-
-[node name="JoinPublicMatchButton" type="Button" parent="Controls/PublicMatchFrame/PublicMatchRow"]
-layout_mode = 2
-text = "加入公开房"
-
-[node name="DeckFrame" type="PanelContainer" parent="Controls"]
-layout_mode = 2
-
-[node name="DeckRow" type="HBoxContainer" parent="Controls/DeckFrame"]
-layout_mode = 2
-
-[node name="DeckLabel" type="Label" parent="Controls/DeckFrame/DeckRow"]
-layout_mode = 2
-text = "卡组"
-
-[node name="DeckSelect" type="OptionButton" parent="Controls/DeckFrame/DeckRow"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-
-[node name="LoadDecksButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
-layout_mode = 2
-text = "加载卡组"
-
-[node name="SubmitDeckButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
-layout_mode = 2
-text = "提交卡组"
-
-[node name="ReadyButton" type="Button" parent="Controls/DeckFrame/DeckRow"]
-layout_mode = 2
-text = "准备"
+size_flags_horizontal = 3
 
 [node name="BoardSummary" type="Label" parent="Controls"]
+visible = false
 layout_mode = 2
 autowrap_mode = 2
 text = "等待服务端快照"
 
 [node name="SnapshotScroll" type="ScrollContainer" parent="Controls"]
+visible = false
 custom_minimum_size = Vector2(0, 600)
 layout_mode = 2
 size_flags_vertical = 3

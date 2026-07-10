@@ -9,9 +9,9 @@ contracts change.
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
   uses a 1440x900 reference viewport with responsive expansion, uses the
   `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
-- `scenes/Main.tscn` is a single `Control` root with lobby/session controls,
-  deck controls, a snapshot/table scroll area, a right-rail result panel,
-  right-side official card preview, prompt panel, and hidden log panel.
+- `scenes/Main.tscn` is a single `Control` root that mounts the focused
+  `LobbyScreen` alongside the temporary legacy snapshot/table renderer,
+  right-side official card preview, prompt panel, result panel, and hidden log.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -39,11 +39,13 @@ wire-table height.
 ## Runtime Scripts
 
 - `Main.cs` is the application coordinator: argument parsing, session identity,
-  API and hub clients, lobby/deck flow, prompt rendering and submission, smoke
-  helpers, snapshot rendering, result panel, screenshot capture, and theme setup.
-  It keeps lobby/deck chrome visible during the `ROOM` state, then hides it for
-  non-room battle snapshots so the tabletop owns the combat viewport without
-  blocking deck selection. In match-result mode, the right rail keeps the
+  API and hub clients, lobby screen coordination, prompt rendering and
+  submission, smoke helpers, snapshot rendering, result panel, screenshot
+  capture, and theme setup. It forwards safe setup data and availability to
+  `LobbyScreen`, while transport and server-authoritative commands remain here.
+  It shows the lobby during the `ROOM` state, then hides it for non-room battle
+  snapshots so the tabletop owns the combat viewport without blocking deck
+  selection. In match-result mode, the right rail keeps the
   official-card preview, result panel, and prompt panel as three visible bands
   so the black/ivory preview-prompt composition remains intact. Result mode
   also latches battle chrome visibility so stale room snapshots cannot restore
@@ -60,6 +62,13 @@ wire-table height.
 
 ## Visual Layer
 
+- `scripts/ui/AppScreen.cs` provides the shared visibility boundary for focused
+  runtime screens.
+- `scenes/screens/LobbyScreen.tscn` and `scripts/ui/LobbyScreen.cs` own room
+  entry, matchmaking, deck choice, submit, and ready presentation. The screen
+  emits intents to `Main.cs`; it does not own HTTP, SignalR, player keys,
+  reconnect tokens, or diagnostics. `check-minimal-lobby-scene.sh` rejects
+  table, prompt, and raw-log nodes in this screen.
 - `scripts/ui/MinimalTheme.cs` owns the replacement graphite palette, readable
   text, compact surface styles, button states, and semantic selection colors.
 - `scenes/components/OfficialCardView.tscn` and
@@ -187,6 +196,7 @@ wire-table height.
 ## Standard Gates
 
 - Build: `~/.dotnet/dotnet build clients/godot/Riftbound.GodotClient.csproj`
+- Focused lobby scene: `clients/godot/tools/check-minimal-lobby-scene.sh`
 - Script safety: `clients/godot/tools/check-human-playtest-script-safety.sh`
 - Evidence checker tests:
   `clients/godot/tools/check-human-playtest-evidence-integrity.sh`

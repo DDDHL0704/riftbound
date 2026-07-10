@@ -1,0 +1,146 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/LobbyScreen.cs" id="1_lobby"]
+
+[node name="LobbyScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_lobby")
+
+[node name="PrimaryFlow" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ConnectionStatus" type="Label" parent="PrimaryFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Not connected"
+
+[node name="ConnectionFrame" type="PanelContainer" parent="PrimaryFlow"]
+layout_mode = 2
+
+[node name="ConnectionFlow" type="VBoxContainer" parent="PrimaryFlow/ConnectionFrame"]
+layout_mode = 2
+
+[node name="ConnectionTitle" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
+layout_mode = 2
+text = "Room"
+
+[node name="IdentityRow" type="HBoxContainer" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
+layout_mode = 2
+
+[node name="HandleLabel" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+layout_mode = 2
+text = "Handle"
+
+[node name="HandleInput" type="LineEdit" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RoomLabel" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+layout_mode = 2
+text = "Room"
+
+[node name="RoomInput" type="LineEdit" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ConnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Connect"
+
+[node name="ReconnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reconnect"
+
+[node name="MatchmakingFrame" type="PanelContainer" parent="PrimaryFlow"]
+layout_mode = 2
+
+[node name="MatchmakingFlow" type="VBoxContainer" parent="PrimaryFlow/MatchmakingFrame"]
+layout_mode = 2
+
+[node name="MatchmakingStatus" type="Label" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Choose a room or matchmaking"
+
+[node name="MatchmakingRow" type="HBoxContainer" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
+layout_mode = 2
+
+[node name="CreatePublicMatchButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create public room"
+
+[node name="QueueButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quick match"
+
+[node name="CancelQueueButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel queue"
+
+[node name="PublicRoomRow" type="HBoxContainer" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
+layout_mode = 2
+
+[node name="PublicMatchSelect" type="OptionButton" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/PublicRoomRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="JoinPublicMatchButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/PublicRoomRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Join room"
+
+[node name="DeckFrame" type="PanelContainer" parent="PrimaryFlow"]
+layout_mode = 2
+
+[node name="DeckFlow" type="VBoxContainer" parent="PrimaryFlow/DeckFrame"]
+layout_mode = 2
+
+[node name="SetupGuidance" type="Label" parent="PrimaryFlow/DeckFrame/DeckFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Connect to choose a deck and prepare."
+
+[node name="DeckRow" type="HBoxContainer" parent="PrimaryFlow/DeckFrame/DeckFlow"]
+layout_mode = 2
+
+[node name="DeckSelect" type="OptionButton" parent="PrimaryFlow/DeckFrame/DeckFlow/DeckRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SubmitDeckButton" type="Button" parent="PrimaryFlow/DeckFrame/DeckFlow/DeckRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Submit deck"
+
+[node name="ReadyButton" type="Button" parent="PrimaryFlow/DeckFrame/DeckFlow/DeckRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 40)
+layout_mode = 2
+text = "Ready"

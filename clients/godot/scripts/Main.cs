@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using Riftbound.Contracts;
+using Riftbound.GodotClient.Ui;
 
 namespace Riftbound.GodotClient;
 
@@ -57,9 +58,11 @@ public partial class Main : Control
     private readonly HashSet<string> _promptSourceObjectIds = new(StringComparer.Ordinal);
 
     private PlayerSessionSettings _session = PlayerSessionSettings.CreateDefault();
-    private Label? _status;
     private RichTextLabel? _log;
+    private Control? _controls;
+    private LobbyScreen? _lobbyScreen;
     private Label? _boardSummary;
+    private ScrollContainer? _snapshotScroll;
     private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
@@ -70,25 +73,6 @@ public partial class Main : Control
     private Label? _resultSummary;
     private Label? _promptSummary;
     private VBoxContainer? _promptActions;
-    private PanelContainer? _sessionFrame;
-    private PanelContainer? _matchmakingFrame;
-    private PanelContainer? _publicMatchFrame;
-    private PanelContainer? _deckFrame;
-    private LineEdit? _handleInput;
-    private LineEdit? _roomInput;
-    private Label? _matchmakingStatus;
-    private OptionButton? _publicMatchSelect;
-    private OptionButton? _deckSelect;
-    private Button? _connectButton;
-    private Button? _reconnectButton;
-    private Button? _createPublicMatchButton;
-    private Button? _queueMatchmakingButton;
-    private Button? _cancelMatchmakingButton;
-    private Button? _refreshPublicMatchesButton;
-    private Button? _joinPublicMatchButton;
-    private Button? _loadDecksButton;
-    private Button? _submitDeckButton;
-    private Button? _readyButton;
     private Button? _returnLobbyButton;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
@@ -113,6 +97,7 @@ public partial class Main : Control
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
     private bool _battleChromeHidden;
+    private bool _matchmakingWaiting;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
     private int _snapshotRenderVersion;
@@ -136,6 +121,7 @@ public partial class Main : Control
         BindNodes();
         ApplyRunestoneTheme();
         WireButtons();
+        SetBattleChromeVisible(battleActive: false);
         var args = CommandLineArgs();
         ServerUrl = ArgValue(args, "--riftbound-server=") ?? ServerUrl;
         _autoSmoke = args.Contains("--riftbound-smoke-auto-ready");
@@ -205,9 +191,11 @@ public partial class Main : Control
 
     private void BindNodes()
     {
-        _status = GetNode<Label>("Status");
         _log = GetNode<RichTextLabel>("Log");
+        _controls = GetNode<Control>("Controls");
+        _lobbyScreen = GetNode<LobbyScreen>("Controls/LobbyScreen");
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
+        _snapshotScroll = GetNode<ScrollContainer>("Controls/SnapshotScroll");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreviewFrame = GetNode<PanelContainer>("OfficialCardPreviewFrame");
@@ -218,25 +206,6 @@ public partial class Main : Control
         _promptFrame = GetNode<PanelContainer>("PromptFrame");
         _promptSummary = GetNode<Label>("PromptFrame/PromptBox/PromptSummary");
         _promptActions = GetNode<VBoxContainer>("PromptFrame/PromptBox/PromptScroll/PromptActions");
-        _sessionFrame = GetNode<PanelContainer>("Controls/SessionFrame");
-        _matchmakingFrame = GetNode<PanelContainer>("Controls/MatchmakingFrame");
-        _publicMatchFrame = GetNode<PanelContainer>("Controls/PublicMatchFrame");
-        _deckFrame = GetNode<PanelContainer>("Controls/DeckFrame");
-        _handleInput = GetNode<LineEdit>("Controls/SessionFrame/SessionRow/HandleInput");
-        _roomInput = GetNode<LineEdit>("Controls/SessionFrame/SessionRow/RoomInput");
-        _matchmakingStatus = GetNode<Label>("Controls/MatchmakingFrame/MatchmakingRow/MatchmakingStatus");
-        _publicMatchSelect = GetNode<OptionButton>("Controls/PublicMatchFrame/PublicMatchRow/PublicMatchSelect");
-        _deckSelect = GetNode<OptionButton>("Controls/DeckFrame/DeckRow/DeckSelect");
-        _connectButton = GetNode<Button>("Controls/SessionFrame/SessionRow/ConnectButton");
-        _reconnectButton = GetNode<Button>("Controls/SessionFrame/SessionRow/ReconnectButton");
-        _createPublicMatchButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/CreatePublicMatchButton");
-        _queueMatchmakingButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/QueueMatchmakingButton");
-        _cancelMatchmakingButton = GetNode<Button>("Controls/MatchmakingFrame/MatchmakingRow/CancelMatchmakingButton");
-        _refreshPublicMatchesButton = GetNode<Button>("Controls/PublicMatchFrame/PublicMatchRow/RefreshPublicMatchesButton");
-        _joinPublicMatchButton = GetNode<Button>("Controls/PublicMatchFrame/PublicMatchRow/JoinPublicMatchButton");
-        _loadDecksButton = GetNode<Button>("Controls/DeckFrame/DeckRow/LoadDecksButton");
-        _submitDeckButton = GetNode<Button>("Controls/DeckFrame/DeckRow/SubmitDeckButton");
-        _readyButton = GetNode<Button>("Controls/DeckFrame/DeckRow/ReadyButton");
         _returnLobbyButton = GetNode<Button>("ResultFrame/ResultBox/ReturnLobbyButton");
     }
 
@@ -274,16 +243,10 @@ public partial class Main : Control
             title.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
         }
 
-        if (_status is not null)
+        if (_lobbyScreen is not null)
         {
-            _status.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
+            _lobbyScreen.ApplyTheme();
         }
-
-        ApplyLobbyFrame(_sessionFrame);
-        ApplyLobbyFrame(_matchmakingFrame);
-        ApplyLobbyFrame(_publicMatchFrame);
-        ApplyLobbyFrame(_deckFrame);
-        ApplyLobbyRowLabels();
 
         if (_boardSummary is not null)
         {
@@ -306,31 +269,9 @@ public partial class Main : Control
         }
     }
 
-    private static void ApplyLobbyFrame(PanelContainer? frame, RunestoneSurface surface = RunestoneSurface.Rail)
-    {
-        frame?.AddThemeStyleboxOverride("panel", RunestoneTheme.FrameStyle(surface, 1));
-    }
-
-    private void ApplyLobbyRowLabels()
-    {
-        foreach (var path in new[]
-        {
-            "Controls/SessionFrame/SessionRow/HandleLabel",
-            "Controls/SessionFrame/SessionRow/RoomLabel",
-            "Controls/MatchmakingFrame/MatchmakingRow/MatchmakingLabel",
-            "Controls/PublicMatchFrame/PublicMatchRow/PublicMatchLabel",
-            "Controls/DeckFrame/DeckRow/DeckLabel"
-        })
-        {
-            GetNodeOrNull<Label>(path)?.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
-        }
-
-        _matchmakingStatus?.AddThemeColorOverride("font_color", RunestoneTheme.Rune);
-    }
-
     private void ApplyMainContentGutter()
     {
-        foreach (var path in new[] { "Title", "Status", "Controls" })
+        foreach (var path in new[] { "Title", "Controls" })
         {
             var control = GetNodeOrNull<Control>(path);
             if (control is not null)
@@ -342,16 +283,14 @@ public partial class Main : Control
 
     private void WireButtons()
     {
-        _connectButton!.Pressed += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
-        _reconnectButton!.Pressed += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
-        _createPublicMatchButton!.Pressed += () => _ = CreatePublicMatchAsync();
-        _queueMatchmakingButton!.Pressed += () => _ = QueueMatchmakingAsync();
-        _cancelMatchmakingButton!.Pressed += () => _ = CancelMatchmakingAsync();
-        _refreshPublicMatchesButton!.Pressed += () => _ = LoadPublicMatchesAsync();
-        _joinPublicMatchButton!.Pressed += () => _ = JoinSelectedPublicMatchAsync();
-        _loadDecksButton!.Pressed += () => _ = LoadDecksAsync();
-        _submitDeckButton!.Pressed += () => _ = SubmitSelectedDeckAsync();
-        _readyButton!.Pressed += () => _ = ReadyAsync();
+        _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
+        _lobbyScreen.ReconnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
+        _lobbyScreen.CreatePublicMatchRequested += () => _ = CreatePublicMatchAsync();
+        _lobbyScreen.QueueRequested += () => _ = QueueMatchmakingAsync();
+        _lobbyScreen.CancelQueueRequested += () => _ = CancelMatchmakingAsync();
+        _lobbyScreen.JoinPublicMatchRequested += () => _ = JoinSelectedPublicMatchAsync();
+        _lobbyScreen.SubmitDeckRequested += () => _ = SubmitSelectedDeckAsync();
+        _lobbyScreen.ReadyRequested += () => _ = ReadyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
 
@@ -402,21 +341,17 @@ public partial class Main : Control
 
     private void ApplySessionToInputs()
     {
-        if (_handleInput is not null)
+        if (_lobbyScreen is not null)
         {
-            _handleInput.Text = _session.Handle;
-        }
-
-        if (_roomInput is not null)
-        {
-            _roomInput.Text = _session.RoomId;
+            _lobbyScreen.HandleText = _session.Handle;
+            _lobbyScreen.RoomText = _session.RoomId;
         }
     }
 
     private PlayerSessionSettings ReadSessionFromInputs()
     {
-        var handle = _handleInput?.Text.Trim() ?? PlayerSessionSettings.DefaultHandle;
-        var room = _roomInput?.Text.Trim() ?? PlayerSessionSettings.DefaultRoomId;
+        var handle = _lobbyScreen?.HandleText.Trim() ?? PlayerSessionSettings.DefaultHandle;
+        var room = _lobbyScreen?.RoomText.Trim() ?? PlayerSessionSettings.DefaultRoomId;
         if (string.IsNullOrWhiteSpace(handle))
         {
             handle = PlayerSessionSettings.DefaultHandle;
@@ -1304,7 +1239,7 @@ public partial class Main : Control
             return null;
         }
 
-        var selected = _deckSelect is null ? 0 : Math.Max(0, _deckSelect.Selected);
+        var selected = _lobbyScreen?.SelectedDeckIndex ?? 0;
         return selected < _decks.Count ? _decks[selected] : _decks[0];
     }
 
@@ -1315,7 +1250,7 @@ public partial class Main : Control
             return null;
         }
 
-        var selected = _publicMatchSelect is null ? 0 : Math.Max(0, _publicMatchSelect.Selected);
+        var selected = _lobbyScreen?.SelectedPublicMatchIndex ?? 0;
         return selected < _publicMatches.Count ? _publicMatches[selected] : _publicMatches[0];
     }
 
@@ -3351,7 +3286,26 @@ public partial class Main : Control
 
     private void SetMatchmakingStatus(string text)
     {
+        _matchmakingWaiting = text.StartsWith("Queued", StringComparison.OrdinalIgnoreCase)
+            || text.StartsWith("Queueing", StringComparison.OrdinalIgnoreCase)
+            || text.StartsWith("Waiting", StringComparison.OrdinalIgnoreCase);
         QueueMainThread(nameof(ApplyMatchmakingStatus), text);
+    }
+
+    private void RefreshLobbySetupState(bool? connected = null)
+    {
+        if (_lobbyScreen is null)
+        {
+            return;
+        }
+
+        var canSubmitDeck = (connected ?? IsConnected()) && _decks.Count > 0;
+        _lobbyScreen.SetSetupState(
+            canSubmitDeck,
+            canSubmitDeck,
+            canSubmitDeck
+                ? "Choose a deck, submit it, then prepare when the server allows."
+                : "Connect to choose a deck and prepare.");
     }
 
     private void AppendLog(string text)
@@ -3362,25 +3316,21 @@ public partial class Main : Control
 
     public void ApplyStatus(string text)
     {
-        if (_status is not null)
-        {
-            _status.Text = text;
-        }
+        var connected = IsConnected() || string.Equals(text, "Connected", StringComparison.OrdinalIgnoreCase);
+        _lobbyScreen?.SetStatus(text, connected, _matchmakingWaiting);
+        RefreshLobbySetupState(connected);
     }
 
     public void ApplyMatchmakingStatus(string text)
     {
-        if (_matchmakingStatus is not null)
-        {
-            _matchmakingStatus.Text = text;
-        }
+        _lobbyScreen?.SetMatchmakingStatus(text, _matchmakingWaiting);
     }
 
     public void ApplyRoomInput(string roomId)
     {
-        if (_roomInput is not null)
+        if (_lobbyScreen is not null)
         {
-            _roomInput.Text = roomId;
+            _lobbyScreen.RoomText = roomId;
         }
     }
 
@@ -4101,29 +4051,24 @@ public partial class Main : Control
     {
         _battleChromeHidden = battleActive;
         var lobbyVisible = !battleActive;
-        if (_sessionFrame is not null)
+        if (_lobbyScreen is not null)
         {
-            _sessionFrame.Visible = lobbyVisible;
-        }
-
-        if (_matchmakingFrame is not null)
-        {
-            _matchmakingFrame.Visible = lobbyVisible;
-        }
-
-        if (_publicMatchFrame is not null)
-        {
-            _publicMatchFrame.Visible = lobbyVisible;
-        }
-
-        if (_deckFrame is not null)
-        {
-            _deckFrame.Visible = lobbyVisible;
+            _lobbyScreen.SetScreenVisible(lobbyVisible);
         }
 
         if (_boardSummary is not null)
         {
-            _boardSummary.Visible = lobbyVisible;
+            _boardSummary.Visible = battleActive;
+        }
+
+        if (_snapshotScroll is not null)
+        {
+            _snapshotScroll.Visible = battleActive;
+        }
+
+        if (_controls is not null)
+        {
+            _controls.OffsetRight = battleActive ? -336f : -16f;
         }
     }
 
@@ -4265,45 +4210,51 @@ public partial class Main : Control
 
     public void ApplyDeckOptions()
     {
-        if (_deckSelect is null)
+        if (_lobbyScreen is null)
         {
             return;
         }
 
-        _deckSelect.Clear();
+        var decks = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        var selected = 0;
         for (var i = 0; i < _decks.Count; i++)
         {
             var deck = _decks[i];
-            _deckSelect.AddItem($"{deck.Name} · {deck.Description}", i);
+            decks.Add(new Godot.Collections.Dictionary
+            {
+                ["name"] = deck.Name,
+                ["description"] = deck.Description
+            });
             if (string.Equals(deck.Id, _session.LastDeckId, StringComparison.Ordinal))
             {
-                _deckSelect.Select(i);
+                selected = i;
             }
         }
+
+        _lobbyScreen.SetDeckOptions(decks, selected);
+        RefreshLobbySetupState();
     }
 
     public void ApplyPublicMatchOptions()
     {
-        if (_publicMatchSelect is null)
+        if (_lobbyScreen is null)
         {
             return;
         }
 
-        _publicMatchSelect.Clear();
-        if (_publicMatches.Count == 0)
+        var matches = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        foreach (var match in _publicMatches)
         {
-            _publicMatchSelect.AddItem("No open public matches", 0);
-            _publicMatchSelect.SetItemDisabled(0, true);
-            return;
+            matches.Add(new Godot.Collections.Dictionary
+            {
+                ["roomId"] = match.RoomId,
+                ["hostPlayerId"] = match.HostPlayerId,
+                ["seats"] = $"{match.SeatCount}/{match.Capacity}",
+                ["status"] = match.Status
+            });
         }
 
-        for (var i = 0; i < _publicMatches.Count; i++)
-        {
-            var match = _publicMatches[i];
-            _publicMatchSelect.AddItem(
-                $"{match.RoomId} · host {match.HostPlayerId} · {match.SeatCount}/{match.Capacity} · {match.Status}",
-                i);
-        }
+        _lobbyScreen.SetPublicMatches(matches);
     }
 
     public void ApplyOfficialCardPreviewPath(string imagePath)
