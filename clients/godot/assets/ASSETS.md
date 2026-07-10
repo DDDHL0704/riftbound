@@ -13,6 +13,7 @@ deterministic visual verification requires them; record the source here.
 | `scripts/CardControlRenderer.cs` | Project-authored legacy UI and motion | Project-local | Fallback-only while prompt interaction parity is completed. |
 | Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; this remains the default path. |
 | `scenes/components/OfficialCardView.tscn` | Project-authored minimal wrapper around runtime official card fronts | Project-local | Adds only neutral fallback, count badge, focus, selection, target, disabled, and hidden states outside the official face. |
+| `scenes/components/ActionBar.tscn` | Project-authored minimal UI | Project-local | Localized server action and selection controls; no raster asset or custom card treatment was introduced. |
 | `scenes/overlays/CardInspectOverlay.tscn`, `scenes/overlays/ResultOverlay.tscn` | Project-authored minimal UI | Project-local | Uses theme surfaces and runtime official card art; no additional raster assets were introduced. |
 
 ## Approved Asset Direction

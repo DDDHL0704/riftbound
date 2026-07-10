@@ -330,3 +330,26 @@ resume from repository state instead of conversation history alone.
   `screenshots/units/m1-official-card-component-1440x900.png`. It visibly shows
   uncropped official faces, external normal/selectable/selected/target outlines,
   a count badge, disabled state, and a hidden state with no identity.
+
+## 2026-07-10 Prompt-Owned Direct Interaction
+
+- Added a pure `PromptInteractionController` that stores only current prompt
+  identity, enabled server action dictionaries, selection steps, choice IDs,
+  and server-provided object aliases. Selection is cleared on prompt ID/tick
+  changes and revalidated when candidate data changes without a new identity.
+- `ActionBar` replaces the bottom placeholder with localized enabled actions,
+  step guidance, safe non-spatial choices, selection count, cancel, and confirm.
+  It never receives or renders prompt IDs, ticks, object IDs, or payload JSON.
+- Visible cards first attempt exact prompt membership selection; otherwise they
+  open the existing card-inspection overlay. Selected and legal candidate states
+  reuse `OfficialCardVisualState`, while hidden/face-down controls remain
+  non-interactive and identity-free.
+- Existing `SubmitPromptTemplateAsync` and `SubmitPromptActionAsync` remain the
+  only ordinary submission paths. Visible two-window runs accepted `TAP_RUNE`,
+  `PLAY_CARD`, `PASS_PRIORITY`, and `END_TURN`, and every rendered hidden-boundary
+  line reported zero opponent faces and zero identity leaks. Evidence is under
+  `screenshots/units/m5-*`; it is automated regression evidence, not final
+  two-human proof.
+- `MULLIGAN`, `ORDER_TRIGGERS`, and `ASSIGN_COMBAT_DAMAGE` are intentionally
+  excluded from the generic ActionBar and retain a temporary guarded legacy
+  fallback until the focused overlays are implemented.

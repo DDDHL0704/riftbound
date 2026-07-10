@@ -1,0 +1,96 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ActionBar.cs" id="1_action"]
+
+[node name="ActionBar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_action")
+
+[node name="ActionLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = -10.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="ActionRow" type="HBoxContainer" parent="ActionLayout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Guidance" type="Label" parent="ActionLayout/ActionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+text = "等待服务端提供下一步行动。"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ActionScroll" type="ScrollContainer" parent="ActionLayout/ActionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="ActionChoices" type="HBoxContainer" parent="ActionLayout/ActionRow/ActionScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SelectionRow" type="HBoxContainer" parent="ActionLayout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SelectionSummary" type="Label" parent="ActionLayout/SelectionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "选择行动后，桌面会标出服务器允许的对象。"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StepLabel" type="Label" parent="ActionLayout/SelectionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+vertical_alignment = 1
+
+[node name="ChoiceScroll" type="ScrollContainer" parent="ActionLayout/SelectionRow"]
+custom_minimum_size = Vector2(220, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="StepChoices" type="HBoxContainer" parent="ActionLayout/SelectionRow/ChoiceScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="CancelButton" type="Button" parent="ActionLayout/SelectionRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(72, 40)
+layout_mode = 2
+text = "取消"
+
+[node name="SubmitButton" type="Button" parent="ActionLayout/SelectionRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(136, 40)
+layout_mode = 2
+text = "确认提交"

@@ -413,13 +413,13 @@ Commit message: `Add focused card and result overlays`.
   `ClearSelection()`, `Current`, and `SelectionChanged`; `Current` contains only
   IDs from the current server prompt.
 
-- [ ] **Step 1: Write a failing pure-state integrity test**
+- [x] **Step 1: Write a failing pure-state integrity test**
 
 The check requires prompt identity storage, selection reset on identity change,
 membership checks against current prompt choices, and no references to snapshot
 card placement or engine legality helpers.
 
-- [ ] **Step 2: Implement the selection records**
+- [x] **Step 2: Implement the selection records**
 
 ```csharp
 internal sealed record PromptSelectionState(
@@ -435,7 +435,7 @@ internal sealed record PromptSelectionState(
     string Summary);
 ```
 
-- [ ] **Step 3: Implement controller invariants**
+- [x] **Step 3: Implement controller invariants**
 
 ```csharp
 internal sealed class PromptInteractionController
@@ -454,31 +454,38 @@ internal sealed class PromptInteractionController
 server choices. `Load` clears selection when prompt ID or snapshot tick changes.
 It never scans the table to discover legal objects.
 
-- [ ] **Step 4: Implement the action bar**
+- [x] **Step 4: Implement the action bar**
 
 `ActionBar` shows turn guidance, enabled server actions, selection summary,
 cancel, and one submit button. It emits `ActionSelected`, `CancelRequested`, and
 `SubmitRequested(PromptSelectionState state)`. Technical prompt identity remains
 internal.
 
-- [ ] **Step 5: Connect direct table selection**
+- [x] **Step 5: Connect direct table selection**
 
 `Main.ApplyPrompt` loads the controller and applies selectable state to matching
 cards/zones in `MatchScreen`. Card activation calls `TrySelectObject`; selection
 changes update legal target states and the action bar.
 
-- [ ] **Step 6: Reuse existing command submission**
+- [x] **Step 6: Reuse existing command submission**
 
 Translate `PromptSelectionState` to the existing command-template submission
 path. Do not add client-side action legality or new command payload semantics.
 
-- [ ] **Step 7: Build and visibly prove first-turn actions**
+- [x] **Step 7: Build and visibly prove first-turn actions**
 
 Run two visible clients. Manually complete mulligan, tap a rune, play one card,
 select a destination, pass priority, and end turn. Capture each state and verify
 no object ID or dropdown is needed.
 
-- [ ] **Step 8: Commit**
+Visible 1440x900 regression evidence is archived under
+`screenshots/units/m5-*`. The same prompt controller and submission path accepted
+`TAP_RUNE`, `PLAY_CARD`, `PASS_PRIORITY`, and `END_TURN`; the selected state uses
+only a localized action plus selection count, while opponent hands remain backs
+and all hidden-information counters stay zero. These automated runs do not
+replace the final two-human match gate.
+
+- [x] **Step 8: Commit**
 
 Commit message: `Drive Godot actions from direct prompt selection`.
 

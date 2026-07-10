@@ -9,15 +9,17 @@ public partial class MatchScreen : AppScreen
 
     private Label _turnHeadline = null!;
     private Label _turnDetail = null!;
-    private Label _actionStatus = null!;
+    private ActionBar _actionBar = null!;
     private MatchTableRenderer? _renderer;
     private Godot.Collections.Array<Godot.Collections.Dictionary>? _lastSections;
+
+    public ActionBar ActionBar => _actionBar;
 
     public override void _Ready()
     {
         _turnHeadline = GetNode<Label>("%TurnHeadline");
         _turnDetail = GetNode<Label>("%TurnDetail");
-        _actionStatus = GetNode<Label>("%ActionStatus");
+        _actionBar = GetNode<ActionBar>("%ActionBar");
         _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card));
 
         ApplyTheme();
@@ -82,12 +84,10 @@ public partial class MatchScreen : AppScreen
             "font_color",
             actionable ? MinimalTheme.Selectable : MinimalTheme.Text);
         _turnDetail.AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
-        _actionStatus.Text = actionable
-            ? "可以行动，等待服务端候选。"
-            : "等待服务端提供下一步行动。";
-        _actionStatus.AddThemeColorOverride(
-            "font_color",
-            actionable ? MinimalTheme.Selectable : MinimalTheme.Waiting);
+        if (!actionable)
+        {
+            _actionBar.SetWaiting(detail);
+        }
     }
 
     public void ClearPromptStates()
@@ -106,6 +106,7 @@ public partial class MatchScreen : AppScreen
         if (!visible)
         {
             ClearPromptStates();
+            _actionBar.SetWaiting("等待服务端提供下一步行动。");
         }
     }
 

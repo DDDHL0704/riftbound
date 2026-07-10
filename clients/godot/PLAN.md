@@ -36,6 +36,14 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
+- The contextual action bar and prompt-owned selection controller are complete.
+  Enabled actions come only from the current server prompt; direct card and safe
+  choice activation accepts exact current candidate membership, clears on
+  prompt/tick replacement, and maps back into the existing command submission
+  methods. Visible 1440x900 runs accepted rune tap, card play, priority pass, and
+  end turn without showing prompt IDs, ticks, object IDs, or dropdown forms.
+  Evidence is archived under `screenshots/units/m5-*`; focused mulligan,
+  trigger-order, and combat-damage overlays remain the next unit.
 - Focused card inspection and result presentation are complete. Visible cards
   open in a centered overlay with one large uncropped official face and safe
   catalog text; face-down or non-visible cards are rejected before display.
@@ -61,10 +69,11 @@ wire-table and final P5 evidence push are no longer the active product route.
 - Multi-window session isolation, SignalR/HTTP transport, official card catalog
   loading, preconstructed decks, prompt submission, hidden-information logging,
   screenshot capture, and final evidence tooling already exist and are retained.
-- The coordinator remains concentrated in `Main.cs`; prompt controls still use
-  legacy internals until the next focused migration unit. Card inspection and
-  result presentation now use focused overlay scenes, and the procedural wire
-  table is no longer the default runtime.
+- The coordinator remains concentrated in `Main.cs`; ordinary prompt actions
+  now use the focused action bar, while mulligan, trigger ordering, and combat
+  damage temporarily retain the guarded legacy prompt fallback until their
+  focused overlays land. The procedural wire table is no longer the default
+  runtime.
 - The current client can reach a result through automated smoke, but the recent
   visual audit found that a human cannot reliably scan or operate it as a card
   game. P5 is paused until the interaction and layout rebuild is complete.

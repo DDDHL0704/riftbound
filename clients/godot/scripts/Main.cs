@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using Riftbound.Contracts;
+using Riftbound.GodotClient.Interaction;
 using Riftbound.GodotClient.Ui;
 
 namespace Riftbound.GodotClient;
@@ -55,6 +56,7 @@ public partial class Main : Control
     private readonly OfficialCardImageLoader _cardImageLoader = new();
     private readonly CardViewFactory _cardViewFactory;
     private readonly CardControlRenderer _cardControlRenderer;
+    private readonly PromptInteractionController _promptInteractionController = new();
     private readonly object _promptHighlightLock = new();
     private readonly HashSet<string> _promptSourceObjectIds = new(StringComparer.Ordinal);
 
@@ -92,6 +94,9 @@ public partial class Main : Control
     private bool _autoSmokeJoinPublicMatch;
     private bool _autoSmokeSurrender;
     private bool _autoSmokePreviewFirstVisibleCard;
+    private string _autoSmokeUiAction = string.Empty;
+    private bool _autoSmokeUiSubmit;
+    private bool _autoSmokeUiCompleted;
     private bool _autoSmokeSubmitted;
     private bool _visualScreenshotSaved;
     private bool _resultScreenshotSaved;
@@ -102,6 +107,7 @@ public partial class Main : Control
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
     private volatile bool _battleTableRendered;
+    private bool _specialPromptFallbackVisible;
     private bool _battleChromeHidden;
     private bool _matchmakingWaiting;
     private bool _lobbyCanSubmitDeckFromPrompt;
@@ -112,6 +118,7 @@ public partial class Main : Control
     private string _lastJoinedMatchmakingRoom = string.Empty;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _autoSmokeUiStages = new(StringComparer.Ordinal);
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
@@ -144,6 +151,10 @@ public partial class Main : Control
         _autoSmokeJoinPublicMatch = args.Contains("--riftbound-smoke-auto-join-public-match");
         _autoSmokeSurrender = args.Contains("--riftbound-smoke-auto-surrender");
         _autoSmokePreviewFirstVisibleCard = args.Contains("--riftbound-smoke-preview-first-card");
+        _autoSmokeUiAction = (ArgValue(args, "--riftbound-smoke-ui-action=") ?? string.Empty)
+            .Trim()
+            .ToUpperInvariant();
+        _autoSmokeUiSubmit = args.Contains("--riftbound-smoke-ui-submit");
         _visualScreenshotPath = ArgValue(args, "--riftbound-visual-screenshot=") ?? string.Empty;
         _visualScreenshotMinTableCards = Math.Max(
             0,
@@ -313,9 +324,190 @@ public partial class Main : Control
         _lobbyScreen.JoinPublicMatchRequested += () => _ = JoinSelectedPublicMatchAsync();
         _lobbyScreen.SubmitDeckRequested += () => _ = SubmitSelectedDeckAsync();
         _lobbyScreen.ReadyRequested += () => _ = ReadyAsync();
-        _matchScreen!.CardActivated += ApplyCardPreview;
+        _matchScreen!.CardActivated += HandleMatchCardActivated;
+        _matchScreen.ActionBar.ActionSelected += HandlePromptActionSelected;
+        _matchScreen.ActionBar.ChoiceSelected += HandlePromptChoiceSelected;
+        _matchScreen.ActionBar.CancelRequested += _promptInteractionController.ClearSelection;
+        _matchScreen.ActionBar.SubmitRequested += state => _ = SubmitPromptSelectionAsync(state);
+        _promptInteractionController.SelectionChanged += HandlePromptSelectionChanged;
+        _promptInteractionController.SelectionCleared += HandlePromptSelectionCleared;
         _resultOverlay!.ReturnLobbyRequested += () => _ = ReturnToLobbyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
+    }
+
+    private void HandleMatchCardActivated(Godot.Collections.Dictionary card)
+    {
+        var objectId = card.TryGetValue("objectId", out var objectValue)
+            ? objectValue.AsString()
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(objectId)
+            && _promptInteractionController.TrySelectObject(objectId))
+        {
+            return;
+        }
+
+        ApplyCardPreview(card);
+    }
+
+    private void HandlePromptActionSelected(string actionName)
+    {
+        _promptInteractionController.SelectAction(actionName);
+    }
+
+    private void HandlePromptChoiceSelected(string role, string choiceId)
+    {
+        _promptInteractionController.TrySelectChoice(role, choiceId);
+    }
+
+    private void HandlePromptSelectionChanged(PromptSelectionState state)
+    {
+        if (_matchScreen is null)
+        {
+            return;
+        }
+
+        _matchScreen.ActionBar.ShowSelection(
+            state,
+            _promptInteractionController.CurrentChoices,
+            _promptInteractionController.CurrentStepLabel,
+            _promptInteractionController.CurrentStepRequired);
+        RefreshPromptInteractionVisuals();
+    }
+
+    private void HandlePromptSelectionCleared()
+    {
+        _matchScreen?.ActionBar.ClearSelectionDisplay();
+        RefreshPromptInteractionVisuals();
+    }
+
+    private void TryStageAutoSmokeUiAction()
+    {
+        if (string.IsNullOrWhiteSpace(_autoSmokeUiAction)
+            || _autoSmokeUiCompleted
+            || !_battleTableRendered
+            || _matchFinished
+            || !_promptInteractionController.Actions.Any(action =>
+                action.Enabled
+                && string.Equals(action.Name, _autoSmokeUiAction, StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        var stageKey = $"{_promptInteractionController.PromptId}:{_promptInteractionController.SnapshotTick}:{_autoSmokeUiAction}";
+        if (_autoSmokeUiStages.Contains(stageKey))
+        {
+            return;
+        }
+
+        if (!_promptInteractionController.SelectAction(_autoSmokeUiAction))
+        {
+            return;
+        }
+
+        var selectionCount = 0;
+        while (_promptInteractionController.CurrentChoices.Count > 0 && selectionCount < 12)
+        {
+            var choice = _promptInteractionController.CurrentChoices[0];
+            if (!_promptInteractionController.TrySelectChoice(choice.Role, choice.Id))
+            {
+                break;
+            }
+
+            selectionCount++;
+            if (!_autoSmokeUiSubmit)
+            {
+                break;
+            }
+        }
+
+        _autoSmokeUiStages.Add(stageKey);
+        _autoSmokeUiCompleted = true;
+        var state = _promptInteractionController.Current;
+        AppendLog(
+            $"UI smoke staged {Escape(_autoSmokeUiAction)} with {selectionCount} server choice(s); "
+            + $"canSubmit={state?.CanSubmit == true} submit={_autoSmokeUiSubmit}.");
+        if (_autoSmokeUiSubmit && state is { CanSubmit: true })
+        {
+            _ = SubmitPromptSelectionAsync(state);
+        }
+    }
+
+    private async Task SubmitPromptSelectionAsync(PromptSelectionState state)
+    {
+        var current = _promptInteractionController.Current;
+        var action = _promptInteractionController.CurrentActionDictionary();
+        if (current is null
+            || action is null
+            || !current.CanSubmit
+            || !string.Equals(current.PromptId, state.PromptId, StringComparison.Ordinal)
+            || current.SnapshotTick != state.SnapshotTick
+            || !string.Equals(current.ActionName, state.ActionName, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _matchScreen?.ActionBar.SetPending(true);
+        try
+        {
+            var hasTemplate = action.TryGetValue("hasTemplate", out var templateValue)
+                && templateValue.AsBool();
+            if (hasTemplate)
+            {
+                await SubmitPromptTemplateAsync(
+                    action,
+                    new PromptSelection(
+                        state.SourceId,
+                        state.TargetIds,
+                        state.DestinationId,
+                        state.Mode,
+                        state.OptionalCostIds));
+            }
+            else
+            {
+                var submitKind = action.TryGetValue("submitKind", out var submitValue)
+                    ? submitValue.AsString()
+                    : "unsupported";
+                var cmdType = action.TryGetValue("cmdType", out var commandValue)
+                    ? commandValue.AsString()
+                    : string.Empty;
+                var label = action.TryGetValue("label", out var labelValue)
+                    ? labelValue.AsString()
+                    : state.ActionName;
+                await SubmitPromptActionAsync(
+                    submitKind,
+                    cmdType,
+                    state.PromptId,
+                    state.SnapshotTick,
+                    label);
+            }
+        }
+        finally
+        {
+            _matchScreen?.ActionBar.SetPending(false);
+            _promptInteractionController.ClearSelection();
+        }
+    }
+
+    private void RefreshPromptInteractionVisuals()
+    {
+        if (_matchScreen is null)
+        {
+            return;
+        }
+
+        _matchScreen.ClearPromptStates();
+        var nextState = _promptInteractionController.CurrentStepRole == "source"
+            ? OfficialCardVisualState.Selectable
+            : OfficialCardVisualState.LegalTarget;
+        foreach (var objectId in _promptInteractionController.SelectableObjectIds())
+        {
+            _matchScreen.SetObjectState(objectId, nextState);
+        }
+
+        foreach (var objectId in _promptInteractionController.SelectedObjectIds())
+        {
+            _matchScreen.SetObjectState(objectId, OfficialCardVisualState.Selected);
+        }
     }
 
     private void ReleaseRuntimeUiResources()
@@ -1563,7 +1755,10 @@ public partial class Main : Control
             }
         }
 
-        var tapRuneLimit = _autoSmokePlayCard ? AutoSmokePlayCardTapRuneLimit : 1;
+        var preparingUiPlayCard = string.Equals(_autoSmokeUiAction, "PLAY_CARD", StringComparison.Ordinal);
+        var tapRuneLimit = _autoSmokePlayCard || preparingUiPlayCard
+            ? AutoSmokePlayCardTapRuneLimit
+            : 1;
         if (_autoSmokeTapRune
             && _autoSmokeTapRuneSubmissions < tapRuneLimit
             && TryGetEnabledPromptAction(actions, "TAP_RUNE", requireTemplate: true, out var tapRuneAction))
@@ -1913,6 +2108,8 @@ public partial class Main : Control
             ["title"] = title,
             ["message"] = message,
             ["reason"] = reason,
+            ["promptId"] = promptId,
+            ["snapshotTick"] = snapshotTick ?? -1L,
             ["actionable"] = actionable,
             ["actions"] = actions,
             ["candidateCount"] = actions.Count,
@@ -2030,10 +2227,25 @@ public partial class Main : Control
     {
         var id = ReadString(choice, "id");
         var label = ReadString(choice, "label");
+        var objectIds = new Godot.Collections.Array<string>();
+        if (choice.TryGetProperty("objectIds", out var objectIdElements)
+            && objectIdElements.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var objectId in objectIdElements.EnumerateArray())
+            {
+                if (objectId.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(objectId.GetString()))
+                {
+                    objectIds.Add(objectId.GetString()!);
+                }
+            }
+        }
+
         return new Godot.Collections.Dictionary
         {
             ["id"] = id,
-            ["label"] = string.IsNullOrWhiteSpace(label) ? id : label
+            ["label"] = string.IsNullOrWhiteSpace(label) ? id : label,
+            ["objectIds"] = objectIds
         };
     }
 
@@ -3503,12 +3715,15 @@ public partial class Main : Control
     {
         _matchFinished = false;
         _battleTableRendered = false;
+        _specialPromptFallbackVisible = false;
         _lastAppliedPromptView = null;
         _autoSmokeSurrenderSubmitted = false;
         _resultScreenshotSaved = false;
         _lastViewerResult = new Godot.Collections.Dictionary();
         _cardInspectOverlay?.HideCard();
         _resultOverlay?.HideResult();
+        _promptInteractionController.ClearSelection();
+        _matchScreen?.ActionBar.SetWaiting("等待服务端提供下一步行动。");
         SetRightRailMatchResultVisible(matchResultVisible: false);
         SetBattleChromeVisible(battleActive: false);
         _matchScreen?.RenderSections([]);
@@ -3643,6 +3858,10 @@ public partial class Main : Control
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
         _lastAppliedPromptView = view.Duplicate(true);
+        _promptInteractionController.Load(view);
+        _specialPromptFallbackVisible = _promptInteractionController.HasEnabledSpecialAction;
+        PresentPromptInteraction(view);
+        TryStageAutoSmokeUiAction();
         RefreshLobbySetupStateFromPrompt(actions);
         RefreshPromptHighlights(actions);
         var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
@@ -3718,6 +3937,18 @@ public partial class Main : Control
             {
                 yield return choiceId;
             }
+
+            if (choice.TryGetValue("objectIds", out var objectIdsValue)
+                && objectIdsValue.As<Godot.Collections.Array<string>>() is { } objectIds)
+            {
+                foreach (var objectId in objectIds)
+                {
+                    if (!string.IsNullOrWhiteSpace(objectId))
+                    {
+                        yield return objectId;
+                    }
+                }
+            }
         }
     }
 
@@ -3737,7 +3968,45 @@ public partial class Main : Control
             return;
         }
 
-        _matchScreen?.ClearPromptStates();
+        RefreshPromptInteractionVisuals();
+    }
+
+    private void PresentPromptInteraction(Godot.Collections.Dictionary view)
+    {
+        if (_matchScreen is null)
+        {
+            return;
+        }
+
+        var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
+        var message = view.TryGetValue("message", out var messageValue) ? messageValue.AsString() : string.Empty;
+        var reason = view.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
+        var detail = !string.IsNullOrWhiteSpace(message)
+            ? message
+            : !string.IsNullOrWhiteSpace(reason)
+                ? reason
+                : actionable
+                    ? "请选择一个服务端候选行动。"
+                    : "等待对手行动。";
+        _matchScreen.SetTurnStatus(
+            actionable ? "轮到你行动" : "等待对手行动",
+            detail,
+            actionable);
+        _matchScreen.ActionBar.ShowPrompt(detail, _promptInteractionController.Actions);
+        if (_promptInteractionController.Current is { } state)
+        {
+            _matchScreen.ActionBar.ShowSelection(
+                state,
+                _promptInteractionController.CurrentChoices,
+                _promptInteractionController.CurrentStepLabel,
+                _promptInteractionController.CurrentStepRequired);
+        }
+
+        RefreshPromptInteractionVisuals();
+        if (_promptFrame is not null && !UseLegacyCardTableFallback)
+        {
+            _promptFrame.Visible = _matchScreen.Visible && _specialPromptFallbackVisible;
+        }
     }
 
     private static string PromptGuidanceSummary(
@@ -4200,6 +4469,11 @@ public partial class Main : Control
             _battleTableRendered = true;
             if (_lastAppliedPromptView is not null)
             {
+                PresentPromptInteraction(_lastAppliedPromptView);
+            }
+            TryStageAutoSmokeUiAction();
+            if (_lastAppliedPromptView is not null)
+            {
                 _ = RunAutoSmokePromptAsync(_lastAppliedPromptView);
             }
             return;
@@ -4278,7 +4552,7 @@ public partial class Main : Control
             }
             else
             {
-                _promptFrame.Visible = false;
+                _promptFrame.Visible = battleActive && _specialPromptFallbackVisible;
             }
         }
 

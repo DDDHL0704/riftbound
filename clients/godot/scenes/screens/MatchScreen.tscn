@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MatchScreen.cs" id="1_match"]
+[ext_resource type="PackedScene" path="res://scenes/components/ActionBar.tscn" id="2_action"]
 
 [node name="MatchScreen" type="Control"]
 layout_mode = 3
@@ -283,20 +284,9 @@ theme_override_constants/separation = 8
 
 [node name="ActionBarHost" type="PanelContainer" parent="MatchLayout"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 
-[node name="ActionBarRow" type="HBoxContainer" parent="MatchLayout/ActionBarHost"]
-layout_mode = 2
-
-[node name="ActionLabel" type="Label" parent="MatchLayout/ActionBarHost/ActionBarRow"]
-layout_mode = 2
-text = "当前行动"
-
-[node name="ActionStatus" type="Label" parent="MatchLayout/ActionBarHost/ActionBarRow"]
+[node name="ActionBar" parent="MatchLayout/ActionBarHost" instance=ExtResource("2_action")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-text = "等待服务端提供下一步行动。"
-horizontal_alignment = 1
-vertical_alignment = 1

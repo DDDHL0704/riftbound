@@ -1,0 +1,134 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M1
+
+[Riftbound] Client booted. Waiting for server authority.
+[Riftbound] Connecting
+[Riftbound] Official catalog loaded: 1009 cards.
+[Riftbound] Official card image loaded: UNL-181/219 戏命师.
+[Riftbound] Preconstructed decks loaded: 9.
+[Riftbound] Public matches loaded: 9.
+[Riftbound] Connected to http://127.0.0.1:5088/hubs/game.
+[Riftbound] Connected
+[Riftbound] Authenticate: Registered (player-a-m5-pass-priority-184149).
+[Riftbound] JoinRoom requested: room=m5-pass-priority-184149, player=player-a-m5-pass-priority-184149.
+[Riftbound] [b]Joined[/b] type=JOIN room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=0 payload=Object
+[Riftbound] RequestSnapshot submitted.
+[Riftbound] Auto smoke: submitting first preconstructed deck and readying.
+[Riftbound] [color=green]SubmitDeck receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=0 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=0 payload=Object
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=0 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=0 payload=Object
+[Riftbound] Events received: DECK_SUBMITTED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: READY:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Object
+[Riftbound] Events received: PLAYER_READY.
+[Riftbound] [b]Events[/b] type=READY room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 0 direct, 0 templates.
+[Riftbound] Prompt actions: WAIT:off
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=1 payload=Object
+[Riftbound] Events received: DECK_SUBMITTED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-b-m5-pass-priority-184149 tick=2 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=2 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 0 direct, 0 templates.
+[Riftbound] Prompt actions: WAIT:off
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=2 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Events received: PLAYER_READY, OFFICIAL_OPENING_STARTED, OFFICIAL_BATTLEFIELD_SELECTED, OPENING_HAND_DRAWN, OFFICIAL_BATTLEFIELD_SELECTED, OPENING_HAND_DRAWN, MATCH_STARTED.
+[Riftbound] [b]Events[/b] type=START room=m5-pass-priority-184149 player=player-b-m5-pass-priority-184149 tick=2 payload=Array
+[Riftbound] Lobby prompt availability: submitDeck=False ready=True.
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=2 payload=Object
+[Riftbound] Prompt rendered: 2 candidates, 1 direct, 1 templates.
+[Riftbound] Prompt actions: MULLIGAN:on, SURRENDER:on:template
+[Riftbound] Auto smoke: confirming mulligan with 0 selected cards.
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=2 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: MULLIGAN_COMPLETED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=3 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=3 payload=Object
+[Riftbound] [color=green]起手调度 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Prompt rendered: 2 candidates, 1 direct, 1 templates.
+[Riftbound] Prompt actions: WAIT:off, SURRENDER:off:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=3 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] [color=green]Ready receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Visual screenshot saved: /private/tmp/riftbound-m5-pass-priority-current/player-a.png
+[Riftbound] Events received: MULLIGAN_COMPLETED, MULLIGAN_PHASE_COMPLETED, TURN_START_BEGAN, RUNES_CALLED, CARD_DRAWN, RUNE_POOL_CLEARED, MAIN_PHASE_BEGAN.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-b-m5-pass-priority-184149 tick=5 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=5 payload=Object
+[Riftbound] Prompt rendered: 4 candidates, 2 direct, 4 templates.
+[Riftbound] Prompt actions: TAP_RUNE:on:template, RECYCLE_RUNE:on:template, END_TURN:on:template, SURRENDER:on:template
+[Riftbound] Auto smoke: submitting TAP_RUNE from server source player-a-m5-pass-priority-184149-RUNE-SFD-R03a-11.
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=5 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: RUNE_TAPPED, MANA_GAINED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=6 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=6 payload=Object
+[Riftbound] [color=green]横置符文 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Prompt rendered: 4 candidates, 2 direct, 4 templates.
+[Riftbound] Prompt actions: TAP_RUNE:on:template, RECYCLE_RUNE:on:template, END_TURN:on:template, SURRENDER:on:template
+[Riftbound] Auto smoke: submitting TAP_RUNE from server source player-a-m5-pass-priority-184149-RUNE-OGN-089a-298-05.
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=6 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: RUNE_TAPPED, MANA_GAINED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=7 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=7 payload=Object
+[Riftbound] [color=green]横置符文 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Prompt rendered: 4 candidates, 2 direct, 4 templates.
+[Riftbound] Prompt actions: PLAY_CARD:on:template, RECYCLE_RUNE:on:template, END_TURN:on:template, SURRENDER:on:template
+[Riftbound] Auto smoke: submitting PLAY_CARD from server source player-a-m5-pass-priority-184149-MAIN-OGN-013-298-04.
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=7 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: CARD_PLAYED, COST_PAID, STACK_ITEM_ADDED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=8 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=8 payload=Object
+[Riftbound] Prompt rendered: 2 candidates, 2 direct, 2 templates.
+[Riftbound] [color=green]打出卡牌 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Prompt actions: PASS_PRIORITY:on:template, SURRENDER:on:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=8 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Snapshot table rendered: visibleHand=4, handOfficialImages=4, tableCards=12, tableOfficialImages=12.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] UI smoke staged PASS_PRIORITY with 0 server choice(s); canSubmit=True submit=True.
+[Riftbound] Events received: PRIORITY_PASSED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=9 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=9 payload=Object
+[Riftbound] Prompt rendered: 2 candidates, 1 direct, 1 templates.
+[Riftbound] Prompt actions: WAIT:off, SURRENDER:off:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=9 payload=Object
+[Riftbound] Snapshot table rendered: visibleHand=4, handOfficialImages=4, tableCards=12, tableOfficialImages=12.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: PRIORITY_PASSED, STACK_ITEM_RESOLVED, UNIT_PLAYED_TO_BASE.
+[Riftbound] [b]Events[/b] type=EVENTS room=m5-pass-priority-184149 player=player-b-m5-pass-priority-184149 tick=10 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=10 payload=Object
+[Riftbound] Prompt rendered: 4 candidates, 2 direct, 4 templates.
+[Riftbound] Prompt actions: MOVE_UNIT:on:template, RECYCLE_RUNE:on:template, END_TURN:on:template, SURRENDER:on:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m5-pass-priority-184149 player=player-a-m5-pass-priority-184149 tick=10 payload=Object
+[Riftbound] Snapshot table rendered: visibleHand=4, handOfficialImages=4, tableCards=13, tableOfficialImages=13.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] [color=green]让过优先权 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Disconnected
+[Riftbound] Closed: normal close.

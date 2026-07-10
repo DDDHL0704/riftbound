@@ -63,6 +63,12 @@ wire-table height.
   playtests.
 - `SpecialPromptCommandBuilder.cs` builds payloads only from server prompt
   metadata for prompt families such as trigger ordering and damage assignment.
+- `scripts/interaction/PromptChoice.cs`, `PromptSelectionState.cs`, and
+  `PromptInteractionController.cs` own local prompt selection state. They retain
+  the exact current prompt ID/tick internally, accept only current server choice
+  IDs or server-provided object aliases, reject disabled/special candidates, and
+  clear or revalidate selection when prompt identity/candidates change. They do
+  not inspect table placement, snapshots, hidden-card fields, or engine rules.
 
 ## Visual Layer
 
@@ -81,6 +87,11 @@ wire-table height.
   player identifiers, and indexes only visible object IDs for future prompt
   state. `check-minimal-match-scene.sh` rejects fixed wire geometry, permanent
   right rails, debug identifiers, and hidden-card identity copies.
+- `scenes/components/ActionBar.tscn` and `scripts/ui/ActionBar.cs` occupy the
+  stable bottom host in `MatchScreen`. They show localized enabled actions,
+  current step guidance, safe server choice labels, selection count, cancel,
+  and confirm controls. Prompt IDs, ticks, object IDs, raw action enums, and
+  command payload construction never enter this view.
 - `scenes/overlays/CardInspectOverlay.tscn` and
   `scripts/ui/CardInspectOverlay.cs` own full-card inspection. The overlay
   rejects hidden/face-down dictionaries before calling `OfficialCardView`,
@@ -137,6 +148,10 @@ wire-table height.
   bridge on `127.0.0.1:6506`.
 - `check-godot-mcp-primary-script.sh` statically checks that the MCP primary
   helper keeps the screen/port/status contract documented above.
+- `check-prompt-interaction-controller.sh` guards prompt identity reset,
+  server-choice membership, disabled-candidate rejection, interaction-layer
+  independence from rules/table/hidden state, ActionBar mounting, safe display
+  text, and reuse of the existing submission path.
 - `run-local-human-playtest*.sh` starts local visible two-window playtests.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
