@@ -14,6 +14,27 @@ contracts change.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
+## Approved Target Architecture
+
+The current runtime structure below remains authoritative until each migration
+step lands. The approved replacement is documented in
+`docs/2026-07-10-minimal-official-card-client-design.md`:
+
+- an app shell owns connection/session lifecycle and switches between lobby,
+  match, and result presentation;
+- focused lobby, match, card-inspect, action-bar, and prompt-overlay scenes own
+  their UI instead of `Main.cs` constructing the whole product;
+- official catalog card fronts render at their native aspect ratio with only
+  external focus/selection/target state;
+- enabled server prompt sources and choices drive direct card/zone selection;
+  local selection never decides legality;
+- the current wire table, tiny custom card frames, permanent right prompt rail,
+  and raw technical summaries are removed only after behavior parity is proven.
+
+The target supports 1440x900 and 1920x1080, with 1280x720 as the minimum
+supported viewport. New layout code must not preserve the current fixed 820 px
+wire-table height.
+
 ## Runtime Scripts
 
 - `Main.cs` is the application coordinator: argument parsing, session identity,

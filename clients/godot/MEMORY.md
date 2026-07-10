@@ -282,3 +282,25 @@ resume from repository state instead of conversation history alone.
   the two-human hidden-information gate.
 - Keep changes scoped to `clients/godot/` unless the user explicitly approves a
   backend, contract, DevUi, or deployment change.
+
+## 2026-07-10 Product Direction Reset
+
+- A direct visual audit of current `origin/main@7e93b9863` found that the client
+  is a protocol/debug surface rather than a usable card game: lobby and battle
+  share one screen, cards are too small, the right prompt rail exposes form-like
+  choices and technical identifiers, and screenshot palette/geometry guards can
+  pass while the result still feels empty and unreadable.
+- The user explicitly replaced the decorative inksteel route with a simpler
+  rules-first direction. Official catalog card fronts are now the card visual;
+  no custom ornamental card frame or elaborate tabletop is required.
+- The first generated ornate redesign at
+  `/Users/dinghaolin/.codex/generated_images/019f1b45-2249-77f0-b86c-3b32f9544ef4/exec-04ec437c-43c9-49aa-9166-2955fce23ef4.png`
+  was rejected by this direction change and must not be used as an implementation
+  target. A second ornate generation was terminated before completion.
+- The approved design is
+  `docs/2026-07-10-minimal-official-card-client-design.md`. Priority is direct
+  prompt-driven interaction, readable official cards, stable responsive zones,
+  and a two-human full-match proof.
+- Old inksteel and wire-layout scripts remain useful only as legacy regression
+  evidence while the replacement is built. Their passing result is not a visual
+  acceptance criterion for the new client.

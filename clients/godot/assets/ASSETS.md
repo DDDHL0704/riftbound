@@ -1,38 +1,37 @@
 # Riftbound Godot Client Assets
 
-This client keeps official card art as runtime-loaded remote content only.
-Do not commit Riot/official `frontImage` card images into this repository.
+This client loads official card art from catalog URLs by default. Selected
+official images may be committed under `assets/cards/` when offline stability or
+deterministic visual verification requires them; record the source here.
 
 ## Sources
 
 | Path | Source | License | Notes |
 | --- | --- | --- | --- |
 | `icon.svg` | Local placeholder | Project-local | Temporary vector icon for the Godot project. |
-| `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored procedural visual theme | Project-local | User selected style route C: black-white inksteel tabletop with restrained crimson and antique-gold accents. No external binary asset is used at runtime for this pass. |
-| `scripts/CardControlRenderer.cs`, `scripts/Main.cs`, `scenes/Main.tscn` | Project-authored procedural UI and motion | Project-local | Designed card frames, card backs, tabletop zones, prompt highlights, card hover/press feedback, lobby chrome, and result banner. No external binary asset is used for these elements. |
-| Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; not committed to git. |
+| `scripts/RunestoneBackdrop.cs`, `scripts/RunestoneTheme.cs` | Project-authored legacy procedural visual theme | Project-local | Current runtime only. The black/ivory inksteel route is being replaced by a neutral minimal theme. |
+| `scripts/CardControlRenderer.cs`, `scripts/Main.cs`, `scenes/Main.tscn` | Project-authored legacy UI and motion | Project-local | Current runtime only. Wire-table frames and the permanent prompt rail will be removed after replacement parity. |
+| Runtime card fronts | `frontImage` URLs from `data/official/card-catalog.zh-CN.json` | Riot / official card art | Loaded at runtime into `user://official-card-cache`; this remains the default path. |
 
-## Generated Style Checkpoint
+## Approved Asset Direction
 
-- Selected route: C, black-white ink battlefield with restrained red and gold power accents.
-- Prompt summary: preserve the selected reference-table composition with top
-  opponent resource rail, opponent play band, centered two-site divider, self
-  play band, bottom self resource rail, and a separate right preview/result/
-  prompt rail; near-black ink panels, warm ivory lines, dark steel bevels,
-  crimson active markers, small antique-gold highlights, readable card sockets,
-  premium fantasy TCG atmosphere; no logos, characters, or readable card text in
-  the style sample.
-- Corrective pass: reduced the previous gold/orange UI dominance back to muted
-  black/ivory linework, translucent ink-wash tabletop zones, compact overlay
-  result panel, and only small crimson/antique-gold emphasis.
-- Layout corrective pass: removed the form-like left zone strips and the
-  obsolete out-of-table hand reserve; the battle table now follows the selected
-  black/ivory reference order of resource rail, play band, site divider, play
-  band, resource rail.
-- Generated concept image: `/Users/dinghaolin/.codex/generated_images/019f1b45-2249-77f0-b86c-3b32f9544ef4/ig_0789e3792a80c753016a44bd0481708199997913ddaabbf394.png`. This image was used only as visual direction; it is not a runtime asset.
+- Selected route: minimal rules-first table using official card fronts as the
+  complete face presentation.
+- Runtime additions should be limited to a neutral table surface, one card back,
+  compact zone surfaces, familiar action/state icons, and restrained feedback.
+- Do not generate or draw ornamental card frames over official images.
+- The earlier black/white inksteel concept and the later ornate full-table mock
+  are rejected explorations. They are not runtime assets or implementation
+  references.
+- Design specification:
+  `../docs/2026-07-10-minimal-official-card-client-design.md`.
 
 ## Future Asset Rules
 
-- `assets/frames/`, `assets/backs/`, `assets/backgrounds/`, `assets/icons/`, `assets/vfx/`, and `assets/ui/` should contain only original, licensed, or generated assets with source notes here.
+- `assets/backs/`, `assets/backgrounds/`, `assets/cards/`, `assets/icons/`,
+  `assets/vfx/`, `assets/ui/`, and `assets/audio/` should contain only original,
+  official, licensed, or generated assets with source notes here.
+- `assets/frames/` is not needed for normal card faces. Keep it only for a future
+  asset that does not cover or restyle official card artwork.
 - Generated assets must record prompt and seed when available.
 - Official card images are the preferred card-face source while available. They are loaded from catalog URLs at runtime and cached locally outside git.

@@ -1,99 +1,115 @@
-# Riftbound Godot Playable v1 Plan
+# Riftbound Godot Minimal Playable Client Plan
 
-Godogen checkpoint for continuing the existing Playable v1 work. This is not a
-replacement for the top-level goal file; it is the repo-local Godot client plan.
+Godogen checkpoint for rebuilding the desktop client around official card art,
+clear rules-facing interaction, and human playability. The previous inksteel
+wire-table and final P5 evidence push are no longer the active product route.
 
 ## Guardrails
 
 - Work in `clients/godot/` unless the user explicitly authorizes another area.
-- Keep the server authoritative. The Godot client renders snapshots/prompts and
-  submits server-owned commands only.
-- Preserve hidden-information boundaries: opponent hands, hidden standby, and
-  unrevealed cards render as backs/counts only.
-- Do not mark the project complete until the final two-human P5 package exists
-  and verifies.
+- The server remains authoritative. The client renders per-player snapshots and
+  prompts, then submits only server-provided candidates and templates.
+- Opponent hands, hidden standby cards, and unrevealed information render only
+  as card backs and counts.
+- Keep `Riftbound.Contracts`, backend rules, API behavior, and React DevUi
+  unchanged. Stop and report if a required direct interaction lacks safe server
+  prompt metadata.
+- Use official catalog card fronts as the card presentation. Do not draw a
+  second decorative frame over official cards.
+- Automated smoke proves protocol regression only. It never proves human
+  usability or visual quality.
+
+## Approved Product Direction
+
+- Style: minimal desktop card table, neutral graphite surfaces, readable type,
+  restrained state colors, and official card artwork as the visual focus.
+- Priority order: rule clarity, direct interaction, readable cards, responsive
+  layout, then motion and decorative polish.
+- Avoid: black-on-black wire grids, technical IDs, server ticks, raw logs,
+  permanent generic prompt forms, tiny card thumbnails, and large empty panels.
+- Required viewports: 1440x900 and 1920x1080, with a minimum supported window
+  of 1280x720.
+- Design specification:
+  `docs/2026-07-10-minimal-official-card-client-design.md`.
 
 ## Current Status
 
-- P1 same-machine multi-window play is unlocked through isolated session
-  arguments and explicit room/handle/player-key overrides.
-- P2/P3 have a visible automated regression path that reaches the server result
-  panel with the inksteel table/card presentation. This is useful evidence, but
-  it is auto-smoke and cannot satisfy final P5.
-- P4 local deployment validation has passed from clean pushed `origin/main`:
-  Docker image build, Production memory-mode `docker run`, `/health`,
-  `/metrics`, Dev UI root, and Docker `HEALTHCHECK` all verified. No public
-  cloud instance has been created because target platform and credentials are
-  still user-owned.
-- P5 evidence collection has been hardened: final runs must come from clean
-  pushed `origin/main`, must not use auto-smoke or auto-quit arguments, must
-  record manual confirmations, must prove both player identities and the shared
-  room in logs and reports, and now write an evidence-directory
-  `OPERATOR_GUIDE.md` before the Godot windows launch so operators can recover
-  the room, handles, evidence path, package path, and checklist if terminal
-  scrollback is lost.
-- P5 evidence now also requires machine-readable hidden-information boundary
-  logs from both Godot clients: zero opponent hand faces and zero hidden card
-  identity leaks. The package README, generated handoff, and visual review files
-  repeat that checked conclusion, but the human screenshot confirmation remains
-  required.
-- P5 evidence now records the inksteel screenshot style guard in the machine
-  report and repeats it in the package README, handoff, and visual review files.
-  P5 evidence now also records the battle-layout screenshot geometry guard, which
-  checks that the black/ivory wire table keeps the selected reference layout,
-  is not actually clipped, and still has the right result rail. The final
-  package verifier re-runs both guards on the packaged screenshots, while still
-  requiring human screenshot confirmation.
-- Godot MCP editor access can be recovered with
-  `clients/godot/tools/start-godot-mcp-primary.sh --start` when the Codex proxy
-  reports `127.0.0.1:6506` connection failures. The helper keeps a primary
-  `godot-mcp-server` in a detached `screen` session and is covered by
-  `check-godot-mcp-primary-script.sh`.
-- Final P5 can also be launched through
-  `clients/godot/tools/start-clean-main-human-playtest-session.sh`, which runs
-  the final precheck and then starts the existing final clean-main wrapper in a
-  detached `screen` session without disabling manual confirmations, package
-  verification, clean-git evidence, or waiting for both Godot windows.
-- `MEMORY.md` records the current implementation shape and open risks for future
-  continuation after context compaction.
+- Multi-window session isolation, SignalR/HTTP transport, official card catalog
+  loading, preconstructed decks, prompt submission, hidden-information logging,
+  screenshot capture, and final evidence tooling already exist and are retained.
+- The current runtime still uses one `Main.tscn`, a 4k-line `Main.cs`, a
+  procedural wire table, undersized cards, and a permanent right prompt rail.
+- The current client can reach a result through automated smoke, but the recent
+  visual audit found that a human cannot reliably scan or operate it as a card
+  game. P5 is paused until the interaction and layout rebuild is complete.
 
-## Active Work
+## Work Sequence
 
-1. Keep the Godot client build and evidence scripts green after every scoped
-   change.
-2. Run visible clean-main simulated preflights after pushed changes to catch
-   obvious window, result-panel, screenshot, inksteel style, or evidence
-   regressions. The clean-main simulated wrapper runs the inksteel screenshot
-   style guard and battle-layout screenshot geometry guard by default after the
-   automated result screenshots are written.
-3. Prepare for the final two-human P5 run:
-   - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck`
-     before both operators start, so final evidence gate and local
-     Godot/.NET executable/output-path/custom-worktree/stale-local-API mistakes
-     are caught without opening Godot windows;
-   - run `clients/godot/tools/run-clean-main-human-playtest-stack.sh` directly
-     when Codex should wait in the foreground, or run
-     `clients/godot/tools/start-clean-main-human-playtest-session.sh` when the
-     two operators need a detached `screen` session and will attach later for
-     manual confirmations;
-   - keep `${RIFTBOUND_SCREENSHOT_DIR}/OPERATOR_GUIDE.md` available during the
-     run for the room, player handles, evidence/package paths, and final P5
-     operator checklist;
-   - have two human operators play from preconstructed decks to the server
-     result panel;
-   - verify both final screenshots show the result panel and hidden opponent
-     information only as card backs/counts;
-   - keep the `Inksteel style: passed` and `Battle layout: passed` report lines
-     from the evidence checker as visual drift guards before handoff;
-   - answer manual prompts truthfully;
-   - keep the verified evidence tarball, including `OPERATOR_GUIDE.md`,
-     `P5_HANDOFF.md`, and `VISUAL_REVIEW.md`.
+1. **M1 - Minimal shell and screen separation**
+   - Separate lobby/deck setup, match table, card inspection, and result states.
+   - Keep the existing coordinator and transport behavior intact while moving
+     view ownership into focused scenes and controllers.
+   - Done when lobby controls never share the battle viewport and both 1440x900
+     and 1920x1080 screenshots show stable, unclipped shells.
+
+2. **M2 - Official card component and readable table**
+   - Render official card fronts without a custom ornamental frame.
+   - Add one neutral card back, compact count badges, readable hover/focus, and
+     a large inspection overlay.
+   - Rebuild the table as opponent area, two aligned battlefields, self area,
+     and a large bottom hand.
+   - Done when card art is recognizable at normal view distance and hidden
+     opponent cards remain backs/counts only.
+
+3. **M3 - Direct prompt-driven interaction**
+   - Map enabled prompt sources to selectable cards and zones.
+   - Use a bottom action bar for current commands and temporary focused overlays
+     for mulligan, trigger ordering, and damage assignment.
+   - Remove technical IDs and generic selectors from the primary UI.
+   - Done when a human can submit deck, ready, mulligan, tap runes, play a card,
+     move, declare battle, assign damage, pass, and end turn without reading logs.
+
+4. **M4 - State clarity and restrained feedback**
+   - Add prominent turn/phase status, selection states, legal-target states,
+     exhausted/tapped state, combat state, waiting state, and error recovery.
+   - Add short transitions only where they confirm an accepted server action.
+   - Done when screenshots and a short visible recording make the current turn,
+     current selection, and next action obvious.
+
+5. **M5 - Lobby, result, accessibility, and responsive completion**
+   - Finish deck selection, room/matchmaking entry, result overlay, return flow,
+     keyboard navigation, visible focus, and minimum target sizes.
+   - Done when the core flow works at all supported viewports without clipping
+     and can be completed by keyboard.
+
+6. **M6 - Human full-match proof**
+   - Run two real Godot clients with two human operators and preconstructed decks
+     through a complete match to the result view.
+   - Package screenshots/video, logs, hidden-information evidence, build output,
+     asset manifest, and operator notes.
+   - Done only when both humans confirm that no log or technical identifier was
+     needed to understand the match.
+
+## Work Unit Gate
+
+For every implementation unit:
+
+1. Build the Godot client before and after the change.
+2. Run the real memory-mode API and open a visible Godot window.
+3. Capture the affected flow at 1440x900; capture 1920x1080 when layout changes.
+4. Inspect the image directly for readability, clipping, action clarity, and
+   hidden-information safety.
+5. Run focused static/integration checks, then `git diff --check`.
+6. Update `PLAN.md`, `STRUCTURE.md`, `MEMORY.md`, and `assets/ASSETS.md` when
+   their contracts change.
+7. Commit and push the scoped `clients/godot/` change to `main`.
 
 ## Stop Conditions
 
-- Final P5 is complete only when two real humans using the Godot client complete
-  a match to the server result panel and the final evidence package passes
-  `verify-human-playtest-package.sh`.
-- Automated simulated evidence must remain explicitly labeled as non-final.
-- If a preconstructed deck hits an engine/rules gap, stop and report instead of
-  patching rules in the client.
+- Completion requires a verified two-human full match using the rebuilt Godot
+  interface, not the old wire table and not auto-smoke.
+- Stop and report if direct interaction requires backend or contract fields that
+  are not already present.
+- Do not call the client complete while technical IDs, generic prompt forms,
+  unreadable cards, hidden-information leaks, or viewport clipping remain.
+- Do not mark the project READY.
