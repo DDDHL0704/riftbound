@@ -266,20 +266,20 @@ explaining that setup controls no longer compete with combat state.
   `MatchScreen.SetTurnStatus(string headline, string detail, bool actionable)`,
   `MatchScreen.SetVisible(bool visible)`, and `CardActivated(Dictionary card)`.
 
-- [ ] **Step 1: Write the failing match scene check**
+- [x] **Step 1: Write the failing match scene check**
 
 Require stable node paths `OpponentArea`, `Battlefields/BattlefieldOne`,
 `Battlefields/BattlefieldTwo`, `SelfArea`, `HandArea`, and `ActionBarHost`.
 Reject `SnapshotScroll`, a fixed 820 px table height, and a permanent 320 px
 right rail.
 
-- [ ] **Step 2: Run the check and confirm it fails**
+- [x] **Step 2: Run the check and confirm it fails**
 
 Run: `clients/godot/tools/check-minimal-match-scene.sh`
 
 Expected: non-zero exit because the match scene is absent.
 
-- [ ] **Step 3: Implement the match scene contract**
+- [x] **Step 3: Implement the match scene contract**
 
 ```csharp
 public partial class MatchScreen : Control
@@ -300,13 +300,13 @@ neutral backs for hidden cards. It maps only the existing safe table dictionary:
 opponent summary/hand, opponent units, two battlefields, self units, self hand,
 and compact public zones. Empty zones use a small label and do not stretch.
 
-- [ ] **Step 4: Route battle snapshots into `MatchScreen`**
+- [x] **Step 4: Route battle snapshots into `MatchScreen`**
 
 `Main.ApplySnapshotSections` shows `MatchScreen` for a non-ROOM table section and
 shows `LobbyScreen` otherwise. Retain `CardControlRenderer` behind a temporary
 fallback flag until the new screen reaches result parity.
 
-- [ ] **Step 5: Build and run the current visible simulated stack**
+- [x] **Step 5: Build and run the current visible simulated stack**
 
 Run:
 
@@ -320,13 +320,16 @@ RIFTBOUND_SCREENSHOT_DIR=/tmp/riftbound-minimal-match \
 Inspect both 1440x900 snapshots. Run the existing hidden-info check, but do not
 require legacy inksteel or wire-layout guards for the new screen.
 
-- [ ] **Step 6: Capture 1920x1080 layout proof**
+- [x] **Step 6: Capture 1920x1080 layout proof**
 
 Repeat the visible stack with `RIFTBOUND_RESOLUTION=1920x1080`. Confirm the hand,
 action host, both battlefields, and public zones remain visible without adding a
 permanent side panel.
 
-- [ ] **Step 7: Update docs and commit**
+Visible 1280x720, dual-perspective 1440x900, and 1920x1080 evidence plus paired
+normal-window logs is archived under `screenshots/units/m3-minimal-match-*`.
+
+- [x] **Step 7: Update docs and commit**
 
 Commit message: `Render the match with readable official cards` and explain that
 the official artwork now carries card identity instead of custom mini frames.

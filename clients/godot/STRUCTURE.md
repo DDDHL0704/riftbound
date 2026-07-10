@@ -9,10 +9,11 @@ contracts change.
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
   uses a 1440x900 reference viewport with responsive expansion, uses the
   `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
-- `scenes/Main.tscn` is a single `Control` shell that mounts the focused
-  `LobbyScreen` alongside the temporary legacy battle renderer. Preview,
-  prompt, result, snapshot, and hidden log controls are all invisible in lobby
-  state and will be replaced by focused match scenes in the next migration.
+- `scenes/Main.tscn` is a single `Control` shell that switches between the
+  focused `LobbyScreen` and full-viewport `MatchScreen`. The temporary legacy
+  battle renderer remains mounted only behind the default-off
+  `UseLegacyCardTableFallback`; preview, prompt, result, snapshot, and hidden log
+  controls are invisible in the normal lobby and match paths.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -47,13 +48,12 @@ wire-table height.
   It shows the lobby during the `ROOM` state, then hides it for non-room battle
   snapshots so the tabletop owns the combat viewport without blocking deck
   selection. Lobby deck submission and ready affordances mirror enabled
-  `SUBMIT_DECK` and `READY` candidates from the current server prompt. In the
-  temporary legacy match-result mode, the right rail still keeps the official
-  card preview, result panel, and prompt panel as visible bands. Result mode
-  also latches battle chrome visibility so stale room snapshots cannot restore
-  lobby controls before final screenshots are captured; result screenshots use a
-  dedicated capture path that forces result chrome over several frames before
-  reading the viewport texture.
+  `SUBMIT_DECK` and `READY` candidates from the current server prompt. Until the
+  centered Task 4 overlay lands, only the legacy result panel may overlay the
+  new table; the preview and prompt rails remain hidden. Result mode latches
+  match visibility so stale room snapshots cannot restore lobby controls before
+  final screenshots are captured, and delayed result capture keeps that panel
+  stable while reading the viewport texture.
 - `RiftboundGameHubClient.cs` wraps SignalR hub calls and server push events.
 - `RiftboundApiClient.cs` loads HTTP data such as preconstructed decks.
 - `PlayerSessionSettings.cs` handles persistent or isolated session identity.
@@ -72,13 +72,22 @@ wire-table height.
   reconnect tokens, host/player identifiers, or diagnostics.
   `check-minimal-lobby-scene.sh` rejects table, prompt, and raw-log nodes in this
   screen and guards the shell visibility plus prompt-driven setup contract.
+- `scenes/screens/MatchScreen.tscn`, `scripts/ui/MatchScreen.cs`, and
+  `scripts/ui/MatchTableRenderer.cs` own the responsive opponent/two-lane/self/
+  hand/action layout. The renderer consumes only the existing safe `wireTable`
+  dictionary, instantiates `OfficialCardView` for faces and backs, omits raw
+  player identifiers, and indexes only visible object IDs for future prompt
+  state. `check-minimal-match-scene.sh` rejects fixed wire geometry, permanent
+  right rails, debug identifiers, and hidden-card identity copies.
 - `scripts/ui/MinimalTheme.cs` owns the replacement graphite palette, readable
   text, compact surface styles, button states, and semantic selection colors.
 - `scenes/components/OfficialCardView.tscn` and
   `scripts/ui/OfficialCardView.cs` render cached official card fronts at their
   full aspect ratio. The component accepts only server-visible card
   dictionaries, refuses `imagePath` when a card is hidden or face-down, and
-  places selection/target state outside the official art.
+  places selection/target state outside the official art. Official battlefield
+  images are rotated counterclockwise at runtime only when the safe card view
+  carries `rotated=true`, keeping their full landscape face readable.
 - `scenes/debug/OfficialCardViewProof.tscn` is a focused visible test harness.
   With `--riftbound-proof-capture=<res://path>` it captures an exact external
   viewport after layout settles; it does not participate in the product flow.

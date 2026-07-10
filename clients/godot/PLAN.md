@@ -36,6 +36,12 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
+- The responsive official-card match screen is complete. It presents opponent
+  summary/back, two aligned battlefields, self public zones, a readable hand,
+  and a stable bottom action host without the old permanent right rail. The old
+  renderer is retained only behind a default-off fallback. Visible
+  1280x720/1440x900/1920x1080 evidence is archived under
+  `screenshots/units/m3-minimal-match-*` with zero hidden identity leaks.
 - The focused lobby shell is complete. It owns connection, room/matchmaking,
   deck submission, and ready controls without sharing the viewport with battle
   prompts or card inspection. `SUBMIT_DECK` and `READY` availability mirrors
@@ -48,9 +54,9 @@ wire-table and final P5 evidence push are no longer the active product route.
 - Multi-window session isolation, SignalR/HTTP transport, official card catalog
   loading, preconstructed decks, prompt submission, hidden-information logging,
   screenshot capture, and final evidence tooling already exist and are retained.
-- The battle runtime still uses one `Main.tscn`, a 4k-line `Main.cs`, a
-  procedural wire table, undersized cards, and a permanent right prompt rail;
-  these are now hidden throughout the focused lobby flow.
+- The coordinator remains concentrated in `Main.cs`; prompt controls, inspect,
+  and result presentation still use legacy internals until the next focused
+  migration units. The procedural wire table is no longer the default runtime.
 - The current client can reach a result through automated smoke, but the recent
   visual audit found that a human cannot reliably scan or operate it as a card
   game. P5 is paused until the interaction and layout rebuild is complete.

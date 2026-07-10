@@ -1,0 +1,86 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M1
+
+[Riftbound] Client booted. Waiting for server authority.
+[Riftbound] Connecting
+[Riftbound] Official catalog loaded: 1009 cards.
+[Riftbound] Public matches loaded: 9.
+[Riftbound] Preconstructed decks loaded: 9.
+[Riftbound] Connected to http://127.0.0.1:5088/hubs/game.
+[Riftbound] Connected
+[Riftbound] Official card image loaded: UNL-181/219 戏命师.
+[Riftbound] Authenticate: Registered (clean-b-m3-final-clean-171744).
+[Riftbound] [b]Joined[/b] type=JOIN room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=0 payload=Object
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=0 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=0 payload=Object
+[Riftbound] JoinRoom requested: room=m3-final-clean-171744, player=clean-b-m3-final-clean-171744.
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=0 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=0 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] RequestSnapshot submitted.
+[Riftbound] Auto smoke: submitting first preconstructed deck and readying.
+[Riftbound] Events received: DECK_SUBMITTED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m3-final-clean-171744 player=clean-a-m3-final-clean-171744 tick=1 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=1 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=1 payload=Object
+[Riftbound] Events received: DECK_SUBMITTED.
+[Riftbound] [b]Events[/b] type=EVENTS room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Array
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: READY:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=True.
+[Riftbound] [color=green]SubmitDeck receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Events received: PLAYER_READY.
+[Riftbound] [b]Events[/b] type=READY room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 0 direct, 0 templates.
+[Riftbound] Prompt actions: WAIT:off
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Events received: PLAYER_READY, OFFICIAL_OPENING_STARTED, OFFICIAL_BATTLEFIELD_SELECTED, OPENING_HAND_DRAWN, OFFICIAL_BATTLEFIELD_SELECTED, OPENING_HAND_DRAWN, MATCH_STARTED.
+[Riftbound] [b]Events[/b] type=START room=m3-final-clean-171744 player=clean-a-m3-final-clean-171744 tick=2 payload=Array
+[Riftbound] [color=green]Ready receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Prompt rendered: 2 candidates, 1 direct, 1 templates.
+[Riftbound] Prompt actions: MULLIGAN:on, SURRENDER:on:template
+[Riftbound] Auto smoke: confirming mulligan with 0 selected cards.
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=2 payload=Object
+[Riftbound] Events received: MULLIGAN_COMPLETED.
+[Riftbound] [color=green]起手调度 receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] [b]Events[/b] type=EVENTS room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=3 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=3 payload=Object
+[Riftbound] Prompt rendered: 2 candidates, 1 direct, 1 templates.
+[Riftbound] Prompt actions: WAIT:off, SURRENDER:off:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=3 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Events received: MULLIGAN_COMPLETED, MULLIGAN_PHASE_COMPLETED, TURN_START_BEGAN, RUNES_CALLED, CARD_DRAWN, RUNE_POOL_CLEARED, MAIN_PHASE_BEGAN.
+[Riftbound] [b]Events[/b] type=EVENTS room=m3-final-clean-171744 player=clean-a-m3-final-clean-171744 tick=5 payload=Array
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=5 payload=Object
+[Riftbound] Prompt rendered: 4 candidates, 2 direct, 4 templates.
+[Riftbound] Prompt actions: TAP_RUNE:on:template, RECYCLE_RUNE:on:template, END_TURN:on:template, SURRENDER:on:template
+[Riftbound] [b]Prompt[/b] type=PROMPT room=m3-final-clean-171744 player=clean-b-m3-final-clean-171744 tick=5 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Snapshot table rendered: visibleHand=5, handOfficialImages=5, tableCards=13, tableOfficialImages=13.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] Visual screenshot saved: /tmp/riftbound-m3-final-clean/b.png
+[Riftbound] Disconnected

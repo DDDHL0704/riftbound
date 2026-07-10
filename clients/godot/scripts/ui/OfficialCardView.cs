@@ -64,9 +64,10 @@ public partial class OfficialCardView : PanelContainer
 
         var visible = ReadBool(_card, "visible", true);
         var faceDown = ReadBool(_card, "faceDown", false);
+        var rotated = ReadBool(_card, "rotated", false);
         var canRevealIdentity = visible && !faceDown && _state != OfficialCardVisualState.Hidden;
         var texture = canRevealIdentity
-            ? LoadTexture(ReadString(_card, "imagePath"))
+            ? LoadTexture(ReadString(_card, "imagePath"), rotated)
             : null;
 
         _cardTexture.Texture = texture;
@@ -147,9 +148,9 @@ public partial class OfficialCardView : PanelContainer
             or OfficialCardVisualState.HostileTarget;
     }
 
-    private static Texture2D? LoadTexture(string path)
+    private static Texture2D? LoadTexture(string path, bool rotated)
     {
-        return CardControlRenderer.LoadTextureFromImagePath(path);
+        return CardControlRenderer.LoadTextureFromImagePath(path, rotated);
     }
 
     private static string ReadString(

@@ -11,6 +11,17 @@ fail() {
   exit 1
 }
 
+# The legacy geometry remains available only as an explicit fallback during the
+# migration. When the official-card MatchScreen is the default, delegate to its
+# stronger scene/hidden-info/runtime-boundary contract instead of requiring the
+# inactive five-band wire layout.
+if rg -q '\[Export\] public bool UseLegacyCardTableFallback \{ get; set; \} = false;' "${main_path}" \
+  && rg -q 'MatchScreen.tscn' "${scene_path}"; then
+  "${repo_root}/clients/godot/tools/check-minimal-match-scene.sh"
+  echo "Battle layout scene integrity checks passed for the default minimal MatchScreen."
+  exit 0
+fi
+
 python3 - "${scene_path}" <<'PY'
 import re
 import sys

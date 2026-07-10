@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.cs" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/screens/LobbyScreen.tscn" id="2_lobby"]
+[ext_resource type="PackedScene" path="res://scenes/screens/MatchScreen.tscn" id="3_match"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -67,6 +68,11 @@ vertical_scroll_mode = 0
 
 [node name="HandRow" type="HBoxContainer" parent="Controls/HandScroll"]
 layout_mode = 2
+
+[node name="MatchScreen" parent="." instance=ExtResource("3_match")]
+visible = false
+z_index = 10
+layout_mode = 1
 
 [node name="ResultFrame" type="PanelContainer" parent="."]
 visible = false

@@ -43,6 +43,7 @@ public partial class Main : Control
 
     [Export] public string ServerUrl { get; set; } = "http://127.0.0.1:5088";
     [Export] public bool AutoConnectOnReady { get; set; } = true;
+    [Export] public bool UseLegacyCardTableFallback { get; set; } = false;
     [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
     [Export] public string PreviewCardNo { get; set; } = "UNL-181/219";
 
@@ -61,8 +62,10 @@ public partial class Main : Control
     private RichTextLabel? _log;
     private Control? _controls;
     private LobbyScreen? _lobbyScreen;
+    private MatchScreen? _matchScreen;
     private Label? _boardSummary;
     private ScrollContainer? _snapshotScroll;
+    private ScrollContainer? _legacyHandScroll;
     private VBoxContainer? _snapshotRows;
     private HBoxContainer? _handRow;
     private TextureRect? _officialCardPreview;
@@ -196,9 +199,11 @@ public partial class Main : Control
         _log = GetNode<RichTextLabel>("Log");
         _controls = GetNode<Control>("Controls");
         _lobbyScreen = GetNode<LobbyScreen>("Controls/LobbyScreen");
+        _matchScreen = GetNode<MatchScreen>("MatchScreen");
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
         _snapshotScroll = GetNode<ScrollContainer>("Controls/SnapshotScroll");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
+        _legacyHandScroll = GetNode<ScrollContainer>("Controls/HandScroll");
         _handRow = GetNode<HBoxContainer>("Controls/HandScroll/HandRow");
         _officialCardPreviewFrame = GetNode<PanelContainer>("OfficialCardPreviewFrame");
         _officialCardPreview = GetNode<TextureRect>("OfficialCardPreviewFrame/OfficialPreviewBox/OfficialCardPreview");
@@ -250,6 +255,11 @@ public partial class Main : Control
             _lobbyScreen.ApplyTheme();
         }
 
+        if (_matchScreen is not null)
+        {
+            _matchScreen.ApplyTheme();
+        }
+
         if (_boardSummary is not null)
         {
             _boardSummary.AddThemeColorOverride("font_color", RunestoneTheme.Ivory);
@@ -293,6 +303,7 @@ public partial class Main : Control
         _lobbyScreen.JoinPublicMatchRequested += () => _ = JoinSelectedPublicMatchAsync();
         _lobbyScreen.SubmitDeckRequested += () => _ = SubmitSelectedDeckAsync();
         _lobbyScreen.ReadyRequested += () => _ = ReadyAsync();
+        _matchScreen!.CardActivated += ApplyCardPreview;
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
 
@@ -304,9 +315,9 @@ public partial class Main : Control
             _officialCardPreview.Texture = null;
         }
 
-        ClearNodeChildren(_snapshotRows);
-        ClearNodeChildren(_handRow);
-        ClearNodeChildren(_promptActions);
+        FreeNodeChildrenImmediately(_snapshotRows);
+        FreeNodeChildrenImmediately(_handRow);
+        FreeNodeChildrenImmediately(_promptActions);
     }
 
     private static void ReleaseTextureReferences(Node? node)
@@ -337,7 +348,21 @@ public partial class Main : Control
         foreach (var child in node.GetChildren())
         {
             node.RemoveChild(child);
-            child.QueueFree();
+            child.Free();
+        }
+    }
+
+    private static void FreeNodeChildrenImmediately(Node? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        foreach (var child in node.GetChildren())
+        {
+            node.RemoveChild(child);
+            child.Free();
         }
     }
 
@@ -2290,7 +2315,9 @@ public partial class Main : Control
             }
         }
 
-        var status = opponentHandFaces == 0 && hiddenCardIdentityLeaks == 0
+        var status = opponentHandFaces == 0
+            && opponentStandbyFaces == 0
+            && hiddenCardIdentityLeaks == 0
             ? "ok"
             : "VIOLATION";
         return $"Hidden info boundary {status}: opponentHandFaces={opponentHandFaces} opponentHandBacks={opponentHandBacks} opponentStandbyFaces={opponentStandbyFaces} opponentStandbyBacks={opponentStandbyBacks} hiddenCardIdentityLeaks={hiddenCardIdentityLeaks}";
@@ -3453,6 +3480,7 @@ public partial class Main : Control
         _resultScreenshotSaved = false;
         SetRightRailMatchResultVisible(matchResultVisible: false);
         SetBattleChromeVisible(battleActive: false);
+        _matchScreen?.RenderSections([]);
 
         if (_resultSummary is not null)
         {
@@ -3518,7 +3546,7 @@ public partial class Main : Control
 
     public void ApplyHandCards(Godot.Collections.Array<Godot.Collections.Dictionary> cards)
     {
-        if (_handRow is null)
+        if (!UseLegacyCardTableFallback || _handRow is null)
         {
             return;
         }
@@ -3535,7 +3563,8 @@ public partial class Main : Control
 
         foreach (var child in _promptActions.GetChildren())
         {
-            child.QueueFree();
+            _promptActions.RemoveChild(child);
+            child.Free();
         }
 
         var actions = view.TryGetValue("actions", out var actionsValue)
@@ -3629,10 +3658,13 @@ public partial class Main : Control
 
     private void RedrawLastSnapshotSections()
     {
-        if (_snapshotRows is not null && _lastSnapshotSections is not null)
+        if (UseLegacyCardTableFallback && _snapshotRows is not null && _lastSnapshotSections is not null)
         {
             _cardControlRenderer.RenderSnapshotSections(_snapshotRows, _lastSnapshotSections);
+            return;
         }
+
+        _matchScreen?.ClearPromptStates();
     }
 
     private static string PromptGuidanceSummary(
@@ -3692,6 +3724,7 @@ public partial class Main : Control
     {
         var row = new VBoxContainer
         {
+            Name = "PromptCard",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
         row.AddThemeConstantOverride("separation", 5);
@@ -3707,6 +3740,7 @@ public partial class Main : Control
     {
         var row = new VBoxContainer
         {
+            Name = "PromptActionHeader",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
         row.AddThemeConstantOverride("separation", 1);
@@ -3804,7 +3838,6 @@ public partial class Main : Control
 
     private Control PromptActionNode(Godot.Collections.Dictionary action)
     {
-        var row = PromptCard();
         var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Action";
         var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
         var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
@@ -3825,6 +3858,7 @@ public partial class Main : Control
             return PromptSpecialActionNode(action);
         }
 
+        var row = PromptCard();
         var canSubmit = enabled && (hasTemplate || !string.Equals(submitKind, "unsupported", StringComparison.Ordinal));
         var selectors = new List<PromptSelector>();
         row.AddChild(PromptActionHeader(actionName, label, enabled, canSubmit, hasTemplate));
@@ -4034,6 +4068,7 @@ public partial class Main : Control
             : [];
         var row = new VBoxContainer
         {
+            Name = "PromptSelectionStep",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
         row.AddThemeConstantOverride("separation", 2);
@@ -4073,7 +4108,7 @@ public partial class Main : Control
 
     public void ApplySnapshotSections(Godot.Collections.Array<Godot.Collections.Dictionary> sections)
     {
-        if (_snapshotRows is null)
+        if (_snapshotRows is null || _matchScreen is null)
         {
             return;
         }
@@ -4086,36 +4121,75 @@ public partial class Main : Control
             return;
         }
 
-        _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
+        if (battleActive && !UseLegacyCardTableFallback)
+        {
+            _matchScreen.RenderSections(sections);
+            return;
+        }
+
+        _matchScreen.RenderSections([]);
+        if (UseLegacyCardTableFallback)
+        {
+            _cardControlRenderer.RenderSnapshotSections(_snapshotRows, sections);
+        }
+        else
+        {
+            ClearNodeChildren(_snapshotRows);
+        }
     }
 
     private void SetBattleChromeVisible(bool battleActive)
     {
         _battleChromeHidden = battleActive;
+        var legacyBattleVisible = battleActive && UseLegacyCardTableFallback;
         var lobbyVisible = !battleActive;
         if (_lobbyScreen is not null)
         {
             _lobbyScreen.SetScreenVisible(lobbyVisible);
         }
 
+        if (_matchScreen is not null)
+        {
+            _matchScreen.SetScreenVisible(battleActive && !UseLegacyCardTableFallback);
+        }
+
         if (_boardSummary is not null)
         {
-            _boardSummary.Visible = battleActive;
+            _boardSummary.Visible = legacyBattleVisible;
         }
 
         if (_snapshotScroll is not null)
         {
-            _snapshotScroll.Visible = battleActive;
+            _snapshotScroll.Visible = legacyBattleVisible;
+        }
+
+        if (_legacyHandScroll is not null)
+        {
+            _legacyHandScroll.Visible = legacyBattleVisible;
         }
 
         if (_officialCardPreviewFrame is not null)
         {
-            _officialCardPreviewFrame.Visible = battleActive;
+            if (UseLegacyCardTableFallback)
+            {
+                _officialCardPreviewFrame.Visible = battleActive;
+            }
+            else
+            {
+                _officialCardPreviewFrame.Visible = false;
+            }
         }
 
         if (_promptFrame is not null)
         {
-            _promptFrame.Visible = battleActive;
+            if (UseLegacyCardTableFallback)
+            {
+                _promptFrame.Visible = battleActive;
+            }
+            else
+            {
+                _promptFrame.Visible = false;
+            }
         }
 
         if (_resultFrame is not null && !battleActive)
@@ -4125,7 +4199,7 @@ public partial class Main : Control
 
         if (_controls is not null)
         {
-            _controls.OffsetRight = battleActive ? -336f : -16f;
+            _controls.OffsetRight = legacyBattleVisible ? -336f : -16f;
         }
     }
 

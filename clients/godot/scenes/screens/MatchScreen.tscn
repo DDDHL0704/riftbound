@@ -1,0 +1,302 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/MatchScreen.cs" id="1_match"]
+
+[node name="MatchScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 0
+script = ExtResource("1_match")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.09, 0.102, 0.122, 1)
+
+[node name="MatchLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = -12.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="TurnStatus" type="PanelContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+
+[node name="TurnRow" type="HBoxContainer" parent="MatchLayout/TurnStatus"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TurnHeadline" type="Label" parent="MatchLayout/TurnStatus/TurnRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+text = "等待对局"
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="TurnDetail" type="Label" parent="MatchLayout/TurnStatus/TurnRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "等待服务器同步战场。"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="OpponentArea" type="PanelContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="OpponentRow" type="HBoxContainer" parent="MatchLayout/OpponentArea"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="OpponentSummary" type="Label" parent="MatchLayout/OpponentArea/OpponentRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+text = "对手 · 等待数据"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="OpponentPublicSection" type="VBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="OpponentPublicTitle" type="Label" parent="MatchLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
+layout_mode = 2
+text = "对手公开区"
+theme_override_font_sizes/font_size = 14
+
+[node name="OpponentPublicZones" type="HBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="OpponentHandSection" type="VBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="OpponentHandTitle" type="Label" parent="MatchLayout/OpponentArea/OpponentRow/OpponentHandSection"]
+layout_mode = 2
+text = "对手手牌"
+theme_override_font_sizes/font_size = 14
+
+[node name="OpponentHand" type="HBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow/OpponentHandSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Battlefields" type="HBoxContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="BattlefieldOne" type="PanelContainer" parent="MatchLayout/Battlefields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+layout_mode = 2
+
+[node name="LaneTitle" type="Label" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "战场一"
+
+[node name="BattlefieldOneState" type="Label" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "等待战场数据"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="OpponentUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Standby" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="SelfUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="BattlefieldTwo" type="PanelContainer" parent="MatchLayout/Battlefields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+layout_mode = 2
+
+[node name="LaneTitle" type="Label" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "战场二"
+
+[node name="BattlefieldTwoState" type="Label" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "等待战场数据"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="OpponentUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Standby" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="SelfUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="SelfArea" type="PanelContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SelfRow" type="HBoxContainer" parent="MatchLayout/SelfArea"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SelfSummary" type="Label" parent="MatchLayout/SelfArea/SelfRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+text = "我方 · 等待数据"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SelfPublicSection" type="VBoxContainer" parent="MatchLayout/SelfArea/SelfRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="SelfPublicTitle" type="Label" parent="MatchLayout/SelfArea/SelfRow/SelfPublicSection"]
+layout_mode = 2
+text = "我方公开区"
+theme_override_font_sizes/font_size = 14
+
+[node name="SelfPublicZones" type="HBoxContainer" parent="MatchLayout/SelfArea/SelfRow/SelfPublicSection"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="HandArea" type="PanelContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HandLayout" type="VBoxContainer" parent="MatchLayout/HandArea"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HandHeader" type="HBoxContainer" parent="MatchLayout/HandArea/HandLayout"]
+layout_mode = 2
+
+[node name="HandTitle" type="Label" parent="MatchLayout/HandArea/HandLayout/HandHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "我方手牌"
+
+[node name="SelfHandCount" type="Label" parent="MatchLayout/HandArea/HandLayout/HandHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 张"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="SelfHandScroll" type="ScrollContainer" parent="MatchLayout/HandArea/HandLayout"]
+custom_minimum_size = Vector2(0, 126)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="SelfHand" type="HBoxContainer" parent="MatchLayout/HandArea/HandLayout/SelfHandScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ActionBarHost" type="PanelContainer" parent="MatchLayout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+
+[node name="ActionBarRow" type="HBoxContainer" parent="MatchLayout/ActionBarHost"]
+layout_mode = 2
+
+[node name="ActionLabel" type="Label" parent="MatchLayout/ActionBarHost/ActionBarRow"]
+layout_mode = 2
+text = "当前行动"
+
+[node name="ActionStatus" type="Label" parent="MatchLayout/ActionBarHost/ActionBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "等待服务端提供下一步行动。"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -792,7 +792,9 @@ internal sealed class CardControlRenderer
         return frame;
     }
 
-    public static Texture2D? LoadTextureFromImagePath(string imagePath)
+    public static Texture2D? LoadTextureFromImagePath(
+        string imagePath,
+        bool rotateCounterclockwise = false)
     {
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
         {
@@ -814,6 +816,11 @@ internal sealed class CardControlRenderer
         {
             image.Dispose();
             return null;
+        }
+
+        if (rotateCounterclockwise)
+        {
+            image.Rotate90(ClockDirection.Counterclockwise);
         }
 
         var texture = ImageTexture.CreateFromImage(image);
