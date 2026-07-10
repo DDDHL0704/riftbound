@@ -36,14 +36,18 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
-- The contextual action bar and prompt-owned selection controller are complete.
-  Enabled actions come only from the current server prompt; direct card and safe
-  choice activation accepts exact current candidate membership, clears on
-  prompt/tick replacement, and maps back into the existing command submission
-  methods. Visible 1440x900 runs accepted rune tap, card play, priority pass, and
-  end turn without showing prompt IDs, ticks, object IDs, or dropdown forms.
-  Evidence is archived under `screenshots/units/m5-*`; focused mulligan,
-  trigger-order, and combat-damage overlays remain the next unit.
+- The contextual action bar, prompt-owned selection controller, and dedicated
+  special-prompt overlays are complete. Enabled actions come only from the
+  current server prompt; direct card and safe choice activation accepts exact
+  current candidate membership, clears on prompt/tick replacement, and maps
+  back into the existing command submission methods. Mulligan renders only the
+  current action's server-approved, visible self-hand cards with server min/max;
+  trigger ordering preserves all server IDs behind server labels; damage
+  assignment exposes only server metadata and choices. Missing metadata disables
+  its overlay with a diagnostic instead of client rule inference. Focused checks,
+  client build, and server-produced fixture-shape tests pass; targeted visible
+  capture remains incomplete because the diagnostic two-window run wrote no logs
+  or screenshots.
 - Focused card inspection and result presentation are complete. Visible cards
   open in a centered overlay with one large uncropped official face and safe
   catalog text; face-down or non-visible cards are rejected before display.
@@ -70,9 +74,9 @@ wire-table and final P5 evidence push are no longer the active product route.
   loading, preconstructed decks, prompt submission, hidden-information logging,
   screenshot capture, and final evidence tooling already exist and are retained.
 - The coordinator remains concentrated in `Main.cs`; ordinary prompt actions
-  now use the focused action bar, while mulligan, trigger ordering, and combat
-  damage temporarily retain the guarded legacy prompt fallback until their
-  focused overlays land. The procedural wire table is no longer the default
+  use the focused action bar, and mulligan, trigger ordering, and combat damage
+  use dedicated root overlays. The old special prompt fallback no longer opens
+  in the minimal runtime. The procedural wire table is no longer the default
   runtime.
 - The current client can reach a result through automated smoke, but the recent
   visual audit found that a human cannot reliably scan or operate it as a card

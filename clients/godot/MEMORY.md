@@ -5,6 +5,18 @@ resume from repository state instead of conversation history alone.
 
 ## Current Shape
 
+- Task 6 replaced the guarded legacy special-prompt fallback with three focused
+  root overlays. `MulliganOverlay` intersects current `sourceChoices` with the
+  latest visible self-hand cards before showing official faces and submits only
+  selected server source IDs within server min/max. `TriggerOrderOverlay` keeps
+  every server trigger ID internal and supports button or keyboard reordering.
+  `DamageAssignmentOverlay` exposes only server battle-participant metadata,
+  remaining damage, and assignment choices; it never fills missing targets or
+  damage locally. `SpecialPromptCommandBuilder` disables malformed/missing
+  metadata through explicit reasons. The Task 6 focused check, minimal static
+  checks, Godot client build, and three server fixture-shape tests pass. A local
+  auto-ready, non-auto-mulligan two-window diagnostic launched but produced no
+  client logs or screenshots, so visual proof remains outstanding.
 - The active minimal client now has focused lobby and match screens, official
   card views, a centered card-inspection overlay, and a centered result overlay.
   `Main.cs` remains the transport/coordinator boundary, but the normal runtime

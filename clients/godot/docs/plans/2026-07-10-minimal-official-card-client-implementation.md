@@ -511,40 +511,45 @@ Commit message: `Drive Godot actions from direct prompt selection`.
   accepted by `SubmitMulliganAsync`, `SubmitPromptTemplateAsync`, and
   `SubmitPromptPayloadAsync`.
 
-- [ ] **Step 1: Write the failing focused-overlay check**
+- [x] **Step 1: Write the failing focused-overlay check**
 
 Reject `OptionButton` in all three overlay scenes. Require official-card choices
 for mulligan, reorder controls for triggers, remaining-damage controls for
 damage assignment, cancel, and one confirm button.
 
-- [ ] **Step 2: Implement mulligan with official hand cards**
+- [x] **Step 2: Implement mulligan with official hand cards**
 
 Selection count obeys server `minSelectionCount` and `maxSelectionCount`.
 Confirm submits only selected server source IDs.
 
-- [ ] **Step 3: Implement trigger ordering**
+- [x] **Step 3: Implement trigger ordering**
 
 Display server-provided labels, preserve every trigger ID, and allow keyboard
 move-up/move-down. Confirm passes the resulting order to the existing builder.
 
-- [ ] **Step 4: Implement damage assignment**
+- [x] **Step 4: Implement damage assignment**
 
 Display attackers, blockers, and remaining damage from server metadata. Enable
 only assignments exposed by the server and preserve exact IDs internally.
 
-- [ ] **Step 5: Keep a guarded legacy fallback**
+- [x] **Step 5: Keep a guarded legacy fallback**
 
 If an action lacks the metadata required by its focused overlay, disable it,
 write a diagnostic, and report the missing field. Do not silently fall back to
 client-side rule inference.
 
-- [ ] **Step 6: Build and run targeted visible scenarios**
+- [x] **Step 6: Build and run targeted visible scenarios**
 
 Capture mulligan, trigger order when encountered, and damage assignment when
 encountered. If preconstructed decks cannot reach a prompt, retain a safe
 server-produced fixture or stop and report the missing scenario path.
 
-- [ ] **Step 7: Commit**
+Focused checks and build passed. Existing server-generated fixture-shape tests
+cover trigger-order and natural battle-damage metadata. The attempted local
+auto-ready, non-auto-mulligan visible run produced no logs or screenshots, so
+fresh visual capture remains an explicit follow-up rather than completion proof.
+
+- [x] **Step 7: Commit**
 
 Commit message: `Replace generic Godot prompt forms`.
 

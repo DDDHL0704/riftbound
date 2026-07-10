@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/DamageAssignmentOverlay.cs" id="1_damage"]
+
+[node name="DamageAssignmentOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+z_index = 120
+script = ExtResource("1_damage")
+
+[node name="DimLayer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.025, 0.03, 0.04, 0.86)
+
+[node name="DamageCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DamagePanel" type="PanelContainer" parent="DamageCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(820, 560)
+layout_mode = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="DamageCenter/DamagePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="DamageContent" type="VBoxContainer" parent="DamageCenter/DamagePanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DamageTitle" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "分配伤害"
+horizontal_alignment = 1
+
+[node name="DamageSummary" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DamageRows" type="VBoxContainer" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Actions" type="HBoxContainer" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="CancelButton" type="Button" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+text = "取消"
+
+[node name="ConfirmButton" type="Button" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+text = "确认分配"

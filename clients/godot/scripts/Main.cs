@@ -67,6 +67,9 @@ public partial class Main : Control
     private MatchScreen? _matchScreen;
     private CardInspectOverlay? _cardInspectOverlay;
     private ResultOverlay? _resultOverlay;
+    private MulliganOverlay? _mulliganOverlay;
+    private TriggerOrderOverlay? _triggerOrderOverlay;
+    private DamageAssignmentOverlay? _damageAssignmentOverlay;
     private Label? _boardSummary;
     private ScrollContainer? _snapshotScroll;
     private ScrollContainer? _legacyHandScroll;
@@ -107,7 +110,6 @@ public partial class Main : Control
     private bool _autoSmokePreviewRendered;
     private bool _matchFinished;
     private volatile bool _battleTableRendered;
-    private bool _specialPromptFallbackVisible;
     private bool _battleChromeHidden;
     private bool _matchmakingWaiting;
     private bool _lobbyCanSubmitDeckFromPrompt;
@@ -218,6 +220,9 @@ public partial class Main : Control
         _matchScreen = GetNode<MatchScreen>("MatchScreen");
         _cardInspectOverlay = GetNode<CardInspectOverlay>("CardInspectOverlay");
         _resultOverlay = GetNode<ResultOverlay>("ResultOverlay");
+        _mulliganOverlay = GetNode<MulliganOverlay>("MulliganOverlay");
+        _triggerOrderOverlay = GetNode<TriggerOrderOverlay>("TriggerOrderOverlay");
+        _damageAssignmentOverlay = GetNode<DamageAssignmentOverlay>("DamageAssignmentOverlay");
         _boardSummary = GetNode<Label>("Controls/BoardSummary");
         _snapshotScroll = GetNode<ScrollContainer>("Controls/SnapshotScroll");
         _snapshotRows = GetNode<VBoxContainer>("Controls/SnapshotScroll/SnapshotRows");
@@ -280,6 +285,9 @@ public partial class Main : Control
 
         _cardInspectOverlay?.ApplyTheme();
         _resultOverlay?.ApplyTheme();
+        _mulliganOverlay?.ApplyTheme();
+        _triggerOrderOverlay?.ApplyTheme();
+        _damageAssignmentOverlay?.ApplyTheme();
 
         if (_boardSummary is not null)
         {
@@ -331,6 +339,12 @@ public partial class Main : Control
         _matchScreen.ActionBar.SubmitRequested += state => _ = SubmitPromptSelectionAsync(state);
         _promptInteractionController.SelectionChanged += HandlePromptSelectionChanged;
         _promptInteractionController.SelectionCleared += HandlePromptSelectionCleared;
+        _mulliganOverlay!.Confirmed += sourceIds => _ = SubmitCurrentMulliganAsync(sourceIds);
+        _mulliganOverlay.Cancelled += HideSpecialPromptOverlays;
+        _triggerOrderOverlay!.Confirmed += triggerIds => _ = SubmitCurrentTriggerOrderAsync(triggerIds);
+        _triggerOrderOverlay.Cancelled += HideSpecialPromptOverlays;
+        _damageAssignmentOverlay!.Confirmed += assignments => _ = SubmitCurrentDamageAssignmentsAsync(assignments);
+        _damageAssignmentOverlay.Cancelled += HideSpecialPromptOverlays;
         _resultOverlay!.ReturnLobbyRequested += () => _ = ReturnToLobbyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
@@ -357,6 +371,75 @@ public partial class Main : Control
     private void HandlePromptChoiceSelected(string role, string choiceId)
     {
         _promptInteractionController.TrySelectChoice(role, choiceId);
+    }
+
+    private async Task SubmitCurrentMulliganAsync(IReadOnlyList<string> sourceIds)
+    {
+        if (TryGetCurrentSpecialAction("MULLIGAN", out var action))
+        {
+            await SubmitMulliganAsync(action, sourceIds);
+        }
+    }
+
+    private async Task SubmitCurrentTriggerOrderAsync(IReadOnlyList<string> triggerIds)
+    {
+        if (!TryGetCurrentSpecialAction("ORDER_TRIGGERS", out var action))
+        {
+            return;
+        }
+
+        if (!SpecialPromptCommandBuilder.TryBuildOrderTriggersPayload(action, triggerIds, out var payload, out _, out var reason))
+        {
+            AppendLog($"[color=yellow]Prompt action requires server metadata: {Escape(reason)}[/color]");
+            return;
+        }
+
+        await SubmitSpecialPromptAsync(action, payload, "order_triggers");
+    }
+
+    private async Task SubmitCurrentDamageAssignmentsAsync(IReadOnlyList<DamageAssignmentSelection> assignments)
+    {
+        if (!TryGetCurrentSpecialAction("ASSIGN_COMBAT_DAMAGE", out var action))
+        {
+            return;
+        }
+
+        if (!SpecialPromptCommandBuilder.TryBuildDamageAssignmentPayload(action, assignments, out var payload, out _, out var reason))
+        {
+            AppendLog($"[color=yellow]Prompt action requires server metadata: {Escape(reason)}[/color]");
+            return;
+        }
+
+        await SubmitSpecialPromptAsync(action, payload, "assign_combat_damage");
+    }
+
+    private bool TryGetCurrentSpecialAction(string actionName, out Godot.Collections.Dictionary action)
+    {
+        action = new Godot.Collections.Dictionary();
+        if (_lastAppliedPromptView is null
+            || !_lastAppliedPromptView.TryGetValue("actions", out var actionsValue)
+            || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
+        {
+            return false;
+        }
+
+        foreach (var candidate in actions)
+        {
+            if (string.Equals(ReadActionName(candidate), actionName, StringComparison.Ordinal)
+                && candidate.TryGetValue("enabled", out var enabledValue)
+                && enabledValue.AsBool())
+            {
+                action = candidate.Duplicate(true);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string ReadActionName(Godot.Collections.Dictionary action)
+    {
+        return action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
     }
 
     private void HandlePromptSelectionChanged(PromptSelectionState state)
@@ -3715,13 +3798,13 @@ public partial class Main : Control
     {
         _matchFinished = false;
         _battleTableRendered = false;
-        _specialPromptFallbackVisible = false;
         _lastAppliedPromptView = null;
         _autoSmokeSurrenderSubmitted = false;
         _resultScreenshotSaved = false;
         _lastViewerResult = new Godot.Collections.Dictionary();
         _cardInspectOverlay?.HideCard();
         _resultOverlay?.HideResult();
+        HideSpecialPromptOverlays();
         _promptInteractionController.ClearSelection();
         _matchScreen?.ActionBar.SetWaiting("等待服务端提供下一步行动。");
         SetRightRailMatchResultVisible(matchResultVisible: false);
@@ -3857,9 +3940,9 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
+        HideSpecialPromptOverlays();
         _lastAppliedPromptView = view.Duplicate(true);
         _promptInteractionController.Load(view);
-        _specialPromptFallbackVisible = _promptInteractionController.HasEnabledSpecialAction;
         PresentPromptInteraction(view);
         TryStageAutoSmokeUiAction();
         RefreshLobbySetupStateFromPrompt(actions);
@@ -3876,6 +3959,12 @@ public partial class Main : Control
         {
             _promptSummary.Text = PromptGuidanceSummary(view, actions);
             _promptSummary.AddThemeColorOverride("font_color", actionable ? RunestoneTheme.Brass : RunestoneTheme.MutedInk);
+        }
+
+        if (!UseLegacyCardTableFallback)
+        {
+            RedrawLastSnapshotSections();
+            return;
         }
 
         if (actions.Count == 0)
@@ -3971,6 +4060,103 @@ public partial class Main : Control
         RefreshPromptInteractionVisuals();
     }
 
+    private void ShowSpecialPromptOverlays(Godot.Collections.Array<Godot.Collections.Dictionary> actions)
+    {
+        var action = actions.FirstOrDefault(candidate =>
+            candidate.TryGetValue("enabled", out var enabledValue)
+            && enabledValue.AsBool()
+            && candidate.TryGetValue("action", out var actionValue)
+            && actionValue.AsString() is "MULLIGAN" or "ORDER_TRIGGERS" or "ASSIGN_COMBAT_DAMAGE");
+        if (action is null)
+        {
+            HideSpecialPromptOverlays();
+            return;
+        }
+
+        switch (ReadActionName(action))
+        {
+            case "MULLIGAN":
+                _triggerOrderOverlay?.HidePrompt();
+                _damageAssignmentOverlay?.HidePrompt();
+                if (_mulliganOverlay is not null && (!_mulliganOverlay.Visible || !_mulliganOverlay.CanUsePrompt))
+                {
+                    if (!_mulliganOverlay.ShowPrompt(action, VisibleMulliganHandCards(action), out var reason))
+                    {
+                        AppendLog($"[color=yellow]Mulligan overlay disabled: {Escape(reason)}[/color]");
+                    }
+                }
+
+                break;
+            case "ORDER_TRIGGERS":
+                _mulliganOverlay?.HidePrompt();
+                _damageAssignmentOverlay?.HidePrompt();
+                if (_triggerOrderOverlay is not null && (!_triggerOrderOverlay.Visible || !_triggerOrderOverlay.CanUsePrompt))
+                {
+                    if (!_triggerOrderOverlay.ShowPrompt(action, out var reason))
+                    {
+                        AppendLog($"[color=yellow]Trigger-order overlay disabled: {Escape(reason)}[/color]");
+                    }
+                }
+
+                break;
+            case "ASSIGN_COMBAT_DAMAGE":
+                _mulliganOverlay?.HidePrompt();
+                _triggerOrderOverlay?.HidePrompt();
+                if (_damageAssignmentOverlay is not null && (!_damageAssignmentOverlay.Visible || !_damageAssignmentOverlay.CanUsePrompt))
+                {
+                    if (!_damageAssignmentOverlay.ShowPrompt(action, out var reason))
+                    {
+                        AppendLog($"[color=yellow]Damage-assignment overlay disabled: {Escape(reason)}[/color]");
+                    }
+                }
+
+                break;
+        }
+    }
+
+    private void HideSpecialPromptOverlays()
+    {
+        _mulliganOverlay?.HidePrompt();
+        _triggerOrderOverlay?.HidePrompt();
+        _damageAssignmentOverlay?.HidePrompt();
+    }
+
+    private IReadOnlyList<Godot.Collections.Dictionary> VisibleMulliganHandCards(Godot.Collections.Dictionary action)
+    {
+        var sourceIds = new HashSet<string>(PromptChoiceIds(action, "sourceChoices"), StringComparer.Ordinal);
+        if (_lastSnapshotSections is null || sourceIds.Count == 0)
+        {
+            return [];
+        }
+
+        foreach (var section in _lastSnapshotSections)
+        {
+            if (!section.TryGetValue("kind", out var kindValue)
+                || !string.Equals(kindValue.AsString(), "wireTable", StringComparison.Ordinal)
+                || !section.TryGetValue("self", out var selfValue))
+            {
+                continue;
+            }
+
+            var self = selfValue.AsGodotDictionary();
+            if (!self.TryGetValue("hand", out var handValue)
+                || handValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } hand)
+            {
+                return [];
+            }
+
+            return hand
+                .Where(card => card.TryGetValue("objectId", out var objectIdValue)
+                    && sourceIds.Contains(objectIdValue.AsString())
+                    && (!card.TryGetValue("visible", out var visibleValue) || visibleValue.AsBool())
+                    && (!card.TryGetValue("faceDown", out var faceDownValue) || !faceDownValue.AsBool()))
+                .Select(card => card.Duplicate(true))
+                .ToArray();
+        }
+
+        return [];
+    }
+
     private void PresentPromptInteraction(Godot.Collections.Dictionary view)
     {
         if (_matchScreen is null)
@@ -4005,8 +4191,13 @@ public partial class Main : Control
         RefreshPromptInteractionVisuals();
         if (_promptFrame is not null && !UseLegacyCardTableFallback)
         {
-            _promptFrame.Visible = _matchScreen.Visible && _specialPromptFallbackVisible;
+            _promptFrame.Visible = false;
         }
+
+        var actions = view.TryGetValue("actions", out var actionsValue)
+            ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
+            : [];
+        ShowSpecialPromptOverlays(actions);
     }
 
     private static string PromptGuidanceSummary(
@@ -4191,13 +4382,13 @@ public partial class Main : Control
         var hasTemplate = action.TryGetValue("hasTemplate", out var hasTemplateValue) && hasTemplateValue.AsBool();
         if (string.Equals(actionName, "MULLIGAN", StringComparison.Ordinal))
         {
-            return PromptMulliganActionNode(action);
+            return PromptSpecialOverlayNotice(actionName, label);
         }
 
         if (string.Equals(actionName, "ORDER_TRIGGERS", StringComparison.Ordinal)
             || string.Equals(actionName, "ASSIGN_COMBAT_DAMAGE", StringComparison.Ordinal))
         {
-            return PromptSpecialActionNode(action);
+            return PromptSpecialOverlayNotice(actionName, label);
         }
 
         var row = PromptCard();
@@ -4240,29 +4431,9 @@ public partial class Main : Control
         return row;
     }
 
-    private Control PromptSpecialActionNode(Godot.Collections.Dictionary action)
+    private static Control PromptSpecialOverlayNotice(string actionName, string label)
     {
-        var row = PromptCard();
-        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Prompt action";
-        var actionName = action.TryGetValue("action", out var actionValue) ? actionValue.AsString() : string.Empty;
-        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
-        var canBuild = TryBuildSpecialPromptCommand(action, out _, out var payloadKey, out var buildReason);
-        row.AddChild(PromptActionHeader(actionName, label, enabled, enabled && canBuild, hasTemplate: false));
-        var button = new Button
-        {
-            Disabled = !enabled || !canBuild,
-            Text = canBuild ? PromptSubmitLabel(actionName, label) : "等待服务端细节",
-            TooltipText = !canBuild ? buildReason : string.IsNullOrWhiteSpace(reason) ? actionName : reason
-        };
-        button.Pressed += () =>
-        {
-            FlashActionButton(button);
-            _ = SubmitSpecialPromptAsync(action);
-        };
-        row.AddChild(button);
-        row.AddChild(PromptReasonLabel(enabled && canBuild, canBuild ? reason : buildReason, $"服务端元数据：{payloadKey}"));
-        return row;
+        return MutedLabel($"{ActionDisplayName(actionName, label)} 将在专用覆盖层中处理。");
     }
 
     private async Task SubmitSpecialPromptAsync(Godot.Collections.Dictionary action)
@@ -4277,108 +4448,12 @@ public partial class Main : Control
         await SubmitPromptPayloadAsync(action, payload, actionName.ToLowerInvariant());
     }
 
-    private Control PromptMulliganActionNode(Godot.Collections.Dictionary action)
+    private async Task SubmitSpecialPromptAsync(
+        Godot.Collections.Dictionary action,
+        Dictionary<string, object?> payload,
+        string intentSuffix)
     {
-        var row = PromptCard();
-        var label = action.TryGetValue("label", out var labelValue) ? labelValue.AsString() : "Mulligan";
-        var enabled = action.TryGetValue("enabled", out var enabledValue) && enabledValue.AsBool();
-        var reason = action.TryGetValue("reason", out var reasonValue) ? reasonValue.AsString() : string.Empty;
-        var minSelectionCount = action.TryGetValue("minSelectionCount", out var minValue) ? minValue.AsInt32() : -1;
-        var maxSelectionCount = action.TryGetValue("maxSelectionCount", out var maxValue) ? maxValue.AsInt32() : -1;
-        var choices = action.TryGetValue("sourceChoices", out var choicesValue)
-            ? choicesValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
-            : [];
-        var selectedObjectIds = new List<string>();
-        var summary = new Label
-        {
-            AutowrapMode = TextServer.AutowrapMode.WordSmart
-        };
-        var submit = new Button
-        {
-            TooltipText = string.IsNullOrWhiteSpace(reason) ? "Confirm mulligan" : reason
-        };
-        row.AddChild(PromptActionHeader("MULLIGAN", label, enabled, enabled, hasTemplate: false));
-
-        void Refresh()
-        {
-            var hasServerLimit = maxSelectionCount >= 0;
-            var min = Math.Max(0, minSelectionCount);
-            var canSubmit = enabled
-                && hasServerLimit
-                && selectedObjectIds.Count >= min
-                && selectedObjectIds.Count <= maxSelectionCount;
-            summary.Text = hasServerLimit
-                ? $"已选择 {selectedObjectIds.Count} / {maxSelectionCount} 张重抽"
-                : "等待服务端提供可重抽上限";
-            submit.Text = "确认起手";
-            submit.Disabled = !canSubmit;
-        }
-
-        row.AddChild(summary);
-        if (choices.Count == 0)
-        {
-            row.AddChild(new Label
-            {
-                Text = "No server-provided mulligan choices."
-            });
-        }
-        else
-        {
-            foreach (var choice in choices)
-            {
-                var choiceId = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
-                var checkBox = new CheckBox
-                {
-                    Disabled = !enabled || string.IsNullOrWhiteSpace(choiceId),
-                    Text = PromptChoiceText(choice)
-                };
-                checkBox.Toggled += pressed =>
-                {
-                    if (pressed)
-                    {
-                        if (maxSelectionCount >= 0 && selectedObjectIds.Count >= maxSelectionCount)
-                        {
-                            checkBox.SetPressedNoSignal(false);
-                            return;
-                        }
-
-                        if (!selectedObjectIds.Contains(choiceId, StringComparer.Ordinal))
-                        {
-                            selectedObjectIds.Add(choiceId);
-                        }
-                    }
-                    else
-                    {
-                        selectedObjectIds.RemoveAll(objectId => string.Equals(objectId, choiceId, StringComparison.Ordinal));
-                    }
-
-                    Refresh();
-                };
-                row.AddChild(checkBox);
-            }
-        }
-
-        submit.Pressed += () =>
-        {
-            FlashActionButton(submit);
-            _ = SubmitMulliganAsync(action, selectedObjectIds.ToArray());
-        };
-        row.AddChild(submit);
-        row.AddChild(PromptReasonLabel(enabled, reason, "只提交你勾选的服务端手牌候选。"));
-        Refresh();
-        return row;
-    }
-
-    private static string PromptChoiceText(Godot.Collections.Dictionary choice)
-    {
-        var label = choice.TryGetValue("label", out var labelValue) ? labelValue.AsString() : string.Empty;
-        var id = choice.TryGetValue("id", out var idValue) ? idValue.AsString() : string.Empty;
-        if (string.IsNullOrWhiteSpace(label))
-        {
-            return ShortPromptChoiceId(id);
-        }
-
-        return CompactPromptChoiceLabel(label);
+        await SubmitPromptPayloadAsync(action, payload, intentSuffix);
     }
 
     private static string CompactPromptChoiceLabel(string label)
@@ -4552,7 +4627,7 @@ public partial class Main : Control
             }
             else
             {
-                _promptFrame.Visible = battleActive && _specialPromptFallbackVisible;
+                _promptFrame.Visible = false;
             }
         }
 

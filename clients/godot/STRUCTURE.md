@@ -63,6 +63,9 @@ wire-table height.
   playtests.
 - `SpecialPromptCommandBuilder.cs` builds payloads only from server prompt
   metadata for prompt families such as trigger ordering and damage assignment.
+  Its focused-overlay adapters retain every server trigger ID and validate
+  selectable damage source/target pairs before the existing submission path
+  serializes them.
 - `scripts/interaction/PromptChoice.cs`, `PromptSelectionState.cs`, and
   `PromptInteractionController.cs` own local prompt selection state. They retain
   the exact current prompt ID/tick internally, accept only current server choice
@@ -72,6 +75,14 @@ wire-table height.
 
 ## Visual Layer
 
+- `scenes/overlays/MulliganOverlay.tscn`, `TriggerOrderOverlay.tscn`, and
+  `DamageAssignmentOverlay.tscn` are root-level focused controls. They never
+  display prompt/tick/object identifiers and have no `OptionButton` controls.
+  Mulligan receives official visible self-hand cards only after their object IDs
+  match the current action's source choices. Trigger rows retain IDs internally
+  while presenting server labels and keyboard/button ordering. Damage rows retain
+  IDs internally while presenting only server participant metadata, remaining
+  damage, and server-provided assignment choices.
 - `scripts/ui/AppScreen.cs` provides the shared visibility boundary for focused
   runtime screens.
 - `scenes/screens/LobbyScreen.tscn` and `scripts/ui/LobbyScreen.cs` own room
