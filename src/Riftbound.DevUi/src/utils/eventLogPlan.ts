@@ -89,6 +89,8 @@ const eventKindLabels: Record<string, string> = {
   CARDS_MILLED: "磨牌",
   CARDS_RECYCLED: "回收卡牌",
   CARDS_REVEALED: "展示卡牌",
+  CARD_CHOICE_REQUESTED: "请求卡牌选择",
+  CARD_CHOICE_RESOLVED: "卡牌选择结算",
   CARD_DISCARDED: "弃置卡牌",
   CARD_DRAWN: "抽牌",
   CARD_HIDDEN: "布置待命",

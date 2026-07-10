@@ -22,18 +22,18 @@
 ### Task 1: Restore the Frontend Gate
 
 **Files:**
-- Modify: `src/Riftbound.DevUi/src/utils/eventPresentation.ts`
+- Modify: `src/Riftbound.DevUi/src/utils/eventLogPlan.ts`
 - Test: `src/Riftbound.DevUi/scripts/check-event-labels.mjs`
 
 **Interfaces:**
 - Consumes: the event-kind inventory parsed by `check-event-labels.mjs`.
 - Produces: Chinese labels for `CARD_CHOICE_REQUESTED` and `CARD_CHOICE_RESOLVED` through the existing event label map.
 
-- [ ] Run `npm run check:event-labels` and retain the missing-label failure as the red test.
-- [ ] Add both labels to the existing exhaustive presentation map without changing event behavior.
-- [ ] Run `npm run check:event-labels`; expected result is `event labels complete`.
-- [ ] Run `npm run typecheck:strict`; expected exit code is 0.
-- [ ] Commit the focused repair with a message explaining that it restores the frontend verification gate before visual work.
+- [x] Run `npm run check:event-labels` and retain the missing-label failure as the red test.
+- [x] Add both labels to the existing exhaustive presentation map without changing event behavior.
+- [x] Run `npm run check:event-labels`; expected result is `event labels complete`.
+- [x] Run `npm run typecheck:strict`; expected exit code is 0.
+- [x] Commit the focused repair with a message explaining that it restores the frontend verification gate before visual work.
 
 ### Task 2: Add the Minimal Web Visual Foundation
 
@@ -137,4 +137,3 @@
 - [ ] Run `npm run build`, `npm run check:tabletop-layout`, `npm run smoke:chrome`, `npm run qa:appshots`, and `git diff --check`; all must pass.
 - [ ] Fetch and rebase on `origin/main`, commit any final frontend-only repairs, and push `main`.
 - [ ] Record Web completion and create the separate Godot desktop-client implementation plan using the verified Web information architecture.
-
