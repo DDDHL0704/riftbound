@@ -10,7 +10,7 @@ import { useMatchController } from "../stores/useMatchController";
 import { PlayerMatchDto } from "../types/protocol";
 import { asNumber, asRecord, asString } from "../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
-import { connectionStatusLabel, connectionStatusTone, roomStatusLabel, roomStatusTone } from "../utils/formatters";
+import { connectionStatusLabel, roomStatusLabel, roomStatusTone } from "../utils/formatters";
 
 type ResultRecordStatus = {
   match?: PlayerMatchDto;
@@ -102,7 +102,8 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
 
   return (
     <div
-      className="page-grid"
+      className="page-grid result-page"
+      data-play-result
       data-result-authority="server-snapshot"
       data-result-has-snapshot={snapshot ? "true" : "false"}
       data-result-match-id={matchId}
@@ -113,15 +114,45 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
       data-result-surface
       data-result-winner-player-id={winnerPlayerId}
     >
-      <section className="page-header">
-        <div>
-          <span className="eyebrow">结算</span>
-          <h1>{winnerPlayerId ? `胜者：${winnerPlayerId}` : matchId}</h1>
-          <p>结果只读取服务端权威快照，不根据本地分数推断胜负。</p>
-        </div>
-        <StatusPill tone={roomStatusTone(roomStatus)}>{roomStatusLabel(roomStatus)}</StatusPill>
+      <section className="result-hero page-header">
+        <span className="eyebrow">对局结算</span>
+        <h1>{winnerPlayerId ? (winnerPlayerId === settings.playerId ? "胜利" : "对局结束") : finalState.label}</h1>
+        <p>{winnerPlayerId ? `胜者 ${winnerPlayerId}` : finalState.detail}</p>
+        <StatusPill tone={finalState.tone}>{roomStatusLabel(roomStatus)}</StatusPill>
       </section>
-      <section className="match-command-row">
+      <section className="result-scoreboard" aria-label="最终比分">
+        {players.map(([playerId, player]) => {
+          const view = asRecord(player);
+          const score = asNumber(view.score);
+          return (
+            <article
+              data-result-player-id={playerId}
+              data-result-player-score={score}
+              data-result-player-winner={playerId === winnerPlayerId ? "true" : "false"}
+              key={playerId}
+            >
+              <span className="eyebrow">{playerId === settings.playerId ? "你" : "对手"}</span>
+              <strong>{playerId}</strong>
+              <h2>{score} 分</h2>
+              <p>{playerId === winnerPlayerId ? "本局胜者" : `经验 ${asNumber(view.experience)}`}</p>
+            </article>
+          );
+        })}
+      </section>
+      <section
+        className="result-primary-actions"
+        data-result-return-action-count={resultActionCount}
+        data-result-return-path
+      >
+        <Button
+          data-result-action="lobby"
+          data-result-action-route="lobby"
+          data-result-action-state="available"
+          icon={<Home size={16} />}
+          onClick={() => onNavigate({ name: "lobby" })}
+        >
+          返回大厅
+        </Button>
         <Button
           data-result-action="room"
           data-result-action-route="room"
@@ -133,16 +164,6 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
           返回房间
         </Button>
         <Button
-          data-result-action="lobby"
-          data-result-action-route="lobby"
-          data-result-action-state="available"
-          icon={<Home size={16} />}
-          onClick={() => onNavigate({ name: "lobby" })}
-          variant="ghost"
-        >
-          返回大厅
-        </Button>
-        <Button
           data-result-action="match"
           data-result-action-route="match"
           data-result-action-state="available"
@@ -152,132 +173,95 @@ export function ResultPage({ matchId, onNavigate }: { matchId: string; onNavigat
         >
           查看对战桌面
         </Button>
-        <Button
-          data-result-action="connect"
-          data-result-action-route="connection"
-          data-result-action-state="available"
-          icon={<RefreshCw size={16} />}
-          onClick={() => void controller.join()}
-          variant="secondary"
-        >
-          连接/重连
-        </Button>
-        <Button
-          data-result-action="resync"
-          data-result-action-route="snapshot"
-          data-result-action-state={snapshot ? "available" : "waiting-snapshot"}
-          onClick={() => void controller.requestSnapshot()}
-          variant="ghost"
-        >
-          重新同步快照
-        </Button>
-        <span>房间/对局：{matchId}</span>
-        <span>当前玩家：{settings.playerId}</span>
       </section>
-      <section className="status-grid">
-        <article
-          data-result-authority="server-snapshot"
-          data-result-final-label={finalState.label}
-          data-result-final-state={finalState.state}
-          data-result-has-snapshot={snapshot ? "true" : "false"}
-        >
-          <span className="eyebrow">最终状态</span>
-          <h2>{finalState.label}</h2>
-          <p>{finalState.detail}</p>
-          <StatusPill tone={finalState.tone}>{roomStatusLabel(roomStatus)}</StatusPill>
-        </article>
-        <article>
-          <span className="eyebrow">胜者</span>
-          <h2>{winnerPlayerId || "未决"}</h2>
-          <p>胜利分数：{asNumber(timing.winningScore, 0) || "未公开"}</p>
-        </article>
-        <article
-          data-result-recorded-player-id={settings.playerId}
-          data-result-recorded-room-id={recordStatus.match?.roomId ?? ""}
-          data-result-recorded-status={recordStatus.state}
-        >
-          <span className="eyebrow">战绩记录</span>
-          <h2>{recordStatusLabel(recordStatus)}</h2>
-          <p>{recordStatus.message}</p>
-          <div className="result-record-actions">
-            <StatusPill tone={recordStatusTone(recordStatus)}>{recordStatus.state}</StatusPill>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void refreshRecordStatus()} variant="ghost">
-              刷新记录
-            </Button>
-            <Button icon={<UserRound size={16} />} onClick={() => onNavigate({ name: "profile", handle: settings.playerId.trim() || winnerPlayerId || "player" })} variant="ghost">
-              资料
-            </Button>
-          </div>
-        </article>
-        <article data-result-event-count={controller.state.events.length} data-result-event-summary>
-          <span className="eyebrow">事件入口</span>
-          <h2>{controller.state.events.length} 条</h2>
-          <p>{latestEvent ? `${eventKindLabel(latestEvent.kind)}：${eventDescriptionLabel(latestEvent)}` : "尚未收到服务端事件。"}</p>
-        </article>
-        <article data-result-error-count={controller.state.errors.length} data-result-error-summary>
-          <span className="eyebrow">错误入口</span>
-          <h2>{controller.state.errors.length} 个</h2>
-          <p>{latestError ? `${errorCodeLabel(latestError.code)}：${errorMessageLabel(latestError)}` : "没有服务端错误。"}</p>
-        </article>
-        {players.map(([playerId, player]) => {
-          const view = asRecord(player);
-          const score = asNumber(view.score);
-          return (
-            <article
-              data-result-player-id={playerId}
-              data-result-player-score={score}
-              data-result-player-winner={playerId === winnerPlayerId ? "true" : "false"}
-              key={playerId}
+      <details className="result-diagnostics">
+        <summary>记录与连接信息</summary>
+        <div className="result-diagnostics-body">
+          <section className="match-command-row">
+            <Button
+              data-result-action="connect"
+              data-result-action-route="connection"
+              data-result-action-state="available"
+              icon={<RefreshCw size={16} />}
+              onClick={() => void controller.join()}
+              variant="secondary"
             >
-              <span className="eyebrow">{playerId}</span>
-              <h2>{score} 分</h2>
-              <p>经验 {asNumber(view.experience)} / {playerId === winnerPlayerId ? "胜者" : "非胜者"}</p>
+              连接/重连
+            </Button>
+            <Button
+              data-result-action="resync"
+              data-result-action-route="snapshot"
+              data-result-action-state={snapshot ? "available" : "waiting-snapshot"}
+              onClick={() => void controller.requestSnapshot()}
+              variant="ghost"
+            >
+              重新同步快照
+            </Button>
+            <span>房间/对局：{matchId}</span>
+            <span>当前玩家：{settings.playerId}</span>
+          </section>
+          <section className="status-grid">
+            <article
+              data-result-authority="server-snapshot"
+              data-result-final-label={finalState.label}
+              data-result-final-state={finalState.state}
+              data-result-has-snapshot={snapshot ? "true" : "false"}
+            >
+              <span className="eyebrow">最终状态</span>
+              <h2>{finalState.label}</h2>
+              <p>{finalState.detail}</p>
+              <StatusPill tone={roomStatusTone(roomStatus)}>{roomStatusLabel(roomStatus)}</StatusPill>
             </article>
-          );
-        })}
-      </section>
-      <section
-        className="room-log-panel"
-        data-result-error-count={controller.state.errors.length}
-        data-result-event-count={controller.state.events.length}
-      >
-        <header>
-          <div>
-            <span className="eyebrow">结算日志入口</span>
-            <h2>事件 / 错误</h2>
-          </div>
-          <StatusPill tone={controller.state.errors.length > 0 ? "bad" : controller.state.events.length > 0 ? "good" : "neutral"}>
-            {controller.state.errors.length > 0 ? `${controller.state.errors.length} 个错误` : `${controller.state.events.length} 条事件`}
-          </StatusPill>
-        </header>
-        <p>
-          连接状态：{connectionStatusLabel(controller.state.status)}；服务端帧 {snapshot?.tick ?? 0} / 第 {snapshot?.turnNumber ?? 0} 回合。
-        </p>
-        <div className="room-log-list">
-          {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
-          {controller.state.errors.map((error, index) => (
-            <article className="room-log-entry is-error" data-result-log-entry="error" data-result-log-kind={error.code} key={`${error.code}-${index}`}>
-              <strong>{errorCodeLabel(error.code)}</strong>
-              <span>{errorMessageLabel(error)}</span>
+            <article
+              data-result-recorded-player-id={settings.playerId}
+              data-result-recorded-room-id={recordStatus.match?.roomId ?? ""}
+              data-result-recorded-status={recordStatus.state}
+            >
+              <span className="eyebrow">战绩记录</span>
+              <h2>{recordStatusLabel(recordStatus)}</h2>
+              <p>{recordStatus.message}</p>
+              <div className="result-record-actions">
+                <StatusPill tone={recordStatusTone(recordStatus)}>{recordStatus.state}</StatusPill>
+                <Button icon={<RefreshCw size={16} />} onClick={() => void refreshRecordStatus()} variant="ghost">刷新记录</Button>
+                <Button icon={<UserRound size={16} />} onClick={() => onNavigate({ name: "profile", handle: settings.playerId.trim() || winnerPlayerId || "player" })} variant="ghost">资料</Button>
+              </div>
             </article>
-          ))}
-          {controller.state.events.slice(0, 8).map((event, index) => (
-            <article className="room-log-entry" data-result-log-entry="event" data-result-log-kind={event.kind} key={`${event.kind}-${index}`}>
-              <strong>{eventKindLabel(event.kind)}</strong>
-              <span>{eventDescriptionLabel(event)}</span>
+            <article data-result-event-count={controller.state.events.length} data-result-event-summary>
+              <span className="eyebrow">事件入口</span>
+              <h2>{controller.state.events.length} 条</h2>
+              <p>{latestEvent ? `${eventKindLabel(latestEvent.kind)}：${eventDescriptionLabel(latestEvent)}` : "尚未收到服务端事件。"}</p>
             </article>
-          ))}
+            <article data-result-error-count={controller.state.errors.length} data-result-error-summary>
+              <span className="eyebrow">错误入口</span>
+              <h2>{controller.state.errors.length} 个</h2>
+              <p>{latestError ? `${errorCodeLabel(latestError.code)}：${errorMessageLabel(latestError)}` : "没有服务端错误。"}</p>
+            </article>
+          </section>
+          <section className="room-log-panel" data-result-error-count={controller.state.errors.length} data-result-event-count={controller.state.events.length}>
+            <header>
+              <div><span className="eyebrow">结算日志入口</span><h2>事件 / 错误</h2></div>
+              <StatusPill tone={controller.state.errors.length > 0 ? "bad" : controller.state.events.length > 0 ? "good" : "neutral"}>
+                {controller.state.errors.length > 0 ? `${controller.state.errors.length} 个错误` : `${controller.state.events.length} 条事件`}
+              </StatusPill>
+            </header>
+            <p>连接状态：{connectionStatusLabel(controller.state.status)}；服务端帧 {snapshot?.tick ?? 0} / 第 {snapshot?.turnNumber ?? 0} 回合。</p>
+            <div className="room-log-list">
+              {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
+              {controller.state.errors.map((error, index) => (
+                <article className="room-log-entry is-error" data-result-log-entry="error" data-result-log-kind={error.code} key={`${error.code}-${index}`}>
+                  <strong>{errorCodeLabel(error.code)}</strong><span>{errorMessageLabel(error)}</span>
+                </article>
+              ))}
+              {controller.state.events.slice(0, 8).map((event, index) => (
+                <article className="room-log-entry" data-result-log-entry="event" data-result-log-kind={event.kind} key={`${event.kind}-${index}`}>
+                  <strong>{eventKindLabel(event.kind)}</strong><span>{eventDescriptionLabel(event)}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+          <p className="result-authority-note">结果只读取服务端权威快照，不根据本地分数推断胜负。</p>
         </div>
-      </section>
-      <section
-        className="audit-banner"
-        data-result-return-action-count={resultActionCount}
-        data-result-return-path
-      >
-        <strong>返回路径：</strong>
-        <span>房间用于继续入座/准备流程，大厅用于选择新房间，对战桌面用于查看事件和错误上下文。</span>
-        <StatusPill tone={connectionStatusTone(controller.state.status)}>{connectionStatusLabel(controller.state.status)}</StatusPill>
-      </section>
+      </details>
     </div>
   );
 }

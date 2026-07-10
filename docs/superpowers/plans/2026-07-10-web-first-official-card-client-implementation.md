@@ -112,13 +112,13 @@
 - Consumes: existing typed prompt choice models and `GameCommand` callbacks.
 - Produces: plain-language selection progress, direct legal command controls, external card-state badges, and a minimal result summary.
 
-- [ ] Run the focused action-panel and result checks before edits to establish the current baseline.
-- [ ] Remove technical labels from visible prompt copy while retaining their data attributes for tests and diagnostics.
-- [ ] Ensure mulligan, payment, movement, battle declaration, damage assignment, trigger ordering, response, pass, skip, and end-turn candidates remain reachable from the action dock.
-- [ ] Ensure full official art remains unobstructed and hidden cards never receive a spec or front image.
-- [ ] Recompose Result around winner, score, return to lobby, and replay actions; move event evidence into collapsed diagnostics.
-- [ ] Run all focused checks and capture match/card-detail/result screenshots.
-- [ ] Commit prompt, card, and result polish.
+- [x] Run the focused action-panel and result checks before edits to establish the current baseline.
+- [x] Remove technical labels from visible prompt copy while retaining their data attributes for tests and diagnostics.
+- [x] Ensure mulligan, payment, movement, battle declaration, damage assignment, trigger ordering, response, pass, skip, and end-turn candidates remain reachable from the action dock.
+- [x] Ensure full official art remains unobstructed and hidden cards never receive a spec or front image.
+- [x] Recompose Result around winner, score, return to lobby, and replay actions; move event evidence into collapsed diagnostics.
+- [x] Run all focused checks and capture match/card-detail/result screenshots.
+- [x] Commit prompt, card, and result polish.
 
 ### Task 6: Prove a Full Two-Browser Match
 

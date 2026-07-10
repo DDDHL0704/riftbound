@@ -150,101 +150,148 @@ export function CardDetailDrawer({
           </div>
           <Button icon={<X size={18} />} onClick={onClose} ref={closeButtonRef} variant="ghost">关闭</Button>
         </header>
-        <div className="detail-section">
-          {detailPlan.badges.map((badge) => (
-            <StatusPill key={badge.key} tone={badge.tone}>{badge.label}</StatusPill>
-          ))}
-        </div>
-        <DetailCheckMap plan={detailPlan} />
-        {detailPlan.hidden ? (
-          <>
-            <p className="detail-muted">{detailPlan.hiddenMessage}</p>
-            <DetailInspector inspector={detailPlan.inspector} />
-          </>
-        ) : (
-          <>
-            <dl className="detail-grid">
-              {detailPlan.detailRows.map((row) => (
-                <div key={row.key}>
-                  <dt>{row.label}</dt>
-                  <dd>{row.value}</dd>
-                </div>
+        <div className="detail-game-layout">
+          <CardArtPanel card={card} hidden={detailPlan.hidden} title={detailPlan.title} />
+          <div className="detail-game-content">
+            <div className="detail-section detail-badges">
+              {detailPlan.badges.map((badge) => (
+                <StatusPill key={badge.key} tone={badge.tone}>{badge.label}</StatusPill>
               ))}
-            </dl>
-            <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailInteractionPlan.focusModel} />
-            <WireFocusedReadinessStrip plan={detailInteractionPlan} />
-            <WireFocusedActionSummary focusModel={detailInteractionPlan.focusModel} />
-            <WireFocusedInteractionGrammar plan={detailInteractionPlan.grammarPlan} />
-            <WireFocusedSelectionGuide plan={detailInteractionPlan} />
-            <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
-            <DetailRelatedCandidates
-              onInspectObject={onInspectObject}
-              plan={detailInteractionPlan}
-              selectedObjectId={sourceObjectId}
-            />
-            <DetailInspector inspector={detailPlan.inspector} />
-            {detailPlan.sections.map((section) => (
-              <section className="detail-section" key={section.key}>
-                <strong>{section.title}</strong>
-                <p className={section.key === "rules" ? "card-rules" : undefined}>{section.body}</p>
-              </section>
-            ))}
-            <section
-              className="detail-section detail-actions"
-              data-card-detail-actions-state={detailActionPlan.state}
-              data-card-detail-actions-source={detailActionPlan.sourceObjectId ?? ""}
-            >
-              <strong>服务端可提交操作</strong>
-              <span className="detail-muted" data-card-detail-actions-label>{detailActionPlan.stateLabel}</span>
-              <dl className="detail-action-summary" aria-label="卡牌详情操作摘要">
-                {detailActionPlan.summaryRows.map((row) => (
-                  <div data-card-detail-action-summary={row.key} key={row.key}>
-                    <dt>{row.label}</dt>
-                    <dd>{row.value}</dd>
+            </div>
+            {detailPlan.hidden ? (
+              <>
+                <p className="detail-muted">{detailPlan.hiddenMessage}</p>
+                <details className="detail-diagnostics">
+                  <summary>隐藏信息边界</summary>
+                  <DetailCheckMap plan={detailPlan} />
+                  <DetailInspector inspector={detailPlan.inspector} />
+                </details>
+              </>
+            ) : (
+              <>
+                <dl className="detail-grid">
+                  {detailPlan.detailRows.map((row) => (
+                    <div key={row.key}>
+                      <dt>{row.label}</dt>
+                      <dd>{row.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="detail-rule-sections">
+                  {detailPlan.sections.filter((section) => section.key !== "evidence").map((section) => (
+                    <section className="detail-section" key={section.key}>
+                      <strong>{section.title}</strong>
+                      <p className={section.key === "rules" ? "card-rules" : undefined}>{section.body}</p>
+                    </section>
+                  ))}
+                </div>
+                <section
+                  className="detail-section detail-actions"
+                  data-card-detail-actions-state={detailActionPlan.state}
+                  data-card-detail-actions-source={detailActionPlan.sourceObjectId ?? ""}
+                >
+                  <div className="detail-actions-heading">
+                    <strong>可用操作</strong>
+                    <span className="detail-muted" data-card-detail-actions-label>{detailActionPlan.stateLabel}</span>
                   </div>
-                ))}
-              </dl>
-              <DetailActionRoutes
-                onReviewEntry={setReviewEntryKey}
-                plan={detailActionPlan}
-                selectedEntryKey={reviewEntry?.key}
-              />
-              {reviewEntry && reviewRoute ? (
-                <DetailActionReview
-                  entry={reviewEntry}
-                  onCloseDetail={onClose}
-                  onCloseReview={() => setReviewEntryKey(undefined)}
-                  onCommand={onCommand}
-                  prompt={prompt}
-                  route={reviewRoute}
-                  sourceObjectId={detailActionPlan.sourceObjectId}
-                />
-              ) : null}
-              {detailActionPlan.entries.length === 0 ? (
-                <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
-              ) : (
-                <WireFocusedActionEntryList
-                  className="detail-action-list"
-                  dataAttributes={{
-                    count: "data-card-detail-action-count",
-                    entry: "data-card-detail-action-entry",
-                    mode: "data-card-detail-action-mode"
-                  }}
-                  disabledByConnection={disabledByConnection}
-                  entryClassName="detail-action-entry"
-                  onCommand={onCommand}
-                  onSubmitted={onClose}
-                  plan={detailInteractionPlan}
-                  prompt={prompt}
-                  snapshot={snapshot}
-                  submissionGate={submissionGate}
-                />
-              )}
-            </section>
-          </>
-        )}
+                  {detailActionPlan.entries.length === 0 ? (
+                    <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
+                  ) : (
+                    <WireFocusedActionEntryList
+                      className="detail-action-list"
+                      dataAttributes={{
+                        count: "data-card-detail-action-count",
+                        entry: "data-card-detail-action-entry",
+                        mode: "data-card-detail-action-mode"
+                      }}
+                      disabledByConnection={disabledByConnection}
+                      entryClassName="detail-action-entry"
+                      onCommand={onCommand}
+                      onSubmitted={onClose}
+                      plan={detailInteractionPlan}
+                      prompt={prompt}
+                      snapshot={snapshot}
+                      submissionGate={submissionGate}
+                    />
+                  )}
+                  <details className="detail-action-diagnostics">
+                    <summary>操作依据</summary>
+                    <dl className="detail-action-summary" aria-label="卡牌详情操作摘要">
+                      {detailActionPlan.summaryRows.map((row) => (
+                        <div data-card-detail-action-summary={row.key} key={row.key}>
+                          <dt>{row.label}</dt>
+                          <dd>{row.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <DetailActionRoutes
+                      onReviewEntry={setReviewEntryKey}
+                      plan={detailActionPlan}
+                      selectedEntryKey={reviewEntry?.key}
+                    />
+                    {reviewEntry && reviewRoute ? (
+                      <DetailActionReview
+                        entry={reviewEntry}
+                        onCloseDetail={onClose}
+                        onCloseReview={() => setReviewEntryKey(undefined)}
+                        onCommand={onCommand}
+                        prompt={prompt}
+                        route={reviewRoute}
+                        sourceObjectId={detailActionPlan.sourceObjectId}
+                      />
+                    ) : null}
+                  </details>
+                </section>
+                <details className="detail-diagnostics">
+                  <summary>规则与服务器信息</summary>
+                  <DetailCheckMap plan={detailPlan} />
+                  <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailInteractionPlan.focusModel} />
+                  <WireFocusedReadinessStrip plan={detailInteractionPlan} />
+                  <WireFocusedActionSummary focusModel={detailInteractionPlan.focusModel} />
+                  <WireFocusedInteractionGrammar plan={detailInteractionPlan.grammarPlan} />
+                  <WireFocusedSelectionGuide plan={detailInteractionPlan} />
+                  <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
+                  <DetailRelatedCandidates
+                    onInspectObject={onInspectObject}
+                    plan={detailInteractionPlan}
+                    selectedObjectId={sourceObjectId}
+                  />
+                  <DetailInspector inspector={detailPlan.inspector} />
+                  {detailPlan.sections.filter((section) => section.key === "evidence").map((section) => (
+                    <section className="detail-section" key={section.key}>
+                      <strong>{section.title}</strong>
+                      <p>{section.body}</p>
+                    </section>
+                  ))}
+                </details>
+              </>
+            )}
+          </div>
+        </div>
       </aside>
     </div>
+  );
+}
+
+function CardArtPanel({ card, hidden, title }: { card: InspectedCard; hidden: boolean; title: string }) {
+  const frontImage = hidden ? "" : card.spec?.frontImage?.trim();
+  return (
+    <section className="detail-card-art" data-card-art-panel data-card-art-state={hidden ? "hidden" : frontImage ? "official" : "fallback"}>
+      {hidden ? (
+        <div className="detail-card-back" role="img" aria-label="未公开卡牌">
+          <strong>RIFTBOUND</strong>
+          <span>未公开卡牌</span>
+        </div>
+      ) : frontImage ? (
+        <img alt={title} src={frontImage} />
+      ) : (
+        <div className="detail-card-fallback">
+          <span>{card.spec?.cardCategoryName ?? "卡牌"}</span>
+          <strong>{title}</strong>
+          <p>{card.spec?.officialText ?? "暂无官方卡图。"}</p>
+        </div>
+      )}
+    </section>
   );
 }
 

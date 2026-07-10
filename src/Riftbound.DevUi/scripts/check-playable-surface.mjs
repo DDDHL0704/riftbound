@@ -9,6 +9,8 @@ const lobbySource = read("src/pages/LobbyPage.tsx");
 const roomSource = read("src/pages/RoomPage.tsx");
 const matchSource = read("src/pages/MatchPage.tsx");
 const playableMatchSource = readIfPresent("src/components/match/PlayableMatchSurface.tsx");
+const cardDetailSource = read("src/components/cards/CardDetailDrawer.tsx");
+const resultSource = read("src/pages/ResultPage.tsx");
 const errors = [];
 
 requireText(mainSource, 'import "./styles/game-client.css";', "main.tsx must import game-client.css");
@@ -48,6 +50,11 @@ requireText(matchSource, "<PlayableMatchSurface", "MatchPage must compose the ne
 if (matchSource.includes("符文战场对战线框")) {
   errors.push("the playable match title must not describe itself as a wireframe");
 }
+
+requireText(cardDetailSource, "data-card-art-panel", "card detail must expose an official-art panel");
+requireText(cardDetailSource, 'className="detail-diagnostics"', "card inspection evidence must be collapsible");
+requireText(resultSource, "data-play-result", "ResultPage must expose the play result marker");
+requireText(resultSource, 'className="result-diagnostics"', "result protocol evidence must be collapsible");
 
 if (errors.length > 0) {
   console.error("Playable Web surface check failed:");
