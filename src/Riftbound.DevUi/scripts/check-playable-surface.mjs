@@ -7,6 +7,8 @@ const mainSource = read("src/main.tsx");
 const shellSource = read("src/components/layout/AppShell.tsx");
 const lobbySource = read("src/pages/LobbyPage.tsx");
 const roomSource = read("src/pages/RoomPage.tsx");
+const matchSource = read("src/pages/MatchPage.tsx");
+const playableMatchSource = readIfPresent("src/components/match/PlayableMatchSurface.tsx");
 const errors = [];
 
 requireText(mainSource, 'import "./styles/game-client.css";', "main.tsx must import game-client.css");
@@ -37,6 +39,16 @@ for (const technicalSurface of ["<RoomWorkflowSurface", "<RoomSubmissionReceipt"
   }
 }
 
+requireText(playableMatchSource, "data-playable-match-surface", "match must expose the playable surface marker");
+requireText(playableMatchSource, "data-game-table", "playable match must expose the game table");
+requireText(playableMatchSource, "data-game-action-dock", "playable match must expose the action dock");
+requireText(playableMatchSource, "data-game-debug-drawer", "playable match must retain collapsed diagnostics");
+requireText(playableMatchSource, 'className="game-debug-drawer"', "match diagnostics must use a closed details element");
+requireText(matchSource, "<PlayableMatchSurface", "MatchPage must compose the new playable surface");
+if (matchSource.includes("符文战场对战线框")) {
+  errors.push("the playable match title must not describe itself as a wireframe");
+}
+
 if (errors.length > 0) {
   console.error("Playable Web surface check failed:");
   for (const error of errors) {
@@ -49,6 +61,11 @@ console.log("Playable Web surface foundation is present.");
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
+}
+
+function readIfPresent(relativePath) {
+  const absolutePath = path.join(root, relativePath);
+  return fs.existsSync(absolutePath) ? fs.readFileSync(absolutePath, "utf8") : "";
 }
 
 function requireText(source, expected, message) {

@@ -24,6 +24,7 @@ import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/
 import { WireTimelineDetailLayer } from "../components/match/WireTimelineDetailLayer";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
 import { MatchGuidanceBanner } from "../components/match/MatchGuidanceBanner";
+import { PlayableMatchSurface } from "../components/match/PlayableMatchSurface";
 import { buildMatchGuidancePlan } from "../utils/matchGuidancePlan";
 import {
   WireCardFlow,
@@ -967,85 +968,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   } satisfies Record<WireSidePanelSlot, ReactNode>;
 
   return (
-    <div className="wire-match-page" style={wireMatchPageStyle()}>
-      <header className="wire-topbar" aria-label="对战基础状态">
-        <div className="wire-topbar-title">
-          <h1>符文战场对战线框</h1>
-          <span>房间 {matchId}</span>
-        </div>
-        <div className="wire-status-line" role="group" aria-label="服务端状态">
-          <span>连接 {connectionStatusLabel(tableConnectionStatus)}</span>
-          <span>回合 {tableSnapshot?.turnNumber ?? 0}</span>
-          <span>阶段 {matchPhaseLabel(phase)}</span>
-          <span>窗口 {timingStateLabel(windowState)}</span>
-          <span>提示 {promptTitle}</span>
-          {layoutFixtureEnabled && <span>桌面 前端样例</span>}
-          <span>{canAct ? "当前可操作" : "等待"}</span>
-        </div>
-        <div className="wire-topbar-actions">
-          <Button onClick={() => onNavigate({ name: "lobby" })} variant="ghost">大厅</Button>
-          <ConnectionRecoveryPanel
-            actionsDisabled={layoutFixtureEnabled}
-            connectionStatus={tableConnectionStatus}
-            density="compact"
-            hasSnapshot={Boolean(tableSnapshot)}
-            lastSystemMessage={layoutFixtureEnabled ? "前端样例快照；真实连接状态请关闭样例模式。" : controller.state.lastSystemMessage}
-            onConnect={() => void controller.join()}
-            onDisconnect={() => void controller.disconnect()}
-            onResync={() => void controller.requestSnapshot()}
-            promptSnapshotTick={tablePrompt?.snapshotTick}
-            snapshotTick={tableSnapshot?.tick}
-            surface="match"
-          />
-          {topbarQuickActionPlan.entries.map((entry) => (
-            <Button
-              data-topbar-quick-action={entry.id}
-              data-topbar-quick-action-candidate={entry.candidateAction ?? ""}
-              data-topbar-quick-action-command-source={entry.commandSource}
-              data-topbar-quick-action-command-source-label={entry.commandSourceLabel}
-              data-topbar-quick-action-state={entry.state}
-              disabled={entry.disabled}
-              key={entry.id}
-              onClick={() => runTopbarQuickAction(entry)}
-              title={entry.title}
-              variant={entry.variant}
-            >
-              {entry.label}
-            </Button>
-          ))}
-        </div>
-      </header>
-
-      <MatchGuidanceBanner
-        onRunPrimaryAction={runGuidancePrimaryAction}
-        plan={matchGuidancePlan}
-        primaryActions={guidancePrimaryActions}
-      />
-
-      <MatchRecoverySurface plan={matchRecoverySurfacePlan} />
-
-      <div className="wire-match-body">
-        <section className="wire-table-shell" aria-label="黑白线框对战桌面" tabIndex={0}>
-          <div className="wire-table" style={wireTableStyle()}>{tableRows}</div>
-          <WireObjectCommandTray
-            disabledByConnection={!tableSubmissionGate.canSubmit}
-            focusedPlan={selectedFocusPlan}
-            inspectedCard={inspectedCard}
-            objectContext={selectedObjectContext}
-            onClear={clearInspectedCard}
-            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
-              label: "桌面对象命令托盘",
-              objectId: selectedObjectId,
-              surface: "object-command-tray"
-            }, routeSource))}
-            onOpenDetail={openDetailCard}
-            prompt={tablePrompt}
-            snapshot={tableSnapshot}
-            submissionGate={tableSubmissionGate}
-            trayPlan={selectedObjectCommandTrayPlan}
-          />
-        </section>
-
+    <>
+      <PlayableMatchSurface
+        debugContent={(
+          <div className="wire-match-body game-debug-content">
+            <MatchRecoverySurface plan={matchRecoverySurfacePlan} />
         <aside className="wire-side-panel" aria-label="行动与日志">
           <WireSidePanelDirectory
             activeSlot={activeSidePanelSlot}
@@ -1228,7 +1155,96 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             ))}
           </div>
         </aside>
-      </div>
+          </div>
+        )}
+        actionDock={(
+          <ActionPanel
+            connectionStatus={tableConnectionStatus}
+            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+              label: "当前行动",
+              surface: "action-dock"
+            }, routeSource))}
+            onReady={() => void controller.ready({
+              label: "当前行动：准备",
+              surface: "action-dock"
+            })}
+            onSubmitStarterDeck={() => void controller.submitStarterDeck({
+              label: "当前行动：提交构筑",
+              surface: "action-dock"
+            })}
+            playerId={settings.playerId}
+            prompt={tablePrompt}
+            snapshot={tableSnapshot}
+          />
+        )}
+        canAct={canAct}
+        connectionLabel={connectionStatusLabel(tableConnectionStatus)}
+        guidance={(
+          <MatchGuidanceBanner
+            onRunPrimaryAction={runGuidancePrimaryAction}
+            plan={matchGuidancePlan}
+            primaryActions={guidancePrimaryActions}
+          />
+        )}
+        matchId={matchId}
+        objectTray={(
+          <WireObjectCommandTray
+            disabledByConnection={!tableSubmissionGate.canSubmit}
+            focusedPlan={selectedFocusPlan}
+            inspectedCard={inspectedCard}
+            objectContext={selectedObjectContext}
+            onClear={clearInspectedCard}
+            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+              label: "桌面卡牌行动",
+              objectId: selectedObjectId,
+              surface: "object-command-tray"
+            }, routeSource))}
+            onOpenDetail={openDetailCard}
+            prompt={tablePrompt}
+            snapshot={tableSnapshot}
+            submissionGate={tableSubmissionGate}
+            trayPlan={selectedObjectCommandTrayPlan}
+          />
+        )}
+        onExit={() => onNavigate({ name: "lobby" })}
+        phaseLabel={matchPhaseLabel(phase)}
+        promptTitle={promptTitle}
+        quickActions={topbarQuickActionPlan.entries.map((entry) => (
+          <Button
+            data-topbar-quick-action={entry.id}
+            data-topbar-quick-action-candidate={entry.candidateAction ?? ""}
+            data-topbar-quick-action-command-source={entry.commandSource}
+            data-topbar-quick-action-command-source-label={entry.commandSourceLabel}
+            data-topbar-quick-action-state={entry.state}
+            disabled={entry.disabled}
+            key={entry.id}
+            onClick={() => runTopbarQuickAction(entry)}
+            title={entry.title}
+            variant={entry.variant}
+          >
+            {entry.label}
+          </Button>
+        ))}
+        recovery={tableConnectionStatus === "connected" ? undefined : (
+          <ConnectionRecoveryPanel
+            actionsDisabled={layoutFixtureEnabled}
+            connectionStatus={tableConnectionStatus}
+            density="compact"
+            hasSnapshot={Boolean(tableSnapshot)}
+            lastSystemMessage={layoutFixtureEnabled ? "前端样例快照；真实连接状态请关闭样例模式。" : controller.state.lastSystemMessage}
+            onConnect={() => void controller.join()}
+            onDisconnect={() => void controller.disconnect()}
+            onResync={() => void controller.requestSnapshot()}
+            promptSnapshotTick={tablePrompt?.snapshotTick}
+            snapshotTick={tableSnapshot?.tick}
+            surface="match"
+          />
+        )}
+        style={wireMatchPageStyle()}
+        table={<div className="wire-table game-table-projection" style={wireTableStyle()}>{tableRows}</div>}
+        turnNumber={tableSnapshot?.turnNumber ?? 0}
+        windowLabel={timingStateLabel(windowState)}
+      />
       <CardDetailDrawer
         card={detailCard}
         disabledByConnection={!tableSubmissionGate.canSubmit}
@@ -1276,7 +1292,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         table={tableView}
       />
       <WireCardPreview card={previewCard} />
-    </div>
+    </>
   );
 }
 

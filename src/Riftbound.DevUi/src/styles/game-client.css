@@ -744,3 +744,958 @@ summary:focus-visible,
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Playable match surface -------------------------------------------------- */
+.game-app-shell.app-frame-match .app-content {
+  height: 100vh;
+  overflow: hidden;
+  background: var(--game-bg) !important;
+}
+
+.playable-match-surface.wire-match-page {
+  --wire-card-w: 64px !important;
+  --wire-card-h: 90px !important;
+  --wire-fixed-pile-card-w: 60px !important;
+  --wire-fixed-pile-card-h: 84px !important;
+  --wire-fixed-pile-slot-w: 60px !important;
+  --wire-fixed-pile-slot-h: 84px !important;
+  --wire-battlefield-card-w: 94px !important;
+  --wire-battlefield-card-h: 66px !important;
+  --wire-rune-card-w: 30px !important;
+  --wire-rune-card-h: 42px !important;
+  --wire-card-gap: 5px !important;
+  --wire-deck-area-w: 52px !important;
+  --wire-public-pile-w: 64px !important;
+  --wire-hand-piles-w: 132px !important;
+  --wire-rune-track-w: 360px !important;
+  --wire-signature-area-w: 72px !important;
+  --wire-hero-area-w: 72px !important;
+  --wire-signature-zone-h: 94px !important;
+  --wire-standby-track-h: 66px !important;
+  --wire-standby-track-min-h: 58px !important;
+  --wire-table-min-w: 0px !important;
+  --wire-table-min-h: 0px !important;
+  display: grid !important;
+  grid-template-rows: 58px auto minmax(0, 1fr) minmax(146px, auto) 32px !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  min-width: 0 !important;
+  min-height: 720px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: #111719 !important;
+  color: var(--game-text) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.playable-match-surface .game-match-topbar {
+  display: grid !important;
+  grid-template-columns: 42px minmax(180px, 1fr) auto minmax(260px, auto) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  min-height: 58px !important;
+  padding: 7px 12px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--game-border) !important;
+  background: #151b1d !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-match-topbar > .button {
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-match-title {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 2px 9px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .game-match-title strong {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: var(--game-text) !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .game-match-title small {
+  grid-column: 2 !important;
+  color: var(--game-text-dim) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .game-turn-state {
+  grid-row: 1 / span 2 !important;
+  padding: 5px 8px !important;
+  border: 1px solid var(--game-border) !important;
+  border-radius: 999px !important;
+  background: var(--game-surface-raised) !important;
+  color: var(--game-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .game-turn-state.is-active {
+  border-color: rgb(215 173 87 / 72%) !important;
+  background: rgb(215 173 87 / 13%) !important;
+  color: #f1cf8a !important;
+}
+
+.playable-match-surface .game-match-status {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .game-match-status > span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-height: 28px !important;
+  padding: 0 8px !important;
+  border: 1px solid var(--game-border) !important;
+  border-radius: 4px !important;
+  background: #111719 !important;
+  color: var(--game-text-muted) !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .game-connection-state svg {
+  color: var(--game-green) !important;
+}
+
+.playable-match-surface .game-match-quick-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .game-match-quick-actions .button {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 4px !important;
+  background: var(--game-surface-raised) !important;
+  color: var(--game-text) !important;
+  font-size: 12px !important;
+}
+
+.playable-match-surface .game-match-guidance {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid var(--game-border) !important;
+  background: #121719 !important;
+}
+
+.playable-match-surface .match-guidance-banner {
+  display: grid !important;
+  grid-template-columns: minmax(250px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 16px !important;
+  min-height: 52px !important;
+  padding: 7px 14px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .match-guidance-main {
+  display: grid !important;
+  grid-template-columns: auto auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .match-guidance-main > .eyebrow {
+  display: none !important;
+}
+
+.playable-match-surface .match-guidance-headline-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.playable-match-surface .match-guidance-headline {
+  margin: 0 !important;
+  color: var(--game-text) !important;
+  font-size: 15px !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .match-guidance-detail {
+  min-width: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  color: var(--game-text-muted) !important;
+  font-size: 12px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .match-guidance-actions,
+.playable-match-surface .match-guidance-chip-group,
+.playable-match-surface .match-guidance-chips {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .match-guidance-chip,
+.playable-match-surface .match-guidance-actions-label {
+  padding: 3px 6px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--game-text-muted) !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .game-match-recovery {
+  position: fixed !important;
+  top: 66px !important;
+  right: 12px !important;
+  z-index: 40 !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+  padding: 10px !important;
+  border: 1px solid var(--game-red) !important;
+  border-radius: 6px !important;
+  background: #20191a !important;
+  box-shadow: var(--game-shadow) !important;
+}
+
+.playable-match-surface .game-table-stage {
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 5px 8px !important;
+  border: 0 !important;
+  background: #111719 !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-table-projection {
+  display: grid !important;
+  grid-template-rows: 62px 86px minmax(176px, 1fr) 96px 132px !important;
+  gap: 4px !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-table-stage :where(h2, h3, p, span, strong, small, code) {
+  color: inherit !important;
+}
+
+.playable-match-surface .game-table-stage :where(.wire-hand-zone, .wire-home-base, .wire-battlefield-stack) {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid #31383a !important;
+  border-radius: 5px !important;
+  background: #171d1f !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-table-stage .wire-hand-zone[data-wire-player-side="opponent"],
+.playable-match-surface .game-table-stage .wire-home-base[data-wire-player-side="opponent"] {
+  background: #151a1d !important;
+  opacity: 0.88 !important;
+}
+
+.playable-match-surface .game-table-stage :where(.wire-zone-body, .wire-hand-body, .wire-hand-cards, .wire-hand-piles, .wire-base-main, .wire-banish-main, .wire-battlefield-center-grid, .wire-battlefield-lane, .wire-battlefield-unit-zone, .wire-battlefield-unit-zone-body, .wire-battlefield-standby-zone, .wire-battlefield-site, .wire-battlefield-site-body, .wire-rune-track) {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-color: #2f3638 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-table-stage .wire-battlefield-stack {
+  background:
+    linear-gradient(90deg, #151b1d 0 49.8%, #4b4030 49.8% 50.2%, #151b1d 50.2% 100%) !important;
+}
+
+.playable-match-surface .game-table-stage .wire-battlefield-lane {
+  border: 0 !important;
+}
+
+.playable-match-surface .game-table-stage .wire-battlefield-site {
+  border-color: rgb(215 173 87 / 34%) !important;
+  background: #1a2021 !important;
+}
+
+.playable-match-surface .game-table-stage .wire-card-slot,
+.playable-match-surface .game-table-stage .wire-stack-box {
+  border: 1px dashed #3a4244 !important;
+  border-radius: 4px !important;
+  background: rgb(255 255 255 / 1.5%) !important;
+  color: var(--game-text-dim) !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only, .card-back) {
+  width: var(--wire-card-w) !important;
+  min-width: var(--wire-card-w) !important;
+  max-width: var(--wire-card-w) !important;
+  height: var(--wire-card-h) !important;
+  min-height: var(--wire-card-h) !important;
+  max-height: var(--wire-card-h) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid #50585a !important;
+  border-radius: 5px !important;
+  background: #23292b !important;
+  color: var(--game-text) !important;
+  box-shadow: 0 3px 9px rgb(0 0 0 / 32%) !important;
+  filter: none !important;
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only):hover {
+  z-index: 8 !important;
+  border-color: var(--game-gold) !important;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 46%) !important;
+  transform: translateY(-4px) !important;
+}
+
+.playable-match-surface .game-table-stage .card-full-image {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  transform: none !important;
+}
+
+.playable-match-surface .game-table-stage .wire-battlefield-site .card-image-only .card-full-image {
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--wire-battlefield-card-h) !important;
+  min-width: var(--wire-battlefield-card-h) !important;
+  height: var(--wire-battlefield-card-w) !important;
+  min-height: var(--wire-battlefield-card-w) !important;
+  transform: translate(-50%, -50%) rotate(-90deg) !important;
+}
+
+.playable-match-surface .game-table-stage .card-back {
+  display: grid !important;
+  place-items: center !important;
+  border-color: #4b5558 !important;
+  background: #242a2c !important;
+  box-shadow: inset 0 0 0 4px #1a1f21, inset 0 0 0 5px rgb(215 173 87 / 34%) !important;
+}
+
+.playable-match-surface .game-table-stage .card-back .card-frame-top,
+.playable-match-surface .game-table-stage .card-back span {
+  display: none !important;
+}
+
+.playable-match-surface .game-table-stage .card-back strong {
+  display: block !important;
+  color: var(--game-gold) !important;
+  font-size: 9px !important;
+  text-transform: uppercase !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only, .card-back).is-selected {
+  outline: 3px solid var(--game-blue) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgb(99 167 216 / 16%), 0 8px 18px rgb(0 0 0 / 42%) !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only, .card-back).is-prompt-enabled {
+  outline: 2px solid var(--game-gold) !important;
+  outline-offset: 1px !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only, .card-back).is-prompt-selected {
+  outline: 3px solid var(--game-blue) !important;
+  outline-offset: 1px !important;
+}
+
+.playable-match-surface .game-table-stage :where(.card-face, .card-image-only, .card-back).is-prompt-disabled {
+  opacity: 0.48 !important;
+  filter: grayscale(0.8) !important;
+}
+
+.playable-match-surface .game-table-stage .card-zoom-preview {
+  display: none !important;
+}
+
+.playable-match-surface .game-object-tray {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 8px !important;
+  z-index: 20 !important;
+  width: min(980px, calc(100% - 32px)) !important;
+  transform: translateX(-50%) !important;
+}
+
+.playable-match-surface .game-object-tray .wire-object-command-tray {
+  max-height: 164px !important;
+  overflow: auto !important;
+  border: 1px solid var(--game-blue) !important;
+  border-radius: 6px !important;
+  background: #171d20 !important;
+  color: var(--game-text) !important;
+  box-shadow: var(--game-shadow) !important;
+}
+
+.playable-match-surface .game-action-dock {
+  display: grid !important;
+  grid-template-columns: 176px minmax(0, 1fr) !important;
+  min-width: 0 !important;
+  min-height: 146px !important;
+  max-height: 190px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-top: 1px solid var(--game-border) !important;
+  background: #151b1d !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-action-dock-title {
+  display: grid !important;
+  align-content: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  padding: 14px !important;
+  border-right: 1px solid var(--game-border) !important;
+  background: #121719 !important;
+}
+
+.playable-match-surface .game-action-dock-title span {
+  color: var(--game-gold) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+}
+
+.playable-match-surface .game-action-dock-title strong {
+  color: var(--game-text) !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+}
+
+.playable-match-surface .game-action-dock-body {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .game-action-dock :where(.side-panel, .action-panel, .action-panel-scroll, .action-panel-content) {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-scroll {
+  overflow: auto !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content {
+  display: grid !important;
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 7px 12px !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > header {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > header .eyebrow {
+  display: none !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > header h2 {
+  margin: 0 !important;
+  color: var(--game-text) !important;
+  font-size: 15px !important;
+}
+
+.playable-match-surface .game-action-dock .prompt-summary {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  align-content: start !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-action-dock .prompt-summary span {
+  color: var(--game-text-muted) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > :not(header):not(.prompt-summary):not(.action-buttons) {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  max-height: 58px !important;
+  overflow: auto !important;
+  border-color: var(--game-border) !important;
+  border-radius: 4px !important;
+  background: var(--game-surface) !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-action-dock .action-buttons {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.playable-match-surface .game-action-dock .action-buttons > * {
+  flex: 0 0 auto !important;
+}
+
+.playable-match-surface .game-action-dock .button,
+.playable-match-surface .game-action-dock button {
+  min-height: 34px !important;
+  padding: 0 11px !important;
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 4px !important;
+  background: var(--game-surface-raised) !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-action-dock button:not(:disabled):hover {
+  border-color: var(--game-gold) !important;
+  background: var(--game-surface-soft) !important;
+}
+
+.playable-match-surface .game-debug-drawer {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--game-border) !important;
+  background: #101416 !important;
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-debug-drawer > summary {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 31px !important;
+  padding: 0 12px !important;
+  color: var(--game-text-dim) !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+}
+
+.playable-match-surface .game-debug-drawer[open] {
+  position: fixed !important;
+  inset: 54px 10px 10px !important;
+  z-index: 50 !important;
+  overflow: auto !important;
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 6px !important;
+  background: #14191b !important;
+  box-shadow: var(--game-shadow) !important;
+}
+
+.playable-match-surface .game-debug-drawer-body {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 8px !important;
+}
+
+.playable-match-surface .game-debug-content {
+  display: block !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.playable-match-surface .game-debug-content .wire-side-panel {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+@media (max-width: 1360px) {
+  .playable-match-surface.wire-match-page {
+    --wire-card-w: 58px !important;
+    --wire-card-h: 82px !important;
+    --wire-rune-track-w: 310px !important;
+    grid-template-rows: 54px auto minmax(0, 1fr) minmax(138px, auto) 30px !important;
+  }
+
+  .playable-match-surface .game-match-topbar {
+    grid-template-columns: 40px minmax(170px, 1fr) auto minmax(210px, auto) !important;
+    min-height: 54px !important;
+    padding: 6px 9px !important;
+  }
+
+  .playable-match-surface .game-match-status > span:nth-child(3) {
+    display: none !important;
+  }
+
+  .playable-match-surface .game-table-projection {
+    grid-template-rows: 56px 80px minmax(158px, 1fr) 88px 122px !important;
+  }
+
+  .playable-match-surface .game-action-dock {
+    grid-template-columns: 150px minmax(0, 1fr) !important;
+    min-height: 138px !important;
+  }
+
+  .playable-match-surface .game-action-dock .action-panel-content {
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-height: 780px) {
+  .playable-match-surface.wire-match-page {
+    --wire-card-w: 52px !important;
+    --wire-card-h: 73px !important;
+    --wire-battlefield-card-w: 78px !important;
+    --wire-battlefield-card-h: 55px !important;
+    grid-template-rows: 50px 44px minmax(0, 1fr) 126px 28px !important;
+  }
+
+  .playable-match-surface .game-match-topbar {
+    min-height: 50px !important;
+  }
+
+  .playable-match-surface .match-guidance-banner {
+    min-height: 44px !important;
+    padding-block: 4px !important;
+  }
+
+  .playable-match-surface .game-table-projection {
+    grid-template-rows: 50px 72px minmax(132px, 1fr) 76px 102px !important;
+  }
+
+  .playable-match-surface .game-action-dock {
+    min-height: 126px !important;
+  }
+
+  .playable-match-surface .game-debug-drawer > summary {
+    min-height: 27px !important;
+  }
+}
+
+.playable-match-surface .game-match-quick-actions button:disabled {
+  display: none !important;
+}
+
+.playable-match-surface .game-table-stage :where(
+  .wire-hand-rail,
+  .wire-player-home,
+  .wire-zone,
+  .wire-zone-body,
+  .wire-base-banish-grid,
+  .wire-base-card-grid,
+  .wire-card-flow,
+  .wire-card-flow > *,
+  .wire-hand-body,
+  .wire-hand-cards,
+  .wire-hand-piles,
+  .wire-hand-library-pile,
+  .wire-hand-played-pile,
+  .wire-hand-rune-deck,
+  .wire-hand-rune-track,
+  .wire-rune-track,
+  .wire-rune-slot,
+  .wire-rune-card-frame,
+  .wire-base-main,
+  .wire-banish-main,
+  .wire-battlefield-center-grid,
+  .wire-battlefield-lane,
+  .wire-battlefield-unit-zone,
+  .wire-battlefield-unit-zone-body,
+  .wire-battlefield-standby-zone,
+  .wire-battlefield-site-body,
+  .wire-battlefield-site-meta,
+  .wire-stack-count
+) {
+  border-color: #30383a !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-table-stage .wire-hand-rail,
+.playable-match-surface .game-table-stage .wire-player-home {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 3px !important;
+  overflow: hidden !important;
+  border: 1px solid #30383a !important;
+  background: #171d1f !important;
+}
+
+.playable-match-surface .game-table-stage .wire-player-opponent,
+.playable-match-surface .game-table-stage .wire-hand-opponent {
+  background: #141a1c !important;
+}
+
+.playable-match-surface .game-table-stage .wire-card-flow {
+  gap: var(--wire-card-gap) !important;
+  padding: 2px !important;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .game-table-stage .wire-rune-slot.is-exhausted {
+  overflow: hidden !important;
+}
+
+.playable-match-surface .game-table-stage .wire-card-slot {
+  border-color: #3c4446 !important;
+  background: rgb(255 255 255 / 1.8%) !important;
+}
+
+.playable-match-surface .game-table-stage .wire-home-score-token {
+  border: 1px solid rgb(215 173 87 / 50%) !important;
+  border-radius: 5px !important;
+  background: #202527 !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-table-stage .tabletop-score-name,
+.playable-match-surface .game-table-stage .tabletop-score-meta {
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-table-stage .wire-battlefield-site-meta {
+  border: 0 !important;
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > header,
+.playable-match-surface .game-action-dock .prompt-summary,
+.playable-match-surface .game-action-dock .action-prompt-inspection {
+  display: none !important;
+}
+
+.playable-match-surface .game-action-dock .action-panel-content > :not(header):not(.prompt-summary):not(.action-prompt-inspection) {
+  flex: 0 1 420px !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  min-width: 240px !important;
+  max-height: 100% !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .game-action-dock .action-buttons {
+  flex: 1 1 520px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+  min-width: 320px !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .game-action-dock :where(
+  section,
+  article,
+  div,
+  header,
+  footer,
+  ol,
+  ul,
+  li,
+  dl
+) {
+  border-color: var(--game-border) !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--game-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .game-action-dock :where(h2, h3, p, span, strong, small, label, dt, dd, li) {
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface .game-action-dock :where(h2, h3, strong) {
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface .game-action-dock .status-pill {
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 999px !important;
+  background: var(--game-surface-raised) !important;
+  color: var(--game-text-muted) !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock * {
+  border-color: var(--game-border) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--game-text-muted) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock :where(h2, h3, strong) {
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-panel-content > :not(header):not(.prompt-summary):not(.action-prompt-inspection):not(.action-buttons) {
+  display: none !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-buttons {
+  flex: 1 0 100% !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 2px 4px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-render-entry {
+  flex: 0 0 226px !important;
+  min-width: 226px !important;
+  max-width: 226px !important;
+  height: 110px !important;
+  padding: 8px !important;
+  overflow: auto !important;
+  border: 1px solid var(--game-border) !important;
+  border-radius: 5px !important;
+  background: #1b2123 !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-render-entry:has(.candidate-composer) {
+  flex-basis: 520px !important;
+  min-width: 520px !important;
+  max-width: 520px !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-render-entry :where(
+  .battle-declaration-summary,
+  .battle-declaration-note,
+  .unit-movement-summary,
+  .unit-movement-note,
+  .rune-resource-summary,
+  .rune-resource-note,
+  .rune-resource-pool,
+  .window-pass-summary,
+  .window-pass-note,
+  .response-window-summary,
+  .response-window-note,
+  .action-command-plan-source,
+  .candidate-command-preview,
+  .candidate-composer-checks,
+  .candidate-composer-warning
+) {
+  display: none !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock .action-render-entry :where(
+  .battle-declaration-panel,
+  .unit-movement-panel,
+  .rune-resource-panel,
+  .window-pass-panel,
+  .response-window-panel,
+  .action-command-plan
+) {
+  display: grid !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock :where(.button, button) {
+  min-height: 34px !important;
+  padding: 0 11px !important;
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 4px !important;
+  background: var(--game-surface-raised) !important;
+  color: var(--game-text) !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock :where(.button, button):not(:disabled):hover {
+  border-color: var(--game-gold) !important;
+  background: var(--game-surface-soft) !important;
+}
+
+.playable-match-surface.wire-match-page .game-action-dock :where(input, select, textarea) {
+  min-height: 30px !important;
+  padding: 3px 7px !important;
+  border: 1px solid var(--game-border-strong) !important;
+  border-radius: 4px !important;
+  background: #101416 !important;
+  color: var(--game-text) !important;
+}

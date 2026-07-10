@@ -88,15 +88,15 @@
 - Consumes: `tableRows: ReactNode`, `actionDock: ReactNode`, `objectTray: ReactNode`, `debugContent: ReactNode`, match status strings, and existing navigation/recovery callbacks.
 - Produces: `PlayableMatchSurface`, `data-playable-match-surface`, `data-game-table`, `data-game-action-dock`, and a collapsed `data-game-debug-drawer`.
 
-- [ ] Extend the static check to require all playable match markers and verify the debug drawer is collapsed by default.
-- [ ] Run the check and confirm it fails before the component exists.
-- [ ] Implement the presentational component with a compact top status bar, full-height table region, bottom action dock, and debug details.
-- [ ] Compose existing `WireBattlefieldTable`, `WireHandRail`, and `WirePlayerHome` rows into the new table without changing their view models or click handlers.
-- [ ] Place existing `ActionPanel`, quick actions, and `WireObjectCommandTray` in the bottom dock; retain remaining authority/log panels under the debug drawer.
-- [ ] Restyle table zones and official cards with stable aspect ratios, readable hover preview, selected/eligible/target state outlines, and a neutral hidden card back.
-- [ ] Verify the layout fixture at 1280x720, 1440x900, and 1920x1080; no essential action may leave the viewport.
-- [ ] Run static check, tabletop-layout check, typecheck, and capture all three viewport screenshots.
-- [ ] Commit the playable match surface.
+- [x] Extend the static check to require all playable match markers and verify the debug drawer is collapsed by default.
+- [x] Run the check and confirm it fails before the component exists.
+- [x] Implement the presentational component with a compact top status bar, full-height table region, bottom action dock, and debug details.
+- [x] Compose existing `WireBattlefieldTable`, `WireHandRail`, and `WirePlayerHome` rows into the new table without changing their view models or click handlers.
+- [x] Place existing `ActionPanel`, quick actions, and `WireObjectCommandTray` in the bottom dock; retain remaining authority/log panels under the debug drawer.
+- [x] Restyle table zones and official cards with stable aspect ratios, readable hover preview, selected/eligible/target state outlines, and a neutral hidden card back.
+- [x] Verify the layout fixture at 1280x720, 1440x900, and 1920x1080; no essential action may leave the viewport.
+- [x] Run static check, tabletop-layout check, typecheck, and capture all three viewport screenshots.
+- [x] Commit the playable match surface.
 
 ### Task 5: Complete Prompt and Result Presentation
 
