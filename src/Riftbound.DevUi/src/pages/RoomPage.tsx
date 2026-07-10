@@ -157,12 +157,12 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
   }, [controller, onNavigate]);
 
   return (
-    <div className="page-grid">
+    <div className="page-grid room-play-page" data-play-room>
       <section className="page-header">
         <div>
-          <span className="eyebrow">房间</span>
+          <span className="eyebrow">对战房间</span>
           <h1>{roomId}</h1>
-          <p>入座、提交卡组、准备和开局均通过服务端实时连接确认。</p>
+          <p>邀请对手，确认卡组，然后准备开局。</p>
         </div>
         <StatusPill tone={connectionStatusTone(controller.state.status)}>
           {connectionStatusLabel(controller.state.status)}
@@ -175,83 +175,107 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         playerCount={players.length}
         roomId={roomId}
       />
-      <RoomWorkflowSurface plan={roomWorkflowSurfacePlan} />
-      <section className="room-actions">
-        <div className="room-action-region" data-room-recovery-region>
-          <ConnectionRecoveryPanel
-            connectionStatus={controller.state.status}
-            hasSnapshot={Boolean(snapshot)}
-            lastSystemMessage={controller.state.lastSystemMessage}
-            onConnect={() => void controller.join()}
-            onDisconnect={() => void controller.disconnect()}
-            onResync={() => void controller.requestSnapshot()}
-            promptSnapshotTick={prompt?.snapshotTick}
-            snapshotTick={snapshot?.tick}
-            surface="room"
-          />
-        </div>
-        <div className="room-action-region room-quick-action-region" data-room-actions-region>
+      <div className="room-play-grid">
+        <section className="seat-grid" aria-label="玩家席位">
+          {Object.entries(snapshot?.players ?? {}).map(([playerId, player]) => (
+            <article className="seat-card" key={playerId}>
+              <span className="eyebrow">{player.seat ?? "席位"}</span>
+              <h2>{player.name ?? playerId}</h2>
+              <p>{playerId === settings.playerId ? "你" : "对手"} · {player.score ?? 0} 分</p>
+              <div className="player-pills">
+                <StatusPill tone={player.deckSubmitted ? "good" : "warn"}>{player.deckSubmitted ? "卡组已确认" : "等待卡组"}</StatusPill>
+                <StatusPill tone={player.ready ? "good" : "neutral"}>{player.ready ? "已准备" : "未准备"}</StatusPill>
+              </div>
+            </article>
+          ))}
+          {snapshot && players.length < 2 && (
+            <article className="seat-card seat-card-empty">
+              <span className="eyebrow">P2</span>
+              <h2>等待对手</h2>
+              <p>分享上方房间码邀请另一位玩家。</p>
+              <StatusPill tone="neutral">空席位</StatusPill>
+            </article>
+          )}
+          {!snapshot && <div className="empty-panel">正在连接房间并获取席位……</div>}
+        </section>
+        <section className="room-primary-actions" data-room-primary-actions>
+          <div>
+            <span className="eyebrow">开局准备</span>
+            <h2>{roomSetupFlowPlan.startGate.label}</h2>
+            <p>{roomSetupFlowPlan.startGate.nextStep}</p>
+          </div>
+          <div className="room-quick-action-region" data-room-actions-region>
           <RoomPromptButtons
             entries={roomQuickActionPlan.entries}
             onRunAction={runRoomQuickAction}
           />
-        </div>
-        <Button icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>进入对战桌面</Button>
-      </section>
+          </div>
+          <Button disabled={roomStatus !== "IN_PROGRESS"} icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>
+            进入对战桌面
+          </Button>
+        </section>
+      </div>
       <RoomSetupChecklist
         plan={roomSetupFlowPlan}
       />
-      <section className="seat-grid">
-        {Object.entries(snapshot?.players ?? {}).map(([playerId, player]) => (
-          <article className="seat-card" key={playerId}>
-            <span className="eyebrow">{player.seat ?? "席位"}</span>
-            <h2>{player.name ?? playerId}</h2>
-            <p>分数 {player.score ?? 0} / 手牌 {player.handSize ?? player.zones?.handHidden ?? player.zones?.hand?.length ?? 0}</p>
-            <div className="player-pills">
-              <StatusPill tone={player.deckSubmitted ? "good" : "warn"}>{player.deckSubmitted ? "已提交卡组" : "未提交卡组"}</StatusPill>
-              <StatusPill tone={player.ready ? "good" : "neutral"}>{player.ready ? "已准备" : "未准备"}</StatusPill>
+      <details className="room-diagnostics" data-room-diagnostics>
+        <summary>连接与诊断</summary>
+        <div className="room-diagnostics-body">
+          <RoomWorkflowSurface plan={roomWorkflowSurfacePlan} />
+          <section className="room-actions">
+            <div className="room-action-region" data-room-recovery-region>
+              <ConnectionRecoveryPanel
+                connectionStatus={controller.state.status}
+                hasSnapshot={Boolean(snapshot)}
+                lastSystemMessage={controller.state.lastSystemMessage}
+                onConnect={() => void controller.join()}
+                onDisconnect={() => void controller.disconnect()}
+                onResync={() => void controller.requestSnapshot()}
+                promptSnapshotTick={prompt?.snapshotTick}
+                snapshotTick={snapshot?.tick}
+                surface="room"
+              />
             </div>
-          </article>
-        ))}
-        {!snapshot && <div className="empty-panel">尚未收到房间快照，请先连接。</div>}
-      </section>
-      <section className="audit-banner">
-        <span id="room-current-actions" tabIndex={-1} />
-        <strong>当前可提交行动：</strong>
-        <span>{candidateListLabel(controller.state.prompt)}</span>
-      </section>
-      <RoomSubmissionReceipt feedback={controller.state.lastCommandSubmission} />
-      <RoomErrorResolutionPanel
-        onRunAction={runErrorResolutionAction}
-        plan={errorResolutionPlan}
-      />
-      <section className="room-log-panel" data-room-log-region>
-        <header>
-          <div>
-            <span className="eyebrow">房间日志</span>
-            <h2>服务端消息</h2>
-          </div>
-          <StatusPill tone={controller.state.errors.length > 0 ? "bad" : "good"}>
-            {controller.state.errors.length > 0 ? `${controller.state.errors.length} 个错误` : "无错误"}
-          </StatusPill>
-        </header>
-        <p>{controller.state.lastSystemMessage ?? "等待服务端房间消息。"}</p>
-        <div className="room-log-list">
-          {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
-          {controller.state.errors.map((error, index) => (
-            <article className="room-log-entry is-error" key={`${error.code}-${index}`}>
-              <strong>{errorCodeLabel(error.code)}</strong>
-              <span>{errorMessageLabel(error)}</span>
-            </article>
-          ))}
-          {controller.state.events.slice(0, 8).map((event, index) => (
-            <article className="room-log-entry" key={`${event.kind}-${index}`}>
-              <strong>{eventKindLabel(event.kind)}</strong>
-              <span>{eventDescriptionLabel(event)}</span>
-            </article>
-          ))}
+          </section>
+          <section className="audit-banner">
+            <span id="room-current-actions" tabIndex={-1} />
+            <strong>当前可提交行动：</strong>
+            <span>{candidateListLabel(controller.state.prompt)}</span>
+          </section>
+          <RoomSubmissionReceipt feedback={controller.state.lastCommandSubmission} />
+          <RoomErrorResolutionPanel
+            onRunAction={runErrorResolutionAction}
+            plan={errorResolutionPlan}
+          />
+          <section className="room-log-panel" data-room-log-region>
+            <header>
+              <div>
+                <span className="eyebrow">房间日志</span>
+                <h2>服务端消息</h2>
+              </div>
+              <StatusPill tone={controller.state.errors.length > 0 ? "bad" : "good"}>
+                {controller.state.errors.length > 0 ? `${controller.state.errors.length} 个错误` : "无错误"}
+              </StatusPill>
+            </header>
+            <p>{controller.state.lastSystemMessage ?? "等待服务端房间消息。"}</p>
+            <div className="room-log-list">
+              {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
+              {controller.state.errors.map((error, index) => (
+                <article className="room-log-entry is-error" key={`${error.code}-${index}`}>
+                  <strong>{errorCodeLabel(error.code)}</strong>
+                  <span>{errorMessageLabel(error)}</span>
+                </article>
+              ))}
+              {controller.state.events.slice(0, 8).map((event, index) => (
+                <article className="room-log-entry" key={`${event.kind}-${index}`}>
+                  <strong>{eventKindLabel(event.kind)}</strong>
+                  <span>{eventDescriptionLabel(event)}</span>
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
-      </section>
+      </details>
     </div>
   );
 }

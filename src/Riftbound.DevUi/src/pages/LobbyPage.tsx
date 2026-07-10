@@ -184,42 +184,27 @@ export function LobbyPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   }, [authenticateLobbySocket, ensureSocket, onNavigate, refreshPublicMatches, updateSettings]);
 
   return (
-    <div className="page-grid lobby-page">
+    <div className="page-grid lobby-page" data-play-lobby>
       <section className="page-header">
         <div>
           <span className="eyebrow">大厅</span>
-          <h1>创建或加入 1v1 房间</h1>
-          <p>房间由服务端实时连接创建；正式准备前必须提交服务端可验证卡组。</p>
+          <h1>开始一场对局</h1>
+          <p>快速匹配一位对手，或使用房间码和朋友开局。</p>
         </div>
-        <Button icon={<Plus size={18} />} onClick={createRoom}>创建房间</Button>
+        <Button icon={<Plus size={18} />} onClick={createRoom}>创建私人房间</Button>
       </section>
       <div className="lobby-content-grid">
-        <form className="lobby-form" onSubmit={joinRoom}>
-          <label>
-            <span>玩家名称</span>
-            <input value={settings.playerId} onChange={(event) => updateSettings({ playerId: event.target.value })} />
-          </label>
-          <label>
-            <span>服务端地址</span>
-            <input value={settings.serverUrl} onChange={(event) => updateSettings({ serverUrl: event.target.value })} />
-          </label>
-          <label>
-            <span>房间码</span>
-            <input value={roomId} onChange={(event) => setRoomId(event.target.value)} placeholder="输入邀请房间码" />
-          </label>
-          <Button icon={<LogIn size={18} />} type="submit">加入房间</Button>
-        </form>
-        <section className="lobby-discovery-panel" aria-label="匹配发现">
+        <section className="lobby-discovery-panel lobby-quick-match" aria-label="寻找对手">
           <div className="lobby-discovery-header">
             <div>
-              <span className="eyebrow">匹配发现</span>
-              <h2>自动配对或加入公开等待房</h2>
+              <span className="eyebrow">快速对战</span>
+              <h2>寻找一位在线对手</h2>
             </div>
             <span className={`status-pill ${queueState === "error" ? "status-bad" : queueState === "queued" ? "status-info" : "status-neutral"}`}>
               {queueStateLabel(queueState)}
             </span>
           </div>
-          <p className="lobby-status-line">{statusMessage}</p>
+          <p className="lobby-status-line">{statusMessage || "使用当前预构筑卡组进入 1v1 匹配。"}</p>
           <div className="lobby-action-row">
             <Button disabled={queueState === "authenticating" || queueState === "queued"} icon={<Search size={17} />} onClick={startQuickMatch}>
               快速匹配
@@ -228,7 +213,7 @@ export function LobbyPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
               取消匹配
             </Button>
             <Button icon={<Globe2 size={17} />} onClick={createPublicMatch} variant="secondary">
-              公开等候
+              创建公开房
             </Button>
             <Button disabled={publicMatchesLoading} icon={<RefreshCw size={17} />} onClick={refreshPublicMatches} variant="ghost">
               刷新列表
@@ -257,6 +242,28 @@ export function LobbyPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
           </ul>
           {publicMatches.length === 0 && !publicMatchesLoading ? <p className="empty-hint">暂无公开等待房。</p> : null}
         </section>
+        <form className="lobby-form lobby-join-room" onSubmit={joinRoom}>
+          <div className="lobby-form-heading">
+            <span className="eyebrow">好友对战</span>
+            <h2>加入私人房间</h2>
+          </div>
+          <label>
+            <span>玩家名称</span>
+            <input value={settings.playerId} onChange={(event) => updateSettings({ playerId: event.target.value })} />
+          </label>
+          <label>
+            <span>房间码</span>
+            <input value={roomId} onChange={(event) => setRoomId(event.target.value)} placeholder="输入邀请房间码" />
+          </label>
+          <Button icon={<LogIn size={18} />} type="submit">加入房间</Button>
+          <details className="lobby-server-settings">
+            <summary>连接设置</summary>
+            <label>
+              <span>服务端地址</span>
+              <input value={settings.serverUrl} onChange={(event) => updateSettings({ serverUrl: event.target.value })} />
+            </label>
+          </details>
+        </form>
       </div>
     </div>
   );

@@ -68,13 +68,13 @@
 - Consumes: current matchmaking, room join, starter-deck submission, ready, connection recovery, and room workflow handlers.
 - Produces: `data-play-lobby`, `data-play-room`, a compact primary action region, two seat summaries, and a collapsed diagnostics region.
 
-- [ ] Extend the static check to require the new lobby/room markers and to reject `prompt/tick` and server-chain headings outside diagnostic containers.
-- [ ] Run the check and confirm it fails on the current pages.
-- [ ] Reorder Lobby so matchmaking is primary, room-code join is secondary, and public rooms are a compact list.
-- [ ] Reorder Room so room code, seats, deck submission, and ready state are visible above the fold; wrap logs, workflow diagrams, and submission evidence in a collapsed diagnostics section.
+- [x] Extend the static check to require the new lobby/room markers and to reject `prompt/tick` and server-chain headings outside diagnostic containers.
+- [x] Run the check and confirm it fails on the current pages.
+- [x] Reorder Lobby so matchmaking is primary, room-code join is secondary, and public rooms are a compact list.
+- [x] Reorder Room so room code, seats, deck submission, and ready state are visible above the fold; wrap logs, workflow diagrams, and submission evidence in a collapsed diagnostics section.
 - [ ] Verify create/join room and deck/ready actions against the running API in two browser pages.
-- [ ] Capture lobby and room at 1440x900, then run static check and typecheck.
-- [ ] Commit the play-first lobby/room flow.
+- [x] Capture lobby and room at 1440x900, then run static check and typecheck.
+- [x] Commit the play-first lobby/room flow.
 
 ### Task 4: Replace the Wireframe Match Surface
 
