@@ -340,11 +340,11 @@ public partial class Main : Control
         _promptInteractionController.SelectionChanged += HandlePromptSelectionChanged;
         _promptInteractionController.SelectionCleared += HandlePromptSelectionCleared;
         _mulliganOverlay!.Confirmed += sourceIds => _ = SubmitCurrentMulliganAsync(sourceIds);
-        _mulliganOverlay.Cancelled += HideSpecialPromptOverlays;
+        _mulliganOverlay.Cancelled += ReopenSpecialPromptOverlay;
         _triggerOrderOverlay!.Confirmed += triggerIds => _ = SubmitCurrentTriggerOrderAsync(triggerIds);
-        _triggerOrderOverlay.Cancelled += HideSpecialPromptOverlays;
+        _triggerOrderOverlay.Cancelled += ReopenSpecialPromptOverlay;
         _damageAssignmentOverlay!.Confirmed += assignments => _ = SubmitCurrentDamageAssignmentsAsync(assignments);
-        _damageAssignmentOverlay.Cancelled += HideSpecialPromptOverlays;
+        _damageAssignmentOverlay.Cancelled += ReopenSpecialPromptOverlay;
         _resultOverlay!.ReturnLobbyRequested += () => _ = ReturnToLobbyAsync();
         _returnLobbyButton!.Pressed += () => _ = ReturnToLobbyAsync();
     }
@@ -4119,6 +4119,21 @@ public partial class Main : Control
         _mulliganOverlay?.HidePrompt();
         _triggerOrderOverlay?.HidePrompt();
         _damageAssignmentOverlay?.HidePrompt();
+    }
+
+    private void ReopenSpecialPromptOverlay()
+    {
+        if (_lastAppliedPromptView is null
+            || !_lastAppliedPromptView.TryGetValue("actions", out var actionsValue)
+            || actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>() is not { } actions)
+        {
+            HideSpecialPromptOverlays();
+            return;
+        }
+
+        // The server prompt is unchanged: discard only the local overlay state.
+        HideSpecialPromptOverlays();
+        ShowSpecialPromptOverlays(actions);
     }
 
     private IReadOnlyList<Godot.Collections.Dictionary> VisibleMulliganHandCards(Godot.Collections.Dictionary action)

@@ -511,7 +511,7 @@ public static class SpecialPromptCommandBuilder
     {
         assignments = [];
         reason = string.Empty;
-        var damagePool = FirstMetadataIntMap(metadata, "assignableDamagePool", "damagePool");
+        var damagePool = FirstPositiveIntMap(metadata, "assignableDamagePool", "damagePool");
         if (damagePool.Count == 0)
         {
             reason = "assignableDamagePool or damagePool is missing";
@@ -540,20 +540,31 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        var lethalDamageThreshold = FirstMetadataIntMap(metadata, "lethalDamageThreshold");
+        var lethalDamageThreshold = ReadNonNegativeIntMap(metadata, "lethalDamageThreshold");
         if (lethalDamageThreshold.Count == 0)
         {
             reason = "lethalDamageThreshold is missing";
             return false;
         }
 
-        var participantLabels = ReadParticipantLabels(battleParticipants);
-        var allowedPairs = ReadAssignmentChoicePairs(assignmentChoices);
+        if (!TryReadParticipantLabels(battleParticipants, out var participantLabels, out reason)
+            || !TryReadAssignmentChoicePairs(assignmentChoices, out var allowedPairs, out reason))
+        {
+            return false;
+        }
+
         var legalTargetsBySource = ReadStringListMap(metadata, "legalTargets");
         var parsed = new List<DamageAssignmentPromptItem>();
         var seenSources = new HashSet<string>(StringComparer.Ordinal);
+        var expectedPairs = new HashSet<(string Source, string Target)>();
         foreach (var requirement in requiredAssignments.EnumerateArray())
         {
+            if (requirement.ValueKind != JsonValueKind.Object)
+            {
+                reason = "requiredAssignments entry is malformed";
+                return false;
+            }
+
             var sourceObjectId = ReadString(requirement, "sourceObjectId");
             var requiredDamage = ReadInt(requirement, "damage");
             var legalTargetObjectIds = ReadStringArray(requirement, "legalTargetObjectIds");
@@ -569,6 +580,12 @@ public static class SpecialPromptCommandBuilder
                 || !seenSources.Add(sourceObjectId))
             {
                 reason = "requiredAssignments source, damage, or legalTargetObjectIds is missing";
+                return false;
+            }
+
+            if (legalTargetObjectIds.Distinct(StringComparer.Ordinal).Count() != legalTargetObjectIds.Count)
+            {
+                reason = "legalTargetObjectIds contains a duplicate target";
                 return false;
             }
 
@@ -593,6 +610,7 @@ public static class SpecialPromptCommandBuilder
             var targets = new List<DamageTargetPromptItem>(legalTargetObjectIds.Count);
             foreach (var targetObjectId in legalTargetObjectIds)
             {
+                expectedPairs.Add((sourceObjectId, targetObjectId));
                 if (!allowedPairs.Contains((sourceObjectId, targetObjectId)))
                 {
                     reason = "assignmentChoices target is missing";
@@ -615,6 +633,21 @@ public static class SpecialPromptCommandBuilder
             }
 
             parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, poolDamage, targets));
+        }
+
+        if (!allowedPairs.SetEquals(expectedPairs))
+        {
+            reason = "assignmentChoices does not exactly cover required legal targets";
+            return false;
+        }
+
+        if (legalTargetsBySource.Count > 0
+            && (!legalTargetsBySource.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(seenSources)
+                || parsed.Any(assignment => !legalTargetsBySource[assignment.SourceObjectId]
+                    .SequenceEqual(assignment.Targets.Select(target => target.TargetObjectId), StringComparer.Ordinal))))
+        {
+            reason = "legalTargets does not exactly cover required legal targets";
+            return false;
         }
 
         assignments = parsed;
@@ -689,40 +722,90 @@ public static class SpecialPromptCommandBuilder
         return true;
     }
 
-    private static Dictionary<string, string> ReadParticipantLabels(JsonElement battleParticipants)
+    private static bool TryReadParticipantLabels(
+        JsonElement battleParticipants,
+        out Dictionary<string, string> labels,
+        out string reason)
     {
-        var labels = new Dictionary<string, string>(StringComparer.Ordinal);
+        labels = new Dictionary<string, string>(StringComparer.Ordinal);
+        reason = string.Empty;
         var roleCounts = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var participant in battleParticipants.EnumerateArray())
         {
+            if (participant.ValueKind != JsonValueKind.Object)
+            {
+                reason = "battleParticipants entry is malformed";
+                return false;
+            }
+
             var objectId = ReadString(participant, "objectId");
             if (string.IsNullOrWhiteSpace(objectId))
             {
-                continue;
+                reason = "battleParticipants objectId is missing";
+                return false;
             }
 
             var role = ReadString(participant, "role");
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                reason = "battleParticipants role is missing";
+                return false;
+            }
+
+            if (!TryReadNonNegativeInt(participant, "power", out var power))
+            {
+                reason = "battleParticipants power is missing";
+                return false;
+            }
+
+            if (!TryReadNonNegativeInt(participant, "damage", out var damage))
+            {
+                reason = "battleParticipants damage is missing";
+                return false;
+            }
+
+            if (labels.ContainsKey(objectId))
+            {
+                reason = "battleParticipants duplicates an objectId";
+                return false;
+            }
+
             roleCounts[role] = roleCounts.GetValueOrDefault(role) + 1;
-            var power = Math.Max(0, ReadInt(participant, "power"));
-            var damage = Math.Max(0, ReadInt(participant, "damage"));
             labels[objectId] = $"{FriendlyParticipantRole(role)} {roleCounts[role]} · 战力 {power} · 已受伤 {damage}";
         }
 
-        return labels;
+        return labels.Count > 0;
     }
 
-    private static HashSet<(string Source, string Target)> ReadAssignmentChoicePairs(JsonElement assignmentChoices)
+    private static bool TryReadAssignmentChoicePairs(
+        JsonElement assignmentChoices,
+        out HashSet<(string Source, string Target)> pairs,
+        out string reason)
     {
-        var pairs = new HashSet<(string Source, string Target)>();
+        pairs = new HashSet<(string Source, string Target)>();
+        reason = string.Empty;
         foreach (var choice in assignmentChoices.EnumerateArray())
         {
-            if (TryReadAssignmentChoicePair(choice, out var sourceObjectId, out var targetObjectId))
+            if (choice.ValueKind != JsonValueKind.Object)
             {
-                pairs.Add((sourceObjectId, targetObjectId));
+                reason = "assignmentChoices pair is missing";
+                return false;
+            }
+
+            if (!TryReadAssignmentChoicePair(choice, out var sourceObjectId, out var targetObjectId))
+            {
+                reason = "assignmentChoices pair is missing";
+                return false;
+            }
+
+            if (!pairs.Add((sourceObjectId, targetObjectId)))
+            {
+                reason = "assignmentChoices duplicates a source-target pair";
+                return false;
             }
         }
 
-        return pairs;
+        return pairs.Count > 0;
     }
 
     private static bool TryReadAssignmentChoicePair(
@@ -952,11 +1035,11 @@ public static class SpecialPromptCommandBuilder
         return int.TryParse(value, out var parsed) ? parsed : int.MaxValue;
     }
 
-    private static IReadOnlyDictionary<string, int> FirstMetadataIntMap(JsonElement metadata, params string[] propertyNames)
+    private static IReadOnlyDictionary<string, int> FirstPositiveIntMap(JsonElement metadata, params string[] propertyNames)
     {
         foreach (var propertyName in propertyNames)
         {
-            var values = IntMap(metadata, propertyName);
+            var values = ReadPositiveIntMap(metadata, propertyName);
             if (values.Count > 0)
             {
                 return values;
@@ -966,7 +1049,20 @@ public static class SpecialPromptCommandBuilder
         return new Dictionary<string, int>(StringComparer.Ordinal);
     }
 
-    private static IReadOnlyDictionary<string, int> IntMap(JsonElement metadata, string propertyName)
+    private static IReadOnlyDictionary<string, int> ReadPositiveIntMap(JsonElement metadata, string propertyName)
+    {
+        return ReadIntMap(metadata, propertyName, value => value > 0);
+    }
+
+    private static IReadOnlyDictionary<string, int> ReadNonNegativeIntMap(JsonElement metadata, string propertyName)
+    {
+        return ReadIntMap(metadata, propertyName, value => value >= 0);
+    }
+
+    private static IReadOnlyDictionary<string, int> ReadIntMap(
+        JsonElement metadata,
+        string propertyName,
+        Func<int, bool> includeValue)
     {
         var result = new Dictionary<string, int>(StringComparer.Ordinal);
         if (!metadata.TryGetProperty(propertyName, out var property)
@@ -977,13 +1073,12 @@ public static class SpecialPromptCommandBuilder
 
         foreach (var item in property.EnumerateObject())
         {
-            var value = item.Value.ValueKind switch
+            if (!TryReadInt(item.Value, out var value))
             {
-                JsonValueKind.Number when item.Value.TryGetInt32(out var number) => number,
-                JsonValueKind.String when int.TryParse(item.Value.GetString(), out var number) => number,
-                _ => 0
-            };
-            if (!string.IsNullOrWhiteSpace(item.Name) && value > 0)
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Name) && includeValue(value))
             {
                 result[item.Name] = value;
             }
@@ -1058,6 +1153,32 @@ public static class SpecialPromptCommandBuilder
             JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
             _ => 0
         };
+    }
+
+    private static bool TryReadNonNegativeInt(JsonElement element, string propertyName, out int value)
+    {
+        value = 0;
+        return element.TryGetProperty(propertyName, out var property)
+            && TryReadInt(property, out value)
+            && value >= 0;
+    }
+
+    private static bool TryReadInt(JsonElement element, out int value)
+    {
+        value = 0;
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out var number))
+        {
+            value = number;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String && int.TryParse(element.GetString(), out number))
+        {
+            value = number;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool ReadBool(JsonElement element, string propertyName, bool fallback)
