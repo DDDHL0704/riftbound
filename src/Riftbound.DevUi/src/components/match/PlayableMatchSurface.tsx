@@ -45,7 +45,7 @@ export function PlayableMatchSurface({
         <Button aria-label="返回大厅" icon={<ArrowLeft size={18} />} onClick={onExit} variant="ghost" />
         <div className="game-match-title">
           <span className={canAct ? "game-turn-state is-active" : "game-turn-state"}>{canAct ? "轮到你" : "等待对手"}</span>
-          <strong>{promptTitle}</strong>
+          <h1>{promptTitle}</h1>
           <small>房间 {matchId}</small>
         </div>
         <div className="wire-status-line game-match-status" role="group" aria-label="回合状态">

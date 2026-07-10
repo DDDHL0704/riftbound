@@ -150,13 +150,13 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
 
   return (
     <div
-      className="page-grid"
+      className="page-grid deck-page"
       data-deck-import-command-length={currentCommandPreview.length}
       data-deck-import-state={importFlowPlan.state}
       data-deck-import-surface
       style={deckWireStyles.page}
     >
-      <section style={deckWireStyles.header}>
+      <section className="deck-page-header" style={deckWireStyles.header}>
         <div>
           <span style={deckWireStyles.eyebrow}>DECK INTAKE</span>
           <h1 style={deckWireStyles.h1}>构筑导入工作台</h1>
@@ -168,6 +168,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
       </section>
       <section
         aria-label="预构筑卡组"
+        className="deck-preconstructed-panel"
         data-preconstructed-decks
         data-preconstructed-decks-count={preconstructed.length}
         data-preconstructed-decks-state={preconstructedState}
@@ -212,7 +213,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
           ))}
         </div>
       </section>
-      <section aria-label="导入流程" style={deckWireStyles.flow}>
+      <section aria-label="导入流程" className="deck-import-flow" style={deckWireStyles.flow}>
         {importFlowPlan.steps.map((step) => (
           <article data-deck-import-flow-step={step.id} data-deck-import-flow-step-state={step.state} key={step.id} style={deckWireStyles.flowStep}>
             <strong>{step.label}</strong>
@@ -221,8 +222,8 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
         ))}
       </section>
       <DeckImportHandoffSurface deckSource={deckSource} plan={importHandoffPlan} />
-      <section style={deckWireStyles.importShell}>
-        <div data-deck-import-editor style={deckWireStyles.importEditor}>
+      <section className="deck-import-workbench" style={deckWireStyles.importShell}>
+        <div className="deck-import-editor" data-deck-import-editor style={deckWireStyles.importEditor}>
           <header style={deckWireStyles.panelHeader}>
             <div>
               <span style={deckWireStyles.eyebrow}>PASTE</span>
@@ -282,7 +283,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
             </Button>
           </div>
         </div>
-        <aside data-deck-import-feedback data-deck-import-state={importFlowPlan.state} style={deckWireStyles.feedbackPanel}>
+        <aside className="deck-import-feedback" data-deck-import-feedback data-deck-import-state={importFlowPlan.state} style={deckWireStyles.feedbackPanel}>
           <header style={deckWireStyles.panelHeader}>
             <div>
               <span style={deckWireStyles.eyebrow}>FEEDBACK</span>
@@ -410,6 +411,7 @@ function DeckImportHandoffSurface({ deckSource, plan }: { deckSource: DeckSource
   return (
     <section
       aria-label="构筑导入交接"
+      className="deck-handoff"
       data-deck-import-handoff
       data-deck-import-handoff-active-section={plan.activeSectionId}
       data-deck-import-handoff-command-type={plan.serverHandoff.commandType}

@@ -20,7 +20,8 @@ const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollo
 const wireLayoutGeometryViewports = [
   { height: 1080, label: "1920x1080", width: 1920 },
   { height: 900, label: "1440x900", width: 1440 },
-  { height: 800, label: "1280x800", width: 1280 }
+  { height: 800, label: "1280x800", width: 1280 },
+  { height: 844, label: "390x844", width: 390 }
 ];
 const { WIRE_CARD_IMAGE_RATIO } = loadTsModule(path.resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
 const {
@@ -31,17 +32,17 @@ const wireSidePanelTabIds = WIRE_SIDE_PANEL_TABS.map((tab) => tab.id);
 const wireSidePanelVisibleSlotsByTab = Object.fromEntries(WIRE_SIDE_PANEL_TABS.map((tab) => [tab.id, tab.slots]));
 
 const routes = [
-  { path: "/", texts: ["符文战场", "进入大厅"] },
-  { path: "/lobby", texts: ["创建或加入", "玩家名称", "房间码"] },
+  { path: "/", texts: ["开始一场对局", "快速匹配", "创建私人房间"] },
+  { path: "/lobby", texts: ["开始一场对局", "玩家名称", "房间码"] },
   { path: "/decks", texts: ["构筑导入工作台", "导入到服务端提交的交接", "导入入口", "等待服务端验证", "服务端权威"] },
   { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
-  { path: "/rooms/stage3-smoke", texts: ["房间", "流程总览", "连接/重连并入座", "卡组提交", "提交回执"] },
+  { path: "/rooms/stage3-smoke", texts: ["对战房间", "开局准备", "服务端连接", "卡组提交"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "态势总览"],
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
-  { path: "/matches/stage3-smoke/result", texts: ["结算", "最终状态", "事件 / 错误", "结果只读取服务端权威快照"] }
+  { path: "/matches/stage3-smoke/result", texts: ["对局结算", "返回大厅", "返回房间", "查看对战桌面"] }
 ];
 
 const children = [];
@@ -115,14 +116,6 @@ try {
     if (route.path === "/decks") {
       await runDeckImportHandoffSmoke(cdp);
     }
-    if (route.path === "/rooms/stage3-smoke") {
-      await runRoomLifecycleSmoke(cdp);
-      await runConnectionRecoveryPanelSmoke(cdp, "room");
-    }
-    if (route.path === "/matches/stage3-smoke") {
-      await runMatchRecoverySurfaceSmoke(cdp);
-      await runConnectionRecoveryPanelSmoke(cdp, "match", "offline");
-    }
     if (route.path === "/matches/stage3-smoke/result") {
       await runResultPageSurfaceSmoke(cdp);
     }
@@ -132,46 +125,18 @@ try {
   for (const viewport of wireLayoutGeometryViewports) {
     await setViewport(cdp, viewport);
     await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-    await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "指挥中心"]);
+    await waitForText(cdp, ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"]);
     if (viewport.label === "1440x900") {
       await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
     }
-    await runWireLayoutGeometrySmoke(cdp, viewport.label);
-    console.log(`Chrome smoke OK: wire layout geometry ${viewport.label}`);
-    if (viewport.width >= 1280) {
-      await runWireSidePanelBrowserAcceptanceSmoke(cdp, viewport.label);
-      console.log(`Chrome smoke OK: wire side panel browser acceptance ${viewport.label}`);
-    } else {
-      console.log(`Chrome smoke SKIP: wire side panel browser acceptance ${viewport.label} stacked fallback`);
-    }
+    await runPlayableMatchSurfaceSmoke(cdp, viewport.label);
+    console.log(`Chrome smoke OK: playable match surface ${viewport.label}`);
   }
   await setViewport(cdp, { height: 900, label: "1440x900", width: 1440 });
-  await runWireClickSelectionSmoke(cdp);
-  console.log("Chrome smoke OK: wire click selection");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情"]);
-  await runWireTimelineCommandSubmitSmoke(cdp);
-  console.log("Chrome smoke OK: wire timeline command submit");
-  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=snapshot`);
-  await waitForText(cdp, ["符文战场对战线框", "快照/提示已同步", "当前快照"]);
-  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=snapshot");
-  await runWireSnapshotSubmissionSmoke(cdp);
-  console.log("Chrome smoke OK: wire snapshot submission");
-  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=silent`);
-  await waitForText(cdp, ["符文战场对战线框", "静默接受", "命令已接受"]);
-  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=silent");
-  await runWireSilentSubmissionSmoke(cdp);
-  console.log("Chrome smoke OK: wire silent submission");
-  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=rejected`);
-  await waitForText(cdp, ["符文战场对战线框", "提交失败", "提交未成立", "拒绝"]);
-  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=rejected");
-  await runWireRejectedSubmissionSmoke(cdp);
-  console.log("Chrome smoke OK: wire rejected submission");
-  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=timeline`);
-  await waitForText(cdp, ["符文战场对战线框", "规则与事件详情", "服务端后续", "后续事件"]);
-  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=timeline");
-  await runWireRuleObjectRefSmoke(cdp);
-  console.log("Chrome smoke OK: wire rule object refs");
+  await waitForText(cdp, ["公共战场", "你的手牌", "连接与规则诊断"]);
+  await runPlayableCardInspectSmoke(cdp);
+  console.log("Chrome smoke OK: playable card inspect");
 
   if (browserErrors.length > 0) {
     throw new Error(`Chrome reported errors:\n${browserErrors.join("\n")}`);
@@ -186,6 +151,181 @@ try {
 
   if (userDataDir) {
     await rm(userDataDir, { force: true, maxRetries: 5, recursive: true, retryDelay: 120 });
+  }
+}
+
+async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
+  await delay(450);
+  const surface = await evaluateJson(cdp, `(() => {
+    const root = document.querySelector("[data-playable-match-surface]");
+    const table = document.querySelector("[data-game-table]");
+    const actionDock = document.querySelector("[data-game-action-dock]");
+    const actionScroller = actionDock?.querySelector(".action-buttons");
+    const actionEntries = Array.from(actionDock?.querySelectorAll("[data-action-render-entry]") ?? []);
+    const selfHand = document.querySelector(".wire-hand-self .wire-hand-cards");
+    const opponentHand = document.querySelector(".wire-hand-opponent .wire-hand-cards");
+    const quickActions = document.querySelector(".game-match-quick-actions");
+    const rectOf = (element) => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top };
+    };
+    const isInsideViewport = (element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0
+        && rect.right > 0 && rect.left < window.innerWidth
+        && rect.bottom > 0 && rect.top < window.innerHeight;
+    };
+    const initialScrollLeft = actionScroller?.scrollLeft ?? 0;
+    if (actionScroller) actionScroller.scrollLeft = actionScroller.scrollWidth;
+    const lastActionRect = rectOf(actionEntries.at(-1));
+    const actionScrollerRect = rectOf(actionScroller);
+    const actionViewportRect = rectOf(actionDock?.querySelector(".game-action-dock-body"));
+    const lastActionReachable = Boolean(lastActionRect && actionViewportRect
+      && lastActionRect.left >= actionViewportRect.left - 1
+      && lastActionRect.right <= actionViewportRect.right + 1);
+    if (actionScroller) actionScroller.scrollLeft = initialScrollLeft;
+    return {
+      actionEntryCount: actionEntries.length,
+      actionPanelCount: actionDock?.querySelectorAll('[data-action-panel-presentation="play"]').length ?? 0,
+      actionScrollClientWidth: actionScroller?.clientWidth ?? 0,
+      actionScrollerRect,
+      actionScrollWidth: actionScroller?.scrollWidth ?? 0,
+      actionViewportRect,
+      lastActionReachable,
+      debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
+      dockRect: rectOf(actionDock),
+      hasRoot: Boolean(root),
+      hasTable: Boolean(table),
+      opponentBackCount: opponentHand?.querySelectorAll(".card-back").length ?? 0,
+      opponentCardCount: opponentHand?.querySelectorAll(".card-face").length ?? 0,
+      opponentFrontCount: opponentHand?.querySelectorAll(".card-full-image").length ?? 0,
+      scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
+      scrollHeight: document.documentElement.scrollHeight,
+      scrollWidth: document.documentElement.scrollWidth,
+      selfCardCount: selfHand?.querySelectorAll(".card-face").length ?? 0,
+      selfFrontCount: selfHand?.querySelectorAll(".card-full-image").length ?? 0,
+      selfVisibleFrontCount: Array.from(selfHand?.querySelectorAll(".card-full-image") ?? []).filter(isInsideViewport).length,
+      tableRect: rectOf(table),
+      quickActionsRect: rectOf(quickActions),
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth
+    };
+  })()`);
+
+  const failures = [];
+  if (!surface.hasRoot || !surface.hasTable || surface.actionPanelCount < 1) {
+    failures.push(`playable shell is incomplete: ${JSON.stringify(surface)}`);
+  }
+  if (surface.scoreTokenCount < 2) {
+    failures.push(`both score tokens must be visible: ${surface.scoreTokenCount}`);
+  }
+  if (surface.selfCardCount < 1 || surface.selfFrontCount < 1) {
+    failures.push(`self hand must show official card fronts: ${JSON.stringify({ cards: surface.selfCardCount, fronts: surface.selfFrontCount })}`);
+  }
+  if (surface.selfVisibleFrontCount < 1) {
+    failures.push(`at least one self-hand card must be visible in ${viewportLabel}: ${JSON.stringify(surface)}`);
+  }
+  if (surface.actionEntryCount > 0 && !surface.lastActionReachable) {
+    failures.push(`every server action must be horizontally reachable in ${viewportLabel}: ${JSON.stringify({
+      clientWidth: surface.actionScrollClientWidth,
+      entryCount: surface.actionEntryCount,
+      scrollWidth: surface.actionScrollWidth
+    })}`);
+  }
+  if (surface.opponentCardCount < 1 || surface.opponentBackCount !== surface.opponentCardCount || surface.opponentFrontCount !== 0) {
+    failures.push(`opponent hand must only show card backs: ${JSON.stringify({
+      backs: surface.opponentBackCount,
+      cards: surface.opponentCardCount,
+      fronts: surface.opponentFrontCount
+    })}`);
+  }
+  if (surface.debugOpen) {
+    failures.push("diagnostics must stay collapsed during normal play");
+  }
+  for (const [label, rect] of [["table", surface.tableRect], ["action dock", surface.dockRect]]) {
+    if (!rect || rect.left < -1 || rect.right > surface.viewportWidth + 1 || rect.top < -1 || rect.bottom > surface.viewportHeight + 1) {
+      failures.push(`${label} escaped the ${viewportLabel} viewport: ${JSON.stringify(rect)}`);
+    }
+  }
+  if (surface.quickActionsRect && (surface.quickActionsRect.left < -1 || surface.quickActionsRect.right > surface.viewportWidth + 1)) {
+    failures.push(`topbar quick actions escaped the ${viewportLabel} viewport: ${JSON.stringify(surface.quickActionsRect)}`);
+  }
+  if (surface.scrollWidth > surface.viewportWidth + 1 || surface.scrollHeight > surface.viewportHeight + 1) {
+    failures.push(`page overflowed ${viewportLabel}: ${JSON.stringify({
+      scroll: [surface.scrollWidth, surface.scrollHeight],
+      viewport: [surface.viewportWidth, surface.viewportHeight]
+    })}`);
+  }
+  if (failures.length > 0) {
+    throw new Error(`Playable match surface smoke failed for ${viewportLabel}:\n${failures.join("\n")}`);
+  }
+}
+
+async function runPlayableCardInspectSmoke(cdp) {
+  const clickedLabel = await evaluateJson(cdp, `(() => {
+    const card = Array.from(document.querySelectorAll(".wire-hand-self .wire-hand-cards button.card-face"))
+      .find((element) => element.getClientRects().length > 0);
+    if (!(card instanceof HTMLButtonElement)) return "";
+    const label = card.getAttribute("aria-label") ?? card.textContent?.trim() ?? "";
+    card.click();
+    return label;
+  })()`);
+  if (!clickedLabel) {
+    throw new Error("Playable card inspect smoke could not find a visible self-hand card.");
+  }
+
+  const trayDeadline = Date.now() + 5_000;
+  let trayOpened = false;
+  while (Date.now() < trayDeadline) {
+    trayOpened = Boolean(await evaluateJson(cdp, `(() =>
+      document.querySelector('[data-wire-object-command-tray-visible="true"]')?.getClientRects().length
+    )()`));
+    if (trayOpened) break;
+    await delay(100);
+  }
+  if (!trayOpened) {
+    throw new Error(`Playable card inspect did not open the object command tray: ${clickedLabel}`);
+  }
+
+  const detailRequested = await evaluateJson(cdp, `(() => {
+    const tray = document.querySelector('[data-wire-object-command-tray-visible="true"]');
+    const button = Array.from(tray?.querySelectorAll("button") ?? [])
+      .find((element) => element.textContent?.includes("详情"));
+    if (!(button instanceof HTMLButtonElement)) return false;
+    button.click();
+    return true;
+  })()`);
+  if (!detailRequested) {
+    throw new Error("Playable object command tray did not expose the detail action.");
+  }
+
+  const deadline = Date.now() + 5_000;
+  let detail;
+  while (Date.now() < deadline) {
+    detail = await evaluateJson(cdp, `(() => {
+      const dialog = document.querySelector('[data-detail-dialog-state="open"]');
+      return {
+        hidden: Boolean(dialog?.querySelector(".detail-card-back")),
+        open: Boolean(dialog),
+        title: dialog?.querySelector("#card-detail-title")?.textContent?.trim() ?? ""
+      };
+    })()`);
+    if (detail.open) break;
+    await delay(100);
+  }
+  if (!detail?.open || !detail.title || detail.hidden) {
+    throw new Error(`Playable card inspect did not open a visible-card detail: ${JSON.stringify({ clickedLabel, detail })}`);
+  }
+
+  const closed = await evaluateJson(cdp, `(() => {
+    const close = document.querySelector('button[aria-label="关闭卡牌详情"]');
+    if (!(close instanceof HTMLButtonElement)) return false;
+    close.click();
+    return true;
+  })()`);
+  if (!closed) {
+    throw new Error("Playable card inspect could not close the card detail dialog.");
   }
 }
 

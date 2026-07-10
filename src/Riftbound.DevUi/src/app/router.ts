@@ -1,5 +1,4 @@
 export type AppRoute =
-  | { name: "home" }
   | { name: "cards" }
   | { name: "decks" }
   | { name: "lobby" }
@@ -14,7 +13,7 @@ export type AppRoute =
 export function parseRoute(pathname = window.location.pathname): AppRoute {
   const segments = pathname.split("/").filter(Boolean).map(decodeURIComponent);
   if (segments.length === 0) {
-    return { name: "home" };
+    return { name: "lobby" };
   }
 
   if (segments[0] === "cards") {
@@ -57,13 +56,11 @@ export function parseRoute(pathname = window.location.pathname): AppRoute {
     return { name: "audit" };
   }
 
-  return { name: "home" };
+  return { name: "lobby" };
 }
 
 export function routePath(route: AppRoute): string {
   switch (route.name) {
-    case "home":
-      return "/";
     case "cards":
       return "/cards";
     case "decks":

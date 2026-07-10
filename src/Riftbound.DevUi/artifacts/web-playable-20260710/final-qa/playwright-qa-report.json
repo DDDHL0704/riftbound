@@ -1,0 +1,135 @@
+{
+  "generatedAt": "2026-07-10T06:31:10.523Z",
+  "frontendUrl": "http://127.0.0.1:5176",
+  "serverUrl": "http://127.0.0.1:5088",
+  "baselineDiffEnabled": false,
+  "outputRoot": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa",
+  "interactions": [
+    {
+      "card": "大力仙灵。SFD·125/221",
+      "name": "playable-card-inspect",
+      "result": "opened-and-closed",
+      "title": "大力仙灵"
+    }
+  ],
+  "updateBaseline": false,
+  "shots": [
+    {
+      "name": "lobby-root",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/lobby-root.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "lobby-mobile",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/lobby-mobile.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "cards",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/cards.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "decks",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/decks.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "room",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/room.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "result",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/result.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "match-midgame-showcase",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/match-midgame-showcase.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "match-mobile-playable",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/match-mobile-playable.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "prompt-pay-cost",
+      "path": "/Users/dinghaolin/IdeaProjects/riftbound/src/Riftbound.DevUi/artifacts/web-playable-20260710/final-qa/appshots/prompt-pay-cost.png",
+      "visual": {
+        "status": "playable-surface-invariant",
+        "ratio": null
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    }
+  ]
+}

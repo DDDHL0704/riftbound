@@ -37,6 +37,7 @@ export type InspectedCard = {
 
 export function CardFace({ objectId, object, spec, compact = false, interactionHint, interactionState, timelineState, selected = false, onInspect, onPreview }: CardFaceProps) {
   const hidden = isHiddenObject(object) && !spec;
+  const visualStateClasses = cardVisualStateClasses(object);
   const Container = onInspect ? "button" : "article";
   const previewCard = { objectId, object, spec };
   const dataProps = {
@@ -70,7 +71,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionH
 
   if (hidden) {
     return (
-      <Container aria-label={cardAccessibilityLabel("未公开卡牌", undefined, interactionHint)} className={`card-face card-back ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
+      <Container aria-label={cardAccessibilityLabel("未公开卡牌", undefined, interactionHint)} className={`card-face card-back ${visualStateClasses} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
         <span>隐藏信息</span>
@@ -96,7 +97,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionH
     return (
       <Container
         aria-label={ariaLabel}
-        className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`}
+        className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${visualStateClasses} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`}
         title={interactionHint?.semanticSummary}
         {...dataProps}
         {...containerProps}
@@ -113,7 +114,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionH
   }
 
   return (
-    <Container aria-label={ariaLabel} className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
+    <Container aria-label={ariaLabel} className={`card-face ${compact ? "card-compact" : ""} ${visualStateClasses} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
       <div className="card-frame-top">
         <span>{category}</span>
         <span>{cardNo ?? "无编号"}</span>
@@ -164,6 +165,15 @@ function interactionClass(state: CardFaceProps["interactionState"]): string {
 
 function timelineClass(state: CardFaceProps["timelineState"]): string {
   return state ? `is-timeline-${state}` : "";
+}
+
+function cardVisualStateClasses(object?: CardObjectView): string {
+  return [
+    object?.isExhausted ? "is-card-exhausted" : "",
+    object?.isAttacking ? "is-card-attacking" : "",
+    object?.isDefending ? "is-card-defending" : "",
+    (object?.damage ?? 0) > 0 ? "is-card-damaged" : ""
+  ].filter(Boolean).join(" ");
 }
 
 function cardAccessibilityLabel(title: string, cardNo?: string, interactionHint?: CardFaceInteractionHint): string {

@@ -70,14 +70,14 @@ for (const requiredAttribute of [
 
 assert.match(
   chromeSmokeSource,
-  /await\s+runMatchRecoverySurfaceSmoke\(cdp\)/,
-  "Chrome smoke must run match recovery surface browser assertions on the match route."
+  /await\s+runPlayableMatchSurfaceSmoke\(cdp,\s*viewport\.label\)/,
+  "Chrome smoke must run player-facing match surface assertions at every desktop viewport."
 );
 
 assert.match(
   chromeSmokeSource,
-  /async\s+function\s+runMatchRecoverySurfaceSmoke\(cdp\)/,
-  "Chrome smoke must keep match recovery surface checks in a named helper."
+  /async\s+function\s+runPlayableMatchSurfaceSmoke\(cdp,\s*viewportLabel\)/,
+  "Chrome smoke must keep player-facing match surface checks in a named helper."
 );
 
 assert.match(

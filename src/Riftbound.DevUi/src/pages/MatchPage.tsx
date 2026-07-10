@@ -945,6 +945,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           playerId={settings.playerId}
           prompt={tablePrompt}
           snapshot={tableSnapshot}
+          specs={tableSpecByNo}
         />
       </section>
     ),
@@ -1173,8 +1174,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               surface: "action-dock"
             })}
             playerId={settings.playerId}
+            presentation="play"
             prompt={tablePrompt}
             snapshot={tableSnapshot}
+            specs={tableSpecByNo}
           />
         )}
         canAct={canAct}
@@ -1700,7 +1703,7 @@ function WirePlayerHome({
   } satisfies Record<string, ReactNode>;
 
   return (
-    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`} data-wire-base-partition-source={entry?.basePartitionSource ?? "missing"}>
+    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`} data-wire-base-partition-source={entry?.basePartitionSource ?? "missing"} data-wire-player-side={side}>
       <div
         aria-label={`${ownerLabel} 分数 ${score}`}
         className="tabletop-score-token wire-home-score-token"
@@ -1740,6 +1743,7 @@ function WireHandRail({
   const zones = entry?.zones ?? {};
   const runeIds = entry?.runeIds ?? [];
   const ids = entry ? hidden ? entry.hiddenHandIds : entry.handIds : [];
+  const handLabel = side === "self" ? "你的手牌" : "对手手牌";
   const emptyObjects: Record<string, CardObjectView> = {};
   const zoneObjects = entry ? entry.objects : emptyObjects;
   const pileSections = {
@@ -1787,7 +1791,11 @@ function WireHandRail({
   } satisfies Record<string, ReactNode>;
 
   return (
-    <section className={`wire-hand-rail wire-hand-${side} ${entry ? "" : "wire-hand-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={entry ? `${playerLabel(entry)} 手牌` : `${side === "self" ? "P1 我方" : "P2 对手"} 手牌`}>
+    <section className={`wire-hand-rail wire-hand-${side} ${entry ? "" : "wire-hand-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={entry ? `${playerLabel(entry)} 手牌` : `${side === "self" ? "P1 我方" : "P2 对手"} 手牌`} data-wire-player-side={side}>
+      <div className="wire-hand-summary" aria-hidden="true">
+        <span>{handLabel}</span>
+        <strong>{ids.length} 张</strong>
+      </div>
       {layout.slots.map((slot) => handRailSections[slot])}
     </section>
   );
@@ -1852,6 +1860,7 @@ function WireBattlefieldTable({
               key={zone.id}
               style={wireGridTemplateStyle(["minmax(0, 1fr)"], layout.laneRows)}
             >
+              <span className="wire-battlefield-lane-label" aria-hidden="true">{zone.laneIndex === 0 ? "左战场" : "右战场"}</span>
               {opponentZone ? renderUnitZone(opponentZone) : null}
               {selfZone ? renderUnitZone(selfZone) : null}
             </section>
@@ -1869,6 +1878,10 @@ function WireBattlefieldTable({
 
   return (
     <section className="wire-battlefield-stack" style={wireGridColumnsStyle(layout.columns)} aria-label="公共战场">
+      <div className="wire-battlefield-heading" aria-hidden="true">
+        <span>公共战场</span>
+        <small>两处争夺区</small>
+      </div>
       {layout.slots.map((slot) => battlefieldSections[slot])}
     </section>
   );
@@ -1919,6 +1932,7 @@ function WireBattlefieldStandbyZone({
       data-wire-battlefield-standby-count={slots.length}
       data-wire-battlefield-standby-source={lane.standbySlotSource}
     >
+      <span className="wire-standby-label" aria-hidden="true">待命</span>
       <div
         className={`wire-card-flow wire-card-flow-standby wire-card-flow-rail wire-flow-${flowPlan.density}`}
         data-flow-capacity={String(flowPlan.capacity)}
@@ -2125,9 +2139,17 @@ function MatchRecoverySurface({ plan }: { plan: MatchRecoverySurfacePlan }) {
 function WireZone({ children, className = "", title }: { children: ReactNode; className?: string; title: string }) {
   return (
     <section className={`wire-zone ${className}`} aria-label={title}>
+      <span className="wire-zone-label" aria-hidden="true">{visibleZoneLabel(title)}</span>
       <div className="wire-zone-body">{children}</div>
     </section>
   );
+}
+
+function visibleZoneLabel(title: string): string {
+  if (title.includes("传奇")) return "传奇";
+  if (title.includes("英雄")) return "英雄";
+  if (title.includes("基地")) return "基地 / 放逐";
+  return title;
 }
 
 type WireCssProperties = CSSProperties & Record<`--${string}`, string | number>;

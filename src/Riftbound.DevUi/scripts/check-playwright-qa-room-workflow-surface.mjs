@@ -65,7 +65,7 @@ for (const requiredAttribute of [
 }
 
 for (const requiredText of [
-  "连接/重连",
+  "服务端连接",
   "卡组提交",
   "提交回执",
   "错误处理",

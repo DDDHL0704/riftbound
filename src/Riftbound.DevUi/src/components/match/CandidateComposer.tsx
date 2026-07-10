@@ -2,6 +2,7 @@ import { Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type {
   ActionPromptCandidateDto,
+  ActionPromptChoiceDto,
   ActionPromptDto,
   SnapshotDto
 } from "../../types/protocol";
@@ -40,7 +41,16 @@ type CandidateComposerProps = {
   submissionGate?: ServerSubmissionGatePlan;
   forcedSourceObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
+  presentChoice?: CandidateChoicePresenter;
 };
+
+export type CandidateChoicePresentation = {
+  cardNo?: string;
+  frontImage?: string;
+  label: string;
+};
+
+export type CandidateChoicePresenter = (choice: ActionPromptChoiceDto) => CandidateChoicePresentation;
 
 export function canComposeCandidate(candidate: ActionPromptCandidateDto): boolean {
   return canComposeActionCandidate(candidate);
@@ -56,6 +66,7 @@ export function CandidateComposer({
   onCommand,
   onSubmitted,
   prompt,
+  presentChoice,
   selectionDraft,
   snapshot,
   submissionGate
@@ -126,7 +137,7 @@ export function CandidateComposer({
             value={state.sourceId ?? ""}
           >
             {controls.sources.map((choice) => (
-              <option key={choice.id} value={choice.id}>{choiceLabel(choice)}</option>
+              <option key={choice.id} value={choice.id}>{presentChoice?.(choice).label ?? choiceLabel(choice)}</option>
             ))}
           </select>
         </label>
@@ -140,7 +151,7 @@ export function CandidateComposer({
             value={state.mode ?? ""}
           >
             {controls.modeChoices.map((choice) => (
-              <option key={choice.id} value={choice.id}>{choiceLabel(choice)}</option>
+              <option key={choice.id} value={choice.id}>{presentChoice?.(choice).label ?? choiceLabel(choice)}</option>
             ))}
           </select>
         </label>
@@ -155,7 +166,7 @@ export function CandidateComposer({
           >
             {!controls.destinationRequired && <option value="">不选择</option>}
             {controls.destinationChoices.map((choice) => (
-              <option key={choice.id} value={choice.id}>{choiceLabel(choice)}</option>
+              <option key={choice.id} value={choice.id}>{presentChoice?.(choice).label ?? choiceLabel(choice)}</option>
             ))}
           </select>
         </label>
@@ -176,7 +187,7 @@ export function CandidateComposer({
           >
             {!group.required && <option value="">不选择</option>}
             {group.choices.map((choice) => (
-              <option key={choice.id} value={choice.id}>{choiceLabel(choice)}</option>
+              <option key={choice.id} value={choice.id}>{presentChoice?.(choice).label ?? choiceLabel(choice)}</option>
             ))}
           </select>
         </label>
@@ -200,7 +211,7 @@ export function CandidateComposer({
                   }))}
                   type="checkbox"
                 />
-                <span>{choiceLabel(choice)}{locked ? "（必需）" : ""}</span>
+                <span>{presentChoice?.(choice).label ?? choiceLabel(choice)}{locked ? "（必需）" : ""}</span>
               </label>
             );
           })}

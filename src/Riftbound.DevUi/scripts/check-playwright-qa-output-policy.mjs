@@ -21,13 +21,13 @@ assert.match(
 assert.match(
   source,
   /const\s+baselineDiffEnabled\s*=\s*process\.env\.RIFTBOUND_QA_BASELINE_DIFF\s*===\s*"1"/,
-  "Playwright QA pixel baseline diff must be opt-in so stale tracked baselines do not block the white wireframe gate."
+  "Playwright QA pixel baseline diff must be opt-in so stale tracked baselines do not block the playable visual gate."
 );
 
 assert.match(
   source,
-  /await\s+assertWireframeVisual\(buffer,\s*shot\.name\)/,
-  "Playwright QA must still enforce a code-driven white wireframe visual invariant for every captured shot."
+  /assertPlayableVisual\(buffer,\s*shot\.name\)/,
+  "Playwright QA must enforce a code-driven nonblank, visually varied invariant for every captured shot."
 );
 
 console.log("Playwright QA output policy check passed.");

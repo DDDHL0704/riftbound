@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { CardLibraryPage } from "../pages/CardLibraryPage";
 import { DecksPage } from "../pages/DecksPage";
-import { HomePage } from "../pages/HomePage";
 import { LobbyPage } from "../pages/LobbyPage";
 import { MatchPage } from "../pages/MatchPage";
 import { PlayerProfilePage } from "../pages/PlayerProfilePage";
@@ -38,7 +37,6 @@ function RoutedApp() {
   return (
     <CatalogProvider disabled={catalogDisabled} serverUrl={settings.serverUrl}>
       <AppShell activeRoute={route.name} onNavigate={navigate}>
-        {route.name === "home" && <HomePage onNavigate={navigate} />}
         {route.name === "cards" && <CardLibraryPage />}
         {route.name === "decks" && <DecksPage onNavigate={navigate} />}
         {route.name === "lobby" && <LobbyPage onNavigate={navigate} />}

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,14 @@ const debugPortBase = Number(process.env.RIFTBOUND_E2E_CHROME_DEBUG_PORT ?? 9340
 const serverUrl = process.env.RIFTBOUND_SERVER_URL ?? "http://127.0.0.1:5088";
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const startApi = process.argv.includes("--start-api");
+const captureDir = process.env.RIFTBOUND_E2E_CAPTURE_DIR
+  ? path.resolve(appRoot, process.env.RIFTBOUND_E2E_CAPTURE_DIR)
+  : undefined;
+const headed = process.env.RIFTBOUND_E2E_HEADED === "1";
+const formalPlayerKeys = {
+  P1: "pk_formal_18_player_one_0000000000000001",
+  P2: "pk_formal_18_player_two_0000000000000002"
+};
 
 const hiddenDebugTexts = [
   "mainDeck",
@@ -89,8 +97,8 @@ try {
 
   roomDriver = await createFormalRoomDriver();
   const browserErrors = [];
-  const p1Tab = await openPlayerChrome("P1", roomDriver.sessions.P1.reconnectToken, debugPortBase, browserErrors);
-  const p2Tab = await openPlayerChrome("P2", roomDriver.sessions.P2.reconnectToken, debugPortBase + 1, browserErrors);
+  const p1Tab = await openPlayerChrome("P1", formalPlayerKeys.P1, roomDriver.sessions.P1.reconnectToken, debugPortBase, browserErrors);
+  const p2Tab = await openPlayerChrome("P2", formalPlayerKeys.P2, roomDriver.sessions.P2.reconnectToken, debugPortBase + 1, browserErrors);
 
   await connectPlayerTab(p1Tab);
   await connectPlayerTab(p2Tab);
@@ -136,6 +144,9 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   logStep(4, "Both players ready and the server starts official mulligan.");
   assertEvent(p1, "MATCH_STARTED");
   assertEqual(phase(p1), "MULLIGAN", "Expected official opening to enter mulligan.");
+  await waitForText(p1Tab.cdp, ["起手调度", "已连接"]);
+  await waitForText(p2Tab.cdp, ["起手调度", "已连接"]);
+  await captureStage("01-mulligan", p1Tab, p2Tab);
   logStep(5, "Both players confirm mulligan choices.");
   await submit(p1, { cmdType: "MULLIGAN", handObjectIds: [] }, "mulligan-p1");
   await submit(p2, { cmdType: "MULLIGAN", handObjectIds: [] }, "mulligan-p2");
@@ -145,6 +156,7 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   assertEvent(p1, "RUNES_CALLED", (event) => event.payload?.playerId === "P1");
   assertEvent(p1, "CARD_DRAWN", (event) => event.payload?.playerId === "P1");
   await waitForText(p1Tab.cdp, ["主行动", "第 1 回合", "P1"]);
+  await captureStage("02-main-action", p1Tab, p2Tab);
 
   logStep(7, "Active player taps server-provided runes for mana.");
   await tapRunesForMana(p1, 2);
@@ -168,7 +180,8 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   logStep(11, "The unit moves to the opponent battlefield through a legal server destination.");
   await moveUnitToOpponentBattlefield(p1, "P2");
   assertEvent(p1, "UNIT_MOVED_TO_BATTLEFIELD", (event) => event.payload?.playerId === "P1");
-  await waitForText(p1Tab.cdp, ["公共战场", "主行动"]);
+  await waitForText(p1Tab.cdp, ["公共战场", "已连接"]);
+  await captureStage("03-unit-moved", p1Tab, p2Tab);
 
   logStep(12, "Reconnect restores the active player's authoritative state before ending turn.");
   await reloadAndReconnect(p1Tab);
@@ -199,16 +212,21 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   logStep(18, "Result page reflects the authoritative winner.");
   await waitForText(p1Tab.cdp, ["对局结算", "胜者 P1"]);
   await waitForText(p2Tab.cdp, ["对局结算", "胜者 P1"]);
+  await captureStage("04-result", p1Tab, p2Tab);
 }
 
 async function createFormalRoomDriver() {
   for (let attempt = 0; attempt < 60; attempt++) {
     const roomId = `formal-18-${Date.now()}-${attempt}`;
     const clients = {
-      P1: createSignalRClient("P1", roomId),
-      P2: createSignalRClient("P2", roomId)
+      P1: createSignalRClient("P1", roomId, formalPlayerKeys.P1),
+      P2: createSignalRClient("P2", roomId, formalPlayerKeys.P2)
     };
     await Promise.all([clients.P1.connection.start(), clients.P2.connection.start()]);
+    await Promise.all([
+      clients.P1.connection.invoke("Authenticate", "P1", formalPlayerKeys.P1),
+      clients.P2.connection.invoke("Authenticate", "P2", formalPlayerKeys.P2)
+    ]);
     await invokeHub(clients.P1, "JoinRoom", roomId, "P1", null);
     await invokeHub(clients.P2, "JoinRoom", roomId, "P2", null);
     await invokeHub(clients.P1, "SubmitIntent", roomId, "P1", intentId("submit-deck-p1"), formalDeck);
@@ -242,7 +260,7 @@ async function createFormalRoomDriver() {
   throw new Error("Could not find deterministic formal room with active P1 and P2 OGN·290/298 battlefield.");
 }
 
-function createSignalRClient(playerId, roomId) {
+function createSignalRClient(playerId, roomId, playerKey) {
   const state = {
     playerId,
     roomId,
@@ -272,21 +290,29 @@ function createSignalRClient(playerId, roomId) {
     state.errors.push(message.payload);
   });
 
-  return { playerId, roomId, connection, state };
+  return { playerId, playerKey, roomId, connection, state };
 }
 
-async function openPlayerChrome(playerId, reconnectToken, debugPort, browserErrors) {
+async function openPlayerChrome(playerId, playerKey, reconnectToken, debugPort, browserErrors) {
   const userDataDir = await mkdtemp(path.join(tmpdir(), `riftbound-formal-${playerId.toLowerCase()}-`));
   tempDirs.push(userDataDir);
-  const chrome = spawnChild(chromePath(), [
-    "--headless=new",
+  const chromeArgs = [
+    "--disable-background-timer-throttling",
+    "--disable-backgrounding-occluded-windows",
     "--disable-gpu",
+    "--disable-renderer-backgrounding",
+    "--force-device-scale-factor=1",
     "--no-first-run",
     "--no-default-browser-check",
+    "--window-size=1440,900",
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${userDataDir}`,
     "about:blank"
-  ], { name: `chrome-${playerId}` });
+  ];
+  if (!headed) {
+    chromeArgs.unshift("--headless=new");
+  }
+  const chrome = spawnChild(chromePath(), chromeArgs, { name: `chrome-${playerId}` });
   children.push(chrome);
   await waitForHttp(`http://127.0.0.1:${debugPort}/json/version`, 15_000);
 
@@ -300,6 +326,7 @@ async function openPlayerChrome(playerId, reconnectToken, debugPort, browserErro
   await setLocalStorage(cdp, {
     "riftbound.serverUrl": serverUrl,
     "riftbound.playerId": playerId,
+    "riftbound.playerKey": playerKey,
     "riftbound.animationLevel": "off",
     "riftbound.logDensity": "detailed",
     [`riftbound.session.${roomDriver.roomId}.${playerId}`]: JSON.stringify({
@@ -311,6 +338,56 @@ async function openPlayerChrome(playerId, reconnectToken, debugPort, browserErro
   await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/${roomDriver.roomId}` });
   await waitForText(cdp, [roomDriver.roomId, "连接与规则诊断"]);
   return { playerId, cdp };
+}
+
+async function captureStage(stage, ...tabs) {
+  if (!captureDir) {
+    return;
+  }
+
+  await mkdir(captureDir, { recursive: true });
+  for (const tab of tabs) {
+    await tab.cdp.send("Page.bringToFront");
+    await tab.cdp.send("Emulation.setDeviceMetricsOverride", {
+      deviceScaleFactor: 1,
+      height: 900,
+      mobile: false,
+      width: 1440
+    });
+    if (stage !== "04-result") {
+      await waitForRenderedCardImages(tab.cdp);
+    }
+    await delay(700);
+    await tab.cdp.send("Page.captureScreenshot", {
+      captureBeyondViewport: false,
+      format: "png",
+      fromSurface: true
+    });
+    await delay(150);
+    const screenshot = await tab.cdp.send("Page.captureScreenshot", {
+      captureBeyondViewport: false,
+      format: "png",
+      fromSurface: true
+    });
+    await writeFile(path.join(captureDir, `${stage}-${tab.playerId.toLowerCase()}.png`), Buffer.from(screenshot.data, "base64"));
+  }
+}
+
+async function waitForRenderedCardImages(cdp) {
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const result = await cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        const images = Array.from(document.querySelectorAll(".card-full-image"));
+        return images.length > 0 && images.every((image) => image.complete && image.naturalWidth > 0);
+      })()`,
+      returnByValue: true
+    });
+    if (result.result?.value === true) {
+      return;
+    }
+    await delay(200);
+  }
 }
 
 async function connectPlayerTab(tab) {

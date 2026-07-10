@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardCheck, Grid3X3, Home, Library, MoreHorizontal, Settings, Shield, UserRound, UsersRound } from "lucide-react";
+import { BookOpen, ClipboardCheck, Grid3X3, Library, MoreHorizontal, Settings, Shield, UserRound, UsersRound } from "lucide-react";
 import { AppRoute } from "../../app/router";
 import { useSettings } from "../../stores/settingsStore";
 import { Button } from "../ui/Button";
@@ -36,7 +36,6 @@ export function AppShell({ activeRoute, onNavigate, children }: AppShellProps) {
             <details className="game-secondary-nav">
               <summary><MoreHorizontal size={18} />更多</summary>
               <div>
-                <NavButton active={activeRoute === "home"} icon={<Home size={17} />} label="首页" onClick={() => onNavigate({ name: "home" })} />
                 <NavButton active={activeRoute === "profile"} icon={<UserRound size={17} />} label="资料" onClick={() => onNavigate({ name: "profile", handle: profileHandle })} />
                 <NavButton active={activeRoute === "layoutLab"} icon={<Grid3X3 size={17} />} label="布局工具" onClick={() => onNavigate({ name: "layoutLab" })} />
                 <NavButton active={activeRoute === "audit"} icon={<ClipboardCheck size={17} />} label="规则复核" onClick={() => onNavigate({ name: "audit" })} />

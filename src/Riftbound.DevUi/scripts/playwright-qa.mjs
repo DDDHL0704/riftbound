@@ -18,6 +18,7 @@ const serverUrl = process.env.RIFTBOUND_SERVER_URL ?? "http://127.0.0.1:5088";
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const updateBaseline = process.argv.includes("--update-baseline");
 const baselineDiffEnabled = process.env.RIFTBOUND_QA_BASELINE_DIFF === "1";
+const qaShotFilter = process.env.RIFTBOUND_QA_SHOT?.trim();
 const outputRoot = path.resolve(process.env.RIFTBOUND_QA_OUTPUT_ROOT ?? path.join(tmpdir(), "riftbound-dev-ui-qa"));
 const appshotDir = path.join(outputRoot, "appshots");
 const baselineDir = path.resolve(process.env.RIFTBOUND_QA_BASELINE_ROOT ?? path.join(appRoot, "artifacts", "baselines"));
@@ -42,12 +43,22 @@ const hiddenDebugTexts = [
   "serverHandChoiceState"
 ];
 
+const qaPlayerKeys = {
+  P1: "pk_formal_18_player_one_0000000000000001",
+  P2: "pk_formal_18_player_two_0000000000000002"
+};
+
+const qaRunToken = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const qaRoomId = `qa-room-${qaRunToken}`;
+const qaResultRoomId = `qa-result-${qaRunToken}`;
+
 const staticShots = [
-  { name: "home", path: "/", texts: ["符文战场", "进入大厅"] },
+  { name: "lobby-root", path: "/", texts: ["开始一场对局", "快速匹配", "创建私人房间"] },
+  { name: "lobby-mobile", path: "/", texts: ["开始一场对局", "快速匹配", "创建私人房间"], viewport: { width: 390, height: 844 } },
   { name: "cards", path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
   { name: "decks", path: "/decks", texts: ["构筑导入工作台", "导入到服务端提交的交接", "导入入口", "等待服务端验证", "服务端权威"], allowedDebugTexts: ["mainDeck", "runeDeck"] },
-  { name: "room", path: "/rooms/qa-visual-room", texts: ["房间", "流程总览", "连接/重连并入座", "卡组提交", "提交回执"] },
-  { name: "result", path: "/matches/qa-visual-room/result", texts: ["结算", "最终状态", "事件 / 错误", "结果只读取服务端权威快照"] }
+  { name: "room", path: `/rooms/${qaRoomId}`, texts: ["对战房间", "开局准备", "服务端连接", "卡组提交", "连接与诊断"] },
+  { name: "result", path: `/matches/${qaResultRoomId}/result`, texts: ["结算", "最终状态", "事件 / 错误", "结果只读取服务端权威快照"] }
 ];
 
 const scenarioShots = [
@@ -55,13 +66,20 @@ const scenarioShots = [
     name: "match-midgame-showcase",
     scenario: "midgame-showcase",
     playerId: "P1",
-    texts: ["符文战场对战线框", "窗口总览", "优先权轨道", "规则队列地图", "交互语法", "服务端行动提示", "焦点 / 候选 / 规则队列"]
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"]
+  },
+  {
+    name: "match-mobile-playable",
+    scenario: "midgame-showcase",
+    playerId: "P1",
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
+    viewport: { width: 390, height: 844 }
   },
   {
     name: "prompt-pay-cost",
     scenario: "pay-cost-window",
     playerId: "P1",
-    texts: ["符文战场对战线框", "支付费用", "服务端行动提示", "提示契约", "paymentId"]
+    texts: ["公共战场", "你的手牌", "连接与规则诊断"]
   }
 ];
 
@@ -84,6 +102,7 @@ const sidePanelTabBySlot = {
 
 const children = [];
 let browser;
+let qaPageSequence = 0;
 
 try {
   await mkdir(appshotDir, { recursive: true });
@@ -111,8 +130,8 @@ try {
     shots: []
   };
 
-  for (const shot of staticShots) {
-    const page = await newPage();
+  for (const shot of staticShots.filter((entry) => !qaShotFilter || entry.name === qaShotFilter)) {
+    const page = await newPage(shot.viewport);
     await page.goto(`${frontendUrl}${shot.path}`, { waitUntil: "networkidle" });
     await assertTexts(page, shot.texts);
     if (shot.name === "decks") {
@@ -124,28 +143,29 @@ try {
     if (shot.name === "result") {
       await assertResultSurface(page);
     }
+    if (shot.name === "lobby-mobile") {
+      await assertMobileLobbySurface(page);
+    }
     await captureAndAudit(page, shot, report);
     await page.close();
   }
 
-  for (const shot of scenarioShots) {
+  for (const shot of scenarioShots.filter((entry) => !qaShotFilter || entry.name === qaShotFilter)) {
     const seeded = await createSeededRoom(shot.scenario);
     try {
-      const page = await newPage();
+      const page = await newPage(shot.viewport);
       await openSeededMatch(page, seeded, shot.playerId);
       await assertTexts(page, shot.texts);
-      await assertServerFlow(page);
       await assertMatchStateSurface(page, shot);
       await captureAndAudit(page, shot, report);
+      if (shot.name === "match-midgame-showcase") {
+        await runPlayableCardInspectInteraction(page, report);
+      }
       await page.close();
     } finally {
       await seeded.close();
     }
   }
-
-  await runObjectCommandTrayInteraction(report);
-  await runCommandReceiptInteraction(report);
-  await runReadyReceiptInteraction(report);
 
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Playwright QA passed. Report: ${reportPath}`);
@@ -159,16 +179,25 @@ try {
   }
 }
 
-async function newPage() {
+async function newPage(viewport = { width: 1440, height: 810 }) {
+  qaPageSequence += 1;
+  const playerId = `qa${qaRunToken.replace(/[^a-z0-9]/gi, "").slice(-10)}${qaPageSequence}`;
+  const playerKey = `pk_playwright_visual_${qaRunToken}_${qaPageSequence}_0000000000000000`;
   const context = await browser.newContext({
     deviceScaleFactor: 1,
-    viewport: { width: 1440, height: 810 }
+    viewport
   });
-  await context.addInitScript(({ server }) => {
+  await context.addInitScript(({ server, storedPlayerId, storedPlayerKey }) => {
     localStorage.setItem("riftbound.serverUrl", server);
     localStorage.setItem("riftbound.animationLevel", "off");
     localStorage.setItem("riftbound.logDensity", "detailed");
-  }, { server: serverUrl });
+    if (!localStorage.getItem("riftbound.playerId")) {
+      localStorage.setItem("riftbound.playerId", storedPlayerId);
+    }
+    if (!localStorage.getItem("riftbound.playerKey")) {
+      localStorage.setItem("riftbound.playerKey", storedPlayerKey);
+    }
+  }, { server: serverUrl, storedPlayerId: playerId, storedPlayerKey: playerKey });
 
   const page = await context.newPage();
   page.on("pageerror", (error) => {
@@ -182,6 +211,50 @@ async function newPage() {
   return page;
 }
 
+async function assertMobileLobbySurface(page) {
+  const surface = await page.evaluate(() => {
+    const nav = document.querySelector(".main-nav");
+    const content = document.querySelector(".app-content");
+    const brand = document.querySelector(".brand-mark");
+    const primaryButtons = Array.from(document.querySelectorAll(".game-primary-nav button"));
+    const navRect = nav?.getBoundingClientRect();
+    const contentRect = content?.getBoundingClientRect();
+    return {
+      brandVisible: brand ? getComputedStyle(brand).display !== "none" : false,
+      contentRect: contentRect ? { left: contentRect.left, right: contentRect.right } : null,
+      navPosition: nav ? getComputedStyle(nav).position : "missing",
+      navRect: navRect ? { bottom: navRect.bottom, height: navRect.height, left: navRect.left, right: navRect.right, top: navRect.top } : null,
+      navLabels: primaryButtons.map((button) => ({
+        label: button.textContent?.trim() ?? "",
+        visible: button.getBoundingClientRect().width > 0 && button.getBoundingClientRect().height > 0
+      })),
+      scrollWidth: document.documentElement.scrollWidth,
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth
+    };
+  });
+
+  const failures = [];
+  if (surface.navPosition !== "fixed" || !surface.navRect || surface.navRect.left !== 0 || surface.navRect.right !== surface.viewportWidth || surface.navRect.bottom !== surface.viewportHeight) {
+    failures.push(`mobile navigation must be a full-width bottom bar: ${JSON.stringify(surface)}`);
+  }
+  if (surface.brandVisible) {
+    failures.push("desktop brand block must not consume mobile navigation space.");
+  }
+  if (!surface.contentRect || surface.contentRect.left !== 0 || surface.contentRect.right !== surface.viewportWidth) {
+    failures.push(`mobile content must use the full viewport width: ${JSON.stringify(surface.contentRect)}`);
+  }
+  if (surface.navLabels.length !== 4 || surface.navLabels.some((entry) => !entry.visible || !entry.label)) {
+    failures.push(`mobile navigation must expose four labeled destinations: ${JSON.stringify(surface.navLabels)}`);
+  }
+  if (surface.scrollWidth > surface.viewportWidth) {
+    failures.push(`mobile lobby must not scroll horizontally: ${surface.scrollWidth}/${surface.viewportWidth}`);
+  }
+  if (failures.length > 0) {
+    throw new Error(`Mobile lobby surface assertions failed:\n${failures.join("\n")}`);
+  }
+}
+
 async function captureAndAudit(page, shot, report) {
   await hideDynamicText(page);
   await waitForCardImages(page);
@@ -189,7 +262,7 @@ async function captureAndAudit(page, shot, report) {
   const screenshotPath = path.join(appshotDir, `${shot.name}.png`);
   const buffer = await page.screenshot({ fullPage: false, path: screenshotPath });
   assertNonBlank(buffer, shot.name);
-  await assertWireframeVisual(buffer, shot.name);
+  assertPlayableVisual(buffer, shot.name);
   const visual = await compareOrUpdateVisual(shot.name, buffer);
   const accessibility = await runAccessibilitySmoke(page, shot.name);
   report.shots.push({
@@ -459,8 +532,8 @@ async function assertRoomWorkflowSurface(page) {
       failures.push(`room workflow missing sourced region ${source}: ${JSON.stringify(surface.regions)}`);
     }
   }
-  if (surface.activeRegion !== "recovery") {
-    failures.push(`room workflow should start in recovery before connection, got ${surface.activeRegion}`);
+  if (surface.activeRegion !== "actions") {
+    failures.push(`room workflow should expose the first available server action after automatic connection, got ${surface.activeRegion}`);
   }
   if (!surface.summary.includes("连接：") || !surface.summary.includes("行动：")) {
     failures.push(`room workflow summary must expose connection and action counts: ${surface.summary}`);
@@ -474,11 +547,13 @@ async function assertRoomWorkflowSurface(page) {
   if (surface.quickActions.length !== 2) {
     failures.push(`room workflow should expose submitDeck and ready quick actions: ${JSON.stringify(surface.quickActions)}`);
   }
-  for (const actionId of ["submitDeck", "ready"]) {
-    const action = actionsById[actionId];
-    if (action?.state !== "missing" || action?.commandSource !== "unavailable" || action?.disabled !== true) {
-      failures.push(`room quick action ${actionId} must be unavailable before connection: ${JSON.stringify(action)}`);
-    }
+  const submitDeckAction = actionsById.submitDeck;
+  if (submitDeckAction?.state !== "ready" || submitDeckAction?.commandSource !== "direct-action" || submitDeckAction?.disabled !== false) {
+    failures.push(`room submitDeck action must open the deck import flow after automatic connection: ${JSON.stringify(submitDeckAction)}`);
+  }
+  const readyAction = actionsById.ready;
+  if (readyAction?.state !== "missing" || readyAction?.commandSource !== "unavailable" || readyAction?.disabled !== true) {
+    failures.push(`room ready action must remain unavailable until the server provides READY: ${JSON.stringify(readyAction)}`);
   }
   if (surface.setupSteps.length < 3 || surface.setupSteps.some((step) => !step.id || !step.text.includes("下一步"))) {
     failures.push(`room setup steps must expose ids and next steps: ${JSON.stringify(surface.setupSteps)}`);
@@ -508,13 +583,16 @@ async function assertRoomWorkflowSurface(page) {
       failures.push(`room error action ${actionId} disabled DOM state must match data attribute: ${JSON.stringify(action)}`);
     }
   }
-  if (errorActionsById.connect?.state !== "secondary" || errorActionsById.connect?.disabled !== false) {
-    failures.push(`room error connect action should be available before initial connection: ${JSON.stringify(errorActionsById.connect)}`);
+  if (errorActionsById.connect?.state !== "disabled" || errorActionsById.connect?.disabled !== true) {
+    failures.push(`room error connect action should be disabled after automatic connection: ${JSON.stringify(errorActionsById.connect)}`);
   }
   if (errorActionsById.reviewPrompt?.state !== "secondary" || errorActionsById.reviewPrompt?.disabled !== false) {
     failures.push(`room error review prompt action should remain available in clear state: ${JSON.stringify(errorActionsById.reviewPrompt)}`);
   }
-  for (const disabledActionId of ["resync", "openDecks", "waitServer"]) {
+  if (errorActionsById.resync?.state !== "secondary" || errorActionsById.resync?.disabled !== false) {
+    failures.push(`room error resync action should be available after automatic connection: ${JSON.stringify(errorActionsById.resync)}`);
+  }
+  for (const disabledActionId of ["openDecks", "waitServer"]) {
     if (errorActionsById[disabledActionId]?.state !== "disabled" || errorActionsById[disabledActionId]?.disabled !== true) {
       failures.push(`room error action ${disabledActionId} should start disabled without a server issue: ${JSON.stringify(errorActionsById[disabledActionId])}`);
     }
@@ -529,7 +607,7 @@ async function assertRoomWorkflowSurface(page) {
   if (!surface.errorNextStep.includes("继续按服务端提示")) {
     failures.push(`room error next step must expose server-authority recovery guidance: ${surface.errorNextStep}`);
   }
-  for (const copy of ["连接/重连", "卡组提交", "提交回执", "错误处理", "下一步", "连接状态", "错误来源", "服务端消息"]) {
+  for (const copy of ["服务端连接", "卡组提交", "提交回执", "错误处理", "下一步", "连接状态", "错误来源", "服务端消息"]) {
     if (!surface.text.includes(copy)) {
       failures.push(`room workflow page missing ${copy} copy: ${surface.text}`);
     }
@@ -652,6 +730,146 @@ async function assertServerFlow(page) {
 }
 
 async function assertMatchStateSurface(page, shot) {
+  const surface = await page.evaluate(() => {
+    const root = document.querySelector("[data-playable-match-surface]");
+    const table = document.querySelector("[data-game-table]");
+    const actionDock = document.querySelector("[data-game-action-dock]");
+    const opponentHand = document.querySelector(".wire-hand-opponent");
+    const selfHand = document.querySelector(".wire-hand-self");
+    const opponentHandCards = opponentHand?.querySelector(".wire-hand-cards");
+    const selfHandCards = selfHand?.querySelector(".wire-hand-cards");
+    const tableRect = table?.getBoundingClientRect();
+    const dockRect = actionDock?.getBoundingClientRect();
+    const actionViewport = actionDock?.querySelector(".game-action-dock-body");
+    const actionScroller = actionDock?.querySelector(".action-buttons");
+    const actionEntries = Array.from(actionDock?.querySelectorAll("[data-action-render-entry]") ?? []);
+    const rectOf = (element) => {
+      const rect = element?.getBoundingClientRect();
+      return rect ? { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top } : null;
+    };
+    const isInsideViewport = (element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0
+        && rect.right > 0 && rect.left < window.innerWidth
+        && rect.bottom > 0 && rect.top < window.innerHeight;
+    };
+    const initialScrollLeft = actionScroller?.scrollLeft ?? 0;
+    if (actionScroller) actionScroller.scrollLeft = actionScroller.scrollWidth;
+    const actionViewportRect = rectOf(actionViewport);
+    const lastActionRect = rectOf(actionEntries.at(-1));
+    const lastActionReachable = Boolean(lastActionRect && actionViewportRect
+      && lastActionRect.left >= actionViewportRect.left - 1
+      && lastActionRect.right <= actionViewportRect.right + 1);
+    if (actionScroller) actionScroller.scrollLeft = initialScrollLeft;
+    const paySubmitButton = Array.from(actionDock?.querySelectorAll("button") ?? [])
+      .find((button) => button.textContent?.includes("提交支付"));
+    const paySubmitRect = paySubmitButton?.getBoundingClientRect();
+    return {
+      actionButtonCount: actionDock?.querySelectorAll("button").length ?? 0,
+      actionDockText: actionDock?.textContent?.trim().replace(/\s+/g, " ") ?? "",
+      actionEntryCount: actionDock?.querySelectorAll("[data-action-render-action]").length ?? 0,
+      actionLastEntryReachable: lastActionReachable,
+      actionPanelCount: actionDock?.querySelectorAll('[data-action-panel-presentation="play"]').length ?? 0,
+      bodyScrollHeight: document.documentElement.scrollHeight,
+      bodyScrollWidth: document.documentElement.scrollWidth,
+      debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
+      dockRect: dockRect ? { bottom: dockRect.bottom, left: dockRect.left, right: dockRect.right, top: dockRect.top } : null,
+      hasActionDock: Boolean(actionDock),
+      hasRoot: Boolean(root),
+      hasTable: Boolean(table),
+      opponentBackCount: opponentHandCards?.querySelectorAll(".card-back").length ?? 0,
+      opponentCardCount: opponentHandCards?.querySelectorAll(".card-face").length ?? 0,
+      opponentFrontCount: opponentHandCards?.querySelectorAll(".card-full-image").length ?? 0,
+      paySubmitButton: paySubmitButton ? {
+        bottom: paySubmitRect?.bottom ?? 0,
+        left: paySubmitRect?.left ?? 0,
+        right: paySubmitRect?.right ?? 0,
+        top: paySubmitRect?.top ?? 0,
+        visible: paySubmitButton instanceof HTMLElement && paySubmitButton.offsetParent !== null
+      } : null,
+      scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
+      selfCardCount: selfHandCards?.querySelectorAll(".card-face").length ?? 0,
+      selfFrontCount: selfHandCards?.querySelectorAll(".card-full-image").length ?? 0,
+      selfVisibleFrontCount: Array.from(selfHandCards?.querySelectorAll(".card-full-image") ?? []).filter(isInsideViewport).length,
+      tableRect: tableRect ? { bottom: tableRect.bottom, left: tableRect.left, right: tableRect.right, top: tableRect.top } : null,
+      quickActionsRect: rectOf(document.querySelector(".game-match-quick-actions")),
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth
+    };
+  });
+
+  const failures = [];
+  if (!surface.hasRoot || !surface.hasTable || !surface.hasActionDock) {
+    failures.push(`playable match shell is incomplete: ${JSON.stringify(surface)}`);
+  }
+  if (surface.scoreTokenCount < 2) {
+    failures.push(`playable table must show both player score tokens: ${surface.scoreTokenCount}`);
+  }
+  if (surface.selfCardCount > 0 && surface.selfFrontCount < 1) {
+    failures.push(`visible self cards must render official card fronts: ${JSON.stringify({
+      cards: surface.selfCardCount,
+      fronts: surface.selfFrontCount
+    })}`);
+  }
+  if (surface.selfCardCount > 0 && surface.selfVisibleFrontCount < 1) {
+    failures.push(`at least one self-hand card must be visible: ${JSON.stringify({
+      cards: surface.selfCardCount,
+      visibleFronts: surface.selfVisibleFrontCount
+    })}`);
+  }
+  if (surface.opponentCardCount > 0 && (surface.opponentBackCount !== surface.opponentCardCount || surface.opponentFrontCount !== 0)) {
+    failures.push(`opponent hand must stay redacted as card backs: ${JSON.stringify({
+      backs: surface.opponentBackCount,
+      cards: surface.opponentCardCount,
+      fronts: surface.opponentFrontCount
+    })}`);
+  }
+  if (surface.actionPanelCount < 1) {
+    failures.push(`player-facing action panel is missing: ${surface.actionPanelCount}`);
+  }
+  if (surface.actionEntryCount > 0 && !surface.actionLastEntryReachable) {
+    failures.push(`every server action must be horizontally reachable: ${surface.actionEntryCount}`);
+  }
+  if (shot.name === "prompt-pay-cost" && surface.actionEntryCount < 1) {
+    failures.push(`pay-cost scenario must expose at least one server-provided action entry: ${JSON.stringify({
+      buttons: surface.actionButtonCount,
+      entries: surface.actionEntryCount,
+      text: surface.actionDockText
+    })}`);
+  }
+  if (shot.name === "prompt-pay-cost") {
+    const button = surface.paySubmitButton;
+    if (!button || !button.visible || !surface.dockRect
+      || button.left < surface.dockRect.left
+      || button.right > surface.dockRect.right
+      || button.top < surface.dockRect.top
+      || button.bottom > surface.dockRect.bottom) {
+      failures.push(`pay-cost submit button must be visible without scrolling: ${JSON.stringify({ button, dock: surface.dockRect })}`);
+    }
+  }
+  if (surface.debugOpen) {
+    failures.push("connection and rule diagnostics must stay collapsed during normal play.");
+  }
+  for (const [label, rect] of [["table", surface.tableRect], ["action dock", surface.dockRect]]) {
+    if (!rect || rect.left < -1 || rect.right > surface.viewportWidth + 1 || rect.top < -1 || rect.bottom > surface.viewportHeight + 1) {
+      failures.push(`${label} must fit inside the first viewport: ${JSON.stringify(rect)}`);
+    }
+  }
+  if (surface.quickActionsRect && (surface.quickActionsRect.left < -1 || surface.quickActionsRect.right > surface.viewportWidth + 1)) {
+    failures.push(`topbar quick actions must fit inside the viewport: ${JSON.stringify(surface.quickActionsRect)}`);
+  }
+  if (surface.bodyScrollWidth > surface.viewportWidth + 1 || surface.bodyScrollHeight > surface.viewportHeight + 1) {
+    failures.push(`match page must not overflow the viewport: ${JSON.stringify({
+      height: [surface.bodyScrollHeight, surface.viewportHeight],
+      width: [surface.bodyScrollWidth, surface.viewportWidth]
+    })}`);
+  }
+  if (failures.length > 0) {
+    throw new Error(`Playable match surface assertions failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function assertLegacyMatchStateSurface(page, shot) {
   await assertConnectionRecoveryPanelSurface(page, "match");
 
   const activeSlot = await page.locator("[data-wire-side-panel-directory]").first().getAttribute("data-wire-side-panel-directory-active-slot");
@@ -951,14 +1169,14 @@ async function assertConnectionRecoveryPanelSurface(page, expectedSurface) {
     }
   }
   if (expectedSurface === "room") {
-    if (surface.state !== "offline" || !surface.tickLabel.includes("无")) {
-      failures.push(`room recovery panel should start offline with no snapshot: ${JSON.stringify(surface)}`);
+    if (surface.state !== "online" || !surface.tickLabel.includes("快照 tick")) {
+      failures.push(`room recovery panel should be online after automatic room connection: ${JSON.stringify(surface)}`);
     }
-    if (actionsById.connect?.state !== "primary" || actionsById.connect?.disabled !== false) {
-      failures.push(`room recovery connect action must be primary and enabled: ${JSON.stringify(actionsById.connect)}`);
+    if (actionsById.connect?.disabled !== true) {
+      failures.push(`room recovery connect action must be disabled after automatic connection: ${JSON.stringify(actionsById.connect)}`);
     }
-    if (actionsById.resync?.disabled !== true || actionsById.disconnect?.disabled !== true) {
-      failures.push(`room recovery resync/disconnect actions must be disabled before connection: ${JSON.stringify(surface.actions)}`);
+    if (actionsById.resync?.disabled !== false || actionsById.disconnect?.disabled !== false) {
+      failures.push(`room recovery resync/disconnect actions must be available after connection: ${JSON.stringify(surface.actions)}`);
     }
   } else if (expectedSurface === "match") {
     if (surface.state !== "online" || !surface.tickLabel.includes("快照 tick")) {
@@ -1010,8 +1228,14 @@ async function hideDynamicText(page) {
 
 async function runAccessibilitySmoke(page, name) {
   await page.addScriptTag({ content: axe.source });
-  const result = await page.evaluate(async () => {
-    return await globalThis.axe.run(document, {
+  const result = await page.evaluate(async ({ playerFacingMatch }) => {
+    const context = playerFacingMatch
+      ? {
+          include: [["[data-playable-match-surface]"]],
+          exclude: [["[data-game-debug-drawer]"]]
+        }
+      : document;
+    return await globalThis.axe.run(context, {
       resultTypes: ["violations"],
       rules: {
         "color-contrast": { enabled: true },
@@ -1019,7 +1243,7 @@ async function runAccessibilitySmoke(page, name) {
         "label": { enabled: true }
       }
     });
-  });
+  }, { playerFacingMatch: name.startsWith("match-") || name.startsWith("prompt-") });
 
   const violations = result.violations ?? [];
   const blocking = violations.filter((violation) =>
@@ -1050,7 +1274,7 @@ async function compareOrUpdateVisual(name, currentBuffer) {
 
   if (!updateBaseline && !baselineDiffEnabled) {
     await rm(diffPath, { force: true });
-    return { status: "wireframe-invariant", ratio: null };
+    return { status: "playable-surface-invariant", ratio: null };
   }
 
   if (updateBaseline || !existsSync(baselinePath)) {
@@ -1084,12 +1308,14 @@ async function compareOrUpdateVisual(name, currentBuffer) {
   return { status: "compared", ratio, diffPixels };
 }
 
-async function assertWireframeVisual(buffer, name) {
+function assertPlayableVisual(buffer, name) {
   const image = PNG.sync.read(buffer);
   let sampled = 0;
-  let nearWhite = 0;
-  let nearBlack = 0;
-  let dark = 0;
+  let luminanceSum = 0;
+  let luminanceSquaredSum = 0;
+  let minimumLuminance = 255;
+  let maximumLuminance = 0;
+  const colorBuckets = new Set();
   const stride = 4 * 37;
 
   for (let index = 0; index < image.data.length; index += stride) {
@@ -1103,39 +1329,39 @@ async function assertWireframeVisual(buffer, name) {
 
     sampled += 1;
     const luminance = (red * 0.2126) + (green * 0.7152) + (blue * 0.0722);
-    if (red >= 238 && green >= 238 && blue >= 238) {
-      nearWhite += 1;
-    }
-    if (red <= 72 && green <= 72 && blue <= 72) {
-      nearBlack += 1;
-    }
-    if (luminance < 90) {
-      dark += 1;
-    }
+    luminanceSum += luminance;
+    luminanceSquaredSum += luminance * luminance;
+    minimumLuminance = Math.min(minimumLuminance, luminance);
+    maximumLuminance = Math.max(maximumLuminance, luminance);
+    colorBuckets.add(`${red >> 4},${green >> 4},${blue >> 4}`);
   }
 
-  const nearWhiteRatio = nearWhite / sampled;
-  const nearBlackRatio = nearBlack / sampled;
-  const darkRatio = dark / sampled;
+  const meanLuminance = luminanceSum / sampled;
+  const luminanceDeviation = Math.sqrt((luminanceSquaredSum / sampled) - (meanLuminance * meanLuminance));
+  const luminanceRange = maximumLuminance - minimumLuminance;
   const failures = [];
-  if (nearWhiteRatio < 0.34) {
-    failures.push(`nearWhite=${nearWhiteRatio.toFixed(3)}`);
+  if (sampled < 1_000) {
+    failures.push(`sampled=${sampled}`);
   }
-  if (nearBlackRatio < 0.002) {
-    failures.push(`nearBlack=${nearBlackRatio.toFixed(3)}`);
+  if (luminanceRange < 70) {
+    failures.push(`range=${luminanceRange.toFixed(1)}`);
   }
-  if (darkRatio > 0.55) {
-    failures.push(`dark=${darkRatio.toFixed(3)}`);
+  if (luminanceDeviation < 8) {
+    failures.push(`deviation=${luminanceDeviation.toFixed(1)}`);
+  }
+  if (colorBuckets.size < 12) {
+    failures.push(`colorBuckets=${colorBuckets.size}`);
   }
   if (failures.length > 0) {
-    throw new Error(`Wireframe visual invariant failed for ${name}: ${failures.join(", ")}`);
+    throw new Error(`Playable visual invariant failed for ${name}: ${failures.join(", ")}`);
   }
 
   return {
     checked: true,
-    darkRatio,
-    nearBlackRatio,
-    nearWhiteRatio
+    colorBucketCount: colorBuckets.size,
+    luminanceDeviation,
+    luminanceRange,
+    meanLuminance
   };
 }
 
@@ -1180,19 +1406,71 @@ async function assertTexts(page, texts) {
 async function openSeededMatch(page, seeded, playerId) {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
   const session = seeded.sessions[playerId];
-  await page.evaluate(({ player, roomId, server, storedSession }) => {
+  await page.evaluate(({ player, playerKey, roomId, server, storedSession }) => {
     localStorage.setItem("riftbound.serverUrl", server);
     localStorage.setItem("riftbound.playerId", player);
+    localStorage.setItem("riftbound.playerKey", playerKey);
     localStorage.setItem(`riftbound.session.${roomId}.${player}`, JSON.stringify(storedSession));
   }, {
     player: playerId,
+    playerKey: qaPlayerKeys[playerId],
     roomId: seeded.roomId,
     server: serverUrl,
     storedSession: session
   });
   await page.goto(`${frontendUrl}/matches/${seeded.roomId}`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /^(连接|连接\/重连)$/ }).click();
+  try {
+    await page.waitForFunction(() => {
+      const connectionText = document.querySelector(".game-connection-state")?.textContent ?? "";
+      return Boolean(document.querySelector("[data-playable-match-surface]")) && connectionText.includes("已连接");
+    },
+    undefined, { timeout: 15_000 });
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => {
+      const panel = document.querySelector('[data-connection-recovery-panel][data-connection-recovery-surface="match"]');
+      return {
+        body: document.body.textContent?.trim().replace(/\s+/g, " ").slice(0, 800) ?? "",
+        connection: document.querySelector(".game-connection-state")?.textContent?.trim() ?? "",
+        hasPlayableSurface: Boolean(document.querySelector("[data-playable-match-surface]")),
+        recoveryState: document.querySelector("[data-match-recovery-surface]")?.getAttribute("data-match-recovery-state") ?? "missing",
+        state: panel?.getAttribute("data-connection-recovery-state") ?? "missing",
+        text: panel?.textContent?.trim().replace(/\s+/g, " ") ?? "",
+        playerId: localStorage.getItem("riftbound.playerId"),
+        hasPlayerKey: Boolean(localStorage.getItem("riftbound.playerKey"))
+      };
+    });
+    throw new Error(`Seeded match did not reconnect: ${JSON.stringify(diagnostic)}`, { cause: error });
+  }
   await page.waitForFunction((expectedPlayerId) => document.body.textContent?.includes(expectedPlayerId), playerId, { timeout: 15_000 });
+}
+
+async function runPlayableCardInspectInteraction(page, report) {
+  const card = page.locator(".wire-hand-self .wire-hand-cards button.card-face").first();
+  await card.waitFor({ state: "visible", timeout: 10_000 });
+  const cardLabel = await card.getAttribute("aria-label") ?? "可见手牌";
+  await card.click();
+
+  const tray = page.locator('[data-wire-object-command-tray-visible="true"]').first();
+  await tray.waitFor({ state: "visible", timeout: 5_000 });
+  const detailButton = tray.getByRole("button", { name: /详情/ }).first();
+  await detailButton.click();
+
+  const dialog = page.locator('[data-detail-dialog-state="open"]').first();
+  await dialog.waitFor({ state: "visible", timeout: 5_000 });
+  const title = (await dialog.locator("#card-detail-title").textContent())?.trim() ?? "";
+  if (!title || await dialog.locator(".detail-card-back").count() > 0) {
+    throw new Error(`Visible card detail must show its official front: ${JSON.stringify({ cardLabel, title })}`);
+  }
+
+  await dialog.locator(".detail-drawer").getByRole("button", { exact: true, name: "关闭" }).click();
+  await dialog.waitFor({ state: "hidden", timeout: 5_000 });
+  report.interactions.push({
+    card: cardLabel,
+    name: "playable-card-inspect",
+    result: "opened-and-closed",
+    title
+  });
+  console.log(`QA interaction OK: playable-card-inspect (${title})`);
 }
 
 async function runCommandReceiptInteraction(report) {
@@ -1565,10 +1843,14 @@ async function commandProbeDebug(page) {
 async function createJoinedRoom() {
   const roomId = `qa-ready-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const clients = {
-    P1: createSignalRClient("P1", roomId),
-    P2: createSignalRClient("P2", roomId)
+    P1: createSignalRClient("P1", roomId, qaPlayerKeys.P1),
+    P2: createSignalRClient("P2", roomId, qaPlayerKeys.P2)
   };
   await Promise.all([clients.P1.connection.start(), clients.P2.connection.start()]);
+  await Promise.all([
+    clients.P1.connection.invoke("Authenticate", "P1", qaPlayerKeys.P1),
+    clients.P2.connection.invoke("Authenticate", "P2", qaPlayerKeys.P2)
+  ]);
   await invokeHub(clients.P1, "JoinRoom", roomId, "P1", null);
   await invokeHub(clients.P2, "JoinRoom", roomId, "P2", null);
   await waitFor(() => Boolean(clients.P1.state.joined && clients.P2.state.joined && clients.P1.state.prompt), `joined room ${roomId}`);
@@ -1588,10 +1870,14 @@ async function createJoinedRoom() {
 async function createSeededRoom(scenario) {
   const roomId = `qa-${scenario}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const clients = {
-    P1: createSignalRClient("P1", roomId),
-    P2: createSignalRClient("P2", roomId)
+    P1: createSignalRClient("P1", roomId, qaPlayerKeys.P1),
+    P2: createSignalRClient("P2", roomId, qaPlayerKeys.P2)
   };
   await Promise.all([clients.P1.connection.start(), clients.P2.connection.start()]);
+  await Promise.all([
+    clients.P1.connection.invoke("Authenticate", "P1", qaPlayerKeys.P1),
+    clients.P2.connection.invoke("Authenticate", "P2", qaPlayerKeys.P2)
+  ]);
   await invokeHub(clients.P1, "JoinRoom", roomId, "P1", null);
   await invokeHub(clients.P2, "JoinRoom", roomId, "P2", null);
   await invokeHub(clients.P1, "SeedScenario", roomId, "P1", scenario, `qa-visual-${scenario}`);
@@ -1609,7 +1895,7 @@ async function createSeededRoom(scenario) {
   };
 }
 
-function createSignalRClient(playerId, roomId) {
+function createSignalRClient(playerId, roomId, playerKey) {
   const state = {
     events: [],
     errors: [],
@@ -1637,7 +1923,7 @@ function createSignalRClient(playerId, roomId) {
     state.errors.push(message.payload);
   });
 
-  return { playerId, roomId, connection, state };
+  return { playerId, playerKey, roomId, connection, state };
 }
 
 async function invokeHub(client, method, ...args) {
@@ -1765,6 +2051,7 @@ function isIgnorableConsoleError(text) {
   return text.includes("Failed to complete negotiation with the server")
     || text.includes("Failed to start the connection")
     || text.includes("net::ERR_CONNECTION_REFUSED")
+    || text.includes("net::ERR_PROXY_CONNECTION_FAILED")
     || text.includes("Failed to load resource: the server responded with a status of 404");
 }
 

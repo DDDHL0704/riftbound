@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import type { BehaviorSpec } from "../../types/catalog";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
 import {
@@ -11,6 +12,7 @@ import {
   type PaymentChoiceItem,
   type TriggerOrderItem
 } from "../../utils/actionPanelChoiceModels";
+import { choiceLabel } from "../../utils/candidateComposerModel";
 import {
   buildActionPanelCandidateCommandPlan,
   type ActionPanelCandidateButtonIcon,
@@ -20,6 +22,7 @@ import {
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
+import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
 import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -33,7 +36,7 @@ import {
   UnitMovementCandidatePreview,
   WindowPassCandidatePreview
 } from "./ActionPanelCandidatePreviews";
-import { CandidateComposer } from "./CandidateComposer";
+import { CandidateComposer, type CandidateChoicePresenter } from "./CandidateComposer";
 
 type ActionPanelProps = {
   prompt?: ActionPromptDto;
@@ -43,9 +46,41 @@ type ActionPanelProps = {
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   onCommand: CommandSubmitHandler;
+  presentation?: "diagnostic" | "play";
+  specs?: Record<string, BehaviorSpec>;
 };
 
-export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
+const PLAY_DOCK_SECONDARY_ACTIONS = new Set(["END_TURN", "PASS", "PASS_PRIORITY", "SURRENDER"]);
+
+function playableActionEntries(entries: ActionPanelRenderEntry[]): ActionPanelRenderEntry[] {
+  const enabled = entries.filter((entry) => entry.readOnly || entry.submitGate.canSubmit);
+  const primary = enabled.filter((entry) => !PLAY_DOCK_SECONDARY_ACTIONS.has(entry.candidate?.action ?? ""));
+  return primary.length > 0 ? primary : enabled.length > 0 ? enabled : entries.slice(0, 1);
+}
+
+function buildCandidateChoicePresenter(
+  snapshot: SnapshotDto | undefined,
+  specs: Record<string, BehaviorSpec>
+): CandidateChoicePresenter {
+  const objects = buildCardObjectIndex(snapshot);
+  return (choice) => {
+    const object = objects[choice.id];
+    if (object?.isFaceDown) {
+      return { label: "暗牌" };
+    }
+    const cardNo = object?.cardNo
+      ?? (specs[choice.id] ? choice.id : undefined)
+      ?? (choice.label && specs[choice.label] ? choice.label : undefined);
+    const spec = cardNo ? specs[cardNo] : undefined;
+    return {
+      cardNo,
+      frontImage: spec?.frontImage?.trim() || undefined,
+      label: spec?.cardName?.trim() || choiceLabel(choice)
+    };
+  };
+}
+
+export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand, presentation = "diagnostic", specs = {} }: ActionPanelProps) {
   const submissionGate = buildServerSubmissionGatePlan({ connectionStatus, prompt, snapshot });
   const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt, snapshot, submissionGate });
   const renderPlan = buildActionPanelRenderPlan({
@@ -53,47 +88,60 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
     prompt,
     submissionGate
   });
+  const presentChoice = useMemo(
+    () => buildCandidateChoicePresenter(snapshot, specs),
+    [snapshot, specs]
+  );
+  const visibleEntries = presentation === "play" ? playableActionEntries(renderPlan.entries) : renderPlan.entries;
+  const panelContent = (
+    <div className="action-panel-content">
+      <header>
+        <span className="eyebrow">服务端行动提示</span>
+        <h2>{promptPlan.promptTitle}</h2>
+      </header>
+      <div className="prompt-summary">
+        <StatusPill tone={promptPlan.statusTone}>{promptPlan.statusLabel}</StatusPill>
+        {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
+      </div>
+      {promptPlan.spellDuel && <SpellDuelPromptDetails plan={promptPlan.spellDuel} />}
+      {promptPlan.stackPriority && <StackPriorityPromptDetails plan={promptPlan.stackPriority} />}
+      {promptPlan.complexPrompt && <ComplexPromptDetails plan={promptPlan.complexPrompt} />}
+      {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
+      {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
+      <div
+        aria-label="可用行动"
+        className="action-buttons"
+        data-action-render-count={visibleEntries.length}
+        data-action-render-prompt-type={renderPlan.promptType}
+        data-action-render-state={renderPlan.state}
+        tabIndex={0}
+      >
+        {visibleEntries.length === 0 && <span className="empty-hint">{renderPlan.emptyLabel}</span>}
+        {visibleEntries.map((entry) => (
+          <ActionPanelRenderEntryView
+            disabledByConnection={!submissionGate.canSubmit}
+            entry={entry}
+            key={entry.key}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            presentChoice={presentChoice}
+            snapshot={snapshot}
+            submissionGate={submissionGate}
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
-    <section className="side-panel action-panel">
-      <ScrollArea className="action-panel-scroll">
-        <div className="action-panel-content">
-          <header>
-            <span className="eyebrow">服务端行动提示</span>
-            <h2>{promptPlan.promptTitle}</h2>
-          </header>
-          <div className="prompt-summary">
-            <StatusPill tone={promptPlan.statusTone}>{promptPlan.statusLabel}</StatusPill>
-            {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
-          </div>
-          {promptPlan.spellDuel && <SpellDuelPromptDetails plan={promptPlan.spellDuel} />}
-          {promptPlan.stackPriority && <StackPriorityPromptDetails plan={promptPlan.stackPriority} />}
-          {promptPlan.complexPrompt && <ComplexPromptDetails plan={promptPlan.complexPrompt} />}
-          {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
-          {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
-          <div
-            className="action-buttons"
-            data-action-render-count={renderPlan.entries.length}
-            data-action-render-prompt-type={renderPlan.promptType}
-            data-action-render-state={renderPlan.state}
-          >
-            {renderPlan.entries.length === 0 && <span className="empty-hint">{renderPlan.emptyLabel}</span>}
-            {renderPlan.entries.map((entry) => (
-              <ActionPanelRenderEntryView
-                disabledByConnection={!submissionGate.canSubmit}
-                entry={entry}
-                key={entry.key}
-                onCommand={onCommand}
-                onReady={onReady}
-                onSubmitStarterDeck={onSubmitStarterDeck}
-                prompt={prompt}
-                snapshot={snapshot}
-                submissionGate={submissionGate}
-              />
-            ))}
-          </div>
-        </div>
-      </ScrollArea>
+    <section className="side-panel action-panel" data-action-panel-presentation={presentation}>
+      {presentation === "play" ? (
+        <div className="action-panel-scroll action-panel-scroll-native">{panelContent}</div>
+      ) : (
+        <ScrollArea className="action-panel-scroll">{panelContent}</ScrollArea>
+      )}
     </section>
   );
 }
@@ -104,6 +152,7 @@ function ActionPanelRenderEntryView({
   onCommand,
   onReady,
   onSubmitStarterDeck,
+  presentChoice,
   prompt,
   snapshot,
   submissionGate
@@ -113,6 +162,7 @@ function ActionPanelRenderEntryView({
   onCommand: CommandSubmitHandler;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
+  presentChoice: CandidateChoicePresenter;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   submissionGate: ServerSubmissionGatePlan;
@@ -133,6 +183,7 @@ function ActionPanelRenderEntryView({
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            presentChoice={presentChoice}
             prompt={prompt}
             snapshot={snapshot}
             submitGate={entry.submitGate}
@@ -146,6 +197,7 @@ function ActionPanelRenderEntryView({
         <MulliganCandidate
           candidate={candidate}
           onCommand={onCommand}
+          presentChoice={presentChoice}
           prompt={prompt}
           submitGate={entry.submitGate}
         />
@@ -163,6 +215,7 @@ function ActionPanelRenderEntryView({
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            presentChoice={presentChoice}
             prompt={prompt}
             snapshot={snapshot}
             submitGate={entry.submitGate}
@@ -231,6 +284,7 @@ function ActionPanelRenderEntryView({
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            presentChoice={presentChoice}
             prompt={prompt}
             snapshot={snapshot}
             submitGate={entry.submitGate}
@@ -253,6 +307,7 @@ function ActionPanelRenderEntryView({
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            presentChoice={presentChoice}
             prompt={prompt}
             snapshot={snapshot}
             submitGate={entry.submitGate}
@@ -275,6 +330,7 @@ function ActionPanelRenderEntryView({
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            presentChoice={presentChoice}
             prompt={prompt}
             snapshot={snapshot}
             submitGate={entry.submitGate}
@@ -291,6 +347,7 @@ function ActionPanelRenderEntryView({
           onCommand={onCommand}
           onReady={onReady}
           onSubmitStarterDeck={onSubmitStarterDeck}
+          presentChoice={presentChoice}
           prompt={prompt}
           snapshot={snapshot}
           submitGate={entry.submitGate}
@@ -307,6 +364,7 @@ function ActionPanelRenderEntryView({
   return (
     <div
       className="action-render-entry"
+      data-action-render-action={entry.candidate?.action ?? ""}
       data-action-render-entry={entry.key}
       data-action-render-candidate-enabled={entry.candidate?.enabled == null ? "none" : entry.candidate.enabled ? "true" : "false"}
       data-action-render-kind={entry.kind}
@@ -497,11 +555,13 @@ function PromptContractSummary({ contract }: { contract: NonNullable<ActionPanel
 function MulliganCandidate({
   candidate,
   onCommand,
+  presentChoice,
   prompt,
   submitGate
 }: {
   candidate: ActionPromptCandidateDto;
   onCommand: CommandSubmitHandler;
+  presentChoice: CandidateChoicePresenter;
   prompt?: ActionPromptDto;
   submitGate: ActionPanelSubmitGate;
 }) {
@@ -536,6 +596,7 @@ function MulliganCandidate({
             disabled={!submitGate.canSubmit || !hasServerLimit}
             key={choice.id}
             maxSelectionCount={maxSelectionCount ?? 0}
+            presentation={presentChoice(choice)}
             selected={selectedObjectIds.includes(choice.id)}
             selectedCount={selectedObjectIds.length}
             toggle={() => {
@@ -565,6 +626,7 @@ function MulliganChoiceButton({
   choice,
   disabled,
   maxSelectionCount,
+  presentation,
   selected,
   selectedCount,
   toggle
@@ -572,6 +634,7 @@ function MulliganChoiceButton({
   choice: ActionPromptChoiceDto;
   disabled: boolean;
   maxSelectionCount: number;
+  presentation: ReturnType<CandidateChoicePresenter>;
   selected: boolean;
   selectedCount: number;
   toggle: () => void;
@@ -585,8 +648,14 @@ function MulliganChoiceButton({
       title={promptReasonLabel(choice.reason, "服务端起手候选")}
       type="button"
     >
-      <span>{choice.label}</span>
-      <small>{selected ? "将调度" : lockedByLimit ? "已达上限" : "保留"}</small>
+      <span className="mulligan-choice-art" aria-hidden="true">
+        {presentation.frontImage ? <img alt="" loading="lazy" src={presentation.frontImage} /> : <span>卡牌</span>}
+      </span>
+      <span className="mulligan-choice-copy">
+        <strong>{presentation.label}</strong>
+        {presentation.cardNo ? <small>{presentation.cardNo}</small> : null}
+      </span>
+      <small className="mulligan-choice-state">{selected ? "将调度" : lockedByLimit ? "已达上限" : "保留"}</small>
     </button>
   );
 }
@@ -1055,6 +1124,7 @@ function CandidateButton({
   onCommand,
   onReady,
   onSubmitStarterDeck,
+  presentChoice,
   prompt,
   snapshot,
   submitGate,
@@ -1065,6 +1135,7 @@ function CandidateButton({
   onCommand: CommandSubmitHandler;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
+  presentChoice: CandidateChoicePresenter;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   submitGate: ActionPanelSubmitGate;
@@ -1129,6 +1200,7 @@ function CandidateButton({
           disabledByActionGate={disabledByActionGate}
           disabledByConnection={disabledByConnection}
           onCommand={onCommand}
+          presentChoice={presentChoice}
           prompt={prompt}
           snapshot={snapshot}
           submissionGate={submissionGate}
