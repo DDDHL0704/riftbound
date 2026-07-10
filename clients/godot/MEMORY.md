@@ -14,9 +14,15 @@ resume from repository state instead of conversation history alone.
   remaining damage, and assignment choices; it never fills missing targets or
   damage locally. `SpecialPromptCommandBuilder` disables malformed/missing
   metadata through explicit reasons. The Task 6 focused check, minimal static
-  checks, Godot client build, and three server fixture-shape tests pass. A local
-  auto-ready, non-auto-mulligan two-window diagnostic launched but produced no
-  client logs or screenshots, so visual proof remains outstanding.
+  checks, Godot client build, and server fixture-shape tests pass. A real
+  two-window, non-headless 1440x900 run proves the mulligan overlay with official
+  self-hand faces while the other client sees four opponent backs and zero
+  hidden identity leaks. Prompt-before-opening-hand delivery is deferred until
+  the visible self-hand snapshot arrives, eliminating the transient disabled
+  overlay. Isolated visible trigger/damage proof scenes exercise the production
+  adapters with conformance metadata shapes. Evidence is archived under
+  `screenshots/units/m6-*` and explained in
+  `m6-focused-prompt-overlays-visible-runs.md`.
 - The active minimal client now has focused lobby and match screens, official
   card views, a centered card-inspection overlay, and a centered result overlay.
   `Main.cs` remains the transport/coordinator boundary, but the normal runtime

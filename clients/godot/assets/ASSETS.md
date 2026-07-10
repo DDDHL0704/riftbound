@@ -15,6 +15,7 @@ deterministic visual verification requires them; record the source here.
 | `scenes/components/OfficialCardView.tscn` | Project-authored minimal wrapper around runtime official card fronts | Project-local | Adds only neutral fallback, count badge, focus, selection, target, disabled, and hidden states outside the official face. |
 | `scenes/components/ActionBar.tscn` | Project-authored minimal UI | Project-local | Localized server action and selection controls; no raster asset or custom card treatment was introduced. |
 | `scenes/overlays/CardInspectOverlay.tscn`, `scenes/overlays/ResultOverlay.tscn` | Project-authored minimal UI | Project-local | Uses theme surfaces and runtime official card art; no additional raster assets were introduced. |
+| `scenes/overlays/MulliganOverlay.tscn`, `TriggerOrderOverlay.tscn`, `DamageAssignmentOverlay.tscn` | Project-authored minimal UI | Project-local | Focused server-prompt controls. Mulligan reuses runtime official card fronts; trigger and damage overlays add no raster assets. |
 
 ## Approved Asset Direction
 

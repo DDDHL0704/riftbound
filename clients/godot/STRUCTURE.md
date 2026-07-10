@@ -78,8 +78,10 @@ wire-table height.
 - `scenes/overlays/MulliganOverlay.tscn`, `TriggerOrderOverlay.tscn`, and
   `DamageAssignmentOverlay.tscn` are root-level focused controls. They never
   display prompt/tick/object identifiers and have no `OptionButton` controls.
-  Mulligan receives official visible self-hand cards only after their object IDs
-  match the current action's source choices. Trigger rows retain IDs internally
+  Mulligan waits for a non-empty visible self-hand snapshot, then receives only
+  cards whose object IDs match the current action's source choices. This avoids
+  a prompt-before-snapshot flash while retaining an explicit mismatch diagnostic.
+  Trigger rows retain IDs internally
   while presenting server labels and keyboard/button ordering. Damage rows retain
   IDs internally while presenting only server participant metadata, remaining
   damage, and server-provided assignment choices.
@@ -124,6 +126,11 @@ wire-table height.
 - `scenes/debug/OfficialCardViewProof.tscn` is a focused visible test harness.
   With `--riftbound-proof-capture=<res://path>` it captures an exact external
   viewport after layout settles; it does not participate in the product flow.
+- `scenes/debug/FocusedPromptOverlayProof.tscn` and
+  `scripts/debug/FocusedPromptOverlayProof.cs` are an isolated non-headless
+  rendering harness for trigger-order and damage-assignment overlays. Fixture
+  dictionaries mirror server conformance metadata and pass through the real
+  `SpecialPromptCommandBuilder`; neither file is referenced by `Main.tscn`.
 - `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` are
   legacy battle presentation retained only until parity migration finishes.
   The procedural backdrop is no longer installed by the app shell.

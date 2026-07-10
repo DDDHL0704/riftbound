@@ -4078,9 +4078,16 @@ public partial class Main : Control
             case "MULLIGAN":
                 _triggerOrderOverlay?.HidePrompt();
                 _damageAssignmentOverlay?.HidePrompt();
+                var visibleHandCards = VisibleMulliganHandCards(action, out var hasHandSnapshot);
+                if (!hasHandSnapshot)
+                {
+                    _mulliganOverlay?.HidePrompt();
+                    break;
+                }
+
                 if (_mulliganOverlay is not null && (!_mulliganOverlay.Visible || !_mulliganOverlay.CanUsePrompt))
                 {
-                    if (!_mulliganOverlay.ShowPrompt(action, VisibleMulliganHandCards(action), out var reason))
+                    if (!_mulliganOverlay.ShowPrompt(action, visibleHandCards, out var reason))
                     {
                         AppendLog($"[color=yellow]Mulligan overlay disabled: {Escape(reason)}[/color]");
                     }
@@ -4136,8 +4143,11 @@ public partial class Main : Control
         ShowSpecialPromptOverlays(actions);
     }
 
-    private IReadOnlyList<Godot.Collections.Dictionary> VisibleMulliganHandCards(Godot.Collections.Dictionary action)
+    private IReadOnlyList<Godot.Collections.Dictionary> VisibleMulliganHandCards(
+        Godot.Collections.Dictionary action,
+        out bool hasHandSnapshot)
     {
+        hasHandSnapshot = false;
         var sourceIds = new HashSet<string>(PromptChoiceIds(action, "sourceChoices"), StringComparer.Ordinal);
         if (_lastSnapshotSections is null || sourceIds.Count == 0)
         {
@@ -4160,6 +4170,7 @@ public partial class Main : Control
                 return [];
             }
 
+            hasHandSnapshot = hand.Count > 0;
             return hand
                 .Where(card => card.TryGetValue("objectId", out var objectIdValue)
                     && sourceIds.Contains(objectIdValue.AsString())

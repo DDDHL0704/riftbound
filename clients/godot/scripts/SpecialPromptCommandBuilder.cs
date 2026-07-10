@@ -895,7 +895,13 @@ public static class SpecialPromptCommandBuilder
             labels[objectId] = $"{FriendlyParticipantRole(role)} {roleCounts[role]} · 战力 {power} · 已受伤 {damage}";
         }
 
-        return labels.Count > 0;
+        if (labels.Count == 0)
+        {
+            reason = "battleParticipants is empty";
+            return false;
+        }
+
+        return true;
     }
 
     private static bool TryReadAssignmentChoicePairs(
@@ -926,7 +932,13 @@ public static class SpecialPromptCommandBuilder
             }
         }
 
-        return pairs.Count > 0;
+        if (pairs.Count == 0)
+        {
+            reason = "assignmentChoices is empty";
+            return false;
+        }
+
+        return true;
     }
 
     private static bool TryReadAssignmentChoicePair(

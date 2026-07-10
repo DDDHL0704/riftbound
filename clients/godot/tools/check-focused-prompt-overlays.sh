@@ -11,6 +11,8 @@ damage_scene="$root/clients/godot/scenes/overlays/DamageAssignmentOverlay.tscn"
 mulligan_script="$root/clients/godot/scripts/ui/MulliganOverlay.cs"
 trigger_script="$root/clients/godot/scripts/ui/TriggerOrderOverlay.cs"
 damage_script="$root/clients/godot/scripts/ui/DamageAssignmentOverlay.cs"
+proof_scene="$root/clients/godot/scenes/debug/FocusedPromptOverlayProof.tscn"
+proof_script="$root/clients/godot/scripts/debug/FocusedPromptOverlayProof.cs"
 
 for file in \
   "$main_scene" \
@@ -21,7 +23,9 @@ for file in \
   "$damage_scene" \
   "$mulligan_script" \
   "$trigger_script" \
-  "$damage_script"; do
+  "$damage_script" \
+  "$proof_scene" \
+  "$proof_script"; do
   test -f "$file"
 done
 
@@ -84,8 +88,10 @@ rg -q 'battleParticipants role is missing' "$builder_script"
 rg -q 'battleParticipants duplicates an objectId' "$builder_script"
 rg -q 'battleParticipants power is missing' "$builder_script"
 rg -q 'battleParticipants damage is missing' "$builder_script"
+rg -q 'battleParticipants is empty' "$builder_script"
 rg -q 'legalTargetObjectIds contains a duplicate target' "$builder_script"
 rg -q 'assignmentChoices duplicates a source-target pair' "$builder_script"
+rg -q 'assignmentChoices is empty' "$builder_script"
 rg -q 'assignmentChoices does not exactly cover required legal targets' "$builder_script"
 rg -q 'legalTargets does not exactly cover required legal targets' "$builder_script"
 rg -q 'TryReadLegalTargetsMap' "$builder_script"
@@ -109,6 +115,8 @@ for overlay in MulliganOverlay TriggerOrderOverlay DamageAssignmentOverlay; do
 done
 rg -q 'ShowSpecialPromptOverlays\(' "$main_script"
 rg -q 'HideSpecialPromptOverlays\(' "$main_script"
+rg -F -q 'VisibleMulliganHandCards(action, out var hasHandSnapshot)' "$main_script"
+rg -U -q 'case "MULLIGAN":[\s\S]*?if \(!hasHandSnapshot\)[\s\S]*?HidePrompt\(\)[\s\S]*?break;' "$main_script"
 rg -q 'SubmitMulliganAsync\(' "$main_script"
 rg -q 'SubmitSpecialPromptAsync\(' "$main_script"
 rg -q 'TryBuildOrderTriggersPayload' "$builder_script"
@@ -120,5 +128,19 @@ rg -q 'text = "重置选择"' "$mulligan_scene" "$trigger_scene" "$damage_scene"
 rg -U -q 'ClearMatchResult\([\s\S]*?HideSpecialPromptOverlays\(' "$main_script"
 ! rg -U -q 'PromptMulliganActionNode\([\s\S]*?CheckBox' "$main_script"
 ! rg -U -q 'PromptSpecialActionNode\([\s\S]*?SubmitSpecialPromptAsync' "$main_script"
+
+# The fixture proof is isolated from the product main scene. Its dictionaries
+# mirror server conformance metadata and exercise the real overlay adapters.
+rg -q 'FocusedPromptOverlayProof.cs' "$proof_scene"
+rg -q 'TriggerOrderOverlay.tscn' "$proof_scene"
+rg -q 'DamageAssignmentOverlay.tscn' "$proof_scene"
+rg -q 'class FocusedPromptOverlayProof : Control' "$proof_script"
+rg -q 'ServerTriggerFixtureAction' "$proof_script"
+rg -q 'ServerDamageFixtureAction' "$proof_script"
+rg -q 'TryReadOrderTriggers' "$proof_script"
+rg -q 'TryReadDamageAssignmentPrompt' "$proof_script"
+rg -q -- '--riftbound-focused-overlay-proof=' "$proof_script"
+rg -q -- '--riftbound-proof-capture=' "$proof_script"
+! rg -q 'FocusedPromptOverlayProof' "$main_scene" "$main_script"
 
 echo "Focused prompt overlay checks passed."

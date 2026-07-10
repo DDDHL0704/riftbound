@@ -45,9 +45,11 @@ wire-table and final P5 evidence push are no longer the active product route.
   trigger ordering preserves all server IDs behind server labels; damage
   assignment exposes only server metadata and choices. Missing metadata disables
   its overlay with a diagnostic instead of client rule inference. Focused checks,
-  client build, and server-produced fixture-shape tests pass; targeted visible
-  capture remains incomplete because the diagnostic two-window run wrote no logs
-  or screenshots.
+  client build, and server-produced fixture-shape tests pass. A real two-window
+  1440x900 mulligan run now proves official self-hand faces, opponent backs only,
+  and zero hidden identity leaks. Isolated non-headless trigger-order and damage-
+  assignment proof scenes exercise the production adapters with server fixture
+  metadata shapes; evidence is archived under `screenshots/units/m6-*`.
 - Focused card inspection and result presentation are complete. Visible cards
   open in a centered overlay with one large uncropped official face and safe
   catalog text; face-down or non-visible cards are rejected before display.

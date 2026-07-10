@@ -545,9 +545,13 @@ encountered. If preconstructed decks cannot reach a prompt, retain a safe
 server-produced fixture or stop and report the missing scenario path.
 
 Focused checks and build passed. Existing server-generated fixture-shape tests
-cover trigger-order and natural battle-damage metadata. The attempted local
-auto-ready, non-auto-mulligan visible run produced no logs or screenshots, so
-fresh visual capture remains an explicit follow-up rather than completion proof.
+cover trigger-order and natural battle-damage metadata. A real two-window,
+non-headless 1440x900 run now captures the current mulligan overlay and the
+opponent waiting view with backs only; both logs report zero hidden identity
+leaks. Trigger-order and damage-assignment rendering are captured through the
+isolated `FocusedPromptOverlayProof` scene, which passes server fixture metadata
+shapes through the production builder and overlays without entering the product
+main scene. See `screenshots/units/m6-focused-prompt-overlays-visible-runs.md`.
 
 - [x] **Step 7: Commit**
 
