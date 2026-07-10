@@ -94,6 +94,10 @@ wire-table and final P5 evidence push are no longer the active product route.
 - M6 is the only active unit. It must prove the pushed minimal client through a
   clean two-client match, package logs/screenshots/sequence media, and verify the
   hidden-information boundary without relying on the retired visual route.
+- The latest local two-client full-flow candidate reached a natural 10-point
+  result at server tick 59 with zero rejected commands after serializing
+  diagnostic Prompt submissions. A clean pushed-main repetition is still
+  required before M6 can close.
 
 ## Work Sequence
 

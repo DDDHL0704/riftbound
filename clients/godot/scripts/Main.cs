@@ -102,6 +102,10 @@ public partial class Main : Control
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
     private readonly HashSet<string> _autoSmokeUiStages = new(StringComparer.Ordinal);
+    private readonly object _autoSmokePromptQueueLock = new();
+    private Godot.Collections.Dictionary? _pendingAutoSmokePromptView;
+    private bool _autoSmokePromptQueueRunning;
+    private long _latestObservedPromptSnapshotTick = -1;
     private Task? _officialCatalogLoadTask;
     private IReadOnlyDictionary<string, CardCatalogEntry> _officialCatalog =
         new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
@@ -1572,11 +1576,11 @@ public partial class Main : Control
         try
         {
             var view = BuildPromptView(element);
+            ObserveAutoSmokePromptTick(view);
             QueueMainThread(nameof(ApplyPrompt), view);
             AppendLog(
                 $"Prompt rendered: {view["candidateCount"].AsInt32()} candidates, {view["directCount"].AsInt32()} direct, {view["templateCount"].AsInt32()} templates.");
             AppendLog($"Prompt actions: {PromptActionSummary(view)}");
-            _ = RunAutoSmokePromptAsync(view);
         }
         catch (Exception ex)
         {
@@ -1811,6 +1815,79 @@ public partial class Main : Control
                 }
             }
         }
+    }
+
+    private void ScheduleAutoSmokePrompt(Godot.Collections.Dictionary view)
+    {
+        lock (_autoSmokePromptQueueLock)
+        {
+            _pendingAutoSmokePromptView = view.Duplicate(true);
+            if (_autoSmokePromptQueueRunning)
+            {
+                return;
+            }
+
+            _autoSmokePromptQueueRunning = true;
+        }
+
+        _ = DrainAutoSmokePromptQueueAsync();
+    }
+
+    private async Task DrainAutoSmokePromptQueueAsync()
+    {
+        while (true)
+        {
+            Godot.Collections.Dictionary? view;
+            lock (_autoSmokePromptQueueLock)
+            {
+                view = _pendingAutoSmokePromptView;
+                _pendingAutoSmokePromptView = null;
+                if (view is null)
+                {
+                    _autoSmokePromptQueueRunning = false;
+                    return;
+                }
+            }
+
+            try
+            {
+                if (IsAutoSmokePromptStale(view))
+                {
+                    continue;
+                }
+
+                await RunAutoSmokePromptAsync(view);
+            }
+            catch (Exception ex) when (!_isShuttingDown)
+            {
+                AppendLog($"[color=yellow]Auto smoke prompt skipped: {Escape(ex.Message)}[/color]");
+            }
+        }
+    }
+
+    private void ObserveAutoSmokePromptTick(Godot.Collections.Dictionary view)
+    {
+        var tick = view.TryGetValue("snapshotTick", out var tickValue) ? tickValue.AsInt64() : -1L;
+        if (tick < 0)
+        {
+            return;
+        }
+
+        while (true)
+        {
+            var observed = Volatile.Read(ref _latestObservedPromptSnapshotTick);
+            if (tick <= observed
+                || Interlocked.CompareExchange(ref _latestObservedPromptSnapshotTick, tick, observed) == observed)
+            {
+                return;
+            }
+        }
+    }
+
+    private bool IsAutoSmokePromptStale(Godot.Collections.Dictionary view)
+    {
+        var tick = view.TryGetValue("snapshotTick", out var tickValue) ? tickValue.AsInt64() : -1L;
+        return tick >= 0 && tick < Volatile.Read(ref _latestObservedPromptSnapshotTick);
     }
 
     private async Task<bool> TryRunAutoSmokeTemplateActionAsync(
@@ -3655,6 +3732,7 @@ public partial class Main : Control
         _matchFinished = false;
         _battleTableRendered = false;
         _lastAppliedPromptView = null;
+        Interlocked.Exchange(ref _latestObservedPromptSnapshotTick, -1L);
         _autoSmokeSurrenderSubmitted = false;
         _resultScreenshotSaved = false;
         _lastViewerResult = new Godot.Collections.Dictionary();
@@ -3732,6 +3810,7 @@ public partial class Main : Control
         RefreshLobbySetupStateFromPrompt(actions);
         RefreshPromptHighlights(actions);
         RedrawLastSnapshotSections();
+        ScheduleAutoSmokePrompt(view);
     }
 
     private void RefreshPromptHighlights(Godot.Collections.Array<Godot.Collections.Dictionary> actions)
@@ -3999,7 +4078,7 @@ public partial class Main : Control
             TryStageAutoSmokeUiAction();
             if (_lastAppliedPromptView is not null)
             {
-                _ = RunAutoSmokePromptAsync(_lastAppliedPromptView);
+                ScheduleAutoSmokePrompt(_lastAppliedPromptView);
             }
             return;
         }

@@ -155,6 +155,10 @@ wire-table height.
   server-choice membership, disabled-candidate rejection, interaction-layer
   independence from rules/table/hidden state, ActionBar mounting, safe display
   text, and reuse of the existing submission path.
+- `check-auto-smoke-prompt-serialization.sh` keeps diagnostic prompt submission
+  on a latest-only serialized queue. It prevents SignalR callbacks, prompt UI,
+  and asynchronous snapshot rendering from submitting the same or an older
+  server prompt concurrently.
 - `run-local-human-playtest*.sh` starts local visible two-window playtests.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
@@ -235,6 +239,8 @@ wire-table height.
 - Build: `~/.dotnet/dotnet build clients/godot/Riftbound.GodotClient.csproj`
 - Focused lobby scene: `clients/godot/tools/check-minimal-lobby-scene.sh`
 - Focused overlays: `clients/godot/tools/check-minimal-overlays.sh`
+- Simulated prompt serialization:
+  `clients/godot/tools/check-auto-smoke-prompt-serialization.sh`
 - Script safety: `clients/godot/tools/check-human-playtest-script-safety.sh`
 - Evidence checker tests:
   `clients/godot/tools/check-human-playtest-evidence-integrity.sh`

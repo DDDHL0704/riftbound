@@ -391,3 +391,21 @@ resume from repository state instead of conversation history alone.
 - The old screenshot guard scripts were deleted. Historical static entry points
   remain only as compatibility aliases and now validate the minimal
   `MatchScreen` and centered `ResultOverlay`.
+
+## 2026-07-10 Full-Flow Prompt Serialization
+
+- A two-client visible diagnostic that played naturally to the score threshold
+  exposed stale automated submissions: a Prompt could be processed once from
+  the SignalR callback and again after asynchronous snapshot rendering, or an
+  older table-ready retry could run while a newer Prompt waited in the Godot
+  main-thread queue.
+- Automated Prompt execution now uses a latest-only serialized pump. The network
+  callback records the highest observed server snapshot tick, the pump awaits
+  one receipt at a time, and cached views older than that tick are discarded.
+  Normal UI actions and server command semantics are unchanged.
+- `check-auto-smoke-prompt-serialization.sh` is the regression gate. Visible
+  reproduction `/private/tmp/riftbound-task8-fullflow-stale-safe` reached a
+  natural score result at server tick 59 with two independent Godot clients,
+  official-card result screenshots, zero hidden faces/leaks, and zero
+  `ERROR`/`REJECTED` log entries. It remains simulated evidence, not a claim of
+  two human operators.
