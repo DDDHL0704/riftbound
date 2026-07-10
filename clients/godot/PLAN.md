@@ -36,6 +36,10 @@ wire-table and final P5 evidence push are no longer the active product route.
 
 ## Current Status
 
+- M2 official-card foundation is complete: `OfficialCardView` preserves the
+  official face aspect ratio, applies only external rule-state outlines, and
+  suppresses identity/texture for hidden cards. Its visible 1440x900 proof is
+  `screenshots/units/m1-official-card-component-1440x900.png`.
 - Multi-window session isolation, SignalR/HTTP transport, official card catalog
   loading, preconstructed decks, prompt submission, hidden-information logging,
   screenshot capture, and final evidence tooling already exist and are retained.

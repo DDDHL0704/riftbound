@@ -304,3 +304,22 @@ resume from repository state instead of conversation history alone.
 - Old inksteel and wire-layout scripts remain useful only as legacy regression
   evidence while the replacement is built. Their passing result is not a visual
   acceptance criterion for the new client.
+
+## 2026-07-10 Minimal Official Card Component
+
+- Added `OfficialCardView`, `OfficialCardVisualState`, and `MinimalTheme` as the
+  first replacement UI slice. Hidden/face-down dictionaries never load the
+  supplied `imagePath`, so even a deliberately populated hidden test card stays
+  a neutral card back.
+- The Godot MCP embedded preview remains fixed at the editor's previously loaded
+  1600x900 viewport even after `project.godot` changes. Exact viewport proof uses
+  the external visible Godot window and the proof scene capture argument.
+- Local `view_image` can cache the first image read for a path after that PNG is
+  overwritten. During component verification the final 1440x900 file and a
+  newly named control capture had the same SHA-256 while the old path preview
+  still showed a stale frame. Use a fresh filename for iterative visual checks
+  and compare hashes before treating an overwritten-path preview as a regression.
+- Accepted proof:
+  `screenshots/units/m1-official-card-component-1440x900.png`. It visibly shows
+  uncropped official faces, external normal/selectable/selected/target outlines,
+  a count badge, disabled state, and a hidden state with no identity.

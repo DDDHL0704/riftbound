@@ -7,7 +7,8 @@ contracts change.
 ## Project
 
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
-  uses the `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
+  uses a 1440x900 reference viewport with responsive expansion, uses the
+  `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
 - `scenes/Main.tscn` is a single `Control` root with lobby/session controls,
   deck controls, a snapshot/table scroll area, a right-rail result panel,
   right-side official card preview, prompt panel, and hidden log panel.
@@ -59,6 +60,16 @@ wire-table height.
 
 ## Visual Layer
 
+- `scripts/ui/MinimalTheme.cs` owns the replacement graphite palette, readable
+  text, compact surface styles, button states, and semantic selection colors.
+- `scenes/components/OfficialCardView.tscn` and
+  `scripts/ui/OfficialCardView.cs` render cached official card fronts at their
+  full aspect ratio. The component accepts only server-visible card
+  dictionaries, refuses `imagePath` when a card is hidden or face-down, and
+  places selection/target state outside the official art.
+- `scenes/debug/OfficialCardViewProof.tscn` is a focused visible test harness.
+  With `--riftbound-proof-capture=<res://path>` it captures an exact external
+  viewport after layout settles; it does not participate in the product flow.
 - `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` define
   the procedural inksteel visual style selected for the client: low-saturation
   black/ivory linework, translucent ink-wash zones, restrained crimson and muted

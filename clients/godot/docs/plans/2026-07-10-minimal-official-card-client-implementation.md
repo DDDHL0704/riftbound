@@ -54,7 +54,7 @@ playtests.
 - Produces: `OfficialCardView.Display(Dictionary card, OfficialCardVisualState state)`,
   `OfficialCardView.Clear()`, and `OfficialCardView.Activated(Dictionary card)`.
 
-- [ ] **Step 1: Write the failing component integrity check**
+- [x] **Step 1: Write the failing component integrity check**
 
 ```bash
 #!/usr/bin/env bash
@@ -66,13 +66,13 @@ rg -q 'OfficialCardView.cs' "$root/clients/godot/scenes/components/OfficialCardV
 rg -q 'enum OfficialCardVisualState' "$root/clients/godot/scripts/ui/OfficialCardVisualState.cs"
 ```
 
-- [ ] **Step 2: Run the check and confirm it fails because the component is absent**
+- [x] **Step 2: Run the check and confirm it fails because the component is absent**
 
 Run: `clients/godot/tools/check-minimal-card-component.sh`
 
 Expected: non-zero exit with `OfficialCardView.cs` missing.
 
-- [ ] **Step 3: Add minimal theme tokens and visual state**
+- [x] **Step 3: Add minimal theme tokens and visual state**
 
 ```csharp
 namespace Riftbound.GodotClient.Ui;
@@ -94,7 +94,7 @@ text, green selectable, amber selected, red hostile/destructive, and blue-gray
 waiting colors. It exposes `Apply(Control root)`, `Panel(Color background)`, and
 `Outline(OfficialCardVisualState state)`; it does not reference `RunestoneTheme`.
 
-- [ ] **Step 4: Implement the official card control**
+- [x] **Step 4: Implement the official card control**
 
 ```csharp
 public partial class OfficialCardView : PanelContainer
@@ -124,7 +124,7 @@ label layer, one external state border, and one count badge. `Display` refuses t
 load `imagePath` when `visible=false` or `faceDown=true` and emits `Activated`
 only for non-disabled interactive states.
 
-- [ ] **Step 5: Build and run the integrity check**
+- [x] **Step 5: Build and run the integrity check**
 
 Run:
 
@@ -135,14 +135,14 @@ clients/godot/tools/check-minimal-card-component.sh
 
 Expected: build succeeds with zero errors and the check exits 0.
 
-- [ ] **Step 6: Create a visible component proof scene and inspect it**
+- [x] **Step 6: Create a visible component proof scene and inspect it**
 
 Use Godot MCP to instantiate `OfficialCardView.tscn` in a temporary editor scene
 with one visible official card dictionary, one hidden card, and each interaction
 state. Capture at 1440x900 and inspect that the official face is uncropped, the
 hidden card has no identity, and state outlines sit outside the art.
 
-- [ ] **Step 7: Update docs and commit**
+- [x] **Step 7: Update docs and commit**
 
 ```bash
 git add clients/godot/scripts/ui clients/godot/scenes/components \
