@@ -32,10 +32,8 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        var orderedTriggerIds = FirstMetadataStringArrayInOrder(metadata, "orderedTriggerIds", "triggerIds");
-        if (orderedTriggerIds.Length == 0)
+        if (!TryReadTriggerIds(metadata, out var orderedTriggerIds, out reason))
         {
-            reason = "orderedTriggerIds is missing";
             return false;
         }
 
@@ -46,15 +44,9 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        var labelsById = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var choice in triggerChoices.EnumerateArray())
+        if (!TryReadTriggerChoiceLabels(triggerChoices, orderedTriggerIds, out var labelsById, out reason))
         {
-            var id = ChoiceId(choice);
-            var label = ReadString(choice, "label");
-            if (!string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(label))
-            {
-                labelsById[id] = label;
-            }
+            return false;
         }
 
         if (!TryReadTriggerControllerBlocks(metadata, orderedTriggerIds, out var controllerBlockIndexes, out reason))
@@ -388,20 +380,134 @@ public static class SpecialPromptCommandBuilder
         }
     }
 
-    private static string[] FirstMetadataStringArrayInOrder(JsonElement metadata, params string[] propertyNames)
+    private static bool TryReadTriggerIds(
+        JsonElement metadata,
+        out string[] orderedTriggerIds,
+        out string reason)
     {
-        foreach (var propertyName in propertyNames)
+        orderedTriggerIds = [];
+        reason = string.Empty;
+        string[]? selectedIds = null;
+        foreach (var propertyName in new[] { "orderedTriggerIds", "triggerIds" })
         {
-            var values = ReadStringArray(metadata, propertyName)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .ToArray();
-            if (values.Length > 0)
+            if (!metadata.TryGetProperty(propertyName, out var property))
             {
-                return values;
+                continue;
+            }
+
+            if (!TryReadUniqueTriggerIds(property, propertyName, out var ids, out reason))
+            {
+                return false;
+            }
+
+            if (selectedIds is not null
+                && !selectedIds.ToHashSet(StringComparer.Ordinal).SetEquals(ids))
+            {
+                reason = "orderedTriggerIds and triggerIds do not exactly cover the same triggers";
+                return false;
+            }
+
+            selectedIds ??= ids;
+        }
+
+        if (selectedIds is null)
+        {
+            reason = "orderedTriggerIds is missing";
+            return false;
+        }
+
+        orderedTriggerIds = selectedIds;
+        return true;
+    }
+
+    private static bool TryReadUniqueTriggerIds(
+        JsonElement value,
+        string fieldName,
+        out string[] triggerIds,
+        out string reason)
+    {
+        triggerIds = [];
+        reason = string.Empty;
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            reason = $"{fieldName} is malformed";
+            return false;
+        }
+
+        if (value.GetArrayLength() == 0)
+        {
+            reason = $"{fieldName} is empty";
+            return false;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var parsed = new List<string>();
+        foreach (var item in value.EnumerateArray())
+        {
+            var id = item.ValueKind == JsonValueKind.String ? item.GetString() : null;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                reason = $"{fieldName} contains an empty trigger id";
+                return false;
+            }
+
+            if (!seen.Add(id))
+            {
+                reason = $"{fieldName} duplicates a trigger id";
+                return false;
+            }
+
+            parsed.Add(id);
+        }
+
+        triggerIds = parsed.ToArray();
+        return true;
+    }
+
+    private static bool TryReadTriggerChoiceLabels(
+        JsonElement triggerChoices,
+        IReadOnlyList<string> orderedTriggerIds,
+        out Dictionary<string, string> labelsById,
+        out string reason)
+    {
+        labelsById = new Dictionary<string, string>(StringComparer.Ordinal);
+        reason = string.Empty;
+        if (triggerChoices.GetArrayLength() == 0)
+        {
+            reason = "triggerChoices is empty";
+            return false;
+        }
+
+        foreach (var choice in triggerChoices.EnumerateArray())
+        {
+            if (choice.ValueKind != JsonValueKind.Object)
+            {
+                reason = "triggerChoices entry is malformed";
+                return false;
+            }
+
+            var id = ChoiceId(choice);
+            var label = ReadString(choice, "label");
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(label))
+            {
+                reason = "triggerChoices id or label is missing";
+                return false;
+            }
+
+            if (!labelsById.TryAdd(id, label))
+            {
+                reason = "triggerChoices duplicates a trigger id";
+                return false;
             }
         }
 
-        return [];
+        if (!labelsById.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(orderedTriggerIds))
+        {
+            reason = "triggerChoices does not exactly cover server triggers";
+            return false;
+        }
+
+        return true;
     }
 
     private static bool HasSameIdsInDifferentOrder(
@@ -453,10 +559,24 @@ public static class SpecialPromptCommandBuilder
         var blockIndex = 0;
         foreach (var block in blocks.EnumerateArray())
         {
-            var triggerIds = ReadStringArray(block, "triggerIds");
-            if (block.ValueKind != JsonValueKind.Object || triggerIds.Count == 0)
+            if (block.ValueKind != JsonValueKind.Object)
             {
-                reason = "legalResolutionControllerBlockOrder triggerIds is missing";
+                reason = "legalResolutionControllerBlockOrder block is malformed";
+                return false;
+            }
+
+            if (!block.TryGetProperty("triggerIds", out var blockTriggerIds)
+                || !TryReadUniqueTriggerIds(
+                    blockTriggerIds,
+                    "legalResolutionControllerBlockOrder triggerIds",
+                    out var triggerIds,
+                    out reason))
+            {
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    reason = "legalResolutionControllerBlockOrder triggerIds is missing";
+                }
+
                 return false;
             }
 
@@ -472,7 +592,8 @@ public static class SpecialPromptCommandBuilder
             blockIndex++;
         }
 
-        if (!HasSameIdsInDifferentOrder(indexes.Keys, orderedTriggerIds))
+        if (indexes.Count != orderedTriggerIds.Count
+            || !indexes.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(orderedTriggerIds))
         {
             reason = "legalResolutionControllerBlockOrder does not preserve server triggers";
             return false;
@@ -553,7 +674,11 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        var legalTargetsBySource = ReadStringListMap(metadata, "legalTargets");
+        if (!TryReadLegalTargetsMap(metadata, out var legalTargetsBySource, out var hasLegalTargets, out reason))
+        {
+            return false;
+        }
+
         var parsed = new List<DamageAssignmentPromptItem>();
         var seenSources = new HashSet<string>(StringComparer.Ordinal);
         var expectedPairs = new HashSet<(string Source, string Target)>();
@@ -569,10 +694,6 @@ public static class SpecialPromptCommandBuilder
             var requiredDamage = ReadInt(requirement, "damage");
             var legalTargetObjectIds = ReadStringArray(requirement, "legalTargetObjectIds");
             legalTargetsBySource.TryGetValue(sourceObjectId, out var metadataTargets);
-            if (legalTargetObjectIds.Count == 0 && metadataTargets is not null)
-            {
-                legalTargetObjectIds = metadataTargets;
-            }
 
             if (string.IsNullOrWhiteSpace(sourceObjectId)
                 || requiredDamage <= 0
@@ -641,7 +762,7 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        if (legalTargetsBySource.Count > 0
+        if (hasLegalTargets
             && (!legalTargetsBySource.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(seenSources)
                 || parsed.Any(assignment => !legalTargetsBySource[assignment.SourceObjectId]
                     .SequenceEqual(assignment.Targets.Select(target => target.TargetObjectId), StringComparer.Ordinal))))
@@ -1087,27 +1208,84 @@ public static class SpecialPromptCommandBuilder
         return result;
     }
 
-    private static IReadOnlyDictionary<string, IReadOnlyList<string>> ReadStringListMap(
+    private static bool TryReadLegalTargetsMap(
         JsonElement metadata,
-        string propertyName)
+        out IReadOnlyDictionary<string, IReadOnlyList<string>> legalTargetsBySource,
+        out bool hasLegalTargets,
+        out string reason)
     {
         var result = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-        if (!metadata.TryGetProperty(propertyName, out var property)
-            || property.ValueKind != JsonValueKind.Object)
+        legalTargetsBySource = result;
+        hasLegalTargets = metadata.TryGetProperty("legalTargets", out var property);
+        reason = string.Empty;
+        if (!hasLegalTargets)
         {
-            return result;
+            return true;
+        }
+
+        if (property.ValueKind != JsonValueKind.Object)
+        {
+            reason = "legalTargets is malformed";
+            return false;
         }
 
         foreach (var item in property.EnumerateObject())
         {
-            var values = ReadStringArray(item.Value);
-            if (!string.IsNullOrWhiteSpace(item.Name) && values.Count > 0)
+            if (string.IsNullOrWhiteSpace(item.Name))
             {
-                result[item.Name] = values;
+                reason = "legalTargets contains an empty source";
+                return false;
             }
+
+            if (result.ContainsKey(item.Name))
+            {
+                reason = "legalTargets duplicates a source";
+                return false;
+            }
+
+            if (item.Value.ValueKind != JsonValueKind.Array)
+            {
+                reason = "legalTargets target list is malformed";
+                return false;
+            }
+
+            if (item.Value.GetArrayLength() == 0)
+            {
+                reason = "legalTargets target list is empty";
+                return false;
+            }
+
+            var seenTargets = new HashSet<string>(StringComparer.Ordinal);
+            var targets = new List<string>();
+            foreach (var target in item.Value.EnumerateArray())
+            {
+                var targetObjectId = target.ValueKind == JsonValueKind.String ? target.GetString() : null;
+                if (string.IsNullOrWhiteSpace(targetObjectId))
+                {
+                    reason = "legalTargets contains an empty target";
+                    return false;
+                }
+
+                if (!seenTargets.Add(targetObjectId))
+                {
+                    reason = "legalTargets contains a duplicate target";
+                    return false;
+                }
+
+                targets.Add(targetObjectId);
+            }
+
+            result[item.Name] = targets;
         }
 
-        return result;
+        if (result.Count == 0)
+        {
+            reason = "legalTargets is empty";
+            return false;
+        }
+
+        legalTargetsBySource = result;
+        return true;
     }
 
     private static IEnumerable<(string SourceObjectId, IReadOnlyList<string> TargetObjectIds)> StringListMap(
