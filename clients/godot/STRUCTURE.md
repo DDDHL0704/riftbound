@@ -159,8 +159,8 @@ wire-table height.
 - `run-local-simulated-playtest-stack.sh` and
   `run-clean-main-simulated-playtest-stack.sh` run visible automated preflights.
   They are regression evidence, not final P5 evidence. The clean-main simulated
-  wrapper also runs the inksteel screenshot style guard and the battle-layout
-  screenshot geometry guard on both result screenshots by default.
+  wrapper also checks official-card table content and the centered result
+  overlay on both result screenshots by default.
 - `run-clean-main-human-playtest-stack.sh` is the final P5 collection path. It
   requires clean pushed `origin/main`, distinct handles/player keys, manual
   confirmations, evidence packaging, and package verification. Its `--precheck`
@@ -193,37 +193,34 @@ wire-table height.
   launcher so it cannot become an automated smoke or no-wait path.
 - `check-human-playtest-evidence.sh` validates raw logs/screenshots,
   preconstructed deck load, accepted `SubmitDeck`/`Ready` receipts, hidden
-  information boundary log lines, the inksteel screenshot style guard, the
-  battle-layout screenshot geometry guard, and writes `playtest-report.md`.
-- `check-inksteel-screenshot-style.sh` samples result screenshot pixels to catch
-  obvious drift away from the selected black/ivory inksteel route. It is a visual
-  regression guard, not a replacement for human screenshot review.
-- `check-battle-layout-screenshot.sh` samples result screenshots for the
-  black/ivory wire-table geometry: enough horizontal table bands, a reference
-  tabletop bottom with intentional breathing room, and right result-rail
-  linework. It catches layout regressions where the palette still passes but the
-  tabletop is clipped or no longer matches the selected wire layout.
+  information boundary log lines, official-card table content, the centered
+  result overlay, and writes `playtest-report.md`.
+- `check-official-card-table-screenshot.sh` rejects blank/default-control result
+  screenshots and requires dark table coverage plus meaningful card color and
+  visual detail.
+- `check-centered-result-overlay-screenshot.sh` requires a neutral authoritative
+  result panel centered over the still-visible match table.
 - `check-battle-layout-scene-integrity.sh` statically checks that the result
-  panel stays in the right information rail between a clipped compact official
-  preview and the prompt panel, that the wire table has no 1280px hard width,
-  that the legacy out-of-table `HandScroll` no longer reserves battle layout
-  height, that the table follows the resource/play/site/play/resource order, and
-  that compact table cards cannot stretch the black/ivory grid.
+  runtime contains only the responsive minimal `MatchScreen` and that the old
+  renderer/theme classes and debug rails remain removed. The historical
+  filename is retained as a compatibility entry point.
 - `check-result-rail-visibility-integrity.sh` statically checks that entering
-  match-result mode shows the result panel without blanking the right-side card
-  preview or prompt panel.
-- `package-human-playtest-evidence.sh` creates the handoff tarball.
+  result mode shows the centered authoritative overlay while keeping the match
+  screen rendered. The historical filename is retained for compatibility.
+- `package-human-playtest-evidence.sh` creates the handoff tarball and includes
+  `match-sequence-NN.png` plus `match-sequence.mp4` when those final-run media
+  files are present in the evidence directory.
 - `verify-human-playtest-package.sh` verifies the final package, including clean
   git markers, checksums, screenshot validity, manual confirmations, room/player
   identity consistency, `OPERATOR_GUIDE.md`, `P5_HANDOFF.md`,
   `VISUAL_REVIEW.md`, and absence of auto-smoke markers.
   It also requires both client logs and the report to include the machine hidden
-  information boundary check: zero opponent hand faces and zero hidden identity
-  leaks, and requires the package README plus generated handoff and visual
-  review files to repeat that report conclusion. It also requires the report,
+  information boundary check: zero opponent hand faces, zero opponent standby
+  faces, and zero hidden identity leaks, and requires the package README plus
+  generated handoff and visual review files to repeat that report conclusion. It also requires the report,
   package README, handoff, and visual review files to include the passed
-  inksteel style and battle-layout machine checks, then re-runs both screenshot
-  guards on the packaged result screenshots. `OPERATOR_GUIDE.md` must also keep
+  official-card table and centered-result machine checks, then re-runs both
+  screenshot guards on the packaged result screenshots. `OPERATOR_GUIDE.md` must also keep
   redacted Player A/B key fingerprints plus non-empty evidence-package and
   playtest-report path fields, and those fields must point to a `.tar.gz`
   evidence package and `playtest-report.md`, so a reviewer can recover the
@@ -243,10 +240,8 @@ wire-table height.
   `clients/godot/tools/check-human-playtest-evidence-integrity.sh`
 - Package verifier tests:
   `clients/godot/tools/check-human-playtest-package-integrity.sh`
-- Inksteel screenshot style tests:
-  `clients/godot/tools/check-inksteel-screenshot-style-integrity.sh`
-- Battle layout screenshot tests:
-  `clients/godot/tools/check-battle-layout-screenshot-integrity.sh`
+- Minimal screenshot evidence tests:
+  `clients/godot/tools/check-minimal-screenshot-evidence-integrity.sh`
 - Battle scene layout test:
   `clients/godot/tools/check-battle-layout-scene-integrity.sh`
 - Result rail visibility test:

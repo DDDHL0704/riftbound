@@ -102,13 +102,22 @@ for file in "${required_files[@]}"; do
 done
 cp "${report_path}" "${bundle_dir}/playtest-report.md"
 
+sequence_files=()
+shopt -s nullglob
+for path in "${evidence_dir}"/match-sequence-[0-9][0-9].png "${evidence_dir}"/match-sequence.mp4; do
+  file="$(basename "${path}")"
+  cp "${path}" "${bundle_dir}/${file}"
+  sequence_files+=("${file}")
+done
+shopt -u nullglob
+
 room="$(report_field "Room")"
 player_a_handle="$(report_field "Player A handle")"
 player_b_handle="$(report_field "Player B handle")"
 git_revision="$(report_field "Git revision")"
 manual_confirmation_mode="$(report_field "Manual confirmation mode")"
-inksteel_style="$(report_field "Inksteel style")"
-battle_layout="$(report_field "Battle layout")"
+official_card_table="$(report_field "Official-card table")"
+centered_result_overlay="$(report_field "Centered result overlay")"
 hidden_information_boundary="$(report_field "Hidden information boundary")"
 
 cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
@@ -122,8 +131,8 @@ cat >"${bundle_dir}/P5_HANDOFF.md" <<EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
-- Inksteel style: ${inksteel_style}
-- Battle layout: ${battle_layout}
+- Official-card table: ${official_card_table}
+- Centered result overlay: ${centered_result_overlay}
 - Hidden information boundary: ${hidden_information_boundary}
 - Manual confirmation mode: ${manual_confirmation_mode}
 
@@ -141,16 +150,16 @@ cat >"${bundle_dir}/VISUAL_REVIEW.md" <<EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
-- Machine inksteel style: ${inksteel_style}
-- Machine battle layout: ${battle_layout}
+- Machine official-card table: ${official_card_table}
+- Machine centered result overlay: ${centered_result_overlay}
 - Machine hidden-information boundary: ${hidden_information_boundary}
 
 Before accepting this package as final P5 evidence, inspect both result
 screenshots and confirm:
 
 - Both screenshots show the server result panel.
-- Both screenshots show the complete black/ivory wire-table layout without the
-  bottom hand band or right result rail clipped away.
+- Both screenshots retain the official-card table behind a centered result
+  overlay, including both battlefields, hand area, and contextual action bar.
 - Player A sees opponent hand and hidden cards only as card backs and counts.
 - Player B sees opponent hand and hidden cards only as card backs and counts.
 - No opponent hidden card face, name, text, or identity is visible in either
@@ -197,9 +206,10 @@ cat >"${bundle_dir}/README.md" <<EOF
 - Operator guide: OPERATOR_GUIDE.md
 - P5 handoff summary: P5_HANDOFF.md
 - Visual review checklist: VISUAL_REVIEW.md
-- Machine inksteel style: ${inksteel_style}
-- Machine battle layout: ${battle_layout}
+- Machine official-card table: ${official_card_table}
+- Machine centered result overlay: ${centered_result_overlay}
 - Machine hidden-information boundary: ${hidden_information_boundary}
+- Sequence media files: ${#sequence_files[@]}
 - Checksums: SHA256SUMS
 
 This package is evidence material only. It does not prove the human-only
@@ -218,6 +228,8 @@ checksum_files=(
   "player-b-result.png"
   "playtest-report.md"
 )
+
+checksum_files+=("${sequence_files[@]}")
 
 if [[ -s "${evidence_dir}/api.log" ]]; then
   cp "${evidence_dir}/api.log" "${bundle_dir}/api.log"

@@ -19,8 +19,8 @@ Useful environment overrides:
   RIFTBOUND_KEEP_CLEAN_WORKTREE=1
   RIFTBOUND_ROOM=sim-clean-local-test
   RIFTBOUND_SCREENSHOT_DIR=/tmp/riftbound-sim-clean-local-test
-  RIFTBOUND_CHECK_INKSTEEL_STYLE=0
-  RIFTBOUND_CHECK_BATTLE_LAYOUT=0
+  RIFTBOUND_CHECK_OFFICIAL_CARD_TABLE=0
+  RIFTBOUND_CHECK_CENTERED_RESULT_OVERLAY=0
 EOF
 }
 
@@ -38,8 +38,8 @@ keep_worktree="${RIFTBOUND_KEEP_CLEAN_WORKTREE:-0}"
 user_worktree_dir="${RIFTBOUND_CLEAN_WORKTREE_DIR:-}"
 room="${RIFTBOUND_ROOM:-sim-clean-main-$(date +%H%M%S)}"
 screenshot_dir="${RIFTBOUND_SCREENSHOT_DIR:-/tmp/riftbound-simulated-playtest-${room}}"
-check_inksteel_style="${RIFTBOUND_CHECK_INKSTEEL_STYLE:-1}"
-check_battle_layout="${RIFTBOUND_CHECK_BATTLE_LAYOUT:-1}"
+check_official_card_table="${RIFTBOUND_CHECK_OFFICIAL_CARD_TABLE:-1}"
+check_centered_result_overlay="${RIFTBOUND_CHECK_CENTERED_RESULT_OVERLAY:-1}"
 created_worktree=0
 
 if [[ "${fetch_ref}" != "0" ]]; then
@@ -88,14 +88,14 @@ export RIFTBOUND_SCREENSHOT_DIR="${screenshot_dir}"
 
 "${clean_worktree}/clients/godot/tools/run-local-simulated-playtest-stack.sh"
 
-if [[ "${check_inksteel_style}" != "0" ]]; then
-  "${clean_worktree}/clients/godot/tools/check-inksteel-screenshot-style.sh" \
+if [[ "${check_official_card_table}" != "0" ]]; then
+  "${clean_worktree}/clients/godot/tools/check-official-card-table-screenshot.sh" \
     "${screenshot_dir}/player-a-result.png" \
     "${screenshot_dir}/player-b-result.png"
 fi
 
-if [[ "${check_battle_layout}" != "0" ]]; then
-  "${clean_worktree}/clients/godot/tools/check-battle-layout-screenshot.sh" \
+if [[ "${check_centered_result_overlay}" != "0" ]]; then
+  "${clean_worktree}/clients/godot/tools/check-centered-result-overlay-screenshot.sh" \
     "${screenshot_dir}/player-a-result.png" \
     "${screenshot_dir}/player-b-result.png"
 fi

@@ -38,18 +38,18 @@ echo "room=${RIFTBOUND_ROOM:-}"
 echo "evidence=${RIFTBOUND_SCREENSHOT_DIR:-}"
 STUB
     chmod +x "${destination}/clients/godot/tools/run-local-simulated-playtest-stack.sh"
-    cat >"${destination}/clients/godot/tools/check-inksteel-screenshot-style.sh" <<'STUB'
+    cat >"${destination}/clients/godot/tools/check-official-card-table-screenshot.sh" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
-echo "inksteel style guard ran: $*"
+echo "official-card table guard ran: $*"
 STUB
-    chmod +x "${destination}/clients/godot/tools/check-inksteel-screenshot-style.sh"
-    cat >"${destination}/clients/godot/tools/check-battle-layout-screenshot.sh" <<'STUB'
+    chmod +x "${destination}/clients/godot/tools/check-official-card-table-screenshot.sh"
+    cat >"${destination}/clients/godot/tools/check-centered-result-overlay-screenshot.sh" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
-echo "battle layout guard ran: $*"
+echo "centered result overlay guard ran: $*"
 STUB
-    chmod +x "${destination}/clients/godot/tools/check-battle-layout-screenshot.sh"
+    chmod +x "${destination}/clients/godot/tools/check-centered-result-overlay-screenshot.sh"
     exit 0
     ;;
   "worktree remove --force")
@@ -92,10 +92,10 @@ rg -q "not valid final two-human P5 evidence" "${output}" \
   || fail "clean-main simulated wrapper did not warn that output is not final P5 evidence"
 rg -q "room=clean-sim-test" "${output}" \
   || fail "clean-main simulated wrapper did not preserve RIFTBOUND_ROOM"
-rg -q "inksteel style guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
-  || fail "clean-main simulated wrapper did not run the inksteel style guard on both result screenshots"
-rg -q "battle layout guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
-  || fail "clean-main simulated wrapper did not run the battle layout guard on both result screenshots"
+rg -q "official-card table guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
+  || fail "clean-main simulated wrapper did not run the official-card table guard on both result screenshots"
+rg -q "centered result overlay guard ran: .*player-a-result\\.png.*player-b-result\\.png" "${output}" \
+  || fail "clean-main simulated wrapper did not run the centered result overlay guard on both result screenshots"
 rg -q "worktree add --detach" "${fake_git_log}" \
   || fail "clean-main simulated wrapper did not create a detached clean worktree"
 

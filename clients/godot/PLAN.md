@@ -69,7 +69,7 @@ wire-table and final P5 evidence push are no longer the active product route.
 - The responsive official-card match screen is complete. It presents opponent
   summary/back, two aligned battlefields, self public zones, a readable hand,
   and a stable bottom action host without the old permanent right rail. The old
-  renderer is retained only behind a default-off fallback. Visible
+  renderer, fallback table, and decorative theme path have been removed. Visible
   1280x720/1440x900/1920x1080 evidence is archived under
   `screenshots/units/m3-minimal-match-*` with zero hidden identity leaks.
 - The focused lobby shell is complete. It owns connection, room/matchmaking,
@@ -88,20 +88,23 @@ wire-table and final P5 evidence push are no longer the active product route.
   use the focused action bar, and mulligan, trigger ordering, and combat damage
   use dedicated root overlays. There is no fallback table or generic prompt
   runtime left.
-- The current client can reach a result through automated smoke, but the recent
-  visual audit found that a human cannot reliably scan or operate it as a card
-  game. P5 is paused until the interaction and layout rebuild is complete.
+- M1-M5 are complete: focused screens, official-card rendering, prompt-owned
+  interaction, dedicated special-prompt overlays, responsive layouts, keyboard
+  controls, and the centered result flow all have visible-window evidence.
+- M6 is the only active unit. It must prove the pushed minimal client through a
+  clean two-client match, package logs/screenshots/sequence media, and verify the
+  hidden-information boundary without relying on the retired visual route.
 
 ## Work Sequence
 
-1. **M1 - Minimal shell and screen separation**
+1. **M1 - Minimal shell and screen separation (complete)**
    - Separate lobby/deck setup, match table, card inspection, and result states.
    - Keep the existing coordinator and transport behavior intact while moving
      view ownership into focused scenes and controllers.
    - Done when lobby controls never share the battle viewport and both 1440x900
      and 1920x1080 screenshots show stable, unclipped shells.
 
-2. **M2 - Official card component and readable table**
+2. **M2 - Official card component and readable table (complete)**
    - Render official card fronts without a custom ornamental frame.
    - Add one neutral card back, compact count badges, readable hover/focus, and
      a large inspection overlay.
@@ -110,7 +113,7 @@ wire-table and final P5 evidence push are no longer the active product route.
    - Done when card art is recognizable at normal view distance and hidden
      opponent cards remain backs/counts only.
 
-3. **M3 - Direct prompt-driven interaction**
+3. **M3 - Direct prompt-driven interaction (complete)**
    - Map enabled prompt sources to selectable cards and zones.
    - Use a bottom action bar for current commands and temporary focused overlays
      for mulligan, trigger ordering, and damage assignment.
@@ -118,20 +121,20 @@ wire-table and final P5 evidence push are no longer the active product route.
    - Done when a human can submit deck, ready, mulligan, tap runes, play a card,
      move, declare battle, assign damage, pass, and end turn without reading logs.
 
-4. **M4 - State clarity and restrained feedback**
+4. **M4 - State clarity and restrained feedback (complete)**
    - Add prominent turn/phase status, selection states, legal-target states,
      exhausted/tapped state, combat state, waiting state, and error recovery.
    - Add short transitions only where they confirm an accepted server action.
    - Done when screenshots and a short visible recording make the current turn,
      current selection, and next action obvious.
 
-5. **M5 - Lobby, result, accessibility, and responsive completion**
+5. **M5 - Lobby, result, accessibility, and responsive completion (complete)**
    - Finish deck selection, room/matchmaking entry, result overlay, return flow,
      keyboard navigation, visible focus, and minimum target sizes.
    - Done when the core flow works at all supported viewports without clipping
      and can be completed by keyboard.
 
-6. **M6 - Human full-match proof**
+6. **M6 - Human full-match proof (in progress)**
    - Run two real Godot clients with two human operators and preconstructed decks
      through a complete match to the result view.
    - Package screenshots/video, logs, hidden-information evidence, build output,

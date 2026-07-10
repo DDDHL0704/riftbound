@@ -103,6 +103,10 @@ while IFS= read -r file; do
     fi
   done
 
+  if [[ "${relative_file}" =~ ^match-sequence-[0-9][0-9]\.png$ || "${relative_file}" == "match-sequence.mp4" ]]; then
+    allowed=1
+  fi
+
   if [[ "${allowed}" != "1" ]]; then
     failures+=("unexpected file in evidence package: ${relative_file}")
   fi
@@ -137,6 +141,13 @@ if (( ${#failures[@]} == 0 )); then
   if [[ -s "${bundle_dir}/api.log" ]] && ! checksum_covers_file "api.log"; then
     failures+=("SHA256SUMS does not cover api.log")
   fi
+
+  while IFS= read -r media_file; do
+    relative_media="${media_file#${bundle_dir}/}"
+    if ! checksum_covers_file "${relative_media}"; then
+      failures+=("SHA256SUMS does not cover ${relative_media}")
+    fi
+  done < <(find "${bundle_dir}" -maxdepth 1 -type f \( -name 'match-sequence-[0-9][0-9].png' -o -name 'match-sequence.mp4' \) -print)
 fi
 
 report="${bundle_dir}/playtest-report.md"
@@ -273,8 +284,8 @@ require_handoff_consistency() {
   local player_b_handle=""
   local git_revision=""
   local manual_confirmation_mode=""
-  local inksteel_style=""
-  local battle_layout=""
+  local official_card_table=""
+  local centered_result_overlay=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${handoff}" || ! -s "${report}" ]]; then
@@ -286,8 +297,8 @@ require_handoff_consistency() {
   player_b_handle="$(report_field "Player B handle")"
   git_revision="$(report_field "Git revision")"
   manual_confirmation_mode="$(report_field "Manual confirmation mode")"
-  inksteel_style="$(report_field "Inksteel style")"
-  battle_layout="$(report_field "Battle layout")"
+  official_card_table="$(report_field "Official-card table")"
+  centered_result_overlay="$(report_field "Centered result overlay")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_handoff_literal_match "# Riftbound Godot P5 Handoff" "P5 handoff title"
@@ -298,8 +309,8 @@ require_handoff_consistency() {
   require_handoff_literal_match "- Player A result screenshot: player-a-result.png" "P5 handoff player A screenshot"
   require_handoff_literal_match "- Player B result screenshot: player-b-result.png" "P5 handoff player B screenshot"
   require_handoff_literal_match "- Report: playtest-report.md" "P5 handoff report"
-  require_handoff_literal_match "- Inksteel style: ${inksteel_style}" "P5 handoff inksteel style"
-  require_handoff_literal_match "- Battle layout: ${battle_layout}" "P5 handoff battle layout"
+  require_handoff_literal_match "- Official-card table: ${official_card_table}" "P5 handoff official-card table"
+  require_handoff_literal_match "- Centered result overlay: ${centered_result_overlay}" "P5 handoff centered result overlay"
   require_handoff_literal_match "- Hidden information boundary: ${hidden_information_boundary}" "P5 handoff hidden information boundary"
   require_handoff_literal_match "- Manual confirmation mode: ${manual_confirmation_mode}" "P5 handoff manual confirmation mode"
 }
@@ -317,8 +328,8 @@ require_visual_review_consistency() {
   local room=""
   local player_a_handle=""
   local player_b_handle=""
-  local inksteel_style=""
-  local battle_layout=""
+  local official_card_table=""
+  local centered_result_overlay=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${visual_review}" || ! -s "${report}" ]]; then
@@ -328,8 +339,8 @@ require_visual_review_consistency() {
   room="$(report_field "Room")"
   player_a_handle="$(report_field "Player A handle")"
   player_b_handle="$(report_field "Player B handle")"
-  inksteel_style="$(report_field "Inksteel style")"
-  battle_layout="$(report_field "Battle layout")"
+  official_card_table="$(report_field "Official-card table")"
+  centered_result_overlay="$(report_field "Centered result overlay")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
   require_visual_review_literal_match "# Riftbound Godot Visual Review" "visual review title"
@@ -338,10 +349,10 @@ require_visual_review_consistency() {
   require_visual_review_literal_match "- Player B handle: ${player_b_handle}" "visual review player B handle"
   require_visual_review_literal_match "- Player A result screenshot: player-a-result.png" "visual review player A screenshot"
   require_visual_review_literal_match "- Player B result screenshot: player-b-result.png" "visual review player B screenshot"
-  require_visual_review_literal_match "- Machine inksteel style: ${inksteel_style}" "visual review inksteel style"
-  require_visual_review_literal_match "- Machine battle layout: ${battle_layout}" "visual review battle layout"
+  require_visual_review_literal_match "- Machine official-card table: ${official_card_table}" "visual review official-card table"
+  require_visual_review_literal_match "- Machine centered result overlay: ${centered_result_overlay}" "visual review centered result overlay"
   require_visual_review_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "visual review hidden information boundary"
-  require_visual_review_literal_match "complete black/ivory wire-table layout" "visual review battle-layout checklist"
+  require_visual_review_literal_match "official-card table behind a centered result" "visual review table/result checklist"
   require_visual_review_literal_match "opponent hand and hidden cards only as card backs and counts" "visual review hidden-information checklist"
   require_visual_review_literal_match "No opponent hidden card face, name, text, or identity is visible" "visual review hidden identity checklist"
 }
@@ -356,20 +367,20 @@ require_readme_literal_match() {
 }
 
 require_readme_consistency() {
-  local inksteel_style=""
-  local battle_layout=""
+  local official_card_table=""
+  local centered_result_overlay=""
   local hidden_information_boundary=""
 
   if [[ ! -s "${readme}" || ! -s "${report}" ]]; then
     return
   fi
 
-  inksteel_style="$(report_field "Inksteel style")"
-  battle_layout="$(report_field "Battle layout")"
+  official_card_table="$(report_field "Official-card table")"
+  centered_result_overlay="$(report_field "Centered result overlay")"
   hidden_information_boundary="$(report_field "Hidden information boundary")"
 
-  require_readme_literal_match "- Machine inksteel style: ${inksteel_style}" "README inksteel style"
-  require_readme_literal_match "- Machine battle layout: ${battle_layout}" "README battle layout"
+  require_readme_literal_match "- Machine official-card table: ${official_card_table}" "README official-card table"
+  require_readme_literal_match "- Machine centered result overlay: ${centered_result_overlay}" "README centered result overlay"
   require_readme_literal_match "- Machine hidden-information boundary: ${hidden_information_boundary}" "README hidden information boundary"
 }
 
@@ -475,10 +486,10 @@ require_hidden_boundary_log_matches() {
   local path="$1"
   local label="$2"
 
-  require_log_match "Hidden info boundary ok: .*opponentHandFaces=0.*hiddenCardIdentityLeaks=0" \
+  require_log_match "Hidden info boundary ok: .*opponentHandFaces=0.*opponentStandbyFaces=0.*hiddenCardIdentityLeaks=0" \
     "${path}" "${label} hidden information boundary"
 
-  if [[ -s "${path}" ]] && rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
+  if [[ -s "${path}" ]] && rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|opponentStandbyFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
     failures+=("${label} hidden information boundary violation found in $(basename "${path}")")
   fi
 }
@@ -547,7 +558,7 @@ require_png_screenshot() {
   require_minimum_png_dimensions "${label}" "${width}" "${height}"
 }
 
-require_inksteel_screenshot_style() {
+require_official_card_table_screenshot() {
   local output_path=""
   local output_summary=""
 
@@ -555,13 +566,13 @@ require_inksteel_screenshot_style() {
     return
   fi
 
-  if [[ ! -x "${script_dir}/check-inksteel-screenshot-style.sh" ]]; then
-    failures+=("inksteel screenshot style checker missing: ${script_dir}/check-inksteel-screenshot-style.sh")
+  if [[ ! -x "${script_dir}/check-official-card-table-screenshot.sh" ]]; then
+    failures+=("official-card table screenshot checker missing: ${script_dir}/check-official-card-table-screenshot.sh")
     return
   fi
 
   output_path="$(mktemp)"
-  if "${script_dir}/check-inksteel-screenshot-style.sh" \
+  if "${script_dir}/check-official-card-table-screenshot.sh" \
     "${player_a_result}" \
     "${player_b_result}" >"${output_path}" 2>&1; then
     rm -f "${output_path}"
@@ -570,10 +581,10 @@ require_inksteel_screenshot_style() {
 
   output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
   rm -f "${output_path}"
-  failures+=("inksteel screenshot style check failed for packaged result screenshots: ${output_summary}")
+  failures+=("official-card table screenshot check failed for packaged result screenshots: ${output_summary}")
 }
 
-require_battle_layout_screenshot() {
+require_centered_result_overlay_screenshot() {
   local output_path=""
   local output_summary=""
 
@@ -581,13 +592,13 @@ require_battle_layout_screenshot() {
     return
   fi
 
-  if [[ ! -x "${script_dir}/check-battle-layout-screenshot.sh" ]]; then
-    failures+=("battle layout screenshot checker missing: ${script_dir}/check-battle-layout-screenshot.sh")
+  if [[ ! -x "${script_dir}/check-centered-result-overlay-screenshot.sh" ]]; then
+    failures+=("centered result overlay screenshot checker missing: ${script_dir}/check-centered-result-overlay-screenshot.sh")
     return
   fi
 
   output_path="$(mktemp)"
-  if "${script_dir}/check-battle-layout-screenshot.sh" \
+  if "${script_dir}/check-centered-result-overlay-screenshot.sh" \
     "${player_a_result}" \
     "${player_b_result}" >"${output_path}" 2>&1; then
     rm -f "${output_path}"
@@ -596,7 +607,7 @@ require_battle_layout_screenshot() {
 
   output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
   rm -f "${output_path}"
-  failures+=("battle layout screenshot check failed for packaged result screenshots: ${output_summary}")
+  failures+=("centered result overlay screenshot check failed for packaged result screenshots: ${output_summary}")
 }
 
 require_git_revision_on_main() {
@@ -666,9 +677,9 @@ require_visual_review_consistency
 require_readme_consistency
 require_operator_guide_consistency
 require_no_full_player_keys
-require_report_line "- Inksteel style: passed" "inksteel style machine check"
-require_report_line "- Battle layout: passed" "battle layout machine check"
-require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks" "hidden information boundary machine check"
+require_report_line "- Official-card table: passed" "official-card table machine check"
+require_report_line "- Centered result overlay: passed" "centered result overlay machine check"
+require_report_line "- Hidden information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks" "hidden information boundary machine check"
 require_report_line "- Manual confirmation mode: 1" "Manual confirmation mode"
 require_report_line "- [x] Two human players operated the two Godot clients." "two-human confirmation"
 require_report_line "- [x] Player A final screenshot shows the server result panel." "player A result confirmation"
@@ -699,8 +710,11 @@ fi
 
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
-require_inksteel_screenshot_style
-require_battle_layout_screenshot
+while IFS= read -r sequence_frame; do
+  require_png_screenshot "${sequence_frame}" "match sequence frame $(basename "${sequence_frame}")"
+done < <(find "${bundle_dir}" -maxdepth 1 -type f -name 'match-sequence-[0-9][0-9].png' -print | sort)
+require_official_card_table_screenshot
+require_centered_result_overlay_screenshot
 
 if [[ -s "${player_a_result}" && -s "${player_b_result}" ]] && cmp -s "${player_a_result}" "${player_b_result}"; then
   failures+=("player A and player B result screenshots are identical")

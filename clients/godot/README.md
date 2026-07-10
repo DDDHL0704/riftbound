@@ -249,38 +249,26 @@ clients/godot/tools/run-clean-main-simulated-playtest-stack.sh
 
 This avoids local dirty files affecting the preflight. It still uses auto-smoke
 actions and is not valid final P5 evidence. By default, the clean-main wrapper
-also runs the inksteel style sanity check and battle-layout screenshot geometry
-check on both result screenshots after the simulated stack finishes.
+also checks that both result screenshots retain a dark minimal table with
+meaningful official-card color and a centered authoritative result overlay.
 
-After any other visible simulated or human run writes result screenshots, run the
-inksteel style sanity check to catch obvious visual drift back to bright gray
-controls, gold/orange dominance, or missing linework:
+After any other visible simulated or human run writes result screenshots, run
+the same two focused visual checks directly:
 
 ```sh
-clients/godot/tools/check-inksteel-screenshot-style.sh \
+clients/godot/tools/check-official-card-table-screenshot.sh \
+  /tmp/riftbound-simulated-playtest-ROOM/player-a-result.png \
+  /tmp/riftbound-simulated-playtest-ROOM/player-b-result.png
+clients/godot/tools/check-centered-result-overlay-screenshot.sh \
   /tmp/riftbound-simulated-playtest-ROOM/player-a-result.png \
   /tmp/riftbound-simulated-playtest-ROOM/player-b-result.png
 ```
 
-This palette check is a regression guard for the selected black/ivory inksteel
-route. It does not replace opening the screenshots and doing the final human
-result-panel and hidden-information review. Set
-`RIFTBOUND_CHECK_INKSTEEL_STYLE=0` only when debugging the clean-main simulated
-wrapper itself.
-
-Also run the battle-layout screenshot check when reviewing result screenshots
-outside the wrappers:
-
-```sh
-clients/godot/tools/check-battle-layout-screenshot.sh \
-  /tmp/riftbound-simulated-playtest-ROOM/player-a-result.png \
-  /tmp/riftbound-simulated-playtest-ROOM/player-b-result.png
-```
-
-This geometry check catches cases where the palette still looks correct but the
-wire table is clipped, the bottom hand band falls off-screen, or the right
-result rail disappears. Set `RIFTBOUND_CHECK_BATTLE_LAYOUT=0` only when
-debugging the clean-main simulated wrapper itself.
+These pixel checks catch blank/default-control regressions and missing centered
+result presentation. They do not replace opening the screenshots and reviewing
+card readability, responsive layout, action clarity, and hidden information.
+Set `RIFTBOUND_CHECK_OFFICIAL_CARD_TABLE=0` or
+`RIFTBOUND_CHECK_CENTERED_RESULT_OVERLAY=0` only while debugging the wrapper.
 
 For the final P5 evidence run, use a clean pushed `main` worktree so unrelated
 local edits cannot pollute the report. This wrapper creates a temporary clean
@@ -356,26 +344,26 @@ mode, all five human confirmation boxes, both clients loading preconstructed
 decks and receiving accepted `SubmitDeck`/`Ready` receipts, match lifecycle
 logs, final result screenshot logs, valid PNG result screenshots at least
 `800x600`, report/log agreement on the original result screenshot paths,
-distinct A/B log and result screenshot files, the report `Inksteel style:
-passed` and `Battle layout: passed` lines, both client logs reporting `Hidden info boundary ok` with
-`opponentHandFaces=0` and `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md`
+distinct A/B log and result screenshot files, the report `Official-card table:
+passed` and `Centered result overlay: passed` lines, both client logs reporting
+`Hidden info boundary ok` with `opponentHandFaces=0`,
+`opponentStandbyFaces=0`, and `hiddenCardIdentityLeaks=0`, the `OPERATOR_GUIDE.md`
 operator checklist with redacted Player A/B key fingerprints, the
 `VISUAL_REVIEW.md` screenshot checklist, and absence of
 crash/rejection/auto-smoke evidence. It rejects packages where the operator
 guide is missing key fingerprints or leaks any full `pk_...` player-key token.
 It also scans the packaged text evidence files for full `pk_...` key tokens.
-The package README, handoff, and visual review summaries repeat the inksteel
-style, battle-layout, and hidden-information machine checks from the report. The
-verifier also re-runs the inksteel style and battle-layout guards on the
-packaged result screenshots, so replacing screenshots after report generation is
-caught.
+The package README, handoff, and visual review summaries repeat the
+official-card table, centered-result, and hidden-information machine checks
+from the report. The verifier re-runs both screenshot guards on the packaged
+result screenshots, so replacing screenshots after report generation is caught.
 
 For visual-regression evidence outside the clean-main wrappers, separately run
-`clients/godot/tools/check-inksteel-screenshot-style.sh` and
-`clients/godot/tools/check-battle-layout-screenshot.sh` on both result
+`clients/godot/tools/check-official-card-table-screenshot.sh` and
+`clients/godot/tools/check-centered-result-overlay-screenshot.sh` on both result
 screenshots after the visible run. The evidence checker records the passing
-style and layout guards in `playtest-report.md`; the final package verifier
-still requires the explicit human screenshot confirmations.
+checks in `playtest-report.md`; the final package verifier still requires the
+explicit human screenshot confirmations.
 
 For same-machine testing without the script, keep the identities isolated with
 `--riftbound-ephemeral-session` or two different `--riftbound-session-file=`
@@ -459,16 +447,18 @@ clients/godot/tools/package-human-playtest-evidence.sh /tmp/riftbound-human-play
 
 The package contains both player logs, both result screenshots,
 `playtest-report.md`, `OPERATOR_GUIDE.md`, `P5_HANDOFF.md`, `VISUAL_REVIEW.md`,
-and `SHA256SUMS`. `OPERATOR_GUIDE.md` is copied from the evidence directory when
+and `SHA256SUMS`. When the evidence directory contains `match-sequence-NN.png`
+frames or `match-sequence.mp4`, they are included and checksummed as well.
+`OPERATOR_GUIDE.md` is copied from the evidence directory when
 present, or generated from the checked report during manual packaging. The
 handoff summary is generated from the checked report so reviewers can quickly
 see the room, both player handles, result screenshot filenames, and the machine
 hidden-information boundary conclusion. `VISUAL_REVIEW.md` is a focused
 checklist for inspecting the final screenshots for result-panel visibility and
 hidden-information safety, and it repeats the same machine boundary conclusion.
-The package `README.md` also repeats the checked inksteel style and machine
-hidden-information conclusions, and the package verifier requires all three
-generated review surfaces to stay in sync with the report. The packaged
+The package `README.md` also repeats the checked official-card table,
+centered-result, and machine hidden-information conclusions, and the package
+verifier requires all three generated review surfaces to stay in sync with the report. The packaged
 operator guide must also preserve the redacted Player A/B key fingerprints
 without leaking any full `pk_...` key token, and no packaged text evidence file
 may contain a full player key. The package is still only valid for P5 when the

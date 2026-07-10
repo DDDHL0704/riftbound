@@ -30,27 +30,45 @@ import sys
 from PIL import Image, ImageDraw
 
 path = sys.argv[1]
-image = Image.new("RGB", (1440, 900), (5, 6, 6))
+gradient = Image.linear_gradient("L").resize((1440, 900))
+image = Image.merge(
+    "RGB",
+    (
+        gradient.point(lambda value: 12 + value // 32),
+        gradient.point(lambda value: 16 + value // 28),
+        gradient.point(lambda value: 20 + value // 24),
+    ),
+)
 draw = ImageDraw.Draw(image)
-line = (178, 171, 145)
-dim = (78, 76, 66)
-draw.rectangle((22, 58, 1128, 872), outline=line, width=2, fill=(17, 17, 15))
-for y in (170, 310, 582, 720):
-    draw.line((22, y, 1128, y), fill=line, width=2)
-for x in (122, 456, 792, 960):
-    draw.line((x, 58, x, 872), fill=dim, width=2)
-for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
-    draw.rectangle((lane_x0, 342, lane_x1, 578), outline=line, width=2, fill=(61, 59, 52))
-    draw.rectangle((lane_x0 + 80, 418, lane_x1 - 8, 502), outline=line, width=2, fill=(16, 16, 14))
-draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
-draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
-draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+draw.rounded_rectangle((28, 52, 1412, 850), radius=18, fill=(18, 23, 27), outline=(71, 82, 89), width=2)
+draw.rounded_rectangle((54, 92, 1386, 350), radius=12, fill=(23, 29, 34), outline=(55, 65, 72), width=2)
+draw.rounded_rectangle((54, 394, 1386, 652), radius=12, fill=(25, 31, 36), outline=(64, 75, 82), width=2)
+draw.rounded_rectangle((54, 694, 1386, 824), radius=12, fill=(16, 21, 25), outline=(55, 65, 72), width=2)
+
+card_colors = [(45, 111, 168), (153, 68, 58), (55, 130, 92), (126, 78, 162), (183, 121, 42)]
+for row_y, offset in ((126, 0), (426, 2)):
+    for index in range(7):
+        x0 = 118 + index * 176
+        color = card_colors[(index + offset) % len(card_colors)]
+        draw.rounded_rectangle((x0, row_y, x0 + 112, row_y + 170), radius=8, fill=(8, 11, 14), outline=(135, 146, 152), width=2)
+        for band in range(14):
+            blend = tuple(min(220, component + band * 3) for component in color)
+            y0 = row_y + 8 + band * 8
+            draw.rectangle((x0 + 8, y0, x0 + 104, y0 + 8), fill=blend)
+        draw.rectangle((x0 + 8, row_y + 122, x0 + 104, row_y + 160), fill=(19, 23, 27))
+
+# The result is a centered neutral modal over a still-visible official-card table.
+image = Image.blend(image, Image.new("RGB", image.size, (0, 0, 0)), 0.22)
+draw = ImageDraw.Draw(image)
+draw.rounded_rectangle((480, 270, 960, 630), radius=14, fill=(68, 73, 77), outline=(198, 205, 208), width=3)
+draw.rectangle((520, 330, 920, 334), fill=(151, 163, 169))
+draw.rounded_rectangle((590, 516, 850, 574), radius=8, fill=(29, 35, 39), outline=(171, 183, 188), width=2)
 image.save(path)
 PY
   printf '%s' "${suffix}" >>"${path}"
 }
 
-write_cropped_layout_png() {
+write_missing_result_overlay_png() {
   local path="$1"
   local suffix="${2:-}"
 
@@ -59,20 +77,22 @@ import sys
 from PIL import Image, ImageDraw
 
 path = sys.argv[1]
-image = Image.new("RGB", (1440, 900), (5, 6, 6))
+gradient = Image.linear_gradient("L").resize((1440, 900))
+image = Image.merge(
+    "RGB",
+    (
+        gradient.point(lambda value: 12 + value // 32),
+        gradient.point(lambda value: 16 + value // 28),
+        gradient.point(lambda value: 20 + value // 24),
+    ),
+)
 draw = ImageDraw.Draw(image)
-line = (178, 171, 145)
-dim = (78, 76, 66)
-draw.rectangle((22, 64, 1128, 774), outline=line, width=2, fill=(17, 17, 15))
-for y in (224, 358, 626, 712):
-    draw.line((22, y, 1128, y), fill=line, width=2)
-for x in (122, 456, 792, 960):
-    draw.line((x, 64, x, 774), fill=dim, width=2)
-for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
-    draw.rectangle((lane_x0, 392, lane_x1, 676), outline=line, width=2, fill=(61, 59, 52))
-draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
-draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
-draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+draw.rounded_rectangle((28, 52, 1412, 850), radius=18, fill=(18, 23, 27), outline=(71, 82, 89), width=2)
+for row_y in (126, 426):
+    draw.rounded_rectangle((54, row_y - 34, 1386, row_y + 224), radius=12, fill=(23, 29, 34), outline=(55, 65, 72), width=2)
+    for index, color in enumerate(((45, 111, 168), (153, 68, 58), (55, 130, 92), (126, 78, 162), (183, 121, 42), (45, 111, 168), (153, 68, 58))):
+        x0 = 118 + index * 176
+        draw.rounded_rectangle((x0, row_y, x0 + 112, row_y + 170), radius=8, fill=color, outline=(135, 146, 152), width=2)
 image.save(path)
 PY
   printf '%s' "${suffix}" >>"${path}"
@@ -123,7 +143,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
-Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=2 hiddenCardIdentityLeaks=0
 Match result rendered
 Visual screenshot saved: ${player_a_screenshot_log}
 EOF
@@ -136,7 +156,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
-Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=2 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: ${player_b_screenshot_log}
 EOF
@@ -170,7 +190,7 @@ Preconstructed decks loaded: 9.
 SubmitDeck receipt accepted=True state=ACCEPTED
 Ready receipt accepted=True state=ACCEPTED
 MATCH_STARTED
-Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=2 hiddenCardIdentityLeaks=0
 MATCH_WON
 Visual screenshot saved: ${player_a_screenshot_log}
 EOF
@@ -191,9 +211,9 @@ EOF
     return
   fi
 
-  if [[ "${screenshot_size}" == "cropped-layout" ]]; then
-    write_cropped_layout_png "${evidence_dir}/player-a-result.png" "player-a"
-    write_cropped_layout_png "${evidence_dir}/player-b-result.png" "player-b"
+  if [[ "${screenshot_size}" == "missing-result" ]]; then
+    write_missing_result_overlay_png "${evidence_dir}/player-a-result.png" "player-a"
+    write_missing_result_overlay_png "${evidence_dir}/player-b-result.png" "player-b"
     return
   fi
 
@@ -250,32 +270,32 @@ if ! rg -q "result screenshots.*identical|identical.*result screenshots" "${dupl
   fail "evidence checker did not explain the duplicate result screenshots"
 fi
 
-bright_style_dir="${tmp_dir}/bright-style"
-write_evidence_dir "${bright_style_dir}" "bright"
-bright_style_output="${tmp_dir}/bright-style-output.log"
-if RIFTBOUND_PLAYTEST_REPORT="${bright_style_dir}/playtest-report.md" \
-  "${script_dir}/check-human-playtest-evidence.sh" "${bright_style_dir}" >"${bright_style_output}" 2>&1; then
-  fail "evidence checker accepted bright gray result screenshots that drift from inksteel style"
+blank_table_dir="${tmp_dir}/blank-table"
+write_evidence_dir "${blank_table_dir}" "bright"
+blank_table_output="${tmp_dir}/blank-table-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${blank_table_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${blank_table_dir}" >"${blank_table_output}" 2>&1; then
+  fail "evidence checker accepted result screenshots without official-card table content"
 fi
 
-if ! rg -q "inksteel|style|bright|gray|screenshot" "${bright_style_output}"; then
-  echo "Expected bright style rejection output:" >&2
-  cat "${bright_style_output}" >&2
-  fail "evidence checker did not explain the inksteel style rejection"
+if ! rg -q "official-card|dark table|bright|blank|screenshot" "${blank_table_output}"; then
+  echo "Expected missing official-card table rejection output:" >&2
+  cat "${blank_table_output}" >&2
+  fail "evidence checker did not explain the missing official-card table content"
 fi
 
-cropped_layout_dir="${tmp_dir}/cropped-layout"
-write_evidence_dir "${cropped_layout_dir}" "cropped-layout"
-cropped_layout_output="${tmp_dir}/cropped-layout-output.log"
-if RIFTBOUND_PLAYTEST_REPORT="${cropped_layout_dir}/playtest-report.md" \
-  "${script_dir}/check-human-playtest-evidence.sh" "${cropped_layout_dir}" >"${cropped_layout_output}" 2>&1; then
-  fail "evidence checker accepted result screenshots with a clipped wire-table layout"
+missing_result_dir="${tmp_dir}/missing-result"
+write_evidence_dir "${missing_result_dir}" "missing-result"
+missing_result_output="${tmp_dir}/missing-result-output.log"
+if RIFTBOUND_PLAYTEST_REPORT="${missing_result_dir}/playtest-report.md" \
+  "${script_dir}/check-human-playtest-evidence.sh" "${missing_result_dir}" >"${missing_result_output}" 2>&1; then
+  fail "evidence checker accepted result screenshots without a centered result overlay"
 fi
 
-if ! rg -q "battle layout|wire table|bottom|right rail|result" "${cropped_layout_output}"; then
-  echo "Expected cropped layout rejection output:" >&2
-  cat "${cropped_layout_output}" >&2
-  fail "evidence checker did not explain the battle-layout screenshot rejection"
+if ! rg -q "centered result|result panel|neutral result|center" "${missing_result_output}"; then
+  echo "Expected centered result overlay rejection output:" >&2
+  cat "${missing_result_output}" >&2
+  fail "evidence checker did not explain the missing centered result overlay"
 fi
 
 duplicate_log_dir="${tmp_dir}/duplicate-log"
@@ -300,7 +320,7 @@ JoinRoom requested: room=fixture-room, player=player-a-fixture.
 [b]Joined[/b] type=JOIN room=fixture-room player=player-a-fixture tick=0 payload=Object
 MATCH_STARTED
 MATCH_WON
-Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 hiddenCardIdentityLeaks=0
+Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=4 opponentStandbyFaces=0 opponentStandbyBacks=2 hiddenCardIdentityLeaks=0
 Visual screenshot saved: ${duplicate_identity_dir}/player-b-result.png
 EOF
 duplicate_identity_output="${tmp_dir}/duplicate-identity-output.log"
@@ -346,7 +366,7 @@ fi
 
 hidden_leak_dir="${tmp_dir}/hidden-leak"
 write_evidence_dir "${hidden_leak_dir}" "full"
-printf 'Hidden info boundary VIOLATION: opponentHandFaces=1 opponentHandBacks=4 hiddenCardIdentityLeaks=1\n' >>"${hidden_leak_dir}/player-a.log"
+printf 'Hidden info boundary VIOLATION: opponentHandFaces=1 opponentHandBacks=4 opponentStandbyFaces=1 opponentStandbyBacks=2 hiddenCardIdentityLeaks=1\n' >>"${hidden_leak_dir}/player-a.log"
 hidden_leak_output="${tmp_dir}/hidden-leak-output.log"
 if RIFTBOUND_PLAYTEST_REPORT="${hidden_leak_dir}/playtest-report.md" \
   "${script_dir}/check-human-playtest-evidence.sh" "${hidden_leak_dir}" >"${hidden_leak_output}" 2>&1; then
@@ -392,16 +412,16 @@ if ! rg -q "Required result screenshots: present" "${covered_evidence_dir}/playt
   fail "evidence checker did not write the expected report"
 fi
 
-if ! rg -q "Inksteel style: passed" "${covered_evidence_dir}/playtest-report.md"; then
-  echo "Expected covered report to include inksteel style machine-check status:" >&2
+if ! rg -q "Official-card table: passed" "${covered_evidence_dir}/playtest-report.md"; then
+  echo "Expected covered report to include official-card table machine-check status:" >&2
   cat "${covered_evidence_dir}/playtest-report.md" >&2
-  fail "evidence checker did not write the inksteel style report line"
+  fail "evidence checker did not write the official-card table report line"
 fi
 
-if ! rg -q "Battle layout: passed" "${covered_evidence_dir}/playtest-report.md"; then
-  echo "Expected covered report to include battle layout machine-check status:" >&2
+if ! rg -q "Centered result overlay: passed" "${covered_evidence_dir}/playtest-report.md"; then
+  echo "Expected covered report to include centered result overlay machine-check status:" >&2
   cat "${covered_evidence_dir}/playtest-report.md" >&2
-  fail "evidence checker did not write the battle layout report line"
+  fail "evidence checker did not write the centered result overlay report line"
 fi
 
 if ! rg -q "Room: fixture-room" "${covered_evidence_dir}/playtest-report.md"; then

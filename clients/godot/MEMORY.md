@@ -328,9 +328,9 @@ resume from repository state instead of conversation history alone.
   `docs/2026-07-10-minimal-official-card-client-design.md`. Priority is direct
   prompt-driven interaction, readable official cards, stable responsive zones,
   and a two-human full-match proof.
-- Old inksteel and wire-layout scripts remain useful only as legacy regression
-  evidence while the replacement is built. Their passing result is not a visual
-  acceptance criterion for the new client.
+- The old palette and wire-layout screenshot scripts were removed after the
+  replacement reached parity. Active evidence now checks official-card table
+  content and the centered authoritative result overlay.
 
 ## 2026-07-10 Minimal Official Card Component
 
@@ -371,5 +371,23 @@ resume from repository state instead of conversation history alone.
   `screenshots/units/m5-*`; it is automated regression evidence, not final
   two-human proof.
 - `MULLIGAN`, `ORDER_TRIGGERS`, and `ASSIGN_COMBAT_DAMAGE` are intentionally
-  excluded from the generic ActionBar and retain a temporary guarded legacy
-  fallback until the focused overlays are implemented.
+  excluded from the generic ActionBar and are handled by dedicated focused
+  overlays driven only by current server prompt choices.
+
+## 2026-07-10 Minimal Evidence Contract
+
+- Result evidence no longer accepts the retired palette or fixed-layout
+  conclusions. `check-official-card-table-screenshot.sh` requires a dark,
+  detailed table with meaningful card color, while
+  `check-centered-result-overlay-screenshot.sh` requires the authoritative
+  result panel in the center over a still-visible match.
+- Both raw-evidence and packaged-evidence integrity suites cover positive and
+  negative fixtures for these checks. Hidden-boundary evidence now requires
+  `opponentHandFaces=0`, `opponentStandbyFaces=0`, and
+  `hiddenCardIdentityLeaks=0` in both client logs.
+- `package-human-playtest-evidence.sh` archives optional
+  `match-sequence-NN.png` frames and `match-sequence.mp4` when present, and the
+  verifier permits only those media names and requires their checksums.
+- The old screenshot guard scripts were deleted. Historical static entry points
+  remain only as compatibility aliases and now validate the minimal
+  `MatchScreen` and centered `ResultOverlay`.

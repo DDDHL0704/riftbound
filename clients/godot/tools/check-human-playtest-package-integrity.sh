@@ -34,27 +34,44 @@ import sys
 from PIL import Image, ImageDraw
 
 path = sys.argv[1]
-image = Image.new("RGB", (1440, 900), (5, 6, 6))
+gradient = Image.linear_gradient("L").resize((1440, 900))
+image = Image.merge(
+    "RGB",
+    (
+        gradient.point(lambda value: 12 + value // 32),
+        gradient.point(lambda value: 16 + value // 28),
+        gradient.point(lambda value: 20 + value // 24),
+    ),
+)
 draw = ImageDraw.Draw(image)
-line = (178, 171, 145)
-dim = (78, 76, 66)
-draw.rectangle((22, 58, 1128, 872), outline=line, width=2, fill=(17, 17, 15))
-for y in (170, 310, 582, 720):
-    draw.line((22, y, 1128, y), fill=line, width=2)
-for x in (122, 456, 792, 960):
-    draw.line((x, 58, x, 872), fill=dim, width=2)
-for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
-    draw.rectangle((lane_x0, 342, lane_x1, 578), outline=line, width=2, fill=(61, 59, 52))
-    draw.rectangle((lane_x0 + 80, 418, lane_x1 - 8, 502), outline=line, width=2, fill=(16, 16, 14))
-draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
-draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
-draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+draw.rounded_rectangle((28, 52, 1412, 850), radius=18, fill=(18, 23, 27), outline=(71, 82, 89), width=2)
+draw.rounded_rectangle((54, 92, 1386, 350), radius=12, fill=(23, 29, 34), outline=(55, 65, 72), width=2)
+draw.rounded_rectangle((54, 394, 1386, 652), radius=12, fill=(25, 31, 36), outline=(64, 75, 82), width=2)
+draw.rounded_rectangle((54, 694, 1386, 824), radius=12, fill=(16, 21, 25), outline=(55, 65, 72), width=2)
+
+card_colors = [(45, 111, 168), (153, 68, 58), (55, 130, 92), (126, 78, 162), (183, 121, 42)]
+for row_y, offset in ((126, 0), (426, 2)):
+    for index in range(7):
+        x0 = 118 + index * 176
+        color = card_colors[(index + offset) % len(card_colors)]
+        draw.rounded_rectangle((x0, row_y, x0 + 112, row_y + 170), radius=8, fill=(8, 11, 14), outline=(135, 146, 152), width=2)
+        for band in range(14):
+            blend = tuple(min(220, component + band * 3) for component in color)
+            y0 = row_y + 8 + band * 8
+            draw.rectangle((x0 + 8, y0, x0 + 104, y0 + 8), fill=blend)
+        draw.rectangle((x0 + 8, row_y + 122, x0 + 104, row_y + 160), fill=(19, 23, 27))
+
+image = Image.blend(image, Image.new("RGB", image.size, (0, 0, 0)), 0.22)
+draw = ImageDraw.Draw(image)
+draw.rounded_rectangle((480, 270, 960, 630), radius=14, fill=(68, 73, 77), outline=(198, 205, 208), width=3)
+draw.rectangle((520, 330, 920, 334), fill=(151, 163, 169))
+draw.rounded_rectangle((590, 516, 850, 574), radius=8, fill=(29, 35, 39), outline=(171, 183, 188), width=2)
 image.save(path)
 PY
   printf '%s' "${suffix}" >>"${path}"
 }
 
-write_cropped_layout_png() {
+write_missing_result_overlay_png() {
   local path="$1"
   local suffix="${2:-}"
 
@@ -63,20 +80,22 @@ import sys
 from PIL import Image, ImageDraw
 
 path = sys.argv[1]
-image = Image.new("RGB", (1440, 900), (5, 6, 6))
+gradient = Image.linear_gradient("L").resize((1440, 900))
+image = Image.merge(
+    "RGB",
+    (
+        gradient.point(lambda value: 12 + value // 32),
+        gradient.point(lambda value: 16 + value // 28),
+        gradient.point(lambda value: 20 + value // 24),
+    ),
+)
 draw = ImageDraw.Draw(image)
-line = (178, 171, 145)
-dim = (78, 76, 66)
-draw.rectangle((22, 64, 1128, 774), outline=line, width=2, fill=(17, 17, 15))
-for y in (224, 358, 626, 712):
-    draw.line((22, y, 1128, y), fill=line, width=2)
-for x in (122, 456, 792, 960):
-    draw.line((x, 64, x, 774), fill=dim, width=2)
-for lane_x0, lane_x1 in ((128, 620), (628, 1120)):
-    draw.rectangle((lane_x0, 392, lane_x1, 676), outline=line, width=2, fill=(61, 59, 52))
-draw.rectangle((1152, 16, 1424, 396), outline=line, width=2, fill=(6, 6, 5))
-draw.rectangle((1152, 406, 1424, 630), outline=line, width=2, fill=(11, 10, 9))
-draw.rectangle((1152, 640, 1424, 884), outline=line, width=2, fill=(6, 6, 5))
+draw.rounded_rectangle((28, 52, 1412, 850), radius=18, fill=(18, 23, 27), outline=(71, 82, 89), width=2)
+for row_y in (126, 426):
+    draw.rounded_rectangle((54, row_y - 34, 1386, row_y + 224), radius=12, fill=(23, 29, 34), outline=(55, 65, 72), width=2)
+    for index, color in enumerate(((45, 111, 168), (153, 68, 58), (55, 130, 92), (126, 78, 162), (183, 121, 42), (45, 111, 168), (153, 68, 58))):
+        x0 = 118 + index * 176
+        draw.rounded_rectangle((x0, row_y, x0 + 112, row_y + 170), radius=8, fill=color, outline=(135, 146, 152), width=2)
 image.save(path)
 PY
   printf '%s' "${suffix}" >>"${path}"
@@ -117,8 +136,8 @@ write_result_png() {
     return
   fi
 
-  if [[ "${size}" == "cropped-layout" ]]; then
-    write_cropped_layout_png "${path}" "${suffix}"
+  if [[ "${size}" == "missing-result" ]]; then
+    write_missing_result_overlay_png "${path}" "${suffix}"
     return
   fi
 
@@ -152,9 +171,9 @@ write_evidence_bundle() {
 # Riftbound Godot Human Playtest Evidence
 
 Package integrity fixture.
-- Machine inksteel style: passed
-- Machine battle layout: passed
-- Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
+- Machine official-card table: passed
+- Machine centered result overlay: passed
+- Machine hidden-information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks
 EOF
 
   cat >"${bundle_dir}/player-a.log" <<'EOF'
@@ -245,9 +264,9 @@ EOF
 ## Machine Check
 
 - Status: passed
-- Inksteel style: passed
-- Battle layout: passed
-- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
+- Official-card table: passed
+- Centered result overlay: passed
+- Hidden information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
 ## Manual Confirmations
@@ -269,9 +288,9 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
-- Inksteel style: passed
-- Battle layout: passed
-- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
+- Official-card table: passed
+- Centered result overlay: passed
+- Hidden information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks
 - Manual confirmation mode: ${manual_confirmation_mode}
 
 This handoff summary is machine generated from the playtest report and is only
@@ -288,12 +307,12 @@ EOF
 - Player A result screenshot: player-a-result.png
 - Player B result screenshot: player-b-result.png
 - Report: playtest-report.md
-- Machine inksteel style: passed
-- Machine battle layout: passed
-- Machine hidden-information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
+- Machine official-card table: passed
+- Machine centered result overlay: passed
+- Machine hidden-information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks
 
-- Both screenshots show the complete black/ivory wire-table layout without the bottom hand band or right result rail clipped away.
-- Both screenshots show the server result panel.
+- Both screenshots show the official-card table behind a centered result overlay, including both battlefields, hand row, and action bar.
+- Both screenshots show the centered server result panel.
 - Player A sees opponent hand and hidden cards only as card backs and counts.
 - Player B sees opponent hand and hidden cards only as card backs and counts.
 - No opponent hidden card face, name, text, or identity is visible in either screenshot.
@@ -583,67 +602,67 @@ if ! rg -q "README.*hidden information|hidden information.*README" "${missing_re
   fail "verifier did not explain the missing README hidden information boundary"
 fi
 
-missing_handoff_inksteel_style_bundle="${tmp_dir}/missing-handoff-inksteel-style/riftbound-human-playtest-evidence"
-write_evidence_bundle "${missing_handoff_inksteel_style_bundle}" "${revision}"
-sed -i '' '/Inksteel style/d' "${missing_handoff_inksteel_style_bundle}/P5_HANDOFF.md"
+missing_handoff_card_table_bundle="${tmp_dir}/missing-handoff-card-table/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_handoff_card_table_bundle}" "${revision}"
+sed -i '' '/Official-card table/d' "${missing_handoff_card_table_bundle}/P5_HANDOFF.md"
 (
-  cd "${missing_handoff_inksteel_style_bundle}"
+  cd "${missing_handoff_card_table_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-missing_handoff_inksteel_style_package="${tmp_dir}/missing-handoff-inksteel-style.tar.gz"
-make_package "${missing_handoff_inksteel_style_bundle}" "${missing_handoff_inksteel_style_package}"
+missing_handoff_card_table_package="${tmp_dir}/missing-handoff-card-table.tar.gz"
+make_package "${missing_handoff_card_table_bundle}" "${missing_handoff_card_table_package}"
 
-missing_handoff_inksteel_style_output="${tmp_dir}/missing-handoff-inksteel-style-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${missing_handoff_inksteel_style_package}" >"${missing_handoff_inksteel_style_output}" 2>&1; then
-  fail "verifier accepted package whose P5 handoff omitted inksteel style evidence"
+missing_handoff_card_table_output="${tmp_dir}/missing-handoff-card-table-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_handoff_card_table_package}" >"${missing_handoff_card_table_output}" 2>&1; then
+  fail "verifier accepted package whose P5 handoff omitted official-card table evidence"
 fi
 
-if ! rg -q "Inksteel style|inksteel" "${missing_handoff_inksteel_style_output}"; then
-  echo "Expected handoff inksteel-style rejection output:" >&2
-  cat "${missing_handoff_inksteel_style_output}" >&2
-  fail "verifier did not explain the missing P5 handoff inksteel style"
+if ! rg -q "official-card table|Official-card table" "${missing_handoff_card_table_output}"; then
+  echo "Expected handoff official-card table rejection output:" >&2
+  cat "${missing_handoff_card_table_output}" >&2
+  fail "verifier did not explain the missing P5 handoff official-card table evidence"
 fi
 
-missing_visual_inksteel_style_bundle="${tmp_dir}/missing-visual-inksteel-style/riftbound-human-playtest-evidence"
-write_evidence_bundle "${missing_visual_inksteel_style_bundle}" "${revision}"
-sed -i '' '/Machine inksteel style/d' "${missing_visual_inksteel_style_bundle}/VISUAL_REVIEW.md"
+missing_visual_card_table_bundle="${tmp_dir}/missing-visual-card-table/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_visual_card_table_bundle}" "${revision}"
+sed -i '' '/Machine official-card table/d' "${missing_visual_card_table_bundle}/VISUAL_REVIEW.md"
 (
-  cd "${missing_visual_inksteel_style_bundle}"
+  cd "${missing_visual_card_table_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-missing_visual_inksteel_style_package="${tmp_dir}/missing-visual-inksteel-style.tar.gz"
-make_package "${missing_visual_inksteel_style_bundle}" "${missing_visual_inksteel_style_package}"
+missing_visual_card_table_package="${tmp_dir}/missing-visual-card-table.tar.gz"
+make_package "${missing_visual_card_table_bundle}" "${missing_visual_card_table_package}"
 
-missing_visual_inksteel_style_output="${tmp_dir}/missing-visual-inksteel-style-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${missing_visual_inksteel_style_package}" >"${missing_visual_inksteel_style_output}" 2>&1; then
-  fail "verifier accepted package whose visual review omitted inksteel style evidence"
+missing_visual_card_table_output="${tmp_dir}/missing-visual-card-table-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_visual_card_table_package}" >"${missing_visual_card_table_output}" 2>&1; then
+  fail "verifier accepted package whose visual review omitted official-card table evidence"
 fi
 
-if ! rg -q "Machine inksteel style|inksteel" "${missing_visual_inksteel_style_output}"; then
-  echo "Expected visual-review inksteel-style rejection output:" >&2
-  cat "${missing_visual_inksteel_style_output}" >&2
-  fail "verifier did not explain the missing visual review inksteel style"
+if ! rg -q "official-card table|Official-card table" "${missing_visual_card_table_output}"; then
+  echo "Expected visual-review official-card table rejection output:" >&2
+  cat "${missing_visual_card_table_output}" >&2
+  fail "verifier did not explain the missing visual review official-card table evidence"
 fi
 
-missing_readme_inksteel_style_bundle="${tmp_dir}/missing-readme-inksteel-style/riftbound-human-playtest-evidence"
-write_evidence_bundle "${missing_readme_inksteel_style_bundle}" "${revision}"
-sed -i '' '/Machine inksteel style/d' "${missing_readme_inksteel_style_bundle}/README.md"
+missing_readme_card_table_bundle="${tmp_dir}/missing-readme-card-table/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_readme_card_table_bundle}" "${revision}"
+sed -i '' '/Machine official-card table/d' "${missing_readme_card_table_bundle}/README.md"
 (
-  cd "${missing_readme_inksteel_style_bundle}"
+  cd "${missing_readme_card_table_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-missing_readme_inksteel_style_package="${tmp_dir}/missing-readme-inksteel-style.tar.gz"
-make_package "${missing_readme_inksteel_style_bundle}" "${missing_readme_inksteel_style_package}"
+missing_readme_card_table_package="${tmp_dir}/missing-readme-card-table.tar.gz"
+make_package "${missing_readme_card_table_bundle}" "${missing_readme_card_table_package}"
 
-missing_readme_inksteel_style_output="${tmp_dir}/missing-readme-inksteel-style-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${missing_readme_inksteel_style_package}" >"${missing_readme_inksteel_style_output}" 2>&1; then
-  fail "verifier accepted package whose README omitted inksteel style evidence"
+missing_readme_card_table_output="${tmp_dir}/missing-readme-card-table-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_readme_card_table_package}" >"${missing_readme_card_table_output}" 2>&1; then
+  fail "verifier accepted package whose README omitted official-card table evidence"
 fi
 
-if ! rg -q "README.*inksteel|inksteel.*README" "${missing_readme_inksteel_style_output}"; then
-  echo "Expected README inksteel-style rejection output:" >&2
-  cat "${missing_readme_inksteel_style_output}" >&2
-  fail "verifier did not explain the missing README inksteel style"
+if ! rg -q "README.*official-card table|official-card table.*README" "${missing_readme_card_table_output}"; then
+  echo "Expected README official-card table rejection output:" >&2
+  cat "${missing_readme_card_table_output}" >&2
+  fail "verifier did not explain the missing README official-card table evidence"
 fi
 
 missing_operator_guide_bundle="${tmp_dir}/missing-operator-guide/riftbound-human-playtest-evidence"
@@ -974,46 +993,46 @@ if ! rg -q "Hidden info boundary|hidden information|identity leak" "${hidden_lea
   fail "verifier did not explain the hidden information boundary violation"
 fi
 
-missing_inksteel_style_bundle="${tmp_dir}/missing-inksteel-style/riftbound-human-playtest-evidence"
-write_evidence_bundle "${missing_inksteel_style_bundle}" "${revision}"
-sed -i '' '/Inksteel style/d' "${missing_inksteel_style_bundle}/playtest-report.md"
+missing_card_table_bundle="${tmp_dir}/missing-card-table/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_card_table_bundle}" "${revision}"
+sed -i '' '/Official-card table/d' "${missing_card_table_bundle}/playtest-report.md"
 (
-  cd "${missing_inksteel_style_bundle}"
+  cd "${missing_card_table_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-missing_inksteel_style_package="${tmp_dir}/missing-inksteel-style.tar.gz"
-make_package "${missing_inksteel_style_bundle}" "${missing_inksteel_style_package}"
+missing_card_table_package="${tmp_dir}/missing-card-table.tar.gz"
+make_package "${missing_card_table_bundle}" "${missing_card_table_package}"
 
-missing_inksteel_style_output="${tmp_dir}/missing-inksteel-style-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${missing_inksteel_style_package}" >"${missing_inksteel_style_output}" 2>&1; then
-  fail "verifier accepted package without inksteel style evidence"
+missing_card_table_output="${tmp_dir}/missing-card-table-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_card_table_package}" >"${missing_card_table_output}" 2>&1; then
+  fail "verifier accepted package without official-card table evidence"
 fi
 
-if ! rg -q "Inksteel style|inksteel" "${missing_inksteel_style_output}"; then
-  echo "Expected inksteel style rejection output:" >&2
-  cat "${missing_inksteel_style_output}" >&2
-  fail "verifier did not explain the missing inksteel style evidence"
+if ! rg -q "Official-card table|official-card table" "${missing_card_table_output}"; then
+  echo "Expected official-card table rejection output:" >&2
+  cat "${missing_card_table_output}" >&2
+  fail "verifier did not explain the missing official-card table evidence"
 fi
 
-missing_battle_layout_bundle="${tmp_dir}/missing-battle-layout/riftbound-human-playtest-evidence"
-write_evidence_bundle "${missing_battle_layout_bundle}" "${revision}"
-sed -i '' '/Battle layout/d' "${missing_battle_layout_bundle}/playtest-report.md"
+missing_centered_result_bundle="${tmp_dir}/missing-centered-result/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_centered_result_bundle}" "${revision}"
+sed -i '' '/Centered result overlay/d' "${missing_centered_result_bundle}/playtest-report.md"
 (
-  cd "${missing_battle_layout_bundle}"
+  cd "${missing_centered_result_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-missing_battle_layout_package="${tmp_dir}/missing-battle-layout.tar.gz"
-make_package "${missing_battle_layout_bundle}" "${missing_battle_layout_package}"
+missing_centered_result_package="${tmp_dir}/missing-centered-result.tar.gz"
+make_package "${missing_centered_result_bundle}" "${missing_centered_result_package}"
 
-missing_battle_layout_output="${tmp_dir}/missing-battle-layout-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${missing_battle_layout_package}" >"${missing_battle_layout_output}" 2>&1; then
-  fail "verifier accepted package without battle-layout screenshot evidence"
+missing_centered_result_output="${tmp_dir}/missing-centered-result-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_centered_result_package}" >"${missing_centered_result_output}" 2>&1; then
+  fail "verifier accepted package without centered result overlay evidence"
 fi
 
-if ! rg -q "Battle layout|battle layout|wire table" "${missing_battle_layout_output}"; then
-  echo "Expected battle-layout evidence rejection output:" >&2
-  cat "${missing_battle_layout_output}" >&2
-  fail "verifier did not explain the missing battle-layout screenshot evidence"
+if ! rg -q "Centered result overlay|centered result overlay" "${missing_centered_result_output}"; then
+  echo "Expected centered result overlay rejection output:" >&2
+  cat "${missing_centered_result_output}" >&2
+  fail "verifier did not explain the missing centered result overlay evidence"
 fi
 
 mismatched_screenshot_path_bundle="${tmp_dir}/mismatched-screenshot-path/riftbound-human-playtest-evidence"
@@ -1056,44 +1075,44 @@ if ! rg -q "screenshot.*too small|too small.*screenshot|minimum" "${small_screen
   fail "verifier did not explain the too-small result screenshots"
 fi
 
-bright_style_bundle="${tmp_dir}/bright-style/riftbound-human-playtest-evidence"
-write_evidence_bundle "${bright_style_bundle}" "${revision}" "1" "0" "0" "0" "0" "bright"
+blank_table_bundle="${tmp_dir}/blank-table/riftbound-human-playtest-evidence"
+write_evidence_bundle "${blank_table_bundle}" "${revision}" "1" "0" "0" "0" "0" "bright"
 (
-  cd "${bright_style_bundle}"
+  cd "${blank_table_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-bright_style_package="${tmp_dir}/bright-style.tar.gz"
-make_package "${bright_style_bundle}" "${bright_style_package}"
+blank_table_package="${tmp_dir}/blank-table.tar.gz"
+make_package "${blank_table_bundle}" "${blank_table_package}"
 
-bright_style_output="${tmp_dir}/bright-style-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${bright_style_package}" >"${bright_style_output}" 2>&1; then
-  fail "verifier accepted package whose result screenshots drift from inksteel style"
+blank_table_output="${tmp_dir}/blank-table-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${blank_table_package}" >"${blank_table_output}" 2>&1; then
+  fail "verifier accepted package whose result screenshots lack official-card table content"
 fi
 
-if ! rg -q "inksteel|style|bright|screenshot" "${bright_style_output}"; then
-  echo "Expected package screenshot style rejection output:" >&2
-  cat "${bright_style_output}" >&2
-  fail "verifier did not explain the inksteel screenshot style rejection"
+if ! rg -q "official-card|dark table|bright|blank|screenshot" "${blank_table_output}"; then
+  echo "Expected package official-card table rejection output:" >&2
+  cat "${blank_table_output}" >&2
+  fail "verifier did not explain the missing official-card table content"
 fi
 
-cropped_layout_bundle="${tmp_dir}/cropped-layout/riftbound-human-playtest-evidence"
-write_evidence_bundle "${cropped_layout_bundle}" "${revision}" "1" "0" "0" "0" "0" "cropped-layout"
+missing_result_bundle="${tmp_dir}/missing-result/riftbound-human-playtest-evidence"
+write_evidence_bundle "${missing_result_bundle}" "${revision}" "1" "0" "0" "0" "0" "missing-result"
 (
-  cd "${cropped_layout_bundle}"
+  cd "${missing_result_bundle}"
   shasum -a 256 README.md OPERATOR_GUIDE.md VISUAL_REVIEW.md player-a.log player-b.log player-a-result.png player-b-result.png playtest-report.md P5_HANDOFF.md > SHA256SUMS
 )
-cropped_layout_package="${tmp_dir}/cropped-layout.tar.gz"
-make_package "${cropped_layout_bundle}" "${cropped_layout_package}"
+missing_result_package="${tmp_dir}/missing-result.tar.gz"
+make_package "${missing_result_bundle}" "${missing_result_package}"
 
-cropped_layout_output="${tmp_dir}/cropped-layout-output.log"
-if "${script_dir}/verify-human-playtest-package.sh" "${cropped_layout_package}" >"${cropped_layout_output}" 2>&1; then
-  fail "verifier accepted package whose result screenshots have a clipped wire-table layout"
+missing_result_output="${tmp_dir}/missing-result-output.log"
+if "${script_dir}/verify-human-playtest-package.sh" "${missing_result_package}" >"${missing_result_output}" 2>&1; then
+  fail "verifier accepted package whose result screenshots lack a centered result overlay"
 fi
 
-if ! rg -q "battle layout|wire table|bottom|right rail|result" "${cropped_layout_output}"; then
-  echo "Expected package battle-layout screenshot rejection output:" >&2
-  cat "${cropped_layout_output}" >&2
-  fail "verifier did not explain the battle-layout screenshot rejection"
+if ! rg -q "centered result|result panel|neutral result|center" "${missing_result_output}"; then
+  echo "Expected package centered result overlay rejection output:" >&2
+  cat "${missing_result_output}" >&2
+  fail "verifier did not explain the missing centered result overlay"
 fi
 
 covered_bundle="${tmp_dir}/covered/riftbound-human-playtest-evidence"

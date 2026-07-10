@@ -40,15 +40,15 @@ report_path="${RIFTBOUND_PLAYTEST_REPORT:-${evidence_dir}/playtest-report.md}"
 confirm_manual="${RIFTBOUND_CONFIRM_MANUAL:-0}"
 require_clean_git="${RIFTBOUND_REQUIRE_CLEAN_GIT:-0}"
 incomplete_human_evidence="${RIFTBOUND_INCOMPLETE_HUMAN_EVIDENCE:-0}"
-check_inksteel_style="${RIFTBOUND_CHECK_INKSTEEL_STYLE:-1}"
-check_battle_layout="${RIFTBOUND_CHECK_BATTLE_LAYOUT:-1}"
+check_official_card_table="${RIFTBOUND_CHECK_OFFICIAL_CARD_TABLE:-1}"
+check_centered_result_overlay="${RIFTBOUND_CHECK_CENTERED_RESULT_OVERLAY:-1}"
 auto_smoke_found=0
 git_status_output="$(git -C "${repo_root}" status --short 2>/dev/null || true)"
 git_worktree_state="clean"
 min_result_screenshot_width=800
 min_result_screenshot_height=600
-inksteel_style_status="skipped"
-battle_layout_status="skipped"
+official_card_table_status="skipped"
+centered_result_overlay_status="skipped"
 
 if [[ -n "${git_status_output}" ]]; then
   git_worktree_state="dirty"
@@ -101,10 +101,10 @@ require_hidden_boundary_matches() {
   local path="$1"
   local label="$2"
 
-  require_match "Hidden info boundary ok: .*opponentHandFaces=0.*hiddenCardIdentityLeaks=0" \
+  require_match "Hidden info boundary ok: .*opponentHandFaces=0.*opponentStandbyFaces=0.*hiddenCardIdentityLeaks=0" \
     "${path}" "${label} hidden information boundary"
 
-  if rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
+  if rg -q "Hidden info boundary VIOLATION|opponentHandFaces=[1-9][0-9]*|opponentStandbyFaces=[1-9][0-9]*|hiddenCardIdentityLeaks=[1-9][0-9]*" "${path}"; then
     failures+=("${label} hidden information boundary violation found in ${path}")
   fi
 }
@@ -229,12 +229,12 @@ require_png_screenshot() {
   require_minimum_png_dimensions "${label}" "${width}" "${height}"
 }
 
-run_inksteel_style_check() {
+run_official_card_table_check() {
   local output_path=""
   local output_summary=""
 
-  if [[ "${check_inksteel_style}" == "0" ]]; then
-    notes+=("inksteel screenshot style check skipped by RIFTBOUND_CHECK_INKSTEEL_STYLE=0")
+  if [[ "${check_official_card_table}" == "0" ]]; then
+    notes+=("official-card table screenshot check skipped by RIFTBOUND_CHECK_OFFICIAL_CARD_TABLE=0")
     return
   fi
 
@@ -242,31 +242,31 @@ run_inksteel_style_check() {
     return
   fi
 
-  if [[ ! -x "${script_dir}/check-inksteel-screenshot-style.sh" ]]; then
-    failures+=("inksteel screenshot style checker missing: ${script_dir}/check-inksteel-screenshot-style.sh")
+  if [[ ! -x "${script_dir}/check-official-card-table-screenshot.sh" ]]; then
+    failures+=("official-card table screenshot checker missing: ${script_dir}/check-official-card-table-screenshot.sh")
     return
   fi
 
   output_path="$(mktemp)"
-  if "${script_dir}/check-inksteel-screenshot-style.sh" \
+  if "${script_dir}/check-official-card-table-screenshot.sh" \
     "${player_a_result}" \
     "${player_b_result}" >"${output_path}" 2>&1; then
-    inksteel_style_status="passed"
+    official_card_table_status="passed"
     rm -f "${output_path}"
     return
   fi
 
   output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
   rm -f "${output_path}"
-  failures+=("inksteel screenshot style check failed: ${output_summary}")
+  failures+=("official-card table screenshot check failed: ${output_summary}")
 }
 
-run_battle_layout_check() {
+run_centered_result_overlay_check() {
   local output_path=""
   local output_summary=""
 
-  if [[ "${check_battle_layout}" == "0" ]]; then
-    notes+=("battle layout screenshot check skipped by RIFTBOUND_CHECK_BATTLE_LAYOUT=0")
+  if [[ "${check_centered_result_overlay}" == "0" ]]; then
+    notes+=("centered result overlay screenshot check skipped by RIFTBOUND_CHECK_CENTERED_RESULT_OVERLAY=0")
     return
   fi
 
@@ -274,23 +274,23 @@ run_battle_layout_check() {
     return
   fi
 
-  if [[ ! -x "${script_dir}/check-battle-layout-screenshot.sh" ]]; then
-    failures+=("battle layout screenshot checker missing: ${script_dir}/check-battle-layout-screenshot.sh")
+  if [[ ! -x "${script_dir}/check-centered-result-overlay-screenshot.sh" ]]; then
+    failures+=("centered result overlay screenshot checker missing: ${script_dir}/check-centered-result-overlay-screenshot.sh")
     return
   fi
 
   output_path="$(mktemp)"
-  if "${script_dir}/check-battle-layout-screenshot.sh" \
+  if "${script_dir}/check-centered-result-overlay-screenshot.sh" \
     "${player_a_result}" \
     "${player_b_result}" >"${output_path}" 2>&1; then
-    battle_layout_status="passed"
+    centered_result_overlay_status="passed"
     rm -f "${output_path}"
     return
   fi
 
   output_summary="$(tr '\n' ' ' <"${output_path}" | sed 's/[[:space:]][[:space:]]*/ /g' | cut -c 1-500)"
   rm -f "${output_path}"
-  failures+=("battle layout screenshot check failed: ${output_summary}")
+  failures+=("centered result overlay screenshot check failed: ${output_summary}")
 }
 
 player_a_log="${evidence_dir}/player-a.log"
@@ -309,8 +309,8 @@ require_file "${player_a_result}" "player A result screenshot"
 require_file "${player_b_result}" "player B result screenshot"
 require_png_screenshot "${player_a_result}" "player A result screenshot"
 require_png_screenshot "${player_b_result}" "player B result screenshot"
-run_inksteel_style_check
-run_battle_layout_check
+run_official_card_table_check
+run_centered_result_overlay_check
 
 if [[ -s "${player_a_log}" ]]; then
   require_client_setup_matches "${player_a_log}" "Player A"
@@ -446,10 +446,10 @@ git_revision="$(git -C "${repo_root}" rev-parse --short HEAD 2>/dev/null || prin
 - Status: passed
 - Required logs: present
 - Required result screenshots: present and at least ${min_result_screenshot_width}x${min_result_screenshot_height}
-- Inksteel style: ${inksteel_style_status}
-- Battle layout: ${battle_layout_status}
+- Official-card table: ${official_card_table_status}
+- Centered result overlay: ${centered_result_overlay_status}
 - Client setup: preconstructed deck load, SubmitDeck, and Ready observed for both players
-- Hidden information boundary: both client logs report zero opponent hand faces and zero hidden identity leaks
+- Hidden information boundary: both client logs report zero opponent hand faces, opponent standby faces, and hidden identity leaks
 - Match lifecycle: MATCH_STARTED and MATCH_WON/result rendering observed
 - Error scan: no crash/error/rejection patterns found
 - Manual confirmation mode: ${confirm_manual}
