@@ -38,6 +38,7 @@ grow_vertical = 2
 [node name="LobbyScreen" parent="Controls" instance=ExtResource("2_lobby")]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="BoardSummary" type="Label" parent="Controls"]
 visible = false
@@ -94,6 +95,7 @@ layout_mode = 2
 text = "返回大厅"
 
 [node name="OfficialCardPreviewFrame" type="PanelContainer" parent="."]
+visible = false
 clip_contents = true
 layout_mode = 1
 anchors_preset = 1
@@ -122,6 +124,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="PromptFrame" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0

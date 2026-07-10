@@ -25,7 +25,7 @@ theme_override_constants/separation = 12
 [node name="ConnectionStatus" type="Label" parent="PrimaryFlow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Not connected"
+text = "未连接"
 
 [node name="ConnectionFrame" type="PanelContainer" parent="PrimaryFlow"]
 layout_mode = 2
@@ -35,14 +35,14 @@ layout_mode = 2
 
 [node name="ConnectionTitle" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
 layout_mode = 2
-text = "Room"
+text = "连接房间"
 
 [node name="IdentityRow" type="HBoxContainer" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
 layout_mode = 2
 
 [node name="HandleLabel" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 layout_mode = 2
-text = "Handle"
+text = "玩家名"
 
 [node name="HandleInput" type="LineEdit" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
@@ -52,7 +52,7 @@ size_flags_horizontal = 3
 
 [node name="RoomLabel" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 layout_mode = 2
-text = "Room"
+text = "房间"
 
 [node name="RoomInput" type="LineEdit" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
@@ -63,12 +63,12 @@ size_flags_horizontal = 3
 [node name="ConnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Connect"
+text = "连接"
 
 [node name="ReconnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Reconnect"
+text = "重连"
 
 [node name="MatchmakingFrame" type="PanelContainer" parent="PrimaryFlow"]
 layout_mode = 2
@@ -79,7 +79,7 @@ layout_mode = 2
 [node name="MatchmakingStatus" type="Label" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Choose a room or matchmaking"
+text = "选择公开房间或快速匹配"
 
 [node name="MatchmakingRow" type="HBoxContainer" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
 layout_mode = 2
@@ -87,17 +87,17 @@ layout_mode = 2
 [node name="CreatePublicMatchButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Create public room"
+text = "创建公开房间"
 
 [node name="QueueButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Quick match"
+text = "快速匹配"
 
 [node name="CancelQueueButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/MatchmakingRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Cancel queue"
+text = "取消匹配"
 
 [node name="PublicRoomRow" type="HBoxContainer" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow"]
 layout_mode = 2
@@ -111,7 +111,7 @@ size_flags_horizontal = 3
 [node name="JoinPublicMatchButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/PublicRoomRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Join room"
+text = "加入房间"
 
 [node name="DeckFrame" type="PanelContainer" parent="PrimaryFlow"]
 layout_mode = 2
@@ -123,7 +123,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
-text = "Connect to choose a deck and prepare."
+text = "连接服务器后即可选择房间和卡组。"
 
 [node name="DeckRow" type="HBoxContainer" parent="PrimaryFlow/DeckFrame/DeckFlow"]
 layout_mode = 2
@@ -137,10 +137,10 @@ size_flags_horizontal = 3
 [node name="SubmitDeckButton" type="Button" parent="PrimaryFlow/DeckFrame/DeckFlow/DeckRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Submit deck"
+text = "提交卡组"
 
 [node name="ReadyButton" type="Button" parent="PrimaryFlow/DeckFrame/DeckFlow/DeckRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
-text = "Ready"
+text = "准备"

@@ -9,9 +9,10 @@ contracts change.
 - `project.godot` sets `res://scenes/Main.tscn` as the main scene, enables C#,
   uses a 1440x900 reference viewport with responsive expansion, uses the
   `gl_compatibility` renderer, and loads the Godot MCP editor plugin.
-- `scenes/Main.tscn` is a single `Control` root that mounts the focused
-  `LobbyScreen` alongside the temporary legacy snapshot/table renderer,
-  right-side official card preview, prompt panel, result panel, and hidden log.
+- `scenes/Main.tscn` is a single `Control` shell that mounts the focused
+  `LobbyScreen` alongside the temporary legacy battle renderer. Preview,
+  prompt, result, snapshot, and hidden log controls are all invisible in lobby
+  state and will be replaced by focused match scenes in the next migration.
 - `Riftbound.GodotClient.csproj` references `Riftbound.Contracts`; gameplay
   state and prompt semantics stay server-owned.
 
@@ -45,9 +46,10 @@ wire-table height.
   `LobbyScreen`, while transport and server-authoritative commands remain here.
   It shows the lobby during the `ROOM` state, then hides it for non-room battle
   snapshots so the tabletop owns the combat viewport without blocking deck
-  selection. In match-result mode, the right rail keeps the
-  official-card preview, result panel, and prompt panel as three visible bands
-  so the black/ivory preview-prompt composition remains intact. Result mode
+  selection. Lobby deck submission and ready affordances mirror enabled
+  `SUBMIT_DECK` and `READY` candidates from the current server prompt. In the
+  temporary legacy match-result mode, the right rail still keeps the official
+  card preview, result panel, and prompt panel as visible bands. Result mode
   also latches battle chrome visibility so stale room snapshots cannot restore
   lobby controls before final screenshots are captured; result screenshots use a
   dedicated capture path that forces result chrome over several frames before
@@ -67,8 +69,9 @@ wire-table height.
 - `scenes/screens/LobbyScreen.tscn` and `scripts/ui/LobbyScreen.cs` own room
   entry, matchmaking, deck choice, submit, and ready presentation. The screen
   emits intents to `Main.cs`; it does not own HTTP, SignalR, player keys,
-  reconnect tokens, or diagnostics. `check-minimal-lobby-scene.sh` rejects
-  table, prompt, and raw-log nodes in this screen.
+  reconnect tokens, host/player identifiers, or diagnostics.
+  `check-minimal-lobby-scene.sh` rejects table, prompt, and raw-log nodes in this
+  screen and guards the shell visibility plus prompt-driven setup contract.
 - `scripts/ui/MinimalTheme.cs` owns the replacement graphite palette, readable
   text, compact surface styles, button states, and semantic selection colors.
 - `scenes/components/OfficialCardView.tscn` and
@@ -79,11 +82,10 @@ wire-table height.
 - `scenes/debug/OfficialCardViewProof.tscn` is a focused visible test harness.
   With `--riftbound-proof-capture=<res://path>` it captures an exact external
   viewport after layout settles; it does not participate in the product flow.
-- `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` define
-  the procedural inksteel visual style selected for the client: low-saturation
-  black/ivory linework, translucent ink-wash zones, restrained crimson and muted
-  antique-gold accents.
-- `CardControlRenderer.cs` owns tabletop layout, compact table card frames, card
+- `RunestoneTheme.cs`, `RunestoneBackdrop.cs`, and `RunestoneSurface.cs` are
+  legacy battle presentation retained only until parity migration finishes.
+  The procedural backdrop is no longer installed by the app shell.
+- `CardControlRenderer.cs` temporarily owns the legacy tabletop layout, compact table card frames, card
   backs, visible card faces, rune tracks, zone panels, prompt-source highlights,
   and card hover/click feedback. The wire table is responsive to the main battle
   column, folds the legacy text summary and obsolete out-of-table hand rail out

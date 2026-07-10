@@ -71,8 +71,8 @@ public partial class LobbyScreen : AppScreen
         _readyButton.Pressed += () => ReadyRequested?.Invoke();
 
         ApplyTheme();
-        SetStatus("Not connected", connected: false, waiting: false);
-        SetSetupState(canSubmitDeck: false, canReady: false, "Connect to choose a deck and prepare.");
+        SetStatus("未连接", connected: false, waiting: false);
+        SetSetupState(canSubmitDeck: false, canReady: false, "连接服务器后即可选择房间和卡组。");
     }
 
     public void ApplyTheme()
@@ -85,7 +85,7 @@ public partial class LobbyScreen : AppScreen
 
     public void SetStatus(string text, bool connected, bool waiting)
     {
-        _connectionStatus.Text = text;
+        _connectionStatus.Text = ConnectionStatusLabel(text);
         _connectButton.Disabled = connected;
         _reconnectButton.Disabled = connected;
         _queueButton.Disabled = waiting;
@@ -94,7 +94,7 @@ public partial class LobbyScreen : AppScreen
 
     public void SetMatchmakingStatus(string text, bool waiting)
     {
-        _matchmakingStatus.Text = text;
+        _matchmakingStatus.Text = MatchmakingStatusLabel(text);
         _queueButton.Disabled = waiting;
         _cancelQueueButton.Disabled = !waiting;
     }
@@ -104,7 +104,7 @@ public partial class LobbyScreen : AppScreen
         _deckSelect.Clear();
         if (decks.Count == 0)
         {
-            _deckSelect.AddItem("No preconstructed decks available");
+            _deckSelect.AddItem("没有可用的预组卡组");
             _deckSelect.SetItemDisabled(0, true);
             return;
         }
@@ -112,7 +112,7 @@ public partial class LobbyScreen : AppScreen
         for (var index = 0; index < decks.Count; index++)
         {
             var deck = decks[index];
-            var name = ReadText(deck, "name", "Deck");
+            var name = ReadText(deck, "name", "卡组");
             var description = ReadText(deck, "description");
             _deckSelect.AddItem(string.IsNullOrWhiteSpace(description) ? name : $"{name} - {description}");
         }
@@ -125,7 +125,7 @@ public partial class LobbyScreen : AppScreen
         _publicMatchSelect.Clear();
         if (matches.Count == 0)
         {
-            _publicMatchSelect.AddItem("No public rooms available");
+            _publicMatchSelect.AddItem("暂无公开房间");
             _publicMatchSelect.SetItemDisabled(0, true);
             _joinPublicMatchButton.Disabled = true;
             return;
@@ -134,11 +134,10 @@ public partial class LobbyScreen : AppScreen
         for (var index = 0; index < matches.Count; index++)
         {
             var match = matches[index];
-            var room = ReadText(match, "roomId", "Room");
-            var host = ReadText(match, "hostPlayerId", "Host");
+            var room = ReadText(match, "roomId", "房间");
             var seats = ReadText(match, "seats");
-            var status = ReadText(match, "status");
-            _publicMatchSelect.AddItem($"{room} - {host} - {seats} {status}".Trim());
+            var status = RoomStatusLabel(ReadText(match, "status"));
+            _publicMatchSelect.AddItem($"{room} · {seats} 人 · {status}".Trim());
         }
 
         _publicMatchSelect.Select(0);
@@ -155,5 +154,47 @@ public partial class LobbyScreen : AppScreen
     private static string ReadText(Godot.Collections.Dictionary source, string key, string fallback = "")
     {
         return source.TryGetValue(key, out var value) ? value.AsString() : fallback;
+    }
+
+    private static string RoomStatusLabel(string status)
+    {
+        return status.ToUpperInvariant() switch
+        {
+            "WAITING" => "等待加入",
+            "READY" => "等待开始",
+            "ACTIVE" => "对局中",
+            _ => "可加入"
+        };
+    }
+
+    private static string ConnectionStatusLabel(string status)
+    {
+        return status.ToUpperInvariant() switch
+        {
+            "CONNECTING" => "正在连接…",
+            "CONNECTED" => "已连接",
+            "CONNECTION ERROR" => "连接失败",
+            "LOBBY" => "大厅",
+            "NOT CONNECTED" => "未连接",
+            _ => status
+        };
+    }
+
+    private static string MatchmakingStatusLabel(string status)
+    {
+        return status.ToUpperInvariant() switch
+        {
+            "CREATING PUBLIC MATCH..." => "正在创建公开房间…",
+            "CREATE PUBLIC MATCH REJECTED" => "创建公开房间失败",
+            "CREATE PUBLIC MATCH ERROR" => "无法创建公开房间",
+            "QUEUEING..." => "正在匹配对手…",
+            "QUEUE ERROR" => "无法开始匹配",
+            "CANCELLING QUEUE..." => "正在取消匹配…",
+            "CANCEL QUEUE ERROR" => "无法取消匹配",
+            "NO PUBLIC MATCH SELECTED" => "请选择一个公开房间",
+            "JOIN PUBLIC MATCH ERROR" => "无法加入公开房间",
+            "RETURNED TO LOBBY" => "已返回大厅",
+            _ => status
+        };
     }
 }

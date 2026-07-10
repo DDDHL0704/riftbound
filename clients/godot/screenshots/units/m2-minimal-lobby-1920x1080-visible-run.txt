@@ -1,0 +1,22 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M1
+
+[Riftbound] Client booted. Waiting for server authority.
+[Riftbound] Connecting
+[Riftbound] Official catalog loaded: 1009 cards.
+[Riftbound] Public matches loaded: 6.
+[Riftbound] Preconstructed decks loaded: 9.
+[Riftbound] Connected to http://127.0.0.1:5088/hubs/game.
+[Riftbound] Connected
+[Riftbound] Official card image loaded: UNL-181/219 戏命师.
+[Riftbound] Authenticate: Registered (trace-lobby-1920).
+[Riftbound] [b]Joined[/b] type=JOIN room=RB-8SWMFR player=trace-lobby-1920 tick=0 payload=Object
+[Riftbound] Public match created: room=RB-8SWMFR, seat=P1.
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=RB-8SWMFR player=trace-lobby-1920 tick=0 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=RB-8SWMFR player=trace-lobby-1920 tick=0 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Visual screenshot saved: /Users/dinghaolin/IdeaProjects/riftbound/clients/godot/screenshots/units/m2-minimal-lobby-1920x1080.png

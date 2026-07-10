@@ -1,0 +1,44 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M1
+
+[Riftbound] Client booted. Waiting for server authority.
+[Riftbound] Connecting
+[Riftbound] Official catalog loaded: 1009 cards.
+[Riftbound] Preconstructed decks loaded: 9.
+[Riftbound] Public matches loaded: 7.
+[Riftbound] Connected to http://127.0.0.1:5088/hubs/game.
+[Riftbound] Connected
+[Riftbound] Official card image loaded: UNL-181/219 戏命师.
+[Riftbound] Authenticate: Registered (trace-lobby-ready).
+[Riftbound] [b]Joined[/b] type=JOIN room=RB-N9JUE5 player=trace-lobby-ready tick=0 payload=Object
+[Riftbound] Public match created: room=RB-N9JUE5, seat=P1.
+[Riftbound] Auto smoke: submitting first preconstructed deck and readying.
+[Riftbound] [color=green]SubmitDeck receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=RB-N9JUE5 player=trace-lobby-ready tick=0 payload=Object
+[Riftbound] [color=green]Ready receipt accepted=True state=ACCEPTED message=服务端已接受命令，后续以快照和规则事件为准。[/color]
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: SUBMIT_DECK:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=RB-N9JUE5 player=trace-lobby-ready tick=0 payload=Object
+[Riftbound] Events received: DECK_SUBMITTED.
+[Riftbound] [b]Events[/b] type=EVENTS room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 1 direct, 0 templates.
+[Riftbound] Prompt actions: READY:on
+[Riftbound] [b]Prompt[/b] type=PROMPT room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Object
+[Riftbound] Events received: PLAYER_READY.
+[Riftbound] [b]Events[/b] type=READY room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Array
+[Riftbound] Snapshot table rendered: visibleHand=0, handOfficialImages=0, tableCards=0, tableOfficialImages=0.
+[Riftbound] Hidden info boundary ok: opponentHandFaces=0 opponentHandBacks=0 opponentStandbyFaces=0 opponentStandbyBacks=0 hiddenCardIdentityLeaks=0
+[Riftbound] [b]Snapshot[/b] type=SNAPSHOT room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Object
+[Riftbound] Prompt rendered: 1 candidates, 0 direct, 0 templates.
+[Riftbound] Prompt actions: WAIT:off
+[Riftbound] [b]Prompt[/b] type=PROMPT room=RB-N9JUE5 player=trace-lobby-ready tick=1 payload=Object
+[Riftbound] Lobby prompt availability: submitDeck=True ready=False.
+[Riftbound] Lobby prompt availability: submitDeck=False ready=True.
+[Riftbound] Lobby prompt availability: submitDeck=False ready=False.
+[Riftbound] Disconnected
+[Riftbound] Closed: normal close.

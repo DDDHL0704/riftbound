@@ -98,6 +98,8 @@ public partial class Main : Control
     private bool _matchFinished;
     private bool _battleChromeHidden;
     private bool _matchmakingWaiting;
+    private bool _lobbyCanSubmitDeckFromPrompt;
+    private bool _lobbyCanReadyFromPrompt;
     private bool _ephemeralSession;
     private bool _isShuttingDown;
     private int _snapshotRenderVersion;
@@ -117,7 +119,7 @@ public partial class Main : Control
 
     public override async void _Ready()
     {
-        InstallRunestoneBackdrop();
+        RenderingServer.SetDefaultClearColor(MinimalTheme.AppBackground);
         BindNodes();
         ApplyRunestoneTheme();
         WireButtons();
@@ -456,6 +458,7 @@ public partial class Main : Control
 
     private async Task ConnectAndRequestSnapshotAsync(bool useReconnectToken)
     {
+        ResetLobbyPromptState();
         try
         {
             if (!await EnsureAuthenticatedConnectionAsync())
@@ -522,6 +525,7 @@ public partial class Main : Control
 
     private async Task CreatePublicMatchAsync()
     {
+        ResetLobbyPromptState();
         try
         {
             if (!await EnsureAuthenticatedConnectionAsync())
@@ -555,6 +559,7 @@ public partial class Main : Control
 
     private async Task QueueMatchmakingAsync()
     {
+        ResetLobbyPromptState();
         try
         {
             if (!await EnsureAuthenticatedConnectionAsync())
@@ -652,6 +657,7 @@ public partial class Main : Control
 
     private async Task JoinPublicMatchAsync(PublicMatchDto match)
     {
+        ResetLobbyPromptState();
         if (!await EnsureAuthenticatedConnectionAsync())
         {
             return;
@@ -661,9 +667,9 @@ public partial class Main : Control
         QueueMainThread(nameof(ApplyRoomInput), match.RoomId);
         await SaveSessionAsync();
 
-        SetMatchmakingStatus($"Joining public room {match.RoomId}...");
+        SetMatchmakingStatus($"正在加入公开房间 {match.RoomId}…");
         await JoinCurrentRoomAndRequestSnapshotAsync(useReconnectToken: false);
-        SetMatchmakingStatus($"Joined public room {match.RoomId} · host {match.HostPlayerId}");
+        SetMatchmakingStatus($"已加入公开房间 {match.RoomId}");
         AppendLog($"Public match joined: room={Escape(match.RoomId)}, host={Escape(match.HostPlayerId)}.");
         await RunAutoSmokeSetupIfReadyAsync();
     }
@@ -681,7 +687,7 @@ public partial class Main : Control
         _ = SaveSessionAsync();
 
         SetMatchmakingStatus(
-            $"Public room {roomId} · {result.Match.SeatCount}/{result.Match.Capacity} seats · {result.Match.Status}");
+            $"公开房间 {roomId} · {result.Match.SeatCount}/{result.Match.Capacity} 人 · 等待加入");
         AppendLog($"Public match created: room={Escape(roomId)}, seat={Escape(result.PlayerSession.Seat)}.");
         _ = RunAutoSmokeSetupIfReadyAsync();
     }
@@ -700,6 +706,7 @@ public partial class Main : Control
         }
 
         _lastJoinedMatchmakingRoom = status.RoomId;
+        ResetLobbyPromptState();
         _session = _session with
         {
             RoomId = status.RoomId,
@@ -747,12 +754,12 @@ public partial class Main : Control
     {
         return status.State switch
         {
-            MatchmakingQueued => $"Queued · {status.PlayerId}",
-            MatchmakingMatched => $"Matched · room {status.RoomId ?? "?"} · opponent {status.OpponentPlayerId ?? "?"}",
-            MatchmakingCancelled => $"Queue cancelled · {status.PlayerId}",
-            MatchmakingIdle => $"Queue idle · {status.PlayerId}",
-            MatchmakingRejected => $"Rejected · {status.ErrorCode ?? "UNKNOWN"} · {status.Message ?? string.Empty}",
-            _ => $"{status.State} · {status.PlayerId}"
+            MatchmakingQueued => "正在匹配对手…",
+            MatchmakingMatched => $"已匹配 · 房间 {status.RoomId ?? "?"}",
+            MatchmakingCancelled => "已取消匹配",
+            MatchmakingIdle => "尚未开始匹配",
+            MatchmakingRejected => $"匹配失败 · {status.Message ?? status.ErrorCode ?? "未知错误"}",
+            _ => "匹配状态已更新"
         };
     }
 
@@ -823,10 +830,11 @@ public partial class Main : Control
 
     private async Task ReturnToLobbyAsync()
     {
+        await DisconnectAsync();
+        ResetLobbyPromptState();
         SetStatus("Lobby");
         SetMatchmakingStatus("Returned to lobby");
         QueueMainThread(nameof(ClearMatchResult));
-        await DisconnectAsync();
         await LoadPublicMatchesAsync();
     }
 
@@ -3288,7 +3296,8 @@ public partial class Main : Control
     {
         _matchmakingWaiting = text.StartsWith("Queued", StringComparison.OrdinalIgnoreCase)
             || text.StartsWith("Queueing", StringComparison.OrdinalIgnoreCase)
-            || text.StartsWith("Waiting", StringComparison.OrdinalIgnoreCase);
+            || text.StartsWith("Waiting", StringComparison.OrdinalIgnoreCase)
+            || text.StartsWith("正在匹配", StringComparison.Ordinal);
         QueueMainThread(nameof(ApplyMatchmakingStatus), text);
     }
 
@@ -3299,13 +3308,51 @@ public partial class Main : Control
             return;
         }
 
-        var canSubmitDeck = (connected ?? IsConnected()) && _decks.Count > 0;
+        var isConnected = connected ?? IsConnected();
+        var hasDecks = _decks.Count > 0;
+        var canSubmitDeck = isConnected && hasDecks && _lobbyCanSubmitDeckFromPrompt;
+        var canReady = isConnected && _lobbyCanReadyFromPrompt;
+        var guidance = !isConnected
+            ? "连接服务器后即可选择房间和卡组。"
+            : !hasDecks
+                ? "没有可用的预组卡组。"
+                : canReady
+                    ? "卡组已提交，可以准备开始。"
+                    : canSubmitDeck
+                        ? "请选择预组卡组并提交。"
+                        : "等待服务器更新房间状态。";
         _lobbyScreen.SetSetupState(
             canSubmitDeck,
-            canSubmitDeck,
-            canSubmitDeck
-                ? "Choose a deck, submit it, then prepare when the server allows."
-                : "Connect to choose a deck and prepare.");
+            canReady,
+            guidance);
+    }
+
+    private void RefreshLobbySetupStateFromPrompt(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions)
+    {
+        _lobbyCanSubmitDeckFromPrompt = HasEnabledPromptAction(actions, "SUBMIT_DECK");
+        _lobbyCanReadyFromPrompt = HasEnabledPromptAction(actions, "READY");
+        GD.Print(
+            $"[Riftbound] Lobby prompt availability: submitDeck={_lobbyCanSubmitDeckFromPrompt} ready={_lobbyCanReadyFromPrompt}.");
+        RefreshLobbySetupState();
+    }
+
+    private void ResetLobbyPromptState()
+    {
+        _lobbyCanSubmitDeckFromPrompt = false;
+        _lobbyCanReadyFromPrompt = false;
+        QueueMainThread(nameof(ApplyLobbySetupState));
+    }
+
+    private static bool HasEnabledPromptAction(
+        Godot.Collections.Array<Godot.Collections.Dictionary> actions,
+        string actionName)
+    {
+        return actions.Any(action =>
+            action.TryGetValue("action", out var actionValue)
+            && string.Equals(actionValue.AsString(), actionName, StringComparison.Ordinal)
+            && action.TryGetValue("enabled", out var enabledValue)
+            && enabledValue.AsBool());
     }
 
     private void AppendLog(string text)
@@ -3319,6 +3366,11 @@ public partial class Main : Control
         var connected = IsConnected() || string.Equals(text, "Connected", StringComparison.OrdinalIgnoreCase);
         _lobbyScreen?.SetStatus(text, connected, _matchmakingWaiting);
         RefreshLobbySetupState(connected);
+    }
+
+    public void ApplyLobbySetupState()
+    {
+        RefreshLobbySetupState();
     }
 
     public void ApplyMatchmakingStatus(string text)
@@ -3413,9 +3465,7 @@ public partial class Main : Control
         var winnerPlayerId = ResultString(result, "winnerPlayerId");
         var surrenderedPlayerId = ResultString(result, "surrenderedPlayerId");
         var reason = ResultString(result, "reason");
-        var source = ResultString(result, "source");
         var winningScore = ResultInt(result, "winningScore");
-        var serverTick = ResultInt(result, "serverTick");
         var knownWinner = !string.IsNullOrWhiteSpace(winnerPlayerId);
         var youWon = knownWinner && string.Equals(winnerPlayerId, _authenticatedHandle, StringComparison.Ordinal);
         var lines = new List<string>
@@ -3425,12 +3475,13 @@ public partial class Main : Control
 
         if (knownWinner)
         {
-            lines.Add($"胜者：{winnerPlayerId}");
+            lines.Add($"胜者：{(youWon ? "你" : "对手")}");
         }
 
         if (!string.IsNullOrWhiteSpace(surrenderedPlayerId))
         {
-            lines.Add($"投降：{surrenderedPlayerId}");
+            var youSurrendered = string.Equals(surrenderedPlayerId, _authenticatedHandle, StringComparison.Ordinal);
+            lines.Add($"投降：{(youSurrendered ? "你" : "对手")}");
         }
 
         if (winningScore > 0)
@@ -3441,16 +3492,6 @@ public partial class Main : Control
         if (!string.IsNullOrWhiteSpace(reason))
         {
             lines.Add($"原因：{ResultReasonLabel(reason)}");
-        }
-
-        if (serverTick >= 0)
-        {
-            lines.Add($"服务端 tick：{serverTick}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(source))
-        {
-            lines.Add($"来源：{source}");
         }
 
         return string.Join("\n", lines);
@@ -3500,6 +3541,7 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
+        RefreshLobbySetupStateFromPrompt(actions);
         RefreshPromptHighlights(actions);
         var actionable = view.TryGetValue("actionable", out var actionableValue) && actionableValue.AsBool();
         if (_promptFrame is not null)
@@ -4066,6 +4108,21 @@ public partial class Main : Control
             _snapshotScroll.Visible = battleActive;
         }
 
+        if (_officialCardPreviewFrame is not null)
+        {
+            _officialCardPreviewFrame.Visible = battleActive;
+        }
+
+        if (_promptFrame is not null)
+        {
+            _promptFrame.Visible = battleActive;
+        }
+
+        if (_resultFrame is not null && !battleActive)
+        {
+            _resultFrame.Visible = false;
+        }
+
         if (_controls is not null)
         {
             _controls.OffsetRight = battleActive ? -336f : -16f;
@@ -4248,7 +4305,6 @@ public partial class Main : Control
             matches.Add(new Godot.Collections.Dictionary
             {
                 ["roomId"] = match.RoomId,
-                ["hostPlayerId"] = match.HostPlayerId,
                 ["seats"] = $"{match.SeatCount}/{match.Capacity}",
                 ["status"] = match.Status
             });

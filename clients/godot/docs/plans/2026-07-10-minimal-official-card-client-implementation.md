@@ -173,19 +173,19 @@ git commit -m "Add official Godot card component" \
   `JoinPublicMatchRequested`, `SubmitDeckRequested`, and `ReadyRequested`;
   setters for status, deck options, room options, and control availability.
 
-- [ ] **Step 1: Write a failing lobby scene check**
+- [x] **Step 1: Write a failing lobby scene check**
 
 The check requires `LobbyScreen.tscn`, its attached script, a `PrimaryFlow`
 container, `DeckSelect`, `SubmitDeckButton`, `ReadyButton`, and no
 `SnapshotScroll`, `PromptScroll`, or raw log node inside the lobby scene.
 
-- [ ] **Step 2: Run the check and confirm it fails**
+- [x] **Step 2: Run the check and confirm it fails**
 
 Run: `clients/godot/tools/check-minimal-lobby-scene.sh`
 
 Expected: non-zero exit because `LobbyScreen.tscn` does not exist.
 
-- [ ] **Step 3: Implement the screen contract**
+- [x] **Step 3: Implement the screen contract**
 
 ```csharp
 public partial class LobbyScreen : Control
@@ -215,13 +215,13 @@ The scene presents room/matchmaking entry, a deck selector, and one dominant nex
 button. Player key, reconnect token, and transport diagnostics stay out of the
 primary flow.
 
-- [ ] **Step 4: Mount the lobby in `Main.tscn` and wire existing methods**
+- [x] **Step 4: Mount the lobby in `Main.tscn` and wire existing methods**
 
 `Main.cs` remains the coordinator. It forwards data into `LobbyScreen` and
 connects screen events to existing async methods. Do not duplicate HTTP or
 SignalR logic in `LobbyScreen`.
 
-- [ ] **Step 5: Build, run checks, and open the real lobby**
+- [x] **Step 5: Build, run checks, and open the real lobby**
 
 Run:
 
@@ -235,7 +235,13 @@ ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5088 \
 Open Godot at 1440x900 and 1920x1080. Confirm deck selection, submit, and ready
 still send existing commands and the battle view is not visible in lobby state.
 
-- [ ] **Step 6: Update docs and commit**
+Visible evidence is archived under `screenshots/units/m2-minimal-lobby-*`. The
+1280x720, 1440x900, and 1920x1080 captures use a real memory-mode API room and
+show the server-enabled `SUBMIT_DECK` state while `READY` remains disabled.
+Paired `*-visible-run.txt` logs and `m2-minimal-lobby-visible-runs.md` record the
+non-headless renderer, exact capture path, Prompt state, and hidden-info check.
+
+- [x] **Step 6: Update docs and commit**
 
 Commit message: `Separate the Godot lobby from the match table` with a body
 explaining that setup controls no longer compete with combat state.
