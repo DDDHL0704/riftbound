@@ -27,6 +27,10 @@ case "${1:-} ${2:-} ${3:-}" in
   "fetch origin main")
     exit 0
     ;;
+  "rev-parse HEAD ")
+    echo "0123456789abcdef0123456789abcdef01234567"
+    exit 0
+    ;;
   "worktree add --detach")
     destination="${4:?missing worktree destination}"
     mkdir -p "${destination}/clients/godot/tools"
