@@ -276,6 +276,12 @@ worktree, prompts for the human-only confirmations, and packages the evidence
 immediately after both windows close. It then verifies the final handoff package
 before returning success:
 
+The completed product evidence for the user-authorized Codex dual-client
+simulation is indexed at
+`screenshots/units/m8-clean-fullflow-evidence.md`. It is deliberately separate
+from the stricter two-human P5 certificate described below and does not claim
+human operators.
+
 ```sh
 clients/godot/tools/run-clean-main-human-playtest-stack.sh --precheck
 ```

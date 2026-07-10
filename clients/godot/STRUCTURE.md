@@ -260,3 +260,15 @@ wire-table height.
   `clients/godot/tools/check-clean-main-simulated-playtest-script.sh`
 - Shell syntax: `find clients/godot/tools -name '*.sh' -print0 | xargs -0 -n1 bash -n`
 - Whitespace: `git diff --check -- clients/godot`
+
+## Completion Evidence
+
+- `screenshots/units/m8-clean-fullflow-evidence.md` is the authoritative index
+  for the clean pushed-main Codex dual-client simulation.
+- `screenshots/units/m8-clean-fullflow-1440x900-player-{a,b}.png` are the two
+  viewer-relative authoritative result captures.
+- `screenshots/units/m8-minimal-client-flow-16s.mp4` is the 1440x900 visual flow
+  review from lobby through focused interaction to the final result.
+- These artifacts prove the user-authorized simulated scope. They do not replace
+  or claim the optional two-human P5 certification produced by
+  `run-clean-main-human-playtest-stack.sh`.

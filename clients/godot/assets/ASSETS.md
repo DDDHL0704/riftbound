@@ -16,6 +16,7 @@ deterministic visual verification requires them; record the source here.
 | `scenes/overlays/CardInspectOverlay.tscn`, `scenes/overlays/ResultOverlay.tscn` | Project-authored minimal UI | Project-local | Uses theme surfaces and runtime official card art; no additional raster assets were introduced. |
 | `scenes/overlays/MulliganOverlay.tscn`, `TriggerOrderOverlay.tscn`, `DamageAssignmentOverlay.tscn` | Project-authored minimal UI | Project-local | Focused server-prompt controls. Mulligan reuses runtime official card fronts; trigger and damage overlays add no raster assets. |
 | Final `match-sequence-NN.png` / `match-sequence.mp4` evidence | Captured from visible Godot runtime | Project evidence | Packaged by the playtest tools when present; these are verification artifacts, not runtime assets or design references. |
+| `screenshots/units/m8-minimal-client-flow-16s.mp4` | Visible Godot runtime captures composed with OpenCV `mp4v` | Project evidence | 1440x900, 12 fps, 202 frames; documents the minimal official-card client flow and adds no runtime asset. |
 
 ## Approved Asset Direction
 

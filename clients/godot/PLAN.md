@@ -91,13 +91,12 @@ wire-table and final P5 evidence push are no longer the active product route.
 - M1-M5 are complete: focused screens, official-card rendering, prompt-owned
   interaction, dedicated special-prompt overlays, responsive layouts, keyboard
   controls, and the centered result flow all have visible-window evidence.
-- M6 is the only active unit. It must prove the pushed minimal client through a
-  clean two-client match, package logs/screenshots/sequence media, and verify the
-  hidden-information boundary without relying on the retired visual route.
-- The latest local two-client full-flow candidate reached a natural 10-point
-  result at server tick 59 with zero rejected commands after serializing
-  diagnostic Prompt submissions. A clean pushed-main repetition is still
-  required before M6 can close.
+- M6 is complete for the user-authorized Codex dual-client simulation scope.
+  Clean `origin/main@1ec37e5e7` reached a natural score result with two visible
+  clients, zero rejected commands, zero hidden identity leaks, distinct result
+  screenshots, and packaged sequence/video evidence.
+- This completion does not claim two human operators. The stricter human-only
+  P5 verifier remains available for a later external certification run.
 
 ## Work Sequence
 
@@ -138,13 +137,13 @@ wire-table and final P5 evidence push are no longer the active product route.
    - Done when the core flow works at all supported viewports without clipping
      and can be completed by keyboard.
 
-6. **M6 - Human full-match proof (in progress)**
-   - Run two real Godot clients with two human operators and preconstructed decks
+6. **M6 - Full-match proof (complete for Codex simulation)**
+   - Run two real Godot clients with independently operated preconstructed decks
      through a complete match to the result view.
    - Package screenshots/video, logs, hidden-information evidence, build output,
      asset manifest, and operator notes.
-   - Done only when both humans confirm that no log or technical identifier was
-     needed to understand the match.
+   - Human-only certification remains a separate optional gate and must never be
+     inferred from simulated evidence.
 
 ## Work Unit Gate
 
@@ -162,8 +161,10 @@ For every implementation unit:
 
 ## Stop Conditions
 
-- Completion requires a verified two-human full match using the rebuilt Godot
-  interface, not the old wire table and not auto-smoke.
+- Completion for the user-authorized scope requires a clean pushed-main match
+  with two visible clients, a natural server result, explicit simulation
+  labeling, and screenshot/video evidence. A two-human certificate is optional
+  and cannot be inferred from this simulated run.
 - Stop and report if direct interaction requires backend or contract fields that
   are not already present.
 - Do not call the client complete while technical IDs, generic prompt forms,

@@ -303,8 +303,9 @@ resume from repository state instead of conversation history alone.
 
 ## Open Risks
 
-- P5 is still incomplete until two real humans complete a Godot match to the
-  server result panel and produce a verified final evidence package.
+- Product validation is complete for the user-authorized Codex dual-client
+  simulation. A two-human P5 certificate remains optional and has not been
+  claimed or fabricated.
 - Automated smoke screenshots are useful regression evidence but do not satisfy
   the two-human hidden-information gate.
 - Keep changes scoped to `clients/godot/` unless the user explicitly approves a
@@ -409,3 +410,20 @@ resume from repository state instead of conversation history alone.
   official-card result screenshots, zero hidden faces/leaks, and zero
   `ERROR`/`REJECTED` log entries. It remains simulated evidence, not a claim of
   two human operators.
+
+## 2026-07-10 Clean Full-Flow Completion
+
+- Clean pushed `origin/main@1ec37e5e7` opened two visible 1440x900 Godot clients
+  against a clean-worktree memory API and played naturally to Player B's score-8
+  victory at server tick 53. The run submitted rune, play-card, move,
+  declare-battle, priority/focus, and end-turn commands with zero errors or
+  rejected receipts.
+- Both logs emitted 54 table renders and only zero-valued opponent hand faces,
+  opponent standby faces, and hidden identity leaks. Both result PNGs passed the
+  official-card table and centered-result checks.
+- Durable evidence is under `screenshots/units/m8-*`: distinct A/B result PNGs,
+  a 16.83-second 1440x900 MP4, and `m8-clean-fullflow-evidence.md`. A local
+  19-file SHA-256 package is recorded there as explicit simulation evidence.
+- The Mac desktop companion remained locked, so this uses the user's authorized
+  Codex simulation path. The human-only verifier correctly rejects its auto
+  markers and unchecked human confirmations; no two-human claim is made.
