@@ -144,7 +144,7 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   logStep(6, "First turn begins with server rune call and draw.");
   assertEvent(p1, "RUNES_CALLED", (event) => event.payload?.playerId === "P1");
   assertEvent(p1, "CARD_DRAWN", (event) => event.payload?.playerId === "P1");
-  await waitForText(p1Tab.cdp, ["正式桌面状态", "服务端行动提示", "P1"]);
+  await waitForText(p1Tab.cdp, ["主行动", "第 1 回合", "P1"]);
 
   logStep(7, "Active player taps server-provided runes for mana.");
   await tapRunesForMana(p1, 2);
@@ -155,7 +155,7 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   const playSource = await playFirstUnit(p1);
   assertEvent(p1, "CARD_PLAYED");
   assertEvent(p1, "STACK_ITEM_ADDED");
-  await waitForText(p1Tab.cdp, ["法术对决", "结算链"]);
+  await waitForText(p1Tab.cdp, ["优先行动", "普通闭环", "让过优先权"]);
 
   logStep(9, "Both players pass priority on the stack window.");
   await passPriorityUntilStackResolves(p1, p2);
@@ -168,11 +168,11 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   logStep(11, "The unit moves to the opponent battlefield through a legal server destination.");
   await moveUnitToOpponentBattlefield(p1, "P2");
   assertEvent(p1, "UNIT_MOVED_TO_BATTLEFIELD", (event) => event.payload?.playerId === "P1");
-  await waitForText(p1Tab.cdp, ["中央战场", "OGN·290/298"]);
+  await waitForText(p1Tab.cdp, ["公共战场", "主行动"]);
 
   logStep(12, "Reconnect restores the active player's authoritative state before ending turn.");
   await reloadAndReconnect(p1Tab);
-  await waitForText(p1Tab.cdp, ["正式桌面状态", "P1", "OGN·290/298"]);
+  await waitForText(p1Tab.cdp, ["公共战场", "P1", "已连接"]);
   assertOpponentHandRedacted(snapshot(p1), "P2");
   await settleServerTasksUntilCanEndTurn(p1, p2);
 
@@ -188,9 +188,8 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   assertEqual(snapshot(p1).players.P2.score, 1, "Expected P2 score to be 1 after battlefield score.");
 
   logStep(16, "Opponent browser reconnects and displays the scored state.");
-  const expectedScoredStateLabel = `1/${snapshot(p1).timing?.winningScore ?? 8}`;
   await reloadAndReconnect(p2Tab);
-  await waitForText(p2Tab.cdp, ["正式桌面状态", "P2", expectedScoredStateLabel]);
+  await waitForText(p2Tab.cdp, ["第 2 回合", "主阶段", "P2", "1"]);
   await expectAbsentText(p2Tab.cdp, hiddenDebugTexts);
 
   logStep(17, "Opponent surrenders through the server command path.");
@@ -198,8 +197,8 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   await waitFor(() => snapshot(p1).timing?.roomStatus === "FINISHED", "finished room status");
   assertEvent(p1, "MATCH_WON", (event) => event.payload?.winnerPlayerId === "P1" && event.payload?.reason === "SURRENDER");
   logStep(18, "Result page reflects the authoritative winner.");
-  await waitForText(p1Tab.cdp, ["结算", "胜者", "P1"]);
-  await waitForText(p2Tab.cdp, ["结算", "胜者", "P1"]);
+  await waitForText(p1Tab.cdp, ["对局结算", "胜者 P1"]);
+  await waitForText(p2Tab.cdp, ["对局结算", "胜者 P1"]);
 }
 
 async function createFormalRoomDriver() {
@@ -310,20 +309,41 @@ async function openPlayerChrome(playerId, reconnectToken, debugPort, browserErro
     })
   });
   await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/${roomDriver.roomId}` });
-  await waitForText(cdp, ["对战状态", "连接/重连", roomDriver.roomId]);
+  await waitForText(cdp, [roomDriver.roomId, "连接与规则诊断"]);
   return { playerId, cdp };
 }
 
 async function connectPlayerTab(tab) {
-  await clickButton(tab.cdp, "连接/重连");
-  await waitForText(tab.cdp, ["正式桌面状态", "服务端行动提示", tab.playerId]);
+  await ensurePlayerTabConnected(tab);
+  await waitForText(tab.cdp, ["起手调度", "已连接", tab.playerId]);
 }
 
 async function reloadAndReconnect(tab) {
   await cdpNavigate(tab.cdp, `${frontendUrl}/matches/${roomDriver.roomId}`);
-  await waitForText(tab.cdp, ["连接/重连", roomDriver.roomId]);
-  await clickButton(tab.cdp, "连接/重连");
-  await waitForText(tab.cdp, ["正式桌面状态", "服务端行动提示", tab.playerId]);
+  await waitForText(tab.cdp, [roomDriver.roomId, "连接与规则诊断"]);
+  await ensurePlayerTabConnected(tab);
+  await waitForText(tab.cdp, [roomDriver.roomId, "已连接", tab.playerId]);
+}
+
+async function ensurePlayerTabConnected(tab) {
+  const deadline = Date.now() + 12_000;
+  let retried = false;
+  let bodyText = "";
+  while (Date.now() < deadline) {
+    bodyText = await readBodyText(tab.cdp);
+    if (bodyText.includes("已连接") && bodyText.includes(tab.playerId)) {
+      return;
+    }
+
+    if (!retried && (bodyText.includes("连接错误") || bodyText.includes("未连接服务端"))) {
+      await clickButton(tab.cdp, "连接");
+      retried = true;
+    }
+    await delay(250);
+  }
+
+  const bodyContent = await readBodyTextContent(tab.cdp);
+  throw new Error(`Player ${tab.playerId} did not reconnect:\n${bodyText.slice(0, 1200)}\nDOM content:\n${bodyContent.slice(0, 2000)}`);
 }
 
 async function tapRunesForMana(client, targetMana) {
@@ -716,7 +736,7 @@ async function clickButton(cdp, text) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
       const button = Array.from(document.querySelectorAll("button"))
-        .find((candidate) => candidate.innerText.includes(${JSON.stringify(text)}));
+        .find((candidate) => candidate.innerText.trim() === ${JSON.stringify(text)});
       if (!button) {
         return false;
       }
@@ -757,6 +777,14 @@ async function expectAbsentText(cdp, texts) {
 async function readBodyText(cdp) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: "document.body ? document.body.innerText : ''",
+    returnByValue: true
+  });
+  return String(result.result?.value ?? "");
+}
+
+async function readBodyTextContent(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: "document.body ? document.body.textContent : ''",
     returnByValue: true
   });
   return String(result.result?.value ?? "");

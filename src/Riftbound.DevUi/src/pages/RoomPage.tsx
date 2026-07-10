@@ -1,5 +1,5 @@
 import { Check, Copy, FileText, RefreshCcw, Send, Swords, Users, Wifi } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
@@ -26,6 +26,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
   const players = Object.values(snapshot?.players ?? {});
   const roomStatus = asString(asRecord(snapshot?.timing).roomStatus, "");
   const connected = controller.state.status === "connected";
+  const shouldRefreshRoom = connected && roomStatus !== "IN_PROGRESS" && roomStatus !== "FINISHED";
   const [codeCopied, setCodeCopied] = useState(false);
   const copyRoomCode = useCallback(() => {
     void navigator.clipboard?.writeText(roomId).then(() => {
@@ -33,6 +34,19 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       window.setTimeout(() => setCodeCopied(false), 1500);
     });
   }, [roomId]);
+
+  useEffect(() => {
+    if (!shouldRefreshRoom) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      void controller.requestSnapshot();
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [controller.requestSnapshot, shouldRefreshRoom]);
+
   const canAct = Boolean(prompt?.actionable && prompt.playerId === settings.playerId);
   const submissionGate = useMemo(() => buildServerSubmissionGatePlan({
     connectionStatus: controller.state.status,

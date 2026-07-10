@@ -94,9 +94,6 @@ export function CandidateComposer({
         <strong>{promptActionLabel(candidate)}</strong>
         <StatusPill tone={submission.canSubmit ? "warn" : "neutral"}>{submission.stateLabel}</StatusPill>
       </div>
-      <p className="candidate-composer-note">
-        仅使用服务端候选组装命令；费用、目标和结果仍由服务端按规则校验。
-      </p>
       <span className="candidate-composer-gate" data-candidate-composer-gate-reason>
         提交门禁：{submission.gateStateLabel} / {submission.gateReason}
       </span>
@@ -236,7 +233,7 @@ export function CandidateComposer({
         title={submission.blockReason ?? promptReasonTitle(candidate.reason)}
         variant={submission.canSubmit ? "primary" : "ghost"}
       >
-        提交服务端候选
+        确认行动
       </Button>
     </div>
   );

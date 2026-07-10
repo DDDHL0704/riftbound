@@ -3422,7 +3422,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionText.includes("服务端可提交操作")) failures.push("card detail action section text missing");
   if (!detailContextResult.actionText.includes("组合")) failures.push("card detail action route summary text missing");
   if (!detailContextResult.actionText.includes("字段")) failures.push("card detail action field summary text missing");
-  if (!detailContextResult.actionText.includes("提交服务端候选")) failures.push("card detail composer submit control missing");
+  if (!detailContextResult.actionText.includes("确认行动")) failures.push("card detail composer submit control missing");
   if (detailContextResult.objectInspectionAuthority !== "server") failures.push(`card detail object inspection authority unexpected: ${detailContextResult.objectInspectionAuthority}`);
   if (!detailContextResult.objectInspectionRoutes.includes("contract")) failures.push("card detail object inspection contract route missing");
   if (!detailContextResult.objectInspectionGroups.includes("server-candidate")) failures.push("card detail object inspection server group missing");

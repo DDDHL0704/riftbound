@@ -9,8 +9,10 @@ const lobbySource = read("src/pages/LobbyPage.tsx");
 const roomSource = read("src/pages/RoomPage.tsx");
 const matchSource = read("src/pages/MatchPage.tsx");
 const playableMatchSource = readIfPresent("src/components/match/PlayableMatchSurface.tsx");
+const candidateComposerSource = read("src/components/match/CandidateComposer.tsx");
 const cardDetailSource = read("src/components/cards/CardDetailDrawer.tsx");
 const resultSource = read("src/pages/ResultPage.tsx");
+const gameClientStyles = read("src/styles/game-client.css");
 const errors = [];
 
 requireText(mainSource, 'import "./styles/game-client.css";', "main.tsx must import game-client.css");
@@ -50,6 +52,11 @@ requireText(matchSource, "<PlayableMatchSurface", "MatchPage must compose the ne
 if (matchSource.includes("符文战场对战线框")) {
   errors.push("the playable match title must not describe itself as a wireframe");
 }
+
+requireText(candidateComposerSource, "确认行动", "candidate composer must use player-facing action copy");
+requireText(gameClientStyles, ".action-render-entry:has(.mulligan-selector)", "mulligan controls need a dedicated wide dock layout");
+requireText(gameClientStyles, ".candidate-composer-field", "candidate composer fields need a compact dock layout");
+requireText(gameClientStyles, ".wire-object-command-tray-metrics", "the playable object tray must hide protocol metrics");
 
 requireText(cardDetailSource, "data-card-art-panel", "card detail must expose an official-art panel");
 requireText(cardDetailSource, 'className="detail-diagnostics"', "card inspection evidence must be collapsible");
