@@ -6,14 +6,14 @@ using Godot;
 
 namespace Riftbound.GodotClient;
 
-public sealed record TriggerPromptItem(string TriggerId, string Label);
+public sealed record TriggerPromptItem(string TriggerId, string Label, int ControllerBlockIndex);
 
-public sealed record DamageTargetPromptItem(string TargetObjectId, string Label);
+public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold);
 
 public sealed record DamageAssignmentPromptItem(
     string SourceObjectId,
     string SourceLabel,
-    int RemainingDamage,
+    int DamagePool,
     IReadOnlyList<DamageTargetPromptItem> Targets);
 
 public sealed record DamageAssignmentSelection(string SourceObjectId, string TargetObjectId, int Damage);
@@ -57,6 +57,11 @@ public static class SpecialPromptCommandBuilder
             }
         }
 
+        if (!TryReadTriggerControllerBlocks(metadata, orderedTriggerIds, out var controllerBlockIndexes, out reason))
+        {
+            return false;
+        }
+
         var parsed = new List<TriggerPromptItem>(orderedTriggerIds.Length);
         foreach (var triggerId in orderedTriggerIds)
         {
@@ -66,7 +71,7 @@ public static class SpecialPromptCommandBuilder
                 return false;
             }
 
-            parsed.Add(new TriggerPromptItem(triggerId, label));
+            parsed.Add(new TriggerPromptItem(triggerId, label, controllerBlockIndexes[triggerId]));
         }
 
         triggers = parsed;
@@ -87,9 +92,12 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        if (!HasSameIdsInDifferentOrder(serverTriggers.Select(trigger => trigger.TriggerId), orderedTriggerIds))
+        if (!HasSameIdsInDifferentOrder(serverTriggers.Select(trigger => trigger.TriggerId), orderedTriggerIds)
+            || !ValidateTriggerBlockOrder(serverTriggers, orderedTriggerIds, out reason))
         {
-            reason = "ordered trigger selection must preserve every server trigger";
+            reason = string.IsNullOrWhiteSpace(reason)
+                ? "ordered trigger selection must preserve every server trigger"
+                : reason;
             return false;
         }
 
@@ -124,68 +132,7 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        var damagePool = FirstMetadataIntMap(metadata, "assignableDamagePool", "damagePool");
-        if (damagePool.Count == 0)
-        {
-            reason = "assignableDamagePool or damagePool is missing";
-            return false;
-        }
-
-        if (!metadata.TryGetProperty("requiredAssignments", out var requiredAssignments)
-            || requiredAssignments.ValueKind != JsonValueKind.Array
-            || requiredAssignments.GetArrayLength() == 0)
-        {
-            reason = "requiredAssignments is missing";
-            return false;
-        }
-
-        if (!metadata.TryGetProperty("assignmentChoices", out var assignmentChoices)
-            || assignmentChoices.ValueKind != JsonValueKind.Array)
-        {
-            reason = "assignmentChoices is missing";
-            return false;
-        }
-
-        if (!metadata.TryGetProperty("battleParticipants", out var battleParticipants)
-            || battleParticipants.ValueKind != JsonValueKind.Array)
-        {
-            reason = "battleParticipants is missing";
-            return false;
-        }
-
-        var participantLabels = ReadParticipantLabels(battleParticipants);
-        var targetsBySource = ReadAssignmentTargets(assignmentChoices, participantLabels);
-        var requiredSourceIds = requiredAssignments
-            .EnumerateArray()
-            .Select(assignment => ReadString(assignment, "sourceObjectId"))
-            .Where(sourceId => !string.IsNullOrWhiteSpace(sourceId))
-            .ToHashSet(StringComparer.Ordinal);
-        var parsed = new List<DamageAssignmentPromptItem>(damagePool.Count);
-        foreach (var (sourceObjectId, damage) in damagePool)
-        {
-            if (!requiredSourceIds.Contains(sourceObjectId))
-            {
-                reason = "requiredAssignments source is missing";
-                return false;
-            }
-
-            if (!participantLabels.TryGetValue(sourceObjectId, out var sourceLabel))
-            {
-                reason = "battleParticipants source is missing";
-                return false;
-            }
-
-            if (!targetsBySource.TryGetValue(sourceObjectId, out var targets) || targets.Count == 0)
-            {
-                reason = "assignmentChoices target is missing";
-                return false;
-            }
-
-            parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, damage, targets));
-        }
-
-        assignments = parsed;
-        return true;
+        return TryReadDamageAssignmentPromptMetadata(metadata, out assignments, out reason);
     }
 
     public static bool TryBuildDamageAssignmentPayload(
@@ -203,34 +150,15 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        if (selections.Count != serverAssignments.Count)
+        if (!ValidateDamageAssignments(serverAssignments, selections, out var orderedSelections, out reason))
         {
-            reason = "damage assignments must cover every server source";
             return false;
-        }
-
-        var submitted = selections.ToDictionary(selection => selection.SourceObjectId, StringComparer.Ordinal);
-        if (submitted.Count != selections.Count)
-        {
-            reason = "damage assignments contain a duplicate source";
-            return false;
-        }
-
-        foreach (var serverAssignment in serverAssignments)
-        {
-            if (!submitted.TryGetValue(serverAssignment.SourceObjectId, out var selected)
-                || selected.Damage != serverAssignment.RemainingDamage
-                || !serverAssignment.Targets.Any(target => string.Equals(target.TargetObjectId, selected.TargetObjectId, StringComparison.Ordinal)))
-            {
-                reason = "damage assignment is not a server-provided choice";
-                return false;
-            }
         }
 
         payload["cmdType"] = "ASSIGN_COMBAT_DAMAGE";
         payload["battleId"] = ReadString(metadata, "battleId");
         payload["battlefieldId"] = FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"));
-        payload["assignments"] = selections
+        payload["assignments"] = orderedSelections
             .Select(selection => new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["sourceObjectId"] = selection.SourceObjectId,
@@ -414,153 +342,8 @@ public static class SpecialPromptCommandBuilder
         payloadKey = string.Empty;
         reason = string.Empty;
 
-        if (MetadataElement(candidate) is not { } metadata)
-        {
-            reason = "damage metadata is missing";
-            return false;
-        }
-
-        var battleId = ReadString(metadata, "battleId");
-        var battlefieldId = FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"));
-        var damageBySource = FirstMetadataIntMap(metadata, "assignableDamagePool", "damagePool", "damagePoolBySource");
-        var assignments = DefaultDamageAssignments(metadata, damageBySource);
-        if (string.IsNullOrWhiteSpace(battleId))
-        {
-            reason = "battleId is missing";
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(battlefieldId))
-        {
-            reason = "battlefieldId is missing";
-            return false;
-        }
-
-        if (assignments.Count == 0)
-        {
-            reason = "no server-provided damage assignment choices";
-            return false;
-        }
-
-        payload = new Dictionary<string, object?>(StringComparer.Ordinal)
-        {
-            ["cmdType"] = "ASSIGN_COMBAT_DAMAGE",
-            ["battleId"] = battleId,
-            ["battlefieldId"] = battlefieldId,
-            ["assignments"] = assignments
-        };
-        payloadKey = string.Join(",", assignments.Select(assignment =>
-            $"{assignment["sourceObjectId"]}->{assignment["targetObjectId"]}:{assignment["damage"]}"));
-        return true;
-    }
-
-    private static List<Dictionary<string, object?>> DefaultDamageAssignments(
-        JsonElement metadata,
-        IReadOnlyDictionary<string, int> damageBySource)
-    {
-        var assignments = RequiredDamageAssignments(metadata);
-        if (assignments.Count > 0)
-        {
-            return assignments;
-        }
-
-        var chosenTargets = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var (sourceObjectId, targetObjectId) in AssignmentChoicePairs(metadata))
-        {
-            chosenTargets.TryAdd(sourceObjectId, targetObjectId);
-        }
-
-        if (chosenTargets.Count == 0)
-        {
-            foreach (var (sourceObjectId, targetObjectIds) in StringListMap(metadata, "legalTargets", "legalTargetsBySource"))
-            {
-                var targetObjectId = targetObjectIds.FirstOrDefault();
-                if (!string.IsNullOrWhiteSpace(targetObjectId))
-                {
-                    chosenTargets.TryAdd(sourceObjectId, targetObjectId);
-                }
-            }
-        }
-
-        return chosenTargets
-            .Select(entry => new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["sourceObjectId"] = entry.Key,
-                ["targetObjectId"] = entry.Value,
-                ["damage"] = Math.Max(1, damageBySource.GetValueOrDefault(entry.Key, 1))
-            })
-            .ToList();
-    }
-
-    private static List<Dictionary<string, object?>> RequiredDamageAssignments(JsonElement metadata)
-    {
-        var result = new List<Dictionary<string, object?>>();
-        if (!metadata.TryGetProperty("requiredAssignments", out var assignments)
-            || assignments.ValueKind != JsonValueKind.Array)
-        {
-            return result;
-        }
-
-        foreach (var assignment in assignments.EnumerateArray())
-        {
-            if (assignment.ValueKind != JsonValueKind.Object)
-            {
-                continue;
-            }
-
-            var sourceObjectId = ReadString(assignment, "sourceObjectId");
-            var targetObjectId = ReadString(assignment, "targetObjectId");
-            var damage = ReadInt(assignment, "damage");
-            if (damage <= 0)
-            {
-                damage = ReadInt(assignment, "requiredDamage");
-            }
-            if (string.IsNullOrWhiteSpace(sourceObjectId)
-                || string.IsNullOrWhiteSpace(targetObjectId)
-                || damage <= 0)
-            {
-                continue;
-            }
-
-            result.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["sourceObjectId"] = sourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["damage"] = damage
-            });
-        }
-
-        return result;
-    }
-
-    private static IEnumerable<(string SourceObjectId, string TargetObjectId)> AssignmentChoicePairs(JsonElement metadata)
-    {
-        if (!metadata.TryGetProperty("assignmentChoices", out var choices)
-            || choices.ValueKind != JsonValueKind.Array)
-        {
-            yield break;
-        }
-
-        foreach (var choice in choices.EnumerateArray())
-        {
-            var id = ReadString(choice, "id");
-            var parts = id.Split("->", 2, StringSplitOptions.TrimEntries);
-            if (parts.Length == 2
-                && !string.IsNullOrWhiteSpace(parts[0])
-                && !string.IsNullOrWhiteSpace(parts[1]))
-            {
-                yield return (parts[0], parts[1]);
-                continue;
-            }
-
-            var sourceObjectId = ReadString(choice, "sourceObjectId");
-            var targetObjectId = ReadString(choice, "targetObjectId");
-            if (!string.IsNullOrWhiteSpace(sourceObjectId)
-                && !string.IsNullOrWhiteSpace(targetObjectId))
-            {
-                yield return (sourceObjectId, targetObjectId);
-            }
-        }
+        reason = "damage assignment requires explicit overlay selections";
+        return false;
     }
 
     private static JsonElement? MetadataElement(JsonElement candidate)
@@ -635,6 +418,277 @@ public static class SpecialPromptCommandBuilder
             .All(group => submittedIds.Count(id => string.Equals(id, group.Key, StringComparison.Ordinal)) == group.Count());
     }
 
+    private static bool TryReadTriggerControllerBlocks(
+        JsonElement metadata,
+        IReadOnlyList<string> orderedTriggerIds,
+        out IReadOnlyDictionary<string, int> ControllerBlockIndex,
+        out string reason)
+    {
+        ControllerBlockIndex = new Dictionary<string, int>(StringComparer.Ordinal);
+        reason = string.Empty;
+        if (!metadata.TryGetProperty("legalOrderingConstraints", out var constraints)
+            || constraints.ValueKind != JsonValueKind.Object)
+        {
+            reason = "legalOrderingConstraints is missing";
+            return false;
+        }
+
+        if (ReadBool(constraints, "crossControllerReorderingAllowed", true)
+            || !ReadBool(constraints, "preserveControllerBlocks", false)
+            || !ReadBool(constraints, "withinControllerReorderingAllowed", false))
+        {
+            reason = "legalOrderingConstraints block guards are missing";
+            return false;
+        }
+
+        if (!constraints.TryGetProperty("legalResolutionControllerBlockOrder", out var blocks)
+            || blocks.ValueKind != JsonValueKind.Array
+            || blocks.GetArrayLength() == 0)
+        {
+            reason = "legalResolutionControllerBlockOrder is missing";
+            return false;
+        }
+
+        var indexes = new Dictionary<string, int>(StringComparer.Ordinal);
+        var blockIndex = 0;
+        foreach (var block in blocks.EnumerateArray())
+        {
+            var triggerIds = ReadStringArray(block, "triggerIds");
+            if (block.ValueKind != JsonValueKind.Object || triggerIds.Count == 0)
+            {
+                reason = "legalResolutionControllerBlockOrder triggerIds is missing";
+                return false;
+            }
+
+            foreach (var triggerId in triggerIds)
+            {
+                if (!indexes.TryAdd(triggerId, blockIndex))
+                {
+                    reason = "legalResolutionControllerBlockOrder duplicates a trigger";
+                    return false;
+                }
+            }
+
+            blockIndex++;
+        }
+
+        if (!HasSameIdsInDifferentOrder(indexes.Keys, orderedTriggerIds))
+        {
+            reason = "legalResolutionControllerBlockOrder does not preserve server triggers";
+            return false;
+        }
+
+        ControllerBlockIndex = indexes;
+        return true;
+    }
+
+    private static bool ValidateTriggerBlockOrder(
+        IReadOnlyList<TriggerPromptItem> serverTriggers,
+        IReadOnlyList<string> submittedIds,
+        out string reason)
+    {
+        reason = string.Empty;
+        var blockById = serverTriggers.ToDictionary(trigger => trigger.TriggerId, trigger => trigger.ControllerBlockIndex, StringComparer.Ordinal);
+        var previousBlock = -1;
+        foreach (var triggerId in submittedIds)
+        {
+            if (!blockById.TryGetValue(triggerId, out var blockIndex) || blockIndex < previousBlock)
+            {
+                reason = "ordered trigger selection must preserve server controller blocks";
+                return false;
+            }
+
+            previousBlock = blockIndex;
+        }
+
+        return true;
+    }
+
+    private static bool TryReadDamageAssignmentPromptMetadata(
+        JsonElement metadata,
+        out IReadOnlyList<DamageAssignmentPromptItem> assignments,
+        out string reason)
+    {
+        assignments = [];
+        reason = string.Empty;
+        var damagePool = FirstMetadataIntMap(metadata, "assignableDamagePool", "damagePool");
+        if (damagePool.Count == 0)
+        {
+            reason = "assignableDamagePool or damagePool is missing";
+            return false;
+        }
+
+        if (!metadata.TryGetProperty("requiredAssignments", out var requiredAssignments)
+            || requiredAssignments.ValueKind != JsonValueKind.Array
+            || requiredAssignments.GetArrayLength() == 0)
+        {
+            reason = "requiredAssignments is missing";
+            return false;
+        }
+
+        if (!metadata.TryGetProperty("assignmentChoices", out var assignmentChoices)
+            || assignmentChoices.ValueKind != JsonValueKind.Array)
+        {
+            reason = "assignmentChoices is missing";
+            return false;
+        }
+
+        if (!metadata.TryGetProperty("battleParticipants", out var battleParticipants)
+            || battleParticipants.ValueKind != JsonValueKind.Array)
+        {
+            reason = "battleParticipants is missing";
+            return false;
+        }
+
+        var lethalDamageThreshold = FirstMetadataIntMap(metadata, "lethalDamageThreshold");
+        if (lethalDamageThreshold.Count == 0)
+        {
+            reason = "lethalDamageThreshold is missing";
+            return false;
+        }
+
+        var participantLabels = ReadParticipantLabels(battleParticipants);
+        var allowedPairs = ReadAssignmentChoicePairs(assignmentChoices);
+        var legalTargetsBySource = ReadStringListMap(metadata, "legalTargets");
+        var parsed = new List<DamageAssignmentPromptItem>();
+        var seenSources = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var requirement in requiredAssignments.EnumerateArray())
+        {
+            var sourceObjectId = ReadString(requirement, "sourceObjectId");
+            var requiredDamage = ReadInt(requirement, "damage");
+            var legalTargetObjectIds = ReadStringArray(requirement, "legalTargetObjectIds");
+            legalTargetsBySource.TryGetValue(sourceObjectId, out var metadataTargets);
+            if (legalTargetObjectIds.Count == 0 && metadataTargets is not null)
+            {
+                legalTargetObjectIds = metadataTargets;
+            }
+
+            if (string.IsNullOrWhiteSpace(sourceObjectId)
+                || requiredDamage <= 0
+                || legalTargetObjectIds.Count == 0
+                || !seenSources.Add(sourceObjectId))
+            {
+                reason = "requiredAssignments source, damage, or legalTargetObjectIds is missing";
+                return false;
+            }
+
+            if (!damagePool.TryGetValue(sourceObjectId, out var poolDamage) || poolDamage != requiredDamage)
+            {
+                reason = "requiredAssignments damage does not match assignableDamagePool";
+                return false;
+            }
+
+            if (!participantLabels.TryGetValue(sourceObjectId, out var sourceLabel))
+            {
+                reason = "battleParticipants source is missing";
+                return false;
+            }
+
+            if (metadataTargets is not null && !legalTargetObjectIds.SequenceEqual(metadataTargets, StringComparer.Ordinal))
+            {
+                reason = "legalTargets does not match requiredAssignments order";
+                return false;
+            }
+
+            var targets = new List<DamageTargetPromptItem>(legalTargetObjectIds.Count);
+            foreach (var targetObjectId in legalTargetObjectIds)
+            {
+                if (!allowedPairs.Contains((sourceObjectId, targetObjectId)))
+                {
+                    reason = "assignmentChoices target is missing";
+                    return false;
+                }
+
+                if (!participantLabels.TryGetValue(targetObjectId, out var targetLabel))
+                {
+                    reason = "battleParticipants target is missing";
+                    return false;
+                }
+
+                if (!lethalDamageThreshold.TryGetValue(targetObjectId, out var threshold))
+                {
+                    reason = "lethalDamageThreshold target is missing";
+                    return false;
+                }
+
+                targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel, threshold));
+            }
+
+            parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, poolDamage, targets));
+        }
+
+        assignments = parsed;
+        return true;
+    }
+
+    private static bool ValidateDamageAssignments(
+        IReadOnlyList<DamageAssignmentPromptItem> serverAssignments,
+        IReadOnlyList<DamageAssignmentSelection> selections,
+        out IReadOnlyList<DamageAssignmentSelection> orderedSelections,
+        out string reason)
+    {
+        orderedSelections = [];
+        reason = string.Empty;
+        var byPair = new Dictionary<(string Source, string Target), int>();
+        foreach (var selection in selections)
+        {
+            if (selection.Damage <= 0)
+            {
+                reason = "damage assignment must be a positive integer";
+                return false;
+            }
+
+            var source = serverAssignments.FirstOrDefault(item => string.Equals(item.SourceObjectId, selection.SourceObjectId, StringComparison.Ordinal));
+            if (source is null || !source.Targets.Any(target => string.Equals(target.TargetObjectId, selection.TargetObjectId, StringComparison.Ordinal)))
+            {
+                reason = "damage assignment is not a server-provided choice";
+                return false;
+            }
+
+            var key = (selection.SourceObjectId, selection.TargetObjectId);
+            byPair[key] = byPair.GetValueOrDefault(key) + selection.Damage;
+        }
+
+        var ordered = new List<DamageAssignmentSelection>();
+        foreach (var source in serverAssignments)
+        {
+            var sourceDamage = 0;
+            for (var targetIndex = 0; targetIndex < source.Targets.Count; targetIndex++)
+            {
+                var target = source.Targets[targetIndex];
+                var damage = byPair.GetValueOrDefault((source.SourceObjectId, target.TargetObjectId));
+                sourceDamage += damage;
+                var isLastTarget = targetIndex == source.Targets.Count - 1;
+                if (!isLastTarget && damage > target.LethalDamageThreshold)
+                {
+                    reason = "damage assignment exceeds a server lethalDamageThreshold";
+                    return false;
+                }
+
+                if (!isLastTarget && damage < target.LethalDamageThreshold
+                    && source.Targets.Skip(targetIndex + 1).Any(later => byPair.GetValueOrDefault((source.SourceObjectId, later.TargetObjectId)) > 0))
+                {
+                    reason = "damage assignment must satisfy server target order and lethalDamageThreshold";
+                    return false;
+                }
+
+                if (damage > 0)
+                {
+                    ordered.Add(new DamageAssignmentSelection(source.SourceObjectId, target.TargetObjectId, damage));
+                }
+            }
+
+            if (sourceDamage != source.DamagePool)
+            {
+                reason = "damage assignment must allocate the full server damage pool";
+                return false;
+            }
+        }
+
+        orderedSelections = ordered;
+        return true;
+    }
+
     private static Dictionary<string, string> ReadParticipantLabels(JsonElement battleParticipants)
     {
         var labels = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -657,32 +711,18 @@ public static class SpecialPromptCommandBuilder
         return labels;
     }
 
-    private static Dictionary<string, IReadOnlyList<DamageTargetPromptItem>> ReadAssignmentTargets(
-        JsonElement assignmentChoices,
-        IReadOnlyDictionary<string, string> participantLabels)
+    private static HashSet<(string Source, string Target)> ReadAssignmentChoicePairs(JsonElement assignmentChoices)
     {
-        var result = new Dictionary<string, List<DamageTargetPromptItem>>(StringComparer.Ordinal);
+        var pairs = new HashSet<(string Source, string Target)>();
         foreach (var choice in assignmentChoices.EnumerateArray())
         {
-            if (!TryReadAssignmentChoicePair(choice, out var sourceObjectId, out var targetObjectId)
-                || !participantLabels.TryGetValue(targetObjectId, out var targetLabel))
+            if (TryReadAssignmentChoicePair(choice, out var sourceObjectId, out var targetObjectId))
             {
-                continue;
-            }
-
-            if (!result.TryGetValue(sourceObjectId, out var targets))
-            {
-                targets = [];
-                result[sourceObjectId] = targets;
-            }
-
-            if (!targets.Any(target => string.Equals(target.TargetObjectId, targetObjectId, StringComparison.Ordinal)))
-            {
-                targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel));
+                pairs.Add((sourceObjectId, targetObjectId));
             }
         }
 
-        return result.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<DamageTargetPromptItem>)entry.Value, StringComparer.Ordinal);
+        return pairs;
     }
 
     private static bool TryReadAssignmentChoicePair(
@@ -952,6 +992,29 @@ public static class SpecialPromptCommandBuilder
         return result;
     }
 
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> ReadStringListMap(
+        JsonElement metadata,
+        string propertyName)
+    {
+        var result = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        if (!metadata.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Object)
+        {
+            return result;
+        }
+
+        foreach (var item in property.EnumerateObject())
+        {
+            var values = ReadStringArray(item.Value);
+            if (!string.IsNullOrWhiteSpace(item.Name) && values.Count > 0)
+            {
+                result[item.Name] = values;
+            }
+        }
+
+        return result;
+    }
+
     private static IEnumerable<(string SourceObjectId, IReadOnlyList<string> TargetObjectIds)> StringListMap(
         JsonElement metadata,
         params string[] propertyNames)
@@ -995,6 +1058,14 @@ public static class SpecialPromptCommandBuilder
             JsonValueKind.String when int.TryParse(property.GetString(), out var number) => number,
             _ => 0
         };
+    }
+
+    private static bool ReadBool(JsonElement element, string propertyName, bool fallback)
+    {
+        return element.TryGetProperty(propertyName, out var property)
+            && property.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? property.GetBoolean()
+            : fallback;
     }
 
     private static IReadOnlyList<string> ReadStringArray(JsonElement element, string propertyName)

@@ -110,8 +110,18 @@ public partial class TriggerOrderOverlay : Control
                 select.AddThemeStyleboxOverride("normal", MinimalTheme.Outline(OfficialCardVisualState.Selected));
             }
 
-            var up = new Button { Name = "MoveUpButton", Text = "^", Disabled = !_canUsePrompt || index == 0 };
-            var down = new Button { Name = "MoveDownButton", Text = "v", Disabled = !_canUsePrompt || index == _triggers.Count - 1 };
+            var up = new Button
+            {
+                Name = "MoveUpButton",
+                Text = "^",
+                Disabled = !_canUsePrompt || !CanMoveWithinControllerBlock(index, -1)
+            };
+            var down = new Button
+            {
+                Name = "MoveDownButton",
+                Text = "v",
+                Disabled = !_canUsePrompt || !CanMoveWithinControllerBlock(index, 1)
+            };
             up.Pressed += () => Move(rowIndex, -1);
             down.Pressed += () => Move(rowIndex, 1);
             row.AddChild(select);
@@ -132,7 +142,7 @@ public partial class TriggerOrderOverlay : Control
     private void Move(int index, int delta)
     {
         var targetIndex = index + delta;
-        if (!_canUsePrompt || index < 0 || targetIndex < 0 || targetIndex >= _triggers.Count)
+        if (!_canUsePrompt || !CanMoveWithinControllerBlock(index, delta))
         {
             return;
         }
@@ -140,6 +150,15 @@ public partial class TriggerOrderOverlay : Control
         (_triggers[index], _triggers[targetIndex]) = (_triggers[targetIndex], _triggers[index]);
         _selectedIndex = targetIndex;
         RenderRows();
+    }
+
+    private bool CanMoveWithinControllerBlock(int index, int delta)
+    {
+        var targetIndex = index + delta;
+        return index >= 0
+            && targetIndex >= 0
+            && targetIndex < _triggers.Count
+            && _triggers[index].ControllerBlockIndex == _triggers[targetIndex].ControllerBlockIndex;
     }
 
     private void Confirm()
