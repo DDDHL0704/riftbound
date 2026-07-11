@@ -253,14 +253,24 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
     const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
     const battlefieldCards = Array.from(document.querySelectorAll("[data-arena-battlefield-region] .wire-card-flow-battlefield-unit > .card-face"));
     const baseSlots = Array.from(document.querySelectorAll(".wire-player-self .wire-base-card-grid > :where(.card-face, .wire-card-slot)"));
+    const selfBaseGrid = document.querySelector(".wire-player-self .wire-base-card-grid");
+    const selfBaseGridRect = selfBaseGrid?.getBoundingClientRect();
+    const baseFullyVisibleSlotCount = selfBaseGridRect ? baseSlots.filter((slot) => {
+      const slotRect = slot.getBoundingClientRect();
+      const visibleWidth = Math.min(slotRect.right, selfBaseGridRect.right) - Math.max(slotRect.left, selfBaseGridRect.left);
+      return visibleWidth >= slotRect.width * 0.8;
+    }).length : 0;
     const selfRailRegions = [".wire-hand-rune-deck", ".wire-hand-rune-track", ".wire-hand-cards", ".wire-hand-piles"]
       .map((selector) => selfHandRegion?.querySelector(selector))
       .filter((element) => element instanceof HTMLElement);
     const visibleImageOverlayCount = Array.from(document.querySelectorAll(".arena-table .card-image-cost, .arena-table .card-image-power, .arena-table .card-image-title"))
       .filter((element) => getComputedStyle(element).display !== "none" && isInsideViewport(element)).length;
-    const publicCards = [...homeCards, ...battlefieldCards, ...selfCards, ...opponentCards];
+    const opponentPileCards = Array.from(document.querySelectorAll(".arena-hand.is-opponent .wire-hand-piles > :where(.card-face, .wire-stack-box)"));
+    const publicCards = [...homeCards, ...battlefieldCards, ...selfCards, ...opponentCards, ...opponentPileCards];
     return {
       arenaRect: rectOf(arena),
+      baseFullyVisibleSlotCount,
+      baseGridClientWidth: selfBaseGrid?.clientWidth ?? 0,
       baseSlotCount: baseSlots.length,
       baseSlotOverlapCount: overlapCount(baseSlots),
       battlefieldClientWidth: battlefield?.clientWidth ?? 0,
@@ -321,8 +331,16 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
     failures.push(`rune cards are too small in ${viewportLabel}: ${surface.runeCardMaxHeight}`);
   }
-  if (surface.baseSlotCount < 4) {
-    failures.push(`base must expose at least four independent visual slots in ${viewportLabel}: ${surface.baseSlotCount}`);
+  if (surface.baseSlotCount < 6) {
+    failures.push(`base must expose at least six independent visual slots in ${viewportLabel}: ${surface.baseSlotCount}`);
+  }
+  const minimumBaseGridWidth = mobile ? 90 : surface.viewportWidth >= 1600 ? 820 : surface.viewportWidth < 1400 ? 590 : 670;
+  if (surface.baseGridClientWidth < minimumBaseGridWidth) {
+    failures.push(`base rail does not use enough horizontal space in ${viewportLabel}: ${JSON.stringify({ actual: surface.baseGridClientWidth, minimum: minimumBaseGridWidth })}`);
+  }
+  const minimumVisibleBaseSlots = mobile ? 1 : 6;
+  if (surface.baseFullyVisibleSlotCount < minimumVisibleBaseSlots) {
+    failures.push(`base rail hides too many complete slots in ${viewportLabel}: ${JSON.stringify({ actual: surface.baseFullyVisibleSlotCount, minimum: minimumVisibleBaseSlots })}`);
   }
   if (surface.baseSlotOverlapCount > 0 || surface.publicCardOverlapCount > 0 || surface.selfRailOverlapCount > 0) {
     failures.push(`arena elements overlap in ${viewportLabel}: ${JSON.stringify({ base: surface.baseSlotOverlapCount, cards: surface.publicCardOverlapCount, pairs: surface.publicCardOverlapPairs, rail: surface.selfRailOverlapCount })}`);

@@ -181,7 +181,7 @@ assert.deepEqual(table.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1", "h
 assert.equal(table.opponent.hiddenBattlefieldStandbyCount, 2);
 assert.equal(table.playerPlans.basePlan.kind, "base");
 assert.equal(table.playerPlans.basePlan.itemCount, 1);
-assert.equal(table.playerPlans.basePlan.minSlots, 4);
+assert.equal(table.playerPlans.basePlan.minSlots, 6);
 assert.equal(table.playerPlans.handPlan.kind, "hand");
 assert.equal(table.playerPlans.handPlan.itemCount, 4);
 assert.equal(table.playerPlans.handPlan.cardWidth, 86);

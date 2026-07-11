@@ -22,7 +22,7 @@ requireText(styles, "--wire-card-w: 72px", "public battlefield units must remain
 requireText(styles, "--wire-card-w: 82px", "desktop legend, champion, and base cards must remain readable");
 requireText(styles, "--wire-fixed-pile-card-w: 76px", "desktop deck piles must remain readable");
 requireText(styles, "--wire-rune-card-w: 48px", "desktop rune cards must remain readable");
-requireText(styles, "grid-template-columns: repeat(4, var(--wire-card-w))", "base units must occupy independent visual slots");
+requireText(styles, "grid-template-columns: repeat(6, var(--wire-card-w))", "base units must occupy six independent visual slots");
 requireText(styles, ".card-image-cost, .card-image-power, .card-image-title", "official card thumbnails must hide duplicate overlay labels");
 requireText(styles, "bottom: 12px", "the resting fan must keep complete cards inside the viewport");
 requireText(styles, ".wire-object-command-tray.presentation-arena", "the selected-card tray must use compact arena styling");
