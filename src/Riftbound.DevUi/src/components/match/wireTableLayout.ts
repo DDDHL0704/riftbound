@@ -25,6 +25,34 @@ export type WireSidePanelSlot =
   | "timelineDetail"
   | "turnWindow";
 
+export type ArenaEdgePosition =
+  | "topLeft"
+  | "topCenter"
+  | "topRight"
+  | "bottomLeft"
+  | "bottomCenter"
+  | "bottomRight";
+
+export type ArenaLayoutContract = {
+  battlefieldMinHeightRatio: number;
+  handMaxViewportRatio: number;
+  battlefieldSlots: ["leftSite", "leftLane", "rightLane", "rightSite"];
+  desktopMinWidth: number;
+  compactDesktopMinWidth: number;
+  self: {
+    runes: ArenaEdgePosition;
+    home: ArenaEdgePosition;
+    mainDeck: ArenaEdgePosition;
+    hand: "bottomFan";
+  };
+  opponent: {
+    runes: ArenaEdgePosition;
+    home: ArenaEdgePosition;
+    mainDeck: ArenaEdgePosition;
+    hiddenHand: "topFan";
+  };
+};
+
 export type WireTableRow =
   | { id: string; kind: "battlefield" }
   | { id: string; kind: "handRail"; side: WirePlayerSide }
@@ -94,6 +122,7 @@ export type WireBattlefieldLayout = {
 };
 
 export type WireTableLayout = {
+  arena: ArenaLayoutContract;
   battlefield: WireBattlefieldLayout;
   handRails: Record<WirePlayerSide, WireHandRailLayout>;
   playerHomes: Record<WirePlayerSide, WirePlayerHomeLayout>;
@@ -111,6 +140,7 @@ export type WireTableLayout = {
 type WireCssProperties = CSSProperties & Record<`--${string}`, string | number>;
 
 export const WIRE_TABLE_LAYOUT: WireTableLayout = layoutData as WireTableLayout;
+export const ARENA_LAYOUT: ArenaLayoutContract = WIRE_TABLE_LAYOUT.arena;
 
 export function wireMatchPageStyle(layout: WireTableLayout = WIRE_TABLE_LAYOUT): WireCssProperties {
   const tokens = layout.tokens;
