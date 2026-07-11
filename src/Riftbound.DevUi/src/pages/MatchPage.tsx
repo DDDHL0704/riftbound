@@ -3,6 +3,7 @@ import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
+import { ArenaActionLayer } from "../components/match/ArenaActionLayer";
 import { ArenaTable } from "../components/match/ArenaTable";
 import { ConnectionRecoveryPanel } from "../components/match/ConnectionRecoveryPanel";
 import { EventLog } from "../components/match/EventLog";
@@ -100,6 +101,7 @@ import {
 } from "../utils/matchRecoverySurfacePlan";
 import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
+import { buildArenaPromptPresentation } from "../utils/arenaPromptPresentation";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 import { buildWireObjectCommandTrayPlan } from "../utils/wireObjectCommandTrayPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
@@ -322,6 +324,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const promptTitle = tablePrompt?.view?.title?.trim() || "无行动窗口";
   const promptCanAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
   const canAct = promptCanAct && tableSubmissionGate.canSubmit;
+  const arenaPromptPresentation = useMemo(() => buildArenaPromptPresentation({
+    actionable: canAct,
+    promptType: tablePrompt?.view?.type,
+    selectedObjectId
+  }), [canAct, selectedObjectId, tablePrompt?.view?.type]);
   const topbarQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
     canAct: promptCanAct,
     connected: tableConnectionStatus === "connected",
@@ -1155,26 +1162,45 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </div>
         )}
         actionLayer={(
-          <ActionPanel
-            connectionStatus={tableConnectionStatus}
-            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
-              label: "当前行动",
-              surface: "action-dock"
-            }, routeSource))}
-            onReady={() => void controller.ready({
-              label: "当前行动：准备",
-              surface: "action-dock"
-            })}
-            onSubmitStarterDeck={() => void controller.submitStarterDeck({
-              label: "当前行动：提交构筑",
-              surface: "action-dock"
-            })}
-            playerId={settings.playerId}
-            presentation="play"
-            prompt={tablePrompt}
-            snapshot={tableSnapshot}
-            specs={tableSpecByNo}
-          />
+          <ArenaActionLayer label={promptTitle} plan={arenaPromptPresentation}>
+            <WireObjectCommandTray
+              disabledByConnection={!tableSubmissionGate.canSubmit}
+              focusedPlan={selectedFocusPlan}
+              inspectedCard={inspectedCard}
+              objectContext={selectedObjectContext}
+              onClear={clearInspectedCard}
+              onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+                label: "桌面卡牌行动",
+                objectId: selectedObjectId,
+                surface: "arena-object-actions"
+              }, routeSource))}
+              onOpenDetail={openDetailCard}
+              prompt={tablePrompt}
+              snapshot={tableSnapshot}
+              submissionGate={tableSubmissionGate}
+              trayPlan={selectedObjectCommandTrayPlan}
+            />
+            <ActionPanel
+              connectionStatus={tableConnectionStatus}
+              onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+                label: "当前行动",
+                surface: "arena-action-layer"
+              }, routeSource))}
+              onReady={() => void controller.ready({
+                label: "当前行动：准备",
+                surface: "arena-action-layer"
+              })}
+              onSubmitStarterDeck={() => void controller.submitStarterDeck({
+                label: "当前行动：提交构筑",
+                surface: "arena-action-layer"
+              })}
+              playerId={settings.playerId}
+              presentation="play"
+              prompt={tablePrompt}
+              snapshot={tableSnapshot}
+              specs={tableSpecByNo}
+            />
+          </ArenaActionLayer>
         )}
         canAct={canAct}
         connectionLabel={connectionStatusLabel(tableConnectionStatus)}
@@ -1186,25 +1212,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           />
         )}
         matchId={matchId}
-        objectTray={(
-          <WireObjectCommandTray
-            disabledByConnection={!tableSubmissionGate.canSubmit}
-            focusedPlan={selectedFocusPlan}
-            inspectedCard={inspectedCard}
-            objectContext={selectedObjectContext}
-            onClear={clearInspectedCard}
-            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
-              label: "桌面卡牌行动",
-              objectId: selectedObjectId,
-              surface: "object-command-tray"
-            }, routeSource))}
-            onOpenDetail={openDetailCard}
-            prompt={tablePrompt}
-            snapshot={tableSnapshot}
-            submissionGate={tableSubmissionGate}
-            trayPlan={selectedObjectCommandTrayPlan}
-          />
-        )}
         onExit={() => onNavigate({ name: "lobby" })}
         phaseLabel={matchPhaseLabel(phase)}
         promptTitle={promptTitle}

@@ -9,7 +9,6 @@ export type PlayableMatchSurfaceProps = {
   debugContent: ReactNode;
   guidance: ReactNode;
   matchId: string;
-  objectTray?: ReactNode;
   onExit: () => void;
   phaseLabel: string;
   promptTitle: string;
@@ -28,7 +27,6 @@ export function PlayableMatchSurface({
   debugContent,
   guidance,
   matchId,
-  objectTray,
   onExit,
   phaseLabel,
   promptTitle,
@@ -62,10 +60,7 @@ export function PlayableMatchSurface({
 
       <section className="wire-table-shell game-table-stage" data-game-table tabIndex={0}>
         {table}
-        <div className="arena-action-layer" data-arena-action-layer>
-          {objectTray ? <div className="game-object-tray">{objectTray}</div> : null}
-          {actionLayer}
-        </div>
+        <div className="arena-action-layer" data-arena-action-layer>{actionLayer}</div>
       </section>
 
       <details className="game-debug-drawer" data-game-debug-drawer>
