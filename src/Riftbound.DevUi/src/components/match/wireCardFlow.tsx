@@ -29,6 +29,7 @@ type WireCardFlowProps = {
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard?: (card?: InspectedCard) => void;
   plan?: WireCardFlowPlan;
+  presentation?: "rail" | "fan";
   renderEmptySlots?: boolean;
   selectedObjectId?: string;
   specs: Record<string, BehaviorSpec>;
@@ -49,6 +50,7 @@ export function WireCardFlow({
   onInspectCard,
   onPreviewCard,
   plan: providedPlan,
+  presentation = "rail",
   renderEmptySlots = false,
   selectedObjectId,
   specs,
@@ -92,6 +94,7 @@ export function WireCardFlow({
         const object = objects[id] ?? hiddenObject(id);
         return (
           <CardFace
+            className={presentation === "fan" ? "arena-fan-card" : undefined}
             compact
             interactionHint={hintByObjectId?.[id]}
             interactionState={interactionByObjectId?.[id]}
@@ -102,6 +105,7 @@ export function WireCardFlow({
             onPreview={onPreviewCard}
             selected={selectedObjectId === id}
             spec={object.cardNo ? specs[object.cardNo] : undefined}
+            style={presentation === "fan" ? fanCardStyle(index, ids.length) : undefined}
             timelineState={timelineByObjectId?.[id]}
           />
         );
@@ -184,6 +188,14 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
     "--wire-card-w": `${flowPlan.cardWidth}px`,
     "--wire-flow-gap": `${flowPlan.gap}px`,
     "--wire-flow-visible-slots": flowPlan.visibleSlotCount
+  };
+}
+
+function fanCardStyle(index: number, count: number): WireCssProperties {
+  return {
+    "--arena-fan-index": index,
+    "--arena-fan-count": count,
+    "--arena-fan-center": (count - 1) / 2
   };
 }
 
