@@ -253,13 +253,43 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
     const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
     const battlefieldCards = Array.from(document.querySelectorAll("[data-arena-battlefield-region] .wire-card-flow-battlefield-unit > .card-face"));
     const baseSlots = Array.from(document.querySelectorAll(".wire-player-self .wire-base-card-grid > :where(.card-face, .wire-card-slot)"));
+    const opponentBaseSlots = Array.from(document.querySelectorAll(".wire-player-opponent .wire-base-card-grid > :where(.card-face, .wire-card-slot)"));
     const selfBaseGrid = document.querySelector(".wire-player-self .wire-base-card-grid");
+    const opponentBaseGrid = document.querySelector(".wire-player-opponent .wire-base-card-grid");
     const selfBaseGridRect = selfBaseGrid?.getBoundingClientRect();
-    const baseFullyVisibleSlotCount = selfBaseGridRect ? baseSlots.filter((slot) => {
+    const opponentBaseGridRect = opponentBaseGrid?.getBoundingClientRect();
+    const fullyVisibleSlotCount = (gridRect, slots) => gridRect ? slots.filter((slot) => {
       const slotRect = slot.getBoundingClientRect();
-      const visibleWidth = Math.min(slotRect.right, selfBaseGridRect.right) - Math.max(slotRect.left, selfBaseGridRect.left);
+      const visibleWidth = Math.min(slotRect.right, gridRect.right) - Math.max(slotRect.left, gridRect.left);
       return visibleWidth >= slotRect.width * 0.8;
     }).length : 0;
+    const baseFullyVisibleSlotCount = fullyVisibleSlotCount(selfBaseGridRect, baseSlots);
+    const opponentBaseFullyVisibleSlotCount = fullyVisibleSlotCount(opponentBaseGridRect, opponentBaseSlots);
+    const selfHome = document.querySelector(".wire-player-self.wire-player-home");
+    const opponentHome = document.querySelector(".wire-player-opponent.wire-player-home");
+    const arenaRect = arena?.getBoundingClientRect();
+    const mirrorAxis = arenaRect ? arenaRect.left + arenaRect.right : window.innerWidth;
+    const horizontalMirrorError = (selfElement, opponentElement) => {
+      const selfRect = selfElement?.getBoundingClientRect();
+      const opponentRect = opponentElement?.getBoundingClientRect();
+      if (!selfRect || !opponentRect) return 10_000;
+      return Math.max(
+        Math.abs(opponentRect.left - (mirrorAxis - selfRect.right)),
+        Math.abs(opponentRect.right - (mirrorAxis - selfRect.left)),
+        Math.abs(opponentRect.width - selfRect.width),
+        Math.abs(opponentRect.height - selfRect.height)
+      );
+    };
+    const playerHomeSymmetryError = Math.max(...[
+      null,
+      ".wire-home-legend",
+      ".wire-home-hero",
+      ".wire-home-base",
+      ".wire-home-score-token"
+    ].map((selector) => horizontalMirrorError(
+      selector ? selfHome?.querySelector(selector) : selfHome,
+      selector ? opponentHome?.querySelector(selector) : opponentHome
+    )));
     const selfRailRegions = [".wire-hand-rune-deck", ".wire-hand-rune-track", ".wire-hand-cards", ".wire-hand-piles"]
       .map((selector) => selfHandRegion?.querySelector(selector))
       .filter((element) => element instanceof HTMLElement);
@@ -271,8 +301,9 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       arenaRect: rectOf(arena),
       baseFullyVisibleSlotCount,
       baseGridClientWidth: selfBaseGrid?.clientWidth ?? 0,
+      baseGridWidthDifference: Math.abs((selfBaseGrid?.clientWidth ?? 0) - (opponentBaseGrid?.clientWidth ?? 0)),
       baseSlotCount: baseSlots.length,
-      baseSlotOverlapCount: overlapCount(baseSlots),
+      baseSlotOverlapCount: overlapCount([...baseSlots, ...opponentBaseSlots]),
       battlefieldClientWidth: battlefield?.clientWidth ?? 0,
       battlefieldHeightRatio: tableRect && battlefieldRect ? battlefieldRect.height / tableRect.height : 0,
       battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
@@ -286,11 +317,15 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       hasTable: Boolean(table),
       legalTargetOcclusions,
       opponentBackCount: opponentCards.filter((card) => card.classList.contains("card-back")).length,
+      opponentBaseFullyVisibleSlotCount,
+      opponentBaseGridClientWidth: opponentBaseGrid?.clientWidth ?? 0,
+      opponentBaseSlotCount: opponentBaseSlots.length,
       opponentCardCount: opponentCards.length,
       opponentFrontCount: opponentCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
       opponentNeutralLabelCount: opponentCards.filter((card) => card.getAttribute("aria-label") === "未公开卡牌").length,
       pileBoxCount: pileBoxes.length,
       pileBoxMaxHeight: pileBoxes.reduce((height, box) => Math.max(height, box.getBoundingClientRect().height), 0),
+      playerHomeSymmetryError,
       publicCardOverlapCount: overlapCount(publicCards),
       publicCardOverlapPairs: overlapPairs(publicCards),
       runeCardCount: runeCards.length,
@@ -331,8 +366,8 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
     failures.push(`rune cards are too small in ${viewportLabel}: ${surface.runeCardMaxHeight}`);
   }
-  if (surface.baseSlotCount < 6) {
-    failures.push(`base must expose at least six independent visual slots in ${viewportLabel}: ${surface.baseSlotCount}`);
+  if (surface.baseSlotCount < 6 || surface.opponentBaseSlotCount < 6) {
+    failures.push(`both bases must expose at least six independent visual slots in ${viewportLabel}: ${JSON.stringify({ self: surface.baseSlotCount, opponent: surface.opponentBaseSlotCount })}`);
   }
   const minimumBaseGridWidth = mobile ? 90 : surface.viewportWidth >= 1600 ? 820 : surface.viewportWidth < 1400 ? 590 : 670;
   if (surface.baseGridClientWidth < minimumBaseGridWidth) {
@@ -341,6 +376,12 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   const minimumVisibleBaseSlots = mobile ? 1 : 6;
   if (surface.baseFullyVisibleSlotCount < minimumVisibleBaseSlots) {
     failures.push(`base rail hides too many complete slots in ${viewportLabel}: ${JSON.stringify({ actual: surface.baseFullyVisibleSlotCount, minimum: minimumVisibleBaseSlots })}`);
+  }
+  if (!mobile && surface.opponentBaseFullyVisibleSlotCount < minimumVisibleBaseSlots) {
+    failures.push(`opponent base rail hides too many complete slots in ${viewportLabel}: ${JSON.stringify({ actual: surface.opponentBaseFullyVisibleSlotCount, minimum: minimumVisibleBaseSlots })}`);
+  }
+  if (!mobile && (surface.playerHomeSymmetryError > 2 || surface.baseGridWidthDifference > 2)) {
+    failures.push(`player public zones must mirror around the arena center in ${viewportLabel}: ${JSON.stringify({ symmetryError: surface.playerHomeSymmetryError, baseGridWidthDifference: surface.baseGridWidthDifference, selfBaseWidth: surface.baseGridClientWidth, opponentBaseWidth: surface.opponentBaseGridClientWidth })}`);
   }
   if (surface.baseSlotOverlapCount > 0 || surface.publicCardOverlapCount > 0 || surface.selfRailOverlapCount > 0) {
     failures.push(`arena elements overlap in ${viewportLabel}: ${JSON.stringify({ base: surface.baseSlotOverlapCount, cards: surface.publicCardOverlapCount, pairs: surface.publicCardOverlapPairs, rail: surface.selfRailOverlapCount })}`);
