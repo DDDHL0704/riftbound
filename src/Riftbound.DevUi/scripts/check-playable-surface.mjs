@@ -9,6 +9,7 @@ const lobbySource = read("src/pages/LobbyPage.tsx");
 const roomSource = read("src/pages/RoomPage.tsx");
 const matchSource = read("src/pages/MatchPage.tsx");
 const playableMatchSource = readIfPresent("src/components/match/PlayableMatchSurface.tsx");
+const arenaTableSource = readIfPresent("src/components/match/ArenaTable.tsx");
 const candidateComposerSource = read("src/components/match/CandidateComposer.tsx");
 const cardDetailSource = read("src/components/cards/CardDetailDrawer.tsx");
 const resultSource = read("src/pages/ResultPage.tsx");
@@ -45,7 +46,12 @@ for (const technicalSurface of ["<RoomWorkflowSurface", "<RoomSubmissionReceipt"
 
 requireText(playableMatchSource, "data-playable-match-surface", "match must expose the playable surface marker");
 requireText(playableMatchSource, "data-game-table", "playable match must expose the game table");
-requireText(playableMatchSource, "data-game-action-dock", "playable match must expose the action dock");
+requireText(arenaTableSource, "data-arena-table", "match must expose the arena table");
+for (const slot of ["opponent-edge", "battlefield", "self-edge", "opponent-hand", "self-hand"]) {
+  requireText(arenaTableSource, `data-arena-slot=\"${slot}\"`, `arena is missing ${slot}`);
+}
+rejectText(playableMatchSource, "data-game-action-dock", "fixed action dock must be removed");
+requireText(playableMatchSource, "data-arena-action-layer", "context actions must remain inside an overlay layer");
 requireText(playableMatchSource, "data-game-debug-drawer", "playable match must retain collapsed diagnostics");
 requireText(playableMatchSource, 'className="game-debug-drawer"', "match diagnostics must use a closed details element");
 requireText(matchSource, "<PlayableMatchSurface", "MatchPage must compose the new playable surface");
@@ -84,6 +90,12 @@ function readIfPresent(relativePath) {
 
 function requireText(source, expected, message) {
   if (!source.includes(expected)) {
+    errors.push(message);
+  }
+}
+
+function rejectText(source, rejected, message) {
+  if (source.includes(rejected)) {
     errors.push(message);
   }
 }

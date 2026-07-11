@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { Button } from "../ui/Button";
 
 export type PlayableMatchSurfaceProps = {
-  actionDock: ReactNode;
+  actionLayer: ReactNode;
   canAct: boolean;
   connectionLabel: string;
   debugContent: ReactNode;
@@ -22,7 +22,7 @@ export type PlayableMatchSurfaceProps = {
 };
 
 export function PlayableMatchSurface({
-  actionDock,
+  actionLayer,
   canAct,
   connectionLabel,
   debugContent,
@@ -62,15 +62,10 @@ export function PlayableMatchSurface({
 
       <section className="wire-table-shell game-table-stage" data-game-table tabIndex={0}>
         {table}
-        {objectTray ? <div className="game-object-tray">{objectTray}</div> : null}
-      </section>
-
-      <section className="game-action-dock" data-game-action-dock>
-        <div className="game-action-dock-title">
-          <span>{canAct ? "选择你的行动" : "当前状态"}</span>
-          <strong>{promptTitle}</strong>
+        <div className="arena-action-layer" data-arena-action-layer>
+          {objectTray ? <div className="game-object-tray">{objectTray}</div> : null}
+          {actionLayer}
         </div>
-        <div className="game-action-dock-body">{actionDock}</div>
       </section>
 
       <details className="game-debug-drawer" data-game-debug-drawer>

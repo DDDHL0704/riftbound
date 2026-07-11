@@ -3,6 +3,7 @@ import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
+import { ArenaTable } from "../components/match/ArenaTable";
 import { ConnectionRecoveryPanel } from "../components/match/ConnectionRecoveryPanel";
 import { EventLog } from "../components/match/EventLog";
 import { CommandSubmissionFeedbackPanel, WireActionMapPanel } from "../components/match/WireActionMapPanel";
@@ -49,8 +50,7 @@ import {
   type WireSidePanelSlot,
   wireGridColumnsStyle,
   wireGridTemplateStyle,
-  wireMatchPageStyle,
-  wireTableStyle
+  wireMatchPageStyle
 } from "../components/match/wireTableLayout";
 import {
   buildWireInteractionMap,
@@ -430,50 +430,46 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       spec: object.cardNo ? tableSpecByNo[object.cardNo] : undefined
     });
   }, [inspectCard, tableObjectIndex, tableSpecByNo]);
-  const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
-    if (row.kind === "battlefield") {
-      return (
+  const renderHand = (side: WirePlayerEntry["side"], entry?: WirePlayerEntry) => (
+    <WireHandRail
+      entry={entry}
+      fallbackSide={side}
+      handPlan={tableView.playerPlans.handPlan}
+      hidden={side === "opponent"}
+      interaction={tableInteraction}
+      onInspectCard={inspectCard}
+      onPreviewCard={queuePreviewCard}
+      specs={tableSpecByNo}
+    />
+  );
+  const renderHome = (side: WirePlayerEntry["side"], entry?: WirePlayerEntry) => (
+    <WirePlayerHome
+      entry={entry}
+      fallbackSide={side}
+      basePlan={tableView.playerPlans.basePlan}
+      interaction={tableInteraction}
+      onInspectCard={inspectCard}
+      onPreviewCard={queuePreviewCard}
+      specs={tableSpecByNo}
+    />
+  );
+  const arenaTable = (
+    <ArenaTable
+      battlefield={(
         <WireBattlefieldTable
           battlefield={tableView.battlefield}
           interaction={tableInteraction}
-          key={row.id}
           onInspectCard={inspectCard}
           onPreviewCard={queuePreviewCard}
           specs={tableSpecByNo}
         />
-      );
-    }
-
-    const entry = row.side === "self" ? self : opponent;
-    if (row.kind === "handRail") {
-      return (
-        <WireHandRail
-          entry={entry}
-          fallbackSide={row.side}
-          handPlan={tableView.playerPlans.handPlan}
-          hidden={row.side === "opponent"}
-          interaction={tableInteraction}
-          key={row.id}
-          onInspectCard={inspectCard}
-          onPreviewCard={queuePreviewCard}
-          specs={tableSpecByNo}
-        />
-      );
-    }
-
-    return (
-      <WirePlayerHome
-        entry={entry}
-        fallbackSide={row.side}
-        basePlan={tableView.playerPlans.basePlan}
-        interaction={tableInteraction}
-        key={row.id}
-        onInspectCard={inspectCard}
-        onPreviewCard={queuePreviewCard}
-        specs={tableSpecByNo}
-      />
-    );
-  });
+      )}
+      opponentEdge={renderHome("opponent", opponent)}
+      opponentHand={renderHand("opponent", opponent)}
+      selfEdge={renderHome("self", self)}
+      selfHand={renderHand("self", self)}
+    />
+  );
 
   useEffect(() => {
     if (roomStatus === "FINISHED") {
@@ -1158,7 +1154,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </aside>
           </div>
         )}
-        actionDock={(
+        actionLayer={(
           <ActionPanel
             connectionStatus={tableConnectionStatus}
             onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
@@ -1244,7 +1240,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           />
         )}
         style={wireMatchPageStyle()}
-        table={<div className="wire-table game-table-projection" style={wireTableStyle()}>{tableRows}</div>}
+        table={arenaTable}
         turnNumber={tableSnapshot?.turnNumber ?? 0}
         windowLabel={timingStateLabel(windowState)}
       />
