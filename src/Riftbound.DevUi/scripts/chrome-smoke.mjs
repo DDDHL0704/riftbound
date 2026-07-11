@@ -193,6 +193,9 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       .map((element) => element.getAttribute("data-object-id") ?? "unknown");
     const opponentCards = Array.from(opponentHand?.querySelectorAll(".arena-fan-card") ?? []);
     const selfCards = Array.from(selfHand?.querySelectorAll(".arena-fan-card") ?? []);
+    const homeCards = Array.from(document.querySelectorAll(".wire-player-home .card-face")).filter(isInsideViewport);
+    const pileBoxes = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-stack-box")).filter(isInsideViewport);
+    const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
     return {
       arenaRect: rectOf(arena),
       battlefieldClientWidth: battlefield?.clientWidth ?? 0,
@@ -200,6 +203,8 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
       debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
       handViewportRatio: handRect ? handRect.height / window.innerHeight : 1,
+      homeCardCount: homeCards.length,
+      homeCardMaxHeight: homeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       hasArena: Boolean(arena),
       hasFixedDock: Boolean(document.querySelector("[data-game-action-dock]")),
       hasRoot: Boolean(root),
@@ -209,6 +214,10 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       opponentCardCount: opponentCards.length,
       opponentFrontCount: opponentCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
       opponentNeutralLabelCount: opponentCards.filter((card) => card.getAttribute("aria-label") === "未公开卡牌").length,
+      pileBoxCount: pileBoxes.length,
+      pileBoxMaxHeight: pileBoxes.reduce((height, box) => Math.max(height, box.getBoundingClientRect().height), 0),
+      runeCardCount: runeCards.length,
+      runeCardMaxHeight: runeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
       scrollHeight: document.documentElement.scrollHeight,
       scrollWidth: document.documentElement.scrollWidth,
@@ -231,6 +240,18 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   if (surface.scoreTokenCount < 2) {
     failures.push(`both score tokens must be visible: ${surface.scoreTokenCount}`);
   }
+  const minimumHomeCardHeight = mobile ? 77 : surface.viewportWidth >= 1600 ? 100 : 89;
+  if (surface.homeCardCount > 0 && surface.homeCardMaxHeight < minimumHomeCardHeight) {
+    failures.push(`public legend, champion, and base cards are too small in ${viewportLabel}: ${surface.homeCardMaxHeight}`);
+  }
+  const minimumPileBoxHeight = mobile ? 75 : 83;
+  if (surface.pileBoxCount > 0 && surface.pileBoxMaxHeight < minimumPileBoxHeight) {
+    failures.push(`deck piles are too small in ${viewportLabel}: ${surface.pileBoxMaxHeight}`);
+  }
+  const minimumRuneCardHeight = mobile ? 47 : 52;
+  if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
+    failures.push(`rune cards are too small in ${viewportLabel}: ${surface.runeCardMaxHeight}`);
+  }
   if (surface.selfCardCount < 1 || surface.selfFrontCount < 1) {
     failures.push(`self hand must show official card fronts: ${JSON.stringify({ cards: surface.selfCardCount, fronts: surface.selfFrontCount })}`);
   }
@@ -248,7 +269,7 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       neutralLabels: surface.opponentNeutralLabelCount
     })}`);
   }
-  const minimumBattlefieldRatio = mobile ? 0.619 : 0.649;
+  const minimumBattlefieldRatio = mobile ? 0.519 : 0.499;
   if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
     failures.push(`public battlefield is too short in ${viewportLabel}: ${surface.battlefieldHeightRatio}`);
   }

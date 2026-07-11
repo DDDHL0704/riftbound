@@ -13,7 +13,7 @@
 - Modify only the Web client and its documentation; do not change `Riftbound.Engine`, `Riftbound.Contracts`, `Riftbound.Api`, or gameplay rules.
 - All legality, candidates, payment choices, and target highlights come from the player-scoped server snapshot and `ActionPromptDto`.
 - Opponent hand and face-down standby objects expose card backs and counts only, including accessible labels and background-art selection.
-- At 1440x900 and 1920x1080, the battlefield/unit region is at least 65% of effective table height and the resting local hand is at most 18% of viewport height.
+- At 1440x900 and 1920x1080, the battlefield/unit region is about 50% of effective table height so public player zones remain readable; the resting local hand is at most 18% of viewport height.
 - At 1280x720, every core action remains reachable without document-level vertical scrolling; 390x844 uses a separate vertical layout.
 - Use complete official card fronts and existing fallback cards. Do not draw replacement frames over official art.
 - Every task follows red-green verification and ends in a focused commit.
@@ -37,7 +37,7 @@
 ```js
 const arena = layout.arena;
 assert(arena, "wireTableLayoutData.json must define arena");
-assert(arena.battlefieldMinHeightRatio >= 0.65, "battlefield ratio must be at least 0.65");
+assert(arena.battlefieldMinHeightRatio >= 0.5, "balanced battlefield ratio must be at least 0.5");
 assert(arena.handMaxViewportRatio <= 0.18, "hand ratio must be at most 0.18");
 assert.deepEqual(arena.battlefieldSlots, ["leftSite", "leftLane", "rightLane", "rightSite"]);
 assert.equal(arena.self.runes, "bottomLeft");
@@ -69,7 +69,7 @@ export type ArenaLayoutContract = {
 export const ARENA_LAYOUT = WIRE_TABLE_LAYOUT.arena;
 ```
 
-Add JSON values `0.65`, `0.18`, `1280`, and `900`, with the approved edge positions. Preserve existing semantic zone mappings while the old row values remain temporarily available to regression tests.
+Add JSON values `0.50`, `0.18`, `1280`, and `900`, with the approved edge positions. Preserve existing semantic zone mappings while the old row values remain temporarily available to regression tests.
 
 - [x] **Step 4: Register and run the check**
 
@@ -349,7 +349,7 @@ git commit -m "Move server prompts into arena action layers"
 
 ```js
 requireText(mainSource, 'import "./styles/arena-table.css";', "arena CSS must load last");
-requireText(styles, "min-height: 65%", "battlefield region must reserve 65% effective height");
+requireText(styles, "min-height: 50%", "battlefield region must reserve half the effective height");
 requireText(styles, "max-height: 18dvh", "resting hand must remain under 18% viewport height");
 requireText(styles, "@media (max-width: 899px)", "mobile must have an independent layout");
 requireText(styles, ".arena-side-drawer", "diagnostics must use a right drawer");
@@ -368,7 +368,7 @@ Add a helper in `MatchPage` that searches only `entry.zones.championZone` and `e
 
 - [x] **Step 4: Implement desktop geometry in the final stylesheet**
 
-Use one absolute/grid arena containing top/bottom edge rails, the 65% battlefield core, side battlefield cards, and bottom/top fan overlays. Override legacy `!important` declarations only under `.playable-match-surface:has([data-arena-table])` so lobby, room, result, and diagnostic routes are unaffected.
+Use one absolute/grid arena containing expanded top/bottom edge rails, the balanced 50% battlefield core, side battlefield cards, and bottom/top fan overlays. Override legacy `!important` declarations only under `.playable-match-surface:has([data-arena-table])` so lobby, room, result, and diagnostic routes are unaffected.
 
 Use these state tokens exactly:
 
@@ -438,7 +438,7 @@ return {
 };
 ```
 
-For 1440x900 and 1920x1080, fail below `0.65` battlefield ratio or above `0.18` hand ratio. Fail any desktop viewport with a fixed dock or document overflow.
+For 1440x900 and 1920x1080, fail below `0.50` battlefield ratio or above `0.18` hand ratio. Fail any desktop viewport with a fixed dock or document overflow.
 
 - [x] **Step 2: Add legal-target occlusion and hidden-hand checks**
 

@@ -1,7 +1,7 @@
 {
   "runeDeckSize": 12,
   "arena": {
-    "battlefieldMinHeightRatio": 0.65,
+    "battlefieldMinHeightRatio": 0.5,
     "handMaxViewportRatio": 0.18,
     "battlefieldSlots": ["leftSite", "leftLane", "rightLane", "rightSite"],
     "desktopMinWidth": 1280,

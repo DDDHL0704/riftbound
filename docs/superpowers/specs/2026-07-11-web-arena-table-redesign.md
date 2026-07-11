@@ -50,8 +50,8 @@ The desktop arrangement is:
   right battlefield card is anchored to the outer right edge.
 - The two lane interiors occupy the center and each place opponent units above
   local units. Standby slots remain visibly associated with their side and lane.
-- The battlefield and unit region receives at least 65% of the effective table
-  height at 1440x900 and 1920x1080.
+- The battlefield and unit region receives about 50% of the effective table
+  height at 1440x900 and 1920x1080, leaving expanded public player zones.
 - Local runes and the rune deck form a compact cluster in the lower-left
   viewpoint corner. Main deck, banish, and related piles occupy the lower-right.
   The opponent arrangement mirrors this at the top.
@@ -183,7 +183,7 @@ rather than reimplemented with local rule branches.
 
 ## Acceptance And Evidence
 
-- At 1440x900 and 1920x1080, automated geometry checks measure at least 65%
+- At 1440x900 and 1920x1080, automated geometry checks measure at least 50%
   effective table height for the battlefield/unit region and no more than 18%
   resting viewport height for the local hand.
 - No fixed bottom action dock exists, the document has no match-route vertical

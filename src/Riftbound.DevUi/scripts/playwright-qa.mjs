@@ -786,6 +786,9 @@ async function assertMatchStateSurface(page, shot) {
     const paySubmitRect = paySubmitButton?.getBoundingClientRect();
     const opponentCards = Array.from(opponentHandCards?.querySelectorAll(".arena-fan-card") ?? []);
     const selfCards = Array.from(selfHandCards?.querySelectorAll(".arena-fan-card") ?? []);
+    const homeCards = Array.from(document.querySelectorAll(".wire-player-home .card-face")).filter(isInsideViewport);
+    const pileBoxes = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-stack-box")).filter(isInsideViewport);
+    const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
     return {
       actionEntryCount: actionLayer?.querySelectorAll("[data-action-render-action]").length ?? 0,
       actionLayerMode: actionLayer?.getAttribute("data-arena-action-mode") ?? "none",
@@ -799,6 +802,8 @@ async function assertMatchStateSurface(page, shot) {
       bodyScrollWidth: document.documentElement.scrollWidth,
       debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
       handViewportRatio: selfHandRect ? selfHandRect.height / window.innerHeight : 1,
+      homeCardCount: homeCards.length,
+      homeCardMaxHeight: homeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       hasArena: Boolean(arena),
       hasFixedDock: Boolean(document.querySelector("[data-game-action-dock]")),
       hasRoot: Boolean(root),
@@ -815,6 +820,10 @@ async function assertMatchStateSurface(page, shot) {
         top: paySubmitRect?.top ?? 0,
         visible: paySubmitButton instanceof HTMLElement && paySubmitButton.offsetParent !== null
       } : null,
+      pileBoxCount: pileBoxes.length,
+      pileBoxMaxHeight: pileBoxes.reduce((height, box) => Math.max(height, box.getBoundingClientRect().height), 0),
+      runeCardCount: runeCards.length,
+      runeCardMaxHeight: runeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
       selfCardCount: selfCards.length,
       selfCardMaxBottom: selfCards.reduce((bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom), 0),
@@ -834,6 +843,18 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (surface.scoreTokenCount < 2) {
     failures.push(`playable table must show both player score tokens: ${surface.scoreTokenCount}`);
+  }
+  const minimumHomeCardHeight = mobile ? 77 : surface.viewportWidth >= 1600 ? 100 : 89;
+  if (surface.homeCardCount > 0 && surface.homeCardMaxHeight < minimumHomeCardHeight) {
+    failures.push(`public legend, champion, and base cards are too small: ${JSON.stringify({ actual: surface.homeCardMaxHeight, minimum: minimumHomeCardHeight })}`);
+  }
+  const minimumPileBoxHeight = mobile ? 75 : 83;
+  if (surface.pileBoxCount > 0 && surface.pileBoxMaxHeight < minimumPileBoxHeight) {
+    failures.push(`deck piles are too small: ${JSON.stringify({ actual: surface.pileBoxMaxHeight, minimum: minimumPileBoxHeight })}`);
+  }
+  const minimumRuneCardHeight = mobile ? 47 : 52;
+  if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
+    failures.push(`rune cards are too small: ${JSON.stringify({ actual: surface.runeCardMaxHeight, minimum: minimumRuneCardHeight })}`);
   }
   if (surface.selfCardCount > 0 && surface.selfFrontCount < 1) {
     failures.push(`visible self cards must render official card fronts: ${JSON.stringify({
@@ -859,7 +880,7 @@ async function assertMatchStateSurface(page, shot) {
       neutralLabels: surface.opponentNeutralLabelCount
     })}`);
   }
-  const minimumBattlefieldRatio = mobile ? 0.619 : 0.649;
+  const minimumBattlefieldRatio = mobile ? 0.519 : 0.499;
   if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
     failures.push(`public battlefield is too short: ${JSON.stringify({ actual: surface.battlefieldHeightRatio, minimum: minimumBattlefieldRatio })}`);
   }

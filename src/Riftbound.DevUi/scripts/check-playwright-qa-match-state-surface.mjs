@@ -32,6 +32,9 @@ for (const arenaSelector of [
 for (const arenaMetric of [
   "battlefieldHeightRatio",
   "handViewportRatio",
+  "homeCardMaxHeight",
+  "pileBoxMaxHeight",
+  "runeCardMaxHeight",
   "hasFixedDock",
   "legalTargetOcclusions",
   "opponentNeutralLabelCount"
@@ -109,7 +112,15 @@ assert.match(
   "Chrome smoke must keep player-facing match surface checks in a named helper."
 );
 
-for (const arenaSmokeMetric of ["battlefieldHeightRatio", "handViewportRatio", "hasFixedDock", "legalTargetOcclusions"]) {
+for (const arenaSmokeMetric of [
+  "battlefieldHeightRatio",
+  "handViewportRatio",
+  "homeCardMaxHeight",
+  "pileBoxMaxHeight",
+  "runeCardMaxHeight",
+  "hasFixedDock",
+  "legalTargetOcclusions"
+]) {
   assert.ok(chromeSmokeSource.includes(arenaSmokeMetric), `Chrome smoke must assert ${arenaSmokeMetric}.`);
 }
 
