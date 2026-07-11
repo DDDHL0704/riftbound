@@ -20,13 +20,17 @@ assert(existsSync(layerPath), "arena action layer component must exist");
 const { buildArenaPromptPresentation } = loadTsModule(planPath).exports;
 assert.deepEqual(
   buildArenaPromptPresentation({ actionable: false, promptType: "MAIN_ACTION", selectedObjectId: "unit-1" }),
+  { mode: "context", anchorObjectId: "unit-1" }
+);
+assert.deepEqual(
+  buildArenaPromptPresentation({ actionable: false, promptType: "MAIN_ACTION" }),
   { mode: "hidden", anchorObjectId: undefined }
 );
 assert.deepEqual(
   buildArenaPromptPresentation({ actionable: true, promptType: "MAIN_ACTION", selectedObjectId: "unit-1" }),
   { mode: "context", anchorObjectId: "unit-1" }
 );
-for (const promptType of ["MULLIGAN", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS"]) {
+for (const promptType of ["MULLIGAN", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS", "PAY_COST", "HAND_CHOICE"]) {
   assert.deepEqual(
     buildArenaPromptPresentation({ actionable: true, promptType, selectedObjectId: "unit-1" }),
     { mode: "modal", anchorObjectId: undefined },
@@ -43,6 +47,7 @@ const surfaceSource = readFileSync(surfacePath, "utf8");
 assert(layerSource.includes("data-arena-action-mode"), "action layer must expose its presentation mode");
 assert(layerSource.includes("data-object-id"), "context mode must anchor from the selected card DOM");
 assert(layerSource.includes("--arena-action-translate-y"), "context mode must open above lower-half cards and below upper-half cards");
+assert(layerSource.includes("const panelWidth = Math.min(600"), "desktop context actions must clamp their horizontal anchor inside the table");
 assert(actionPanelSource.includes('presentation?: "diagnostic" | "play" | "arena"'), "action panel must expose the compact arena presentation");
 assert(actionPanelSource.includes("data-arena-action-choices"), "arena presentation must expose progressive action choices");
 assert(actionPanelSource.includes("aria-expanded"), "arena action choices must announce their expanded state");
@@ -53,6 +58,7 @@ assert(objectTraySource.includes("presentation={presentation}"), "object tray mu
 assert(matchPageSource.includes('presentation="arena"'), "the match arena must use the compact action presentation");
 assert.equal(matchPageSource.match(/presentation="arena"/g)?.length, 2, "the match arena must compact both the object tray and action panel");
 assert(matchPageSource.includes('arenaPromptPresentation.mode === "modal"'), "the global action panel must stay hidden for direct-selection prompts");
+assert(matchPageSource.includes('event.key !== "Escape"'), "Escape must clear the current client-side table selection draft");
 assert(!surfaceSource.includes("game-action-dock"), "legacy action dock must not return");
 
 console.log("Arena action-layer check passed.");

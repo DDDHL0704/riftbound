@@ -20,7 +20,7 @@ const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollo
 const wireLayoutGeometryViewports = [
   { height: 1080, label: "1920x1080", width: 1920 },
   { height: 900, label: "1440x900", width: 1440 },
-  { height: 800, label: "1280x800", width: 1280 },
+  { height: 720, label: "1280x720", width: 1280 },
   { height: 844, label: "390x844", width: 390 }
 ];
 const { WIRE_CARD_IMAGE_RATIO } = loadTsModule(path.resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
@@ -137,6 +137,10 @@ try {
   await waitForText(cdp, ["公共战场", "你的手牌", "连接与规则诊断"]);
   await runPlayableCardInspectSmoke(cdp);
   console.log("Chrome smoke OK: playable card inspect");
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
+  await waitForText(cdp, ["公共战场", "你的手牌", "连接与规则诊断"]);
+  await runArenaDirectSelectionSmoke(cdp);
+  console.log("Chrome smoke OK: arena direct selection");
 
   if (browserErrors.length > 0) {
     throw new Error(`Chrome reported errors:\n${browserErrors.join("\n")}`);
@@ -159,16 +163,16 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   const surface = await evaluateJson(cdp, `(() => {
     const root = document.querySelector("[data-playable-match-surface]");
     const table = document.querySelector("[data-game-table]");
-    const actionDock = document.querySelector("[data-game-action-dock]");
-    const actionScroller = actionDock?.querySelector(".action-buttons");
-    const actionEntries = Array.from(actionDock?.querySelectorAll("[data-action-render-entry]") ?? []);
-    const selfHand = document.querySelector(".wire-hand-self .wire-hand-cards");
-    const opponentHand = document.querySelector(".wire-hand-opponent .wire-hand-cards");
+    const arena = document.querySelector("[data-arena-table]");
+    const battlefield = document.querySelector("[data-arena-battlefield-region]");
+    const selfHandRegion = document.querySelector(".arena-hand.is-self[data-arena-hand]");
+    const selfHand = selfHandRegion?.querySelector(".wire-card-flow-hand");
+    const opponentHand = document.querySelector(".arena-hand.is-opponent .wire-card-flow-hand");
     const quickActions = document.querySelector(".game-match-quick-actions");
     const rectOf = (element) => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top };
+      return { bottom: rect.bottom, height: rect.height, left: rect.left, right: rect.right, top: rect.top, width: rect.width };
     };
     const isInsideViewport = (element) => {
       const rect = element.getBoundingClientRect();
@@ -176,36 +180,42 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
         && rect.right > 0 && rect.left < window.innerWidth
         && rect.bottom > 0 && rect.top < window.innerHeight;
     };
-    const initialScrollLeft = actionScroller?.scrollLeft ?? 0;
-    if (actionScroller) actionScroller.scrollLeft = actionScroller.scrollWidth;
-    const lastActionRect = rectOf(actionEntries.at(-1));
-    const actionScrollerRect = rectOf(actionScroller);
-    const actionViewportRect = rectOf(actionDock?.querySelector(".game-action-dock-body"));
-    const lastActionReachable = Boolean(lastActionRect && actionViewportRect
-      && lastActionRect.left >= actionViewportRect.left - 1
-      && lastActionRect.right <= actionViewportRect.right + 1);
-    if (actionScroller) actionScroller.scrollLeft = initialScrollLeft;
+    const tableRect = table?.getBoundingClientRect();
+    const battlefieldRect = battlefield?.getBoundingClientRect();
+    const handRect = selfHandRegion?.getBoundingClientRect();
+    const containsPoint = (rect, x, y) => Boolean(rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+    const legalTargetOcclusions = Array.from(document.querySelectorAll("[data-object-id].is-prompt-enabled"))
+      .filter((element) => !element.closest("[data-arena-hand]") && isInsideViewport(element))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return containsPoint(handRect, rect.left + rect.width / 2, rect.top + rect.height / 2);
+      })
+      .map((element) => element.getAttribute("data-object-id") ?? "unknown");
+    const opponentCards = Array.from(opponentHand?.querySelectorAll(".arena-fan-card") ?? []);
+    const selfCards = Array.from(selfHand?.querySelectorAll(".arena-fan-card") ?? []);
     return {
-      actionEntryCount: actionEntries.length,
-      actionPanelCount: actionDock?.querySelectorAll('[data-action-panel-presentation="play"]').length ?? 0,
-      actionScrollClientWidth: actionScroller?.clientWidth ?? 0,
-      actionScrollerRect,
-      actionScrollWidth: actionScroller?.scrollWidth ?? 0,
-      actionViewportRect,
-      lastActionReachable,
+      arenaRect: rectOf(arena),
+      battlefieldClientWidth: battlefield?.clientWidth ?? 0,
+      battlefieldHeightRatio: tableRect && battlefieldRect ? battlefieldRect.height / tableRect.height : 0,
+      battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
       debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
-      dockRect: rectOf(actionDock),
+      handViewportRatio: handRect ? handRect.height / window.innerHeight : 1,
+      hasArena: Boolean(arena),
+      hasFixedDock: Boolean(document.querySelector("[data-game-action-dock]")),
       hasRoot: Boolean(root),
       hasTable: Boolean(table),
-      opponentBackCount: opponentHand?.querySelectorAll(".card-back").length ?? 0,
-      opponentCardCount: opponentHand?.querySelectorAll(".card-face").length ?? 0,
-      opponentFrontCount: opponentHand?.querySelectorAll(".card-full-image").length ?? 0,
+      legalTargetOcclusions,
+      opponentBackCount: opponentCards.filter((card) => card.classList.contains("card-back")).length,
+      opponentCardCount: opponentCards.length,
+      opponentFrontCount: opponentCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
+      opponentNeutralLabelCount: opponentCards.filter((card) => card.getAttribute("aria-label") === "未公开卡牌").length,
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
       scrollHeight: document.documentElement.scrollHeight,
       scrollWidth: document.documentElement.scrollWidth,
-      selfCardCount: selfHand?.querySelectorAll(".card-face").length ?? 0,
-      selfFrontCount: selfHand?.querySelectorAll(".card-full-image").length ?? 0,
-      selfVisibleFrontCount: Array.from(selfHand?.querySelectorAll(".card-full-image") ?? []).filter(isInsideViewport).length,
+      selfCardCount: selfCards.length,
+      selfCardMaxBottom: selfCards.reduce((bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom), 0),
+      selfFrontCount: selfCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
+      selfVisibleFrontCount: selfCards.filter(isInsideViewport).length,
       tableRect: rectOf(table),
       quickActionsRect: rectOf(quickActions),
       viewportHeight: window.innerHeight,
@@ -214,7 +224,8 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   })()`);
 
   const failures = [];
-  if (!surface.hasRoot || !surface.hasTable || surface.actionPanelCount < 1) {
+  const mobile = surface.viewportWidth < 900;
+  if (!surface.hasRoot || !surface.hasTable || !surface.hasArena || surface.hasFixedDock) {
     failures.push(`playable shell is incomplete: ${JSON.stringify(surface)}`);
   }
   if (surface.scoreTokenCount < 2) {
@@ -226,24 +237,38 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   if (surface.selfVisibleFrontCount < 1) {
     failures.push(`at least one self-hand card must be visible in ${viewportLabel}: ${JSON.stringify(surface)}`);
   }
-  if (surface.actionEntryCount > 0 && !surface.lastActionReachable) {
-    failures.push(`every server action must be horizontally reachable in ${viewportLabel}: ${JSON.stringify({
-      clientWidth: surface.actionScrollClientWidth,
-      entryCount: surface.actionEntryCount,
-      scrollWidth: surface.actionScrollWidth
-    })}`);
-  }
-  if (surface.opponentCardCount < 1 || surface.opponentBackCount !== surface.opponentCardCount || surface.opponentFrontCount !== 0) {
+  if (surface.opponentCardCount < 1
+    || surface.opponentBackCount !== surface.opponentCardCount
+    || surface.opponentNeutralLabelCount !== surface.opponentCardCount
+    || surface.opponentFrontCount !== 0) {
     failures.push(`opponent hand must only show card backs: ${JSON.stringify({
       backs: surface.opponentBackCount,
       cards: surface.opponentCardCount,
-      fronts: surface.opponentFrontCount
+      fronts: surface.opponentFrontCount,
+      neutralLabels: surface.opponentNeutralLabelCount
     })}`);
+  }
+  const minimumBattlefieldRatio = mobile ? 0.619 : 0.649;
+  if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
+    failures.push(`public battlefield is too short in ${viewportLabel}: ${surface.battlefieldHeightRatio}`);
+  }
+  const maximumHandRatio = mobile ? 0.221 : 0.181;
+  if (surface.handViewportRatio > maximumHandRatio) {
+    failures.push(`resting hand is too tall in ${viewportLabel}: ${surface.handViewportRatio}`);
+  }
+  if (surface.selfCardMaxBottom > surface.viewportHeight + 1) {
+    failures.push(`resting hand cards escaped ${viewportLabel}: ${surface.selfCardMaxBottom}`);
+  }
+  if (surface.legalTargetOcclusions.length > 0) {
+    failures.push(`resting hand covers legal targets in ${viewportLabel}: ${surface.legalTargetOcclusions.join(", ")}`);
+  }
+  if (mobile && surface.battlefieldScrollWidth <= surface.battlefieldClientWidth) {
+    failures.push(`mobile battlefield must scroll internally: ${JSON.stringify(surface)}`);
   }
   if (surface.debugOpen) {
     failures.push("diagnostics must stay collapsed during normal play");
   }
-  for (const [label, rect] of [["table", surface.tableRect], ["action dock", surface.dockRect]]) {
+  for (const [label, rect] of [["table", surface.tableRect], ["arena", surface.arenaRect]]) {
     if (!rect || rect.left < -1 || rect.right > surface.viewportWidth + 1 || rect.top < -1 || rect.bottom > surface.viewportHeight + 1) {
       failures.push(`${label} escaped the ${viewportLabel} viewport: ${JSON.stringify(rect)}`);
     }
@@ -279,7 +304,7 @@ async function runPlayableCardInspectSmoke(cdp) {
   let trayOpened = false;
   while (Date.now() < trayDeadline) {
     trayOpened = Boolean(await evaluateJson(cdp, `(() =>
-      document.querySelector('[data-wire-object-command-tray-visible="true"]')?.getClientRects().length
+      document.querySelector('[data-wire-object-command-tray-visible="true"][data-wire-object-command-tray-presentation="arena"]')?.getClientRects().length
     )()`));
     if (trayOpened) break;
     await delay(100);
@@ -289,7 +314,7 @@ async function runPlayableCardInspectSmoke(cdp) {
   }
 
   const detailRequested = await evaluateJson(cdp, `(() => {
-    const tray = document.querySelector('[data-wire-object-command-tray-visible="true"]');
+    const tray = document.querySelector('[data-wire-object-command-tray-visible="true"][data-wire-object-command-tray-presentation="arena"]');
     const button = Array.from(tray?.querySelectorAll("button") ?? [])
       .find((element) => element.textContent?.includes("详情"));
     if (!(button instanceof HTMLButtonElement)) return false;
@@ -326,6 +351,77 @@ async function runPlayableCardInspectSmoke(cdp) {
   })()`);
   if (!closed) {
     throw new Error("Playable card inspect could not close the card detail dialog.");
+  }
+}
+
+async function runArenaDirectSelectionSmoke(cdp) {
+  const clickObject = async (objectId) => evaluateJson(cdp, `(() => {
+    const objectId = ${JSON.stringify(objectId)};
+    const card = document.querySelector('[data-arena-battlefield-region] [data-object-id="' + objectId + '"]');
+    if (!(card instanceof HTMLButtonElement)) return false;
+    card.click();
+    return true;
+  })()`);
+
+  if (!await clickObject("p1-right-1")) {
+    throw new Error("Arena direct selection could not click its source card.");
+  }
+  await delay(100);
+
+  const sourceState = await evaluateJson(cdp, `(() => {
+    const layer = document.querySelector("[data-arena-action-mode]")?.getBoundingClientRect();
+    const target = document.querySelector('[data-arena-battlefield-region] [data-object-id="p2-right-1"]')?.getBoundingClientRect();
+    return {
+      legalTargetOcclusions: layer && target && target.left < layer.right && target.right > layer.left && target.top < layer.bottom && target.bottom > layer.top
+        ? ["p2-right-1"]
+        : [],
+      selected: document.querySelector('[data-arena-battlefield-region] [data-object-id="p1-right-1"]')?.classList.contains("is-selected") ?? false
+    };
+  })()`);
+  if (!sourceState.selected || sourceState.legalTargetOcclusions.length > 0) {
+    throw new Error(`Arena source selection is unusable: ${JSON.stringify(sourceState)}`);
+  }
+
+  if (!await clickObject("fixture-right-battlefield") || !await clickObject("p2-right-1")) {
+    throw new Error("Arena direct selection could not click its position and target.");
+  }
+
+  const readyDeadline = Date.now() + 5_000;
+  let readyState;
+  while (Date.now() < readyDeadline) {
+    readyState = await evaluateJson(cdp, `(() => ({
+      chosen: Array.from(document.querySelectorAll("[data-object-id].is-prompt-chosen"))
+        .map((element) => element.getAttribute("data-object-id"))
+        .filter(Boolean),
+      review: document.querySelector("[data-wire-object-route-review-state]")?.getAttribute("data-wire-object-route-review-state") ?? "missing",
+      submit: document.querySelector("[data-wire-object-route-review-submit-state]")?.getAttribute("data-wire-object-route-review-submit-state") ?? "missing"
+    }))()`);
+    if (readyState.review === "ready" && readyState.submit === "ready") break;
+    await delay(100);
+  }
+  if (readyState?.review !== "ready" || readyState?.submit !== "ready"
+    || !readyState.chosen.includes("fixture-right-battlefield")
+    || !readyState.chosen.includes("p2-right-1")) {
+    throw new Error(`Arena direct selection did not reach a ready server route: ${JSON.stringify(readyState)}`);
+  }
+
+  await evaluateJson(cdp, `(() => {
+    window.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+    return true;
+  })()`);
+  const clearDeadline = Date.now() + 5_000;
+  let cleared = false;
+  while (Date.now() < clearDeadline) {
+    cleared = Boolean(await evaluateJson(cdp, `(() => (
+      document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0
+      && document.querySelectorAll("[data-object-id].is-selected").length === 0
+      && document.querySelectorAll("[data-object-id].is-prompt-chosen").length === 0
+    ))()`));
+    if (cleared) break;
+    await delay(100);
+  }
+  if (!cleared) {
+    throw new Error("Escape did not clear the arena selection draft.");
   }
 }
 

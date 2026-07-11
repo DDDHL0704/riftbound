@@ -27,7 +27,16 @@ export function ArenaTable({
       <div aria-hidden="true" className="arena-backdrop is-self" style={backdropStyle(selfBackdrop)} />
       <div className="arena-edge is-opponent" data-arena-slot="opponent-edge">{opponentEdge}</div>
       <div className="arena-hand is-opponent" data-arena-slot="opponent-hand">{opponentHand}</div>
-      <div className="arena-battlefield" data-arena-battlefield-region data-arena-slot="battlefield">{battlefield}</div>
+      <div
+        aria-label="公共战场，可横向滚动"
+        className="arena-battlefield"
+        data-arena-battlefield-region
+        data-arena-slot="battlefield"
+        role="region"
+        tabIndex={0}
+      >
+        {battlefield}
+      </div>
       <div className="arena-edge is-self" data-arena-slot="self-edge">{selfEdge}</div>
       <div className="arena-hand is-self" data-arena-hand data-arena-slot="self-hand">{selfHand}</div>
     </section>

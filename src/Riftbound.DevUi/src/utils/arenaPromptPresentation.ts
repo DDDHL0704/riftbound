@@ -8,7 +8,9 @@ export type ArenaPromptPresentationPlan = {
 const MODAL_PROMPTS = new Set([
   "MULLIGAN",
   "ASSIGN_COMBAT_DAMAGE",
-  "ORDER_TRIGGERS"
+  "ORDER_TRIGGERS",
+  "PAY_COST",
+  "HAND_CHOICE"
 ]);
 
 export function buildArenaPromptPresentation(input: {
@@ -16,13 +18,15 @@ export function buildArenaPromptPresentation(input: {
   promptType?: string;
   selectedObjectId?: string;
 }): ArenaPromptPresentationPlan {
-  if (!input.actionable) {
-    return { mode: "hidden", anchorObjectId: undefined };
-  }
-
-  if (input.promptType && MODAL_PROMPTS.has(input.promptType)) {
+  if (input.actionable && input.promptType && MODAL_PROMPTS.has(input.promptType)) {
     return { mode: "modal", anchorObjectId: undefined };
   }
 
-  return { mode: "context", anchorObjectId: input.selectedObjectId };
+  if (input.selectedObjectId) {
+    return { mode: "context", anchorObjectId: input.selectedObjectId };
+  }
+
+  return input.actionable
+    ? { mode: "context", anchorObjectId: undefined }
+    : { mode: "hidden", anchorObjectId: undefined };
 }

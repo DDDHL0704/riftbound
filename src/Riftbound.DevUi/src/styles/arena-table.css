@@ -167,6 +167,11 @@
   min-height: 65%;
 }
 
+.arena-battlefield:focus-visible {
+  outline: 2px solid rgb(213 174 98 / 86%);
+  outline-offset: -2px;
+}
+
 .arena-edge {
   z-index: 20;
   right: 16%;
@@ -428,7 +433,7 @@
 .playable-match-surface .arena-table .wire-hand-cards {
   position: absolute !important;
   left: 50% !important;
-  bottom: 5px !important;
+  bottom: 12px !important;
   width: min(760px, 58vw) !important;
   height: 156px !important;
   overflow: visible !important;
@@ -621,7 +626,9 @@
   top: 50% !important;
   left: 50% !important;
   width: min(980px, calc(100% - 40px)) !important;
+  height: auto !important;
   max-height: 76% !important;
+  overflow: hidden !important;
   transform: translate(-50%, -50%) !important;
 }
 
@@ -904,6 +911,12 @@
   color: #fff7df !important;
 }
 
+.playable-match-surface .arena-prompt-layer.is-context:has(> .wire-object-command-tray.presentation-arena) {
+  top: auto !important;
+  bottom: calc(18dvh + 10px) !important;
+  transform: translateX(-50%) !important;
+}
+
 .playable-match-surface .arena-prompt-layer .status-pill {
   border-color: rgb(86 96 90 / 62%) !important;
   background: rgb(22 29 26 / 88%) !important;
@@ -1044,8 +1057,133 @@
 }
 
 .playable-match-surface .arena-prompt-layer.is-modal .action-panel {
-  max-height: 76dvh !important;
+  display: flex !important;
+  height: auto !important;
+  max-height: min(540px, calc(76dvh - 62px)) !important;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-scroll-native {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(540px, calc(76dvh - 62px)) !important;
   overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-buttons {
+  display: grid !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-prompt-inspection {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content > header {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .prompt-summary,
+  .complex-prompt-details,
+  .generic-prompt-details,
+  .spell-duel-prompt-details,
+  .stack-priority-prompt-details
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content {
+  align-content: start !important;
+  min-height: 0 !important;
+  padding: 12px !important;
+  background: rgb(20 27 24 / 98%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .mulligan-selector,
+  .hand-choice-panel,
+  .damage-assignment-panel,
+  .pay-cost-panel,
+  .trigger-order-panel,
+  .action-render-entry
+) {
+  border-color: rgb(86 96 90 / 78%) !important;
+  background: rgb(27 35 31 / 98%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .action-buttons,
+  .action-render-entry,
+  .mulligan-selector,
+  .hand-choice-panel,
+  .damage-assignment-panel,
+  .pay-cost-panel,
+  .trigger-order-panel
+) {
+  align-content: start !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content :where(
+  h2,
+  h3,
+  strong,
+  span,
+  label,
+  p,
+  small,
+  dt,
+  dd
+) {
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-summary span {
+  padding: 6px 8px !important;
+  border: 1px solid rgb(86 96 90 / 52%) !important;
+  border-radius: 4px !important;
+  background: rgb(13 20 17 / 78%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row {
+  border-color: rgb(86 96 90 / 64%) !important;
+  background: rgb(13 20 17 / 88%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row.is-selected {
+  border-color: rgb(213 174 98 / 76%) !important;
+  background: rgb(58 49 29 / 94%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row:disabled {
+  opacity: 0.8 !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-note {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-list {
+  max-height: min(21dvh, 176px) !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-panel > .button {
+  position: sticky !important;
+  z-index: 2 !important;
+  bottom: 0 !important;
+  border-color: rgb(213 174 98 / 74%) !important;
+  background: rgb(65 54 31 / 98%) !important;
+  box-shadow: 0 -8px 18px rgb(20 27 24 / 88%) !important;
 }
 
 .playable-match-surface .arena-side-drawer {
@@ -1261,7 +1399,7 @@
   }
 
   .playable-match-surface .arena-table .wire-hand-cards {
-    bottom: 5px !important;
+    bottom: 12px !important;
     width: calc(100vw - 20px) !important;
   }
 
@@ -1319,7 +1457,12 @@
 
   .playable-match-surface .arena-prompt-layer.is-modal {
     width: calc(100% - 16px) !important;
+    height: auto !important;
     max-height: 82% !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-modal :where(.action-panel, .action-panel-scroll-native) {
+    max-height: calc(82dvh - 74px) !important;
   }
 
   .playable-match-surface .arena-prompt-layer .action-buttons {

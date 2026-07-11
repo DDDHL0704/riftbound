@@ -66,7 +66,22 @@ const scenarioShots = [
     name: "match-midgame-showcase",
     scenario: "midgame-showcase",
     playerId: "P1",
-    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"]
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
+    viewport: { width: 1440, height: 900 }
+  },
+  {
+    name: "match-wide-playable",
+    scenario: "midgame-showcase",
+    playerId: "P1",
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
+    viewport: { width: 1920, height: 1080 }
+  },
+  {
+    name: "match-compact-playable",
+    scenario: "midgame-showcase",
+    playerId: "P1",
+    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
+    viewport: { width: 1280, height: 720 }
   },
   {
     name: "match-mobile-playable",
@@ -79,7 +94,8 @@ const scenarioShots = [
     name: "prompt-pay-cost",
     scenario: "pay-cost-window",
     playerId: "P1",
-    texts: ["公共战场", "你的手牌", "连接与规则诊断"]
+    texts: ["公共战场", "你的手牌", "连接与规则诊断"],
+    viewport: { width: 1440, height: 900 }
   }
 ];
 
@@ -160,6 +176,7 @@ try {
       await captureAndAudit(page, shot, report);
       if (shot.name === "match-midgame-showcase") {
         await runPlayableCardInspectInteraction(page, report);
+        await runArenaDirectSelectionInteraction(page, report);
       }
       await page.close();
     } finally {
@@ -733,19 +750,21 @@ async function assertMatchStateSurface(page, shot) {
   const surface = await page.evaluate(() => {
     const root = document.querySelector("[data-playable-match-surface]");
     const table = document.querySelector("[data-game-table]");
-    const actionDock = document.querySelector("[data-game-action-dock]");
-    const opponentHand = document.querySelector(".wire-hand-opponent");
-    const selfHand = document.querySelector(".wire-hand-self");
-    const opponentHandCards = opponentHand?.querySelector(".wire-hand-cards");
-    const selfHandCards = selfHand?.querySelector(".wire-hand-cards");
+    const arena = document.querySelector("[data-arena-table]");
+    const battlefield = document.querySelector("[data-arena-battlefield-region]");
+    const opponentHand = document.querySelector(".arena-hand.is-opponent");
+    const selfHand = document.querySelector(".arena-hand.is-self[data-arena-hand]");
+    const opponentHandCards = opponentHand?.querySelector(".wire-card-flow-hand");
+    const selfHandCards = selfHand?.querySelector(".wire-card-flow-hand");
+    const actionLayer = document.querySelector("[data-arena-action-mode]");
     const tableRect = table?.getBoundingClientRect();
-    const dockRect = actionDock?.getBoundingClientRect();
-    const actionViewport = actionDock?.querySelector(".game-action-dock-body");
-    const actionScroller = actionDock?.querySelector(".action-buttons");
-    const actionEntries = Array.from(actionDock?.querySelectorAll("[data-action-render-entry]") ?? []);
+    const arenaRect = arena?.getBoundingClientRect();
+    const battlefieldRect = battlefield?.getBoundingClientRect();
+    const selfHandRect = selfHand?.getBoundingClientRect();
+    const actionLayerRect = actionLayer?.getBoundingClientRect();
     const rectOf = (element) => {
       const rect = element?.getBoundingClientRect();
-      return rect ? { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top } : null;
+      return rect ? { bottom: rect.bottom, height: rect.height, left: rect.left, right: rect.right, top: rect.top, width: rect.width } : null;
     };
     const isInsideViewport = (element) => {
       const rect = element.getBoundingClientRect();
@@ -753,33 +772,42 @@ async function assertMatchStateSurface(page, shot) {
         && rect.right > 0 && rect.left < window.innerWidth
         && rect.bottom > 0 && rect.top < window.innerHeight;
     };
-    const initialScrollLeft = actionScroller?.scrollLeft ?? 0;
-    if (actionScroller) actionScroller.scrollLeft = actionScroller.scrollWidth;
-    const actionViewportRect = rectOf(actionViewport);
-    const lastActionRect = rectOf(actionEntries.at(-1));
-    const lastActionReachable = Boolean(lastActionRect && actionViewportRect
-      && lastActionRect.left >= actionViewportRect.left - 1
-      && lastActionRect.right <= actionViewportRect.right + 1);
-    if (actionScroller) actionScroller.scrollLeft = initialScrollLeft;
-    const paySubmitButton = Array.from(actionDock?.querySelectorAll("button") ?? [])
+    const containsPoint = (rect, x, y) => Boolean(rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+    const legalTargets = Array.from(document.querySelectorAll("[data-object-id].is-prompt-enabled"))
+      .filter((element) => !element.closest("[data-arena-hand]") && isInsideViewport(element));
+    const legalTargetOcclusions = legalTargets
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return containsPoint(selfHandRect, rect.left + rect.width / 2, rect.top + rect.height / 2);
+      })
+      .map((element) => element.getAttribute("data-object-id") ?? "unknown");
+    const paySubmitButton = Array.from(actionLayer?.querySelectorAll("button") ?? [])
       .find((button) => button.textContent?.includes("提交支付"));
     const paySubmitRect = paySubmitButton?.getBoundingClientRect();
+    const opponentCards = Array.from(opponentHandCards?.querySelectorAll(".arena-fan-card") ?? []);
+    const selfCards = Array.from(selfHandCards?.querySelectorAll(".arena-fan-card") ?? []);
     return {
-      actionButtonCount: actionDock?.querySelectorAll("button").length ?? 0,
-      actionDockText: actionDock?.textContent?.trim().replace(/\s+/g, " ") ?? "",
-      actionEntryCount: actionDock?.querySelectorAll("[data-action-render-action]").length ?? 0,
-      actionLastEntryReachable: lastActionReachable,
-      actionPanelCount: actionDock?.querySelectorAll('[data-action-panel-presentation="play"]').length ?? 0,
+      actionEntryCount: actionLayer?.querySelectorAll("[data-action-render-action]").length ?? 0,
+      actionLayerMode: actionLayer?.getAttribute("data-arena-action-mode") ?? "none",
+      actionLayerRect: rectOf(actionLayer),
+      actionPanelCount: actionLayer?.querySelectorAll('[data-action-panel-presentation="arena"]').length ?? 0,
+      arenaRect: rectOf(arena),
+      battlefieldClientWidth: battlefield?.clientWidth ?? 0,
+      battlefieldHeightRatio: tableRect && battlefieldRect ? battlefieldRect.height / tableRect.height : 0,
+      battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
       bodyScrollHeight: document.documentElement.scrollHeight,
       bodyScrollWidth: document.documentElement.scrollWidth,
       debugOpen: document.querySelector("[data-game-debug-drawer]")?.hasAttribute("open") ?? false,
-      dockRect: dockRect ? { bottom: dockRect.bottom, left: dockRect.left, right: dockRect.right, top: dockRect.top } : null,
-      hasActionDock: Boolean(actionDock),
+      handViewportRatio: selfHandRect ? selfHandRect.height / window.innerHeight : 1,
+      hasArena: Boolean(arena),
+      hasFixedDock: Boolean(document.querySelector("[data-game-action-dock]")),
       hasRoot: Boolean(root),
       hasTable: Boolean(table),
-      opponentBackCount: opponentHandCards?.querySelectorAll(".card-back").length ?? 0,
-      opponentCardCount: opponentHandCards?.querySelectorAll(".card-face").length ?? 0,
-      opponentFrontCount: opponentHandCards?.querySelectorAll(".card-full-image").length ?? 0,
+      legalTargetOcclusions,
+      opponentBackCount: opponentCards.filter((card) => card.classList.contains("card-back")).length,
+      opponentCardCount: opponentCards.length,
+      opponentFrontCount: opponentCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
+      opponentNeutralLabelCount: opponentCards.filter((card) => card.getAttribute("aria-label") === "未公开卡牌").length,
       paySubmitButton: paySubmitButton ? {
         bottom: paySubmitRect?.bottom ?? 0,
         left: paySubmitRect?.left ?? 0,
@@ -788,10 +816,11 @@ async function assertMatchStateSurface(page, shot) {
         visible: paySubmitButton instanceof HTMLElement && paySubmitButton.offsetParent !== null
       } : null,
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
-      selfCardCount: selfHandCards?.querySelectorAll(".card-face").length ?? 0,
-      selfFrontCount: selfHandCards?.querySelectorAll(".card-full-image").length ?? 0,
-      selfVisibleFrontCount: Array.from(selfHandCards?.querySelectorAll(".card-full-image") ?? []).filter(isInsideViewport).length,
-      tableRect: tableRect ? { bottom: tableRect.bottom, left: tableRect.left, right: tableRect.right, top: tableRect.top } : null,
+      selfCardCount: selfCards.length,
+      selfCardMaxBottom: selfCards.reduce((bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom), 0),
+      selfFrontCount: selfCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
+      selfVisibleFrontCount: selfCards.filter(isInsideViewport).length,
+      tableRect: rectOf(table),
       quickActionsRect: rectOf(document.querySelector(".game-match-quick-actions")),
       viewportHeight: window.innerHeight,
       viewportWidth: window.innerWidth
@@ -799,7 +828,8 @@ async function assertMatchStateSurface(page, shot) {
   });
 
   const failures = [];
-  if (!surface.hasRoot || !surface.hasTable || !surface.hasActionDock) {
+  const mobile = surface.viewportWidth < 900;
+  if (!surface.hasRoot || !surface.hasTable || !surface.hasArena || surface.hasFixedDock) {
     failures.push(`playable match shell is incomplete: ${JSON.stringify(surface)}`);
   }
   if (surface.scoreTokenCount < 2) {
@@ -817,43 +847,63 @@ async function assertMatchStateSurface(page, shot) {
       visibleFronts: surface.selfVisibleFrontCount
     })}`);
   }
-  if (surface.opponentCardCount > 0 && (surface.opponentBackCount !== surface.opponentCardCount || surface.opponentFrontCount !== 0)) {
+  if (surface.opponentCardCount > 0 && (
+    surface.opponentBackCount !== surface.opponentCardCount
+    || surface.opponentNeutralLabelCount !== surface.opponentCardCount
+    || surface.opponentFrontCount !== 0
+  )) {
     failures.push(`opponent hand must stay redacted as card backs: ${JSON.stringify({
       backs: surface.opponentBackCount,
       cards: surface.opponentCardCount,
-      fronts: surface.opponentFrontCount
+      fronts: surface.opponentFrontCount,
+      neutralLabels: surface.opponentNeutralLabelCount
     })}`);
   }
-  if (surface.actionPanelCount < 1) {
-    failures.push(`player-facing action panel is missing: ${surface.actionPanelCount}`);
+  const minimumBattlefieldRatio = mobile ? 0.619 : 0.649;
+  if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
+    failures.push(`public battlefield is too short: ${JSON.stringify({ actual: surface.battlefieldHeightRatio, minimum: minimumBattlefieldRatio })}`);
   }
-  if (surface.actionEntryCount > 0 && !surface.actionLastEntryReachable) {
-    failures.push(`every server action must be horizontally reachable: ${surface.actionEntryCount}`);
+  const maximumHandRatio = mobile ? 0.221 : 0.181;
+  if (surface.handViewportRatio > maximumHandRatio) {
+    failures.push(`resting hand is too tall: ${JSON.stringify({ actual: surface.handViewportRatio, maximum: maximumHandRatio })}`);
   }
-  if (shot.name === "prompt-pay-cost" && surface.actionEntryCount < 1) {
-    failures.push(`pay-cost scenario must expose at least one server-provided action entry: ${JSON.stringify({
-      buttons: surface.actionButtonCount,
-      entries: surface.actionEntryCount,
-      text: surface.actionDockText
-    })}`);
+  if (surface.legalTargetOcclusions.length > 0) {
+    failures.push(`resting hand must not cover visible legal targets: ${surface.legalTargetOcclusions.join(", ")}`);
+  }
+  if (surface.selfCardMaxBottom > surface.viewportHeight + 1) {
+    failures.push(`resting hand cards must remain inside the viewport: ${surface.selfCardMaxBottom}`);
+  }
+  if (mobile && surface.battlefieldScrollWidth <= surface.battlefieldClientWidth) {
+    failures.push(`mobile arena must keep battlefield lanes internally scrollable: ${JSON.stringify({ client: surface.battlefieldClientWidth, scroll: surface.battlefieldScrollWidth })}`);
   }
   if (shot.name === "prompt-pay-cost") {
     const button = surface.paySubmitButton;
-    if (!button || !button.visible || !surface.dockRect
-      || button.left < surface.dockRect.left
-      || button.right > surface.dockRect.right
-      || button.top < surface.dockRect.top
-      || button.bottom > surface.dockRect.bottom) {
-      failures.push(`pay-cost submit button must be visible without scrolling: ${JSON.stringify({ button, dock: surface.dockRect })}`);
+    if (surface.actionLayerMode !== "modal" || surface.actionPanelCount < 1 || surface.actionEntryCount < 1) {
+      failures.push(`pay-cost scenario must use the dedicated arena modal: ${JSON.stringify(surface)}`);
+    }
+    if (!button || !button.visible || !surface.actionLayerRect
+      || button.left < surface.actionLayerRect.left
+      || button.right > surface.actionLayerRect.right
+      || button.top < surface.actionLayerRect.top
+      || button.bottom > surface.actionLayerRect.bottom) {
+      failures.push(`pay-cost submit button must be visible without page scrolling: ${JSON.stringify({ button, layer: surface.actionLayerRect })}`);
     }
   }
   if (surface.debugOpen) {
     failures.push("connection and rule diagnostics must stay collapsed during normal play.");
   }
-  for (const [label, rect] of [["table", surface.tableRect], ["action dock", surface.dockRect]]) {
+  for (const [label, rect] of [["table", surface.tableRect], ["arena", surface.arenaRect]]) {
     if (!rect || rect.left < -1 || rect.right > surface.viewportWidth + 1 || rect.top < -1 || rect.bottom > surface.viewportHeight + 1) {
       failures.push(`${label} must fit inside the first viewport: ${JSON.stringify(rect)}`);
     }
+  }
+  if (surface.actionLayerRect && surface.actionLayerRect.height > 0 && (
+    surface.actionLayerRect.left < -1
+    || surface.actionLayerRect.right > surface.viewportWidth + 1
+    || surface.actionLayerRect.top < -1
+    || surface.actionLayerRect.bottom > surface.viewportHeight + 1
+  )) {
+    failures.push(`visible arena action layer must fit inside the viewport: ${JSON.stringify(surface.actionLayerRect)}`);
   }
   if (surface.quickActionsRect && (surface.quickActionsRect.left < -1 || surface.quickActionsRect.right > surface.viewportWidth + 1)) {
     failures.push(`topbar quick actions must fit inside the viewport: ${JSON.stringify(surface.quickActionsRect)}`);
@@ -1450,7 +1500,7 @@ async function runPlayableCardInspectInteraction(page, report) {
   const cardLabel = await card.getAttribute("aria-label") ?? "可见手牌";
   await card.click();
 
-  const tray = page.locator('[data-wire-object-command-tray-visible="true"]').first();
+  const tray = page.locator('[data-wire-object-command-tray-visible="true"][data-wire-object-command-tray-presentation="arena"]').first();
   await tray.waitFor({ state: "visible", timeout: 5_000 });
   const detailButton = tray.getByRole("button", { name: /详情/ }).first();
   await detailButton.click();
@@ -1471,6 +1521,62 @@ async function runPlayableCardInspectInteraction(page, report) {
     title
   });
   console.log(`QA interaction OK: playable-card-inspect (${title})`);
+}
+
+async function runArenaDirectSelectionInteraction(page, report) {
+  await page.goto(`${frontendUrl}/matches/qa-layout?fixture=layout`, { waitUntil: "networkidle" });
+  const arena = page.locator("[data-arena-table]");
+  await arena.waitFor({ state: "visible", timeout: 10_000 });
+
+  const source = page.locator('[data-arena-battlefield-region] [data-object-id="p1-right-1"]');
+  const position = page.locator('[data-arena-battlefield-region] [data-object-id="fixture-right-battlefield"]');
+  const target = page.locator('[data-arena-battlefield-region] [data-object-id="p2-right-1"]');
+  await source.click();
+  await page.waitForFunction(() => document.querySelector('[data-arena-battlefield-region] [data-object-id="p1-right-1"]')?.classList.contains("is-selected"));
+
+  const targetOccluded = await page.evaluate(() => {
+    const layer = document.querySelector("[data-arena-action-mode]")?.getBoundingClientRect();
+    const targetCard = document.querySelector('[data-arena-battlefield-region] [data-object-id="p2-right-1"]')?.getBoundingClientRect();
+    return Boolean(layer && targetCard
+      && targetCard.left < layer.right
+      && targetCard.right > layer.left
+      && targetCard.top < layer.bottom
+      && targetCard.bottom > layer.top);
+  });
+  if (targetOccluded) {
+    throw new Error("Arena context actions must not cover the next legal target.");
+  }
+
+  await position.click();
+  await target.click();
+  await page.waitForFunction(() => (
+    document.querySelector("[data-wire-object-route-review-state]")?.getAttribute("data-wire-object-route-review-state") === "ready"
+    && document.querySelector("[data-wire-object-route-review-submit-state]")?.getAttribute("data-wire-object-route-review-submit-state") === "ready"
+  ));
+
+  const chosenObjectIds = await page.evaluate(() => Array.from(document.querySelectorAll("[data-object-id].is-prompt-chosen"))
+    .map((element) => element.getAttribute("data-object-id"))
+    .filter(Boolean));
+  for (const objectId of ["fixture-right-battlefield", "p2-right-1"]) {
+    if (!chosenObjectIds.includes(objectId)) {
+      throw new Error(`Arena direct selection did not retain ${objectId}: ${JSON.stringify(chosenObjectIds)}`);
+    }
+  }
+
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => (
+    document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0
+    && document.querySelectorAll("[data-object-id].is-selected").length === 0
+    && document.querySelectorAll("[data-object-id].is-prompt-chosen").length === 0
+  ));
+
+  report.interactions.push({
+    chosenObjectIds: [...new Set(chosenObjectIds)].sort(),
+    name: "arena-direct-selection",
+    result: "source-position-target-ready-and-escape-cleared",
+    targetOccluded
+  });
+  console.log("QA interaction OK: arena-direct-selection");
 }
 
 async function runCommandReceiptInteraction(report) {

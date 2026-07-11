@@ -20,6 +20,35 @@ assert.match(
   "Playwright QA must keep match-state surface checks in a named helper."
 );
 
+for (const arenaSelector of [
+  "[data-arena-table]",
+  "[data-arena-battlefield-region]",
+  "[data-arena-hand]",
+  "[data-arena-action-mode]"
+]) {
+  assert.ok(source.includes(arenaSelector), `Playwright QA must inspect ${arenaSelector}.`);
+}
+
+for (const arenaMetric of [
+  "battlefieldHeightRatio",
+  "handViewportRatio",
+  "hasFixedDock",
+  "legalTargetOcclusions",
+  "opponentNeutralLabelCount"
+]) {
+  assert.ok(source.includes(arenaMetric), `Playwright QA must assert ${arenaMetric}.`);
+}
+
+for (const arenaShot of ["match-wide-playable", "match-midgame-showcase", "match-compact-playable", "match-mobile-playable"]) {
+  assert.ok(source.includes(arenaShot), `Playwright QA must capture ${arenaShot}.`);
+}
+
+assert.match(
+  source,
+  /async\s+function\s+runArenaDirectSelectionInteraction\(page,\s*report\)/,
+  "Playwright QA must exercise source, position, and target selection on the arena."
+);
+
 for (const requiredSelector of [
   ".tabletop-score-token",
   "[data-wire-battlefield-score-state]",
@@ -79,6 +108,10 @@ assert.match(
   /async\s+function\s+runPlayableMatchSurfaceSmoke\(cdp,\s*viewportLabel\)/,
   "Chrome smoke must keep player-facing match surface checks in a named helper."
 );
+
+for (const arenaSmokeMetric of ["battlefieldHeightRatio", "handViewportRatio", "hasFixedDock", "legalTargetOcclusions"]) {
+  assert.ok(chromeSmokeSource.includes(arenaSmokeMetric), `Chrome smoke must assert ${arenaSmokeMetric}.`);
+}
 
 assert.match(
   chromeSmokeSource,

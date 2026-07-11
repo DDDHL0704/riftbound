@@ -415,6 +415,21 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     setInspectedCard(undefined);
     setSelectionDraft(undefined);
   }, []);
+  useEffect(() => {
+    if (!selectedObjectId) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) {
+        return;
+      }
+      clearInspectedCard();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [clearInspectedCard, selectedObjectId]);
   const openDetailCard = useCallback((card: InspectedCard) => {
     setDetailCard(card);
   }, []);

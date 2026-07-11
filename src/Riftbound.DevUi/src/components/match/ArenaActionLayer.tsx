@@ -36,8 +36,15 @@ export function ArenaActionLayer({ children, label, plan }: ArenaActionLayerProp
       const hostRect = host.getBoundingClientRect();
       const objectRect = object.getBoundingClientRect();
       const openAbove = objectRect.top + objectRect.height / 2 > hostRect.top + hostRect.height / 2;
+      const panelWidth = Math.min(600, Math.max(0, hostRect.width - 24));
+      const desiredX = objectRect.left - hostRect.left + objectRect.width / 2;
+      const minimumX = panelWidth / 2 + 12;
+      const maximumX = hostRect.width - panelWidth / 2 - 12;
+      const clampedX = maximumX >= minimumX
+        ? Math.max(minimumX, Math.min(maximumX, desiredX))
+        : hostRect.width / 2;
       setAnchorStyle({
-        "--arena-action-x": `${objectRect.left - hostRect.left + objectRect.width / 2}px`,
+        "--arena-action-x": `${clampedX}px`,
         "--arena-action-y": `${(openAbove ? objectRect.top : objectRect.bottom) - hostRect.top + (openAbove ? -10 : 10)}px`,
         "--arena-action-translate-y": openAbove ? "-100%" : "0%"
       });
