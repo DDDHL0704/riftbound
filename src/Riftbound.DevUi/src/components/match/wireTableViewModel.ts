@@ -157,7 +157,7 @@ export function buildWirePlayerFlowPlans(players: WirePlayerEntry[]): WirePlayer
     basePlan: buildWireCardFlowPlan({
       itemCount: maxBaseObjects,
       kind: "base",
-      minSlots: 1
+      minSlots: 4
     }),
     handPlan: buildWireCardFlowPlan({
       itemCount: maxHandObjects,

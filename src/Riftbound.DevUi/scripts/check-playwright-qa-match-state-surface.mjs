@@ -35,6 +35,11 @@ for (const arenaMetric of [
   "homeCardMaxHeight",
   "pileBoxMaxHeight",
   "runeCardMaxHeight",
+  "baseSlotCount",
+  "baseSlotOverlapCount",
+  "publicCardOverlapCount",
+  "selfRailOverlapCount",
+  "visibleImageOverlayCount",
   "hasFixedDock",
   "legalTargetOcclusions",
   "opponentNeutralLabelCount"
@@ -118,6 +123,11 @@ for (const arenaSmokeMetric of [
   "homeCardMaxHeight",
   "pileBoxMaxHeight",
   "runeCardMaxHeight",
+  "baseSlotCount",
+  "baseSlotOverlapCount",
+  "publicCardOverlapCount",
+  "selfRailOverlapCount",
+  "visibleImageOverlayCount",
   "hasFixedDock",
   "legalTargetOcclusions"
 ]) {

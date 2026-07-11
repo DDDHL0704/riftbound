@@ -39,7 +39,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["对战房间", "开局准备", "服务端连接", "卡组提交"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"],
+    texts: ["公共战场", "你的手牌"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["对局结算", "返回大厅", "返回房间", "查看对战桌面"] }
@@ -125,7 +125,14 @@ try {
   for (const viewport of wireLayoutGeometryViewports) {
     await setViewport(cdp, viewport);
     await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-    await waitForText(cdp, ["公共战场", "你的手牌", "对手手牌", "连接与规则诊断"]);
+    const expectedMatchTexts = ["公共战场", "你的手牌"];
+    if (viewport.width >= 700) {
+      expectedMatchTexts.push("对手手牌", "连接与规则诊断");
+    }
+    await waitForText(cdp, expectedMatchTexts);
+    if (viewport.width < 700) {
+      await expectAbsentText(cdp, ["连接与规则诊断"]);
+    }
     if (viewport.label === "1440x900") {
       await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
     }
@@ -174,11 +181,59 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       const rect = element.getBoundingClientRect();
       return { bottom: rect.bottom, height: rect.height, left: rect.left, right: rect.right, top: rect.top, width: rect.width };
     };
-    const isInsideViewport = (element) => {
-      const rect = element.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0
-        && rect.right > 0 && rect.left < window.innerWidth
-        && rect.bottom > 0 && rect.top < window.innerHeight;
+    const clippedRectOf = (element) => {
+      const source = element.getBoundingClientRect();
+      let left = Math.max(0, source.left);
+      let right = Math.min(window.innerWidth, source.right);
+      let top = Math.max(0, source.top);
+      let bottom = Math.min(window.innerHeight, source.bottom);
+      const clippedOverflow = new Set(["auto", "clip", "hidden", "scroll"]);
+      let ancestor = element.parentElement;
+      while (ancestor) {
+        const style = getComputedStyle(ancestor);
+        const bounds = ancestor.getBoundingClientRect();
+        if (clippedOverflow.has(style.overflowX)) {
+          left = Math.max(left, bounds.left);
+          right = Math.min(right, bounds.right);
+        }
+        if (clippedOverflow.has(style.overflowY)) {
+          top = Math.max(top, bounds.top);
+          bottom = Math.min(bottom, bounds.bottom);
+        }
+        ancestor = ancestor.parentElement;
+      }
+      return right - left > 2 && bottom - top > 2 ? { bottom, left, right, top } : null;
+    };
+    const isInsideViewport = (element) => clippedRectOf(element) !== null;
+    const overlapCount = (elements) => {
+      const rects = elements.map(clippedRectOf).filter(Boolean);
+      let count = 0;
+      for (let index = 0; index < rects.length; index += 1) {
+        for (let candidate = index + 1; candidate < rects.length; candidate += 1) {
+          const overlapWidth = Math.min(rects[index].right, rects[candidate].right) - Math.max(rects[index].left, rects[candidate].left);
+          const overlapHeight = Math.min(rects[index].bottom, rects[candidate].bottom) - Math.max(rects[index].top, rects[candidate].top);
+          if (overlapWidth > 2 && overlapHeight > 2) count += 1;
+        }
+      }
+      return count;
+    };
+    const overlapPairs = (elements) => {
+      const visible = elements.map((element) => ({ element, rect: clippedRectOf(element) })).filter((entry) => entry.rect);
+      const pairs = [];
+      for (let index = 0; index < visible.length; index += 1) {
+        const rect = visible[index].rect;
+        for (let candidate = index + 1; candidate < visible.length; candidate += 1) {
+          const candidateRect = visible[candidate].rect;
+          const overlapWidth = Math.min(rect.right, candidateRect.right) - Math.max(rect.left, candidateRect.left);
+          const overlapHeight = Math.min(rect.bottom, candidateRect.bottom) - Math.max(rect.top, candidateRect.top);
+          if (overlapWidth > 2 && overlapHeight > 2) {
+            const label = (element) => element.getAttribute("data-object-id") ?? element.getAttribute("aria-label") ?? element.className;
+            const bounds = (value) => [value.left, value.top, value.right, value.bottom].map(Math.round).join(",");
+            pairs.push(label(visible[index].element) + " [" + bounds(rect) + "] <> " + label(visible[candidate].element) + " [" + bounds(candidateRect) + "]");
+          }
+        }
+      }
+      return pairs;
     };
     const tableRect = table?.getBoundingClientRect();
     const battlefieldRect = battlefield?.getBoundingClientRect();
@@ -196,8 +251,18 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
     const homeCards = Array.from(document.querySelectorAll(".wire-player-home .card-face")).filter(isInsideViewport);
     const pileBoxes = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-stack-box")).filter(isInsideViewport);
     const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
+    const battlefieldCards = Array.from(document.querySelectorAll("[data-arena-battlefield-region] .wire-card-flow-battlefield-unit > .card-face"));
+    const baseSlots = Array.from(document.querySelectorAll(".wire-player-self .wire-base-card-grid > :where(.card-face, .wire-card-slot)"));
+    const selfRailRegions = [".wire-hand-rune-deck", ".wire-hand-rune-track", ".wire-hand-cards", ".wire-hand-piles"]
+      .map((selector) => selfHandRegion?.querySelector(selector))
+      .filter((element) => element instanceof HTMLElement);
+    const visibleImageOverlayCount = Array.from(document.querySelectorAll(".arena-table .card-image-cost, .arena-table .card-image-power, .arena-table .card-image-title"))
+      .filter((element) => getComputedStyle(element).display !== "none" && isInsideViewport(element)).length;
+    const publicCards = [...homeCards, ...battlefieldCards, ...selfCards, ...opponentCards];
     return {
       arenaRect: rectOf(arena),
+      baseSlotCount: baseSlots.length,
+      baseSlotOverlapCount: overlapCount(baseSlots),
       battlefieldClientWidth: battlefield?.clientWidth ?? 0,
       battlefieldHeightRatio: tableRect && battlefieldRect ? battlefieldRect.height / tableRect.height : 0,
       battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
@@ -216,6 +281,8 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       opponentNeutralLabelCount: opponentCards.filter((card) => card.getAttribute("aria-label") === "未公开卡牌").length,
       pileBoxCount: pileBoxes.length,
       pileBoxMaxHeight: pileBoxes.reduce((height, box) => Math.max(height, box.getBoundingClientRect().height), 0),
+      publicCardOverlapCount: overlapCount(publicCards),
+      publicCardOverlapPairs: overlapPairs(publicCards),
       runeCardCount: runeCards.length,
       runeCardMaxHeight: runeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
@@ -225,10 +292,12 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       selfCardMaxBottom: selfCards.reduce((bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom), 0),
       selfFrontCount: selfCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
       selfVisibleFrontCount: selfCards.filter(isInsideViewport).length,
+      selfRailOverlapCount: overlapCount(selfRailRegions),
       tableRect: rectOf(table),
       quickActionsRect: rectOf(quickActions),
       viewportHeight: window.innerHeight,
-      viewportWidth: window.innerWidth
+      viewportWidth: window.innerWidth,
+      visibleImageOverlayCount
     };
   })()`);
 
@@ -240,17 +309,26 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
   if (surface.scoreTokenCount < 2) {
     failures.push(`both score tokens must be visible: ${surface.scoreTokenCount}`);
   }
-  const minimumHomeCardHeight = mobile ? 77 : surface.viewportWidth >= 1600 ? 100 : 89;
+  const minimumHomeCardHeight = mobile ? 89 : surface.viewportWidth >= 1600 ? 134 : surface.viewportWidth < 1400 ? 100 : 114;
   if (surface.homeCardCount > 0 && surface.homeCardMaxHeight < minimumHomeCardHeight) {
     failures.push(`public legend, champion, and base cards are too small in ${viewportLabel}: ${surface.homeCardMaxHeight}`);
   }
-  const minimumPileBoxHeight = mobile ? 75 : 83;
+  const minimumPileBoxHeight = mobile ? 83 : surface.viewportWidth >= 1600 ? 122 : 105;
   if (surface.pileBoxCount > 0 && surface.pileBoxMaxHeight < minimumPileBoxHeight) {
     failures.push(`deck piles are too small in ${viewportLabel}: ${surface.pileBoxMaxHeight}`);
   }
-  const minimumRuneCardHeight = mobile ? 47 : 52;
+  const minimumRuneCardHeight = mobile ? 52 : surface.viewportWidth >= 1600 ? 75 : 66;
   if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
     failures.push(`rune cards are too small in ${viewportLabel}: ${surface.runeCardMaxHeight}`);
+  }
+  if (surface.baseSlotCount < 4) {
+    failures.push(`base must expose at least four independent visual slots in ${viewportLabel}: ${surface.baseSlotCount}`);
+  }
+  if (surface.baseSlotOverlapCount > 0 || surface.publicCardOverlapCount > 0 || surface.selfRailOverlapCount > 0) {
+    failures.push(`arena elements overlap in ${viewportLabel}: ${JSON.stringify({ base: surface.baseSlotOverlapCount, cards: surface.publicCardOverlapCount, pairs: surface.publicCardOverlapPairs, rail: surface.selfRailOverlapCount })}`);
+  }
+  if (surface.visibleImageOverlayCount > 0) {
+    failures.push(`official cards show duplicate image overlays in ${viewportLabel}: ${surface.visibleImageOverlayCount}`);
   }
   if (surface.selfCardCount < 1 || surface.selfFrontCount < 1) {
     failures.push(`self hand must show official card fronts: ${JSON.stringify({ cards: surface.selfCardCount, fronts: surface.selfFrontCount })}`);
@@ -269,11 +347,11 @@ async function runPlayableMatchSurfaceSmoke(cdp, viewportLabel) {
       neutralLabels: surface.opponentNeutralLabelCount
     })}`);
   }
-  const minimumBattlefieldRatio = mobile ? 0.519 : 0.499;
+  const minimumBattlefieldRatio = mobile ? 0.279 : 0.399;
   if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
     failures.push(`public battlefield is too short in ${viewportLabel}: ${surface.battlefieldHeightRatio}`);
   }
-  const maximumHandRatio = mobile ? 0.221 : 0.181;
+  const maximumHandRatio = mobile ? 0.261 : 0.181;
   if (surface.handViewportRatio > maximumHandRatio) {
     failures.push(`resting hand is too tall in ${viewportLabel}: ${surface.handViewportRatio}`);
   }

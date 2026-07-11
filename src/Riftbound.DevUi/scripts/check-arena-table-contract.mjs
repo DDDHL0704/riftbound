@@ -8,8 +8,8 @@ const layout = JSON.parse(fs.readFileSync(path.join(root, "src/components/match/
 const arena = layout.arena;
 
 assert(arena, "wireTableLayoutData.json must define arena");
-assert(arena.battlefieldMinHeightRatio >= 0.5, "balanced battlefield ratio must be at least 0.5");
-assert(arena.battlefieldMinHeightRatio <= 0.56, "battlefield must leave enough room for public player zones");
+assert(arena.battlefieldMinHeightRatio >= 0.4, "balanced battlefield ratio must be at least 0.4");
+assert(arena.battlefieldMinHeightRatio <= 0.44, "battlefield must leave enough room for base and resource zones");
 assert(arena.handMaxViewportRatio <= 0.18, "hand ratio must be at most 0.18");
 assert.deepEqual(
   arena.battlefieldSlots,

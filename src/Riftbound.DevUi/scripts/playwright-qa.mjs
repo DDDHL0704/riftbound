@@ -766,11 +766,59 @@ async function assertMatchStateSurface(page, shot) {
       const rect = element?.getBoundingClientRect();
       return rect ? { bottom: rect.bottom, height: rect.height, left: rect.left, right: rect.right, top: rect.top, width: rect.width } : null;
     };
-    const isInsideViewport = (element) => {
-      const rect = element.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0
-        && rect.right > 0 && rect.left < window.innerWidth
-        && rect.bottom > 0 && rect.top < window.innerHeight;
+    const clippedRectOf = (element) => {
+      const source = element.getBoundingClientRect();
+      let left = Math.max(0, source.left);
+      let right = Math.min(window.innerWidth, source.right);
+      let top = Math.max(0, source.top);
+      let bottom = Math.min(window.innerHeight, source.bottom);
+      const clippedOverflow = new Set(["auto", "clip", "hidden", "scroll"]);
+      let ancestor = element.parentElement;
+      while (ancestor) {
+        const style = getComputedStyle(ancestor);
+        const bounds = ancestor.getBoundingClientRect();
+        if (clippedOverflow.has(style.overflowX)) {
+          left = Math.max(left, bounds.left);
+          right = Math.min(right, bounds.right);
+        }
+        if (clippedOverflow.has(style.overflowY)) {
+          top = Math.max(top, bounds.top);
+          bottom = Math.min(bottom, bounds.bottom);
+        }
+        ancestor = ancestor.parentElement;
+      }
+      return right - left > 2 && bottom - top > 2 ? { bottom, left, right, top } : null;
+    };
+    const isInsideViewport = (element) => clippedRectOf(element) !== null;
+    const overlapCount = (elements) => {
+      const rects = elements.map(clippedRectOf).filter(Boolean);
+      let count = 0;
+      for (let index = 0; index < rects.length; index += 1) {
+        for (let candidate = index + 1; candidate < rects.length; candidate += 1) {
+          const overlapWidth = Math.min(rects[index].right, rects[candidate].right) - Math.max(rects[index].left, rects[candidate].left);
+          const overlapHeight = Math.min(rects[index].bottom, rects[candidate].bottom) - Math.max(rects[index].top, rects[candidate].top);
+          if (overlapWidth > 2 && overlapHeight > 2) count += 1;
+        }
+      }
+      return count;
+    };
+    const overlapPairs = (elements) => {
+      const visible = elements.map((element) => ({ element, rect: clippedRectOf(element) })).filter((entry) => entry.rect);
+      const pairs = [];
+      for (let index = 0; index < visible.length; index += 1) {
+        const rect = visible[index].rect;
+        for (let candidate = index + 1; candidate < visible.length; candidate += 1) {
+          const candidateRect = visible[candidate].rect;
+          const overlapWidth = Math.min(rect.right, candidateRect.right) - Math.max(rect.left, candidateRect.left);
+          const overlapHeight = Math.min(rect.bottom, candidateRect.bottom) - Math.max(rect.top, candidateRect.top);
+          if (overlapWidth > 2 && overlapHeight > 2) {
+            const label = (element) => element.getAttribute("data-object-id") ?? element.getAttribute("aria-label") ?? element.className;
+            const bounds = (value) => `${Math.round(value.left)},${Math.round(value.top)},${Math.round(value.right)},${Math.round(value.bottom)}`;
+            pairs.push(`${label(visible[index].element)} [${bounds(rect)}] <> ${label(visible[candidate].element)} [${bounds(candidateRect)}]`);
+          }
+        }
+      }
+      return pairs;
     };
     const containsPoint = (rect, x, y) => Boolean(rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
     const legalTargets = Array.from(document.querySelectorAll("[data-object-id].is-prompt-enabled"))
@@ -789,12 +837,32 @@ async function assertMatchStateSurface(page, shot) {
     const homeCards = Array.from(document.querySelectorAll(".wire-player-home .card-face")).filter(isInsideViewport);
     const pileBoxes = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-stack-box")).filter(isInsideViewport);
     const runeCards = Array.from(document.querySelectorAll(".arena-hand.is-self .wire-rune-card-frame .card-face")).filter(isInsideViewport);
+    const battlefieldCards = Array.from(document.querySelectorAll("[data-arena-battlefield-region] .wire-card-flow-battlefield-unit > .card-face"));
+    const baseSlots = Array.from(document.querySelectorAll(".wire-player-self .wire-base-card-grid > :where(.card-face, .wire-card-slot)"));
+    const selfRailRegions = [".wire-hand-rune-deck", ".wire-hand-rune-track", ".wire-hand-cards", ".wire-hand-piles"]
+      .map((selector) => selfHand?.querySelector(selector))
+      .filter((element) => element instanceof HTMLElement);
+    const visibleImageOverlayCount = Array.from(document.querySelectorAll(".arena-table .card-image-cost, .arena-table .card-image-power, .arena-table .card-image-title"))
+      .filter((element) => getComputedStyle(element).display !== "none" && isInsideViewport(element)).length;
+    const publicCards = [...homeCards, ...battlefieldCards, ...selfCards, ...opponentCards];
+    const homeLayouts = Array.from(document.querySelectorAll(".wire-player-home")).map((element) => {
+      const style = getComputedStyle(element);
+      return {
+        columns: style.gridTemplateColumns,
+        gap: style.columnGap,
+        heroArea: style.getPropertyValue("--wire-hero-area-w").trim(),
+        signatureArea: style.getPropertyValue("--wire-signature-area-w").trim(),
+        width: element.getBoundingClientRect().width
+      };
+    });
     return {
       actionEntryCount: actionLayer?.querySelectorAll("[data-action-render-action]").length ?? 0,
       actionLayerMode: actionLayer?.getAttribute("data-arena-action-mode") ?? "none",
       actionLayerRect: rectOf(actionLayer),
       actionPanelCount: actionLayer?.querySelectorAll('[data-action-panel-presentation="arena"]').length ?? 0,
       arenaRect: rectOf(arena),
+      baseSlotCount: baseSlots.length,
+      baseSlotOverlapCount: overlapCount(baseSlots),
       battlefieldClientWidth: battlefield?.clientWidth ?? 0,
       battlefieldHeightRatio: tableRect && battlefieldRect ? battlefieldRect.height / tableRect.height : 0,
       battlefieldScrollWidth: battlefield?.scrollWidth ?? 0,
@@ -804,6 +872,7 @@ async function assertMatchStateSurface(page, shot) {
       handViewportRatio: selfHandRect ? selfHandRect.height / window.innerHeight : 1,
       homeCardCount: homeCards.length,
       homeCardMaxHeight: homeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
+      homeLayouts,
       hasArena: Boolean(arena),
       hasFixedDock: Boolean(document.querySelector("[data-game-action-dock]")),
       hasRoot: Boolean(root),
@@ -822,6 +891,8 @@ async function assertMatchStateSurface(page, shot) {
       } : null,
       pileBoxCount: pileBoxes.length,
       pileBoxMaxHeight: pileBoxes.reduce((height, box) => Math.max(height, box.getBoundingClientRect().height), 0),
+      publicCardOverlapCount: overlapCount(publicCards),
+      publicCardOverlapPairs: overlapPairs(publicCards),
       runeCardCount: runeCards.length,
       runeCardMaxHeight: runeCards.reduce((height, card) => Math.max(height, card.getBoundingClientRect().height), 0),
       scoreTokenCount: table?.querySelectorAll(".tabletop-score-token").length ?? 0,
@@ -829,10 +900,12 @@ async function assertMatchStateSurface(page, shot) {
       selfCardMaxBottom: selfCards.reduce((bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom), 0),
       selfFrontCount: selfCards.reduce((count, card) => count + card.querySelectorAll(".card-full-image").length, 0),
       selfVisibleFrontCount: selfCards.filter(isInsideViewport).length,
+      selfRailOverlapCount: overlapCount(selfRailRegions),
       tableRect: rectOf(table),
       quickActionsRect: rectOf(document.querySelector(".game-match-quick-actions")),
       viewportHeight: window.innerHeight,
-      viewportWidth: window.innerWidth
+      viewportWidth: window.innerWidth,
+      visibleImageOverlayCount
     };
   });
 
@@ -844,17 +917,26 @@ async function assertMatchStateSurface(page, shot) {
   if (surface.scoreTokenCount < 2) {
     failures.push(`playable table must show both player score tokens: ${surface.scoreTokenCount}`);
   }
-  const minimumHomeCardHeight = mobile ? 77 : surface.viewportWidth >= 1600 ? 100 : 89;
+  const minimumHomeCardHeight = mobile ? 89 : surface.viewportWidth >= 1600 ? 134 : surface.viewportWidth < 1400 ? 100 : 114;
   if (surface.homeCardCount > 0 && surface.homeCardMaxHeight < minimumHomeCardHeight) {
     failures.push(`public legend, champion, and base cards are too small: ${JSON.stringify({ actual: surface.homeCardMaxHeight, minimum: minimumHomeCardHeight })}`);
   }
-  const minimumPileBoxHeight = mobile ? 75 : 83;
+  const minimumPileBoxHeight = mobile ? 83 : surface.viewportWidth >= 1600 ? 122 : 105;
   if (surface.pileBoxCount > 0 && surface.pileBoxMaxHeight < minimumPileBoxHeight) {
     failures.push(`deck piles are too small: ${JSON.stringify({ actual: surface.pileBoxMaxHeight, minimum: minimumPileBoxHeight })}`);
   }
-  const minimumRuneCardHeight = mobile ? 47 : 52;
+  const minimumRuneCardHeight = mobile ? 52 : surface.viewportWidth >= 1600 ? 75 : 66;
   if (surface.runeCardCount > 0 && surface.runeCardMaxHeight < minimumRuneCardHeight) {
     failures.push(`rune cards are too small: ${JSON.stringify({ actual: surface.runeCardMaxHeight, minimum: minimumRuneCardHeight })}`);
+  }
+  if (surface.baseSlotCount < 4) {
+    failures.push(`base must expose at least four independent visual slots: ${surface.baseSlotCount}`);
+  }
+  if (surface.baseSlotOverlapCount > 0 || surface.publicCardOverlapCount > 0 || surface.selfRailOverlapCount > 0) {
+    failures.push(`arena elements must not overlap: ${JSON.stringify({ base: surface.baseSlotOverlapCount, cards: surface.publicCardOverlapCount, homes: surface.homeLayouts, pairs: surface.publicCardOverlapPairs, rail: surface.selfRailOverlapCount })}`);
+  }
+  if (surface.visibleImageOverlayCount > 0) {
+    failures.push(`official card images must not show duplicate cost, power, or title overlays: ${surface.visibleImageOverlayCount}`);
   }
   if (surface.selfCardCount > 0 && surface.selfFrontCount < 1) {
     failures.push(`visible self cards must render official card fronts: ${JSON.stringify({
@@ -880,11 +962,11 @@ async function assertMatchStateSurface(page, shot) {
       neutralLabels: surface.opponentNeutralLabelCount
     })}`);
   }
-  const minimumBattlefieldRatio = mobile ? 0.519 : 0.499;
+  const minimumBattlefieldRatio = mobile ? 0.279 : 0.399;
   if (surface.battlefieldHeightRatio < minimumBattlefieldRatio) {
     failures.push(`public battlefield is too short: ${JSON.stringify({ actual: surface.battlefieldHeightRatio, minimum: minimumBattlefieldRatio })}`);
   }
-  const maximumHandRatio = mobile ? 0.221 : 0.181;
+  const maximumHandRatio = mobile ? 0.261 : 0.181;
   if (surface.handViewportRatio > maximumHandRatio) {
     failures.push(`resting hand is too tall: ${JSON.stringify({ actual: surface.handViewportRatio, maximum: maximumHandRatio })}`);
   }

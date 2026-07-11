@@ -1724,7 +1724,7 @@ function WirePlayerHome({
     ),
     base: (
       <section className="wire-base-main" key="base" aria-label={`${ownerLabel} 基地`}>
-        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" hintByObjectId={interaction.hintByObjectId} ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" hintByObjectId={interaction.hintByObjectId} ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={4} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     )
   } satisfies Record<string, ReactNode>;

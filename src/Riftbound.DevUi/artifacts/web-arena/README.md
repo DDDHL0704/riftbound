@@ -15,8 +15,16 @@
 | `05-result.png` | P1 胜利结算 | 1440x900，双客户端正式流程 |
 | `06-mobile.png` | 移动牌桌 | 390x844，Playwright |
 | `07-wide.png` | 宽屏牌桌 | 1920x1080，Playwright |
+| `08-populated-board.png` | 双方基地、战场、放逐、符文与手牌均有内容的布局图例 | 1440x900，Playwright |
 
 `formal-18/` 保留起手、主行动、单位移动和结算四个节点的 P1/P2 双视角原始截图。
+
+## 空间参考
+
+- [Steam Workshop: Riftbound - LGS Table](https://steamcommunity.com/sharedfiles/filedetails/?id=3606647746)：参考独立双战场、横向基地带和两侧资源区。
+- [Riftbound playmat layout discussion](https://www.reddit.com/r/riftboundtcg/comments/1p6094g/is_it_just_me_or_does_the_common_playmat_layout/)：参考基地与符文需要比常见单人垫更大的空间，以及两张战场应明确分区。
+
+以上仅作为空间与交互参考，不作为规则依据。
 
 ## 双客户端流程
 
@@ -45,4 +53,4 @@ RIFTBOUND_QA_OUTPUT_ROOT=/tmp/riftbound-arena-qa-full npm --prefix src/Riftbound
 npm --prefix src/Riftbound.DevUi run smoke:chrome -- --start-api
 ```
 
-覆盖视口：1920x1080、1440x900、1280x720、390x844。浏览器检查包括无文档级溢出、约 50% 的平衡战场比例、手牌比例、传奇/英雄/基地最小尺寸、牌库与符文最小尺寸、卡牌完整可见、直接点选、Esc 清除、复杂提示、键盘可访问性和 Axe 扫描。
+覆盖视口：1920x1080、1440x900、1280x720、390x844。浏览器检查包括无文档级溢出、桌面约 40% 的战场比例、手牌比例、传奇/英雄/基地最小尺寸、牌库与符文最小尺寸、基地至少四个独立视觉槽、按滚动容器真实裁剪边界计算的可见卡牌与资源区零交叠、官方卡图无重复覆盖标签、卡牌完整可见、直接点选、Esc 清除、复杂提示、键盘可访问性和 Axe 扫描。
