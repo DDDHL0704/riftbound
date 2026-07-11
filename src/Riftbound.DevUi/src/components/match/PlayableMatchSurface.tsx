@@ -1,4 +1,4 @@
-import { ArrowLeft, Wifi } from "lucide-react";
+import { ArrowLeft, PanelRight, Wifi } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { Button } from "../ui/Button";
 
@@ -52,6 +52,13 @@ export function PlayableMatchSurface({
           <span>{windowLabel}</span>
           <span className="game-connection-state"><Wifi size={14} />{connectionLabel}</span>
         </div>
+        <details className="game-debug-drawer arena-side-drawer" data-game-debug-drawer>
+          <summary aria-label="打开连接与规则诊断" title="连接与规则诊断">
+            <PanelRight aria-hidden="true" size={17} />
+            <span>连接与规则诊断</span>
+          </summary>
+          <div className="game-debug-drawer-body">{debugContent}</div>
+        </details>
         <div className="wire-topbar-actions game-match-quick-actions">{quickActions}</div>
       </header>
 
@@ -63,10 +70,6 @@ export function PlayableMatchSurface({
         <div className="arena-action-layer" data-arena-action-layer>{actionLayer}</div>
       </section>
 
-      <details className="game-debug-drawer arena-side-drawer" data-game-debug-drawer>
-        <summary>连接与规则诊断</summary>
-        <div className="game-debug-drawer-body">{debugContent}</div>
-      </details>
     </div>
   );
 }

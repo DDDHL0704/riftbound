@@ -1718,7 +1718,8 @@ function WirePlayerHome({
   const runeDeckCount = zones.runeDeckCount ?? 0;
   const baseSections = {
     banish: (
-      <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
+      <section className="wire-banish-main" data-wire-banish-zone key="banish" aria-label={`${ownerLabel} 放逐区`}>
+        <span className="wire-banish-label" aria-hidden="true">放逐</span>
         <WirePublicPile ids={zones.banished ?? []} hintByObjectId={interaction.hintByObjectId} interactionByObjectId={interaction.interactionByObjectId} kind="banished" label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     ),
@@ -1730,7 +1731,7 @@ function WirePlayerHome({
   } satisfies Record<string, ReactNode>;
   const homeSections = {
     base: (
-      <WireZone className="wire-home-base" key="base" title={`${ownerLabel} 基地 / 放逐`}>
+      <WireZone className="wire-home-base" key="base" title={`${ownerLabel} 基地`}>
         <div className="wire-base-banish-grid" style={wireGridColumnsStyle(layout.baseColumns)}>
           {layout.baseSlots.map((slot) => baseSections[slot])}
         </div>
@@ -1756,9 +1757,9 @@ function WirePlayerHome({
         data-wire-player-score-side={side}
         role="group"
       >
-        <span className="tabletop-score-name">{ownerLabel}</span>
+        <span className="tabletop-score-name">{side === "self" ? "我方" : "对方"}</span>
         <strong>{score}</strong>
-        <small className="tabletop-score-meta">主牌 {mainDeckCount} / 符文 {runeDeckCount}</small>
+        <small className="tabletop-score-meta">牌库 {mainDeckCount} · 符文 {runeDeckCount}</small>
       </div>
       {layout.slots.map((slot) => homeSections[slot])}
     </section>
@@ -2194,7 +2195,7 @@ function WireZone({ children, className = "", title }: { children: ReactNode; cl
 function visibleZoneLabel(title: string): string {
   if (title.includes("传奇")) return "传奇";
   if (title.includes("英雄")) return "英雄";
-  if (title.includes("基地")) return "基地 / 放逐";
+  if (title.includes("基地")) return "基地";
   return title;
 }
 

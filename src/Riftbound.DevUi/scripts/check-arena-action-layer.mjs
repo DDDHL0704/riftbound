@@ -48,6 +48,7 @@ assert(layerSource.includes("data-arena-action-mode"), "action layer must expose
 assert(layerSource.includes("data-object-id"), "context mode must anchor from the selected card DOM");
 assert(layerSource.includes("--arena-action-translate-y"), "context mode must open above lower-half cards and below upper-half cards");
 assert(layerSource.includes("const panelWidth = Math.min(600"), "desktop context actions must clamp their horizontal anchor inside the table");
+assert(layerSource.includes("objectOnRight ? minimumX : maximumX"), "desktop context actions must dock opposite the selected battlefield card");
 assert(actionPanelSource.includes('presentation?: "diagnostic" | "play" | "arena"'), "action panel must expose the compact arena presentation");
 assert(actionPanelSource.includes("data-arena-action-choices"), "arena presentation must expose progressive action choices");
 assert(actionPanelSource.includes("aria-expanded"), "arena action choices must announce their expanded state");

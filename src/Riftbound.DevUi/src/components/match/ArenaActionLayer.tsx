@@ -40,8 +40,10 @@ export function ArenaActionLayer({ children, label, plan }: ArenaActionLayerProp
       const desiredX = objectRect.left - hostRect.left + objectRect.width / 2;
       const minimumX = panelWidth / 2 + 12;
       const maximumX = hostRect.width - panelWidth / 2 - 12;
+      const objectOnRight = desiredX >= hostRect.width / 2;
+      // Keep the next battlefield target visible by docking the tray opposite the selected card.
       const clampedX = maximumX >= minimumX
-        ? Math.max(minimumX, Math.min(maximumX, desiredX))
+        ? (objectOnRight ? minimumX : maximumX)
         : hostRect.width / 2;
       setAnchorStyle({
         "--arena-action-x": `${clampedX}px`,

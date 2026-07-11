@@ -1,8 +1,8 @@
 {
   "runeDeckSize": 12,
   "arena": {
-    "battlefieldMinHeightRatio": 0.4,
-    "handMaxViewportRatio": 0.18,
+    "battlefieldMinHeightRatio": 0.34,
+    "handMaxViewportRatio": 0.15,
     "battlefieldSlots": ["leftSite", "leftLane", "rightLane", "rightSite"],
     "desktopMinWidth": 1280,
     "compactDesktopMinWidth": 900,
@@ -13,9 +13,9 @@
       "hand": "bottomFan"
     },
     "opponent": {
-      "runes": "topLeft",
+      "runes": "topRight",
       "home": "topCenter",
-      "mainDeck": "topRight",
+      "mainDeck": "topLeft",
       "hiddenHand": "topFan"
     }
   },

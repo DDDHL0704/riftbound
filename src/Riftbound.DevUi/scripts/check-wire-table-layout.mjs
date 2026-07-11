@@ -31,6 +31,7 @@ const sidePanelSlots = [
 
 validateRoot();
 validateTokens();
+validateArena();
 validateTableRows();
 validateHandRails();
 validateHomes();
@@ -80,6 +81,41 @@ function validateTokens() {
 
   if (tokens.standbyTrackMinHeight > tokens.standbyTrackHeight) {
     errors.push("standby track minimum height must not exceed standby track height");
+  }
+}
+
+function validateArena() {
+  const arena = layout.arena;
+  if (!arena || typeof arena !== "object") {
+    errors.push("arena object is required");
+    return;
+  }
+
+  if (arena.battlefieldMinHeightRatio !== 0.34) {
+    errors.push("arena.battlefieldMinHeightRatio must keep the public battlefield compact at 0.34");
+  }
+  if (arena.handMaxViewportRatio !== 0.15) {
+    errors.push("arena.handMaxViewportRatio must keep each hand rail at 0.15");
+  }
+  expectArray("arena.battlefieldSlots", arena.battlefieldSlots, ["leftSite", "leftLane", "rightLane", "rightSite"]);
+
+  const expectedSelf = {
+    runes: "bottomLeft",
+    home: "bottomCenter",
+    mainDeck: "bottomRight",
+    hand: "bottomFan"
+  };
+  const expectedOpponent = {
+    runes: "topRight",
+    home: "topCenter",
+    mainDeck: "topLeft",
+    hiddenHand: "topFan"
+  };
+  for (const [key, expected] of Object.entries(expectedSelf)) {
+    if (arena.self?.[key] !== expected) errors.push(`arena.self.${key} should be ${expected}`);
+  }
+  for (const [key, expected] of Object.entries(expectedOpponent)) {
+    if (arena.opponent?.[key] !== expected) errors.push(`arena.opponent.${key} should be ${expected}`);
   }
 }
 
