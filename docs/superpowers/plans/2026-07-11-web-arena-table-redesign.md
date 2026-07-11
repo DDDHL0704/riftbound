@@ -1,6 +1,6 @@
 # Web Arena Table Redesign Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Status:** 2026-07-11 implemented and verified. Steps use checkbox syntax to retain the delivery audit trail.
 
 **Goal:** Replace the Web match route's stacked rows and fixed action dock with a full-viewport arena where shared battlefields dominate, the local hand is a bottom fan, and server-prompted actions use direct table selection plus contextual layers.
 
@@ -32,7 +32,7 @@
 - Consumes: existing semantic player, hand, battlefield, and zone IDs in `WIRE_TABLE_LAYOUT`.
 - Produces: `ArenaLayoutContract`, `ARENA_LAYOUT`, and a build-time gate for required slots and ratios.
 
-- [ ] **Step 1: Write the failing contract check**
+- [x] **Step 1: Write the failing contract check**
 
 ```js
 const arena = layout.arena;
@@ -45,13 +45,13 @@ assert.equal(arena.self.mainDeck, "bottomRight");
 assert.equal(arena.opponent.hiddenHand, "topFan");
 ```
 
-- [ ] **Step 2: Run the check and verify it fails**
+- [x] **Step 2: Run the check and verify it fails**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-table-contract`
 
 Expected: non-zero exit with `wireTableLayoutData.json must define arena`.
 
-- [ ] **Step 3: Add the typed arena contract**
+- [x] **Step 3: Add the typed arena contract**
 
 ```ts
 export type ArenaEdgePosition = "topLeft" | "topCenter" | "topRight" | "bottomLeft" | "bottomCenter" | "bottomRight";
@@ -71,7 +71,7 @@ export const ARENA_LAYOUT = WIRE_TABLE_LAYOUT.arena;
 
 Add JSON values `0.65`, `0.18`, `1280`, and `900`, with the approved edge positions. Preserve existing semantic zone mappings while the old row values remain temporarily available to regression tests.
 
-- [ ] **Step 4: Register and run the check**
+- [x] **Step 4: Register and run the check**
 
 Add `"check:arena-table-contract": "node scripts/check-arena-table-contract.mjs"` before `check:playable-surface` in the build chain.
 
@@ -79,13 +79,13 @@ Run: `npm --prefix src/Riftbound.DevUi run check:arena-table-contract`
 
 Expected: `Arena table contract check passed.`
 
-- [ ] **Step 5: Run adjacent layout gates**
+- [x] **Step 5: Run adjacent layout gates**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:tabletop-layout && npm --prefix src/Riftbound.DevUi run check:wire-table-layout`
 
 Expected: both checks pass without changing server zone semantics.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/package.json \
@@ -107,7 +107,7 @@ git commit -m "Define the Web arena layout contract"
 - Consumes: the five existing React zone renderers and `ARENA_LAYOUT`.
 - Produces: `ArenaTableProps`, `data-arena-table`, named arena slots, and a playable surface with overlay layers instead of a fixed dock row.
 
-- [ ] **Step 1: Change the playable-surface gate to the desired DOM**
+- [x] **Step 1: Change the playable-surface gate to the desired DOM**
 
 ```js
 requireText(arenaTableSource, "data-arena-table", "match must expose the arena table");
@@ -118,13 +118,13 @@ rejectText(playableMatchSource, "data-game-action-dock", "fixed action dock must
 requireText(playableMatchSource, "data-arena-action-layer", "context actions must remain inside an overlay layer");
 ```
 
-- [ ] **Step 2: Run the gate and verify it fails**
+- [x] **Step 2: Run the gate and verify it fails**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:playable-surface`
 
 Expected: failures for missing `ArenaTable` and the still-present fixed dock.
 
-- [ ] **Step 3: Create the arena slot component**
+- [x] **Step 3: Create the arena slot component**
 
 ```tsx
 export type ArenaTableProps = {
@@ -152,11 +152,11 @@ export function ArenaTable(props: ArenaTableProps) {
 }
 ```
 
-- [ ] **Step 4: Compose explicit arena slots in `MatchPage`**
+- [x] **Step 4: Compose explicit arena slots in `MatchPage`**
 
 Replace the row map with named render values for `opponentHand`, `opponentHome`, `battlefield`, `selfHome`, and `selfHand`. Pass those nodes to `ArenaTable`; do not change `buildWireTableViewModel`, `WireBattlefieldTable`, `WirePlayerHome`, or `WireHandRail` data inputs.
 
-- [ ] **Step 5: Remove the layout-owned action dock**
+- [x] **Step 5: Remove the layout-owned action dock**
 
 Change `PlayableMatchSurfaceProps.actionDock` to `actionLayer`. Render it inside `game-table-stage` after the arena table:
 
@@ -170,13 +170,13 @@ Change `PlayableMatchSurfaceProps.actionDock` to `actionLayer`. Render it inside
 
 Remove the `game-action-dock` section entirely. Keep diagnostics as a closed details element until Task 5 converts it to the side drawer.
 
-- [ ] **Step 6: Run source and type gates**
+- [x] **Step 6: Run source and type gates**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:playable-surface && npm --prefix src/Riftbound.DevUi run typecheck:strict`
 
 Expected: both pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/scripts/check-playable-surface.mjs \
@@ -199,7 +199,7 @@ git commit -m "Compose the Web match as a full arena"
 - Consumes: existing `WireCardFlow` IDs, objects, hidden-object fallback, selection, preview, and interaction maps.
 - Produces: `presentation?: "rail" | "fan"`, per-card fan variables, and equivalent local/hidden fan DOM without identity leakage.
 
-- [ ] **Step 1: Write the failing fan and hidden-information gate**
+- [x] **Step 1: Write the failing fan and hidden-information gate**
 
 ```js
 requireText(flowSource, 'presentation?: "rail" | "fan"', "card flow must expose fan presentation");
@@ -211,17 +211,17 @@ requireText(cardSource, "style", "CardFace must accept fan CSS variables");
 requireText(cardSource, 'cardAccessibilityLabel("未公开卡牌"', "hidden fans must retain neutral labels");
 ```
 
-- [ ] **Step 2: Run the gate and verify it fails**
+- [x] **Step 2: Run the gate and verify it fails**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-fan-hand`
 
 Expected: non-zero exit for missing fan presentation.
 
-- [ ] **Step 3: Extend `CardFace` without changing card semantics**
+- [x] **Step 3: Extend `CardFace` without changing card semantics**
 
 Add optional `className?: string` and `style?: CSSProperties` props. Append the class to all hidden, image, and fallback containers and pass the style directly to the same container. Do not pass a front image or title to a hidden card.
 
-- [ ] **Step 4: Add fan geometry to `WireCardFlow`**
+- [x] **Step 4: Add fan geometry to `WireCardFlow`**
 
 ```ts
 function fanCardStyle(index: number, count: number): WireCssProperties {
@@ -235,17 +235,17 @@ function fanCardStyle(index: number, count: number): WireCssProperties {
 
 When `presentation === "fan"`, pass `className="arena-fan-card"` and the style above to every `CardFace`. Keep the existing object, spec, selection, preview, and prompt props unchanged.
 
-- [ ] **Step 5: Use fan mode for both hands**
+- [x] **Step 5: Use fan mode for both hands**
 
 Pass `presentation="fan"` in `WireHandRail`; distinguish self and opponent only through the existing `hidden` flag and side classes.
 
-- [ ] **Step 6: Run fan, information-boundary, and type gates**
+- [x] **Step 6: Run fan, information-boundary, and type gates**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-fan-hand && npm --prefix src/Riftbound.DevUi run check:wire-information-boundary-plan && npm --prefix src/Riftbound.DevUi run typecheck:strict`
 
 Expected: all pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/package.json \
@@ -270,7 +270,7 @@ git commit -m "Add the arena fan hand presentation"
 - Consumes: `ActionPromptDto.view.type`, `selectedObjectId`, existing `ActionPanel`, and `WireObjectCommandTray`.
 - Produces: `ArenaPromptPresentationMode = "hidden" | "context" | "modal"`, `buildArenaPromptPresentation`, and an action layer anchored to a selected table object when available.
 
-- [ ] **Step 1: Write the failing presentation check**
+- [x] **Step 1: Write the failing presentation check**
 
 ```js
 requireText(planSource, '"MULLIGAN"', "mulligan must use a modal layer");
@@ -281,13 +281,13 @@ requireText(layerSource, "data-object-id", "context mode must anchor from the se
 rejectText(surfaceSource, "game-action-dock", "legacy dock must not return");
 ```
 
-- [ ] **Step 2: Run the check and verify it fails**
+- [x] **Step 2: Run the check and verify it fails**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-action-layer`
 
 Expected: non-zero exit for missing plan and layer.
 
-- [ ] **Step 3: Add a presentation-only prompt plan**
+- [x] **Step 3: Add a presentation-only prompt plan**
 
 ```ts
 const MODAL_PROMPTS = new Set(["MULLIGAN", "ASSIGN_COMBAT_DAMAGE", "ORDER_TRIGGERS"]);
@@ -305,21 +305,21 @@ export function buildArenaPromptPresentation(input: {
 
 This utility controls presentation only; it must not inspect costs, card traits, zones, or legal rules.
 
-- [ ] **Step 4: Implement the action-layer anchor**
+- [x] **Step 4: Implement the action-layer anchor**
 
 `ArenaActionLayer` locates the visible `[data-object-id]` matching `anchorObjectId`, reads its bounding rectangle in `useLayoutEffect`, and exposes `--arena-action-x` and `--arena-action-y`. It recalculates on window resize. If the object is absent, context mode falls back to bottom-center above the hand. Modal mode uses a centered dialog-like region with an accessible label.
 
-- [ ] **Step 5: Reuse existing command presenters**
+- [x] **Step 5: Reuse existing command presenters**
 
 Render the existing `ActionPanel presentation="play"` as the layer body. Render `WireObjectCommandTray` in the same context layer instead of as a separate layout row. Do not duplicate command construction or special prompt state.
 
-- [ ] **Step 6: Run prompt-family regression gates**
+- [x] **Step 6: Run prompt-family regression gates**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-action-layer && npm --prefix src/Riftbound.DevUi run check:action-panel-render-plan && npm --prefix src/Riftbound.DevUi run check:candidate-interaction-plan && npm --prefix src/Riftbound.DevUi run check:wire-object-command-tray-plan && npm --prefix src/Riftbound.DevUi run typecheck:strict`
 
 Expected: all pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/package.json \
@@ -345,7 +345,7 @@ git commit -m "Move server prompts into arena action layers"
 - Consumes: arena data markers, visible `WirePlayerEntry` champion/legend objects, `BehaviorSpec.frontImage`, and existing diagnostics content.
 - Produces: final post-legacy arena CSS, viewer-safe background URLs, measurable geometry markers, a closed right drawer, and the independent narrow layout.
 
-- [ ] **Step 1: Write the failing visual-contract check**
+- [x] **Step 1: Write the failing visual-contract check**
 
 ```js
 requireText(mainSource, 'import "./styles/arena-table.css";', "arena CSS must load last");
@@ -356,17 +356,17 @@ requireText(styles, ".arena-side-drawer", "diagnostics must use a right drawer")
 rejectText(styles, "font-size: clamp(", "font size must not scale with viewport width");
 ```
 
-- [ ] **Step 2: Run the check and verify it fails**
+- [x] **Step 2: Run the check and verify it fails**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-visual-contract`
 
 Expected: non-zero exit for missing stylesheet.
 
-- [ ] **Step 3: Derive viewer-safe backdrops**
+- [x] **Step 3: Derive viewer-safe backdrops**
 
 Add a helper in `MatchPage` that searches only `entry.zones.championZone` and `entry.zones.legendZone`, resolves the already-visible object and its `BehaviorSpec.frontImage`, and returns `undefined` when unavailable or face-down. Pass the URLs to `ArenaTable`; do not inspect hidden hand or standby IDs.
 
-- [ ] **Step 4: Implement desktop geometry in the final stylesheet**
+- [x] **Step 4: Implement desktop geometry in the final stylesheet**
 
 Use one absolute/grid arena containing top/bottom edge rails, the 65% battlefield core, side battlefield cards, and bottom/top fan overlays. Override legacy `!important` declarations only under `.playable-match-surface:has([data-arena-table])` so lobby, room, result, and diagnostic routes are unaffected.
 
@@ -383,25 +383,25 @@ Use these state tokens exactly:
 
 Backdrop layers are desaturated and darkened with pseudo-element masks. Official card fronts remain unfiltered.
 
-- [ ] **Step 5: Implement hand and overflow motion**
+- [x] **Step 5: Implement hand and overflow motion**
 
 Use `--arena-fan-index`, `--arena-fan-center`, and stable card dimensions to compute overlap, rotation, and vertical arc. Hover/focus/selection raises the card above siblings without changing container size. Respect `prefers-reduced-motion` by removing transforms that animate over time while preserving final selected geometry.
 
-- [ ] **Step 6: Convert diagnostics to an on-demand drawer**
+- [x] **Step 6: Convert diagnostics to an on-demand drawer**
 
 Keep the existing `<details>` semantics, but style it as a right overlay with a compact icon/summary trigger. Closed state reserves no arena width. Open state traps no pointer input outside the drawer and remains dismissible with Escape through native details behavior or the existing close handler.
 
-- [ ] **Step 7: Add compact desktop and mobile layouts**
+- [x] **Step 7: Add compact desktop and mobile layouts**
 
 At `900px–1279px`, reduce edge-rail width and increase card overlap without shrinking text. At `max-width: 899px`, use a vertical layout with an opponent summary, horizontally scrollable/snap-aligned battlefield lanes, compact edge resources, and an expandable bottom fan. Keep the same DOM, candidate model, and hidden-card component.
 
-- [ ] **Step 8: Run visual, text, and type gates**
+- [x] **Step 8: Run visual, text, and type gates**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:arena-visual-contract && npm --prefix src/Riftbound.DevUi run check:user-facing-text && npm --prefix src/Riftbound.DevUi run typecheck:strict`
 
 Expected: all pass.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/package.json \
@@ -424,7 +424,7 @@ git commit -m "Style the Web match as a layered card arena"
 - Consumes: final arena DOM markers and seeded `midgame-showcase` / prompt fixtures.
 - Produces: measured ratio, overflow, occlusion, hidden-information, focus, mobile, and screenshot evidence.
 
-- [ ] **Step 1: Change smoke assertions before styling is considered complete**
+- [x] **Step 1: Change smoke assertions before styling is considered complete**
 
 ```js
 const stage = document.querySelector("[data-game-table]")?.getBoundingClientRect();
@@ -440,31 +440,31 @@ return {
 
 For 1440x900 and 1920x1080, fail below `0.65` battlefield ratio or above `0.18` hand ratio. Fail any desktop viewport with a fixed dock or document overflow.
 
-- [ ] **Step 2: Add legal-target occlusion and hidden-hand checks**
+- [x] **Step 2: Add legal-target occlusion and hidden-hand checks**
 
 Collect prompt-enabled objects outside `[data-arena-hand]` and assert their centers do not fall inside the local hand rectangle. Assert opponent hand card count equals card-back count, with zero `.card-full-image` descendants and no identity-bearing accessible name.
 
-- [ ] **Step 3: Add desktop and mobile QA shots**
+- [x] **Step 3: Add desktop and mobile QA shots**
 
 Capture seeded arena states at 1920x1080, 1440x900, 1280x720, and 390x844. On mobile, assert the active lane and action layer are reachable without horizontal document overflow. Keep axe checks on lobby, desktop match, and mobile match.
 
-- [ ] **Step 4: Add a direct-selection interaction**
+- [x] **Step 4: Add a direct-selection interaction**
 
 Using fixture candidates, click one unique source card, assert `[data-selected="true"]`, click one highlighted target, and assert the contextual action layer reflects the advanced draft. Press Escape and verify selection/action context closes without changing the authoritative fixture snapshot.
 
-- [ ] **Step 5: Run targeted QA**
+- [x] **Step 5: Run targeted QA**
 
 Run: `npm --prefix src/Riftbound.DevUi run check:playwright-qa-match-state-surface && npm --prefix src/Riftbound.DevUi run qa:appshots`
 
 Expected: all arena screenshots and accessibility audits pass.
 
-- [ ] **Step 6: Run Chrome smoke**
+- [x] **Step 6: Run Chrome smoke**
 
 Run: `npm --prefix src/Riftbound.DevUi run smoke:chrome -- --start-api`
 
 Expected: all routes, four match viewports, hidden-information checks, card inspection, direct selection, and geometry assertions pass with no browser errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/scripts/check-playwright-qa-match-state-surface.mjs \
@@ -485,7 +485,7 @@ git commit -m "Verify the Web arena across supported viewports"
 - Consumes: memory-mode API, two visible Web sessions, preconstructed decks, and the completed arena.
 - Produces: visible evidence for lobby, mulligan, main action, complex prompt, and result; reproducible run instructions; pushed `main`.
 
-- [ ] **Step 1: Start the real local stack**
+- [x] **Step 1: Start the real local stack**
 
 Run API:
 
@@ -502,15 +502,15 @@ Run Web client on the first free Vite port beginning at 5173:
 npm --prefix src/Riftbound.DevUi run dev -- --host 127.0.0.1
 ```
 
-- [ ] **Step 2: Open two visible isolated Web sessions**
+- [x] **Step 2: Open two visible isolated Web sessions**
 
 Use separate browser contexts so player keys and hidden snapshots cannot cross. Create/join one private room, choose preconstructed decks, submit, ready, and complete mulligan. Do not use DOM state from one context to populate the other.
 
-- [ ] **Step 3: Exercise the arena flow**
+- [x] **Step 3: Exercise the arena flow**
 
 Complete at least one rune action, card play, movement or battle declaration, target/cost selection, one complex prompt when available, pass/response, and authoritative result. If a natural run does not produce a specific complex prompt, use the server's existing focused seeded scenario in a separate visible session and label it as scenario evidence rather than full-match evidence.
 
-- [ ] **Step 4: Capture and inspect evidence**
+- [x] **Step 4: Capture and inspect evidence**
 
 Save accepted visible screenshots as:
 
@@ -524,7 +524,7 @@ src/Riftbound.DevUi/artifacts/web-arena/05-result.png
 
 Inspect each file and reject blank, loading, clipped, wrong-window, or identity-leaking captures. Record viewport, room/scenario, commit, expected visible state, and hidden-information result in the artifact README.
 
-- [ ] **Step 5: Run the complete verification set**
+- [x] **Step 5: Run the complete verification set**
 
 Run:
 
@@ -537,11 +537,11 @@ git diff --check
 
 Expected: all commands exit 0; browser logs contain no uncaught exception; final screenshot review finds no clipping or hidden face.
 
-- [ ] **Step 6: Update documentation and plan status**
+- [x] **Step 6: Update documentation and plan status**
 
 Document the Web URL, API command, supported viewports, direct-selection behavior, side drawer, evidence paths, and the fact that Godot parity is outside this goal. Mark every completed checkbox in this plan.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Riftbound.DevUi/README.md \
@@ -550,7 +550,7 @@ git add src/Riftbound.DevUi/README.md \
 git commit -m "Archive the playable Web arena evidence"
 ```
 
-- [ ] **Step 8: Rebase and push**
+- [x] **Step 8: Rebase and push**
 
 ```bash
 git fetch origin main

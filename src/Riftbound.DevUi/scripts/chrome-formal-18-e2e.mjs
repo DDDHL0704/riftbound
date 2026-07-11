@@ -167,7 +167,7 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   const playSource = await playFirstUnit(p1);
   assertEvent(p1, "CARD_PLAYED");
   assertEvent(p1, "STACK_ITEM_ADDED");
-  await waitForText(p1Tab.cdp, ["优先行动", "普通闭环", "让过优先权"]);
+  await waitForText(p1Tab.cdp, ["优先行动", "普通闭环", "跳过"]);
 
   logStep(9, "Both players pass priority on the stack window.");
   await passPriorityUntilStackResolves(p1, p2);
@@ -336,7 +336,7 @@ async function openPlayerChrome(playerId, playerKey, reconnectToken, debugPort, 
     })
   });
   await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/${roomDriver.roomId}` });
-  await waitForText(cdp, [roomDriver.roomId, "连接与规则诊断"]);
+  await waitForArenaMatch(cdp, roomDriver.roomId);
   return { playerId, cdp };
 }
 
@@ -397,9 +397,9 @@ async function connectPlayerTab(tab) {
 
 async function reloadAndReconnect(tab) {
   await cdpNavigate(tab.cdp, `${frontendUrl}/matches/${roomDriver.roomId}`);
-  await waitForText(tab.cdp, [roomDriver.roomId, "连接与规则诊断"]);
+  await waitForArenaMatch(tab.cdp, roomDriver.roomId);
   await ensurePlayerTabConnected(tab);
-  await waitForText(tab.cdp, [roomDriver.roomId, "已连接", tab.playerId]);
+  await waitForText(tab.cdp, ["已连接", tab.playerId]);
 }
 
 async function ensurePlayerTabConnected(tab) {
@@ -827,6 +827,29 @@ async function clickButton(cdp, text) {
     const bodyText = await readBodyText(cdp);
     throw new Error(`Could not click button containing ${text}:\n${bodyText.slice(0, 1000)}`);
   }
+}
+
+async function waitForArenaMatch(cdp, roomId) {
+  const expectedPath = `/matches/${roomId}`;
+  const deadline = Date.now() + 12_000;
+  let state = {};
+  while (Date.now() < deadline) {
+    const result = await cdp.send("Runtime.evaluate", {
+      expression: `(() => ({
+        hasArena: Boolean(document.querySelector("[data-playable-match-surface]")),
+        hasDiagnostics: (document.body?.innerText ?? "").includes("连接与规则诊断"),
+        path: window.location.pathname
+      }))()`,
+      returnByValue: true
+    });
+    state = result.result?.value ?? {};
+    if (state.path === expectedPath && state.hasArena && state.hasDiagnostics) {
+      return;
+    }
+    await delay(250);
+  }
+
+  throw new Error(`Expected playable arena for ${roomId}: ${JSON.stringify(state)}`);
 }
 
 async function waitForText(cdp, texts) {

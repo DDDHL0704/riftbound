@@ -71,6 +71,8 @@ npm run dev
 
 访问 `http://127.0.0.1:5173` 后，使用默认服务端地址 `http://127.0.0.1:5088`。如果本机 smoke 临时改用 `5093` 等端口，请在设置页写入对应服务端地址。当前 Web UI 只显示和转发服务端快照、服务端行动提示、事件、错误和命令日志，不做规则裁定；development-only seed 仅用于测试与 Browser/Chrome smoke，不是正式产品操作入口。
 
+Web 简约牌桌的布局、交互、验收命令与双客户端截图见 `src/Riftbound.DevUi/README.md` 和 `src/Riftbound.DevUi/artifacts/web-arena/README.md`。
+
 ## 项目结构
 
 | 路径 | 职责 |
