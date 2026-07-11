@@ -53,7 +53,8 @@ for (const slot of ["opponent-edge", "battlefield", "self-edge", "opponent-hand"
 rejectText(playableMatchSource, "data-game-action-dock", "fixed action dock must be removed");
 requireText(playableMatchSource, "data-arena-action-layer", "context actions must remain inside an overlay layer");
 requireText(playableMatchSource, "data-game-debug-drawer", "playable match must retain collapsed diagnostics");
-requireText(playableMatchSource, 'className="game-debug-drawer"', "match diagnostics must use a closed details element");
+requireText(playableMatchSource, '<details className="game-debug-drawer arena-side-drawer" data-game-debug-drawer>', "match diagnostics must use a closed details element");
+rejectText(playableMatchSource, "data-game-debug-drawer open", "match diagnostics must stay closed by default");
 requireText(matchSource, "<PlayableMatchSurface", "MatchPage must compose the new playable surface");
 if (matchSource.includes("符文战场对战线框")) {
   errors.push("the playable match title must not describe itself as a wireframe");

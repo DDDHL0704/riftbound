@@ -10,6 +10,7 @@ export type ArenaActionLayerProps = {
 type ArenaActionStyle = CSSProperties & {
   "--arena-action-x"?: string;
   "--arena-action-y"?: string;
+  "--arena-action-translate-y"?: string;
 };
 
 export function ArenaActionLayer({ children, label, plan }: ArenaActionLayerProps) {
@@ -34,9 +35,11 @@ export function ArenaActionLayer({ children, label, plan }: ArenaActionLayerProp
 
       const hostRect = host.getBoundingClientRect();
       const objectRect = object.getBoundingClientRect();
+      const openAbove = objectRect.top + objectRect.height / 2 > hostRect.top + hostRect.height / 2;
       setAnchorStyle({
         "--arena-action-x": `${objectRect.left - hostRect.left + objectRect.width / 2}px`,
-        "--arena-action-y": `${objectRect.bottom - hostRect.top + 10}px`
+        "--arena-action-y": `${(openAbove ? objectRect.top : objectRect.bottom) - hostRect.top + (openAbove ? -10 : 10)}px`,
+        "--arena-action-translate-y": openAbove ? "-100%" : "0%"
       });
     };
 

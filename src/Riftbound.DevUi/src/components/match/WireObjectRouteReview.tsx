@@ -7,6 +7,7 @@ import type {
 type WireObjectRouteReviewProps = {
   className?: string;
   onCommand?: CommandSubmitHandler;
+  presentation?: "diagnostic" | "arena";
   review: WireActionCommandReviewPlan;
   route?: WireActionRoutePlan;
 };
@@ -14,15 +15,21 @@ type WireObjectRouteReviewProps = {
 export function WireObjectRouteReview({
   className = "",
   onCommand,
+  presentation = "diagnostic",
   review,
   route
 }: WireObjectRouteReviewProps) {
+  if (presentation === "arena" && !route) {
+    return null;
+  }
+
   const canSubmit = review.canSubmit && Boolean(review.command) && Boolean(onCommand);
 
   return (
     <section
       aria-label="焦点对象提交路线"
       className={`wire-object-route-review ${className}`.trim()}
+      data-wire-object-route-review-presentation={presentation}
       data-wire-object-route-review-state={review.state}
       data-wire-object-route-state={route?.state ?? "empty"}
     >
@@ -34,18 +41,20 @@ export function WireObjectRouteReview({
         <small>{review.summary}</small>
       </div>
 
-      <div className="wire-object-route-review-metrics">
-        {review.metrics.map((metric) => (
-          <span data-wire-object-route-review-metric={metric.key} key={metric.key}>
-            <b>{metric.label}</b>
-            <strong>{metric.value}</strong>
-          </span>
-        ))}
-      </div>
+      {presentation === "diagnostic" ? (
+        <div className="wire-object-route-review-metrics">
+          {review.metrics.map((metric) => (
+            <span data-wire-object-route-review-metric={metric.key} key={metric.key}>
+              <b>{metric.label}</b>
+              <strong>{metric.value}</strong>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <strong className="wire-object-route-review-next">下一步：{review.nextStepLabel}</strong>
 
-      {route ? (
+      {presentation === "diagnostic" && route ? (
         <>
           <ol className="wire-object-route-review-steps" aria-label="焦点对象路线步骤">
             {route.steps.map((step) => (
@@ -91,9 +100,9 @@ export function WireObjectRouteReview({
             ))}
           </ol>
         </>
-      ) : (
+      ) : presentation === "diagnostic" ? (
         <span className="empty-hint">点击服务端候选并建立选择草稿后显示提交路线。</span>
-      )}
+      ) : null}
 
       <button
         className="wire-object-route-review-submit"

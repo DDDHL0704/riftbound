@@ -63,7 +63,7 @@ export function PlayableMatchSurface({
         <div className="arena-action-layer" data-arena-action-layer>{actionLayer}</div>
       </section>
 
-      <details className="game-debug-drawer" data-game-debug-drawer>
+      <details className="game-debug-drawer arena-side-drawer" data-game-debug-drawer>
         <summary>连接与规则诊断</summary>
         <div className="game-debug-drawer-body">{debugContent}</div>
       </details>

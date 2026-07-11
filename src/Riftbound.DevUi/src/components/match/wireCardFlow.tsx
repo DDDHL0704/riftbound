@@ -192,10 +192,18 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
 }
 
 function fanCardStyle(index: number, count: number): WireCssProperties {
+  const center = (count - 1) / 2;
+  const distance = index - center;
+  const rotationStep = count <= 5 ? 3.2 : Math.max(1.2, 16 / Math.max(1, count - 1));
   return {
     "--arena-fan-index": index,
     "--arena-fan-count": count,
-    "--arena-fan-center": (count - 1) / 2
+    "--arena-fan-center": center,
+    "--arena-fan-opponent-rise": `${Math.abs(distance) * 0.7}px`,
+    "--arena-fan-opponent-rotation": `${distance * rotationStep * -0.55}deg`,
+    "--arena-fan-rise": `${Math.abs(distance) * 2.4}px`,
+    "--arena-fan-rotation": `${distance * rotationStep}deg`,
+    "--arena-fan-z": index + 1
   };
 }
 

@@ -23,6 +23,7 @@ type WireObjectCommandTrayProps = {
   onCommand?: CommandSubmitHandler;
   onOpenDetail: (card: InspectedCard) => void;
   prompt?: ActionPromptDto;
+  presentation?: "diagnostic" | "arena";
   snapshot?: SnapshotDto;
   submissionGate?: ServerSubmissionGatePlan;
   trayPlan?: WireObjectCommandTrayPlan;
@@ -36,6 +37,7 @@ export function WireObjectCommandTray({
   onClear,
   onCommand,
   onOpenDetail,
+  presentation = "diagnostic",
   prompt,
   snapshot,
   submissionGate,
@@ -54,8 +56,9 @@ export function WireObjectCommandTray({
   return (
     <section
       aria-label="桌面焦点操作托盘"
-      className={`wire-object-command-tray is-${trayPlan.state}`}
+      className={`wire-object-command-tray is-${trayPlan.state} presentation-${presentation}`}
       data-wire-object-command-tray-object={trayPlan.objectId ?? ""}
+      data-wire-object-command-tray-presentation={presentation}
       data-wire-object-command-tray-state={trayPlan.state}
       data-wire-object-command-tray-visible={trayPlan.visible ? "true" : "false"}
     >
@@ -67,15 +70,16 @@ export function WireObjectCommandTray({
           </div>
           <StatusPill tone={trayPlan.tone}>{trayPlan.stateLabel}</StatusPill>
         </header>
-        <MetricGrid plan={trayPlan} />
-        <SubmitPreviewRows plan={trayPlan} />
-        <SemanticRows plan={trayPlan} />
+        {presentation === "diagnostic" ? <MetricGrid plan={trayPlan} /> : null}
+        {presentation === "diagnostic" ? <SubmitPreviewRows plan={trayPlan} /> : null}
+        {presentation === "diagnostic" ? <SemanticRows plan={trayPlan} /> : null}
         <SelectionRows plan={focusedPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
-        <ContextRows plan={trayPlan} />
+        {presentation === "diagnostic" ? <ContextRows plan={trayPlan} /> : null}
         <WireObjectRouteReview
           className="wire-object-command-tray-route"
           onCommand={onCommand}
+          presentation={presentation}
           review={focusedPlan.commandReview}
           route={focusedPlan.route}
         />

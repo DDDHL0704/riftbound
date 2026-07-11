@@ -153,6 +153,29 @@ function commandUiSource(
   };
 }
 
+function visibleArenaBackdrop(entry: WirePlayerEntry | undefined, specs: Record<string, BehaviorSpec>): string | undefined {
+  if (!entry) {
+    return undefined;
+  }
+
+  const publicIdentityIds = [
+    ...(entry.zones.championZone ?? []),
+    ...(entry.zones.legendZone ?? [])
+  ];
+  for (const objectId of publicIdentityIds) {
+    const object = entry.objects[objectId];
+    if (!object || object.isFaceDown || !object.cardNo) {
+      continue;
+    }
+    const image = specs[object.cardNo]?.frontImage?.trim();
+    if (image) {
+      return image;
+    }
+  }
+
+  return undefined;
+}
+
 // 检查层（inspection drawer）承载的 authority slot：移出右侧主 tab 轮换，
 // 收敛主区从 14 slot 到 10 slot，避免「权威/边界证据」常驻挤占行动控制台。
 const WIRE_SIDE_PANEL_INSPECTION_SLOTS: readonly WireSidePanelSlot[] = [
@@ -471,8 +494,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           specs={tableSpecByNo}
         />
       )}
+      opponentBackdrop={visibleArenaBackdrop(opponent, tableSpecByNo)}
       opponentEdge={renderHome("opponent", opponent)}
       opponentHand={renderHand("opponent", opponent)}
+      selfBackdrop={visibleArenaBackdrop(self, tableSpecByNo)}
       selfEdge={renderHome("self", self)}
       selfHand={renderHand("self", self)}
     />
@@ -1175,31 +1200,34 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 surface: "arena-object-actions"
               }, routeSource))}
               onOpenDetail={openDetailCard}
+              presentation="arena"
               prompt={tablePrompt}
               snapshot={tableSnapshot}
               submissionGate={tableSubmissionGate}
               trayPlan={selectedObjectCommandTrayPlan}
             />
-            <ActionPanel
-              connectionStatus={tableConnectionStatus}
-              onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
-                label: "当前行动",
-                surface: "arena-action-layer"
-              }, routeSource))}
-              onReady={() => void controller.ready({
-                label: "当前行动：准备",
-                surface: "arena-action-layer"
-              })}
-              onSubmitStarterDeck={() => void controller.submitStarterDeck({
-                label: "当前行动：提交构筑",
-                surface: "arena-action-layer"
-              })}
-              playerId={settings.playerId}
-              presentation="play"
-              prompt={tablePrompt}
-              snapshot={tableSnapshot}
-              specs={tableSpecByNo}
-            />
+            {arenaPromptPresentation.mode === "modal" ? (
+              <ActionPanel
+                connectionStatus={tableConnectionStatus}
+                onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+                  label: "当前行动",
+                  surface: "arena-action-layer"
+                }, routeSource))}
+                onReady={() => void controller.ready({
+                  label: "当前行动：准备",
+                  surface: "arena-action-layer"
+                })}
+                onSubmitStarterDeck={() => void controller.submitStarterDeck({
+                  label: "当前行动：提交构筑",
+                  surface: "arena-action-layer"
+                })}
+                playerId={settings.playerId}
+                presentation="arena"
+                prompt={tablePrompt}
+                snapshot={tableSnapshot}
+                specs={tableSpecByNo}
+              />
+            ) : null}
           </ArenaActionLayer>
         )}
         canAct={canAct}
@@ -1763,12 +1791,12 @@ function WireHandRail({
   } satisfies Record<string, ReactNode>;
   const handBodySections = {
     cards: (
-      <div className="wire-hand-cards" key="cards">
+      <div className="wire-hand-cards" data-arena-fan-hand key="cards">
         <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={handPlan} presentation="fan" selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </div>
     ),
     piles: (
-      <div className="wire-hand-piles" key="piles">
+      <div className="wire-hand-piles" data-arena-main-piles key="piles">
         {layout.pileSlots.map((slot) => pileSections[slot])}
       </div>
     )
@@ -1782,12 +1810,12 @@ function WireHandRail({
       </div>
     ),
     runeDeck: (
-      <div className="wire-hand-rune-deck" key="runeDeck">
+      <div className="wire-hand-rune-deck" data-arena-rune-deck key="runeDeck">
         <WireStackCount count={zones.runeDeckCount ?? WIRE_TABLE_LAYOUT.runeDeckSize} kind="runeDeck" label="符文牌堆" />
       </div>
     ),
     runeTrack: (
-      <div className="wire-hand-rune-track" key="runeTrack" role="group" aria-label={entry ? `${playerLabel(entry)} 已抽出符文` : "已抽出符文占位"}>
+      <div className="wire-hand-rune-track" data-arena-rune-cluster key="runeTrack" role="group" aria-label={entry ? `${playerLabel(entry)} 已抽出符文` : "已抽出符文占位"}>
         <WireRuneTrack ids={runeIds} interaction={interaction} objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} reverse={layout.runeReverse} specs={specs} />
       </div>
     )

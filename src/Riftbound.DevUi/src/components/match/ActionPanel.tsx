@@ -46,7 +46,7 @@ type ActionPanelProps = {
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   onCommand: CommandSubmitHandler;
-  presentation?: "diagnostic" | "play";
+  presentation?: "diagnostic" | "play" | "arena";
   specs?: Record<string, BehaviorSpec>;
 };
 
@@ -81,6 +81,7 @@ function buildCandidateChoicePresenter(
 }
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand, presentation = "diagnostic", specs = {} }: ActionPanelProps) {
+  const [expandedEntryKey, setExpandedEntryKey] = useState<string>();
   const submissionGate = buildServerSubmissionGatePlan({ connectionStatus, prompt, snapshot });
   const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt, snapshot, submissionGate });
   const renderPlan = buildActionPanelRenderPlan({
@@ -92,7 +93,15 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
     () => buildCandidateChoicePresenter(snapshot, specs),
     [snapshot, specs]
   );
-  const visibleEntries = presentation === "play" ? playableActionEntries(renderPlan.entries) : renderPlan.entries;
+  const visibleEntries = presentation === "diagnostic" ? renderPlan.entries : playableActionEntries(renderPlan.entries);
+  const arenaExpandedEntryKey = visibleEntries.some((entry) => entry.key === expandedEntryKey)
+    ? expandedEntryKey
+    : visibleEntries.length === 1
+      ? visibleEntries[0]?.key
+      : undefined;
+  const renderedEntries = presentation === "arena"
+    ? visibleEntries.filter((entry) => entry.key === arenaExpandedEntryKey)
+    : visibleEntries;
   const panelContent = (
     <div className="action-panel-content">
       <header>
@@ -108,16 +117,37 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
       {promptPlan.complexPrompt && <ComplexPromptDetails plan={promptPlan.complexPrompt} />}
       {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
       {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
+      {presentation === "arena" && visibleEntries.length > 1 ? (
+        <div aria-label="服务端可用行动" className="arena-action-choices" data-arena-action-choices role="group">
+          {visibleEntries.map((entry) => {
+            const expanded = entry.key === arenaExpandedEntryKey;
+            return (
+              <button
+                aria-expanded={expanded}
+                className={`arena-action-choice ${expanded ? "is-expanded" : ""}`}
+                data-arena-action-choice={entry.candidate?.action ?? entry.kind}
+                key={entry.key}
+                onClick={() => setExpandedEntryKey((current) => current === entry.key ? undefined : entry.key)}
+                type="button"
+              >
+                <Play aria-hidden="true" size={14} />
+                <span>{entry.candidate ? promptActionLabel(entry.candidate) : promptPlan.promptTitle}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       <div
         aria-label="可用行动"
-        className="action-buttons"
+        className={`action-buttons ${presentation === "arena" && renderedEntries.length === 0 ? "is-arena-collapsed" : ""}`}
         data-action-render-count={visibleEntries.length}
         data-action-render-prompt-type={renderPlan.promptType}
         data-action-render-state={renderPlan.state}
+        data-action-render-visible-count={renderedEntries.length}
         tabIndex={0}
       >
         {visibleEntries.length === 0 && <span className="empty-hint">{renderPlan.emptyLabel}</span>}
-        {visibleEntries.map((entry) => (
+        {renderedEntries.map((entry) => (
           <ActionPanelRenderEntryView
             disabledByConnection={!submissionGate.canSubmit}
             entry={entry}
@@ -137,7 +167,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
 
   return (
     <section className="side-panel action-panel" data-action-panel-presentation={presentation}>
-      {presentation === "play" ? (
+      {presentation === "play" || presentation === "arena" ? (
         <div className="action-panel-scroll action-panel-scroll-native">{panelContent}</div>
       ) : (
         <ScrollArea className="action-panel-scroll">{panelContent}</ScrollArea>

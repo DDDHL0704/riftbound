@@ -1,0 +1,1344 @@
+/* Full-viewport match arena. Loaded after legacy styles by design. */
+.playable-match-surface.wire-match-page {
+  --arena-table: #111615;
+  --arena-line: #56605a;
+  --arena-text: #f0eee7;
+  --arena-legal: #55c89b;
+  --arena-selected: #d5ae62;
+  --arena-danger: #e46c72;
+  --wire-card-w: 82px !important;
+  --wire-card-h: 115px !important;
+  --wire-battlefield-card-w: 148px !important;
+  --wire-battlefield-card-h: 104px !important;
+  --wire-fixed-pile-card-w: 50px !important;
+  --wire-fixed-pile-card-h: 70px !important;
+  --wire-fixed-pile-slot-w: 50px !important;
+  --wire-fixed-pile-slot-h: 70px !important;
+  --wire-rune-card-w: 30px !important;
+  --wire-rune-card-h: 42px !important;
+  --wire-signature-area-w: 56px !important;
+  --wire-signature-zone-h: 78px !important;
+  display: grid !important;
+  grid-template-rows: 48px 34px minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: var(--arena-table) !important;
+}
+
+.playable-match-surface .game-match-topbar {
+  min-height: 48px !important;
+  padding: 5px 10px !important;
+  border-bottom-color: rgb(86 96 90 / 58%) !important;
+  background: rgb(15 20 19 / 96%) !important;
+  backdrop-filter: blur(12px);
+}
+
+.playable-match-surface .game-match-title small {
+  display: none !important;
+}
+
+.playable-match-surface .game-match-guidance {
+  min-height: 34px !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid rgb(86 96 90 / 34%) !important;
+  background: rgb(17 22 21 / 92%) !important;
+}
+
+.playable-match-surface .match-guidance-banner {
+  min-height: 34px !important;
+  padding: 3px 10px !important;
+}
+
+.playable-match-surface .match-guidance-main {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.playable-match-surface .match-guidance-main > .eyebrow,
+.playable-match-surface .match-guidance-detail,
+.playable-match-surface .match-guidance-actions-label {
+  display: none !important;
+}
+
+.playable-match-surface .match-guidance-headline {
+  font-size: 13px !important;
+}
+
+.playable-match-surface .game-match-recovery {
+  position: absolute !important;
+  z-index: 260 !important;
+  top: 86px !important;
+  left: 50% !important;
+  width: min(620px, calc(100% - 24px)) !important;
+  transform: translateX(-50%) !important;
+}
+
+.playable-match-surface .game-table-stage {
+  position: relative !important;
+  grid-row: 3 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: var(--arena-table) !important;
+}
+
+.arena-table {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(85 109 94 / 12%), transparent 42%),
+    linear-gradient(180deg, #141a19 0%, var(--arena-table) 48%, #121716 100%);
+}
+
+.arena-table::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 0 49.9%, rgb(213 174 98 / 16%) 50%, transparent 50.1%),
+    linear-gradient(180deg, transparent 0 49.85%, rgb(240 238 231 / 8%) 50%, transparent 50.15%);
+}
+
+.arena-backdrop {
+  position: absolute;
+  z-index: -2;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  opacity: 0.22;
+  filter: grayscale(0.45) saturate(0.58) contrast(1.08);
+  pointer-events: none;
+}
+
+.arena-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  background-image: var(--arena-backdrop-image);
+  background-position: center 28%;
+  background-size: cover;
+  transform: scale(1.04);
+}
+
+.arena-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(17 22 21 / 62%), rgb(17 22 21 / 93%));
+}
+
+.arena-backdrop.is-opponent {
+  top: 0;
+  transform: rotate(180deg);
+}
+
+.arena-backdrop.is-self {
+  bottom: 0;
+}
+
+.arena-edge,
+.arena-hand,
+.arena-battlefield {
+  position: absolute;
+  min-width: 0;
+  min-height: 0;
+}
+
+.arena-battlefield {
+  z-index: 10;
+  top: 10%;
+  right: 1.25%;
+  bottom: 25%;
+  left: 1.25%;
+  min-height: 65%;
+}
+
+.arena-edge {
+  z-index: 20;
+  right: 16%;
+  left: 16%;
+  height: 9%;
+  pointer-events: none;
+}
+
+.arena-edge > * {
+  pointer-events: auto;
+}
+
+.arena-edge.is-opponent {
+  top: 0;
+}
+
+.arena-edge.is-self {
+  bottom: 17%;
+}
+
+.arena-hand {
+  z-index: 30;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.arena-hand > * {
+  pointer-events: auto;
+}
+
+.arena-hand.is-opponent {
+  top: 0;
+  height: 11%;
+}
+
+.arena-hand.is-self {
+  bottom: 0;
+  height: 18dvh;
+  max-height: 18dvh;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-stack {
+  --wire-card-w: 82px !important;
+  --wire-card-h: 115px !important;
+  display: grid !important;
+  grid-template-columns: minmax(118px, 10.5vw) minmax(0, 1fr) minmax(118px, 10.5vw) !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 18px 8px 8px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: rgb(10 15 14 / 36%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-heading {
+  top: 2px !important;
+  color: rgb(240 238 231 / 72%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-heading span {
+  font-size: 12px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-center-grid {
+  height: 100% !important;
+  column-gap: 12px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-center-grid::before {
+  border-color: rgb(213 174 98 / 20%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-lane {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 18px 8px 8px !important;
+  overflow: visible !important;
+  border: 1px solid rgb(86 96 90 / 38%) !important;
+  border-radius: 6px !important;
+  background: rgb(13 19 17 / 28%) !important;
+  box-shadow: inset 0 0 32px rgb(0 0 0 / 18%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-lane-label {
+  top: 4px !important;
+  background: transparent !important;
+  color: rgb(240 238 231 / 48%) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-unit-zone {
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-unit-zone-body {
+  gap: 6px !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit {
+  --wire-card-w: 72px !important;
+  --wire-card-h: 101px !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 4px 12px !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face + .card-face {
+  margin-left: -16px !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face:hover,
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face:focus-visible,
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face.is-selected {
+  z-index: 40 !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-standby-zone {
+  align-self: center !important;
+  width: 74px !important;
+  height: 104px !important;
+  overflow: visible !important;
+  border: 1px dashed rgb(86 96 90 / 42%) !important;
+  border-radius: 5px !important;
+  background: rgb(0 0 0 / 12%) !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-standby {
+  --wire-card-w: 60px !important;
+  --wire-card-h: 84px !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site {
+  align-self: center !important;
+  width: var(--wire-battlefield-card-w) !important;
+  height: var(--wire-battlefield-card-h) !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  filter: drop-shadow(0 14px 22px rgb(0 0 0 / 45%));
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site:first-of-type {
+  transform: perspective(620px) rotateY(4deg);
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site:last-of-type {
+  transform: perspective(620px) rotateY(-4deg);
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site-meta {
+  bottom: -22px !important;
+  min-height: 18px !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: rgb(10 15 14 / 82%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site :where(.card-face, .card-image-only, .card-back) {
+  width: var(--wire-battlefield-card-w) !important;
+  min-width: var(--wire-battlefield-card-w) !important;
+  max-width: var(--wire-battlefield-card-w) !important;
+  height: var(--wire-battlefield-card-h) !important;
+  min-height: var(--wire-battlefield-card-h) !important;
+  max-height: var(--wire-battlefield-card-h) !important;
+  aspect-ratio: 1039 / 744 !important;
+}
+
+.playable-match-surface .arena-table .wire-player-home {
+  --wire-card-w: 52px !important;
+  --wire-card-h: 73px !important;
+  --wire-fixed-pile-card-w: 46px !important;
+  --wire-fixed-pile-card-h: 64px !important;
+  --wire-signature-area-w: 52px !important;
+  --wire-signature-zone-h: 73px !important;
+  width: 100% !important;
+  height: 100% !important;
+  gap: 5px !important;
+  padding: 0 158px 0 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-edge.is-opponent .wire-player-home {
+  padding: 0 0 0 158px !important;
+}
+
+.playable-match-surface .arena-table .wire-player-home :where(.wire-zone, .wire-zone-body, .wire-base-main, .wire-banish-main, .wire-card-flow) {
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token {
+  top: 8px !important;
+  right: 8px !important;
+  width: 140px !important;
+  min-height: 40px !important;
+  border-color: rgb(213 174 98 / 46%) !important;
+  border-radius: 5px !important;
+  background: rgb(13 19 17 / 84%) !important;
+}
+
+.playable-match-surface .arena-edge.is-opponent .wire-home-score-token {
+  right: auto !important;
+  left: 8px !important;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token strong {
+  color: var(--arena-selected) !important;
+  font-size: 21px !important;
+}
+
+.playable-match-surface .arena-table .wire-zone-label {
+  color: rgb(240 238 231 / 52%) !important;
+  font-size: 9px !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-rail {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-zone,
+.playable-match-surface .arena-table .wire-hand-body,
+.playable-match-surface .arena-table .wire-hand-cards,
+.playable-match-surface .arena-table .wire-hand-piles,
+.playable-match-surface .arena-table .wire-hand-rune-track,
+.playable-match-surface .arena-table .wire-hand-rune-deck {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-zone,
+.playable-match-surface .arena-table .wire-hand-body {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-cards {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 5px !important;
+  width: min(760px, 58vw) !important;
+  height: 156px !important;
+  overflow: visible !important;
+  transform: translateX(-50%) !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-hand {
+  --wire-card-w: 86px !important;
+  --wire-card-h: 121px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .arena-fan-card {
+  position: relative !important;
+  z-index: var(--arena-fan-z, 1) !important;
+  margin-left: -24px !important;
+  transform: translateY(var(--arena-fan-rise, 0px)) rotate(var(--arena-fan-rotation, 0deg)) !important;
+  transform-origin: 50% 118% !important;
+  transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease !important;
+}
+
+.playable-match-surface .arena-table .arena-fan-card:first-child {
+  margin-left: 0 !important;
+}
+
+.playable-match-surface .arena-table .arena-fan-card:hover,
+.playable-match-surface .arena-table .arena-fan-card:focus-visible,
+.playable-match-surface .arena-table .arena-fan-card.is-selected {
+  z-index: 180 !important;
+  transform: translateY(-42px) rotate(0deg) scale(1.18) !important;
+  filter: saturate(1.05) brightness(1.05) !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-rune-deck {
+  position: absolute !important;
+  bottom: 12px !important;
+  left: 16px !important;
+  display: grid !important;
+  width: 48px !important;
+  height: 64px !important;
+  place-items: center !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-rune-track {
+  position: absolute !important;
+  bottom: 12px !important;
+  left: 72px !important;
+  display: block !important;
+  width: min(350px, 29vw) !important;
+  height: 64px !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface .arena-table .wire-rune-track {
+  justify-content: flex-start !important;
+  gap: 3px !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-piles {
+  position: absolute !important;
+  right: 16px !important;
+  bottom: 9px !important;
+  display: grid !important;
+  width: 112px !important;
+  height: 74px !important;
+  grid-template-columns: repeat(2, 50px) !important;
+  gap: 7px !important;
+  padding: 0 !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-summary {
+  top: auto !important;
+  bottom: 3px !important;
+  left: 50% !important;
+  border: 0 !important;
+  background: rgb(10 15 14 / 66%) !important;
+  transform: translateX(-50%) !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-zone {
+  right: 20% !important;
+  left: 55% !important;
+  width: auto !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-cards {
+  top: -24px !important;
+  bottom: auto !important;
+  width: 100% !important;
+  height: 84px !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-card-flow-hand {
+  --wire-card-w: 42px !important;
+  --wire-card-h: 59px !important;
+  align-items: flex-start !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card {
+  margin-left: -14px !important;
+  transform: translateY(var(--arena-fan-opponent-rise, 0px)) rotate(var(--arena-fan-opponent-rotation, 0deg)) !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card:hover,
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card:focus-visible {
+  transform: translateY(18px) rotate(0deg) scale(1.08) !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-deck,
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-track {
+  top: 7px !important;
+  bottom: auto !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-piles {
+  top: 5px !important;
+  bottom: auto !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-summary {
+  top: 2px !important;
+  right: 17% !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back) {
+  border-color: rgb(116 127 119 / 74%) !important;
+  border-radius: 5px !important;
+  background: #202723 !important;
+  box-shadow: 0 7px 18px rgb(0 0 0 / 42%) !important;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-prompt-enabled {
+  outline: 2px solid var(--arena-legal) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgb(85 200 155 / 14%), 0 8px 20px rgb(0 0 0 / 46%) !important;
+  animation: arena-legal-pulse 1.65s ease-in-out infinite !important;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-selected {
+  outline-color: var(--arena-selected) !important;
+  box-shadow: 0 0 0 6px rgb(213 174 98 / 16%), 0 10px 24px rgb(0 0 0 / 52%) !important;
+}
+
+@keyframes arena-legal-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.13); }
+}
+
+.playable-match-surface .arena-action-layer {
+  position: absolute !important;
+  z-index: 220 !important;
+  inset: 0 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer {
+  position: absolute !important;
+  max-width: calc(100% - 24px) !important;
+  color-scheme: dark;
+  pointer-events: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context {
+  top: var(--arena-action-y, auto) !important;
+  bottom: var(--arena-action-bottom, calc(18dvh + 10px)) !important;
+  left: var(--arena-action-x, 50%) !important;
+  width: min(600px, 48vw) !important;
+  transform: translate(-50%, var(--arena-action-translate-y, 0%)) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context[style] {
+  bottom: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal {
+  top: 50% !important;
+  left: 50% !important;
+  width: min(980px, calc(100% - 40px)) !important;
+  max-height: 76% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer :where(.action-panel, .wire-object-command-tray) {
+  border: 1px solid rgb(86 96 90 / 78%) !important;
+  border-radius: 7px !important;
+  background: rgb(20 27 24 / 96%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 55%) !important;
+  backdrop-filter: blur(14px);
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray {
+  margin-bottom: 6px !important;
+  padding: 8px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena {
+  display: grid !important;
+  grid-template-columns: minmax(150px, 0.72fr) minmax(240px, 1.4fr) auto !important;
+  align-items: center !important;
+  gap: 9px !important;
+  width: 100% !important;
+  max-height: min(42dvh, 320px) !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-main {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading > div {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading :where(strong, span),
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-next {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading span,
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-next {
+  color: rgb(240 238 231 / 62%) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection {
+  display: flex !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  list-style: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection li {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  gap: 4px !important;
+  padding: 3px 5px !important;
+  border: 1px solid rgb(86 96 90 / 48%) !important;
+  border-radius: 4px !important;
+  background: rgb(30 38 34 / 82%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection small {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] {
+  display: grid !important;
+  gap: 5px !important;
+  padding: 5px !important;
+  border: 1px solid rgb(86 96 90 / 54%) !important;
+  border-radius: 4px !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading :where(strong, span) {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading > small {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-next {
+  color: rgb(240 238 231 / 66%) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-submit {
+  min-height: 32px !important;
+  padding: 5px 8px !important;
+  border: 1px solid rgb(213 174 98 / 76%) !important;
+  border-radius: 4px !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-submit:disabled {
+  border-color: rgb(86 96 90 / 48%) !important;
+  background: #1a221e !important;
+  color: rgb(240 238 231 / 42%) !important;
+  cursor: not-allowed !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-actions,
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-focused-action-entry-list {
+  display: grid !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-action {
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  max-height: 250px !important;
+  padding: 0 !important;
+  overflow: auto !important;
+  border: 0 !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer :where(
+  .candidate-composer-gate,
+  .candidate-composer-checks,
+  .candidate-command-preview
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer :where(
+  .candidate-composer-heading,
+  .candidate-composer-warning,
+  .candidate-composer-costs
+) {
+  grid-column: 1 / -1 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-field {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: rgb(240 238 231 / 68%) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-field select {
+  width: 100% !important;
+  min-height: 34px !important;
+  padding: 6px 28px 6px 8px !important;
+  border: 1px solid rgb(86 96 90 / 74%) !important;
+  border-radius: 4px !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+  font: inherit !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-costs {
+  display: grid !important;
+  gap: 5px !important;
+  padding: 7px 0 0 !important;
+  border-top: 1px solid rgb(86 96 90 / 42%) !important;
+  background: transparent !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-check {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: rgb(240 238 231 / 76%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena input[type="checkbox"] {
+  width: 16px !important;
+  min-width: 16px !important;
+  max-width: 16px !important;
+  height: 16px !important;
+  min-height: 16px !important;
+  max-height: 16px !important;
+  margin: 0 !important;
+  accent-color: var(--arena-selected) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-check input {
+  flex: 0 0 16px !important;
+}
+
+.playable-match-surface .arena-prompt-layer :where(.button, button.button) {
+  min-height: 34px !important;
+  border: 1px solid rgb(86 96 90 / 72%) !important;
+  border-radius: 4px !important;
+  background: #1a221e !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer :where(.button, button.button):hover,
+.playable-match-surface .arena-prompt-layer :where(.button, button.button):focus-visible {
+  border-color: var(--arena-selected) !important;
+  background: #252c26 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .button-primary {
+  border-color: rgb(213 174 98 / 82%) !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena :where(
+  .wire-object-command-tray-buttons .button,
+  .candidate-composer > .button
+) {
+  border-color: rgb(86 96 90 / 72%) !important;
+  background: #1a221e !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer > .button.button-primary {
+  border-color: rgb(213 174 98 / 82%) !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer .status-pill {
+  border-color: rgb(86 96 90 / 62%) !important;
+  background: rgb(22 29 26 / 88%) !important;
+  color: rgb(240 238 231 / 74%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer > .button {
+  grid-column: 2 !important;
+  justify-self: end !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context:has(> .wire-object-command-tray.presentation-arena) > .action-panel {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-panel-scroll-native,
+.playable-match-surface .arena-prompt-layer .action-panel-content {
+  width: 100% !important;
+  max-height: inherit !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-panel-content {
+  padding: 8px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choices {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  scrollbar-width: thin;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choice {
+  display: inline-flex !important;
+  flex: 1 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 118px !important;
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  border: 1px solid rgb(86 96 90 / 62%) !important;
+  border-radius: 5px !important;
+  background: rgb(27 35 31 / 94%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choice:hover,
+.playable-match-surface .arena-prompt-layer .arena-action-choice:focus-visible,
+.playable-match-surface .arena-prompt-layer .arena-action-choice.is-expanded {
+  border-color: var(--arena-selected) !important;
+  background: rgb(58 49 29 / 96%) !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel-content > header,
+.playable-match-surface .arena-prompt-layer.is-context .prompt-summary,
+.playable-match-surface .arena-prompt-layer.is-context .action-prompt-inspection {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-buttons {
+  display: flex !important;
+  gap: 7px !important;
+  width: 100% !important;
+  max-height: 230px !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-buttons.is-arena-collapsed {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-render-entry {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 8px !important;
+  border-color: rgb(86 96 90 / 62%) !important;
+  background: rgb(28 36 32 / 94%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .action-buttons {
+  margin-top: 7px !important;
+  max-height: min(38dvh, 300px) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] :where(
+  .battle-declaration-heading,
+  .battle-declaration-summary,
+  .battle-declaration-note,
+  .unit-movement-heading,
+  .unit-movement-summary,
+  .unit-movement-note,
+  .rune-resource-heading,
+  .rune-resource-summary,
+  .rune-resource-note,
+  .rune-resource-pool,
+  .candidate-composer-gate,
+  .candidate-composer-checks,
+  .candidate-command-preview
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .candidate-composer {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  padding: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] :where(
+  .candidate-composer-heading,
+  .candidate-composer-warning,
+  .candidate-composer-costs
+) {
+  grid-column: 1 / -1 !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .candidate-composer > .button {
+  grid-column: 2 !important;
+  justify-self: end !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel {
+  max-height: 76dvh !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-side-drawer {
+  position: fixed !important;
+  z-index: 340 !important;
+  top: 82px !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: min(520px, calc(100vw - 48px)) !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  transform: translateX(calc(100% - 38px)) !important;
+  transition: transform 160ms ease !important;
+}
+
+.playable-match-surface .arena-side-drawer[open] {
+  transform: translateX(0) !important;
+}
+
+.playable-match-surface .arena-side-drawer > summary {
+  position: absolute !important;
+  top: 10px !important;
+  left: 0 !important;
+  display: grid !important;
+  width: 38px !important;
+  height: 120px !important;
+  place-items: center !important;
+  padding: 8px !important;
+  border: 1px solid rgb(86 96 90 / 72%) !important;
+  border-right: 0 !important;
+  border-radius: 6px 0 0 6px !important;
+  background: rgb(18 24 22 / 94%) !important;
+  color: rgb(240 238 231 / 72%) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  writing-mode: vertical-rl;
+}
+
+.playable-match-surface .arena-side-drawer .game-debug-drawer-body {
+  position: absolute !important;
+  inset: 0 0 0 38px !important;
+  overflow: auto !important;
+  border-left: 1px solid rgb(86 96 90 / 72%) !important;
+  background: rgb(15 21 19 / 98%) !important;
+  box-shadow: -16px 0 40px rgb(0 0 0 / 38%) !important;
+}
+
+@media (min-width: 1600px) {
+  .playable-match-surface.wire-match-page {
+    --wire-card-w: 92px !important;
+    --wire-card-h: 129px !important;
+    --wire-battlefield-card-w: 168px !important;
+    --wire-battlefield-card-h: 118px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-hand {
+    --wire-card-w: 96px !important;
+    --wire-card-h: 135px !important;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1279px) {
+  .playable-match-surface.wire-match-page {
+    --wire-card-w: 70px !important;
+    --wire-card-h: 98px !important;
+    --wire-battlefield-card-w: 118px !important;
+    --wire-battlefield-card-h: 83px !important;
+  }
+
+  .arena-edge {
+    right: 10%;
+    left: 10%;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-stack {
+    --wire-card-w: 70px !important;
+    --wire-card-h: 98px !important;
+    grid-template-columns: 100px minmax(0, 1fr) 100px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-hand {
+    --wire-card-w: 76px !important;
+    --wire-card-h: 107px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-rune-track {
+    width: 270px !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .playable-match-surface.wire-match-page {
+    --wire-battlefield-card-w: 84px !important;
+    --wire-battlefield-card-h: 60px !important;
+    grid-template-rows: 50px 40px minmax(0, 1fr) !important;
+  }
+
+  .playable-match-surface .game-match-topbar {
+    grid-template-columns: 38px minmax(0, 1fr) auto !important;
+  }
+
+  .playable-match-surface .game-match-status {
+    display: none !important;
+  }
+
+  .playable-match-surface .game-match-guidance {
+    min-height: 40px !important;
+  }
+
+  .arena-backdrop {
+    opacity: 0.14;
+  }
+
+  .arena-battlefield {
+    top: 11%;
+    right: 0;
+    bottom: 27%;
+    left: 0;
+    min-height: 62%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-stack {
+    grid-template-columns: 86px minmax(600px, 1fr) 86px !important;
+    min-width: 772px !important;
+    padding-inline: 4px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-center-grid {
+    grid-template-columns: repeat(2, minmax(292px, 1fr)) !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-battlefield-unit {
+    --wire-card-w: 60px !important;
+    --wire-card-h: 84px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-standby {
+    --wire-card-w: 54px !important;
+    --wire-card-h: 76px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-lane {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-lane:first-child {
+    scroll-margin-left: 86px;
+  }
+
+  .arena-edge {
+    right: 4px;
+    left: 4px;
+  }
+
+  .arena-edge.is-opponent {
+    height: 10%;
+  }
+
+  .arena-edge.is-self {
+    bottom: 20%;
+    height: 8%;
+  }
+
+  .arena-hand.is-opponent {
+    height: 10%;
+  }
+
+  .arena-hand.is-self {
+    height: 22dvh;
+    max-height: 22dvh;
+  }
+
+  .playable-match-surface .arena-table .wire-player-home {
+    padding-inline: 92px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-home-base,
+  .playable-match-surface .arena-table .wire-zone-label,
+  .playable-match-surface .arena-table .tabletop-score-meta {
+    display: none !important;
+  }
+
+  .playable-match-surface .arena-table .wire-home-score-token {
+    width: 86px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-rune-track {
+    left: 55px !important;
+    width: 190px !important;
+    overflow-x: auto !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-rune-deck {
+    left: 5px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-piles {
+    right: 5px !important;
+    width: 54px !important;
+    grid-template-columns: 50px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-played-pile {
+    display: none !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-cards {
+    bottom: 5px !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-hand {
+    --wire-card-w: 70px !important;
+    --wire-card-h: 98px !important;
+    justify-content: flex-start !important;
+    padding-left: calc(50% - 85px) !important;
+    overflow-x: auto !important;
+  }
+
+  .playable-match-surface .arena-table .arena-fan-card {
+    margin-left: -20px !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-context {
+    right: 8px !important;
+    bottom: calc(22dvh + 8px) !important;
+    left: 8px !important;
+    width: auto !important;
+    transform: none !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-context[style] {
+    top: auto !important;
+    bottom: calc(22dvh + 8px) !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: start !important;
+    max-height: min(48dvh, 360px) !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-main {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-buttons {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer {
+    width: 100% !important;
+    max-height: 260px !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-modal {
+    width: calc(100% - 16px) !important;
+    max-height: 82% !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .action-buttons {
+    max-height: 42dvh !important;
+  }
+
+  .playable-match-surface .arena-side-drawer {
+    top: 90px !important;
+    width: calc(100vw - 28px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playable-match-surface .arena-table .arena-fan-card,
+  .playable-match-surface .arena-side-drawer {
+    transition: none !important;
+  }
+
+  .playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-prompt-enabled {
+    animation: none !important;
+  }
+}
