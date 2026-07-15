@@ -1,0 +1,573 @@
+/* Arena battlefield, home, hand, and card presentation. */
+.playable-match-surface .arena-table .wire-battlefield-stack {
+  --wire-card-w: 82px !important;
+  --wire-card-h: 115px !important;
+  display: grid;
+  grid-template-columns: minmax(118px, 10.5vw) minmax(0, 1fr) minmax(118px, 10.5vw) !important;
+  width: 100%;
+  height: 100%;
+  padding: 18px 8px 8px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: rgb(10 15 14 / 36%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-heading {
+  top: 2px;
+  color: rgb(240 238 231 / 72%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-heading span {
+  font-size: 12px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-center-grid {
+  height: 100%;
+  column-gap: 12px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-center-grid::before {
+  border-color: rgb(213 174 98 / 20%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-lane {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px !important;
+  padding: 18px 8px 8px !important;
+  overflow: hidden;
+  border: 1px solid rgb(86 96 90 / 38%) !important;
+  border-radius: 6px !important;
+  background: rgb(13 19 17 / 28%) !important;
+  box-shadow: inset 0 0 32px rgb(0 0 0 / 18%) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-lane-label {
+  top: 4px !important;
+  background: transparent !important;
+  color: rgb(240 238 231 / 48%) !important;
+  font-size: 11px !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-unit-zone {
+  overflow: hidden;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-unit-zone-body {
+  gap: 6px;
+  overflow: hidden;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit {
+  --wire-card-w: 72px !important;
+  --wire-card-h: 101px !important;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  justify-content: flex-start;
+  padding: 4px 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face + .card-face {
+  margin-left: 0 !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face:hover,
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face:focus-visible,
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit > .card-face.is-selected {
+  z-index: 40 !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-standby-zone {
+  align-self: center;
+  width: 112px;
+  height: 104px;
+  overflow: hidden;
+  border: 1px dashed rgb(86 96 90 / 42%) !important;
+  border-radius: 5px !important;
+  background: rgb(0 0 0 / 12%) !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-standby {
+  --wire-card-w: 60px !important;
+  --wire-card-h: 84px !important;
+  gap: 26px;
+  padding-inline: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site {
+  align-self: center;
+  width: var(--wire-battlefield-card-w);
+  height: var(--wire-battlefield-card-h);
+  overflow: visible;
+  border: 0 !important;
+  background: transparent !important;
+  filter: drop-shadow(0 14px 22px rgb(0 0 0 / 45%));
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site:first-of-type {
+  transform: perspective(620px) rotateY(4deg);
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site:last-of-type {
+  transform: perspective(620px) rotateY(-4deg);
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site-meta {
+  bottom: -22px;
+  min-height: 18px !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: rgb(10 15 14 / 82%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-site :where(.card-face, .card-image-only, .card-back) {
+  width: var(--wire-battlefield-card-w) !important;
+  min-width: var(--wire-battlefield-card-w) !important;
+  max-width: var(--wire-battlefield-card-w) !important;
+  height: var(--wire-battlefield-card-h) !important;
+  min-height: var(--wire-battlefield-card-h) !important;
+  max-height: var(--wire-battlefield-card-h) !important;
+  aspect-ratio: 1039 / 744 !important;
+}
+
+.playable-match-surface .arena-table .wire-player-home {
+  --wire-card-w: 82px !important;
+  --wire-card-h: 115px !important;
+  --wire-fixed-pile-card-w: 76px !important;
+  --wire-fixed-pile-card-h: 106px !important;
+  --wire-fixed-pile-slot-w: 76px !important;
+  --wire-fixed-pile-slot-h: 106px !important;
+  --wire-public-pile-w: 84px !important;
+  --wire-signature-area-w: 88px !important;
+  --wire-hero-area-w: 88px !important;
+  --wire-signature-zone-h: 122px !important;
+  width: 100%;
+  height: 100%;
+  gap: 8px;
+  padding: 0 124px 0 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-player-home .wire-card-flow {
+  --wire-card-w: 82px !important;
+  --wire-card-h: 115px !important;
+}
+
+.playable-match-surface .arena-edge.is-opponent .wire-player-home {
+  padding: 0 0 0 124px !important;
+}
+
+.playable-match-surface .arena-table .wire-player-home :where(.wire-zone, .wire-zone-body, .wire-base-main, .wire-banish-main, .wire-card-flow) {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-home-base,
+.playable-match-surface .arena-table .wire-base-banish-grid,
+.playable-match-surface .arena-table .wire-base-main {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .arena-table .wire-base-card-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(6, var(--wire-card-w));
+  grid-auto-columns: var(--wire-card-w);
+  grid-template-rows: var(--wire-card-h);
+  align-content: center;
+  align-items: center;
+  justify-content: start;
+  gap: 32px;
+  width: 100%;
+  height: 100%;
+  padding: 4px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.playable-match-surface .arena-table .wire-base-card-grid > * {
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token {
+  top: 8px !important;
+  right: 8px !important;
+  width: 112px !important;
+  height: 56px;
+  min-height: 40px !important;
+  border-color: rgb(213 174 98 / 46%) !important;
+  border-radius: 5px !important;
+  background: rgb(13 19 17 / 84%) !important;
+}
+
+.playable-match-surface .arena-edge.is-opponent .wire-home-score-token {
+  top: 8px !important;
+  right: auto !important;
+  bottom: auto;
+  left: 8px;
+}
+
+.playable-match-surface .arena-edge.is-self .wire-home-score-token {
+  top: auto !important;
+  right: 8px !important;
+  bottom: 8px;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token strong {
+  grid-row: 1;
+  color: var(--arena-selected) !important;
+  font-size: 21px !important;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token .tabletop-score-name,
+.playable-match-surface .arena-table .wire-home-score-token .tabletop-score-meta {
+  font-size: 11px !important;
+}
+
+.playable-match-surface .arena-table .wire-home-score-token .tabletop-score-meta {
+  grid-column: 1 / -1;
+}
+
+.playable-match-surface .arena-table .wire-zone-label {
+  color: rgb(240 238 231 / 52%) !important;
+  font-size: 11px !important;
+}
+
+.playable-match-surface .arena-table .wire-banish-main {
+  position: relative;
+  border-left: 1px solid rgb(86 96 90 / 42%);
+}
+
+.playable-match-surface .arena-table .wire-banish-label {
+  position: absolute;
+  z-index: 8;
+  top: 3px;
+  left: 50%;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgb(10 15 14 / 84%);
+  color: rgb(240 238 231 / 72%);
+  font-size: 11px;
+  line-height: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.playable-match-surface .arena-table .wire-hand-rail {
+  position: relative !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-zone,
+.playable-match-surface .arena-table .wire-hand-body,
+.playable-match-surface .arena-table .wire-hand-cards,
+.playable-match-surface .arena-table .wire-hand-piles,
+.playable-match-surface .arena-table .wire-hand-rune-track,
+.playable-match-surface .arena-table .wire-hand-rune-deck {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-zone,
+.playable-match-surface .arena-table .wire-hand-body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+.playable-match-surface .arena-table :where(
+  .wire-hand-cards,
+  .wire-hand-piles,
+  .wire-hand-rune-track,
+  .wire-hand-rune-deck
+) {
+  pointer-events: auto;
+}
+
+.playable-match-surface .arena-table .wire-hand-cards {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: min(760px, 58vw);
+  height: 156px;
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+.playable-match-surface .arena-hand.is-self .wire-hand-cards {
+  right: 184px;
+  left: calc(112px + min(480px, 34vw));
+  width: auto;
+  transform: none;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-hand {
+  --wire-card-w: 86px !important;
+  --wire-card-h: 121px !important;
+  display: flex;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden !important;
+  background: transparent !important;
+  scrollbar-width: thin;
+}
+
+.playable-match-surface .arena-table .arena-fan-card {
+  position: relative;
+  z-index: var(--arena-fan-z, 1);
+  margin-left: 0;
+  transform: none;
+  transform-origin: 50% 118%;
+  transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease !important;
+}
+
+.playable-match-surface .arena-table .arena-fan-card:first-child {
+  margin-left: 0;
+}
+
+.playable-match-surface .arena-table .arena-fan-card:hover,
+.playable-match-surface .arena-table .arena-fan-card:focus-visible,
+.playable-match-surface .arena-table .arena-fan-card.is-selected {
+  z-index: 180;
+  transform: translateY(-12px) scale(1.04);
+  filter: saturate(1.05) brightness(1.05);
+}
+
+.playable-match-surface .arena-table .wire-hand-rune-deck {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: grid;
+  width: 76px;
+  height: 106px;
+  place-items: center;
+}
+
+.playable-match-surface .arena-table .wire-hand-rune-track {
+  position: absolute;
+  bottom: 12px;
+  left: 96px;
+  display: block;
+  width: min(480px, 34vw);
+  height: 106px;
+  overflow: hidden;
+}
+
+.playable-match-surface .arena-table .wire-rune-track {
+  justify-content: flex-start;
+  gap: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-hand-piles {
+  position: absolute;
+  right: 16px;
+  bottom: 9px;
+  display: grid;
+  width: 160px;
+  height: 114px;
+  grid-template-columns: repeat(2, 76px);
+  gap: 8px;
+  padding: 0;
+}
+
+.playable-match-surface .arena-table .wire-hand-summary {
+  top: auto !important;
+  bottom: 3px;
+  left: 50% !important;
+  border: 0 !important;
+  background: rgb(10 15 14 / 66%) !important;
+  transform: translateX(-50%);
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-zone {
+  right: auto;
+  left: 0;
+  width: 172px;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-cards {
+  top: 8px;
+  right: auto;
+  bottom: auto;
+  left: 132px;
+  width: 40px;
+  height: 68px;
+  overflow: hidden;
+  transform: none;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-card-flow-hand {
+  --wire-card-w: 40px !important;
+  --wire-card-h: 56px !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  overflow: hidden !important;
+}
+
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card {
+  margin-left: 0;
+  transform: none;
+}
+
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card:not(:first-child) {
+  display: none;
+}
+
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card:hover,
+.playable-match-surface .arena-hand.is-opponent .arena-fan-card:focus-visible {
+  transform: translateY(8px) scale(1.03);
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-deck,
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-track {
+  top: 7px;
+  bottom: auto;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-deck {
+  right: 12px;
+  left: auto;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-track {
+  right: 86px;
+  left: auto;
+  width: 72px;
+  overflow: hidden;
+}
+
+.playable-match-surface .arena-hand.is-self .wire-hand-rail {
+  --wire-fixed-pile-card-w: 76px;
+  --wire-fixed-pile-card-h: 106px;
+  --wire-fixed-pile-slot-w: 76px;
+  --wire-fixed-pile-slot-h: 106px;
+  --wire-rune-card-w: 48px;
+  --wire-rune-card-h: 67px;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rail {
+  --wire-fixed-pile-card-w: 60px;
+  --wire-fixed-pile-card-h: 84px;
+  --wire-fixed-pile-slot-w: 60px;
+  --wire-fixed-pile-slot-h: 84px;
+  --wire-rune-card-w: 42px;
+  --wire-rune-card-h: 59px;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-deck {
+  width: 66px;
+  height: 92px;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-rune-track {
+  height: 92px;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-piles {
+  width: 124px;
+  height: 92px;
+  grid-template-columns: repeat(2, 60px);
+  gap: 4px;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-piles {
+  top: 5px;
+  right: auto;
+  bottom: auto;
+  left: 0;
+}
+
+.playable-match-surface .arena-hand.is-opponent .wire-hand-summary {
+  top: 102px !important;
+  right: auto !important;
+  bottom: auto;
+  left: 0 !important;
+  width: 172px;
+  justify-content: center;
+  transform: none;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back) {
+  border-color: rgb(116 127 119 / 74%) !important;
+  border-radius: 5px !important;
+  background: #202723 !important;
+  box-shadow: 0 7px 18px rgb(0 0 0 / 42%) !important;
+}
+
+.playable-match-surface .arena-table .card-image-only > :where(.card-image-cost, .card-image-power, .card-image-title) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-prompt-enabled {
+  outline: 2px solid var(--arena-legal) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgb(85 200 155 / 14%), 0 8px 20px rgb(0 0 0 / 46%) !important;
+  animation: arena-legal-pulse 1.65s ease-in-out infinite !important;
+}
+
+.playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-selected {
+  outline-color: var(--arena-selected);
+  box-shadow: 0 0 0 6px rgb(213 174 98 / 16%), 0 10px 24px rgb(0 0 0 / 52%) !important;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit[data-flow-count="0"] > .wire-card-slot {
+  border-style: solid;
+  border-color: rgb(86 96 90 / 22%) !important;
+  background: transparent !important;
+  opacity: 0.42;
+}
+
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit[data-flow-count="0"] > .wire-card-slot:nth-of-type(n + 2),
+.playable-match-surface .arena-table .wire-card-flow-battlefield-unit:not([data-flow-count="0"]) > .wire-card-slot,
+.playable-match-surface .arena-table .wire-battlefield-standby-zone[data-wire-battlefield-standby-count="0"] .wire-card-slot {
+  display: none;
+}
+
+.playable-match-surface .arena-table .wire-battlefield-standby-zone[data-wire-battlefield-standby-count="0"] {
+  border-color: rgb(86 96 90 / 20%) !important;
+  background: transparent !important;
+}
+
+.playable-match-surface .arena-table .wire-base-card-grid > .wire-card-slot {
+  border-style: solid;
+  border-color: rgb(86 96 90 / 34%) !important;
+  background: rgb(255 255 255 / 0.8%) !important;
+}
+
+@keyframes arena-legal-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.13); }
+}

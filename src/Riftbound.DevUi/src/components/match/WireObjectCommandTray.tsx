@@ -53,11 +53,15 @@ export function WireObjectCommandTray({
     return null;
   }
 
+  const routeOnly = presentation === "arena" && Boolean(focusedPlan.route);
+  const showCandidateActions = trayPlan.canShowActions && !routeOnly;
+
   return (
     <section
       aria-label="桌面焦点操作托盘"
       className={`wire-object-command-tray is-${trayPlan.state} presentation-${presentation}`}
       data-wire-object-command-tray-object={trayPlan.objectId ?? ""}
+      data-wire-object-command-tray-mode={routeOnly ? "route" : showCandidateActions ? "actions" : "empty"}
       data-wire-object-command-tray-presentation={presentation}
       data-wire-object-command-tray-state={trayPlan.state}
       data-wire-object-command-tray-visible={trayPlan.visible ? "true" : "false"}
@@ -85,7 +89,7 @@ export function WireObjectCommandTray({
         />
       </div>
 
-      {trayPlan.canShowActions ? (
+      {showCandidateActions ? (
         <WireFocusedActionEntryList
           className="wire-object-command-tray-actions"
           dataAttributes={{
@@ -102,7 +106,7 @@ export function WireObjectCommandTray({
           snapshot={snapshot}
           submissionGate={submissionGate}
         />
-      ) : (
+      ) : routeOnly ? null : (
         <span className="wire-object-command-tray-empty">{trayPlan.primaryLabel}</span>
       )}
 

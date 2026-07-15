@@ -145,6 +145,7 @@ export const ARENA_LAYOUT: ArenaLayoutContract = WIRE_TABLE_LAYOUT.arena;
 export function wireMatchPageStyle(layout: WireTableLayout = WIRE_TABLE_LAYOUT): WireCssProperties {
   const tokens = layout.tokens;
   return {
+    ...arenaLayoutStyle(layout.arena),
     "--wire-battlefield-card-h": px(tokens.battlefieldCardHeight),
     "--wire-battlefield-card-w": px(tokens.battlefieldCardWidth),
     "--wire-card-gap": px(tokens.cardGap),
@@ -167,6 +168,17 @@ export function wireMatchPageStyle(layout: WireTableLayout = WIRE_TABLE_LAYOUT):
     "--wire-standby-track-min-h": px(tokens.standbyTrackMinHeight),
     "--wire-table-min-h": px(tokens.tableMinHeight),
     "--wire-table-min-w": px(tokens.tableMinWidth)
+  };
+}
+
+export function arenaLayoutStyle(arena: ArenaLayoutContract = ARENA_LAYOUT): WireCssProperties {
+  const edgeRatio = (1 - arena.battlefieldMinHeightRatio - arena.handMaxViewportRatio * 2) / 2;
+  const battlefieldStartRatio = arena.handMaxViewportRatio + edgeRatio;
+  return {
+    "--arena-battlefield-ratio": percent(arena.battlefieldMinHeightRatio),
+    "--arena-battlefield-start": percent(battlefieldStartRatio),
+    "--arena-edge-ratio": percent(edgeRatio),
+    "--arena-hand-ratio": percent(arena.handMaxViewportRatio)
   };
 }
 
@@ -195,4 +207,8 @@ function template(parts: string[]): string {
 
 function px(value: number): string {
   return `${value}px`;
+}
+
+function percent(value: number): string {
+  return `${Number((value * 100).toFixed(4))}%`;
 }

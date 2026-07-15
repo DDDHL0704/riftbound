@@ -352,6 +352,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     promptType: tablePrompt?.view?.type,
     selectedObjectId
   }), [canAct, selectedObjectId, tablePrompt?.view?.type]);
+  const arenaActionProtectedObjectIds = useMemo(() => Object.entries(tableInteraction.interactionByObjectId)
+    .filter(([objectId, state]) => objectId !== selectedObjectId && state !== undefined && state !== "disabled" && state !== "source")
+    .map(([objectId]) => objectId), [selectedObjectId, tableInteraction.interactionByObjectId]);
   const topbarQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
     canAct: promptCanAct,
     connected: tableConnectionStatus === "connected",
@@ -1202,7 +1205,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </div>
         )}
         actionLayer={(
-          <ArenaActionLayer label={promptTitle} plan={arenaPromptPresentation}>
+          <ArenaActionLayer
+            label={promptTitle}
+            plan={arenaPromptPresentation}
+            protectedObjectIds={arenaActionProtectedObjectIds}
+          >
             <WireObjectCommandTray
               disabledByConnection={!tableSubmissionGate.canSubmit}
               focusedPlan={selectedFocusPlan}

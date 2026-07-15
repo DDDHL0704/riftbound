@@ -148,7 +148,12 @@ try {
 
   for (const shot of staticShots.filter((entry) => !qaShotFilter || entry.name === qaShotFilter)) {
     const page = await newPage(shot.viewport);
-    await page.goto(`${frontendUrl}${shot.path}`, { waitUntil: "networkidle" });
+    // Card catalog images may come from remote official hosts, so its static
+    // shell is the readiness boundary. Other surfaces use network idleness to
+    // preserve the existing connection-ready assertions.
+    await page.goto(`${frontendUrl}${shot.path}`, {
+      waitUntil: shot.name === "cards" ? "domcontentloaded" : "networkidle"
+    });
     await assertTexts(page, shot.texts);
     if (shot.name === "decks") {
       await assertDeckImportSurface(page);
@@ -1746,23 +1751,88 @@ async function runArenaDirectSelectionInteraction(page, report) {
   const arena = page.locator("[data-arena-table]");
   await arena.waitFor({ state: "visible", timeout: 10_000 });
 
+  const actionStateFor = (sourceObjectId) => page.evaluate((sourceId) => {
+    const layer = document.querySelector("[data-arena-action-mode]");
+    const layerRect = layer?.getBoundingClientRect();
+    const tray = document.querySelector('[data-wire-object-command-tray-presentation="arena"]');
+    return {
+      composerCount: tray?.querySelectorAll(".candidate-composer").length ?? 0,
+      confirmationCount: Array.from(tray?.querySelectorAll("button") ?? [])
+        .filter((button) => button.textContent?.trim() === "确认行动").length,
+      legalTargetOcclusions: Array.from(document.querySelectorAll("[data-object-id][data-prompt-state]"))
+        .filter((element) => !["disabled", "source"].includes(element.getAttribute("data-prompt-state") ?? ""))
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return layerRect && rect.width > 0 && rect.height > 0
+            && rect.left < layerRect.right && rect.right > layerRect.left
+            && rect.top < layerRect.bottom && rect.bottom > layerRect.top;
+        })
+        .map((element) => element.getAttribute("data-object-id"))
+        .filter(Boolean),
+      placement: layer?.getAttribute("data-arena-action-placement") ?? "missing",
+      protectedCount: Number(layer?.getAttribute("data-arena-action-protected-count") ?? "0"),
+      protectedOverlap: Number(layer?.getAttribute("data-arena-action-protected-overlap") ?? "-1"),
+      selected: document.querySelector(`[data-arena-table] [data-object-id="${sourceId}"]`)?.classList.contains("is-selected") ?? false,
+      trayMode: tray?.getAttribute("data-wire-object-command-tray-mode") ?? "missing"
+    };
+  }, sourceObjectId);
+
+  const handSource = page.locator('[data-arena-table] [data-object-id="p1-hand-spell"]');
+  await handSource.click();
+  await page.waitForFunction(() => document.querySelector('[data-arena-table] [data-object-id="p1-hand-spell"]')?.classList.contains("is-selected"));
+  const handSourceState = await actionStateFor("p1-hand-spell");
+  if (!handSourceState.selected
+    || handSourceState.legalTargetOcclusions.length > 0
+    || handSourceState.placement === "fallback"
+    || handSourceState.protectedCount < 1
+    || handSourceState.protectedOverlap !== 0
+    || handSourceState.confirmationCount !== 1
+    || handSourceState.composerCount !== 0
+    || handSourceState.trayMode !== "route") {
+    throw new Error(`Arena hand source must preserve every legal tabletop object and one submit path: ${JSON.stringify(handSourceState)}`);
+  }
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0);
+
+  const runeSource = page.locator('[data-arena-table] [data-object-id="p1-rune-3"]');
+  await runeSource.click();
+  await page.waitForFunction(() => document.querySelector('[data-arena-table] [data-object-id="p1-rune-3"]')?.classList.contains("is-selected"));
+  const anchorBeforeScroll = await page.locator("[data-arena-action-mode]").getAttribute("data-arena-action-anchor-x");
+  const runeTrackScroll = await page.evaluate(() => {
+    const track = document.querySelector(".arena-hand.is-self .wire-rune-track");
+    if (!(track instanceof HTMLElement)) return { after: 0, before: 0, maximum: 0 };
+    const before = track.scrollLeft;
+    const maximum = Math.max(0, track.scrollWidth - track.clientWidth);
+    track.scrollLeft = Math.min(maximum, before + 80);
+    return { after: track.scrollLeft, before, maximum };
+  });
+  if (runeTrackScroll.after === runeTrackScroll.before || runeTrackScroll.maximum <= 0) {
+    throw new Error(`Arena scroll-anchor fixture must move the rune source: ${JSON.stringify(runeTrackScroll)}`);
+  }
+  await page.waitForFunction((previous) => (
+    document.querySelector("[data-arena-action-mode]")?.getAttribute("data-arena-action-anchor-x") !== previous
+  ), anchorBeforeScroll);
+  const anchorAfterScroll = await page.locator("[data-arena-action-mode]").getAttribute("data-arena-action-anchor-x");
+  const runeSourceState = await actionStateFor("p1-rune-3");
+  if (!runeSourceState.selected || runeSourceState.legalTargetOcclusions.length > 0 || runeSourceState.protectedOverlap !== 0) {
+    throw new Error(`Arena action layer must stay attached and target-safe after nested scrolling: ${JSON.stringify(runeSourceState)}`);
+  }
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0);
+  await page.evaluate(() => {
+    const track = document.querySelector(".arena-hand.is-self .wire-rune-track");
+    if (track instanceof HTMLElement) track.scrollLeft = 0;
+  });
+
   const source = page.locator('[data-arena-battlefield-region] [data-object-id="p1-right-1"]');
   const position = page.locator('[data-arena-battlefield-region] [data-object-id="fixture-right-battlefield"]');
   const target = page.locator('[data-arena-battlefield-region] [data-object-id="p2-right-1"]');
   await source.click();
   await page.waitForFunction(() => document.querySelector('[data-arena-battlefield-region] [data-object-id="p1-right-1"]')?.classList.contains("is-selected"));
 
-  const targetOccluded = await page.evaluate(() => {
-    const layer = document.querySelector("[data-arena-action-mode]")?.getBoundingClientRect();
-    const targetCard = document.querySelector('[data-arena-battlefield-region] [data-object-id="p2-right-1"]')?.getBoundingClientRect();
-    return Boolean(layer && targetCard
-      && targetCard.left < layer.right
-      && targetCard.right > layer.left
-      && targetCard.top < layer.bottom
-      && targetCard.bottom > layer.top);
-  });
-  if (targetOccluded) {
-    throw new Error("Arena context actions must not cover the next legal target.");
+  const battlefieldSourceState = await actionStateFor("p1-right-1");
+  if (battlefieldSourceState.legalTargetOcclusions.length > 0) {
+    throw new Error(`Arena context actions must not cover legal tabletop objects: ${JSON.stringify(battlefieldSourceState)}`);
   }
 
   await position.click();
@@ -1790,9 +1860,12 @@ async function runArenaDirectSelectionInteraction(page, report) {
 
   report.interactions.push({
     chosenObjectIds: [...new Set(chosenObjectIds)].sort(),
+    handPlacement: handSourceState.placement,
+    handProtectedCount: handSourceState.protectedCount,
     name: "arena-direct-selection",
     result: "source-position-target-ready-and-escape-cleared",
-    targetOccluded
+    scrollAnchorMoved: anchorAfterScroll !== anchorBeforeScroll,
+    targetOccluded: battlefieldSourceState.legalTargetOcclusions.length > 0
   });
   console.log("QA interaction OK: arena-direct-selection");
 }

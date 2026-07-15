@@ -7,6 +7,14 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layoutPath = resolve(scriptDir, "../src/components/match/wireTableLayoutData.json");
 const layout = JSON.parse(readFileSync(layoutPath, "utf8"));
 const contract = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const runtimeLayout = loadWireLayoutModule(
+  resolve(scriptDir, "../src/components/match/wireTableLayout.ts"),
+  layout
+);
+const arenaShellCss = readFileSync(resolve(scriptDir, "../src/styles/arena-shell.css"), "utf8");
+const arenaCss = ["arena-shell.css", "arena-board.css", "arena-actions.css", "arena-desktop.css", "arena-mobile.css", "arena-motion.css"]
+  .map((filename) => readFileSync(resolve(scriptDir, `../src/styles/${filename}`), "utf8"))
+  .join("\n");
 const errors = [];
 
 const handSlots = ["hand", "runeDeck", "runeTrack"];
@@ -82,6 +90,26 @@ function validateTokens() {
   if (tokens.standbyTrackMinHeight > tokens.standbyTrackHeight) {
     errors.push("standby track minimum height must not exceed standby track height");
   }
+
+  const style = runtimeLayout.wireMatchPageStyle(layout);
+  const cssPropertyByToken = {
+    battlefieldCardHeight: "--wire-battlefield-card-h",
+    battlefieldCardWidth: "--wire-battlefield-card-w",
+    cardHeight: "--wire-card-h",
+    cardWidth: "--wire-card-w",
+    fixedPileCardHeight: "--wire-fixed-pile-card-h",
+    fixedPileCardWidth: "--wire-fixed-pile-card-w",
+    runeCardHeight: "--wire-rune-card-h",
+    runeCardWidth: "--wire-rune-card-w",
+    runeTrackWidth: "--wire-rune-track-w"
+  };
+  for (const [token, property] of Object.entries(cssPropertyByToken)) {
+    const expected = `${tokens[token]}px`;
+    if (style[property] !== expected) errors.push(`wireMatchPageStyle must emit ${property}: ${expected}`);
+  }
+  if (/--wire-(?:card|battlefield-card|fixed-pile|rune-card|rune-track)-/.test(arenaShellCss)) {
+    errors.push("arena-shell.css must not shadow base sizing tokens emitted by wireMatchPageStyle");
+  }
 }
 
 function validateArena() {
@@ -97,6 +125,14 @@ function validateArena() {
   if (arena.handMaxViewportRatio !== 0.15) {
     errors.push("arena.handMaxViewportRatio must keep each hand rail at 0.15");
   }
+  if (arena.desktopMinWidth < 1200 || arena.compactDesktopMinWidth >= arena.desktopMinWidth) {
+    errors.push("arena desktop breakpoints must keep compact desktop below the full desktop threshold");
+  }
+  const edgeRatio = (1 - arena.battlefieldMinHeightRatio - arena.handMaxViewportRatio * 2) / 2;
+  if (edgeRatio <= 0) {
+    errors.push("arena ratios must leave positive mirrored home rails between the hands and battlefield");
+  }
+  validateArenaRuntimeGeometry(arena, edgeRatio);
   expectArray("arena.battlefieldSlots", arena.battlefieldSlots, ["leftSite", "leftLane", "rightLane", "rightSite"]);
 
   const expectedSelf = {
@@ -116,6 +152,40 @@ function validateArena() {
   }
   for (const [key, expected] of Object.entries(expectedOpponent)) {
     if (arena.opponent?.[key] !== expected) errors.push(`arena.opponent.${key} should be ${expected}`);
+  }
+}
+
+function validateArenaRuntimeGeometry(arena, edgeRatio) {
+  const style = runtimeLayout.wireMatchPageStyle(layout);
+  const expected = {
+    "--arena-battlefield-ratio": percent(arena.battlefieldMinHeightRatio),
+    "--arena-battlefield-start": percent(arena.handMaxViewportRatio + edgeRatio),
+    "--arena-edge-ratio": percent(edgeRatio),
+    "--arena-hand-ratio": percent(arena.handMaxViewportRatio)
+  };
+  for (const [property, value] of Object.entries(expected)) {
+    if (style[property] !== value) {
+      errors.push(`wireMatchPageStyle must emit ${property}: ${value}, got ${style[property] ?? "missing"}`);
+    }
+    if (!arenaCss.includes(`var(${property}`)) {
+      errors.push(`arena CSS must consume runtime property ${property}`);
+    }
+  }
+
+  const probeLayout = {
+    ...layout,
+    arena: {
+      ...arena,
+      battlefieldMinHeightRatio: 0.4,
+      handMaxViewportRatio: 0.12
+    }
+  };
+  const probeStyle = runtimeLayout.wireMatchPageStyle(probeLayout);
+  if (probeStyle["--arena-battlefield-ratio"] !== "40%"
+    || probeStyle["--arena-hand-ratio"] !== "12%"
+    || probeStyle["--arena-edge-ratio"] !== "18%"
+    || probeStyle["--arena-battlefield-start"] !== "30%") {
+    errors.push("runtime arena geometry must change when the layout contract ratios change");
   }
 }
 
@@ -308,6 +378,25 @@ function loadTsModule(sourcePath) {
   const moduleShim = { exports: {} };
   new Function("exports", "module", output)(moduleShim.exports, moduleShim);
   return moduleShim.exports;
+}
+
+function loadWireLayoutModule(sourcePath, layoutData) {
+  const source = readFileSync(sourcePath, "utf8")
+    .replace(/^import \{ type CSSProperties \} from "react";\n/m, "")
+    .replace(/^import layoutData from "\.\/wireTableLayoutData\.json";\n/m, "const layoutData = __layoutData;\n");
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  new Function("exports", "module", "__layoutData", output)(moduleShim.exports, moduleShim, layoutData);
+  return moduleShim.exports;
+}
+
+function percent(value) {
+  return `${Number((value * 100).toFixed(4))}%`;
 }
 
 function expectArray(name, actual, expected) {

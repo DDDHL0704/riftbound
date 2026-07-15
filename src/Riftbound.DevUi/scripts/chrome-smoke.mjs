@@ -578,29 +578,82 @@ async function runPlayableCardInspectSmoke(cdp) {
 async function runArenaDirectSelectionSmoke(cdp) {
   const clickObject = async (objectId) => evaluateJson(cdp, `(() => {
     const objectId = ${JSON.stringify(objectId)};
-    const card = document.querySelector('[data-arena-battlefield-region] [data-object-id="' + objectId + '"]');
+    const card = document.querySelector('[data-arena-table] [data-object-id="' + objectId + '"]');
     if (!(card instanceof HTMLButtonElement)) return false;
     card.click();
     return true;
   })()`);
+
+  const sourceStateFor = async (objectId) => evaluateJson(cdp, `(() => {
+    const objectId = ${JSON.stringify(objectId)};
+    const layer = document.querySelector("[data-arena-action-mode]");
+    const layerRect = layer?.getBoundingClientRect();
+    const tray = document.querySelector('[data-wire-object-command-tray-presentation="arena"]');
+    return {
+      composerCount: tray?.querySelectorAll(".candidate-composer").length ?? 0,
+      confirmationCount: Array.from(tray?.querySelectorAll("button") ?? [])
+        .filter((button) => button.textContent?.trim() === "确认行动").length,
+      legalTargetOcclusions: Array.from(document.querySelectorAll("[data-object-id][data-prompt-state]"))
+        .filter((element) => !["disabled", "source"].includes(element.getAttribute("data-prompt-state") ?? ""))
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return layerRect && rect.width > 0 && rect.height > 0
+            && rect.left < layerRect.right && rect.right > layerRect.left
+            && rect.top < layerRect.bottom && rect.bottom > layerRect.top;
+        })
+        .map((element) => element.getAttribute("data-object-id"))
+        .filter(Boolean),
+      placement: layer?.getAttribute("data-arena-action-placement") ?? "missing",
+      protectedCount: Number(layer?.getAttribute("data-arena-action-protected-count") ?? "0"),
+      protectedOverlap: Number(layer?.getAttribute("data-arena-action-protected-overlap") ?? "-1"),
+      selected: document.querySelector('[data-arena-table] [data-object-id="' + objectId + '"]')?.classList.contains("is-selected") ?? false,
+      trayMode: tray?.getAttribute("data-wire-object-command-tray-mode") ?? "missing"
+    };
+  })()`);
+
+  const clearSelection = async () => {
+    await evaluateJson(cdp, `(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      return true;
+    })()`);
+    const deadline = Date.now() + 5_000;
+    while (Date.now() < deadline) {
+      const cleared = Boolean(await evaluateJson(cdp, `(() => (
+        document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0
+        && document.querySelectorAll("[data-object-id].is-selected").length === 0
+        && document.querySelectorAll("[data-object-id].is-prompt-chosen").length === 0
+      ))()`));
+      if (cleared) return;
+      await delay(100);
+    }
+    throw new Error("Escape did not clear the arena selection draft.");
+  };
+
+  if (!await clickObject("p1-hand-spell")) {
+    throw new Error("Arena hand-source regression could not click its source card.");
+  }
+  await delay(100);
+  const handSourceState = await sourceStateFor("p1-hand-spell");
+  if (!handSourceState.selected
+    || handSourceState.legalTargetOcclusions.length > 0
+    || handSourceState.placement === "fallback"
+    || handSourceState.protectedCount < 1
+    || handSourceState.protectedOverlap !== 0
+    || handSourceState.confirmationCount !== 1
+    || handSourceState.composerCount !== 0
+    || handSourceState.trayMode !== "route") {
+    throw new Error(`Arena hand source must preserve every legal tabletop object and one submit path: ${JSON.stringify(handSourceState)}`);
+  }
+  await clearSelection();
 
   if (!await clickObject("p1-right-1")) {
     throw new Error("Arena direct selection could not click its source card.");
   }
   await delay(100);
 
-  const sourceState = await evaluateJson(cdp, `(() => {
-    const layer = document.querySelector("[data-arena-action-mode]")?.getBoundingClientRect();
-    const target = document.querySelector('[data-arena-battlefield-region] [data-object-id="p2-right-1"]')?.getBoundingClientRect();
-    return {
-      legalTargetOcclusions: layer && target && target.left < layer.right && target.right > layer.left && target.top < layer.bottom && target.bottom > layer.top
-        ? ["p2-right-1"]
-        : [],
-      selected: document.querySelector('[data-arena-battlefield-region] [data-object-id="p1-right-1"]')?.classList.contains("is-selected") ?? false
-    };
-  })()`);
-  if (!sourceState.selected || sourceState.legalTargetOcclusions.length > 0) {
-    throw new Error(`Arena source selection is unusable: ${JSON.stringify(sourceState)}`);
+  const battlefieldSourceState = await sourceStateFor("p1-right-1");
+  if (!battlefieldSourceState.selected || battlefieldSourceState.legalTargetOcclusions.length > 0) {
+    throw new Error(`Arena source selection is unusable: ${JSON.stringify(battlefieldSourceState)}`);
   }
 
   if (!await clickObject("fixture-right-battlefield") || !await clickObject("p2-right-1")) {
@@ -626,24 +679,7 @@ async function runArenaDirectSelectionSmoke(cdp) {
     throw new Error(`Arena direct selection did not reach a ready server route: ${JSON.stringify(readyState)}`);
   }
 
-  await evaluateJson(cdp, `(() => {
-    window.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
-    return true;
-  })()`);
-  const clearDeadline = Date.now() + 5_000;
-  let cleared = false;
-  while (Date.now() < clearDeadline) {
-    cleared = Boolean(await evaluateJson(cdp, `(() => (
-      document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0
-      && document.querySelectorAll("[data-object-id].is-selected").length === 0
-      && document.querySelectorAll("[data-object-id].is-prompt-chosen").length === 0
-    ))()`));
-    if (cleared) break;
-    await delay(100);
-  }
-  if (!cleared) {
-    throw new Error("Escape did not clear the arena selection draft.");
-  }
+  await clearSelection();
 }
 
 async function ensureApi() {

@@ -118,7 +118,7 @@ export function WireObjectRouteReview({
         title={review.submitReason}
         type="button"
       >
-        {review.submitLabel}
+        {presentation === "arena" ? "确认行动" : review.submitLabel}
       </button>
     </section>
   );

@@ -1,0 +1,398 @@
+/* Mobile Arena lane switcher and compact table geometry. */
+@media (max-width: 899px) {
+  .playable-match-surface.wire-match-page {
+    --wire-battlefield-card-w: 84px !important;
+    --wire-battlefield-card-h: 60px !important;
+    grid-template-rows: 50px 40px minmax(0, 1fr) !important;
+  }
+
+  .playable-match-surface .game-match-topbar {
+    grid-template-columns: 38px minmax(0, 1fr) auto !important;
+  }
+
+  .playable-match-surface .game-match-status {
+    display: none !important;
+  }
+
+  .playable-match-surface .game-match-guidance {
+    min-height: 40px;
+  }
+
+  .arena-backdrop {
+    opacity: 0.14;
+  }
+
+  .arena-battlefield {
+    top: 29%;
+    right: 0;
+    bottom: 43%;
+    left: 0;
+    min-height: 28%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    touch-action: pan-x;
+  }
+
+  .arena-battlefield::-webkit-scrollbar {
+    display: none;
+  }
+
+  .arena-battlefield-tabs {
+    position: sticky;
+    z-index: 90;
+    top: 4px;
+    left: calc((100vw - 196px) / 2);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 196px;
+    height: 32px;
+    margin-bottom: -32px;
+    overflow: hidden;
+    border: 1px solid rgb(86 96 90 / 62%);
+    border-radius: 4px;
+    background: rgb(12 17 16 / 94%);
+    box-shadow: 0 5px 18px rgb(0 0 0 / 36%);
+  }
+
+  .arena-battlefield-tabs button {
+    min-width: 0;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 0 !important;
+    border-right: 1px solid rgb(86 96 90 / 46%);
+    border-radius: 0 !important;
+    background: rgb(12 17 16 / 96%) !important;
+    color: rgb(240 238 231 / 68%) !important;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .arena-battlefield-tabs button:last-child {
+    border-right: 0;
+  }
+
+  .arena-battlefield-tabs button[aria-selected="true"] {
+    background: #d5ae62 !important;
+    color: #101512 !important;
+  }
+
+  .arena-battlefield-tabs button:focus-visible {
+    outline: 2px solid var(--arena-selected);
+    outline-offset: -2px;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-heading {
+    visibility: hidden;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-stack {
+    grid-template-columns: 86px minmax(600px, 1fr) 86px !important;
+    min-width: 772px !important;
+    padding-inline: 4px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-center-grid {
+    grid-template-columns: repeat(2, minmax(292px, 1fr)) !important;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-battlefield-unit {
+    --wire-card-w: 60px !important;
+    --wire-card-h: 84px !important;
+    gap: 26px;
+    padding-inline: 14px;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-standby {
+    --wire-card-w: 54px !important;
+    --wire-card-h: 76px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-lane {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .playable-match-surface .arena-table .wire-battlefield-lane:first-child {
+    scroll-margin-left: 86px;
+  }
+
+  .arena-edge {
+    right: 4px;
+    left: 4px;
+  }
+
+  .arena-edge.is-opponent {
+    top: 12%;
+    right: 4px;
+    left: 4px;
+    height: 16%;
+  }
+
+  .arena-edge.is-self {
+    bottom: 26%;
+    height: 16%;
+  }
+
+  .arena-hand.is-opponent {
+    height: 11%;
+  }
+
+  .arena-hand.is-self {
+    height: 26dvh;
+    max-height: 26dvh;
+  }
+
+  .playable-match-surface .arena-table .wire-player-home {
+    --wire-card-w: 64px !important;
+    --wire-card-h: 90px !important;
+    --wire-fixed-pile-card-w: 60px !important;
+    --wire-fixed-pile-card-h: 84px !important;
+    --wire-fixed-pile-slot-w: 60px !important;
+    --wire-fixed-pile-slot-h: 84px !important;
+    --wire-public-pile-w: 60px !important;
+    --wire-signature-area-w: 90px !important;
+    --wire-hero-area-w: 90px !important;
+    --wire-signature-zone-h: 96px !important;
+    padding: 0 36px 0 0 !important;
+  }
+
+  .playable-match-surface .arena-table .wire-player-self {
+    grid-template-columns: 80px 80px minmax(0, 1fr) !important;
+  }
+
+  .playable-match-surface .arena-table .wire-player-opponent {
+    grid-template-columns: minmax(0, 1fr) 80px 80px !important;
+  }
+
+  .playable-match-surface .arena-edge.is-opponent .wire-player-home {
+    padding: 0 0 0 36px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-player-home .wire-card-flow {
+    --wire-card-w: 64px !important;
+    --wire-card-h: 90px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-base-card-grid {
+    gap: 28px;
+    padding-inline: 8px;
+  }
+
+  .playable-match-surface .arena-table .wire-zone-label,
+  .playable-match-surface .arena-table .tabletop-score-meta {
+    display: none;
+  }
+
+  .playable-match-surface .arena-table .wire-home-score-token {
+    top: 4px !important;
+    right: 2px !important;
+    width: 32px !important;
+    height: 32px;
+    min-height: 32px !important;
+    grid-template-columns: 1fr !important;
+    place-items: center;
+    padding: 0 !important;
+  }
+
+  .playable-match-surface .arena-table .wire-home-score-token .tabletop-score-name {
+    display: none;
+  }
+
+  .playable-match-surface .arena-edge.is-opponent .wire-home-score-token {
+    top: 4px !important;
+    right: auto !important;
+    bottom: auto;
+    left: 2px;
+  }
+
+  .playable-match-surface .arena-edge.is-self .wire-home-score-token {
+    top: auto !important;
+    right: 2px !important;
+    bottom: 4px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-rail {
+    --wire-fixed-pile-card-w: 50px !important;
+    --wire-fixed-pile-card-h: 70px !important;
+    --wire-fixed-pile-slot-w: 50px !important;
+    --wire-fixed-pile-slot-h: 70px !important;
+    --wire-rune-card-w: 34px !important;
+    --wire-rune-card-h: 48px !important;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-zone {
+    top: 0;
+    right: 4px;
+    bottom: auto;
+    left: 158px;
+    width: auto;
+    height: 78px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .arena-fan-card:not(:first-child) {
+    display: block;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-cards {
+    top: 4px;
+    right: 62px;
+    left: 0;
+    width: auto;
+    height: 72px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-rune-deck {
+    top: 4px;
+    right: auto;
+    left: 4px;
+    width: 50px;
+    height: 70px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-rune-track {
+    top: 4px;
+    right: auto;
+    left: 60px;
+    width: 90px;
+    height: 70px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-piles {
+    top: 2px;
+    right: 0;
+    left: auto;
+    width: 54px;
+    height: 74px;
+    grid-template-columns: 50px;
+  }
+
+  .playable-match-surface .arena-hand.is-opponent .wire-hand-summary {
+    display: none !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-rune-track {
+    top: 4px;
+    bottom: auto;
+    left: 72px;
+    width: 210px;
+    height: 84px;
+    overflow-x: auto !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-rune-deck {
+    top: 4px;
+    bottom: auto;
+    left: 4px;
+    width: 60px;
+    height: 84px;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-piles {
+    top: 4px;
+    bottom: auto;
+    right: 5px;
+    width: 64px;
+    height: 90px;
+    grid-template-columns: 60px;
+  }
+
+  .playable-match-surface .arena-hand.is-self .wire-hand-rail {
+    --wire-fixed-pile-card-w: 60px !important;
+    --wire-fixed-pile-card-h: 84px !important;
+    --wire-fixed-pile-slot-w: 60px !important;
+    --wire-fixed-pile-slot-h: 84px !important;
+    --wire-rune-card-w: 38px !important;
+    --wire-rune-card-h: 53px !important;
+  }
+
+  .playable-match-surface .arena-table .wire-hand-played-pile {
+    display: none;
+  }
+
+  .playable-match-surface .arena-hand.is-self .wire-hand-cards {
+    right: 10px;
+    bottom: 4px;
+    left: 10px;
+    width: auto;
+    height: 100px;
+    transform: none;
+  }
+
+  .playable-match-surface .arena-table .wire-card-flow-hand {
+    --wire-card-w: 70px !important;
+    --wire-card-h: 98px !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    overflow-x: auto;
+  }
+
+  .playable-match-surface .arena-table .arena-fan-card {
+    margin-left: 0;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-context {
+    right: 8px;
+    bottom: calc(26dvh + 8px);
+    left: 8px;
+    width: auto;
+    transform: none;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-context[style] {
+    top: auto;
+    bottom: calc(26dvh + 8px);
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: start !important;
+    max-height: min(48dvh, 360px) !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-buttons {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer {
+    width: 100% !important;
+    max-height: 260px;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-modal {
+    width: calc(100% - 16px);
+    height: auto;
+    max-height: 82%;
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-modal :where(.action-panel, .action-panel-scroll-native) {
+    max-height: calc(82dvh - 74px);
+  }
+
+  .playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice-list {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .playable-match-surface .arena-prompt-layer .action-buttons {
+    max-height: 42dvh !important;
+  }
+
+  .playable-match-surface .arena-side-drawer {
+    display: none;
+  }
+}

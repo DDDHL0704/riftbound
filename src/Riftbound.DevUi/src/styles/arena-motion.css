@@ -1,0 +1,11 @@
+/* Arena motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  .playable-match-surface .arena-table .arena-fan-card,
+  .playable-match-surface .arena-side-drawer {
+    transition: none !important;
+  }
+
+  .playable-match-surface .arena-table :where(.card-face, .card-image-only, .card-back).is-prompt-enabled {
+    animation: none !important;
+  }
+}

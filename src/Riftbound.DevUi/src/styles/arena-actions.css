@@ -1,0 +1,699 @@
+/* Arena prompt, command tray, modal, and diagnostics layers. */
+.playable-match-surface .arena-action-layer {
+  position: absolute;
+  z-index: 220;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.playable-match-surface .arena-prompt-layer {
+  position: absolute;
+  max-width: calc(100% - 24px);
+  color-scheme: dark;
+  pointer-events: auto;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context {
+  top: var(--arena-action-y, auto);
+  bottom: var(--arena-action-bottom, calc(18dvh + 10px));
+  left: var(--arena-action-x, 50%);
+  width: min(600px, 48vw);
+  transform: translate(var(--arena-action-translate-x, -50%), var(--arena-action-translate-y, 0%));
+}
+
+.playable-match-surface .arena-prompt-layer.is-context[style] {
+  bottom: auto;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal {
+  top: 50%;
+  left: 50%;
+  width: min(980px, calc(100% - 40px));
+  height: auto;
+  max-height: 76%;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+}
+
+.playable-match-surface .arena-prompt-layer :where(.action-panel, .wire-object-command-tray) {
+  border: 1px solid rgb(86 96 90 / 78%) !important;
+  border-radius: 7px !important;
+  background: rgb(20 27 24 / 96%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 55%) !important;
+  backdrop-filter: blur(14px);
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray {
+  margin-bottom: 6px;
+  padding: 8px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena {
+  display: grid !important;
+  grid-template-columns: minmax(150px, 0.72fr) minmax(240px, 1.4fr) auto !important;
+  align-items: center !important;
+  gap: 9px !important;
+  width: 100%;
+  max-height: min(42dvh, 320px) !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  padding: 0;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading > div {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading :where(strong, span),
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-next {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-heading span,
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-next {
+  color: rgb(240 238 231 / 62%) !important;
+  font-size: 10px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection {
+  display: flex !important;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection li {
+  display: inline-flex;
+  flex: 0 0 auto !important;
+  gap: 4px;
+  padding: 3px 5px;
+  border: 1px solid rgb(86 96 90 / 48%) !important;
+  border-radius: 4px !important;
+  background: rgb(30 38 34 / 82%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-selection small {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] {
+  display: grid;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid rgb(86 96 90 / 54%);
+  border-radius: 4px !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading > div {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading :where(strong, span) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-heading > small {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-next {
+  color: rgb(240 238 231 / 66%) !important;
+  font-size: 10px;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-submit {
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid rgb(213 174 98 / 76%) !important;
+  border-radius: 4px !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-route-review[data-wire-object-route-review-presentation="arena"] .wire-object-route-review-submit:disabled {
+  border-color: rgb(86 96 90 / 48%) !important;
+  background: #1a221e !important;
+  color: rgb(240 238 231 / 42%) !important;
+  cursor: not-allowed;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-actions,
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-focused-action-entry-list {
+  display: grid !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-action {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  max-height: 250px;
+  padding: 0 !important;
+  overflow: auto !important;
+  border: 0 !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer :where(
+  .candidate-composer-gate,
+  .candidate-composer-checks,
+  .candidate-command-preview
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer :where(
+  .candidate-composer-heading,
+  .candidate-composer-warning,
+  .candidate-composer-costs
+) {
+  grid-column: 1 / -1 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-field {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  padding: 0;
+  border: 0 !important;
+  background: transparent !important;
+  color: rgb(240 238 231 / 68%) !important;
+  font-size: 10px;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-field select {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 28px 6px 8px;
+  border: 1px solid rgb(86 96 90 / 74%) !important;
+  border-radius: 4px !important;
+  background: #151c19 !important;
+  color: var(--arena-text) !important;
+  font: inherit;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-costs {
+  display: grid !important;
+  gap: 5px !important;
+  padding: 7px 0 0 !important;
+  border-top: 1px solid rgb(86 96 90 / 42%);
+  background: transparent !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(240 238 231 / 76%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena input[type="checkbox"] {
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  max-height: 16px;
+  margin: 0;
+  accent-color: var(--arena-selected);
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer-check input {
+  flex: 0 0 16px !important;
+}
+
+.playable-match-surface .arena-prompt-layer :where(.button, button.button) {
+  min-height: 34px !important;
+  border: 1px solid rgb(86 96 90 / 72%) !important;
+  border-radius: 4px !important;
+  background: #1a221e !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer :where(.button, button.button):hover,
+.playable-match-surface .arena-prompt-layer :where(.button, button.button):focus-visible {
+  border-color: var(--arena-selected) !important;
+  background: #252c26 !important;
+}
+
+.playable-match-surface .arena-prompt-layer .button-primary {
+  border-color: rgb(213 174 98 / 82%) !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena :where(
+  .wire-object-command-tray-buttons .button,
+  .candidate-composer > .button
+) {
+  border-color: rgb(86 96 90 / 72%) !important;
+  background: #1a221e !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer > .button.button-primary {
+  border-color: rgb(213 174 98 / 82%) !important;
+  background: #5b4823 !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer .status-pill {
+  border-color: rgb(86 96 90 / 62%) !important;
+  background: rgb(22 29 26 / 88%) !important;
+  color: rgb(240 238 231 / 74%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .candidate-composer > .button {
+  grid-column: 2 !important;
+  justify-self: end;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context:has(> .wire-object-command-tray.presentation-arena) > .action-panel {
+  display: none;
+}
+
+.playable-match-surface .arena-prompt-layer .action-panel-scroll-native,
+.playable-match-surface .arena-prompt-layer .action-panel-content {
+  width: 100% !important;
+  max-height: inherit;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-panel-content {
+  padding: 8px !important;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choices {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choice {
+  display: inline-flex;
+  flex: 1 0 auto !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 118px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid rgb(86 96 90 / 62%) !important;
+  border-radius: 5px !important;
+  background: rgb(27 35 31 / 94%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.playable-match-surface .arena-prompt-layer .arena-action-choice:hover,
+.playable-match-surface .arena-prompt-layer .arena-action-choice:focus-visible,
+.playable-match-surface .arena-prompt-layer .arena-action-choice.is-expanded {
+  border-color: var(--arena-selected) !important;
+  background: rgb(58 49 29 / 96%) !important;
+  color: #fff7df !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel-content > header,
+.playable-match-surface .arena-prompt-layer.is-context .prompt-summary,
+.playable-match-surface .arena-prompt-layer.is-context .action-prompt-inspection {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-buttons {
+  display: flex !important;
+  gap: 7px !important;
+  width: 100% !important;
+  max-height: 230px !important;
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .action-buttons.is-arena-collapsed {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-render-entry {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 8px !important;
+  border-color: rgb(86 96 90 / 62%) !important;
+  background: rgb(28 36 32 / 94%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .action-buttons {
+  margin-top: 7px;
+  max-height: min(38dvh, 300px) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] :where(
+  .battle-declaration-heading,
+  .battle-declaration-summary,
+  .battle-declaration-note,
+  .unit-movement-heading,
+  .unit-movement-summary,
+  .unit-movement-note,
+  .rune-resource-heading,
+  .rune-resource-summary,
+  .rune-resource-note,
+  .rune-resource-pool,
+  .candidate-composer-gate,
+  .candidate-composer-checks,
+  .candidate-command-preview
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .candidate-composer {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  padding: 0 !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] :where(
+  .candidate-composer-heading,
+  .candidate-composer-warning,
+  .candidate-composer-costs
+) {
+  grid-column: 1 / -1 !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-context .action-panel[data-action-panel-presentation="arena"] .candidate-composer > .button {
+  grid-column: 2 !important;
+  justify-self: end;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel {
+  display: flex;
+  height: auto !important;
+  max-height: min(540px, calc(76dvh - 62px));
+  overflow: hidden;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-scroll-native {
+  height: auto;
+  min-height: 0;
+  max-height: min(540px, calc(76dvh - 62px));
+  overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-buttons {
+  display: grid !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-prompt-inspection {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content > header {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .prompt-summary,
+  .complex-prompt-details,
+  .generic-prompt-details,
+  .spell-duel-prompt-details,
+  .stack-priority-prompt-details
+) {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content {
+  align-content: start;
+  min-height: 0 !important;
+  padding: 12px !important;
+  background: rgb(20 27 24 / 98%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .mulligan-selector,
+  .hand-choice-panel,
+  .damage-assignment-panel,
+  .pay-cost-panel,
+  .trigger-order-panel,
+  .action-render-entry
+) {
+  border-color: rgb(86 96 90 / 78%) !important;
+  background: rgb(27 35 31 / 98%) !important;
+  color: var(--arena-text) !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal :where(
+  .action-buttons,
+  .action-render-entry,
+  .mulligan-selector,
+  .hand-choice-panel,
+  .damage-assignment-panel,
+  .pay-cost-panel,
+  .trigger-order-panel
+) {
+  align-content: start !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .action-panel-content :where(
+  h2,
+  h3,
+  strong,
+  span,
+  label,
+  p,
+  small,
+  dt,
+  dd
+) {
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-summary span {
+  padding: 6px 8px !important;
+  border: 1px solid rgb(86 96 90 / 52%) !important;
+  border-radius: 4px !important;
+  background: rgb(13 20 17 / 78%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row {
+  border-color: rgb(86 96 90 / 64%) !important;
+  background: rgb(13 20 17 / 88%) !important;
+  color: var(--arena-text) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row.is-selected {
+  border-color: rgb(213 174 98 / 76%) !important;
+  background: rgb(58 49 29 / 94%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-row:disabled {
+  opacity: 0.8;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  max-height: min(42dvh, 360px);
+  overflow: auto;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice {
+  display: grid !important;
+  grid-template-columns: 50px minmax(0, 1fr) auto !important;
+  grid-template-rows: 1fr !important;
+  gap: 8px !important;
+  min-height: 82px !important;
+  padding: 6px !important;
+  border-color: rgb(86 96 90 / 64%) !important;
+  border-radius: 5px !important;
+  background: rgb(13 20 17 / 88%) !important;
+  color: var(--arena-text) !important;
+  text-align: left !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice-art {
+  grid-row: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice-copy {
+  align-content: center !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice.is-selected {
+  border-color: rgb(213 174 98 / 76%) !important;
+  background: rgb(58 49 29 / 94%) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .mulligan-choice:disabled {
+  opacity: 0.9;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-note {
+  display: none !important;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-choice-list {
+  max-height: min(21dvh, 176px);
+  overflow: auto;
+}
+
+.playable-match-surface .arena-prompt-layer.is-modal .pay-cost-panel > .button {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  border-color: rgb(213 174 98 / 74%) !important;
+  background: rgb(65 54 31 / 98%) !important;
+  box-shadow: 0 -8px 18px rgb(20 27 24 / 88%) !important;
+}
+
+.playable-match-surface .arena-side-drawer {
+  position: relative;
+  z-index: 340;
+  inset: auto;
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  transform: none;
+}
+
+.playable-match-surface .arena-side-drawer[open] {
+  position: relative !important;
+  inset: auto !important;
+  width: 34px;
+  height: 34px;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.playable-match-surface .arena-side-drawer > summary {
+  position: relative;
+  inset: auto;
+  display: grid !important;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0 !important;
+  border: 1px solid rgb(86 96 90 / 72%) !important;
+  border-radius: 4px !important;
+  background: rgb(18 24 22 / 94%) !important;
+  color: rgb(240 238 231 / 72%) !important;
+  cursor: pointer !important;
+  list-style: none;
+}
+
+.playable-match-surface .arena-side-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.playable-match-surface .arena-side-drawer > summary span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap !important;
+}
+
+.playable-match-surface .arena-side-drawer > summary:hover,
+.playable-match-surface .arena-side-drawer > summary:focus-visible,
+.playable-match-surface .arena-side-drawer[open] > summary {
+  border-color: rgb(213 174 98 / 72%) !important;
+  color: var(--arena-selected) !important;
+}
+
+.playable-match-surface .arena-side-drawer .game-debug-drawer-body {
+  position: fixed;
+  z-index: 339;
+  top: 82px;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(520px, calc(100vw - 48px));
+  overflow: auto;
+  border-left: 1px solid rgb(86 96 90 / 72%);
+  background: rgb(15 21 19 / 98%);
+  box-shadow: -16px 0 40px rgb(0 0 0 / 38%) !important;
+}
