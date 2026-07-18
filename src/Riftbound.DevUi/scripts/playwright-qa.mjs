@@ -1521,7 +1521,7 @@ async function runAccessibilitySmoke(page, name) {
   const violations = result.violations ?? [];
   const blocking = violations.filter((violation) =>
     ["critical", "serious"].includes(String(violation.impact ?? ""))
-    || ["button-name", "label", "aria-hidden-focus", "nested-interactive"].includes(violation.id)
+    || ["button-name", "label", "aria-hidden-focus", "landmark-unique", "nested-interactive"].includes(violation.id)
   );
   if (blocking.length > 0) {
     const summary = blocking
@@ -1755,6 +1755,7 @@ async function runArenaDirectSelectionInteraction(page, report) {
     const layer = document.querySelector("[data-arena-action-mode]");
     const layerRect = layer?.getBoundingClientRect();
     const tray = document.querySelector('[data-wire-object-command-tray-presentation="arena"]');
+    const trayStyle = tray ? getComputedStyle(tray) : null;
     return {
       composerCount: tray?.querySelectorAll(".candidate-composer").length ?? 0,
       confirmationCount: Array.from(tray?.querySelectorAll("button") ?? [])
@@ -1769,10 +1770,13 @@ async function runArenaDirectSelectionInteraction(page, report) {
         })
         .map((element) => element.getAttribute("data-object-id"))
         .filter(Boolean),
+      layerWidth: Math.round(layerRect?.width ?? 0),
       placement: layer?.getAttribute("data-arena-action-placement") ?? "missing",
+      previewCount: document.querySelectorAll(".wire-card-preview").length,
       protectedCount: Number(layer?.getAttribute("data-arena-action-protected-count") ?? "0"),
       protectedOverlap: Number(layer?.getAttribute("data-arena-action-protected-overlap") ?? "-1"),
       selected: document.querySelector(`[data-arena-table] [data-object-id="${sourceId}"]`)?.classList.contains("is-selected") ?? false,
+      trayColumnCount: trayStyle?.gridTemplateColumns.split(/\s+/).filter(Boolean).length ?? 0,
       trayMode: tray?.getAttribute("data-wire-object-command-tray-mode") ?? "missing"
     };
   }, sourceObjectId);
@@ -1780,16 +1784,21 @@ async function runArenaDirectSelectionInteraction(page, report) {
   const handSource = page.locator('[data-arena-table] [data-object-id="p1-hand-spell"]');
   await handSource.click();
   await page.waitForFunction(() => document.querySelector('[data-arena-table] [data-object-id="p1-hand-spell"]')?.classList.contains("is-selected"));
+  await page.waitForTimeout(750);
   const handSourceState = await actionStateFor("p1-hand-spell");
   if (!handSourceState.selected
     || handSourceState.legalTargetOcclusions.length > 0
+    || handSourceState.layerWidth < 320
+    || handSourceState.layerWidth > 480
     || handSourceState.placement === "fallback"
+    || handSourceState.previewCount !== 0
     || handSourceState.protectedCount < 1
     || handSourceState.protectedOverlap !== 0
     || handSourceState.confirmationCount !== 1
     || handSourceState.composerCount !== 0
+    || handSourceState.trayColumnCount !== 2
     || handSourceState.trayMode !== "route") {
-    throw new Error(`Arena hand source must preserve every legal tabletop object and one submit path: ${JSON.stringify(handSourceState)}`);
+    throw new Error(`Arena hand source must preserve targets, suppress preview, and use one compact submit path: ${JSON.stringify(handSourceState)}`);
   }
   await page.keyboard.press("Escape");
   await page.waitForFunction(() => document.querySelectorAll('[data-wire-object-command-tray-presentation="arena"]').length === 0);

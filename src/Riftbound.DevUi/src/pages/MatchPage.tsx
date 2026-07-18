@@ -200,7 +200,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [fixtureSubmissionFeedback, setFixtureSubmissionFeedback] = useState<CommandSubmissionFeedback | undefined>();
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
   const sidePanelSelectionIntentRef = useRef<WireSidePanelSelectionIntent>("auto");
-  const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
+  const { clearPreviewCard, previewCard, queuePreviewCard } = useDelayedWireCardPreview();
   const selectSidePanelSlot = useCallback((slot: WireSidePanelSlot, intent: WireSidePanelSelectionIntent = "manual") => {
     sidePanelSelectionIntentRef.current = intent;
     setActiveSidePanelSlot(slot);
@@ -277,6 +277,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   }), [settings.playerId, tableEvents, tablePrompt, tableSnapshot]);
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
+  useEffect(() => {
+    if (selectedObjectId) {
+      clearPreviewCard();
+    }
+  }, [clearPreviewCard, selectedObjectId]);
   const selectedObjectContext = selectedObjectId ? tableObjectContextModel.byId[selectedObjectId] : undefined;
   const detailObjectId = detailCard?.objectId ?? detailCard?.object?.objectId;
   const detailObjectContext = detailObjectId ? tableObjectContextModel.byId[detailObjectId] : undefined;
@@ -1347,7 +1352,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         submissionFeedback={tableSubmissionFeedback}
         table={tableView}
       />
-      <WireCardPreview card={previewCard} />
+      <WireCardPreview card={selectedObjectId ? undefined : previewCard} />
     </>
   );
 }
@@ -1731,9 +1736,9 @@ function WirePlayerHome({
       </section>
     ),
     base: (
-      <section className="wire-base-main" key="base" aria-label={`${ownerLabel} 基地`}>
+      <div className="wire-base-main" key="base">
         <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" hintByObjectId={interaction.hintByObjectId} ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={6} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
-      </section>
+      </div>
     )
   } satisfies Record<string, ReactNode>;
   const homeSections = {
@@ -1931,13 +1936,13 @@ function WireBattlefieldTable({
   } satisfies Record<string, ReactNode>;
 
   return (
-    <section className="wire-battlefield-stack" style={wireGridColumnsStyle(layout.columns)} aria-label="公共战场">
+    <div className="wire-battlefield-stack" style={wireGridColumnsStyle(layout.columns)}>
       <div className="wire-battlefield-heading" aria-hidden="true">
         <span>公共战场</span>
         <small>两处争夺区</small>
       </div>
       {layout.slots.map((slot) => battlefieldSections[slot])}
-    </section>
+    </div>
   );
 }
 

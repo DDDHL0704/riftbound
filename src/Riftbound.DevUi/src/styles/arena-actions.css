@@ -26,6 +26,12 @@
   bottom: auto;
 }
 
+.playable-match-surface .arena-prompt-layer.is-context:has(
+  > .wire-object-command-tray.presentation-arena[data-wire-object-command-tray-mode="route"]
+) {
+  width: min(460px, calc(100% - 24px));
+}
+
 .playable-match-surface .arena-prompt-layer.is-modal {
   top: 50%;
   left: 50%;
@@ -58,6 +64,17 @@
   width: 100%;
   max-height: min(42dvh, 320px) !important;
   overflow: auto !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena[data-wire-object-command-tray-mode="route"] {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  max-height: min(38dvh, 270px) !important;
+}
+
+.playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena[data-wire-object-command-tray-mode="route"] .wire-object-command-tray-buttons {
+  flex-direction: column;
+  align-items: stretch !important;
+  min-width: 84px;
 }
 
 .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena .wire-object-command-tray-main {

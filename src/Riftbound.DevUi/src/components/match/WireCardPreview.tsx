@@ -6,14 +6,18 @@ export function useDelayedWireCardPreview(delayMs = CARD_PREVIEW_DELAY_MS) {
   const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
   const previewDelayRef = useRef<number | undefined>(undefined);
 
-  const queuePreviewCard = useCallback((card?: InspectedCard) => {
+  const clearPreviewCard = useCallback(() => {
     if (previewDelayRef.current != null) {
       window.clearTimeout(previewDelayRef.current);
       previewDelayRef.current = undefined;
     }
+    setPreviewCard(undefined);
+  }, []);
+
+  const queuePreviewCard = useCallback((card?: InspectedCard) => {
+    clearPreviewCard();
 
     if (!card) {
-      setPreviewCard(undefined);
       return;
     }
 
@@ -21,7 +25,7 @@ export function useDelayedWireCardPreview(delayMs = CARD_PREVIEW_DELAY_MS) {
       setPreviewCard(card);
       previewDelayRef.current = undefined;
     }, delayMs);
-  }, [delayMs]);
+  }, [clearPreviewCard, delayMs]);
 
   useEffect(() => () => {
     if (previewDelayRef.current != null) {
@@ -30,7 +34,7 @@ export function useDelayedWireCardPreview(delayMs = CARD_PREVIEW_DELAY_MS) {
     }
   }, []);
 
-  return { previewCard, queuePreviewCard };
+  return { clearPreviewCard, previewCard, queuePreviewCard };
 }
 
 export function WireCardPreview({ card }: { card?: InspectedCard }) {

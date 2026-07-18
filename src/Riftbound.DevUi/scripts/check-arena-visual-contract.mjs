@@ -39,6 +39,8 @@ requireText(styles, "grid-template-columns: repeat(6, var(--wire-card-w))", "bas
 requireText(styles, ".card-image-cost, .card-image-power, .card-image-title", "official card thumbnails must hide duplicate overlay labels");
 requireText(styles, "--arena-hand-clearance: 184px", "the resting fan must reserve mirrored space for piles");
 requireText(styles, ".wire-object-command-tray.presentation-arena", "the selected-card tray must use compact arena styling");
+requireText(styles, '[data-wire-object-command-tray-mode="route"]', "ready routes must expose a dedicated compact layout");
+requireText(styles, "width: min(460px, calc(100% - 24px))", "desktop route actions must not retain the generic 600px width");
 requireText(styles, ":has(> .wire-object-command-tray.presentation-arena) > .action-panel", "selected-card actions must replace the generic prompt chooser");
 requireText(styles, "--arena-action-translate-x", "selected-card actions must accept scored two-dimensional placement");
 requireText(styles, ".wire-object-command-tray.presentation-arena .candidate-composer-field", "arena command fields must have dedicated compact styling");
@@ -77,6 +79,8 @@ for (const mediaQuery of [
 requireText(surfaceSource, "arena-side-drawer", "playable surface must expose the diagnostics drawer");
 requireText(matchSource, "visibleArenaBackdrop", "backdrops must resolve from visible public cards only");
 requireText(matchSource, "data-wire-banish-zone", "banish must remain visually separate from the base");
+rejectText(matchSource, '<section className="wire-battlefield-stack"', "the inner battlefield layout must not duplicate the outer public battlefield landmark");
+rejectText(matchSource, '<section className="wire-base-main"', "base card grids must not duplicate their labeled player-home landmark");
 
 if (errors.length > 0) {
   console.error("Arena visual contract check failed:");

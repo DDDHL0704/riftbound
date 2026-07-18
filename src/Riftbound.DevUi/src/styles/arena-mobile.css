@@ -347,6 +347,14 @@
     bottom: calc(26dvh + 8px);
   }
 
+  .playable-match-surface .arena-prompt-layer.is-context:has(
+    > .wire-object-command-tray.presentation-arena[data-wire-object-command-tray-mode="route"]
+  ) {
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+
   .playable-match-surface .arena-prompt-layer .wire-object-command-tray.presentation-arena {
     grid-template-columns: minmax(0, 1fr) auto !important;
     align-items: start !important;

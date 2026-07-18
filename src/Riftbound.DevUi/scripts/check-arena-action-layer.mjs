@@ -12,6 +12,7 @@ const layerPath = resolve(srcRoot, "components/match/ArenaActionLayer.tsx");
 const actionPanelPath = resolve(srcRoot, "components/match/ActionPanel.tsx");
 const objectTrayPath = resolve(srcRoot, "components/match/WireObjectCommandTray.tsx");
 const routeReviewPath = resolve(srcRoot, "components/match/WireObjectRouteReview.tsx");
+const cardPreviewPath = resolve(srcRoot, "components/match/WireCardPreview.tsx");
 const matchPagePath = resolve(srcRoot, "pages/MatchPage.tsx");
 const surfacePath = resolve(srcRoot, "components/match/PlayableMatchSurface.tsx");
 
@@ -45,6 +46,7 @@ const { chooseArenaActionPlacement } = loadTsModule(placementPath).exports;
 const actionPanelSource = readFileSync(actionPanelPath, "utf8");
 const objectTraySource = readFileSync(objectTrayPath, "utf8");
 const routeReviewSource = readFileSync(routeReviewPath, "utf8");
+const cardPreviewSource = readFileSync(cardPreviewPath, "utf8");
 const matchPageSource = readFileSync(matchPagePath, "utf8");
 const surfaceSource = readFileSync(surfacePath, "utf8");
 assert(layerSource.includes("data-arena-action-mode"), "action layer must expose its presentation mode");
@@ -64,6 +66,8 @@ assert(routeReviewSource.includes('presentation?: "diagnostic" | "arena"'), "dir
 assert(objectTraySource.includes("presentation={presentation}"), "object tray must preserve route review in arena presentation");
 assert(objectTraySource.includes('const routeOnly = presentation === "arena"'), "arena tray must choose one submission path after a tabletop route exists");
 assert(routeReviewSource.includes('presentation === "arena" ? "确认行动"'), "arena route and composer must use one confirmation label");
+assert(cardPreviewSource.includes("clearPreviewCard"), "card preview hook must expose an immediate cancellation path");
+assert(matchPageSource.includes("selectedObjectId ? undefined : previewCard"), "selected-card actions must suppress the fixed card preview");
 assert(matchPageSource.includes('presentation="arena"'), "the match arena must use the compact action presentation");
 assert.equal(matchPageSource.match(/presentation="arena"/g)?.length, 2, "the match arena must compact both the object tray and action panel");
 assert(matchPageSource.includes('arenaPromptPresentation.mode === "modal"'), "the global action panel must stay hidden for direct-selection prompts");
