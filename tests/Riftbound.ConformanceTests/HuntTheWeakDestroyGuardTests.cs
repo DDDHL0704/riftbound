@@ -37,7 +37,7 @@ public sealed class HuntTheWeakDestroyGuardTests
             ],
             p2Pass.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Graveyard);
-        Assert.DoesNotContain("P2-BATTLEFIELD-UNIT", p2Pass.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P2-BATTLEFIELD-UNIT", "GRAVEYARD");
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal)

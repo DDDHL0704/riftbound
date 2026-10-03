@@ -638,7 +638,7 @@ public sealed class AkshanGuardTests
         Assert.True(vengeancePlayed.Accepted, vengeancePlayed.ErrorMessage);
         Assert.True(vengeanceResolved.Accepted, vengeanceResolved.ErrorMessage);
         Assert.Contains(AkshanObjectId, vengeanceResolved.State.PlayerZones["P1"].Graveyard);
-        Assert.DoesNotContain(AkshanObjectId, vengeanceResolved.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(vengeanceResolved.State, AkshanObjectId, "GRAVEYARD");
         Assert.Contains(EnemyWeaponObjectId, vengeanceResolved.State.PlayerZones["P2"].Base);
         Assert.DoesNotContain(EnemyWeaponObjectId, vengeanceResolved.State.PlayerZones["P1"].Base);
         var equipment = vengeanceResolved.State.CardObjects[EnemyWeaponObjectId];

@@ -63,7 +63,7 @@ public sealed class ReprimandReturnToHandGuardTests
             ],
             p2Pass.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-HAND-KEEP", "P2-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Hand);
-        Assert.DoesNotContain("P2-BATTLEFIELD-UNIT", p2Pass.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P2-BATTLEFIELD-UNIT", "HAND");
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal)
@@ -96,7 +96,7 @@ public sealed class ReprimandReturnToHandGuardTests
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(["P2-HAND-KEEP", ReprimandTargetObjectId], p2Pass.State.PlayerZones["P2"].Hand);
-        Assert.DoesNotContain(ReprimandTargetObjectId, p2Pass.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, ReprimandTargetObjectId, "HAND");
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, ReprimandTargetObjectId, StringComparison.Ordinal));

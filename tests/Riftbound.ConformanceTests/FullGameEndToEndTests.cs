@@ -5976,7 +5976,7 @@ public sealed class FullGameEndToEndTests
         Assert.Null(result.State.PendingPayment);
         Assert.Contains(vayneObjectId, result.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain(vayneObjectId, result.State.PlayerZones["P1"].Battlefields);
-        Assert.False(result.State.CardObjects.ContainsKey(vayneObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, vayneObjectId, "HAND");
         var costPaid = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
@@ -6954,7 +6954,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(WildclawBeastmasterCardNo, beforeBattle.State.CardObjects[returnedObjectId].CardNo);
         Assert.Contains(returnedObjectId, result.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain(returnedObjectId, result.State.PlayerZones["P1"].Battlefields);
-        Assert.False(result.State.CardObjects.ContainsKey(returnedObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, returnedObjectId, "HAND");
 
         var costPaid = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
@@ -7922,7 +7922,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(sourceObjectId, resolved.State.PlayerZones["P1"].Base);
         Assert.Contains(eligibleUnitObjectId, resolved.State.PlayerZones["P1"].Base);
         Assert.Contains(destroyedUnitObjectId, resolved.State.PlayerZones["P1"].Graveyard);
-        Assert.False(resolved.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.Equal("P1", resolved.State.CardObjects[eligibleUnitObjectId].ControllerId);
         Assert.False(resolved.State.CardObjects[eligibleUnitObjectId].IsExhausted);
         Assert.DoesNotContain(eligibleUnitObjectId, resolved.State.PlayerZones["P1"].MainDeck);
@@ -7998,7 +7998,7 @@ public sealed class FullGameEndToEndTests
         Assert.Empty(pendingChoice.State.StackItems);
         Assert.NotNull(pendingChoice.State.PendingCardChoice);
         Assert.Contains(destroyedUnitObjectId, pendingChoice.State.PlayerZones["P1"].Graveyard);
-        Assert.False(pendingChoice.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(pendingChoice.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.DoesNotContain(pendingChoice.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
@@ -8015,7 +8015,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(sourceObjectId, chosen.State.PlayerZones["P1"].Base);
         Assert.Contains(selectedObjectId, chosen.State.PlayerZones["P1"].Base);
         Assert.Contains(destroyedUnitObjectId, chosen.State.PlayerZones["P1"].Graveyard);
-        Assert.False(chosen.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(chosen.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.Equal("P1", chosen.State.CardObjects[selectedObjectId].ControllerId);
         Assert.False(chosen.State.CardObjects[selectedObjectId].IsExhausted);
         Assert.DoesNotContain(selectedObjectId, chosen.State.PlayerZones["P1"].MainDeck);
@@ -8085,7 +8085,7 @@ public sealed class FullGameEndToEndTests
         Assert.Null(declined.State.PendingCardChoice);
         Assert.Contains(sourceObjectId, declined.State.PlayerZones["P1"].Base);
         Assert.Contains(destroyedUnitObjectId, declined.State.PlayerZones["P1"].Graveyard);
-        Assert.False(declined.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(declined.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.DoesNotContain(topFiveObjectIds, objectId => declined.State.PlayerZones["P1"].Base.Contains(objectId, StringComparer.Ordinal));
         Assert.Equal(
             beforeActivation.State.PlayerZones["P1"].MainDeck.Skip(5).First(),
@@ -8162,7 +8162,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(resolved.State.CardObjects[sourceObjectId].IsExhausted);
         Assert.Contains(sourceObjectId, resolved.State.PlayerZones["P1"].Base);
         Assert.Contains(destroyedUnitObjectId, resolved.State.PlayerZones["P1"].Graveyard);
-        Assert.False(resolved.State.CardObjects.ContainsKey(destroyedUnitObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.DoesNotContain(topFiveObjectIds, objectId => resolved.State.PlayerZones["P1"].Base.Contains(objectId, StringComparer.Ordinal));
         Assert.Equal(
             beforeActivation.State.PlayerZones["P1"].MainDeck.Skip(5).First(),
@@ -8735,7 +8735,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(targetObjectId, result.State.PlayerZones["P2"].Graveyard);
         Assert.DoesNotContain(targetObjectId, result.State.PlayerZones["P2"].Base);
         Assert.DoesNotContain(targetObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.DoesNotContain(targetObjectId, result.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, targetObjectId, "GRAVEYARD");
         if (result.State.ObjectLocations.TryGetValue(targetObjectId, out var location))
         {
             Assert.Equal("GRAVEYARD", location.Zone);

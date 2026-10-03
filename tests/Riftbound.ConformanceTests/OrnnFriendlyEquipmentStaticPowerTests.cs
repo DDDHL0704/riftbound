@@ -1195,7 +1195,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.True(vengeanceResolved.Accepted, vengeanceResolved.ErrorMessage);
         Assert.Contains(OrnnObjectId, vengeanceResolved.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(FriendlyBaseEquipmentObjectId, vengeanceResolved.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain(OrnnObjectId, vengeanceResolved.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(vengeanceResolved.State, OrnnObjectId, "GRAVEYARD");
         Assert.DoesNotContain(
             vengeanceResolved.State.ContinuousEffects,
             effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)

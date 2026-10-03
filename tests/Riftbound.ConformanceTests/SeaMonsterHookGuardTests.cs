@@ -438,7 +438,7 @@ public sealed class SeaMonsterHookGuardTests
             [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT", "P1-ELIGIBLE-UNIT"],
             p2Pass.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-TARGET-UNIT"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-TARGET-UNIT", "GRAVEYARD");
         Assert.True(p2Pass.State.CardObjects[SeaMonsterHookBaseObjectId].IsExhausted);
         Assert.False(p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].IsExhausted);
         Assert.Equal("P1", p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].ControllerId);
@@ -497,7 +497,7 @@ public sealed class SeaMonsterHookGuardTests
             [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT"],
             p2Pass.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-TARGET-UNIT"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-TARGET-UNIT", "GRAVEYARD");
         Assert.Equal("P1-DECK-KEEP", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
         Assert.Contains("P1-INELIGIBLE-UNIT", p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Contains("P1-TOP-SPELL", p2Pass.State.PlayerZones["P1"].MainDeck);
@@ -549,7 +549,7 @@ public sealed class SeaMonsterHookGuardTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Empty(p2Pass.State.StackItems);
         Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-TARGET-UNIT"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-TARGET-UNIT", "GRAVEYARD");
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal));

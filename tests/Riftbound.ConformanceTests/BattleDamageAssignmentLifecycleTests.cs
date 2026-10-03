@@ -5706,10 +5706,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(SecondAttackerObjectId, assigned.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(BulwarkDefenderObjectId, assigned.State.PlayerZones["P2"].Battlefields);
         Assert.DoesNotContain(BackRowDefenderObjectId, assigned.State.PlayerZones["P2"].Battlefields);
-        Assert.False(assigned.State.CardObjects.ContainsKey(AttackerObjectId));
-        Assert.False(assigned.State.CardObjects.ContainsKey(SecondAttackerObjectId));
-        Assert.False(assigned.State.CardObjects.ContainsKey(BulwarkDefenderObjectId));
-        Assert.False(assigned.State.CardObjects.ContainsKey(BackRowDefenderObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(assigned.State, AttackerObjectId, "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(assigned.State, SecondAttackerObjectId, "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(assigned.State, BulwarkDefenderObjectId, "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(assigned.State, BackRowDefenderObjectId, "GRAVEYARD");
 
         var battleResolution = Assert.Single(assigned.State.BattleResolutions);
         Assert.Equal("NO_RESULT", battleResolution.Kind);

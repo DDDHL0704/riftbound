@@ -20274,65 +20274,7 @@ public sealed class MatchSession : IMatchSession
     }
 
     private static CardObjectState OfficialCardObject(string objectId, string playerId, OfficialCard card)
-    {
-        return new CardObjectState(
-            objectId,
-            power: Math.Max(0, card.Power ?? 0),
-            tags: OfficialCardTags(card),
-            manaCost: Math.Max(0, card.Energy ?? 0),
-            cardNo: card.CardNo,
-            ownerId: playerId,
-            controllerId: card.CardCategoryName == "战场" ? null : playerId);
-    }
-
-    private static IReadOnlyList<string> OfficialCardTags(OfficialCard card)
-    {
-        var tags = new List<string>();
-        if (card.CardCategoryName.Contains("单位", StringComparison.Ordinal))
-        {
-            tags.Add(CardObjectTags.UnitCard);
-        }
-        else if (card.CardCategoryName.Contains("装备", StringComparison.Ordinal))
-        {
-            tags.Add(CardObjectTags.EquipmentCard);
-        }
-        else if (card.CardCategoryName.Contains("法术", StringComparison.Ordinal))
-        {
-            tags.Add(CardObjectTags.SpellCard);
-        }
-        else if (string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
-        {
-            tags.Add(CardObjectTags.RuneCard);
-        }
-        else if (string.Equals(card.CardCategoryName, "传奇", StringComparison.Ordinal))
-        {
-            tags.Add("CARD_TYPE:LEGEND");
-        }
-        else if (string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
-        {
-            tags.Add("CARD_TYPE:BATTLEFIELD");
-        }
-
-        if (!string.IsNullOrWhiteSpace(card.CardCategoryName))
-        {
-            tags.Add($"CARD_CATEGORY:{card.CardCategoryName.Trim()}");
-        }
-
-        if (string.Equals(card.CardCategoryName, "英雄单位", StringComparison.Ordinal))
-        {
-            tags.Add("CARD_TYPE:HERO");
-        }
-
-        if (!string.IsNullOrWhiteSpace(card.Hero))
-        {
-            tags.Add($"HERO:{card.Hero}");
-        }
-
-        tags.AddRange(card.CardColorList
-            .Where(color => !string.IsNullOrWhiteSpace(color))
-            .Select(color => $"COLOR:{color.Trim()}"));
-        return tags.Distinct(StringComparer.Ordinal).ToArray();
-    }
+        => PrintedCardFactory.Create(objectId, playerId, card);
 
     private static string OfficialObjectId(string playerId, string zone, string cardNo, int index)
     {

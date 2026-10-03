@@ -3002,7 +3002,7 @@ public sealed class PaymentEngineUnificationTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "UNIT_DESTROYED", "POWER_GAINED"], result.Events.Select(evt => evt.Kind));
         Assert.True(result.State.CardObjects["P1-UNIT-MALZAHAR"].IsExhausted);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-UNIT-MALZAHAR-COST"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-UNIT-MALZAHAR-COST", "GRAVEYARD");
         Assert.Equal(["P1-UNIT-MALZAHAR"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-UNIT-MALZAHAR-COST"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-UNIT-MALZAHAR-COST"].Zone);

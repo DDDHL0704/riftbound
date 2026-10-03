@@ -36,7 +36,9 @@ public sealed class VengeanceDestroyGuardTests
         Assert.DoesNotContain(targetObjectId, p2Pass.State.PlayerZones[ownerPlayerId].Base);
         Assert.DoesNotContain(targetObjectId, p2Pass.State.PlayerZones[ownerPlayerId].Battlefields);
         Assert.Contains(targetObjectId, p2Pass.State.PlayerZones[ownerPlayerId].Graveyard);
-        Assert.DoesNotContain(targetObjectId, p2Pass.State.CardObjects.Keys);
+        Assert.Equal(state.CardObjects[targetObjectId].CardNo, p2Pass.State.CardObjects[targetObjectId].CardNo);
+        Assert.Equal(0, p2Pass.State.CardObjects[targetObjectId].Damage);
+        Assert.Equal("GRAVEYARD", p2Pass.State.ObjectLocations[targetObjectId].Zone);
         Assert.Equal(["P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard.Where(cardId =>
             string.Equals(cardId, "P1-SPELL-VENGEANCE", StringComparison.Ordinal)).ToArray());
         Assert.Contains(p2Pass.Events, gameEvent =>

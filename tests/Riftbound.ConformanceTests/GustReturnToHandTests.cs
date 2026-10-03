@@ -36,7 +36,7 @@ public sealed class GustReturnToHandTests
         Assert.Equal(["P2-BASE-UNIT", "P2-BATTLEFIELD-EQUIPMENT"], p2Pass.State.PlayerZones["P2"].Base);
         Assert.Equal(["P2-LARGE-BATTLEFIELD-UNIT", "P2-FACE-DOWN-STANDBY"], p2Pass.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-HAND-KEEP", "P2-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Hand);
-        Assert.DoesNotContain("P2-BATTLEFIELD-UNIT", p2Pass.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P2-BATTLEFIELD-UNIT", "HAND");
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal)

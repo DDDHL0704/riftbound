@@ -555,7 +555,13 @@
       "rule": "108.2.d",
       "page": 5,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "108.3",
@@ -915,19 +921,37 @@
       "rule": "124",
       "page": 8,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "124.1",
       "page": 8,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "124.2",
       "page": 8,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "125",
@@ -1749,19 +1773,37 @@
       "rule": "141.1.b",
       "page": 15,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "141.1.b.1",
       "page": 16,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "141.1.b.2",
       "page": 16,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "141.1.b.3",
@@ -4419,7 +4461,13 @@
       "rule": "323.5",
       "page": 37,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
+        "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+      ],
+      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
     },
     {
       "rule": "323.6",

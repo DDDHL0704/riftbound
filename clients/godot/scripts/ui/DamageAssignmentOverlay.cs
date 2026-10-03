@@ -54,6 +54,7 @@ public partial class DamageAssignmentOverlay : Control
             .AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.SurfaceRaised));
         GetNode<Label>("%DamageTitle").AddThemeFontSizeOverride("font_size", 24);
         _summary?.AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
+        _feedback?.AddThemeColorOverride("font_color", MinimalTheme.Hostile);
     }
 
     public bool ShowPrompt(Godot.Collections.Dictionary action, out string reason)

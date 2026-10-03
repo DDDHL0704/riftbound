@@ -821,7 +821,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
-        Assert.False(paid.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+        CardZoneTestAssertions.RetainedOutsidePlay(paid.State, "P1-BATTLEFIELD-VAYNE", "HAND");
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(paid.Events, IsVayneTriggerResolved);
         Assert.Contains(paid.Events, IsVayneReturnedToHand);
@@ -847,7 +847,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
-        Assert.False(paid.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+        CardZoneTestAssertions.RetainedOutsidePlay(paid.State, "P1-BATTLEFIELD-VAYNE", "HAND");
         Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
         Assert.Equal(1, CountEvents(paid.Events, IsVayneTriggerResolved));
         Assert.Equal(1, CountEvents(paid.Events, IsVayneReturnedToHand));
@@ -864,7 +864,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(0, replay.State.RunePools["P1"].Mana);
         Assert.Contains("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Battlefields);
-        Assert.False(replay.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VAYNE"));
+        CardZoneTestAssertions.RetainedOutsidePlay(replay.State, "P1-BATTLEFIELD-VAYNE", "HAND");
     }
 
     [Fact]

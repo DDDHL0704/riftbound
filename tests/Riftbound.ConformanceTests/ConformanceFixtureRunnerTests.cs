@@ -24563,7 +24563,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.DoesNotContain("P2-WATCHFUL-SENTINEL-001", result.FinalState.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-WATCHFUL-SENTINEL-001", "GRAVEYARD");
         Assert.Equal(["P2-LAST-BREATH-DRAW-001"], result.FinalState.PlayerZones["P2"].Hand);
         Assert.Contains(result.Events, ev => string.Equals(ev.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
         Assert.Contains(result.Events, ev => string.Equals(ev.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
@@ -24583,7 +24583,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.DoesNotContain("P2-HOST-LEAVE-UNIT", result.FinalState.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-HOST-LEAVE-UNIT", "GRAVEYARD");
         Assert.Contains("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.CardObjects.Keys);
         Assert.Null(result.FinalState.CardObjects["P2-HOST-LEAVE-LONG-SWORD"].AttachedToObjectId);
         Assert.DoesNotContain("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.PlayerZones["P2"].Battlefields);
@@ -38239,7 +38239,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
         Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.DoesNotContain("P2-BATTLEFIELD-FORTIFIED-DEFENDER", result.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", "GRAVEYARD");
     }
 
     [Fact]
@@ -38736,7 +38736,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.PlayerZones["P1"].Battlefields);
-        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", paid.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(paid.State, "P1-BATTLEFIELD-SAND-ATTACKER", "HAND");
         var triggerEvent = Assert.Single(paid.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
@@ -41107,7 +41107,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains("P1-SAVAGE-JAWFISH", triggerP2Pass.State.PlayerZones["P1"].Base);
         Assert.Contains("P1-FRIENDLY-TARGET", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("P1-SPELL-VENGEANCE", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(triggerP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+        CardZoneTestAssertions.RetainedOutsidePlay(triggerP2Pass.State, "P1-FRIENDLY-TARGET", "GRAVEYARD");
     }
 
     [Fact]
@@ -41242,7 +41242,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(5, triggerP2Pass.State.CardObjects["P2-GHOSTLY-CENTAUR"].Power);
         Assert.Contains("P1-FRIENDLY-TARGET", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("P1-SPELL-VENGEANCE", triggerP2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(triggerP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+        CardZoneTestAssertions.RetainedOutsidePlay(triggerP2Pass.State, "P1-FRIENDLY-TARGET", "GRAVEYARD");
     }
 
     [Fact]
@@ -41412,8 +41412,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-RESONANT-SOUL-DRAW-002"], secondP2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Contains("P1-FRIENDLY-TARGET-1", secondP2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("P1-FRIENDLY-TARGET-2", secondP2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(secondP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET-1"));
-        Assert.False(secondP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET-2"));
+        CardZoneTestAssertions.RetainedOutsidePlay(secondP2Pass.State, "P1-FRIENDLY-TARGET-1", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(secondP2Pass.State, "P1-FRIENDLY-TARGET-2", "GRAVEYARD");
     }
 
     [Theory]
@@ -41627,7 +41627,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([runeObjectId], p2Pass.State.PlayerZones["P1"].Base);
         Assert.True(p2Pass.State.CardObjects[runeObjectId].IsExhausted);
         Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey(sourceObjectId));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, sourceObjectId, "GRAVEYARD");
     }
 
     [Fact]
@@ -41729,7 +41729,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(p2ResolvesTrigger.State.TriggerQueue);
         Assert.Empty(p2ResolvesTrigger.State.StackItems);
         Assert.Equal(["P1-MECHANICAL-TRICKSTER", "P1-SPELL-VENGEANCE"], p2ResolvesTrigger.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2ResolvesTrigger.State.CardObjects.ContainsKey("P1-MECHANICAL-TRICKSTER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2ResolvesTrigger.State, "P1-MECHANICAL-TRICKSTER", "GRAVEYARD");
     }
 
     [Fact]
@@ -41838,7 +41838,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(p2ResolvesTrigger.State.TriggerQueue);
         Assert.Empty(p2ResolvesTrigger.State.StackItems);
         Assert.Equal(["P1-IRONCLAD-VANGUARD", "P1-SPELL-VENGEANCE"], p2ResolvesTrigger.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2ResolvesTrigger.State.CardObjects.ContainsKey("P1-IRONCLAD-VANGUARD"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2ResolvesTrigger.State, "P1-IRONCLAD-VANGUARD", "GRAVEYARD");
     }
 
     [Fact]
@@ -41912,7 +41912,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(goldToken.IsExhausted);
         Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], goldToken.Tags);
         Assert.Equal(["P1-HONEST-BROKER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-HONEST-BROKER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-HONEST-BROKER", "GRAVEYARD");
     }
 
     [Fact]
@@ -41978,7 +41978,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], p2Pass.State.PlayerZones["P1"].Hand);
         Assert.Empty(p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-UNSUNG-HERO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-UNSUNG-HERO"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-UNSUNG-HERO", "GRAVEYARD");
     }
 
     [Fact]
@@ -42035,7 +42035,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-UNSUNG-HERO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-UNSUNG-HERO"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-UNSUNG-HERO", "GRAVEYARD");
     }
 
     [Fact]
@@ -42115,7 +42115,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-LOYAL-PORO-ALLY"], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-LOYAL-PORO-DRAW"], p2Pass.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-LOYAL-PORO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-LOYAL-PORO"));
+        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-LOYAL-PORO", "GRAVEYARD");
     }
 
     [Fact]
@@ -61575,7 +61575,7 @@ public sealed class ConformanceFixtureRunnerTests
             ["P1-EQUIPMENT-BLADE-RUINED-KING", "P1-UNIT-ASSEMBLE-TARGET"],
             result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-UNIT-ASSEMBLE-COST"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-UNIT-ASSEMBLE-COST"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-UNIT-ASSEMBLE-COST", "GRAVEYARD");
         Assert.Equal(
             "P1-UNIT-ASSEMBLE-TARGET",
             result.State.CardObjects["P1-EQUIPMENT-BLADE-RUINED-KING"].AttachedToObjectId);
@@ -62551,7 +62551,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -62722,7 +62722,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-STUNNED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-STUNNED-DEFENDER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-STUNNED-DEFENDER", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
     }
@@ -63077,7 +63077,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
     }
@@ -63151,7 +63151,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(["P2-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P2"].Battlefields);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-ATTACKER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-BATTLEFIELD-ATTACKER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].IsDefending);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P2-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
@@ -63323,8 +63323,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
         Assert.False(result.State.BattleState.IsActive);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-LEBLANC", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
     }
@@ -63415,8 +63415,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-A"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-B"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-BULWARK-A", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-BULWARK-B", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
     }
@@ -63501,8 +63501,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-BATTLEFIELD-GAREN", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -63603,8 +63603,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-VANGUARD"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VANGUARD"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-BATTLEFIELD-VANGUARD", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-HUNTER"].IsAttacking);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
@@ -63723,9 +63723,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-BATTLEFIELD-GAREN", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-BULWARK", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -63823,8 +63823,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
-        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-BATTLEFIELD-GAREN", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.False(result.State.BattleState.IsActive);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
@@ -65180,7 +65180,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
-        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -65203,8 +65203,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
-        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
-        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-BATTLEFIELD-LEBLANC", "GRAVEYARD");
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -65229,7 +65229,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
-        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        CardZoneTestAssertions.RetainedOutsidePlay(result.FinalState, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Empty(result.FinalState.StackItems);
     }
 

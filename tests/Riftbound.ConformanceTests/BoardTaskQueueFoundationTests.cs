@@ -2082,7 +2082,7 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.True(stackResolvedIndex < destroyedIndex);
         Assert.True(destroyedIndex < recalledIndex);
 
-        Assert.DoesNotContain("P1-LETHAL-HOST", result.State.CardObjects.Keys);
+        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-LETHAL-HOST", "GRAVEYARD");
         Assert.Contains("P1-LETHAL-HOST", result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(new ObjectLocationState("P1", "BASE"), result.State.ObjectLocations["P1-ATTACHED-EQUIPMENT"]);
         Assert.Null(result.State.CardObjects["P1-ATTACHED-EQUIPMENT"].AttachedToObjectId);

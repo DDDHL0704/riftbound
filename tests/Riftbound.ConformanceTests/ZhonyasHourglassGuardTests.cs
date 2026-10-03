@@ -72,7 +72,8 @@ public sealed class ZhonyasHourglassGuardTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Contains("P1-BASE-ZHONYAS-HOURGLASS", result.State.PlayerZones["P1"].Graveyard);
         Assert.DoesNotContain("P1-BASE-ZHONYAS-HOURGLASS", result.State.PlayerZones["P1"].Base);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BASE-ZHONYAS-HOURGLASS"));
+        Assert.Equal(state.CardObjects["P1-BASE-ZHONYAS-HOURGLASS"].CardNo, result.State.CardObjects["P1-BASE-ZHONYAS-HOURGLASS"].CardNo);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-BASE-ZHONYAS-HOURGLASS"].Zone);
         Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Graveyard);
@@ -115,7 +116,8 @@ public sealed class ZhonyasHourglassGuardTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Graveyard);
         Assert.DoesNotContain("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Base);
-        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-ATTACKER"));
+        Assert.Equal(state.CardObjects["P1-BATTLEFIELD-ATTACKER"].CardNo, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].CardNo);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-BATTLEFIELD-ATTACKER"].Zone);
         Assert.Contains("P1-FACE-DOWN-STANDBY-ZHONYAS", result.State.PlayerZones["P1"].Base);
         Assert.True(result.State.CardObjects["P1-FACE-DOWN-STANDBY-ZHONYAS"].IsFaceDown);
         Assert.Null(result.State.CardObjects["P1-FACE-DOWN-STANDBY-ZHONYAS"].CardNo);

@@ -139,7 +139,7 @@ public sealed class OfficialPooledCombatDamageTests
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
-    private static MatchState Position(bool singleAttacker = false, int defenderOnePower = 3, int defenderTwoPower = 1, bool bulwark = false)
+    internal static MatchState Position(bool singleAttacker = false, int defenderOnePower = 3, int defenderTwoPower = 1, bool bulwark = false)
     {
         var cards = new Dictionary<string, CardObjectState>
         {

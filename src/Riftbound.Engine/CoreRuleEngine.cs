@@ -11919,7 +11919,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
         var wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
         var wasUnit = targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
-        cardObjects.Remove(targetObjectId);
+        ResetCardOutsidePlay(cardObjects, targetObjectId, targetState, ownerPlayerId);
         removalResult = new FieldRemovalResult(
             ownerPlayerId,
             "GRAVEYARD",
@@ -19231,7 +19231,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             defenderObjectIds,
             combatEvents);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
+        CloseResolvedBattle(playerZones, cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
         combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
             playerZones,
             cardObjects,
@@ -19420,6 +19420,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void CloseResolvedBattle(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string battlefieldId,
         IReadOnlyList<string> attackerObjectIds,
@@ -19432,7 +19433,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         var removedObjectIds = participantObjectIds
-            .Where(objectId => !cardObjects.ContainsKey(objectId))
+            .Where(objectId => !IsObjectOnField(playerZones, objectId))
             .ToArray();
         var clearedObjectIds = new List<string>();
         foreach (var objectId in participantObjectIds)
@@ -46123,6 +46124,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return hash;
     }
 
+    private static string NonFieldDestinationOwner(IReadOnlyDictionary<string, PlayerZones> playerZones,
+        CardObjectState card, string fallbackPlayerId)
+        => !string.IsNullOrWhiteSpace(card.OwnerId) && playerZones.ContainsKey(card.OwnerId) ? card.OwnerId : fallbackPlayerId;
+
+    private static void ResetCardOutsidePlay(Dictionary<string, CardObjectState> cardObjects,
+        string objectId, CardObjectState previous, string owner)
+    {
+        if (PrintedCardFactory.TryRestoreOutsidePlay(previous with { ObjectId = objectId }, owner, out var printed))
+            cardObjects[objectId] = printed;
+        else
+            cardObjects.Remove(objectId); // Legacy identity-less fixtures and token lifecycle.
+    }
+
     private static bool TryDestroyTarget(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -46184,26 +46198,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
+            var owner = NonFieldDestinationOwner(playerZones, targetState, playerId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-                Graveyard = shouldBanish || zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Graveyard
-                    : zones.Graveyard.Concat([targetObjectId]).ToArray(),
-                Banished = shouldBanish && !zones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Banished.Concat([targetObjectId]).ToArray()
-                    : zones.Banished
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
-            cardObjects.Remove(targetObjectId);
-            removalResult = new FieldRemovalResult(
-                playerId,
-                shouldBanish ? "BANISHED" : "GRAVEYARD",
-                shouldBanish,
-                false,
-                wasEquipment,
-                wasUnit,
-                detachedEquipmentObjectIds);
+            var ownerZones = playerZones[owner];
+            playerZones[owner] = ownerZones with
+            {
+                Graveyard = shouldBanish || ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? ownerZones.Graveyard : ownerZones.Graveyard.Concat([targetObjectId]).ToArray(),
+                Banished = shouldBanish && !ownerZones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? ownerZones.Banished.Concat([targetObjectId]).ToArray() : ownerZones.Banished
+            };
+            ResetCardOutsidePlay(cardObjects, targetObjectId, targetState, owner);
+            removalResult = new FieldRemovalResult(owner, shouldBanish ? "BANISHED" : "GRAVEYARD",
+                shouldBanish, false, wasEquipment, wasUnit, detachedEquipmentObjectIds);
             return true;
         }
 
@@ -46341,18 +46352,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
+            ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+            DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-                Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Hand
-                    : zones.Hand.Concat([targetObjectId]).ToArray()
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
-            wasEquipment = cardObjects.TryGetValue(targetObjectId, out var targetState)
-                && targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
-            cardObjects.Remove(targetObjectId);
-            ownerPlayerId = playerId;
+            var ownerZones = playerZones[ownerPlayerId];
+            playerZones[ownerPlayerId] = ownerZones with
+            {
+                Hand = ownerZones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? ownerZones.Hand : ownerZones.Hand.Concat([targetObjectId]).ToArray()
+            };
+            ResetCardOutsidePlay(cardObjects, targetObjectId, targetState, ownerPlayerId);
             return true;
         }
 
@@ -46384,18 +46399,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            var remainingMainDeck = RemoveFromZone(zones.MainDeck, targetObjectId);
-            var mainDeck = string.Equals(deckPosition, "TOP", StringComparison.Ordinal)
-                ? new[] { targetObjectId }.Concat(remainingMainDeck).ToArray()
-                : remainingMainDeck.Concat([targetObjectId]).ToArray();
+            var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
+            ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-                MainDeck = mainDeck
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
-            cardObjects.Remove(targetObjectId);
-            ownerPlayerId = playerId;
+            var ownerZones = playerZones[ownerPlayerId];
+            var remainingMainDeck = RemoveFromZone(ownerZones.MainDeck, targetObjectId);
+            playerZones[ownerPlayerId] = ownerZones with
+            {
+                MainDeck = string.Equals(deckPosition, "TOP", StringComparison.Ordinal)
+                    ? new[] { targetObjectId }.Concat(remainingMainDeck).ToArray()
+                    : remainingMainDeck.Concat([targetObjectId]).ToArray()
+            };
+            ResetCardOutsidePlay(cardObjects, targetObjectId, targetState, ownerPlayerId);
             return true;
         }
 
