@@ -7095,7 +7095,7 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsDedicatedBattlefieldScoreRuleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("TryGetTrigger(string? cardNo, string kind", battlefieldTriggerSpecRulesSource, StringComparison.Ordinal);
         Assert.Contains("HasImplementedBattlefieldRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("HasDedicatedBattlefieldScoreRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("HasDedicatedBattlefieldScoreRuleSpec", coreRuleEngineSource, StringComparison.Ordinal);
         var implementedBattlefieldRuleSpecBody = ExtractSourceSpan(
             coreRuleEngineSource,
             "    private static bool HasImplementedBattlefieldRuleSpec(string? cardNo)",

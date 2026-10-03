@@ -6,10 +6,15 @@ namespace Riftbound.GodotClient.Ui;
 public partial class MatchScreen : AppScreen
 {
     public event Action<Godot.Collections.Dictionary>? CardActivated;
+    public event Action? ReconnectRequested;
+    public event Action? ReturnToLobbyRequested;
 
     private Label _turnHeadline = null!;
     private Label _turnDetail = null!;
     private ActionBar _actionBar = null!;
+    private HBoxContainer _connectionBanner = null!;
+    private Label _connectionMessage = null!;
+    private Button _reconnectButton = null!;
     private MatchTableRenderer? _renderer;
     private Godot.Collections.Array<Godot.Collections.Dictionary>? _lastSections;
 
@@ -20,10 +25,36 @@ public partial class MatchScreen : AppScreen
         _turnHeadline = GetNode<Label>("%TurnHeadline");
         _turnDetail = GetNode<Label>("%TurnDetail");
         _actionBar = GetNode<ActionBar>("%ActionBar");
+        _connectionBanner = new HBoxContainer { Visible = false };
+        _connectionMessage = new Label { SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _connectionMessage.AddThemeColorOverride("font_color", MinimalTheme.Selected);
+        _connectionBanner.AddChild(_connectionMessage);
+        _reconnectButton = new Button { Text = "重新连接", CustomMinimumSize = new Vector2(110, 40) };
+        _reconnectButton.Pressed += () => ReconnectRequested?.Invoke();
+        _connectionBanner.AddChild(_reconnectButton);
+        var returnButton = new Button { Text = "返回大厅", CustomMinimumSize = new Vector2(110, 40) };
+        returnButton.Pressed += () => ReturnToLobbyRequested?.Invoke();
+        _connectionBanner.AddChild(returnButton);
+        var layout = GetNode<VBoxContainer>("MatchLayout");
+        layout.AddChild(_connectionBanner);
+        layout.MoveChild(_connectionBanner, 0);
         _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card));
 
         ApplyTheme();
         RenderSections(_lastSections ?? []);
+    }
+
+    public void SetConnectionStatus(bool connected, bool recovering)
+    {
+        if (!IsNodeReady()) return;
+        _connectionBanner.Visible = !connected;
+        _reconnectButton.Disabled = recovering;
+        _connectionMessage.Text = recovering
+            ? "连接中断，正在恢复对局… 当前桌面为断线前的局面。"
+            : "已与服务器断开。重新连接后将同步最新局面。";
+        _actionBar.Visible = connected;
+        if (!connected)
+            SetTurnStatus(recovering ? "正在恢复连接" : "连接已断开", "同步最新局面后可继续行动。", actionable: false);
     }
 
     public void ApplyTheme()
@@ -46,6 +77,12 @@ public partial class MatchScreen : AppScreen
 
         GetNode<PanelContainer>("%ActionBarHost")
             .AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.TableSurface));
+        foreach (var path in new[] { "%BattlefieldOne", "%BattlefieldTwo" })
+        {
+            var battlefield = MinimalTheme.Panel(new Color(MinimalTheme.TableSurface, 0.66f));
+            battlefield.BorderColor = new Color(MinimalTheme.Selected, 0.28f);
+            GetNode<PanelContainer>(path).AddThemeStyleboxOverride("panel", battlefield);
+        }
     }
 
     public void RenderSections(

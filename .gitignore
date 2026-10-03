@@ -23,3 +23,5 @@ clients/godot/**/obj/
 clients/godot/**/.mono/
 clients/godot/exports/
 clients/godot/export/
+/var/
+clients/godot/data/

@@ -321,7 +321,7 @@
           "power": 4,
           "untilEndOfTurnPowerModifier": 3,
           "isFaceDown": false,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": [
             "CARD_TYPE:UNIT",
             "待命",

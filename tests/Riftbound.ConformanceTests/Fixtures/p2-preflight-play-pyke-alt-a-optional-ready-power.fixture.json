@@ -132,7 +132,7 @@
           "playerId": "P1",
           "sourceObjectId": "P1-UNIT-PYKE-A",
           "targetObjectId": "P1-UNIT-PYKE-A",
-          "wasExhausted": false,
+          "wasExhausted": true,
           "isExhausted": false,
           "reason": "SOURCE_OPTIONAL_POWER_READY"
         }

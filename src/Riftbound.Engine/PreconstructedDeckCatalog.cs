@@ -31,21 +31,21 @@ public static class PreconstructedDeckCatalog
         new(
             "rumble-armaments",
             "锻炉武装 · 兰博",
-            "加入百炼单位与武装装备，覆盖服务端装备结算路径。",
+            "百炼与武装协同，锻造强大的机械军团。",
             "SFD·181/221",
             "SFD·026/221",
             ["SFD·085/221", "SFD·008/221", "SFD·022/221"]),
         new(
             "vex-spells",
             "暗影法术 · 薇古丝",
-            "加入迅捷与高费法术代表，覆盖服务端法术栈结算路径。",
+            "积蓄法术力量，在关键时刻扭转局势。",
             "UNL-232/219",
             "UNL-055/219",
             ["OGN·183/298", "OGN·180/298"]),
         new(
             "vex-battlefields",
             "失落战场 · 薇古丝",
-            "加入失落书库、崔法利兵营与疾风山丘，覆盖服务端战场规则路径。",
+            "善用战场能力，让每一次占领都带来优势。",
             "UNL-232/219",
             "UNL-055/219",
             ["OGN·183/298", "OGN·180/298"],
@@ -53,7 +53,7 @@ public static class PreconstructedDeckCatalog
         new(
             "vex-response",
             "暗影响应 · 薇古丝",
-            "加入黑影与提莫代表，覆盖服务端战斗响应与待命反应路径。",
+            "布置伏兵，把握反击时机。",
             "UNL-232/219",
             "UNL-055/219",
             [
@@ -67,7 +67,7 @@ public static class PreconstructedDeckCatalog
         new(
             "poppy-standby",
             "班德尔待命 · 波比",
-            "加入待命单位与班德尔树，覆盖服务端待命布置路径。",
+            "埋伏在班德尔树下，出其不意地赢得战场。",
             "UNL-203/219",
             "UNL-116/219",
             ["OGN·135/298"],
@@ -75,17 +75,18 @@ public static class PreconstructedDeckCatalog
         new(
             "poppy-demacia",
             "德玛西亚阵线 · 波比",
-            "加入盖伦、德玛西亚使节与强化阵地，覆盖服务端静态光环和防守坚守路径。",
+            "集结德玛西亚精锐，守住阵线并发起反攻。",
             "UNL-203/219",
             "UNL-116/219",
             ["OGS·013/024", "UNL-092/219"],
             ["OGN·279/298"])
     ];
 
-    public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog)
+    public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog, OfficialDeckFormat format = OfficialDeckFormat.CoreRules)
     {
         ArgumentNullException.ThrowIfNull(catalog);
 
+        catalog = catalog with { Cards = catalog.Cards.Where(card => ChinaStandardBanList.IsAllowed(card, format)).ToArray() };
         var cardsByNo = catalog.Cards
             .Where(card => !string.IsNullOrWhiteSpace(card.CardNo))
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
@@ -100,7 +101,7 @@ public static class PreconstructedDeckCatalog
                 definition.ChampionCardNo,
                 definition.RequiredMainDeckCardNos ?? [],
                 definition.RequiredBattlefieldCardNos ?? []);
-            var validation = OfficialDeckValidator.Validate(decklist, catalog);
+            var validation = OfficialDeckValidator.Validate(decklist, catalog, format);
             if (!validation.IsValid)
             {
                 throw new InvalidOperationException(

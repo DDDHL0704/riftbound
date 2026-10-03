@@ -5,14 +5,14 @@ namespace Riftbound.GodotClient.Ui;
 public partial class CardInspectOverlay : Control
 {
     private OfficialCardView _cardView = null!;
-    private Label _summary = null!;
+    private RichTextLabel _summary = null!;
     private Button _closeButton = null!;
     private Control? _focusReturn;
 
     public override void _Ready()
     {
         _cardView = GetNode<OfficialCardView>("%InspectCard");
-        _summary = GetNode<Label>("%InspectSummary");
+        _summary = GetNode<RichTextLabel>("%InspectSummary");
         _closeButton = GetNode<Button>("%CloseButton");
         _closeButton.Pressed += HideCard;
 
@@ -38,7 +38,8 @@ public partial class CardInspectOverlay : Control
             .AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.SurfaceRaised));
         GetNode<Label>("%InspectTitle").AddThemeFontSizeOverride("font_size", 24);
         GetNode<Label>("%InspectTitle").AddThemeColorOverride("font_color", MinimalTheme.Text);
-        _summary?.AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
+        _summary?.AddThemeColorOverride("default_color", MinimalTheme.Text);
+        _summary?.AddThemeFontSizeOverride("normal_font_size", 18);
     }
 
     public void ShowCard(Godot.Collections.Dictionary card)

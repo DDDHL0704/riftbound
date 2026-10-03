@@ -2357,7 +2357,7 @@ summary:focus-visible,
   color: var(--game-text) !important;
 }
 
-.game-app-shell.app-frame:not(.app-frame-match) .deck-page-header span,
+.game-app-shell.app-frame:not(.app-frame-match) .deck-page-header > div > span,
 .game-app-shell.app-frame:not(.app-frame-match) .deck-preconstructed-panel header span,
 .game-app-shell.app-frame:not(.app-frame-match) .deck-import-editor header span,
 .game-app-shell.app-frame:not(.app-frame-match) .deck-import-feedback header span,

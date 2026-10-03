@@ -9,10 +9,10 @@ namespace Riftbound.ConformanceTests;
 public sealed class LocalPlayabilityRuleRegressionTests
 {
     [Fact]
-    public async Task PlayCardUnitToPreciseBattlefieldStartsSpellDuelAfterStackResolution()
+    public async Task PlayCardUnitToControlledBattlefieldEntersExhaustedWithoutNewSpellDuel()
     {
         var engine = new CoreRuleEngine();
-        var state = PlayUnitToContestedBattlefieldState();
+        var state = PlayUnitToControlledBattlefieldState();
 
         var played = await engine.ResolveAsync(
             state,
@@ -42,21 +42,20 @@ public sealed class LocalPlayabilityRuleRegressionTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(TimingStates.SpellDuelOpen, p2Pass.State.TimingState);
-        Assert.Equal("P1", p2Pass.State.FocusPlayerId);
+        Assert.Equal(TimingStates.NeutralOpen, p2Pass.State.TimingState);
+        Assert.Null(p2Pass.State.FocusPlayerId);
+        Assert.True(p2Pass.State.CardObjects["P1-HAND-UNIT"].IsExhausted);
         Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-1"), p2Pass.State.ObjectLocations["P1-HAND-UNIT"]);
         Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
-        Assert.Equal(
-            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
-            p2Pass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+        Assert.Empty(p2Pass.State.PendingTaskQueue.Tasks);
     }
 
     [Fact]
     public void PlayCardPromptUsesRealBattlefieldDestinationsForUnits()
     {
-        var state = PlayUnitToContestedBattlefieldState();
+        var state = PlayUnitToControlledBattlefieldState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -84,7 +83,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
     [Fact]
     public void ActionPromptChoicesProjectExplicitObjectIdsForFrontendInteraction()
     {
-        var state = PlayUnitToContestedBattlefieldState();
+        var state = PlayUnitToControlledBattlefieldState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -131,7 +130,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
     [Fact]
     public void ActionPromptObjectContextsExposeSelectionRolesAndCommandFieldsForFrontend()
     {
-        var state = PlayUnitToContestedBattlefieldState();
+        var state = PlayUnitToControlledBattlefieldState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -347,7 +346,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
     [Fact]
     public void ActionPromptCandidatesProvideServerCommandTemplateForFrontendComposer()
     {
-        var state = PlayUnitToContestedBattlefieldState();
+        var state = PlayUnitToControlledBattlefieldState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -619,9 +618,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
             new PlayerIntent("intent-local-2p-play-unit-to-controlled-empty-battlefield", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(
                 "P1-HAND-UNIT",
-                "SFD·125/221",
+                "SFD·006/221",
                 [],
-                Destination: "BATTLEFIELD:BF-1"),
+                Destination: "BASE"),
             CancellationToken.None);
 
         Assert.True(played.Accepted, played.ErrorMessage);
@@ -649,6 +648,12 @@ public sealed class LocalPlayabilityRuleRegressionTests
             new PassPriorityCommand(),
             CancellationToken.None);
 
+        Assert.True(p2PriorityPass.Accepted, p2PriorityPass.ErrorMessage);
+        Assert.False(p2PriorityPass.State.CardObjects["P1-HAND-UNIT"].IsExhausted);
+        // Dragonhound explicitly enters ready; ordinary units cannot move until readied.
+        p2PriorityPass = await engine.ResolveAsync(p2PriorityPass.State,
+            new PlayerIntent("intent-local-2p-move-claim", "P1", CommandTypes.MoveUnit),
+            new MoveUnitCommand("P1-HAND-UNIT", "BASE", "BATTLEFIELD:BF-1", []), default);
         Assert.True(p2PriorityPass.Accepted, p2PriorityPass.ErrorMessage);
         Assert.Equal(TimingStates.SpellDuelOpen, p2PriorityPass.State.TimingState);
         Assert.Equal("P1", p2PriorityPass.State.FocusPlayerId);
@@ -806,7 +811,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal([true, false, true], journal.Entries.Select(entry => entry.Accepted).ToArray());
     }
 
-    private static MatchState PlayUnitToContestedBattlefieldState()
+    private static MatchState PlayUnitToControlledBattlefieldState()
     {
         return new MatchState(
             roomId: "local-playability-play-unit-battlefield",
@@ -838,9 +843,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
             playerScores: Scores(),
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["BF-1"] = Battlefield("BF-1", "P2", "OGN·275/298"),
+                ["BF-1"] = Battlefield("BF-1", "P2", "OGN·275/298") with { ControllerId = "P1" },
                 ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT", "P1", power: 2),
-                ["P2-DEFENDER"] = Unit("P2-DEFENDER", "P2", power: 2)
+                ["P2-DEFENDER"] = Unit("P2-DEFENDER", "P2", power: 2) with { ControllerId = "P1" }
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
@@ -1145,7 +1150,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["BF-1"] = Battlefield("BF-1", "P2", "OGN·276/298"),
-                ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT", "P1", power: 2),
+                ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT", "P1", power: 3) with { CardNo = "SFD·006/221" },
                 ["P1-HIDDEN-HAND"] = Unit("P1-HIDDEN-HAND", "P1", power: 2),
                 ["P1-RUNE-MANA"] = Rune("P1-RUNE-MANA", "P1"),
                 ["P1-RUNE-POWER"] = Rune("P1-RUNE-POWER", "P1"),
@@ -1302,7 +1307,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var priorityEventKinds = p2PriorityPass.Events.Select(gameEvent => gameEvent.Kind).ToArray();
         AssertEventOrder(
             priorityEventKinds,
-            "UNIT_PLAYED_TO_BATTLEFIELD",
+            "UNIT_MOVED_TO_BATTLEFIELD",
             "BATTLEFIELD_CONTESTED",
             "SPELL_DUEL_STARTED");
 

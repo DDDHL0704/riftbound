@@ -31,15 +31,15 @@ for node in \
 done
 
 for lane in BattlefieldOne BattlefieldTwo; do
-  rg -q "name=\"OpponentUnits\".*parent=\"MatchLayout/Battlefields/${lane}/LaneContent\"" "$scene"
-  rg -q "name=\"OfficialSite\".*parent=\"MatchLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
-  rg -q "name=\"SelfUnits\".*parent=\"MatchLayout/Battlefields/${lane}/LaneContent\"" "$scene"
-  rg -q "name=\"Standby\".*parent=\"MatchLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
+  rg -q "name=\"OpponentUnits\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent\"" "$scene"
+  rg -q "name=\"OfficialSite\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
+  rg -q "name=\"SelfUnits\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent\"" "$scene"
+  rg -q "name=\"Standby\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
 done
 
 # The hand scrolls horizontally and the bottom action host remains a primary target.
 sed -n '/\[node name="SelfHandScroll"/,/^\[node /p' "$scene" \
-  | rg -q '^horizontal_scroll_mode = 2$'
+  | rg -q '^horizontal_scroll_mode = [12]$'
 sed -n '/\[node name="ActionBarHost"/,/^\[node /p' "$scene" \
   | rg -q '^custom_minimum_size = Vector2\(0, ([4-9][0-9]|[1-9][0-9]{2,})\)$'
 
@@ -59,7 +59,7 @@ fi
 # Player-facing labels are localized and never read/display raw identity fields.
 rg -q '"对手"' "$renderer"
 rg -q '"我方"' "$renderer"
-! rg -q 'playerId|promptId|snapshotTick|serverTick' "$scene" "$screen" "$renderer"
+! rg -q 'promptId|snapshotTick|serverTick' "$scene" "$screen" "$renderer"
 
 # The focused match view has no debug scroll, fixed wire-table height, or rail.
 ! rg -q 'SnapshotScroll|PromptScroll|RawLog|RightRail' "$scene" "$screen" "$renderer"

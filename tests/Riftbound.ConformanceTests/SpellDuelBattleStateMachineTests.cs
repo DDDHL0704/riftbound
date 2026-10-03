@@ -436,6 +436,8 @@ public sealed class SpellDuelBattleStateMachineTests
     {
         var journal = new RecordingMatchJournal();
         var state = MultiContestSpellDuelState(lethalFirstDefender: true);
+        // This fixture resumes a second contest initiated by P2.
+        state = state with { CardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Key == "BF-B" ? e.Value with { ControllerId = "P1" } : e.Value) };
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -2113,7 +2115,7 @@ public sealed class SpellDuelBattleStateMachineTests
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
             ["BF-A"] = Battlefield("BF-A", "P1"),
-            ["BF-B"] = Battlefield("BF-B", "P1"),
+            ["BF-B"] = Battlefield("BF-B", "P1") with { ControllerId = "P2" },
             ["P1-A"] = Unit("P1-A", "P1", power: 4),
             ["P2-A"] = Unit("P2-A", "P2", power: 3, damage: lethalFirstDefender ? 3 : 0),
             ["P1-B"] = Unit("P1-B", "P1", power: 2),

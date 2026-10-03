@@ -2666,7 +2666,7 @@ public sealed class ConformanceFixtureRunnerTests
             result.Events,
             gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal));
         Assert.Equal("BF-ILLEGAL-STANDBY", standbyRemovedEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal("P2", standbyRemovedEvent.Payload["controllerId"]);
+        Assert.Equal(string.Empty, standbyRemovedEvent.Payload["controllerId"]);
         Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", standbyRemovedEvent.Payload["reason"]);
         Assert.Equal(["P1-ILLEGAL-STANDBY"], Assert.IsType<object[]>(standbyRemovedEvent.Payload["removedObjectIds"]));
         var removedCards = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(standbyRemovedEvent.Payload["removedCards"]);
@@ -20925,23 +20925,24 @@ public sealed class ConformanceFixtureRunnerTests
             mode);
 
     [Theory]
-    [InlineData("p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json", "P1-UNIT-AGGRESSIVE-DRAGONHOUND", 3, "CARD_TYPE:UNIT|犬形|龙")]
-    [InlineData("p2-preflight-play-yi-active-unit.fixture.json", "P1-UNIT-YI", 6, "CARD_TYPE:UNIT|游走")]
-    [InlineData("p2-preflight-play-vanguard-squire-active-unit.fixture.json", "P1-UNIT-VANGUARD-SQUIRE", 5, "CARD_TYPE:UNIT|精锐")]
-    [InlineData("p2-preflight-play-warwick-active-unit.fixture.json", "P1-UNIT-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
-    [InlineData("p2-preflight-play-arc-vi-roam-static.fixture.json", "P1-UNIT-ARC-VI", 3, "CARD_TYPE:UNIT|游走")]
-    [InlineData("p2-preflight-play-arc-caitlyn-damage-order-static.fixture.json", "P1-UNIT-ARC-CAITLYN", 3, "CARD_TYPE:UNIT")]
-    [InlineData("p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json", "P1-UNIT-ARC-HEIMERDINGER", 3, "CARD_TYPE:UNIT|约德尔人")]
-    [InlineData("p2-preflight-play-arc-warwick-active-unit.fixture.json", "P1-UNIT-ARC-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
-    [InlineData("p2-preflight-play-arc-jinx-discard-trigger-static.fixture.json", "P1-UNIT-ARC-JINX", 5, "CARD_TYPE:UNIT")]
-    [InlineData("p2-preflight-play-arc-viktor-destroyed-unit-trigger-static.fixture.json", "P1-UNIT-ARC-VIKTOR", 4, "CARD_TYPE:UNIT")]
-    [InlineData("p2-preflight-play-arena-councilor-active-unit.fixture.json", "P1-UNIT-ARENA-COUNCILOR", 3, "CARD_TYPE:UNIT|约德尔人")]
-    [InlineData("p2-preflight-play-shadow-base-unit-static.fixture.json", "P1-UNIT-SHADOW", 3, "CARD_TYPE:UNIT")]
-    public async Task CoreRuleEnginePlaysActiveEntrySourceUnit(
+    [InlineData("p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json", "P1-UNIT-AGGRESSIVE-DRAGONHOUND", 3, "CARD_TYPE:UNIT|犬形|龙", false)]
+    [InlineData("p2-preflight-play-yi-active-unit.fixture.json", "P1-UNIT-YI", 6, "CARD_TYPE:UNIT|游走", false)]
+    [InlineData("p2-preflight-play-vanguard-squire-active-unit.fixture.json", "P1-UNIT-VANGUARD-SQUIRE", 5, "CARD_TYPE:UNIT|精锐", false)]
+    [InlineData("p2-preflight-play-warwick-active-unit.fixture.json", "P1-UNIT-WARWICK", 5, "CARD_TYPE:UNIT|犬形", false)]
+    [InlineData("p2-preflight-play-arc-vi-roam-static.fixture.json", "P1-UNIT-ARC-VI", 3, "CARD_TYPE:UNIT|游走", true)]
+    [InlineData("p2-preflight-play-arc-caitlyn-damage-order-static.fixture.json", "P1-UNIT-ARC-CAITLYN", 3, "CARD_TYPE:UNIT", true)]
+    [InlineData("p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json", "P1-UNIT-ARC-HEIMERDINGER", 3, "CARD_TYPE:UNIT|约德尔人", true)]
+    [InlineData("p2-preflight-play-arc-warwick-active-unit.fixture.json", "P1-UNIT-ARC-WARWICK", 5, "CARD_TYPE:UNIT|犬形", false)]
+    [InlineData("p2-preflight-play-arc-jinx-discard-trigger-static.fixture.json", "P1-UNIT-ARC-JINX", 5, "CARD_TYPE:UNIT", true)]
+    [InlineData("p2-preflight-play-arc-viktor-destroyed-unit-trigger-static.fixture.json", "P1-UNIT-ARC-VIKTOR", 4, "CARD_TYPE:UNIT", true)]
+    [InlineData("p2-preflight-play-arena-councilor-active-unit.fixture.json", "P1-UNIT-ARENA-COUNCILOR", 3, "CARD_TYPE:UNIT|约德尔人", false)]
+    [InlineData("p2-preflight-play-shadow-base-unit-static.fixture.json", "P1-UNIT-SHADOW", 3, "CARD_TYPE:UNIT", true)]
+    public async Task CoreRuleEngineUsesCardTextForUnitEntryState(
         string fixtureFileName,
         string sourceObjectId,
         int expectedPower,
-        string expectedTags)
+        string expectedTags,
+        bool expectedExhausted)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
@@ -20957,7 +20958,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
         Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
-        Assert.False(result.FinalState.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal(expectedExhausted, result.FinalState.CardObjects[sourceObjectId].IsExhausted);
     }
 
     [Theory]
@@ -31173,8 +31174,8 @@ public sealed class ConformanceFixtureRunnerTests
             ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal("P2", result.State.FocusPlayerId);
         Assert.Empty(result.State.PassedPriorityPlayerIds);
         Assert.Empty(result.State.PassedFocusPlayerIds);
         Assert.Empty(result.State.StackItems);
@@ -31184,7 +31185,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 Assert.Equal("START_SPELL_DUEL", task.Kind);
                 Assert.Equal("ACTIVE", task.Status);
-                Assert.Equal("P1", task.ActingPlayerId);
+                Assert.Equal("P2", task.ActingPlayerId);
             },
             task =>
             {
@@ -31193,14 +31194,14 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-spell-duel:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["PASS_FOCUS", "SURRENDER"], result.Prompts["P1"].Actions);
-        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P1"].Actions);
 
         var startedEvent = Assert.Single(
             result.Events,
             gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
         Assert.Equal("BF-1", startedEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal("P1", startedEvent.Payload["focusPlayerId"]);
+        Assert.Equal("P2", startedEvent.Payload["focusPlayerId"]);
         Assert.Equal(["P1", "P2"], Assert.IsType<string[]>(startedEvent.Payload["participantControllerIds"]));
         Assert.Equal(["P1-UNIT-1", "P2-UNIT-1"], Assert.IsType<string[]>(startedEvent.Payload["participantObjectIds"]));
     }
@@ -31303,9 +31304,9 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
-        Assert.True(result.Prompts["P1"].Actionable);
-        Assert.Contains("争夺战场", result.Prompts["P1"].Reason, StringComparison.Ordinal);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.True(result.Prompts["P2"].Actionable);
+        Assert.Contains("争夺战场", result.Prompts["P2"].Reason, StringComparison.Ordinal);
 
         var closedEvent = Assert.Single(
             result.Events,
@@ -39128,19 +39129,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-GAREN-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-GAREN-ALLY");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-GAREN-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-GAREN-DEFENDER");
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
@@ -39168,10 +39164,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-GAREN-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-GAREN-ALLY");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
@@ -39305,20 +39299,15 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-FARRON-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-FARRON-ALLY");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["keywordBonus"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-FARRON-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-FARRON-DEFENDER");
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
@@ -39541,20 +39530,15 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P2-TARIC-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P2-TARIC-ATTACKER");
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-ALLY", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P1-TARIC-ALLY");
         Assert.Equal("P2-TARIC-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
         Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
@@ -39576,10 +39560,8 @@ public sealed class ConformanceFixtureRunnerTests
             activeAuraState,
             "intent-p7-9-taric-lifecycle-active",
             "P1-TARIC-LIFECYCLE-BATTLEFIELD");
-        var activeDefenderDamage = Assert.Single(activeResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", activeDefenderDamage.Payload["sourceObjectId"]);
+        activeResult = await CombatTestDriver.FinishAsync(activeResult);
+        var activeDefenderDamage = CombatTestDriver.DamageFrom(activeResult, "P1-TARIC-LIFECYCLE-ALLY");
         Assert.Equal(1, activeDefenderDamage.Payload["keywordBonus"]);
         Assert.Equal(CardCombatKeywordNames.Steadfast, activeDefenderDamage.Payload["keyword"]);
         Assert.Equal(3, activeDefenderDamage.Payload["combatPower"]);
@@ -39594,10 +39576,8 @@ public sealed class ConformanceFixtureRunnerTests
             expiredAuraState,
             "intent-p7-9-taric-lifecycle-expired",
             "P1-TARIC-LIFECYCLE-BATTLEFIELD");
-        var expiredDefenderDamage = Assert.Single(expiredResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", expiredDefenderDamage.Payload["sourceObjectId"]);
+        expiredResult = await CombatTestDriver.FinishAsync(expiredResult);
+        var expiredDefenderDamage = CombatTestDriver.DamageFrom(expiredResult, "P1-TARIC-LIFECYCLE-ALLY");
         Assert.Equal(0, expiredDefenderDamage.Payload["keywordBonus"]);
         Assert.Equal(2, expiredDefenderDamage.Payload["combatPower"]);
     }
@@ -39617,10 +39597,8 @@ public sealed class ConformanceFixtureRunnerTests
             activeAuraState,
             "intent-p7-9-taric-target-lifecycle-active",
             "P1-TARIC-LIFECYCLE-BATTLEFIELD");
-        var activeDefenderDamage = Assert.Single(activeResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", activeDefenderDamage.Payload["sourceObjectId"]);
+        activeResult = await CombatTestDriver.FinishAsync(activeResult);
+        var activeDefenderDamage = CombatTestDriver.DamageFrom(activeResult, "P1-TARIC-LIFECYCLE-ALLY");
         Assert.Equal(1, activeDefenderDamage.Payload["keywordBonus"]);
         Assert.Equal(3, activeDefenderDamage.Payload["combatPower"]);
 
@@ -39637,10 +39615,8 @@ public sealed class ConformanceFixtureRunnerTests
             movedTargetState,
             "intent-p7-9-taric-target-lifecycle-moved",
             "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD");
-        var movedDefenderDamage = Assert.Single(movedResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", movedDefenderDamage.Payload["sourceObjectId"]);
+        movedResult = await CombatTestDriver.FinishAsync(movedResult);
+        var movedDefenderDamage = CombatTestDriver.DamageFrom(movedResult, "P1-TARIC-LIFECYCLE-ALLY");
         Assert.Equal(0, movedDefenderDamage.Payload["keywordBonus"]);
         Assert.Equal(2, movedDefenderDamage.Payload["combatPower"]);
     }
@@ -39687,10 +39663,8 @@ public sealed class ConformanceFixtureRunnerTests
             standbySourceState,
             "intent-p7-9-taric-standby-source",
             "P1-TARIC-LIFECYCLE-BATTLEFIELD");
-        var defenderDamage = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", defenderDamage.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var defenderDamage = CombatTestDriver.DamageFrom(result, "P1-TARIC-LIFECYCLE-ALLY");
         Assert.Equal(0, defenderDamage.Payload["keywordBonus"]);
         Assert.Equal(2, defenderDamage.Payload["combatPower"]);
     }
@@ -39874,19 +39848,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-LEE-SIN-BOON-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-LEE-SIN-BOON-ALLY");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-LEE-SIN-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-LEE-SIN-DEFENDER");
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
@@ -39941,19 +39910,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-BRUSH-BIRD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-BRUSH-BIRD-ATTACKER");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-BRUSH-CAT-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-BRUSH-CAT-DEFENDER");
         Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(1, defenderDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
@@ -39981,18 +39945,13 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-BRUSH-BIRD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-BRUSH-BIRD-ATTACKER");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-BRUSH-CAT-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-BRUSH-CAT-DEFENDER");
         Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
@@ -40065,19 +40024,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-BLACKFLAME-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-BLACKFLAME-ATTACKER");
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-BLACKFLAME-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-BLACKFLAME-EPHEMERAL-DEFENDER");
         Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
@@ -40105,10 +40059,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
-        Assert.Equal("P2-BLACKFLAME-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-BLACKFLAME-EPHEMERAL-DEFENDER");
         Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
@@ -40301,9 +40253,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-RUMBLE-DEFENDER");
         Assert.Equal("P2-RUMBLE-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
@@ -40421,9 +40371,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, "P2-RUMBLE-DEFENDER");
         Assert.Equal("P2-RUMBLE-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
@@ -40750,10 +40698,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-PETAL-PIXIE", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-PETAL-PIXIE");
         Assert.Equal("P2-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
@@ -40899,10 +40845,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-SETT", attackerDamageEvent.Payload["sourceObjectId"]);
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-SETT");
         Assert.Equal("P2-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
@@ -43010,7 +42954,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(["P1-UNIT-ROYAL-ATTENDANT"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.False(p2Pass.State.CardObjects["P1-UNIT-ROYAL-ATTENDANT"].IsExhausted);
+        Assert.True(p2Pass.State.CardObjects["P1-UNIT-ROYAL-ATTENDANT"].IsExhausted);
         Assert.Equal(4, p2Pass.State.CardObjects["P1-UNIT-ROYAL-ATTENDANT"].Power);
         Assert.Equal(expectedLegendExhausted, p2Pass.State.CardObjects["P1-LEGEND-001"].IsExhausted);
         var legendStateEvent = Assert.Single(p2Pass.Events, gameEvent =>
@@ -44916,7 +44860,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -44964,7 +44908,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -45022,7 +44966,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BASE"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -45063,7 +45007,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -45114,7 +45058,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -45170,7 +45114,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-CRAFTSMAN",
                 "OGN·211/298",
                 [],
-                Destination: "BATTLEFIELD:P1-MAIN"),
+                Destination: "BASE"),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -45371,7 +45315,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldScoreDelayPreventsFirstTurnScoreBeforeThirdTurn()
+    public async Task P79BattlefieldScoreDelayDoesNotPreventOtherBattlefieldFirstTurnScore()
     {
         var baseState = BattlefieldFirstTurnScoreState();
         var state = baseState with
@@ -45402,18 +45346,17 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Equal("P2", result.State.TurnPlayerId);
-        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
-        var preventedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
-        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
-        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
-        Assert.Equal(1, preventedEvent.Payload["turnOrdinal"]);
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        // Official SFD 209: "from here" never prevents Glory Arena's separate score.
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_SCORE_PREVENTED");
+        var scoreEvent = Assert.Single(result.Events, e => e.Kind == "SCORE_GAINED");
+        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", scoreEvent.Payload["reason"]);
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "MATCH_WON");
     }
 
     [Fact]
-    public async Task P79BattlefieldScoreDelayIgnoresBattlefieldControlChange()
+    public async Task P79BattlefieldScoreDelayDoesNotAffectOtherBattlefieldsAfterControlChange()
     {
         var baseState = BattlefieldFirstTurnScoreState();
         var state = baseState with
@@ -45444,12 +45387,13 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Equal("P2", result.State.TurnPlayerId);
-        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
-        var preventedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
-        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
-        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        // Official SFD 209: "from here" never prevents Glory Arena's separate score.
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_SCORE_PREVENTED");
+        var scoreEvent = Assert.Single(result.Events, e => e.Kind == "SCORE_GAINED");
+        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", scoreEvent.Payload["reason"]);
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "MATCH_WON");
     }
 
     [Fact]
@@ -46561,7 +46505,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldScoreDelayPreventsHeldScorePaymentBeforeThirdTurn()
+    public async Task P79BattlefieldScoreDelayDoesNotPreventOtherBattlefieldHeldScorePayment()
     {
         var baseState = BattlefieldHeldScoreState();
         var state = baseState with
@@ -46602,21 +46546,16 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
-        Assert.Equal(4, result.State.RunePools["P2"].Power);
-        var preventedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
-        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
-        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("reason", out var reason)
-            && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_SCORE_PREVENTED");
+        Assert.Contains(result.Events, e => e.Kind == "COST_PAID"
+            && Equals(e.Payload.GetValueOrDefault("reason"), "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"));
+        Assert.Contains(result.Events, e => e.Kind == "SCORE_GAINED");
     }
 
     [Fact]
-    public async Task P79BattlefieldScorePreventedDoesNotConsumeTemporaryPaymentResource()
+    public async Task P79OtherBattlefieldScoreDelayAllowsSelectedTemporaryPaymentResource()
     {
         var temporaryResource = BattlefieldHeldTemporaryResource("MALZAHAR:TEMP-HELD-SCORE-PREVENTED", ownerPlayerId: "P2");
         var baseState = BattlefieldHeldScoreState();
@@ -46663,14 +46602,14 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT", PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId)]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
-        Assert.Empty(result.Events);
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("reason", out var reason)
-            && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.NotEqual(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.Contains(result.Events, e => e.Kind == "TEMPORARY_PAYMENT_RESOURCE_SPENT");
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_SCORE_PREVENTED");
+        Assert.Contains(result.Events, e => e.Kind == "COST_PAID"
+            && Equals(e.Payload.GetValueOrDefault("reason"), "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"));
     }
 
     [Fact]
@@ -62851,7 +62790,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void ActionPromptDeclareBattleFiltersExhaustedAttackersAndDefenders()
+    public void ActionPromptDeclareBattleIncludesExhaustedAttackersAndDefenders()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -62910,18 +62849,18 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.NotNull(declareBattleCandidate.Sources);
         Assert.NotNull(declareBattleCandidate.Targets);
         Assert.Equal(
-            ["P1-BATTLEFIELD-READY-ATTACKER"],
+            ["P1-BATTLEFIELD-READY-ATTACKER", "P1-BATTLEFIELD-EXHAUSTED-ATTACKER"],
             declareBattleCandidate.Sources.Select(choice => choice.Id).ToArray());
         Assert.Equal(
-            ["P2-BATTLEFIELD-READY-DEFENDER"],
+            ["P2-BATTLEFIELD-READY-DEFENDER", "P2-BATTLEFIELD-EXHAUSTED-DEFENDER"],
             declareBattleCandidate.Targets.Select(choice => choice.Id).ToArray());
         Assert.Equal(
-            "battlefield-zone-controlled-ready-face-up-units-not-already-in-combat",
+            "battlefield-zone-controlled-face-up-units-not-already-in-combat",
             declareBattleCandidate.Metadata?["candidateFiltering"]);
     }
 
     [Fact]
-    public async Task P4DeclareBattleCommandRejectsExhaustedAttackersAndDefenders()
+    public async Task P4DeclareBattleCommandAcceptsExhaustedAttackersAndDefenders()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -62981,10 +62920,9 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
-        Assert.False(exhaustedAttackerResult.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, exhaustedAttackerResult.ErrorCode);
-        Assert.DoesNotContain(exhaustedAttackerResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(0, exhaustedAttackerResult.State.Tick);
+        Assert.True(exhaustedAttackerResult.Accepted, exhaustedAttackerResult.ErrorMessage);
+        Assert.Contains(exhaustedAttackerResult.Events, e => e.Kind == "BATTLE_DECLARED");
+        Assert.True(exhaustedAttackerResult.State.Tick > state.Tick);
 
         var exhaustedDefenderResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -62996,10 +62934,9 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
-        Assert.False(exhaustedDefenderResult.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, exhaustedDefenderResult.ErrorCode);
-        Assert.DoesNotContain(exhaustedDefenderResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(0, exhaustedDefenderResult.State.Tick);
+        Assert.True(exhaustedDefenderResult.Accepted, exhaustedDefenderResult.ErrorMessage);
+        Assert.Contains(exhaustedDefenderResult.Events, e => e.Kind == "BATTLE_DECLARED");
+        Assert.True(exhaustedDefenderResult.State.Tick > state.Tick);
     }
 
     [Fact]
@@ -67075,7 +67012,8 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-DREAM-TREE",
                     cardNo: "OGN·280/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2"),
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
                     cardNo: "SFD·125/221",
@@ -71290,7 +71228,8 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-BLOOD-ALTAR",
                     cardNo: "UNL-206/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2"),
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BLOOD-DEFENDER",
                     cardNo: "SFD·125/221",
@@ -71331,7 +71270,8 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-HALLOWED-TOMB",
                     cardNo: "OGN·281/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2"),
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-BATTLEFIELD-TOMB-DEFENDER"] = new(
                     "P2-BATTLEFIELD-TOMB-DEFENDER",
                     cardNo: "SFD·125/221",

@@ -20583,7 +20583,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingResolutionHistoryBattleParticipantObjectListMaximumDrift()
+    public void RecoveryValidatorDoesNotLimitSnapshotTimingResolutionHistoryToTwoParticipants()
     {
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -20656,16 +20656,8 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing battle resolution item attacker object id list must contain at most 2 items",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing battle resolution item defender object id list must contain at most 2 items",
-                StringComparison.Ordinal));
+        // These legacy payloads omit unrelated object metadata; participant count itself is legal.
+        Assert.DoesNotContain(errors, error => error.Contains("at most 2", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -40216,7 +40208,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateResolutionHistoryBattleParticipantObjectListMaximumDrift()
+    public void RecoveryValidatorAcceptsAuthoritativeStateResolutionHistoryWithThreeParticipantsPerSide()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -40284,16 +40276,7 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 2);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state battle resolution battle-resolution-1 attacker object list must contain at most 2 items",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state battle resolution battle-resolution-2 defender object list must contain at most 2 items",
-                StringComparison.Ordinal));
+        Assert.Empty(errors);
     }
 
     [Fact]
@@ -196605,7 +196588,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryBattleParticipantObjectListMaximumDrift()
+    public void RecoveryValidatorDoesNotLimitSpectatorReplayTimingResolutionHistoryToTwoParticipants()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -196744,16 +196727,8 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing battle resolution item attacker object id list must contain at most 2 items",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing battle resolution item defender object id list must contain at most 2 items",
-                StringComparison.Ordinal));
+        // These legacy payloads omit unrelated object metadata; participant count itself is legal.
+        Assert.DoesNotContain(errors, error => error.Contains("at most 2", StringComparison.Ordinal));
     }
 
     [Fact]

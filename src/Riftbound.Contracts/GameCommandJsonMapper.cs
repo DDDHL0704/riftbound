@@ -65,7 +65,8 @@ public static class GameCommandJsonMapper
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "origin"),
                 Text(cmd, "destination"),
-                TextArray(cmd, "optionalCosts")),
+                TextArray(cmd, "optionalCosts"),
+                TextArray(cmd, "sourceObjectIds")),
             "ASSEMBLE_EQUIPMENT" => new AssembleEquipmentCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "targetObjectId"),

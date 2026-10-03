@@ -634,6 +634,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         var state = BuildActiveStartBattleGuardState();
         var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal);
         var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal);
+        // P1 initiates the next contest against P2 control.
+        cardObjects["BF-2"] = cardObjects["BF-2"] with { ControllerId = "P2" };
         var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
         {
             ["P2-OTHER-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "BF-2")

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MatchScreen.cs" id="1_match"]
 [ext_resource type="PackedScene" path="res://scenes/components/ActionBar.tscn" id="2_action"]
+[ext_resource type="Texture2D" path="res://assets/table-surface.svg" id="3_table"]
 
 [node name="MatchScreen" type="Control"]
 layout_mode = 3
@@ -15,7 +16,7 @@ size_flags_vertical = 3
 mouse_filter = 0
 script = ExtResource("1_match")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,7 +24,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.09, 0.102, 0.122, 1)
+texture = ExtResource("3_table")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="MatchLayout" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -63,15 +66,26 @@ text = "等待服务器同步战场。"
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="OpponentArea" type="PanelContainer" parent="MatchLayout"]
+[node name="BoardScroll" type="ScrollContainer" parent="MatchLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="BoardLayout" type="VBoxContainer" parent="MatchLayout/BoardScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="OpponentArea" type="PanelContainer" parent="MatchLayout/BoardScroll/BoardLayout"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="OpponentRow" type="HBoxContainer" parent="MatchLayout/OpponentArea"]
+[node name="OpponentRow" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="OpponentSummary" type="Label" parent="MatchLayout/OpponentArea/OpponentRow"]
+[node name="OpponentSummary" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
@@ -79,150 +93,150 @@ text = "对手 · 等待数据"
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="OpponentPublicSection" type="VBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow"]
+[node name="OpponentPublicSection" type="VBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="OpponentPublicTitle" type="Label" parent="MatchLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
+[node name="OpponentPublicTitle" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
 layout_mode = 2
 text = "对手公开区"
 theme_override_font_sizes/font_size = 14
 
-[node name="OpponentPublicZones" type="HBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
+[node name="OpponentPublicZones" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow/OpponentPublicSection"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="OpponentHandSection" type="VBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow"]
+[node name="OpponentHandSection" type="VBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="OpponentHandTitle" type="Label" parent="MatchLayout/OpponentArea/OpponentRow/OpponentHandSection"]
+[node name="OpponentHandTitle" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow/OpponentHandSection"]
 layout_mode = 2
 text = "对手手牌"
 theme_override_font_sizes/font_size = 14
 
-[node name="OpponentHand" type="HBoxContainer" parent="MatchLayout/OpponentArea/OpponentRow/OpponentHandSection"]
+[node name="OpponentHand" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/OpponentArea/OpponentRow/OpponentHandSection"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Battlefields" type="HBoxContainer" parent="MatchLayout"]
+[node name="Battlefields" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="BattlefieldOne" type="PanelContainer" parent="MatchLayout/Battlefields"]
+[node name="BattlefieldOne" type="PanelContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne"]
+[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent"]
 layout_mode = 2
 
-[node name="LaneTitle" type="Label" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
+[node name="LaneTitle" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "战场一"
 
-[node name="BattlefieldOneState" type="Label" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
+[node name="BattlefieldOneState" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent/LaneHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "等待战场数据"
 horizontal_alignment = 2
 theme_override_font_sizes/font_size = 14
 
-[node name="OpponentUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+[node name="OpponentUnits" type="HFlowContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
+[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Standby" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
+[node name="Standby" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent/CenterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="SelfUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldOne/LaneContent"]
+[node name="SelfUnits" type="HFlowContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldOne/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="BattlefieldTwo" type="PanelContainer" parent="MatchLayout/Battlefields"]
+[node name="BattlefieldTwo" type="PanelContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo"]
+[node name="LaneContent" type="VBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+[node name="LaneHeader" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent"]
 layout_mode = 2
 
-[node name="LaneTitle" type="Label" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
+[node name="LaneTitle" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "战场二"
 
-[node name="BattlefieldTwoState" type="Label" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
+[node name="BattlefieldTwoState" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent/LaneHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "等待战场数据"
 horizontal_alignment = 2
 theme_override_font_sizes/font_size = 14
 
-[node name="OpponentUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+[node name="OpponentUnits" type="HFlowContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+[node name="CenterRow" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
+[node name="OfficialSite" type="CenterContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Standby" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
+[node name="Standby" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent/CenterRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="SelfUnits" type="HBoxContainer" parent="MatchLayout/Battlefields/BattlefieldTwo/LaneContent"]
+[node name="SelfUnits" type="HFlowContainer" parent="MatchLayout/BoardScroll/BoardLayout/Battlefields/BattlefieldTwo/LaneContent"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="SelfArea" type="PanelContainer" parent="MatchLayout"]
+[node name="SelfArea" type="PanelContainer" parent="MatchLayout/BoardScroll/BoardLayout"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="SelfRow" type="HBoxContainer" parent="MatchLayout/SelfArea"]
+[node name="SelfRow" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/SelfArea"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SelfSummary" type="Label" parent="MatchLayout/SelfArea/SelfRow"]
+[node name="SelfSummary" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/SelfArea/SelfRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
@@ -230,17 +244,17 @@ text = "我方 · 等待数据"
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="SelfPublicSection" type="VBoxContainer" parent="MatchLayout/SelfArea/SelfRow"]
+[node name="SelfPublicSection" type="VBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/SelfArea/SelfRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="SelfPublicTitle" type="Label" parent="MatchLayout/SelfArea/SelfRow/SelfPublicSection"]
+[node name="SelfPublicTitle" type="Label" parent="MatchLayout/BoardScroll/BoardLayout/SelfArea/SelfRow/SelfPublicSection"]
 layout_mode = 2
 text = "我方公开区"
 theme_override_font_sizes/font_size = 14
 
-[node name="SelfPublicZones" type="HBoxContainer" parent="MatchLayout/SelfArea/SelfRow/SelfPublicSection"]
+[node name="SelfPublicZones" type="HBoxContainer" parent="MatchLayout/BoardScroll/BoardLayout/SelfArea/SelfRow/SelfPublicSection"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -273,7 +287,7 @@ theme_override_font_sizes/font_size = 14
 custom_minimum_size = Vector2(0, 126)
 layout_mode = 2
 size_flags_horizontal = 3
-horizontal_scroll_mode = 2
+horizontal_scroll_mode = 1
 vertical_scroll_mode = 0
 
 [node name="SelfHand" type="HBoxContainer" parent="MatchLayout/HandArea/HandLayout/SelfHandScroll"]

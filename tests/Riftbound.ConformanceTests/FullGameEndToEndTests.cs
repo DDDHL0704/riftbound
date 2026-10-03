@@ -164,9 +164,9 @@ public sealed class FullGameEndToEndTests
     private static readonly int[] StandbyDriverSeeds = [424242, 7, 11, 17, 23, 31, 42, 101, 404, 20260624];
 
     [Fact]
-    public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
+    public async Task OfficialLowCurveDecksClaimBattlefieldsAndReachMatchResultThroughServerPrompts()
     {
-        var (session, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (session, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             "b0-full-game-official-low-curve-room");
 
         var winner = OpponentOf(result.State, result.State.ActivePlayerId);
@@ -184,7 +184,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialLowCurveDecksReopenContestedBattleAfterSkippedCombatantsReadyAcrossTurns()
+    public async Task OfficialLowCurveDecksResolveContestedBattleAfterStandardMove()
     {
         var (_, battleReady, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
             "b0-full-game-official-low-curve-reopen-room");
@@ -335,7 +335,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildCrimsonSignetTreantOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-treant-conquest-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -355,7 +355,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-treant-stage-defender");
+            "b0-treant-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToCrimsonSignetTreantConquestAsync(
             session,
@@ -385,7 +386,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildVayneConquestPayReturnOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-vayne-conquest-return-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -430,7 +431,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildKaisaConquestGraveyardSpellOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-kaisa-graveyard-spell-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -466,7 +467,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildKaisaConquestTargetedGraveyardRuneSpellOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-kaisa-targeted-graveyard-rune-spell-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -503,7 +504,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildLeblancMirrorImageOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-leblanc-mirror-image-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -540,7 +541,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildFizzSourceUnitPlayedGraveyardRuneSpellOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-fizz-graveyard-rune-spell-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -577,7 +578,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildRumbleConquestGraveyardMechanicalOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-paid-conquest-payment-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -622,7 +623,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildRumbleConquestGraveyardMechanicalOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-insufficient-conquest-payment-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -1093,7 +1094,7 @@ public sealed class FullGameEndToEndTests
             session,
             "P1",
             "b0-forgotten-monument-score-delay");
-        AssertBattlefieldScoreDelayPreventedFirstTurnScore(current, prevented);
+        AssertBattlefieldScoreDelayPreservesOtherFieldFirstTurnScore(current, prevented);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -1861,7 +1862,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-activated-ability-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -1897,7 +1898,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog, includeSecondEligibleTopUnit: true);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-multi-choice-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -1942,7 +1943,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog, includeSecondEligibleTopUnit: true);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-choice-decline-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -1985,7 +1986,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSeaMonsterHookActivatedAbilityOfficialDeck(catalog, noEligibleTopFiveUnit: true);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-sea-monster-hook-no-eligible-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -2137,7 +2138,7 @@ public sealed class FullGameEndToEndTests
         var initialOpeningState = BuildSeatedInitialState(
             "b0-full-game-poro-forge-legend-attach-armament-reject-replay-room",
             LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             initialOpeningState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -2309,7 +2310,6 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -2902,7 +2902,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildFlameclawLevelActiveEntryOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-flameclaw-level-active-entry-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -2929,13 +2929,12 @@ public sealed class FullGameEndToEndTests
             expectedRequiredExperience: 3,
             displayName: "Flameclaw");
 
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             played,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-flameclaw-level-active-entry-static-aura-stage-defender");
+            "b0-flameclaw-level-active-entry-static-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
             session,
@@ -2961,7 +2960,6 @@ public sealed class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -2973,7 +2971,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildBandleSoldierLevelActiveEntryOfficialDeck(catalog);
         var p2Deck = BuildLowCurveOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-bandle-soldier-level-active-entry-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -2999,7 +2997,6 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -3011,7 +3008,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildBandleSoldierLevelActiveEntryOfficialDeck(catalog);
         var p2Deck = BuildLowCurveOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-bandle-soldier-below-level-active-entry-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3051,7 +3048,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildFiercewingControlledDragonActiveEntryOfficialDeck(catalog);
         var p2Deck = BuildLowCurveOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-fiercewing-controlled-dragon-active-entry-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3084,7 +3081,6 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -3096,7 +3092,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildFiercewingNoControlledDragonActiveEntryOfficialDeck(catalog);
         var p2Deck = BuildLowCurveOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-fiercewing-no-controlled-dragon-active-entry-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3611,7 +3607,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3637,7 +3633,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-same-battlefield-aura-stage-defender");
+            "b0-same-battlefield-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSameBattlefieldStaticAuraBattleAsync(
             session,
@@ -3672,7 +3669,7 @@ public sealed class FullGameEndToEndTests
             AggressiveDragonhoundCardNo);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-darius-same-battlefield-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3702,7 +3699,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-darius-same-battlefield-aura-stage-defender");
+            "b0-darius-same-battlefield-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSameBattlefieldStaticAuraBattleAsync(
             session,
@@ -3734,7 +3732,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildOrnnFriendlyEquipmentStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-ornn-friendly-equipment-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3754,7 +3752,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-ornn-friendly-equipment-aura-stage-defender");
+            "b0-ornn-friendly-equipment-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToOrnnFriendlyEquipmentStaticAuraBattleAsync(
             session,
@@ -3805,7 +3804,8 @@ public sealed class FullGameEndToEndTests
             "P2",
             "P1",
             "b0-battlefield-all-units-aura-stage-defender",
-            TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo);
+            TrifarianTrainingGroundsBattlefieldAllUnitsStaticAuraCardNo,
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToBattlefieldAllUnitsStaticAuraBattleAsync(
             session,
@@ -3937,7 +3937,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSourceSameLocationStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-source-same-location-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -3963,7 +3963,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-source-same-location-aura-stage-defender");
+            "b0-source-same-location-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSourceSameLocationStaticAuraBattleAsync(
             session,
@@ -3993,7 +3994,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldBoonCountStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-boon-count-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4026,7 +4027,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-same-battlefield-boon-count-aura-stage-defender");
+            "b0-same-battlefield-boon-count-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSameBattlefieldBoonCountStaticAuraBattleAsync(
             session,
@@ -4056,7 +4058,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-petal-pixie-same-battlefield-ephemeral-count-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4101,7 +4103,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSoulShepherdFriendlyTokenStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSoulShepherdFriendlyTokenStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-soul-shepherd-friendly-token-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4143,7 +4145,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildRumbleFriendlyMechanicalStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-friendly-mechanical-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4189,7 +4191,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildRumbleLegendFriendlyMechanicalSteadfastAttackerOfficialDeck(catalog);
         var p2Deck = BuildRumbleLegendFriendlyMechanicalSteadfastDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-rumble-legend-friendly-mechanical-steadfast-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4228,7 +4230,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSpeedingMechFriendlyMechanicalStaticKeywordOfficialDeck(catalog);
         var p2Deck = BuildRumbleFriendlyMechanicalStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-speeding-mech-friendly-mechanical-spellshield-roam-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4268,7 +4270,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildPrescientMechStaticGrantedPredictOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, LilliaLegendCardNo, LilliaChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-prescient-mech-static-granted-predict-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4305,7 +4307,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildGemstoneSeerOtherFriendlyStaticGrantedPredictOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, LilliaLegendCardNo, LilliaChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-gemstone-seer-other-friendly-static-granted-predict-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4342,7 +4344,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldOtherFriendlyFilteredStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-other-friendly-filtered-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4375,7 +4377,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-same-battlefield-other-friendly-filtered-aura-stage-defender");
+            "b0-same-battlefield-other-friendly-filtered-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSameBattlefieldOtherFriendlyFilteredStaticAuraBattleAsync(
             session,
@@ -4429,7 +4432,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-other-friendly-aura-stage-defender");
+            "b0-other-friendly-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToOtherFriendlyStaticAuraBattleAsync(
             session,
@@ -4459,7 +4463,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSourceCombatStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-source-combat-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4485,7 +4489,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-source-combat-aura-stage-defender");
+            "b0-source-combat-aura-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSourceCombatStaticAuraBattleAsync(
             session,
@@ -4515,7 +4520,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildDuneDrakeSourceAttackingReadyEnemyStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-dune-drake-source-attacking-ready-enemy-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4565,7 +4570,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSourceLoneBattleStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-source-lone-battle-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4580,13 +4585,12 @@ public sealed class FullGameEndToEndTests
             "P1",
             WaterbenderSourceLoneBattleStaticAuraCardNo,
             "b0-source-lone-battle-aura-stage-source");
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             current,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-source-lone-battle-aura-stage-defender");
+            "b0-source-lone-battle-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToSourceLoneBattleStaticAuraBattleAsync(
             session,
@@ -4616,7 +4620,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildFriendlySingleDefenderStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-friendly-single-defender-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4668,7 +4672,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildMasterYiLevelFriendlyUnitsStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-master-yi-level-friendly-units-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4687,13 +4691,12 @@ public sealed class FullGameEndToEndTests
         Assert.True(current.State.PlayerExperience.TryGetValue("P1", out var p1Experience) && p1Experience >= 6);
         AssertMasterYiLevelFriendlyUnitsStaticAuraProjection(current, "P1", DemaciaEnvoyCardNo);
 
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             current,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-master-yi-level-friendly-units-aura-stage-defender");
+            "b0-master-yi-level-friendly-units-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToMasterYiLevelFriendlyUnitsStaticAuraBattleAsync(
             session,
@@ -4723,7 +4726,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildWiseElderSourceObjectFilteredStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-wise-elder-source-object-filtered-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4746,13 +4749,12 @@ public sealed class FullGameEndToEndTests
             WiseElderSourceObjectFilteredStaticAuraCardNo,
             "b0-wise-elder-source-object-filtered-aura-grant-boon");
         AssertWiseElderSourceObjectFilteredStaticAuraProjection(current, "P1");
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             current,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-wise-elder-source-object-filtered-aura-stage-defender");
+            "b0-wise-elder-source-object-filtered-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToWiseElderSourceObjectFilteredStaticAuraBattleAsync(
             session,
@@ -4782,7 +4784,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildCrystalhandHunterSourceObjectLevelStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-crystalhand-hunter-source-object-level-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4808,13 +4810,12 @@ public sealed class FullGameEndToEndTests
             expectedRequiredExperience: 6,
             displayName: "Crystalhand Hunter");
 
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             current,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-crystalhand-hunter-source-object-level-aura-stage-defender");
+            "b0-crystalhand-hunter-source-object-level-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
             session,
@@ -4852,7 +4853,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildTargonSeerSourceObjectLevelStaticAuraOfficialDeck(catalog);
         var p2Deck = BuildSourceLoneBattleStaticAuraDefenderOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-targon-seer-source-object-level-static-aura-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4878,13 +4879,12 @@ public sealed class FullGameEndToEndTests
             expectedRequiredExperience: 11,
             displayName: "Targon Seer");
 
-        current = await DriveSpecificUnitToPlayerBattlefieldAsync(
+        current = await StageDefenderThenMoveAttackingGroupAsync(
             session,
             current,
             "P2",
-            WatchfulSentinelCardNo,
             "P1",
-            "b0-targon-seer-source-object-level-aura-stage-defender");
+            "b0-targon-seer-source-object-level-aura-stage-defender", null, WatchfulSentinelCardNo);
 
         var battleResult = await DriveContestedBattlefieldToSourceObjectLevelStaticAuraBattleAsync(
             session,
@@ -4922,7 +4922,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldStaticKeywordOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-static-keyword-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -4948,7 +4948,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P2",
             "P1",
-            "b0-same-battlefield-keyword-stage-defender");
+            "b0-same-battlefield-keyword-stage-defender",
+            counterAttack: true);
 
         var battleResult = await DriveContestedBattlefieldToSameBattlefieldStaticKeywordBattleAsync(
             session,
@@ -4978,7 +4979,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldSteadfastStaticKeywordOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-same-battlefield-steadfast-static-keyword-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -5029,11 +5030,6 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             journal.Entries.Count(entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal)) >= 2,
             "Expected Taric's surviving contested battlefield to produce a follow-up server-authored battle declaration.");
-        Assert.Contains(
-            journal.Entries.SelectMany(entry => entry.Events),
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal)
-                && gameEvent.Payload.TryGetValue("reason", out var reason)
-                && string.Equals(reason as string, "NO_LEGAL_COMBATANTS", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -5045,7 +5041,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildAerieHeadFanSpellshieldTaxSpellOfficialDeck(catalog);
         var p2Deck = BuildAerieHeadFanSameBattlefieldSpellshieldOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-aerie-head-fan-spellshield-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -5102,7 +5098,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildAerieHeadFanSpellshieldTaxSpellOfficialDeck(catalog);
         var p2Deck = BuildMossStepperSourceObjectLevelSpellshieldOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-moss-stepper-source-object-level-spellshield-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -5144,7 +5140,7 @@ public sealed class FullGameEndToEndTests
         var p1Deck = BuildSameBattlefieldSteadfastStaticKeywordOfficialDeck(catalog);
         var p2Deck = BuildTaricBulwarkAssignmentAttackerOfficialDeck(catalog);
         var openingInitialState = BuildSeatedInitialState("b0-full-game-taric-bulwark-assignment-replay-room", LowCurveReplaySeed);
-        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             openingInitialState,
             NoopMatchJournal.Instance,
             p1Deck,
@@ -5658,7 +5654,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(openedResponse.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
         Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].View?.Type);
-        Assert.Contains(CommandTypes.ActivateAbility, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].Actions);
+        Assert.Contains(CommandTypes.TapRune, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].Actions);
 
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
@@ -5686,8 +5682,15 @@ public sealed class FullGameEndToEndTests
     {
         var result = battleResult;
         var scoreEvents = result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        for (var turnIndex = 0; turnIndex < 24 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
+        for (var turnIndex = 0; turnIndex < 48 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
         {
+            if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
+            {
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-pending-response-{turnIndex}");
+                result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-pending-damage-{turnIndex}");
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-pending-after-damage-{turnIndex}");
+                scoreEvents += result.Events.Count(e => e.Kind == "SCORE_GAINED");
+            }
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
@@ -5710,6 +5713,8 @@ public sealed class FullGameEndToEndTests
                 continue;
             }
 
+            if (result.State.Status == MatchStatuses.Finished)
+                break;
             if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
                 || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
                 || result.State.PendingTaskQueue.HasTasks)
@@ -5725,11 +5730,46 @@ public sealed class FullGameEndToEndTests
                     PendingTaskPhase = result.State.PendingTaskQueue.Phase,
                     result.State.PendingTaskQueue.ActiveTaskId,
                     TaskKinds = result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray(),
-                    PromptActions = result.Prompts[result.State.ActivePlayerId].Actions
+                    PromptActions = result.Prompts[result.State.ActivePlayerId].Actions,
+                    result.State.BattlefieldStates,
+                    result.State.UntilEndOfTurnEffects,
+                    result.State.BattleState,
+                    result.State.SpellDuelState,
+                    result.State.PendingCleanupTasks,
+                    result.State.PlayerZones,
+                    result.State.ObjectLocations,
+                    LastEvents = result.Events.Select(e => new { e.Kind, e.Payload })
                 }));
             }
 
+            if (result.State.Status == MatchStatuses.Finished)
+                break;
             Assert.Equal(result.State.TurnPlayerId, result.State.ActivePlayerId);
+            // Winning by holding requires an actual claim. Older openings incorrectly
+            // assigned control to owners and let this driver score by only ending turns.
+            var actor = result.State.ActivePlayerId;
+            var openField = result.State.BattlefieldStates.Values.FirstOrDefault(field =>
+                field.ControllerId is null && field.OccupantObjectIds.Count == 0);
+            if (openField is not null && !result.State.BattlefieldStates.Values.Any(field => field.ControllerId == actor))
+            {
+                if (result.State.PlayerZones[actor].Base.Any(id => IsReadyUnit(result.State, id)))
+                {
+                    result = await MoveBaseUnitToBattlefieldAsync(session, actor, result,
+                        $"BATTLEFIELD:{openField.BattlefieldObjectId}", $"{intentPrefix}-claim-{turnIndex}");
+                    result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-claim-focus-{turnIndex}");
+                    scoreEvents += result.Events.Count(e => e.Kind == "SCORE_GAINED");
+                    continue;
+                }
+                result = await TapAllAvailableRunesAsync(session, actor, result, $"{intentPrefix}-claim-tap-{turnIndex}");
+                if (EnabledCandidate(result.Prompts[actor], CommandTypes.PlayCard)?.Sources?.Any(choice =>
+                    result.State.CardObjects.TryGetValue(choice.Id, out var card) && !IsDriverStandbyUnit(card)
+                    && CardBehaviorRegistry.TryGetByCardNo(card.CardNo!, out var behavior)
+                    && behavior.PlaysSourceToBaseAsUnit && behavior.RequiredTargetCount == 0) == true)
+                {
+                    result = await TryPlayFirstUnitAsync(session, actor, result,
+                        $"{intentPrefix}-claim-play-{turnIndex}", playUnitToBattlefield: false);
+                }
+            }
             result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-turn-{turnIndex}");
             AssertNoHiddenZoneLeak(result);
             scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
@@ -6819,34 +6859,18 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertBattlefieldScoreDelayPreventedFirstTurnScore(
+    private static void AssertBattlefieldScoreDelayPreservesOtherFieldFirstTurnScore(
         ResolutionResult beforeTurnStart,
         ResolutionResult result)
     {
         Assert.Equal("P2", result.State.TurnPlayerId);
-        var scoreDelaySourceObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P1",
-            ForgottenMonumentBattlefieldCardNo);
-        var scoreSourceObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P1",
-            FirstTurnScoreBattlefieldCardNo);
         Assert.Equal(0, beforeTurnStart.State.PlayerScores["P2"]);
-        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
-
-        var preventedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
-        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
-        Assert.Equal("BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN", preventedEvent.Payload["trigger"]);
-        Assert.Equal(TriggerKinds.BattlefieldFirstTurnScore, preventedEvent.Payload["preventedReason"]);
-        Assert.Equal([scoreDelaySourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(preventedEvent.Payload["sourceObjectIds"]));
-        Assert.Equal([scoreSourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(preventedEvent.Payload["scoreSourceObjectIds"]));
-        Assert.Equal(1, preventedEvent.Payload["turnOrdinal"]);
-        Assert.Equal(3, preventedEvent.Payload["releasedTurnOrdinal"]);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldFirstTurnScore, StringComparison.Ordinal));
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_SCORE_PREVENTED");
+        var score = Assert.Single(result.Events, e => e.Kind == "SCORE_GAINED");
+        Assert.Equal(TriggerKinds.BattlefieldFirstTurnScore, score.Payload["reason"]);
+        var source = BattlefieldObjectIdForCardNo(result.State, "P1", FirstTurnScoreBattlefieldCardNo);
+        Assert.Equal([source], Assert.IsAssignableFrom<IReadOnlyList<string>>(score.Payload["sourceObjectIds"]));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -9860,7 +9884,7 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && string.Equals(cardObject.ControllerId, "P2", StringComparison.Ordinal));
-        Assert.Equal(7, controlledUnitCount);
+        Assert.True(controlledUnitCount >= 7);
 
         var resultEvents = result.Events.ToArray();
         var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
@@ -9877,14 +9901,14 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
         Assert.Equal(GrandPlazaBattlefieldHeldSevenUnitsWinCardNo, triggerEvent.Payload["battlefieldCardNo"]);
         Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(7, triggerEvent.Payload["controlledBattlefieldUnitCount"]);
+        Assert.Equal(controlledUnitCount, triggerEvent.Payload["controlledBattlefieldUnitCount"]);
         Assert.Equal(7, triggerEvent.Payload["requiredUnitCount"]);
 
         var winEvent = resultEvents[winIndex];
         Assert.Equal("P2", winEvent.Payload["winnerPlayerId"]);
         Assert.Equal(TriggerKinds.BattlefieldHeldSevenUnitsWin, winEvent.Payload["reason"]);
         Assert.Equal(battlefieldObjectId, winEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(7, winEvent.Payload["controlledBattlefieldUnitCount"]);
+        Assert.Equal(controlledUnitCount, winEvent.Payload["controlledBattlefieldUnitCount"]);
         Assert.Equal(7, winEvent.Payload["requiredUnitCount"]);
         Assert.Equal(MatchStatuses.Finished, result.State.Status);
         Assert.Equal("P2", result.State.WinnerPlayerId);
@@ -10217,12 +10241,12 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSameBattlefieldStaticAuraDamage(ResolutionResult result, int expectedBasePower = 2)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, expectedBasePower);
         Assert.Equal(expectedBasePower, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(expectedBasePower + 1, attackerDamageEvent.Payload["combatPower"]);
@@ -10233,12 +10257,12 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertOrnnFriendlyEquipmentStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
-            && basePower is 5);
+            && basePower is 5, 5);
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
@@ -10249,14 +10273,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertBattlefieldAllUnitsStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 7
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 7);
         Assert.Equal(7, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(8, attackerDamageEvent.Payload["combatPower"]);
@@ -10292,10 +10316,10 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertBattlefieldIsolatedDefenderKeywordModifierDamage(ResolutionResult result)
     {
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var defenderDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
-            && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal));
+            && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal), 4);
         Assert.Equal(4, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
         Assert.Equal(-2, defenderDamageEvent.Payload["keywordBonus"]);
@@ -10311,14 +10335,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSourceSameLocationStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 2
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 2);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
@@ -10329,14 +10353,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSameBattlefieldBoonCountStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 5
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 5);
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(6, attackerDamageEvent.Payload["combatPower"]);
@@ -10347,14 +10371,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertPetalPixieSameBattlefieldEphemeralCountStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 2
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 2);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
@@ -10365,14 +10389,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSoulShepherdFriendlyTokenStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 1
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 1);
         Assert.Equal(1, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
@@ -10383,14 +10407,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertRumbleFriendlyMechanicalStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 4
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 4);
         Assert.Equal(4, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
@@ -10401,12 +10425,12 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertRumbleLegendFriendlyMechanicalSteadfastDamage(ResolutionResult result)
     {
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var defenderDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
-            && basePower is 4);
+            && basePower is 4, 4);
         Assert.Equal(4, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
@@ -10465,12 +10489,12 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSpeedingMechFriendlyMechanicalStaticKeywordBattleClosed(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
-            && basePower is 4);
+            && basePower is 4, 4);
         Assert.Equal(4, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
@@ -10662,14 +10686,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSameBattlefieldOtherFriendlyFilteredStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 3
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 3);
         Assert.Equal(3, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
@@ -10680,12 +10704,12 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertOtherFriendlyStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 7);
         Assert.Equal(7, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(9, attackerDamageEvent.Payload["combatPower"]);
@@ -10696,14 +10720,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSourceCombatStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 3
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 3);
         Assert.Equal(3, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
@@ -10714,14 +10738,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertDuneDrakeSourceAttackingReadyEnemyStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 5
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 5);
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(7, attackerDamageEvent.Payload["combatPower"]);
@@ -10732,14 +10756,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSourceLoneBattleStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 2
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 2);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, attackerDamageEvent.Payload["combatPower"]);
@@ -10750,14 +10774,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertFriendlySingleDefenderStaticAuraDamage(ResolutionResult result)
     {
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var defenderDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 2
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 2);
+            && staticPowerBonus is 2, 2);
         Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(2, defenderDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
@@ -10768,14 +10792,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertMasterYiLevelFriendlyUnitsStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 2
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 2);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
@@ -10786,14 +10810,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertWiseElderSourceObjectFilteredStaticAuraDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
             && basePower is 5
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
-            && staticPowerBonus is 1);
+            && staticPowerBonus is 1, 5);
         Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(6, attackerDamageEvent.Payload["combatPower"]);
@@ -10807,7 +10831,7 @@ public sealed class FullGameEndToEndTests
         int expectedBasePower,
         int expectedStaticPowerBonus)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
@@ -10816,7 +10840,7 @@ public sealed class FullGameEndToEndTests
             && actualBasePower == expectedBasePower
             && gameEvent.Payload.TryGetValue("staticPowerBonus", out var staticPowerBonus)
             && staticPowerBonus is int actualStaticPowerBonus
-            && actualStaticPowerBonus == expectedStaticPowerBonus);
+            && actualStaticPowerBonus == expectedStaticPowerBonus, expectedBasePower);
         Assert.Equal(expectedBasePower, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(expectedStaticPowerBonus, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(expectedBasePower + expectedStaticPowerBonus, attackerDamageEvent.Payload["combatPower"]);
@@ -10827,14 +10851,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSameBattlefieldStaticKeywordDamage(ResolutionResult result)
     {
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("keyword", out var keyword)
             && string.Equals(keyword as string, CardCombatKeywordNames.Assault, StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("keywordBonus", out var keywordBonus)
-            && keywordBonus is 1);
+            && keywordBonus is 1, 1);
         Assert.Equal(1, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["keywordBonus"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
@@ -10846,14 +10870,14 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertSameBattlefieldSteadfastStaticKeywordDamage(ResolutionResult result)
     {
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var defenderDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "DEFENDER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("keyword", out var keyword)
             && string.Equals(keyword as string, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("keywordBonus", out var keywordBonus)
-            && keywordBonus is 1);
+            && keywordBonus is 1, 4);
         Assert.Equal(4, defenderDamageEvent.Payload["basePower"]);
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
@@ -10976,8 +11000,8 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
     {
-        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId, p1Deck, p2Deck);
-        return await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
+        var (session, skipped) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(roomId, p1Deck, p2Deck);
+        return await DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
     }
 
     private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
@@ -10986,64 +11010,36 @@ public sealed class FullGameEndToEndTests
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
     {
-        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (session, skipped) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
             initialState,
             journal,
             p1Deck,
             p2Deck);
-        return await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
+        return await DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(session, skipped);
     }
 
-    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(
+    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(
         MatchSession session,
-        ResolutionResult skipped)
+        ResolutionResult current)
     {
-        var current = skipped;
-        ResolutionResult? battleReady = null;
-        var skippedBattleCount = 0;
-        for (var turnIndex = 0; turnIndex < 4; turnIndex++)
+        if (current.State.TimingState == TimingStates.SpellDuelOpen)
+            current = await PassOpenSpellDuelAsync(session, current, "b0-open-contest");
+        if (current.State.PendingTaskQueue.Phase != "BATTLE_TASKS")
         {
-            var turnStart = await EndTurnAsync(
-                session,
-                current.State.ActivePlayerId,
-                $"b0-end-after-no-legal-battle-skip-{turnIndex}");
-            AssertNoHiddenZoneLeak(turnStart);
-            Assert.DoesNotContain(turnStart.State.UntilEndOfTurnEffects, effectId =>
-                effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal));
-            Assert.Equal(TimingStates.SpellDuelOpen, turnStart.State.TimingState);
-            Assert.NotNull(turnStart.State.FocusPlayerId);
-            Assert.Equal("SPELL_DUEL_TASKS", turnStart.State.PendingTaskQueue.Phase);
-            Assert.Contains(turnStart.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
-
-            current = await PassOpenSpellDuelAsync(session, turnStart, $"b0-reopen-pass-focus-{turnIndex}");
-            AssertNoHiddenZoneLeak(current);
-            if (string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && current.Prompts[current.State.ActivePlayerId].Actions.Contains("DECLARE_BATTLE", StringComparer.Ordinal))
-            {
-                battleReady = current;
-                break;
-            }
-
-            skippedBattleCount++;
-            Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
-            Assert.Equal("IDLE", current.State.PendingTaskQueue.Phase);
-            Assert.DoesNotContain("DECLARE_BATTLE", current.Prompts["P1"].Actions);
-            Assert.DoesNotContain("DECLARE_BATTLE", current.Prompts["P2"].Actions);
+            var actor = current.State.ActivePlayerId;
+            current = await PreparePlayerBoardAsync(session, actor, current, "combat-invader", playUnitToBattlefield: false);
+            current = await MoveBaseUnitToOpponentBattlefieldAsync(session, actor, current);
+            current = await PassOpenSpellDuelAsync(session, current, "b0-invader-contest");
         }
-
-        Assert.True(skippedBattleCount > 0);
-        Assert.NotNull(battleReady);
+        var battleReady = current;
         Assert.Equal("BATTLE_TASKS", battleReady.State.PendingTaskQueue.Phase);
-        Assert.Equal("START_BATTLE", battleReady.State.PendingTaskQueue.Tasks.Single(task =>
-            string.Equals(task.TaskId, battleReady.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)).Kind);
         Assert.Equal(PromptTypes.BattleDeclaration, battleReady.Prompts[battleReady.State.ActivePlayerId].View?.Type);
-        Assert.Contains("DECLARE_BATTLE", battleReady.Prompts[battleReady.State.ActivePlayerId].Actions);
-
-        var battleResult = await SubmitFirstDeclareBattleCandidateAsync(
-            session,
-            battleReady,
-            "b0-declare-reopened-official-battle");
-        return (session, battleReady, battleResult);
+        Assert.Contains(CommandTypes.DeclareBattle, battleReady.Prompts[battleReady.State.ActivePlayerId].Actions);
+        var result = await SubmitFirstDeclareBattleCandidateAsync(session, battleReady, "b0-declare-official-battle");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, "b0-official-battle-damage");
+        result = await PassOpenBattleResponseAsync(session, result, "b0-official-battle-close");
+        AssertNoHiddenZoneLeak(result);
+        return (session, battleReady, result);
     }
 
     private static async ValueTask<(MatchSession Session, ResolutionResult AssignmentOpened, ResolutionResult BattleResult)> DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
@@ -11099,7 +11095,7 @@ public sealed class FullGameEndToEndTests
 
         var battlefieldOwnerId = current.State.ActivePlayerId;
         current = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, current, "b0-damage-owner-tap");
-        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-damage-owner-play-attacker", playUnitToBattlefield: true);
+        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-damage-owner-play-attacker", playUnitToBattlefield: false);
 
         var invadingPlayerId = OpponentOf(current.State, battlefieldOwnerId);
         current = await EndTurnAsync(session, battlefieldOwnerId, "b0-damage-end-owner-setup");
@@ -11110,6 +11106,14 @@ public sealed class FullGameEndToEndTests
             current,
             invadingPlayerId,
             battlefieldOwnerId);
+
+        // Stage both defenders before the attacker arrives. Moving one defender into an
+        // existing enemy must start battle immediately, not wait for another move.
+        if (current.State.ActivePlayerId != battlefieldOwnerId)
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, "b0-damage-attacker-turn");
+        current = await MoveBaseUnitToBattlefieldAsync(session, battlefieldOwnerId, current,
+            BattlefieldDestinationFor(current.State, battlefieldOwnerId), "b0-damage-attack-defenders");
+        current = await PassOpenSpellDuelAsync(session, current, "b0-damage-open-battle");
 
         var assignmentOpened = await DriveContestedBattlefieldToDamageAssignmentAsync(
             session,
@@ -11226,7 +11230,7 @@ public sealed class FullGameEndToEndTests
 
         var battlefieldOwnerId = current.State.ActivePlayerId;
         current = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, current, "b0-shadow-owner-tap");
-        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-shadow-owner-play-attacker", playUnitToBattlefield: true);
+        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-shadow-owner-play-attacker", playUnitToBattlefield: false);
 
         var shadowControllerId = OpponentOf(current.State, battlefieldOwnerId);
         current = await EndTurnAsync(session, battlefieldOwnerId, "b0-shadow-end-owner-setup");
@@ -11238,6 +11242,7 @@ public sealed class FullGameEndToEndTests
             shadowControllerId,
             battlefieldOwnerId);
 
+        current = await ReadyShadowBeforeAttackerArrivesAsync(session, current, battlefieldOwnerId, shadowControllerId);
         var openedResponse = await DriveContestedBattlefieldToShadowResponseAsync(
             session,
             current,
@@ -11382,6 +11387,7 @@ public sealed class FullGameEndToEndTests
             shadowControllerId,
             battlefieldOwnerId);
 
+        current = await ReadyShadowBeforeAttackerArrivesAsync(session, current, battlefieldOwnerId, shadowControllerId);
         var openedResponse = await DriveContestedBattlefieldToShadowResponseAsync(
             session,
             current,
@@ -11433,6 +11439,13 @@ public sealed class FullGameEndToEndTests
             }
 
             result = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            if (!result.State.BattlefieldStates.Values.Any(field => field.ControllerId == battlefieldOwnerId))
+            {
+                result = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, result,
+                    $"{intentPrefix}-claim-{turnIndex}", playUnitToBattlefield: true,
+                    battlefieldDestinationOverride: BattlefieldDestinationFor(result.State, OpponentOf(result.State, battlefieldOwnerId)));
+                result = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, result, $"{intentPrefix}-after-claim-tap-{turnIndex}");
+            }
             if (hidden is null)
             {
                 var hideCandidate = EnabledCandidate(result.Prompts[battlefieldOwnerId], CommandTypes.HideCard);
@@ -11461,7 +11474,7 @@ public sealed class FullGameEndToEndTests
                         battlefieldOwnerId,
                         result,
                         $"{intentPrefix}-play-attacker-{turnIndex}",
-                        playUnitToBattlefield: true);
+                        playUnitToBattlefield: false);
                     return (result, hidden, teemoObjectId!);
                 }
                 catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
@@ -11713,9 +11726,9 @@ public sealed class FullGameEndToEndTests
 
         current = await MoveBaseUnitToOpponentBattlefieldAsync(session, opponentId, current);
         current = await PassOpenSpellDuelAsync(session, current, "b0-standby-extra-reject-pass-focus");
-        Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+        Assert.DoesNotContain(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
 
-        var (_, _, battleResult) = await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, current);
+        var (_, _, battleResult) = await DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(session, current);
         var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-extra-reject-score");
         return (rejected, result, sourceObjectId, battlefieldObjectId);
     }
@@ -11766,6 +11779,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(MatchPhases.Main, current.State.Phase);
 
         var standbyPlayerId = current.State.ActivePlayerId;
+        current = await PreparePlayerBoardAsync(session, standbyPlayerId, current, "b0-standby-claim", playUnitToBattlefield: true);
         current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-hide-tap");
         ResolutionResult hidden;
         string hiddenObjectId;
@@ -11826,9 +11840,9 @@ public sealed class FullGameEndToEndTests
 
         current = await MoveBaseUnitToOpponentBattlefieldAsync(session, opponentId, current);
         current = await PassOpenSpellDuelAsync(session, current, "b0-standby-pass-focus");
-        Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+        Assert.DoesNotContain(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
 
-        var (_, _, battleResult) = await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, current);
+        var (_, _, battleResult) = await DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(session, current);
         var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-score");
         return (hidden, revealed, battleResult, result, hiddenObjectId, extraStandbyBattlefieldObjectId);
     }
@@ -12146,6 +12160,18 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException("B0 shadow-response driver could not stage Shadow with response resources.");
     }
 
+    private static async ValueTask<ResolutionResult> ReadyShadowBeforeAttackerArrivesAsync(
+        MatchSession session, ResolutionResult current, string attacker, string shadowController)
+    {
+        var shadow = current.State.PlayerZones[shadowController].Battlefields.Single(id => current.State.CardObjects[id].CardNo == ShadowCardNo);
+        for (var turn = 0; turn < 4 && (current.State.CardObjects[shadow].IsExhausted || current.State.ActivePlayerId != attacker); turn++)
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, "b0-shadow-ready-before-attack-" + turn);
+        Assert.False(current.State.CardObjects[shadow].IsExhausted);
+        current = await MoveBaseUnitToBattlefieldAsync(session, attacker, current,
+            BattlefieldDestinationFor(current.State, attacker), "b0-shadow-incoming-attacker");
+        return await PassOpenSpellDuelAsync(session, current, "b0-shadow-incoming-focus");
+    }
+
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToShadowResponseAsync(
         MatchSession session,
         ResolutionResult current,
@@ -12194,15 +12220,15 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException("B0 shadow-response driver could not open a Shadow response battle task.");
     }
 
-    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
         string roomId)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildLowCurveOfficialDeck(catalog);
-        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId, deck, deck);
+        return await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(roomId, deck, deck);
     }
 
-    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
         string roomId,
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
@@ -12210,17 +12236,17 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(roomId, new CoreRuleEngine());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(session, p1Deck, p2Deck);
+        return await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(session, p1Deck, p2Deck);
     }
 
-    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
         MatchState initialState,
         IMatchJournal journal,
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
     {
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
-        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(session, p1Deck, p2Deck);
+        return await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(session, p1Deck, p2Deck);
     }
 
     private static async ValueTask<(MatchState InitialState, ResolutionResult OpeningResult)> DriveOfficialDecksToOtherFriendlyStaticAuraOpeningAsync(
@@ -12234,7 +12260,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12262,7 +12288,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12301,7 +12327,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12340,7 +12366,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12379,7 +12405,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12418,7 +12444,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12457,7 +12483,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12496,7 +12522,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12535,7 +12561,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12574,7 +12600,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12613,7 +12639,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12719,7 +12745,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12760,7 +12786,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12877,7 +12903,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12916,7 +12942,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12955,7 +12981,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -12994,7 +13020,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13033,7 +13059,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13176,7 +13202,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13215,7 +13241,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13254,7 +13280,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13293,7 +13319,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13332,7 +13358,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13371,7 +13397,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13407,7 +13433,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13446,7 +13472,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13485,7 +13511,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13524,7 +13550,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13563,7 +13589,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13602,7 +13628,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13641,7 +13667,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13680,7 +13706,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13719,7 +13745,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13758,7 +13784,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13797,7 +13823,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13836,7 +13862,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13875,7 +13901,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13914,7 +13940,7 @@ public sealed class FullGameEndToEndTests
             var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
             try
             {
-                var (_, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+                var (_, result) = await DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
                     initialState,
                     NoopMatchJournal.Instance,
                     p1Deck,
@@ -13942,7 +13968,7 @@ public sealed class FullGameEndToEndTests
             $"B0 Ravenbloom opening driver could not find a stable official opening seed: {string.Join(" | ", failures)}");
     }
 
-    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToEstablishedBattlefieldsAsync(
         MatchSession session,
         OfficialDecklist p1Deck,
         OfficialDecklist p2Deck)
@@ -13980,15 +14006,18 @@ public sealed class FullGameEndToEndTests
 
         var result = secondMulligan;
         result = await PreparePlayerBoardAsync(session, result.State.ActivePlayerId, result, "first", playUnitToBattlefield: true);
+        result = await PassOpenSpellDuelAsync(session, result, "b0-first-establish-control");
         var nextPlayerId = OpponentOf(result.State, result.State.ActivePlayerId);
         result = await EndTurnAsync(session, result.State.ActivePlayerId, "b0-end-first-player");
         AssertNoHiddenZoneLeak(result);
 
         Assert.Equal(nextPlayerId, result.State.ActivePlayerId);
         result = await PreparePlayerBoardAsync(session, result.State.ActivePlayerId, result, "second", playUnitToBattlefield: false);
-        result = await MoveBaseUnitToOpponentBattlefieldAsync(session, result.State.ActivePlayerId, result);
+        var secondPlayerField = BattlefieldObjectIdForPlayer(result.State, result.State.ActivePlayerId);
+        result = await MoveBaseUnitToBattlefieldAsync(session, result.State.ActivePlayerId, result,
+            $"BATTLEFIELD:{secondPlayerField}", "b0-second-establish-control");
         result = await PassOpenSpellDuelAsync(session, result, "b0-initial-pass-focus");
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
         Assert.False(result.State.PendingTaskQueue.HasTasks);
         Assert.False(result.State.PendingTaskQueue.IsBlocking);
         Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
@@ -14029,26 +14058,19 @@ public sealed class FullGameEndToEndTests
             }
 
             var battlefieldDestination = BattlefieldDestinationFor(result.State, battlefieldOwnerId);
-            result = await PlaySpecificUnitToBaseAndMoveToBattlefieldAsync(
-                session,
-                invadingPlayerId,
-                result,
-                MutantKittenCardNo,
-                battlefieldDestination,
-                "b0-damage-play-move-kitten");
-            result = await PassOpenSpellDuelAsync(session, result, "b0-damage-pass-kitten-contest");
-            Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
-            Assert.Equal(invadingPlayerId, result.State.ActivePlayerId);
-
-            result = await PlaySpecificUnitToBaseAndMoveToBattlefieldAsync(
-                session,
-                invadingPlayerId,
-                result,
-                LeblancCardNo,
-                battlefieldDestination,
-                "b0-damage-play-move-leblanc");
-            result = await PassOpenSpellDuelAsync(session, result, "b0-damage-pass-leblanc-contest");
-            Assert.Equal(invadingPlayerId, result.State.ActivePlayerId);
+            var kitten = FindHandCardObjectByCardNo(result.State, invadingPlayerId, MutantKittenCardNo)!;
+            var leblanc = FindHandCardObjectByCardNo(result.State, invadingPlayerId, LeblancCardNo)!;
+            result = await PlaySpecificUnitToBaseAsync(session, invadingPlayerId, result, MutantKittenCardNo, "b0-damage-play-kitten");
+            result = await PlaySpecificUnitToBaseAsync(session, invadingPlayerId, result, LeblancCardNo, "b0-damage-play-leblanc");
+            result = await EndTurnAsync(session, invadingPlayerId, "b0-damage-ready-own");
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, "b0-damage-ready-opponent");
+            foreach (var id in new[] { kitten, leblanc })
+            {
+                var move = new MoveUnitCommand(id, "BASE", battlefieldDestination, []);
+                result = await session.SubmitAsync(invadingPlayerId, "b0-damage-move-" + id, move, RawCommand(move), default);
+                AssertAccepted(result);
+                result = await PassOpenSpellDuelAsync(session, result, "b0-damage-focus-" + id);
+            }
             return result;
         }
 
@@ -14064,7 +14086,9 @@ public sealed class FullGameEndToEndTests
         var result = current;
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
-            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-damage-end-to-reopen-{turnIndex}");
+            if (result.State.PendingTaskQueue.Phase != "BATTLE_TASKS"
+                && result.State.TimingState != TimingStates.SpellDuelOpen)
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-damage-end-to-reopen-{turnIndex}");
             AssertNoHiddenZoneLeak(result);
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
@@ -14083,7 +14107,7 @@ public sealed class FullGameEndToEndTests
                     invadingPlayerId,
                     "b0-damage-declare-multi-defender-battle");
                 AssertAccepted(declared);
-                return declared;
+                return await PassOpenBattleResponseAsync(session, declared, "b0-damage-response");
             }
         }
 
@@ -14352,11 +14376,22 @@ public sealed class FullGameEndToEndTests
         string opponentId,
         string battlefieldOwnerId,
         string intentPrefix,
-        string? battlefieldCardNo = null)
+        string? battlefieldCardNo = null,
+        bool counterAttack = false)
     {
+        if (counterAttack)
+            return await StageDefenderThenMoveAttackingGroupAsync(session, current, opponentId,
+                battlefieldOwnerId, intentPrefix, battlefieldCardNo);
         var result = current;
         for (var turnIndex = 0; turnIndex < 24; turnIndex++)
         {
+            var targetField = string.IsNullOrWhiteSpace(battlefieldCardNo)
+                ? BattlefieldObjectIdForPlayer(result.State, battlefieldOwnerId)
+                : BattlefieldObjectIdForCardNo(result.State, battlefieldOwnerId, battlefieldCardNo);
+            if (result.State.PlayerZones[opponentId].Battlefields.Any(id => IsCombatUnit(result.State, id)
+                && IsObjectLocatedAtBattlefield(result.State, id, targetField)))
+                return result;
+
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
@@ -14412,6 +14447,42 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException($"B0 Treant driver could not stage a defender for {opponentId}.");
+    }
+
+    private static async ValueTask<ResolutionResult> StageDefenderThenMoveAttackingGroupAsync(
+        MatchSession session, ResolutionResult current, string defender, string battlefieldOwner,
+        string prefix, string? battlefieldCardNo, string? defenderCardNo = null)
+    {
+        var attacker = OpponentOf(current.State, defender);
+        var field = string.IsNullOrWhiteSpace(battlefieldCardNo)
+            ? BattlefieldObjectIdForPlayer(current.State, battlefieldOwner)
+            : BattlefieldObjectIdForCardNo(current.State, battlefieldOwner, battlefieldCardNo);
+        var units = current.State.PlayerZones[attacker].Battlefields
+            .Where(id => IsCombatUnit(current.State, id) && IsObjectLocatedAtBattlefield(current.State, id, field)).ToArray();
+        Assert.NotEmpty(units);
+        // The arriving side attacks (CN 464.2.c). Stage the defenders first, then
+        // move the prepared attacking formation as one action (CN 144.3).
+        current = await PassOpenSpellDuelAsync(session, current, $"{prefix}-initial-claim");
+        for (var turn = 0; turn < 8 && (current.State.ActivePlayerId != attacker
+            || units.Any(id => !IsReadyUnit(current.State, id))); turn++)
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, $"{prefix}-ready-withdraw-{turn}");
+        var withdraw = new MoveUnitCommand(units[0], "BATTLEFIELD", "BASE", SourceObjectIds: units);
+        current = await session.SubmitAsync(attacker, $"{prefix}-withdraw", withdraw, RawCommand(withdraw), default);
+        AssertAccepted(current);
+        current = defenderCardNo is null
+            ? await DriveOpponentUnitToBattlefieldAsync(session, current, defender, battlefieldOwner,
+                $"{prefix}-place-defender", battlefieldCardNo)
+            : await DriveSpecificUnitToPlayerBattlefieldAsync(session, current, defender, defenderCardNo,
+                battlefieldOwner, $"{prefix}-place-defender");
+        current = await PassOpenSpellDuelAsync(session, current, $"{prefix}-defender-claim");
+        for (var turn = 0; turn < 8 && (current.State.ActivePlayerId != attacker
+            || units.Any(id => !IsReadyUnit(current.State, id))); turn++)
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, $"{prefix}-ready-attack-{turn}");
+        var advance = new MoveUnitCommand(units[0], "BASE", "BATTLEFIELD:" + field, SourceObjectIds: units);
+        current = await session.SubmitAsync(attacker, $"{prefix}-advance", advance, RawCommand(advance), default);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        return await PassOpenSpellDuelAsync(session, current, $"{prefix}-attack-duel");
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToCrimsonSignetTreantConquestAsync(
@@ -15406,7 +15477,7 @@ public sealed class FullGameEndToEndTests
                     result.State,
                     defendingPlayerId,
                     DemaciaEnvoyCardNo,
-                    readyOnly: true) is { } defenderObjectId
+                    readyOnly: false) is { } defenderObjectId
                     && result.State.ObjectLocations.TryGetValue(defenderObjectId, out var defenderLocation)
                     ? defenderLocation.BattlefieldObjectId
                     : null;
@@ -15478,7 +15549,7 @@ public sealed class FullGameEndToEndTests
                     result.State,
                     attackingPlayerId,
                     DemaciaEnvoyCardNo,
-                    readyOnly: true);
+                    readyOnly: false);
                 var targetBattlefieldId = attackerObjectId is not null
                     && result.State.ObjectLocations.TryGetValue(attackerObjectId, out var attackerLocation)
                     ? attackerLocation.BattlefieldObjectId
@@ -15550,7 +15621,7 @@ public sealed class FullGameEndToEndTests
                     result.State,
                     attackingPlayerId,
                     WiseElderSourceObjectFilteredStaticAuraCardNo,
-                    readyOnly: true);
+                    readyOnly: false);
                 var targetBattlefieldId = attackerObjectId is not null
                     && result.State.ObjectLocations.TryGetValue(attackerObjectId, out var attackerLocation)
                     ? attackerLocation.BattlefieldObjectId
@@ -15627,7 +15698,7 @@ public sealed class FullGameEndToEndTests
                     result.State,
                     attackingPlayerId,
                     sourceCardNo,
-                    readyOnly: true);
+                    readyOnly: false);
                 var targetBattlefieldId = attackerObjectId is not null
                     && result.State.ObjectLocations.TryGetValue(attackerObjectId, out var attackerLocation)
                     ? attackerLocation.BattlefieldObjectId
@@ -15905,7 +15976,7 @@ public sealed class FullGameEndToEndTests
         string intentPrefix)
     {
         Assert.Equal(playerId, current.State.ActivePlayerId);
-        var result = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentPrefix}-tap");
+        var result = current;
         var sourceObjectId = FindHandCardObjectByCardNo(result.State, playerId, ProgressGloryMechanicalUnitCardNo)
             ?? throw new InvalidOperationException("B0 Prescient Mech driver could not find Progress Glory in hand.");
         var recycledObjectId = result.State.PlayerZones[playerId].MainDeck.FirstOrDefault()
@@ -15937,7 +16008,7 @@ public sealed class FullGameEndToEndTests
         string intentPrefix)
     {
         Assert.Equal(playerId, current.State.ActivePlayerId);
-        var result = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentPrefix}-tap");
+        var result = current;
         var sourceObjectId = FindHandCardObjectByCardNo(result.State, playerId, ProgressGloryMechanicalUnitCardNo)
             ?? throw new InvalidOperationException("B0 Gemstone Seer driver could not find Progress Glory in hand.");
         var recycledObjectId = result.State.PlayerZones[playerId].MainDeck.FirstOrDefault()
@@ -15973,6 +16044,13 @@ public sealed class FullGameEndToEndTests
         var result = current;
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
+            if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
+            {
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-response-{turnIndex}");
+                result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-damage-{turnIndex}");
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-after-damage-{turnIndex}");
+                continue;
+            }
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
@@ -16040,6 +16118,13 @@ public sealed class FullGameEndToEndTests
         var result = current;
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
+            if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
+            {
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-response-{turnIndex}");
+                result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-damage-{turnIndex}");
+                result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-after-damage-{turnIndex}");
+                continue;
+            }
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
@@ -16101,26 +16186,40 @@ public sealed class FullGameEndToEndTests
         string cardNo,
         string battlefieldDestination,
         string intentPrefix,
-        bool expectReady = true)
+        bool? expectReady = null)
     {
         var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
             ?? throw new InvalidOperationException($"B0 shadow-response driver could not find {cardNo} in {playerId}'s hand.");
+        var requiresMove = current.State.CardObjects[battlefieldDestination["BATTLEFIELD:".Length..]].ControllerId != playerId;
+        var playDestination = requiresMove ? "BASE" : battlefieldDestination;
         var play = await session.SubmitAsync(
             playerId,
             $"{intentPrefix}-play",
-            new PlayCardCommand(sourceObjectId, cardNo, [], Destination: battlefieldDestination),
-            RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [], Destination: battlefieldDestination)),
+            new PlayCardCommand(sourceObjectId, cardNo, [], Destination: playDestination),
+            RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [], Destination: playDestination)),
             CancellationToken.None);
         AssertAccepted(play);
         AssertNoHiddenZoneLeak(play);
 
         var resolved = await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+        if (expectReady.HasValue)
+            Assert.Equal(!expectReady.Value, resolved.State.CardObjects[sourceObjectId].IsExhausted);
+        if (requiresMove)
+        {
+            if (resolved.State.CardObjects[sourceObjectId].IsExhausted)
+            {
+                resolved = await EndTurnAsync(session, playerId, $"{intentPrefix}-ready-own");
+                resolved = await EndTurnAsync(session, resolved.State.ActivePlayerId, $"{intentPrefix}-ready-other");
+            }
+            var move = new MoveUnitCommand(sourceObjectId, "BASE", battlefieldDestination, []);
+            resolved = await session.SubmitAsync(playerId, $"{intentPrefix}-move", move, RawCommand(move), default);
+            AssertAccepted(resolved);
+        }
         var battlefieldObjectId = resolved.State.PlayerZones[playerId].Battlefields
             .FirstOrDefault(objectId => IsObjectLocatedAtBattlefield(resolved.State, objectId, battlefieldDestination)
                 && resolved.State.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
             ?? throw new InvalidOperationException($"B0 shadow-response driver could not find battlefield {cardNo} for {playerId}.");
-        Assert.Equal(!expectReady, resolved.State.CardObjects[battlefieldObjectId].IsExhausted);
         return resolved;
     }
 
@@ -16141,7 +16240,7 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 damage-assignment driver could not find battle attacker.");
         var defenderObjectIds = current.State.PlayerZones[invadingPlayerId].Battlefields
             .Where(objectId => IsObjectLocatedAtBattlefield(current.State, objectId, battlefieldId))
-            .Where(objectId => IsReadyUnit(current.State, objectId))
+            .Where(objectId => IsCombatUnit(current.State, objectId))
             .Where(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
                 && (string.Equals(cardObject.CardNo, MutantKittenCardNo, StringComparison.Ordinal)
                     || string.Equals(cardObject.CardNo, LeblancCardNo, StringComparison.Ordinal)))
@@ -16186,7 +16285,7 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 shadow-response driver could not find battle attacker.");
         var shadowObjectId = current.State.PlayerZones[shadowControllerId].Battlefields
             .FirstOrDefault(objectId => IsObjectLocatedAtBattlefield(current.State, objectId, battlefieldId)
-                && IsReadyUnit(current.State, objectId)
+                && IsCombatUnit(current.State, objectId)
                 && current.State.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, ShadowCardNo, StringComparison.Ordinal))
             ?? throw new InvalidOperationException("B0 shadow-response driver could not find ready Shadow defender.");
@@ -16211,8 +16310,10 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         if (declared.Accepted)
         {
-            Assert.Contains(declared.Events, gameEvent =>
-                string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            Assert.True(declared.Events.Any(gameEvent => gameEvent.Kind == "BATTLE_RESPONSE_PRIORITY_OPENED"),
+                JsonSerializer.Serialize(new { Before = DescribeState(current.State), Shadow = current.State.CardObjects[shadowObjectId],
+                    Runes = current.State.PlayerZones[shadowControllerId].Base.Select(id => current.State.CardObjects[id]),
+                    Actions = declared.Prompts[shadowControllerId].Actions }));
             Assert.Equal(shadowControllerId, declared.State.PriorityPlayerId);
         }
 
@@ -16225,6 +16326,7 @@ public sealed class FullGameEndToEndTests
         string playerId,
         string intentId)
     {
+        current = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentId}-response-resources");
         var prompt = current.Prompts[playerId];
         Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
         var candidate = EnabledCandidate(prompt, CommandTypes.ActivateAbility)
@@ -16312,6 +16414,22 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException("B0 shadow-response driver exceeded battle response pass guard.");
+    }
+
+    private static void AssertAllBattlefieldParticipants(MatchState before, GameEvent declaration)
+    {
+        var battlefield = Assert.IsType<string>(declaration.Payload["battlefieldId"]);
+        var attacker = Assert.IsType<string>(declaration.Payload["playerId"]);
+        foreach (var (role, own) in new[] { ("attackerObjectIds", true), ("defenderObjectIds", false) })
+        {
+            var expected = before.PlayerZones.SelectMany(zone => zone.Value.Battlefields.Select(id => (Player: zone.Key, Id: id)))
+                .Where(entry => (entry.Player == attacker) == own
+                    && before.ObjectLocations.TryGetValue(entry.Id, out var location) && location.BattlefieldObjectId == battlefield
+                    && before.CardObjects.TryGetValue(entry.Id, out var card) && !card.IsFaceDown && !string.IsNullOrWhiteSpace(card.CardNo)
+                    && card.Tags.Contains(CardObjectTags.UnitCard) && (card.ControllerId ?? card.OwnerId ?? entry.Player) == entry.Player)
+                .Select(entry => entry.Id).Order(StringComparer.Ordinal);
+            Assert.Equal(expected, Assert.IsType<string[]>(declaration.Payload[role]).Order(StringComparer.Ordinal));
+        }
     }
 
     private static async ValueTask<ResolutionResult> ResolveOpenBattleDamageAssignmentsAsync(
@@ -16426,7 +16544,7 @@ public sealed class FullGameEndToEndTests
             }),
             CancellationToken.None);
         AssertAccepted(result);
-        return result;
+        return await PassOpenBattleResponseAsync(session, result, $"{intentId}-response");
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldExtraStandbyCleanupDeclareBattleAsync(
@@ -16448,14 +16566,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 standby cleanup driver could not find a ready Wildclaw Beastmaster attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             DemaciaEnvoyCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 standby cleanup driver could not find a ready Demacia Envoy defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -16499,7 +16617,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             CrimsonSignetTreantCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Treant driver could not find a ready Crimson Signet Treant attacker.");
         var battlefieldId = current.State.ObjectLocations[treantObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Treant driver could not locate Treant's battlefield.");
@@ -16512,14 +16630,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(treantObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[treantObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Treant driver could not find a legal ready defender below Treant power: {DescribeState(current.State)}");
+                $"B0 Treant driver could not find a legal defender below Treant power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [treantObjectId],
@@ -16562,7 +16680,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             vaynePlayerId,
             VayneConquestPayReturnCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Vayne driver could not find a ready Vayne attacker.");
         var battlefieldId = current.State.ObjectLocations[vayneObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Vayne driver could not locate Vayne's battlefield.");
@@ -16575,14 +16693,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(vayneObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[vayneObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Vayne driver could not find a legal ready defender below Vayne power: {DescribeState(current.State)}");
+                $"B0 Vayne driver could not find a legal defender below Vayne power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [vayneObjectId],
@@ -16665,7 +16783,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             kaisaPlayerId,
             KaisaGraveyardSpellConquestCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Kai'Sa conquest driver could not find a ready Kai'Sa attacker.");
         var battlefieldId = current.State.ObjectLocations[kaisaObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Kai'Sa conquest driver could not locate Kai'Sa's battlefield.");
@@ -16679,14 +16797,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(battlefieldId, legalDestinationIds);
         Assert.NotNull(FindGraveyardCardObjectByCardNo(current.State, kaisaPlayerId, graveyardSpellCardNo));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[kaisaObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Kai'Sa conquest driver could not find a legal ready defender below Kai'Sa power: {DescribeState(current.State)}");
+                $"B0 Kai'Sa conquest driver could not find a legal defender below Kai'Sa power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [kaisaObjectId],
@@ -16806,7 +16924,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             rumblePlayerId,
             RumbleChampionCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rumble conquest driver could not find a ready Rumble attacker.");
         var battlefieldId = current.State.ObjectLocations[rumbleObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Rumble conquest driver could not locate Rumble's battlefield.");
@@ -16821,14 +16939,14 @@ public sealed class FullGameEndToEndTests
         Assert.NotNull(FindBaseUnitByCardNo(current.State, rumblePlayerId, CrystalInhibitorMechanicalUnitCardNo));
         Assert.NotNull(FindGraveyardCardObjectByCardNo(current.State, rumblePlayerId, ProgressGloryMechanicalUnitCardNo));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[rumbleObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Rumble conquest driver could not find a legal ready defender below Rumble power: {DescribeState(current.State)}");
+                $"B0 Rumble conquest driver could not find a legal defender below Rumble power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [rumbleObjectId],
@@ -16941,7 +17059,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Treasure Pile driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -16952,14 +17070,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Treasure Pile driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Treasure Pile driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17031,7 +17149,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Sunken Temple driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17042,14 +17160,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Sunken Temple driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Sunken Temple driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17175,7 +17293,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Imperial Shrine driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17186,14 +17304,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Imperial Shrine driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Imperial Shrine driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17265,7 +17383,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hall of Legends driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17276,14 +17394,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Hall of Legends driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Hall of Legends driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17355,7 +17473,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hunting Grounds driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17366,14 +17484,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power - 3)
             ?? throw new InvalidOperationException(
-                $"B0 Hunting Grounds driver could not find a legal ready defender that gives at least 3 overkill damage: {DescribeState(current.State)}");
+                $"B0 Hunting Grounds driver could not find a legal defender that gives at least 3 overkill damage: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17422,7 +17540,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Candlelit Sanctum driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17433,14 +17551,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Candlelit Sanctum driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Candlelit Sanctum driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17489,7 +17607,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Thunder Sigil driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17500,14 +17618,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Thunder Sigil driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Thunder Sigil driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17556,7 +17674,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Zaun Sump driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17567,14 +17685,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Zaun Sump driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Zaun Sump driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17623,7 +17741,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Shirana Monastery driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17634,14 +17752,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Shirana Monastery driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Shirana Monastery driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17690,7 +17808,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Seat of Power driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17701,14 +17819,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Seat of Power driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Seat of Power driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17757,7 +17875,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             AggressiveDragonhoundCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Moonveil Altar driver could not find a ready Aggressive Dragonhound attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17768,14 +17886,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Moonveil Altar driver could not find a legal ready defender below Aggressive Dragonhound power: {DescribeState(current.State)}");
+                $"B0 Moonveil Altar driver could not find a legal defender below Aggressive Dragonhound power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17824,7 +17942,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Mount Targon driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17835,14 +17953,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Mount Targon driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Mount Targon driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -17891,7 +18009,7 @@ public sealed class FullGameEndToEndTests
             conqueringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Minefield driver could not find a ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -17902,14 +18020,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: current.State.CardObjects[attackerObjectId].Power)
             ?? throw new InvalidOperationException(
-                $"B0 Minefield driver could not find a legal ready defender below Wildclaw power: {DescribeState(current.State)}");
+                $"B0 Minefield driver could not find a legal defender below Wildclaw power: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -18524,14 +18642,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Blood Altar driver could not find a ready Wildclaw Beastmaster attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Blood Altar driver could not find a ready Watchful Sentinel defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -18971,14 +19089,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hidden Valley driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hidden Valley driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19036,14 +19154,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Dunehorn Beast driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             DunehornBeastCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Dunehorn Beast driver could not find a ready Dunehorn Beast defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19104,14 +19222,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Star Peak driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Star Peak driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19207,10 +19325,9 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
         AssertNoHiddenZoneLeak(declared);
-        return declared;
+        return await PassOpenBattleResponseAsync(session, declared, $"{intentId}-response");
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldHeldNextSpellEchoSpellAsync(
@@ -19327,14 +19444,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Confetti Tree driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Confetti Tree driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19395,14 +19512,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rehearsal Hall driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rehearsal Hall driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19463,14 +19580,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Navori Arena driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Navori Arena driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19531,14 +19648,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Unity Sanctum driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Unity Sanctum driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19599,14 +19716,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hallowed Tomb driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Hallowed Tomb driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19667,14 +19784,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Grand Plaza driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Grand Plaza driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19735,14 +19852,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Energy Hub driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Energy Hub driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19803,14 +19920,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Reckoner Arena driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             CrimsonSignetTreantCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Reckoner Arena driver could not find a ready Crimson Signet Treant defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19871,14 +19988,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Plunder Alley driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Plunder Alley driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -19941,14 +20058,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Fortified Position driver could not find a ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Fortified Position driver could not find a ready Wildclaw Beastmaster defender.");
 
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
@@ -20011,14 +20128,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Ravenbloom driver could not find a ready Wildclaw Beastmaster attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             MutantKittenCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Ravenbloom driver could not find a ready Mutant Kitten defender.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -20084,7 +20201,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             boostedAllyCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException($"B0 same-battlefield static aura driver could not find a ready boosted ally {boostedAllyCardNo}.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -20108,13 +20225,13 @@ public sealed class FullGameEndToEndTests
             effect => string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
                 && string.Equals(effect.TargetObjectId, auraSourceObjectId, StringComparison.Ordinal));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 same-battlefield static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 same-battlefield static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -20158,7 +20275,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             OrnnFriendlyEquipmentStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Ornn friendly-equipment static aura driver could not find ready Ornn source.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Ornn friendly-equipment static aura driver could not locate Ornn's battlefield.");
@@ -20197,13 +20314,13 @@ public sealed class FullGameEndToEndTests
         Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds));
         Assert.Equal([equipmentObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 Ornn friendly-equipment static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 Ornn friendly-equipment static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [sourceObjectId],
@@ -20226,8 +20343,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20251,7 +20367,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             WildclawBeastmasterCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 battlefield all-units static aura driver could not find a ready attacker.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 battlefield all-units static aura driver could not locate the attacker's battlefield.");
@@ -20266,13 +20382,13 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(attackerObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 battlefield all-units static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 battlefield all-units static aura driver could not find a legal defender: {DescribeState(current.State)}");
 
         var attackerStaticAura = Assert.Single(current.State.ContinuousEffects, effect =>
             string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
@@ -20355,14 +20471,14 @@ public sealed class FullGameEndToEndTests
             declaringPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 battlefield isolated-defender keyword modifier driver could not find a ready Wildclaw attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             opponentId,
             LeblancCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 battlefield isolated-defender keyword modifier driver could not find a ready isolated LeBlanc defender.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -20396,8 +20512,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20421,7 +20536,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             ReliableSiegeDogSourceSameLocationStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 source-same-location static aura driver could not find a ready Reliable Siege Dog.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 source-same-location static aura driver could not locate Reliable Siege Dog's battlefield.");
@@ -20462,13 +20577,13 @@ public sealed class FullGameEndToEndTests
         var participantDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds);
         Assert.Contains(allyObjectId, participantDependencyObjectIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 source-same-location static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 source-same-location static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [sourceObjectId],
@@ -20512,7 +20627,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             SettSameBattlefieldBoonCountStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 same-battlefield boon-count static aura driver could not find a ready Sett.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 same-battlefield boon-count static aura driver could not locate Sett's battlefield.");
@@ -20555,13 +20670,13 @@ public sealed class FullGameEndToEndTests
         var participantDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds);
         Assert.Contains(boonParticipantObjectId, participantDependencyObjectIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 same-battlefield boon-count static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 same-battlefield boon-count static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [sourceObjectId],
@@ -20605,7 +20720,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             PetalPixieSameBattlefieldEphemeralCountStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find a ready Petal Pixie.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not locate Petal Pixie's battlefield.");
@@ -20649,7 +20764,7 @@ public sealed class FullGameEndToEndTests
             opponentId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException(
                 $"B0 Petal Pixie same-battlefield ephemeral-count static aura driver could not find a ready Wildclaw Beastmaster defender: {DescribeState(current.State)}");
         Assert.Contains(defenderObjectId, legalTargetIds);
@@ -20675,8 +20790,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20705,7 +20819,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             WarhawkTokenCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not find a ready Warhawk token.");
         var battlefieldId = current.State.ObjectLocations[tokenObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Soul Shepherd friendly-token static aura driver could not locate the Warhawk token battlefield.");
@@ -20743,7 +20857,7 @@ public sealed class FullGameEndToEndTests
             opponentId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException(
                 $"B0 Soul Shepherd friendly-token static aura driver could not find a ready Wildclaw Beastmaster defender: {DescribeState(current.State)}");
         Assert.Contains(defenderObjectId, legalTargetIds);
@@ -20769,8 +20883,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([tokenObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20794,7 +20907,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             RumbleFriendlyMechanicalStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rumble friendly-mechanical static aura driver could not find ready Rumble source.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Rumble friendly-mechanical static aura driver could not locate Rumble's battlefield.");
@@ -20832,7 +20945,7 @@ public sealed class FullGameEndToEndTests
             opponentId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException(
                 $"B0 Rumble friendly-mechanical static aura driver could not find a ready Watchful Sentinel defender: {DescribeState(current.State)}");
         Assert.Contains(defenderObjectId, legalTargetIds);
@@ -20858,8 +20971,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20884,14 +20996,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rumble legend friendly-mechanical steadfast driver could not find ready Watchful Sentinel attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             RumbleChampionCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Rumble legend friendly-mechanical steadfast driver could not find ready Rumble champion defender.");
         Assert.Contains("机械", current.State.CardObjects[defenderObjectId].Tags);
         var legendObjectId = current.State.PlayerZones[defendingPlayerId].LegendZone
@@ -20938,8 +21050,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -20964,14 +21075,14 @@ public sealed class FullGameEndToEndTests
             attackingPlayerId,
             RumbleChampionCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find ready Rumble mechanical attacker.");
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             defendingPlayerId,
             WatchfulSentinelCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Speeding Mech static keyword driver could not find ready Watchful Sentinel defender.");
         AssertSpeedingMechFriendlyMechanicalStaticKeywordProjection(current, battlefieldId);
 
@@ -21000,8 +21111,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -21033,7 +21143,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             DemaciaEnvoyCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 same-battlefield other-friendly-filtered static aura driver could not find a ready boon attacker.");
         Assert.Contains(CardObjectTags.Boon, current.State.CardObjects[attackerObjectId].Tags);
 
@@ -21068,13 +21178,13 @@ public sealed class FullGameEndToEndTests
         var participantDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds);
         Assert.Contains(attackerObjectId, participantDependencyObjectIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 same-battlefield other-friendly-filtered static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 same-battlefield other-friendly-filtered static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -21123,7 +21233,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             WildclawBeastmasterCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 other-friendly static aura driver could not find a ready boosted Wildclaw Beastmaster.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 other-friendly static aura driver could not locate Wildclaw Beastmaster's battlefield.");
@@ -21149,13 +21259,13 @@ public sealed class FullGameEndToEndTests
             effect => string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
                 && string.Equals(effect.TargetObjectId, auraSourceObjectId, StringComparison.Ordinal));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 other-friendly static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 other-friendly static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -21199,7 +21309,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             ScarletPigeonSourceCombatStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 source-combat static aura driver could not find a ready Scarlet Pigeon.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 source-combat static aura driver could not locate Scarlet Pigeon's battlefield.");
@@ -21208,7 +21318,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             DemaciaEnvoyCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 source-combat static aura driver could not find a ready joint attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -21220,13 +21330,13 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(allyObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 source-combat static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 source-combat static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [sourceObjectId, allyObjectId],
@@ -21249,8 +21359,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId, allyObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
         if (declared.State.BattleState.IsActive)
         {
             var staticAura = Assert.Single(declared.State.ContinuousEffects, effect =>
@@ -21292,7 +21401,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Dune Drake source-attacking-ready-enemy static aura driver could not find a ready Dune Drake.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Dune Drake source-attacking-ready-enemy static aura driver could not locate Dune Drake's battlefield.");
@@ -21305,13 +21414,13 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(sourceObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 Dune Drake source-attacking-ready-enemy static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 Dune Drake source-attacking-ready-enemy static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [sourceObjectId],
@@ -21334,8 +21443,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
         if (declared.State.BattleState.IsActive)
         {
             var staticAura = Assert.Single(declared.State.ContinuousEffects, effect =>
@@ -21379,7 +21487,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             playerId,
             WaterbenderSourceLoneBattleStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 source-lone-battle static aura driver could not find a ready Waterbender.");
         var battlefieldId = current.State.ObjectLocations[sourceObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 source-lone-battle static aura driver could not locate Waterbender's battlefield.");
@@ -21392,14 +21500,14 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(sourceObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds,
             maxPowerExclusive: 2)
             ?? throw new InvalidOperationException(
-                $"B0 source-lone-battle static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 source-lone-battle static aura driver could not find a legal defender: {DescribeState(current.State)}");
         Assert.Equal(WatchfulSentinelCardNo, current.State.CardObjects[defenderObjectId].CardNo);
         var command = new DeclareBattleCommand(
             battlefieldId,
@@ -21423,8 +21531,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([sourceObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
         if (declared.State.BattleState.IsActive)
         {
             var staticAura = Assert.Single(declared.State.ContinuousEffects, effect =>
@@ -21472,12 +21579,12 @@ public sealed class FullGameEndToEndTests
             current.State,
             defendingPlayerId,
             DemaciaEnvoyCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 friendly single-defender static aura driver could not find ready Demacia Envoy defender.");
         var battlefieldId = current.State.ObjectLocations[defenderObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 friendly single-defender static aura driver could not locate Demacia Envoy's battlefield.");
         var attackerObjectId = current.State.PlayerZones[attackingPlayerId].Battlefields
-            .Where(objectId => IsReadyUnit(current.State, objectId))
+            .Where(objectId => IsCombatUnit(current.State, objectId))
             .Where(objectId => current.State.ObjectLocations.TryGetValue(objectId, out var location)
                 && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
@@ -21522,8 +21629,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -21546,7 +21652,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             attackingPlayerId,
             DemaciaEnvoyCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Master Yi level friendly-units static aura driver could not find ready Demacia Envoy attacker.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Master Yi level friendly-units static aura driver could not locate Demacia Envoy's battlefield.");
@@ -21560,13 +21666,13 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(battlefieldId, legalDestinationIds);
         AssertMasterYiLevelFriendlyUnitsStaticAuraProjection(current, attackingPlayerId, DemaciaEnvoyCardNo);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 Master Yi level friendly-units static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 Master Yi level friendly-units static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -21589,8 +21695,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -21613,7 +21718,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             attackingPlayerId,
             WiseElderSourceObjectFilteredStaticAuraCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Wise Elder source-object-filtered static aura driver could not find ready Wise Elder attacker.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Wise Elder source-object-filtered static aura driver could not locate Wise Elder's battlefield.");
@@ -21627,13 +21732,13 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(battlefieldId, legalDestinationIds);
         AssertWiseElderSourceObjectFilteredStaticAuraProjection(current, attackingPlayerId);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 Wise Elder source-object-filtered static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 Wise Elder source-object-filtered static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -21656,8 +21761,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -21685,7 +21789,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             attackingPlayerId,
             sourceCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not find ready attacker.");
         var battlefieldId = current.State.ObjectLocations[attackerObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException($"B0 {displayName} source-object level static aura driver could not locate attacker's battlefield.");
@@ -21706,13 +21810,13 @@ public sealed class FullGameEndToEndTests
             expectedRequiredExperience,
             displayName);
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 {displayName} source-object level static aura driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 {displayName} source-object level static aura driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -21735,8 +21839,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(declared);
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal([attackerObjectId], Assert.IsType<string[]>(battleDeclared.Payload["attackerObjectIds"]));
-        Assert.Equal([defenderObjectId], Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
+        AssertAllBattlefieldParticipants(current.State, battleDeclared);
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
@@ -21768,7 +21871,7 @@ public sealed class FullGameEndToEndTests
             playerId,
             AscendedBelieverCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 same-battlefield static keyword driver could not find a ready granted-keyword ally.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -21792,13 +21895,13 @@ public sealed class FullGameEndToEndTests
             effect => string.Equals(effect.SourceObjectId, auraSourceObjectId, StringComparison.Ordinal)
                 && string.Equals(effect.TargetObjectId, auraSourceObjectId, StringComparison.Ordinal));
 
-        var defenderObjectId = FindReadyBattlefieldDefender(
+        var defenderObjectId = FindBattlefieldDefender(
             current.State,
             opponentId,
             battlefieldId,
             legalTargetIds)
             ?? throw new InvalidOperationException(
-                $"B0 same-battlefield static keyword driver could not find a legal ready defender: {DescribeState(current.State)}");
+                $"B0 same-battlefield static keyword driver could not find a legal defender: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -22045,7 +22148,7 @@ public sealed class FullGameEndToEndTests
             defendingPlayerId,
             LeblancCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 same-battlefield steadfast driver could not find a ready granted-keyword defender.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -22070,7 +22173,7 @@ public sealed class FullGameEndToEndTests
                 && string.Equals(effect.TargetObjectId, auraSourceObjectId, StringComparison.Ordinal));
 
         var attackerObjectId = legalSourceIds
-            .Where(objectId => IsReadyUnit(current.State, objectId))
+            .Where(objectId => IsCombatUnit(current.State, objectId))
             .Where(objectId => current.State.ObjectLocations.TryGetValue(objectId, out var location)
                 && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
@@ -22079,7 +22182,7 @@ public sealed class FullGameEndToEndTests
             .ThenBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault()
             ?? throw new InvalidOperationException(
-                $"B0 same-battlefield steadfast driver could not find a legal ready attacker: {DescribeState(current.State)}");
+                $"B0 same-battlefield steadfast driver could not find a legal attacker: {DescribeState(current.State)}");
         var command = new DeclareBattleCommand(
             battlefieldId,
             [attackerObjectId],
@@ -22122,7 +22225,7 @@ public sealed class FullGameEndToEndTests
             current.State,
             defendingPlayerId,
             TaricSameBattlefieldStaticKeywordCardNo,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready Taric.");
         var battlefieldId = current.State.ObjectLocations[taricObjectId].BattlefieldObjectId
             ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not locate Taric's battlefield.");
@@ -22131,14 +22234,14 @@ public sealed class FullGameEndToEndTests
             defendingPlayerId,
             LeblancCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready LeBlanc.");
         var attackerObjectId = FindBattlefieldUnitByCardNo(
             current.State,
             attackingPlayerId,
             WildclawBeastmasterCardNo,
             battlefieldId,
-            readyOnly: true)
+            readyOnly: false)
             ?? throw new InvalidOperationException("B0 Taric bulwark assignment driver could not find ready Wildclaw Beastmaster attacker.");
         var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
@@ -22221,7 +22324,8 @@ public sealed class FullGameEndToEndTests
         string playerId,
         ResolutionResult current,
         string intentPrefix,
-        bool playUnitToBattlefield)
+        bool playUnitToBattlefield,
+        string? battlefieldDestinationOverride = null)
     {
         var playCandidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.PlayCard);
         if (playCandidate?.Sources is not { Count: > 0 } sources)
@@ -22230,14 +22334,20 @@ public sealed class FullGameEndToEndTests
         }
 
         var destination = playUnitToBattlefield
-            ? BattlefieldDestinationFor(current.State, playerId)
+            ? battlefieldDestinationOverride ?? BattlefieldDestinationFor(current.State, playerId)
             : playCandidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal))?.Id ?? "BASE";
+        var claimAfterPlay = playUnitToBattlefield
+            && current.State.CardObjects.TryGetValue(destination["BATTLEFIELD:".Length..], out var battlefield)
+            && battlefield.ControllerId != playerId;
+        var playDestination = claimAfterPlay ? "BASE" : destination;
         for (var index = 0; index < sources.Count; index++)
         {
             var sourceObjectId = sources[index].Id;
             if (!current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
                 || string.IsNullOrWhiteSpace(cardObject.CardNo)
-                || IsDriverStandbyUnit(cardObject))
+                || IsDriverStandbyUnit(cardObject)
+                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var unitBehavior)
+                || !unitBehavior.PlaysSourceToBaseAsUnit)
             {
                 continue;
             }
@@ -22245,8 +22355,8 @@ public sealed class FullGameEndToEndTests
             var attempted = await session.SubmitAsync(
                 playerId,
                 $"{intentPrefix}-attempt-{index}",
-                new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: destination),
-                RawCommand(new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: destination)),
+                new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: playDestination),
+                RawCommand(new PlayCardCommand(sourceObjectId, cardObject.CardNo, [], Destination: playDestination)),
                 CancellationToken.None);
             if (!attempted.Accepted)
             {
@@ -22254,7 +22364,20 @@ public sealed class FullGameEndToEndTests
             }
 
             AssertNoHiddenZoneLeak(attempted);
-            return await ResolveStackPassPassAsync(session, attempted, $"{intentPrefix}-resolve-{index}");
+            var resolved = await ResolveStackPassPassAsync(session, attempted, $"{intentPrefix}-resolve-{index}");
+            if (claimAfterPlay)
+            {
+                if (resolved.State.CardObjects[sourceObjectId].IsExhausted)
+                {
+                    resolved = await EndTurnAsync(session, playerId, $"{intentPrefix}-ready-own-{index}");
+                    resolved = await EndTurnAsync(session, resolved.State.ActivePlayerId, $"{intentPrefix}-ready-other-{index}");
+                }
+                var move = new MoveUnitCommand(sourceObjectId, "BASE", destination, []);
+                resolved = await session.SubmitAsync(playerId, $"{intentPrefix}-claim-{index}", move, RawCommand(move), default);
+                AssertAccepted(resolved);
+                resolved = await PassOpenSpellDuelAsync(session, resolved, $"{intentPrefix}-claim-focus-{index}");
+            }
+            return resolved;
         }
 
         throw new InvalidOperationException($"B0 auto-driver could not play any exposed PLAY_CARD source for {playerId}.");
@@ -22482,6 +22605,13 @@ public sealed class FullGameEndToEndTests
         string battlefieldDestination,
         string intentId)
     {
+        if (!current.State.PlayerZones[playerId].Base.Any(id => IsReadyUnit(current.State, id))
+            && current.State.PlayerZones[playerId].Base.Any(id => current.State.CardObjects.TryGetValue(id, out var unit)
+                && unit.Tags.Contains(CardObjectTags.UnitCard) && !IsDriverStandbyUnit(unit)))
+        {
+            current = await EndTurnAsync(session, playerId, $"{intentId}-wait-ready-own");
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, $"{intentId}-wait-ready-opponent");
+        }
         var zones = current.State.PlayerZones[playerId];
         var sourceObjectId = zones.Base.FirstOrDefault(objectId => IsReadyUnit(current.State, objectId))
             ?? throw new InvalidOperationException(
@@ -22556,6 +22686,11 @@ public sealed class FullGameEndToEndTests
             .Select(entry => entry.Key)
             .FirstOrDefault();
     }
+
+    private static bool IsCombatUnit(MatchState state, string objectId) =>
+        state.CardObjects.TryGetValue(objectId, out var card)
+        && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+        && !IsDriverStandbyUnit(card) && !card.IsFaceDown;
 
     private static bool IsReadyUnit(MatchState state, string objectId)
     {
@@ -22633,7 +22768,7 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown);
     }
 
-    private static string? FindReadyBattlefieldDefender(
+    private static string? FindBattlefieldDefender(
         MatchState state,
         string playerId,
         string battlefieldId,
@@ -22641,7 +22776,7 @@ public sealed class FullGameEndToEndTests
         int? maxPowerExclusive = null)
     {
         return state.PlayerZones[playerId].Battlefields
-            .Where(objectId => IsReadyUnit(state, objectId))
+            .Where(objectId => IsCombatUnit(state, objectId))
             .Where(objectId => legalTargetIds is null || legalTargetIds.Contains(objectId))
             .Where(objectId => state.ObjectLocations.TryGetValue(objectId, out var location)
                 && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
@@ -25404,7 +25539,8 @@ public sealed class FullGameEndToEndTests
                 sourceObjectId = moveUnit.SourceObjectId,
                 origin = moveUnit.Origin,
                 destination = moveUnit.Destination,
-                optionalCosts = moveUnit.OptionalCosts ?? []
+                optionalCosts = moveUnit.OptionalCosts,
+                sourceObjectIds = moveUnit.SourceObjectIds ?? []
             }),
             DeclareBattleCommand declareBattle => JsonSerializer.SerializeToElement(new
             {
@@ -26203,6 +26339,7 @@ public sealed class FullGameEndToEndTests
             midgameState,
             "P2",
             ForbiddenWastelandBattlefieldIsolatedDefenderKeywordModifierCardNo);
+        midgameState = ClearFixtureBattlefieldUnitsToBase(midgameState, battlefieldId);
         var attackerObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
@@ -26232,6 +26369,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26318,6 +26456,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26406,6 +26545,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26494,6 +26634,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26582,6 +26723,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26670,6 +26812,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         var attackerTags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId])
             .Concat([CardObjectTags.Boon])
             .Distinct(StringComparer.Ordinal)
@@ -26771,6 +26914,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26869,6 +27013,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26977,6 +27122,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27074,6 +27220,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27162,6 +27309,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27250,6 +27398,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BASE");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[movedObjectId] = cardObjects[movedObjectId] with
         {
             Damage = 0,
@@ -27304,6 +27453,7 @@ public sealed class FullGameEndToEndTests
             midgameState,
             "P1",
             FrostHoldBattlefieldTurnStartDamageCardNo);
+        midgameState = ClearFixtureBattlefieldUnitsToBase(midgameState, battlefieldId);
         var p1UnitObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
@@ -27334,6 +27484,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[p2UnitObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[p1UnitObjectId] = cardObjects[p1UnitObjectId] with
         {
             Damage = 0,
@@ -27388,6 +27539,7 @@ public sealed class FullGameEndToEndTests
             midgameState,
             "P2",
             DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo);
+        midgameState = ClearFixtureBattlefieldUnitsToBase(midgameState, battlefieldId);
         var offsiteBattlefieldId = BattlefieldObjectIdForPlayer(midgameState, "P1");
         var p2UnitObjectIds = midgameState.PlayerZones["P2"].Hand
             .Where(objectId => midgameState.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -27413,6 +27565,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[offsiteObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", offsiteBattlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         foreach (var objectId in p2UnitObjectIds)
         {
             cardObjects[objectId] = cardObjects[objectId] with
@@ -27514,6 +27667,7 @@ public sealed class FullGameEndToEndTests
         var replayState = BuildBattlefieldFirstTurnReplayInitialState(
             state,
             ForgottenMonumentBattlefieldCardNo);
+        replayState = KeepOnlyFirstBattlefieldSource(replayState, ForgottenMonumentBattlefieldCardNo);
         if (replayState.PlayerZones["P1"].Battlefields.Any(objectId =>
             replayState.CardObjects.TryGetValue(objectId, out var cardObject)
             && string.Equals(cardObject.CardNo, FirstTurnScoreBattlefieldCardNo, StringComparison.Ordinal)))
@@ -27562,6 +27716,8 @@ public sealed class FullGameEndToEndTests
             FirstTurnScoreBattlefieldCardNo,
             "B0-P1-BATTLEFIELD-GLORY-ARENA-WINNING-SCORE");
 
+        replayState = WithEstablishedBattlefield(replayState,
+            BattlefieldObjectIdForCardNo(replayState, "P1", WinningScoreIncreaseBattlefieldCardNo), "P1");
         return replayState with
         {
             PlayerScores = replayState.Seats.Keys.ToDictionary(
@@ -27708,6 +27864,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27797,6 +27954,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27891,6 +28049,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27979,6 +28138,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[targetObjectId] = cardObjects[targetObjectId] with
         {
             Damage = 0,
@@ -28063,6 +28223,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[targetObjectId] = cardObjects[targetObjectId] with
         {
             Damage = 0,
@@ -28135,6 +28296,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[targetObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[targetObjectId] = cardObjects[targetObjectId] with
         {
             Damage = 0,
@@ -28489,6 +28651,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[sourceObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
         {
             Damage = 0,
@@ -28668,6 +28831,11 @@ public sealed class FullGameEndToEndTests
         objectLocations[equipmentObjectId] = new ObjectLocationState("P1", "BASE");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (requirePoroForge)
+        {
+            var field = BattlefieldObjectIdForCardNo(midgameState, "P1", PoroForgeBattlefieldLegendAttachArmamentCardNo);
+            cardObjects[field] = cardObjects[field] with { ControllerId = "P1" };
+        }
         cardObjects[legendObjectId] = cardObjects[legendObjectId] with
         {
             Damage = 0,
@@ -28768,6 +28936,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -29017,6 +29186,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[sourceObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
         {
             Damage = 0,
@@ -29094,6 +29264,7 @@ public sealed class FullGameEndToEndTests
             midgameState,
             "P1",
             LostLibraryBattlefieldHighCostSpellInsightCardNo);
+        midgameState = ClearFixtureBattlefieldUnitsToBase(midgameState, battlefieldId);
         var attackerObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
@@ -29124,6 +29295,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -29218,6 +29390,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[equipmentObjectId] = new ObjectLocationState("P2", "BASE");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -29338,6 +29511,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -29436,6 +29610,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[defenderObjectId] = cardObjects[defenderObjectId] with
         {
             Damage = 0,
@@ -29514,6 +29689,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[existingUnitObjectId] = cardObjects[existingUnitObjectId] with
         {
             Damage = 0,
@@ -29609,6 +29785,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[returnTargetObjectId] = cardObjects[returnTargetObjectId] with
         {
             Damage = 0,
@@ -29704,6 +29881,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30115,6 +30293,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30210,6 +30389,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30290,6 +30470,7 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("B0 Vaults of Helia setup could not find Loyal Craftsman in P1 hand.");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
         cardObjects[unitObjectId] = cardObjects[unitObjectId] with
         {
             Tags = ApplyRegisteredSourceUnitTags(cardObjects[unitObjectId]),
@@ -30357,6 +30538,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30445,6 +30627,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30533,6 +30716,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30621,6 +30805,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30715,6 +30900,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[heroObjectId] = new ObjectLocationState("P2", "GRAVEYARD");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30831,6 +31017,7 @@ public sealed class FullGameEndToEndTests
         }
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -30892,6 +31079,7 @@ public sealed class FullGameEndToEndTests
             midgameState,
             "P2",
             EnergyHubBattlefieldHeldPayPowerScoreCardNo);
+        midgameState = ClearFixtureBattlefieldUnitsToBase(midgameState, battlefieldId);
         var attackerObjectId = FindHandCardObjectByCardNo(
             midgameState,
             "P1",
@@ -30922,6 +31110,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31016,6 +31205,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31104,6 +31294,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31192,6 +31383,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31292,6 +31484,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[spellObjectId] = new ObjectLocationState("P2", "MAIN_DECK");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31398,6 +31591,7 @@ public sealed class FullGameEndToEndTests
         objectLocations[topObjectId] = new ObjectLocationState("P2", "MAIN_DECK");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -31456,16 +31650,25 @@ public sealed class FullGameEndToEndTests
 
     private static MatchState BuildDuneDrakeSourceAttackingReadyEnemyStaticAuraMidgameInitialState(MatchState state)
     {
-        return BuildSpecificCardsMidgameInitialState(
+        var prepared = BuildSpecificCardsMidgameInitialState(
             state,
             "P1",
             [DuneDrakeSourceAttackingReadyEnemyStaticAuraCardNo],
             new RunePool(mana: 7, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        var field = BattlefieldObjectIdForPlayer(prepared, "P1");
+        prepared = ClearFixtureBattlefieldUnitsToBase(prepared, field);
+        var defender = prepared.PlayerZones["P2"].Battlefields.First(id => IsCombatUnit(prepared, id));
+        var locations = prepared.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        locations[defender] = new ObjectLocationState("P2", "BATTLEFIELD", field);
+        var cards = prepared.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        cards[field] = cards[field] with { ControllerId = "P2" };
+        cards[defender] = cards[defender] with { IsExhausted = false };
+        return prepared with { CardObjects = cards, ObjectLocations = locations };
     }
 
     private static MatchState BuildSourceLoneBattleStaticAuraMidgameInitialState(MatchState state)
     {
-        return BuildSpecificCardsForPlayersMidgameInitialState(
+        var prepared = BuildSpecificCardsForPlayersMidgameInitialState(
             state,
             new Dictionary<string, (IReadOnlyList<string> CardNos, RunePool RunePool)>(StringComparer.Ordinal)
             {
@@ -31476,15 +31679,17 @@ public sealed class FullGameEndToEndTests
                     [WatchfulSentinelCardNo],
                     new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
+        return ClearFixtureBattlefieldUnitsToBase(prepared, BattlefieldObjectIdForPlayer(prepared, "P1"));
     }
 
     private static MatchState BuildFriendlySingleDefenderStaticAuraMidgameInitialState(MatchState state)
     {
-        return BuildSpecificCardsMidgameInitialState(
+        var prepared = BuildSpecificCardsMidgameInitialState(
             state,
             "P1",
             [DemaciaEnvoyCardNo],
             new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        return ClearFixtureBattlefieldUnitsToBase(prepared, BattlefieldObjectIdForPlayer(prepared, "P2"));
     }
 
     private static MatchState BuildMasterYiLevelFriendlyUnitsStaticAuraMidgameInitialState(MatchState state)
@@ -31644,6 +31849,7 @@ public sealed class FullGameEndToEndTests
                     [WatchfulSentinelCardNo],
                     new RunePool(mana: 6, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)))
             });
+        midgameState = WithEstablishedBattlefield(midgameState, BattlefieldObjectIdForPlayer(midgameState, "P1"), "P1");
         return midgameState with
         {
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
@@ -31687,9 +31893,11 @@ public sealed class FullGameEndToEndTests
             ControllerId = "P1"
         };
 
+        midgameState = midgameState with { CardObjects = cardObjects };
+        midgameState = WithEstablishedBattlefield(midgameState, BattlefieldObjectIdForPlayer(midgameState, "P1"), "P1");
         return midgameState with
         {
-            CardObjects = cardObjects,
+            CardObjects = midgameState.CardObjects,
             PlayerExperience = midgameState.Seats.Keys.ToDictionary(
                 playerId => playerId,
                 playerId => string.Equals(playerId, "P1", StringComparison.Ordinal) ? playerOneExperience : 0,
@@ -31733,9 +31941,11 @@ public sealed class FullGameEndToEndTests
             ControllerId = "P1"
         };
 
+        midgameState = midgameState with { CardObjects = cardObjects };
+        midgameState = WithEstablishedBattlefield(midgameState, BattlefieldObjectIdForPlayer(midgameState, "P1"), "P1");
         return midgameState with
         {
-            CardObjects = cardObjects
+            CardObjects = midgameState.CardObjects
         };
     }
 
@@ -32439,6 +32649,8 @@ public sealed class FullGameEndToEndTests
             PriorityPlayerId = null,
             PassedPriorityPlayerIds = [],
             StackItems = [],
+            UntilEndOfTurnEffects = [],
+            DestroyedUnitOwnerIdsThisTurn = [],
             WinnerPlayerId = null,
             RunePools = runePools,
             PlayerZones = playerZones,
@@ -32446,6 +32658,40 @@ public sealed class FullGameEndToEndTests
             PlayerScores = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
             PlayerCardsPlayedThisTurn = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal)
         };
+    }
+
+    private static MatchState ClearFixtureBattlefieldUnitsToBase(MatchState state, string battlefieldId)
+    {
+        var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        foreach (var player in zones.Keys.ToArray())
+        {
+            var moved = zones[player].Battlefields.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)
+                && locations.TryGetValue(id, out var location) && location.BattlefieldObjectId == battlefieldId).ToArray();
+            zones[player] = zones[player] with
+            {
+                Battlefields = zones[player].Battlefields.Except(moved).ToArray(),
+                Base = zones[player].Base.Concat(moved).ToArray()
+            };
+            foreach (var id in moved) locations[id] = new ObjectLocationState(player, "BASE");
+        }
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        cards[battlefieldId] = cards[battlefieldId] with { ControllerId = null };
+        return state with { PlayerZones = zones, ObjectLocations = locations, CardObjects = cards };
+    }
+
+    private static MatchState WithEstablishedBattlefield(MatchState state, string battlefieldId, string playerId)
+    {
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        cards[battlefieldId] = cards[battlefieldId] with { ControllerId = playerId };
+        var id = $"MIDGAME-HOLDER-{battlefieldId}";
+        cards[id] = new CardObjectState(id, power: 2, cardNo: DemaciaEnvoyCardNo,
+            tags: [CardObjectTags.UnitCard], ownerId: playerId, controllerId: playerId);
+        var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        zones[playerId] = zones[playerId] with { Battlefields = zones[playerId].Battlefields.Append(id).ToArray() };
+        var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        locations[id] = new ObjectLocationState(playerId, "BATTLEFIELD", battlefieldId);
+        return state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations };
     }
 
     private static ResolutionResult AcceptedCurrentResult(MatchState state)

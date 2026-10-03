@@ -66,16 +66,20 @@ signalR.AddJsonProtocol(options =>
 builder.Services.AddRiftboundPersistence(builder.Configuration);
 builder.Services.TryAddSingleton<IPlayerIdentityStore, InMemoryPlayerIdentityStore>();
 builder.Services.AddSingleton<PlayerIdentityService>();
+builder.Services.AddSingleton<PlayerConnections>();
 builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
 builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMatchSessionRegistry(
     services.GetRequiredService<IRuleEngine>(),
     services.GetRequiredService<IMatchJournal>(),
     services.GetRequiredService<IMatchRecoveryStore>(),
     services.GetRequiredService<IMatchPlayerStore>(),
-    new MatchSessionOptions(AllowLegacyReadyWithoutDeck: builder.Environment.IsDevelopment())));
+    new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false,
+        DeckFormat: OfficialDeckFormat.ChinaStandard20260724)));
 builder.Services.AddSingleton<IMatchmakingQueue>(services => new InMemoryMatchmakingQueue(
-    services.GetRequiredService<IMatchSessionRegistry>()));
-builder.Services.AddSingleton<IPublicMatchDirectory, InMemoryPublicMatchDirectory>();
+    services.GetRequiredService<IMatchSessionRegistry>(), RoomCodeGenerator.NewRoomId,
+    services.GetRequiredService<PlayerConnections>()));
+builder.Services.AddSingleton<IPublicMatchDirectory>(services => new InMemoryPublicMatchDirectory(
+    () => DateTimeOffset.UtcNow, services.GetRequiredService<PlayerConnections>()));
 
 var app = builder.Build();
 
@@ -188,7 +192,7 @@ app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationTok
 app.MapGet("/decks/preconstructed", async (CancellationToken cancellationToken) =>
 {
     var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
-    var decks = PreconstructedDeckCatalog.Build(catalog).Select(deck => new
+    var decks = PreconstructedDeckCatalog.Build(catalog, OfficialDeckFormat.ChinaStandard20260724).Select(deck => new
     {
         deck.Id,
         deck.Name,

@@ -12,14 +12,18 @@ public partial class LobbyScreen : AppScreen
     public event Action? QueueRequested;
     public event Action? CancelQueueRequested;
     public event Action? JoinPublicMatchRequested;
+    public event Action? RefreshPublicMatchesRequested;
     public event Action? SubmitDeckRequested;
     public event Action? ReadyRequested;
+    public event Action? DeckSelectionChanged;
+    private OfficialCardView _deckPreview = null!;
 
     private Label _connectionStatus = null!;
     private Label _matchmakingStatus = null!;
     private Label _setupGuidance = null!;
     private LineEdit _handleInput = null!;
     private LineEdit _roomInput = null!;
+    private LineEdit _serverInput = null!;
     private OptionButton _publicMatchSelect = null!;
     private OptionButton _deckSelect = null!;
     private Button _connectButton = null!;
@@ -44,6 +48,7 @@ public partial class LobbyScreen : AppScreen
     }
 
     public int SelectedDeckIndex => Math.Max(0, _deckSelect.Selected);
+    public string ServerText { get => _serverInput.Text; set => _serverInput.Text = value; }
     public int SelectedPublicMatchIndex => Math.Max(0, _publicMatchSelect.Selected);
 
     public override void _Ready()
@@ -53,6 +58,7 @@ public partial class LobbyScreen : AppScreen
         _setupGuidance = GetNode<Label>("%SetupGuidance");
         _handleInput = GetNode<LineEdit>("%HandleInput");
         _roomInput = GetNode<LineEdit>("%RoomInput");
+        _serverInput = GetNode<LineEdit>("%ServerInput");
         _publicMatchSelect = GetNode<OptionButton>("%PublicMatchSelect");
         _deckSelect = GetNode<OptionButton>("%DeckSelect");
         _connectButton = GetNode<Button>("%ConnectButton");
@@ -70,8 +76,13 @@ public partial class LobbyScreen : AppScreen
         _queueButton.Pressed += () => QueueRequested?.Invoke();
         _cancelQueueButton.Pressed += () => CancelQueueRequested?.Invoke();
         _joinPublicMatchButton.Pressed += () => JoinPublicMatchRequested?.Invoke();
+        GetNode<Button>("%RefreshRoomsButton").Pressed += () => RefreshPublicMatchesRequested?.Invoke();
         _submitDeckButton.Pressed += () => SubmitDeckRequested?.Invoke();
         _readyButton.Pressed += () => ReadyRequested?.Invoke();
+        _deckSelect.ItemSelected += _ => DeckSelectionChanged?.Invoke();
+        _deckPreview = GD.Load<PackedScene>("res://scenes/components/OfficialCardView.tscn").Instantiate<OfficialCardView>();
+        _deckPreview.CustomMinimumSize = new Vector2(230, 322);
+        GetNode<CenterContainer>("DeckSpotlight/Flow/Art").AddChild(_deckPreview);
 
         ApplyTheme();
         ConfigureFocusLoop();
@@ -82,9 +93,26 @@ public partial class LobbyScreen : AppScreen
     public void ApplyTheme()
     {
         MinimalTheme.Apply(this);
+        GetNode<Label>("PrimaryFlow/Title").AddThemeFontSizeOverride("font_size", 36);
+        GetNode<Label>("PrimaryFlow/Brand").AddThemeColorOverride("font_color", MinimalTheme.Selected);
+        GetNode<Label>("PrimaryFlow/Subtitle").AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
+        GetNode<VBoxContainer>("PrimaryFlow").AddThemeConstantOverride("separation", 22);
         _readyButton.AddThemeStyleboxOverride("normal", MinimalTheme.Panel(MinimalTheme.Selectable));
+        _readyButton.AddThemeColorOverride("font_color", MinimalTheme.AppBackground);
+        _readyButton.AddThemeColorOverride("font_hover_color", MinimalTheme.AppBackground);
         _readyButton.AddThemeStyleboxOverride("hover", MinimalTheme.Panel(new Color(MinimalTheme.Selectable, 0.84f)));
         _readyButton.AddThemeStyleboxOverride("focus", MinimalTheme.Outline(OfficialCardVisualState.Selected));
+        GetNode<Label>("DeckSpotlight/Flow/Title").AddThemeFontSizeOverride("font_size", 26);
+        GetNode<Label>("DeckSpotlight/Flow/Eyebrow").AddThemeColorOverride("font_color", MinimalTheme.Selected);
+        GetNode<Label>("DeckSpotlight/Flow/Description").AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
+        GetNode<VBoxContainer>("DeckSpotlight/Flow").AddThemeConstantOverride("separation", 20);
+    }
+
+    public void SetDeckPreview(string name, string description, Godot.Collections.Dictionary card)
+    {
+        GetNode<Label>("DeckSpotlight/Flow/Title").Text = name;
+        GetNode<Label>("DeckSpotlight/Flow/Description").Text = description;
+        _deckPreview.Display(card, OfficialCardVisualState.Normal);
     }
 
     public override void SetScreenVisible(bool visible)
@@ -109,6 +137,7 @@ public partial class LobbyScreen : AppScreen
         List<Control> controls =
         [
             _handleInput,
+            _serverInput,
             _roomInput,
             _connectButton,
             _reconnectButton,
@@ -116,6 +145,7 @@ public partial class LobbyScreen : AppScreen
             _queueButton,
             _cancelQueueButton,
             _publicMatchSelect,
+            GetNode<Button>("%RefreshRoomsButton"),
             _joinPublicMatchButton,
             _deckSelect,
             _submitDeckButton,

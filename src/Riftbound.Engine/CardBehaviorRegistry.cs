@@ -134,7 +134,7 @@ public sealed record CardBehaviorDefinition(
     bool PlaysSourceToBaseAsUnit = false,
     int SourceUnitPower = 0,
     string SourceUnitTags = "",
-    bool SourceUnitIsExhausted = false,
+    bool SourceUnitIsExhausted = true,
     bool AppliesPowerModifierToSourceUnit = false,
     bool GrantsBoonToSourceUnit = false,
     bool ModifiesAllEnemyUnits = false,

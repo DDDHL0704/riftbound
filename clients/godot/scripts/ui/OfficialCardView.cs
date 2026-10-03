@@ -13,6 +13,7 @@ public partial class OfficialCardView : PanelContainer
     private Panel _stateBorder = null!;
     private PanelContainer _countBadge = null!;
     private Label _countLabel = null!;
+    private Label _exhaustedLabel = null!;
     private Godot.Collections.Dictionary _card = new();
     private OfficialCardVisualState _state = OfficialCardVisualState.Disabled;
     private bool _hasPendingDisplay;
@@ -41,12 +42,19 @@ public partial class OfficialCardView : PanelContainer
         _stateBorder = GetNode<Panel>("%StateBorder");
         _countBadge = GetNode<PanelContainer>("%CountBadge");
         _countLabel = GetNode<Label>("%CountLabel");
+        _exhaustedLabel = GetNode<Label>("%ExhaustedLabel");
 
         GuiInput += OnGuiInput;
         _cardTexture.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+        _cardTexture.TextureFilter = TextureFilterEnum.LinearWithMipmaps;
         MinimalTheme.Apply(this);
-        AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.AppBackground));
+        var cardFrame = MinimalTheme.Panel(MinimalTheme.AppBackground);
+        cardFrame.SetContentMarginAll(4);
+        AddThemeStyleboxOverride("panel", cardFrame);
         _countBadge.AddThemeStyleboxOverride("panel", CountBadgeStyle());
+        _exhaustedLabel.AddThemeStyleboxOverride("normal", CountBadgeStyle());
+        _exhaustedLabel.AddThemeFontSizeOverride("font_size", 11);
+        _exhaustedLabel.AddThemeColorOverride("font_color", MinimalTheme.Selected);
         if (_hasPendingDisplay)
         {
             ApplyDisplay();
@@ -82,7 +90,7 @@ public partial class OfficialCardView : PanelContainer
         var canRevealIdentity = visible && !faceDown && _state != OfficialCardVisualState.Hidden;
         var texture = canRevealIdentity
             ? LoadTexture(ReadString(_card, "imagePath"), rotated)
-            : null;
+            : GD.Load<Texture2D>("res://assets/card-back.svg");
 
         _cardTexture.Texture = texture;
         _cardTexture.Visible = texture is not null;
@@ -98,6 +106,7 @@ public partial class OfficialCardView : PanelContainer
         var count = ReadInt(_card, "count", 1);
         _countBadge.Visible = count > 1;
         _countLabel.Text = count.ToString();
+        _exhaustedLabel.Visible = canRevealIdentity && ReadBool(_card, "isExhausted", false);
         _stateBorder.AddThemeStyleboxOverride("panel", MinimalTheme.Outline(_state));
         Modulate = _state == OfficialCardVisualState.Disabled
             ? new Color(0.66f, 0.68f, 0.72f, 0.72f)
@@ -107,6 +116,7 @@ public partial class OfficialCardView : PanelContainer
         TooltipText = canRevealIdentity
             ? ReadString(_card, "previewSummary", _fallbackLabel.Text)
             : "隐藏卡牌";
+        if (_exhaustedLabel.Visible) TooltipText += "\n当前状态：休眠";
     }
 
     public void Clear()
@@ -126,6 +136,7 @@ public partial class OfficialCardView : PanelContainer
         _fallbackLabel.Text = "CARD";
         _countBadge.Visible = false;
         _countLabel.Text = string.Empty;
+        _exhaustedLabel.Visible = false;
         _stateBorder.AddThemeStyleboxOverride("panel", MinimalTheme.Outline(_state));
         TooltipText = string.Empty;
         FocusMode = FocusModeEnum.None;

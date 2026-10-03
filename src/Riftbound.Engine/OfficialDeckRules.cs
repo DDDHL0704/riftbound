@@ -39,7 +39,8 @@ public static class OfficialDeckValidator
 
     public static OfficialDeckValidationResult Validate(
         OfficialDecklist decklist,
-        OfficialCardCatalog catalog)
+        OfficialCardCatalog catalog,
+        OfficialDeckFormat format = OfficialDeckFormat.CoreRules)
     {
         ArgumentNullException.ThrowIfNull(decklist);
         ArgumentNullException.ThrowIfNull(catalog);
@@ -54,6 +55,16 @@ public static class OfficialDeckValidator
         var mainDeck = NormalizeList(decklist.MainDeck);
         var runeDeck = NormalizeList(decklist.RuneDeck);
         var battlefields = NormalizeList(decklist.Battlefields);
+
+        foreach (var cardNo in mainDeck.Concat(runeDeck).Concat(battlefields)
+            .Append(legendCardNo).Append(championCardNo).Distinct(StringComparer.Ordinal))
+        {
+            if (cardsByNo.TryGetValue(cardNo, out var card) && !ChinaStandardBanList.IsAllowed(card, format))
+            {
+                var name = string.IsNullOrWhiteSpace(card.SubTitle) ? card.CardName : $"{card.CardName}·{card.SubTitle}";
+                errors.Add($"《{name}》为中国区标准赛制禁卡（2026-07-24 生效）。");
+            }
+        }
 
         var legend = RequireCard(cardsByNo, legendCardNo, "legendCardNo", errors);
         var champion = RequireCard(cardsByNo, championCardNo, "championCardNo", errors);

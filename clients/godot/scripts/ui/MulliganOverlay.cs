@@ -114,6 +114,23 @@ public partial class MulliganOverlay : Control
         return enabled;
     }
 
+    public void RefreshVisibleCards(IReadOnlyList<Godot.Collections.Dictionary> visibleHandCards)
+    {
+        if (!Visible || !_canUsePrompt) return;
+        var changed = false;
+        foreach (var card in visibleHandCards)
+        {
+            var id = ReadString(card, "objectId");
+            if (!_cardsBySourceId.TryGetValue(id, out var existing)
+                || !ReadBool(card, "visible") || ReadBool(card, "faceDown")) continue;
+            if (ReadString(card, "imagePath") == ReadString(existing, "imagePath")) continue;
+            _cardsBySourceId[id] = card.Duplicate(true);
+            changed = true;
+        }
+        // Image completion must not reset the player's selection or the server's limits.
+        if (changed) RenderCards();
+    }
+
     public void HidePrompt()
     {
         Reset();

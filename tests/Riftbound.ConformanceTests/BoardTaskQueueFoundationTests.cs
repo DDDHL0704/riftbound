@@ -728,7 +728,7 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
-    public async Task PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer()
+    public async Task PassFocusClosesSpellDuelAndKeepsInitiatorWhenOtherPlayerOwnsTurn()
     {
         var state = SpellDuelReadyToCloseState() with
         {
@@ -753,7 +753,7 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
-    public async Task PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants()
+    public async Task PassFocusClosesSpellDuelAndStartsBattleWithExhaustedDefender()
     {
         var readyToClose = SpellDuelReadyToCloseState();
         var cardObjects = readyToClose.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -771,37 +771,16 @@ public sealed class BoardTaskQueueFoundationTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "BATTLE_SKIPPED"],
-            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLE_SKIPPED");
         Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
-        Assert.Equal("P2", result.State.ActivePlayerId);
-        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-CONTEST"), result.State.UntilEndOfTurnEffects);
-        Assert.Contains("BATTLEFIELD_BATTLE_SKIPPED:BF-CONTEST", result.State.UntilEndOfTurnEffects);
-        Assert.False(result.State.PendingTaskQueue.HasTasks);
-        Assert.False(result.State.PendingTaskQueue.IsBlocking);
-        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
-        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Empty(result.State.PendingTaskQueue.Tasks);
-        Assert.Empty(result.State.BattlefieldTasks);
-        Assert.False(result.State.BattleState.IsActive);
-        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
-        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P2"].Actions);
-        Assert.True(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain("WAIT", result.Prompts["P2"].Actions);
-
-        var battleSkipped = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
-        Assert.Equal("task:start-battle:BF-CONTEST", battleSkipped.Payload["taskId"]);
-        Assert.Equal("BF-CONTEST", battleSkipped.Payload["battlefieldObjectId"]);
-        Assert.Equal("P1", battleSkipped.Payload["playerId"]);
-        Assert.Equal("NO_LEGAL_COMBATANTS", battleSkipped.Payload["reason"]);
-        Assert.Equal(["P1", "P2"], StringList(battleSkipped.Payload["participantControllerIds"]));
-        Assert.Equal(["P1-CONTEST-ATTACKER", "P2-CONTEST-DEFENDER"], StringList(battleSkipped.Payload["participantObjectIds"]));
+        Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-CONTEST", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Contains(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
+        Assert.True(result.State.CardObjects["P2-CONTEST-DEFENDER"].IsExhausted);
     }
 
     [Fact]
-    public async Task SameTurnBattleSkippedMarkerIsClearedAfterHasteUnitEntersBattlefieldReady()
+    public async Task SameTurnBattleSkippedMarkerClearsWhenFirstFaceUpDefenderArrives()
     {
         var baseState = SpellDuelReadyToCloseState();
         const string hasteUnitObjectId = "P1-HASTE-REARGUARD";
@@ -810,9 +789,10 @@ public sealed class BoardTaskQueueFoundationTests
         var cardObjects = baseState.CardObjects.ToDictionary(
             entry => entry.Key,
             entry => string.Equals(entry.Key, "P1-CONTEST-ATTACKER", StringComparison.Ordinal)
-                ? entry.Value with { IsExhausted = true }
+                ? entry.Value with { IsExhausted = true, IsFaceDown = true }
                 : entry.Value,
             StringComparer.Ordinal);
+        cardObjects["BF-CONTEST"] = cardObjects["BF-CONTEST"] with { ControllerId = "P1" };
         cardObjects[hasteUnitObjectId] = new CardObjectState(
             hasteUnitObjectId,
             cardNo: hasteUnitCardNo,
@@ -917,9 +897,9 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal(
             ["START_SPELL_DUEL", "START_BATTLE"],
             resolved.State.BattlefieldTasks.Select(task => task.Kind).ToArray());
-        Assert.Equal(PromptTypes.BattleDeclaration, resolved.Prompts["P1"].View?.Type);
-        Assert.Contains(CommandTypes.DeclareBattle, resolved.Prompts["P1"].Actions);
-        Assert.Equal(["WAIT", "SURRENDER"], resolved.Prompts["P2"].Actions);
+        Assert.Equal(PromptTypes.BattleDeclaration, resolved.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.DeclareBattle, resolved.Prompts["P2"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], resolved.Prompts["P1"].Actions);
     }
 
     [Fact]
@@ -1632,7 +1612,7 @@ public sealed class BoardTaskQueueFoundationTests
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["BF-CONTEST"] = Battlefield("BF-CONTEST", "P1"),
+                ["BF-CONTEST"] = Battlefield("BF-CONTEST", "P1") with { ControllerId = "P2" },
                 ["P1-CONTEST-ATTACKER"] = Unit("P1-CONTEST-ATTACKER", "P1"),
                 ["P2-CONTEST-DEFENDER"] = Unit("P2-CONTEST-DEFENDER", "P2")
             },
@@ -1803,21 +1783,21 @@ public sealed class BoardTaskQueueFoundationTests
             string.Equals(task.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal));
         Assert.Equal("cleanup:battlefield-contested:BF-CONTEST", contestTask.TaskId);
         Assert.Equal("BATTLEFIELD_CONTROL_CHECK", contestTask.Reason);
-        Assert.Equal("P1", contestTask.PlayerId);
+        Assert.Equal("P2", contestTask.PlayerId);
         Assert.Equal("BF-CONTEST", contestTask.BattlefieldObjectId);
 
         var spellDuelTask = Assert.Single(result.State.PendingTaskQueue.Tasks, task =>
             string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal));
         Assert.Equal("task:start-spell-duel:BF-CONTEST", spellDuelTask.TaskId);
         Assert.Equal("BATTLEFIELD_CONTESTED", spellDuelTask.Reason);
-        Assert.Equal("P1", spellDuelTask.PlayerId);
+        Assert.Equal("P2", spellDuelTask.PlayerId);
         Assert.Equal("BF-CONTEST", spellDuelTask.BattlefieldObjectId);
 
         var battleTask = Assert.Single(result.State.PendingTaskQueue.Tasks, task =>
             string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
         Assert.Equal("task:start-battle:BF-CONTEST", battleTask.TaskId);
         Assert.Equal("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", battleTask.Reason);
-        Assert.Equal("P1", battleTask.PlayerId);
+        Assert.Equal("P2", battleTask.PlayerId);
         Assert.Equal("BF-CONTEST", battleTask.BattlefieldObjectId);
     }
 

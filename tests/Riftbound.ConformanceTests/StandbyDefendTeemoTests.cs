@@ -294,7 +294,7 @@ public sealed class StandbyDefendTeemoTests
     }
 
     [Fact]
-    public async Task FaceUpTeemoDefendTriggerLetsPlunderMoveFriendlyUnitBeyondDefenders()
+    public async Task FaceUpTeemoDefendTriggerLetsPlunderMoveAnotherDefenderBeforeAllAttackersDealDamage()
     {
         var engine = new CoreRuleEngine();
         var result = await engine.ResolveAsync(
@@ -326,7 +326,11 @@ public sealed class StandbyDefendTeemoTests
             && Equals(gameEvent.Payload["targetObjectId"], SecondEnemyTargetObjectId)
             && Equals(gameEvent.Payload["damage"], 2));
         Assert.Contains(ExhaustedFriendlyUnitObjectId, result.State.PlayerZones["P2"].Base);
-        Assert.Contains(TeemoObjectId, result.State.PlayerZones["P2"].Battlefields);
+        // Both enemy units at this battlefield attack; Teemo remains after the
+        // movement trigger, then receives lethal damage during combat.
+        Assert.Contains(TeemoObjectId, result.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "UNIT_DESTROYED"
+            && Equals(gameEvent.Payload["targetObjectId"], TeemoObjectId));
     }
 
     [Fact]

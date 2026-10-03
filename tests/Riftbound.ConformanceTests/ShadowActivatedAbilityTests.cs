@@ -113,10 +113,10 @@ public sealed class ShadowActivatedAbilityTests
         Assert.True(opened.State.BattleState.IsActive);
         Assert.Equal(BattlefieldObjectId, opened.State.BattleState.BattlefieldObjectId);
         Assert.Equal([EnemyAttackerObjectId], opened.State.BattleState.AttackerObjectIds);
-        Assert.Equal([FriendlyAttackerObjectId], opened.State.BattleState.DefenderObjectIds);
+        Assert.Equal(new[] { FriendlyAttackerObjectId, ShadowObjectId }.Order(StringComparer.Ordinal), opened.State.BattleState.DefenderObjectIds);
         Assert.True(opened.State.CardObjects[EnemyAttackerObjectId].IsAttacking);
         Assert.True(opened.State.CardObjects[FriendlyAttackerObjectId].IsDefending);
-        Assert.False(opened.State.CardObjects[ShadowObjectId].IsDefending);
+        Assert.True(opened.State.CardObjects[ShadowObjectId].IsDefending);
         Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
         Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
         Assert.DoesNotContain(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
@@ -870,6 +870,20 @@ public sealed class ShadowActivatedAbilityTests
     private static MatchState BuildNaturalShadowStartBattleState(int mana, int power)
     {
         var state = BuildShadowState(mana, power);
+        // Units outside this battle stay in base; same-field units cannot opt out (CN 464.2.c.3).
+        foreach (var id in new[] { EnemySpellshieldAttackerObjectId, EnemyDefenderObjectId, "P2-NON-ATTACKER" })
+        {
+            var player = state.CardObjects[id].ControllerId!;
+            state = state with
+            {
+                PlayerZones = ReplacePlayerZones(state.PlayerZones, player, state.PlayerZones[player] with
+                {
+                    Base = state.PlayerZones[player].Base.Append(id).Distinct(StringComparer.Ordinal).ToArray(),
+                    Battlefields = state.PlayerZones[player].Battlefields.Where(value => value != id).ToArray()
+                }),
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(player, "BASE") }
+            };
+        }
         return state with
         {
             Tick = 7,

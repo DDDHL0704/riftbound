@@ -5,4 +5,5 @@ public sealed record SnapshotCardRef(
     string CardNo,
     bool Visible,
     bool FaceDown,
-    string ControllerOrOwner = "");
+    string ControllerOrOwner = "",
+    bool IsExhausted = false);

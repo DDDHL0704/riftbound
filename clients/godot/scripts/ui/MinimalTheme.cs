@@ -4,13 +4,13 @@ namespace Riftbound.GodotClient.Ui;
 
 public static class MinimalTheme
 {
-    public static readonly Color AppBackground = new("171a1f");
-    public static readonly Color TableSurface = new("20242b");
-    public static readonly Color Surface = new("292e36");
-    public static readonly Color SurfaceRaised = new("343a44");
-    public static readonly Color Border = new("515966");
-    public static readonly Color Text = new("f4f5f7");
-    public static readonly Color TextSecondary = new("aeb5bf");
+    public static readonly Color AppBackground = new("0e1720");
+    public static readonly Color TableSurface = new("14232d");
+    public static readonly Color Surface = new("1b2b37");
+    public static readonly Color SurfaceRaised = new("253b48");
+    public static readonly Color Border = new("4b6471");
+    public static readonly Color Text = new("f3efe6");
+    public static readonly Color TextSecondary = new("b8c7ce");
     public static readonly Color Selectable = new("54c58a");
     public static readonly Color Selected = new("f2b84b");
     public static readonly Color Hostile = new("e26464");
@@ -36,7 +36,7 @@ public static class MinimalTheme
             BorderColor = Border
         };
         style.SetBorderWidthAll(1);
-        style.SetCornerRadiusAll(6);
+        style.SetCornerRadiusAll(10);
         style.SetContentMarginAll(8);
         return style;
     }
@@ -53,7 +53,7 @@ public static class MinimalTheme
             OfficialCardVisualState.Hidden => Waiting,
             _ => new Color(Border, 0.72f)
         };
-        var width = state is OfficialCardVisualState.Selected or OfficialCardVisualState.HostileTarget ? 3 : 2;
+        var width = state is OfficialCardVisualState.Selected or OfficialCardVisualState.HostileTarget ? 3 : 1;
         var style = new StyleBoxFlat
         {
             BgColor = Colors.Transparent,
@@ -70,7 +70,8 @@ public static class MinimalTheme
         {
             case Label label:
                 label.AddThemeColorOverride("font_color", Text);
-                label.AddThemeFontSizeOverride("font_size", 16);
+                if (!label.HasThemeFontSizeOverride("font_size"))
+                    label.AddThemeFontSizeOverride("font_size", 16);
                 break;
             case LineEdit lineEdit:
                 lineEdit.AddThemeColorOverride("font_color", Text);
@@ -89,7 +90,7 @@ public static class MinimalTheme
                 break;
         }
 
-        if (control is BoxContainer box)
+        if (control is BoxContainer box && !box.HasThemeConstantOverride("separation"))
         {
             box.AddThemeConstantOverride("separation", 8);
         }

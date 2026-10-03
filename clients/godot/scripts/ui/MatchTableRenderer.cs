@@ -22,6 +22,7 @@ public sealed class MatchTableRenderer
     private readonly Container _selfHand;
     private readonly BattlefieldNodes[] _battlefields;
     private readonly Dictionary<string, CardBinding> _cardBindings = new(StringComparer.Ordinal);
+    private string _viewerPlayerId = string.Empty;
 
     private Vector2 _handCardSize = new(112, 156);
     private Vector2 _tableCardSize = new(84, 117);
@@ -55,6 +56,7 @@ public sealed class MatchTableRenderer
 
         var opponent = ReadDictionary(wireTable, "opponent");
         var self = ReadDictionary(wireTable, "self");
+        _viewerPlayerId = ReadString(self, "playerId");
         RenderPlayerSummary(_opponentSummary, "对手", opponent, showHiddenHand: true);
         RenderPlayerSummary(_selfSummary, "我方", self, showHiddenHand: false);
         RenderOpponentHand(opponent);
@@ -145,6 +147,8 @@ public sealed class MatchTableRenderer
         ClearChildren(_selfHand);
         var cards = ReadCards(self, "hand");
         _selfHandCount.Text = $"{cards.Count} 张";
+        var resources = ReadString(self, "resources");
+        if (!string.IsNullOrWhiteSpace(resources)) _selfHandCount.Text += " · " + resources.Replace('\n', ' ');
         if (cards.Count == 0)
         {
             _selfHand.AddChild(SecondaryLabel("手牌为空"));
@@ -163,17 +167,26 @@ public sealed class MatchTableRenderer
         foreach (var (key, label) in PublicZones)
         {
             var cards = ReadCards(player, key);
+            var showEveryCard = key is "base" or "baseRunes";
             var zone = new VBoxContainer
             {
                 Name = $"{key}Zone",
-                SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+                SizeFlagsHorizontal = showEveryCard ? Control.SizeFlags.ExpandFill : Control.SizeFlags.ShrinkBegin,
                 SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
             };
             zone.AddThemeConstantOverride("separation", 3);
             zone.AddChild(SecondaryLabel(cards.Count == 0 ? $"{label} 0" : label));
             parent.AddChild(zone);
 
-            if (cards.Count > 0)
+            if (showEveryCard && cards.Count > 0)
+            {
+                var row = new HFlowContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                row.AddThemeConstantOverride("h_separation", 5);
+                row.AddThemeConstantOverride("v_separation", 5);
+                zone.AddChild(row);
+                foreach (var card in cards) AddCard(row, card, _compactCardSize);
+            }
+            else if (cards.Count > 0)
             {
                 AddCard(zone, cards[cards.Count - 1], _compactCardSize, cards.Count);
             }
@@ -187,11 +200,12 @@ public sealed class MatchTableRenderer
         RenderCardZone(nodes.SelfUnits, ReadCards(lane, "selfUnits"), "暂无我方单位", _tableCardSize);
         RenderStandby(nodes.Standby, lane);
 
-        var controlled = !string.IsNullOrWhiteSpace(ReadString(lane, "controllerId"));
+        var controller = ReadString(lane, "controllerId");
+        var controlled = !string.IsNullOrWhiteSpace(controller);
         var scored = ReadBool(lane, "scoredThisTurn", false);
-        nodes.State.Text = controlled
-            ? scored ? "已控制 · 本回合已得分" : "已控制 · 等待计分"
-            : "尚未控制";
+        var controlText = controller == _viewerPlayerId ? "我方控制" : "对手控制";
+        nodes.State.Text = ReadBool(lane, "contested", false) ? "争夺中"
+            : controlled ? scored ? $"{controlText} · 本回合已得分" : controlText : "尚未控制";
         nodes.State.AddThemeColorOverride(
             "font_color",
             scored ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
@@ -329,6 +343,8 @@ public sealed class MatchTableRenderer
         }
 
         target.Text = string.Join("  ·  ", parts);
+        var resources = ReadString(player, "resources");
+        if (!string.IsNullOrWhiteSpace(resources)) target.Text += "\n" + resources;
     }
 
     private static BattlefieldNodes ReadBattlefieldNodes(
@@ -336,7 +352,7 @@ public sealed class MatchTableRenderer
         string battlefieldName,
         string statePath)
     {
-        var root = $"MatchLayout/Battlefields/{battlefieldName}/LaneContent";
+        var root = $"MatchLayout/BoardScroll/BoardLayout/Battlefields/{battlefieldName}/LaneContent";
         return new BattlefieldNodes(
             screen.GetNode<Container>($"{root}/OpponentUnits"),
             screen.GetNode<Container>($"{root}/CenterRow/OfficialSite"),

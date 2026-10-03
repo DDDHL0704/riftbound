@@ -12,6 +12,9 @@ namespace Riftbound.GodotClient;
 public sealed class RiftboundGameHubClient : IAsyncDisposable
 {
     private readonly HubConnection connection;
+    private volatile bool restoringSession;
+    private TaskCompletionSource<bool>? restorationSnapshot;
+    private volatile bool restorationJoined;
 
     public RiftboundGameHubClient(string serverUrl)
     {
@@ -22,7 +25,9 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
 
     public string ServerUrl { get; }
 
-    public bool IsConnected => connection.State == HubConnectionState.Connected;
+    public bool IsConnected => connection.State == HubConnectionState.Connected && !restoringSession;
+
+    public event Func<Task>? RestoreSession;
 
     public event Action<string>? StatusChanged;
 
@@ -155,6 +160,7 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        restorationSnapshot?.TrySetCanceled();
         await connection.DisposeAsync();
     }
 
@@ -175,28 +181,56 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
     {
         hubConnection.Reconnecting += error =>
         {
+            restoringSession = true;
             StatusChanged?.Invoke("Reconnecting");
             LogReceived?.Invoke($"Reconnecting: {error?.Message ?? "unknown reason"}.");
             return Task.CompletedTask;
         };
-        hubConnection.Reconnected += connectionId =>
+        hubConnection.Reconnected += async connectionId =>
         {
-            StatusChanged?.Invoke("Connected");
-            LogReceived?.Invoke($"Reconnected: {connectionId ?? "no connection id"}.");
-            return Task.CompletedTask;
+            restorationJoined = false;
+            restorationSnapshot = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            StatusChanged?.Invoke("Restoring");
+            try
+            {
+                if (RestoreSession is not null) await RestoreSession();
+                await restorationSnapshot.Task.WaitAsync(TimeSpan.FromSeconds(15));
+                restoringSession = false;
+                StatusChanged?.Invoke("Connected");
+                LogReceived?.Invoke("Connection and session restored.");
+            }
+            catch (Exception error)
+            {
+                StatusChanged?.Invoke("Recovery failed");
+                LogReceived?.Invoke($"Session recovery failed: {error.Message}");
+            }
+            finally { restorationSnapshot = null; }
         };
         hubConnection.Closed += error =>
         {
+            restoringSession = false;
             StatusChanged?.Invoke("Disconnected");
             LogReceived?.Invoke($"Closed: {error?.Message ?? "normal close"}.");
             return Task.CompletedTask;
         };
 
-        hubConnection.On<WsServerMessage>("Joined", message => ServerMessageReceived?.Invoke("Joined", message));
-        hubConnection.On<WsServerMessage>("Snapshot", message => ServerMessageReceived?.Invoke("Snapshot", message));
+        hubConnection.On<WsServerMessage>("Joined", message =>
+        {
+            restorationJoined = true;
+            ServerMessageReceived?.Invoke("Joined", message);
+        });
+        hubConnection.On<WsServerMessage>("Snapshot", message =>
+        {
+            ServerMessageReceived?.Invoke("Snapshot", message);
+            if (restorationJoined) restorationSnapshot?.TrySetResult(true);
+        });
         hubConnection.On<WsServerMessage>("Prompt", message => ServerMessageReceived?.Invoke("Prompt", message));
         hubConnection.On<WsServerMessage>("Events", message => ServerMessageReceived?.Invoke("Events", message));
-        hubConnection.On<WsServerMessage>("Error", message => ServerMessageReceived?.Invoke("Error", message));
+        hubConnection.On<WsServerMessage>("Error", message =>
+        {
+            restorationSnapshot?.TrySetException(new InvalidOperationException("服务器未能恢复对局，请重新连接或返回大厅。"));
+            ServerMessageReceived?.Invoke("Error", message);
+        });
         hubConnection.On<WsServerMessage>("Matchmaking", message => ServerMessageReceived?.Invoke("Matchmaking", message));
     }
 }

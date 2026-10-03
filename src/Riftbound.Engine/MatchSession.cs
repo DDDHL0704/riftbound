@@ -1409,7 +1409,7 @@ public sealed record MatchState
                     .Distinct(StringComparer.Ordinal)
                     .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
                     .ToArray();
-                var effectiveBattlefieldControllerId = EffectiveOwnedControllerId(battlefieldObject);
+                var effectiveBattlefieldControllerId = battlefieldObject.ControllerId;
                 var controllerId = string.IsNullOrWhiteSpace(effectiveBattlefieldControllerId)
                     ? null
                     : effectiveBattlefieldControllerId;
@@ -1522,18 +1522,19 @@ public sealed record MatchState
                 continue;
             }
 
+            var initiatingPlayerId = BattlefieldContestRules.Initiator(state, battlefield);
             tasks.Add(new CleanupTaskState(
                 $"cleanup:battlefield-contested:{battlefield.BattlefieldObjectId}",
                 "BATTLEFIELD_CONTESTED",
                 "BATTLEFIELD_CONTROL_CHECK",
-                battlefield.ZonePlayerId,
+                initiatingPlayerId,
                 null,
                 battlefield.BattlefieldObjectId));
             tasks.Add(new CleanupTaskState(
                 $"task:start-spell-duel:{battlefield.BattlefieldObjectId}",
                 "START_SPELL_DUEL",
                 "BATTLEFIELD_CONTESTED",
-                battlefield.ZonePlayerId,
+                initiatingPlayerId,
                 null,
                 battlefield.BattlefieldObjectId));
             if (BattlefieldHasOpposingOccupants(battlefield))
@@ -1542,7 +1543,7 @@ public sealed record MatchState
                     $"task:start-battle:{battlefield.BattlefieldObjectId}",
                     "START_BATTLE",
                     "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
-                    battlefield.ZonePlayerId,
+                    initiatingPlayerId,
                     null,
                     battlefield.BattlefieldObjectId));
             }
@@ -1635,6 +1636,30 @@ public sealed record MatchState
             .Count() > 1;
     }
 
+    internal static MatchState ClearCompletedMarkersForNewBattlefieldContests(MatchState state, MatchState? previousState)
+    {
+        if (previousState is null || previousState.SpellDuelState.IsActive || previousState.BattleState.IsActive)
+        {
+            return state;
+        }
+
+        // CN 190.3.a.1: a new arrival contests an uncontrolled/opposing battlefield anew.
+        // A completed duel marker belongs to that contest, not to the whole turn.
+        var newlyContested = state.BattlefieldStates.Values
+            .Where(field => field.Contested
+                && (!previousState.BattlefieldStates.TryGetValue(field.BattlefieldObjectId, out var previousField)
+                    || !previousField.Contested))
+            .SelectMany(field => new[]
+            {
+                BattlefieldTaskMarkers.SpellDuelCompleted(field.BattlefieldObjectId),
+                BattlefieldTaskMarkers.BattleSkipped(field.BattlefieldObjectId)
+            }).ToHashSet(StringComparer.Ordinal);
+        return newlyContested.Count == 0 ? state : state with
+        {
+            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(effect => !newlyContested.Contains(effect)).ToArray()
+        };
+    }
+
     internal static MatchState ClearStaleBattlefieldBattleSkippedMarkers(
         MatchState state,
         MatchState? previousState)
@@ -1648,8 +1673,8 @@ public sealed record MatchState
             .Where(battlefield => HasBattlefieldBattleSkipped(state, battlefield.BattlefieldObjectId)
                 && HasBattlefieldBattleSkipped(previousState, battlefield.BattlefieldObjectId)
                 && (!previousState.BattlefieldStates.TryGetValue(battlefield.BattlefieldObjectId, out var previousBattlefield)
-                    || !BattlefieldHasLegalReadyCombatantsForBattleTask(previousState, previousBattlefield))
-                && BattlefieldHasLegalReadyCombatantsForBattleTask(state, battlefield))
+                    || !BattlefieldHasLegalCombatantsForBattleTask(previousState, previousBattlefield))
+                && BattlefieldHasLegalCombatantsForBattleTask(state, battlefield))
             .Select(battlefield => battlefield.BattlefieldObjectId)
             .ToHashSet(StringComparer.Ordinal);
         if (staleBattlefieldObjectIds.Count == 0)
@@ -1666,16 +1691,16 @@ public sealed record MatchState
         };
     }
 
-    private static bool BattlefieldHasLegalReadyCombatantsForBattleTask(MatchState state, BattlefieldState battlefield)
+    private static bool BattlefieldHasLegalCombatantsForBattleTask(MatchState state, BattlefieldState battlefield)
     {
-        var battleTaskPlayerId = battlefield.ZonePlayerId?.Trim() ?? string.Empty;
+        var battleTaskPlayerId = BattlefieldContestRules.Initiator(state, battlefield);
         if (string.IsNullOrWhiteSpace(battleTaskPlayerId))
         {
             return false;
         }
 
         var hasReadyAttacker = battlefield.OccupantObjectIds.Any(objectId =>
-            IsReadyFaceUpBattlefieldUnitControlledBy(
+            IsFaceUpBattlefieldUnitControlledBy(
                 state,
                 objectId,
                 battlefield.BattlefieldObjectId,
@@ -1686,34 +1711,34 @@ public sealed record MatchState
         }
 
         return battlefield.OccupantObjectIds.Any(objectId =>
-            IsReadyFaceUpBattlefieldUnitNotControlledBy(
+            IsFaceUpBattlefieldUnitNotControlledBy(
                 state,
                 objectId,
                 battlefield.BattlefieldObjectId,
                 battleTaskPlayerId));
     }
 
-    private static bool IsReadyFaceUpBattlefieldUnitControlledBy(
+    private static bool IsFaceUpBattlefieldUnitControlledBy(
         MatchState state,
         string objectId,
         string battlefieldObjectId,
         string controllerId)
     {
-        return IsReadyFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
+        return IsFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
             && string.Equals(EffectiveFieldControllerId(state, objectId, cardObject), controllerId, StringComparison.Ordinal);
     }
 
-    private static bool IsReadyFaceUpBattlefieldUnitNotControlledBy(
+    private static bool IsFaceUpBattlefieldUnitNotControlledBy(
         MatchState state,
         string objectId,
         string battlefieldObjectId,
         string controllerId)
     {
-        return IsReadyFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
+        return IsFaceUpBattlefieldUnitAtBattlefield(state, objectId, battlefieldObjectId, out var cardObject)
             && !string.Equals(EffectiveFieldControllerId(state, objectId, cardObject), controllerId, StringComparison.Ordinal);
     }
 
-    private static bool IsReadyFaceUpBattlefieldUnitAtBattlefield(
+    private static bool IsFaceUpBattlefieldUnitAtBattlefield(
         MatchState state,
         string objectId,
         string battlefieldObjectId,
@@ -1723,7 +1748,6 @@ public sealed record MatchState
         if (!state.CardObjects.TryGetValue(objectId, out var knownCardObject)
             || string.IsNullOrWhiteSpace(knownCardObject.CardNo)
             || knownCardObject.IsFaceDown
-            || knownCardObject.IsExhausted
             || knownCardObject.IsAttacking
             || knownCardObject.IsDefending
             || knownCardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -1750,6 +1774,12 @@ public sealed record MatchState
             return cardObject.ControllerId;
         }
 
+        // A battlefield can be owned while uncontrolled (CN core 190.2).
+        if (cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal))
+        {
+            return string.Empty;
+        }
+
         if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
         {
             return cardObject.OwnerId;
@@ -1758,16 +1788,6 @@ public sealed record MatchState
         return TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location)
             ? location.PlayerId
             : string.Empty;
-    }
-
-    private static string EffectiveOwnedControllerId(CardObjectState cardObject)
-    {
-        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
-        {
-            return cardObject.ControllerId;
-        }
-
-        return cardObject.OwnerId ?? string.Empty;
     }
 
     private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)
@@ -2083,7 +2103,8 @@ public sealed record MatchState
     {
         return effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
-            || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal);
+            || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattlefieldContestRules.InitiatorPrefix, StringComparison.Ordinal);
     }
 
     private static ContinuousEffectState ApplySourceOrder(
@@ -4205,8 +4226,8 @@ public sealed record MatchState
                 NormalizeOptionalText(resolution.PreviousControllerId),
                 NormalizeOptionalText(resolution.ControllerId),
                 NormalizeOptionalText(resolution.SourceObjectId),
-                NormalizeTextList(resolution.ParticipantObjectIds),
-                NormalizeTextList(resolution.RelatedEventKinds)))
+                NormalizeOrderedTextList(resolution.ParticipantObjectIds),
+                NormalizeOrderedTextList(resolution.RelatedEventKinds)))
             .Where(resolution => !string.IsNullOrWhiteSpace(resolution.BattlefieldObjectId))
             .Take(12)
             .ToArray();
@@ -4226,12 +4247,12 @@ public sealed record MatchState
                 NormalizeOptionalText(resolution.AttackingPlayerId),
                 NormalizeOptionalText(resolution.DefendingPlayerId),
                 NormalizeOptionalText(resolution.WinnerPlayerId),
-                NormalizeTextList(resolution.AttackerObjectIds),
-                NormalizeTextList(resolution.DefenderObjectIds),
-                NormalizeTextList(resolution.SurvivingAttackerObjectIds),
-                NormalizeTextList(resolution.SurvivingDefenderObjectIds),
-                NormalizeTextList(resolution.DestroyedObjectIds),
-                NormalizeTextList(resolution.RelatedEventKinds)))
+                NormalizeOrderedTextList(resolution.AttackerObjectIds),
+                NormalizeOrderedTextList(resolution.DefenderObjectIds),
+                NormalizeOrderedTextList(resolution.SurvivingAttackerObjectIds),
+                NormalizeOrderedTextList(resolution.SurvivingDefenderObjectIds),
+                NormalizeOrderedTextList(resolution.DestroyedObjectIds),
+                NormalizeOrderedTextList(resolution.RelatedEventKinds)))
             .Take(12)
             .ToArray();
     }
@@ -4240,6 +4261,11 @@ public sealed record MatchState
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
+
+    // Resolution histories retain command/event order across save and recovery.
+    private static IReadOnlyList<string> NormalizeOrderedTextList(IReadOnlyList<string>? values) =>
+        (values ?? []).Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim()).Distinct(StringComparer.Ordinal).ToArray();
 
     private static IReadOnlyList<string> NormalizeTextList(IReadOnlyList<string>? values)
     {
@@ -5205,13 +5231,7 @@ public sealed record ResolutionResult(
 
     private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
     {
-        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
-        {
-            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
-        }
-
-        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
-            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
+        return CardControlRules.IsControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static Dictionary<string, object?> BuildStackItemSnapshotView(
@@ -7159,6 +7179,13 @@ internal static class ActionPromptBuilder
     public static IReadOnlyList<string> StackPriorityActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
+        if (ResourceActionWindow.CanAct(state, playerId))
+        {
+            if (SourcesFor(state, playerId, CommandTypes.TapRune)?.Count > 0)
+                actions.Add(CommandTypes.TapRune);
+            if (SourcesFor(state, playerId, CommandTypes.RecycleRune)?.Count > 0)
+                actions.Add(CommandTypes.RecycleRune);
+        }
         if (SourcesFor(state, playerId, "PLAY_CARD")?.Count > 0)
         {
             actions.Add("PLAY_CARD");
@@ -7195,6 +7222,13 @@ internal static class ActionPromptBuilder
     public static IReadOnlyList<string> SpellDuelFocusActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
+        if (ResourceActionWindow.CanAct(state, playerId))
+        {
+            if (SourcesFor(state, playerId, CommandTypes.TapRune)?.Count > 0)
+                actions.Add(CommandTypes.TapRune);
+            if (SourcesFor(state, playerId, CommandTypes.RecycleRune)?.Count > 0)
+                actions.Add(CommandTypes.RecycleRune);
+        }
         if (SourcesFor(state, playerId, "PLAY_CARD")?.Count > 0)
         {
             actions.Add("PLAY_CARD");
@@ -10067,15 +10101,13 @@ internal static class ActionPromptBuilder
         string playerId,
         string origin)
     {
-        IEnumerable<ActionPromptChoiceDto> choices = state.PlayerZones.TryGetValue(playerId, out var zones)
-            ? zones.Battlefields
+        IEnumerable<ActionPromptChoiceDto> choices = state.BattlefieldStates.Keys
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                     && IsPromptBattlefieldCardObject(cardObject))
                 .Select(objectId => new ActionPromptChoiceDto(
                     $"{MoveUnitBattlefieldZone}:{objectId}",
                     BattlefieldLocationLabel(state, objectId),
-                    "implemented precise battlefield roam destination"))
-            : [];
+                    "implemented precise battlefield roam destination"));
 
         return choices
             .Append(new ActionPromptChoiceDto(
@@ -14463,27 +14495,31 @@ internal static class ActionPromptBuilder
             return [];
         }
 
+        // A battle needs opposing units at one physical battlefield (CN 461).
+        // Abstract legacy fixtures without physical occupancy retain their compatibility path.
+        if (state.BattlefieldStates.Values.Any(field => field.OccupantObjectIds.Count > 0)
+            && state.BattlefieldStates.Values.All(field => !field.Contested)
+            && state.PlayerZones.Values.SelectMany(zones => zones.Battlefields)
+                .Where(id => state.CardObjects.TryGetValue(id, out var card) && card.Tags.Contains(CardObjectTags.UnitCard))
+                .All(id => state.ObjectLocations.TryGetValue(id, out var location)
+                    && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId)))
+        {
+            return [];
+        }
+
         var activeStartBattleTask = ResolutionResult.ActiveStartBattleTask(state);
         var activeBattlefieldObjectId = activeStartBattleTask?.BattlefieldObjectId ?? string.Empty;
         var defenderCandidates = OpposingBattlefieldObjects(state, playerId)
             .Where(entry => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
                 || IsObjectLocatedAtBattlefield(state, entry.ObjectId, activeBattlefieldObjectId))
-            .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
+            .Where(entry => IsFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
             .Select(entry => new
             {
                 entry.ObjectId,
-                Choice = ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"),
-                SupportsMultiDefenderAssignment = HasBattleDamageAssignmentKeyword(
-                    state,
-                    entry.ObjectId,
-                    state.CardObjects[entry.ObjectId])
+                Choice = ObjectChoice(state, entry.ObjectId, "服务端合法防守单位")
             })
             .ToArray();
         var defenderChoices = defenderCandidates
-            .Select(entry => entry.Choice)
-            .ToArray();
-        var assignmentDefenderChoices = defenderCandidates
-            .Where(entry => entry.SupportsMultiDefenderAssignment)
             .Select(entry => entry.Choice)
             .ToArray();
         var battlefieldChoices = string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
@@ -14499,7 +14535,7 @@ internal static class ActionPromptBuilder
         var attackerCandidates = zones.Battlefields
             .Where(objectId => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
                 || IsObjectLocatedAtBattlefield(state, objectId, activeBattlefieldObjectId))
-            .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
+            .Where(objectId => IsFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
             .Select(objectId => new
             {
@@ -14516,27 +14552,25 @@ internal static class ActionPromptBuilder
                     .Where(candidate => !string.Equals(candidate.ObjectId, attacker.ObjectId, StringComparison.Ordinal))
                     .Select(candidate => candidate.Choice)
                     .ToArray();
-                var maxAttackerCount = alternateAttackerChoices.Length > 0 ? 2 : 1;
+                var maxAttackerCount = attackerCandidates.Length;
+                var allParticipantsRequired = !string.IsNullOrWhiteSpace(activeBattlefieldObjectId);
                 var attackerChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
                 {
                     ["0"] = [attacker.Choice]
                 };
-                if (maxAttackerCount > 1)
+                for (var index = 1; index < maxAttackerCount; index++)
                 {
-                    attackerChoicesByIndex["1"] = alternateAttackerChoices;
+                    attackerChoicesByIndex[index.ToString(System.Globalization.CultureInfo.InvariantCulture)] = alternateAttackerChoices;
                 }
 
-                var maxDefenderCount = defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0 ? 2 : 1;
-                var secondDefenderChoices = defenderChoices.Length == 2 && assignmentDefenderChoices.Length == 1
-                    ? defenderChoices
-                    : assignmentDefenderChoices;
+                var maxDefenderCount = defenderChoices.Length;
                 var targetChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
                 {
                     ["0"] = defenderChoices
                 };
-                if (maxDefenderCount > 1)
+                for (var index = 1; index < maxDefenderCount; index++)
                 {
-                    targetChoicesByIndex["1"] = secondDefenderChoices;
+                    targetChoicesByIndex[index.ToString(System.Globalization.CultureInfo.InvariantCulture)] = defenderChoices;
                 }
                 var triggerBattlefieldObjectId = DeclareBattleTriggerBattlefieldObjectId(
                     state,
@@ -14569,13 +14603,13 @@ internal static class ActionPromptBuilder
                     attacker.ObjectId,
                     attacker.CardObject.CardNo ?? string.Empty,
                     attacker.Choice.Label,
-                    1,
+                    allParticipantsRequired ? maxAttackerCount : 1,
                     maxAttackerCount,
-                    maxAttackerCount > 1 ? "1 个，或 2 个攻击单位" : "1 个攻击单位",
+                    allParticipantsRequired ? $"全部 {maxAttackerCount} 名进攻单位" : $"最多 {maxAttackerCount} 名进攻单位",
                     attackerChoicesByIndex,
-                    1,
+                    allParticipantsRequired ? maxDefenderCount : 1,
                     maxDefenderCount,
-                    maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
+                    allParticipantsRequired ? $"全部 {maxDefenderCount} 名防守单位" : $"最多 {maxDefenderCount} 名防守单位",
                     targetChoicesByIndex,
                     minBattlefieldTargetCount,
                     maxBattlefieldTargetCount,
@@ -17165,14 +17199,14 @@ internal static class ActionPromptBuilder
             ["optionalCostPolicy"] = "source-specific-required-combat-assignment-plus-server-filtered-brush-score-replacement",
             ["attackerCount"] = 1,
             ["attackerCountMin"] = 1,
-            ["attackerCountMax"] = 2,
+            ["attackerCountMax"] = sourceRequirements.Select(requirement => (int)requirement["maxAttackerCount"]!).DefaultIfEmpty(0).Max(),
             ["defenderCountMin"] = 1,
-            ["defenderCountMax"] = 2,
-            ["multiAttackerPolicy"] = "up-to-two-attackers-representative-path",
-            ["multiDefenderPolicy"] = "up-to-two-defenders-requires-assignment-keyword-representative-path",
-            ["multiParticipantBattlePolicy"] = "up-to-two-attackers-and-defenders-without-independent-assignment-prompt",
+            ["defenderCountMax"] = sourceRequirements.Select(requirement => (int)requirement["maxDefenderCount"]!).DefaultIfEmpty(0).Max(),
+            ["multiAttackerPolicy"] = "all-units-at-physical-battlefield",
+            ["multiDefenderPolicy"] = "all-units-at-physical-battlefield",
+            ["multiParticipantBattlePolicy"] = "server-includes-all-physical-battlefield-participants",
             ["samePriorityAssignmentPolicy"] = "preserve-player-submitted-object-order-within-same-priority",
-            ["candidateFiltering"] = "battlefield-zone-controlled-ready-face-up-units-not-already-in-combat",
+            ["candidateFiltering"] = "battlefield-zone-controlled-face-up-units-not-already-in-combat",
             ["sourceRequirements"] = sourceRequirements
         };
     }
@@ -17558,6 +17592,9 @@ internal static class ActionPromptBuilder
             ["sourcePolicy"] = "implemented-ready-face-up-controlled-non-combat-unit",
             ["destinationPolicy"] = "source-specific-server-filtered-destinations",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
+            ["supportsSimultaneousMovement"] = state.BattlefieldStates.Count > 0,
+            ["powerPerExtraUnitByDestination"] = state.BattlefieldStates.Keys.ToDictionary(
+                id => "BATTLEFIELD:" + id, id => StandardMovementCostRules.PowerPerExtraUnit(state, playerId, id)),
             ["sourceRequirements"] = sourceRequirements
         };
     }
@@ -17850,13 +17887,16 @@ internal static class ActionPromptBuilder
         }
 
         var battlefieldDestinations = MoveUnitBaseToBattlefieldDestinationChoices(state)
+            .Where(choice => state.CardObjects.TryGetValue(choice.Id["BATTLEFIELD:".Length..], out var battlefield)
+                && (string.Equals(behavior.Mode, "AMBUSH", StringComparison.Ordinal)
+                    || string.Equals(battlefield.ControllerId, playerId, StringComparison.Ordinal)))
             .Where(choice => !PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, choice.Id))
             .ToArray();
         if (battlefieldDestinations.Length > 0)
         {
             choices.AddRange(battlefieldDestinations);
         }
-        else
+        else if (state.BattlefieldStates.Count == 0)
         {
             var battlefieldDestination = $"BATTLEFIELD:{playerId}-MAIN";
             if (!PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, battlefieldDestination))
@@ -17933,7 +17973,7 @@ internal static class ActionPromptBuilder
             .SelectMany(entry => entry.Value.Battlefields.Select(objectId => (entry.Key, objectId)));
     }
 
-    private static bool IsReadyFaceUpBattlefieldUnitForBattle(MatchState state, string zonePlayerId, string objectId)
+    private static bool IsFaceUpBattlefieldUnitForBattle(MatchState state, string zonePlayerId, string objectId)
     {
         return state.PlayerZones.TryGetValue(zonePlayerId, out var zones)
             && zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
@@ -17941,7 +17981,6 @@ internal static class ActionPromptBuilder
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, zonePlayerId)
             && !cardObject.IsFaceDown
-            && !cardObject.IsExhausted
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
@@ -18118,6 +18157,12 @@ internal static class ActionPromptBuilder
             return cardObject.ControllerId;
         }
 
+        // A battlefield can be owned while uncontrolled (CN core 190.2).
+        if (cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal))
+        {
+            return string.Empty;
+        }
+
         if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
         {
             return cardObject.OwnerId;
@@ -18215,13 +18260,7 @@ internal static class ActionPromptBuilder
 
     private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
     {
-        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
-        {
-            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
-        }
-
-        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
-            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
+        return CardControlRules.IsControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static bool HasDelimitedTag(string values, string tag)
@@ -18696,7 +18735,9 @@ public interface IMatchSessionRegistry
     ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
 }
 
-public sealed record MatchSessionOptions(bool AllowLegacyReadyWithoutDeck = true)
+public sealed record MatchSessionOptions(
+    bool AllowLegacyReadyWithoutDeck = true,
+    OfficialDeckFormat DeckFormat = OfficialDeckFormat.CoreRules)
 {
     public static MatchSessionOptions Default { get; } = new();
 }
@@ -19281,7 +19322,7 @@ public sealed class MatchSession : IMatchSession
                     command.RuneDeck,
                     command.Battlefields));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                var validation = OfficialDeckValidator.Validate(decklist, catalog);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
                 if (!validation.IsValid)
                 {
                     result = ResolutionResult.Rejected(
@@ -19447,6 +19488,22 @@ public sealed class MatchSession : IMatchSession
                     ErrorCodes.InvalidDeck);
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                 return rejected;
+            }
+
+            if (options.DeckFormat != OfficialDeckFormat.CoreRules)
+            {
+                var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
+                foreach (var submitted in state.PlayerDecklists.Values)
+                {
+                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat);
+                    if (!validation.IsValid)
+                    {
+                        var rejected = ResolutionResult.Rejected(state,
+                            $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                        intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
+                        return rejected;
+                    }
+                }
             }
 
             var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
@@ -20210,7 +20267,7 @@ public sealed class MatchSession : IMatchSession
             manaCost: Math.Max(0, card.Energy ?? 0),
             cardNo: card.CardNo,
             ownerId: playerId,
-            controllerId: playerId);
+            controllerId: card.CardCategoryName == "战场" ? null : playerId);
     }
 
     private static IReadOnlyList<string> OfficialCardTags(OfficialCard card)
@@ -20372,6 +20429,7 @@ public sealed class MatchSession : IMatchSession
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
             "ornn-equipment-look" => BuildOrnnEquipmentLookScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
+            "standard-group-movement" => BuildStandardGroupMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
@@ -22346,6 +22404,32 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+    }
+
+    private static MatchState BuildStandardGroupMovementScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var scene = BuildMidgameShowcaseScenario(current, seed);
+        var cards = scene.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var locations = scene.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var zones = scene.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        foreach (var (player, playerZones) in scene.PlayerZones)
+        {
+            var units = playerZones.Battlefields.Where(id => cards.TryGetValue(id, out var card)
+                && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal) && !card.IsFaceDown
+                && !card.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)).ToArray();
+            zones[player] = playerZones with
+            {
+                Base = playerZones.Base.Concat(units).ToArray(),
+                Battlefields = playerZones.Battlefields.Except(units, StringComparer.Ordinal).ToArray()
+            };
+            foreach (var id in units)
+            {
+                cards[id] = cards[id] with { IsExhausted = false, IsAttacking = false, IsDefending = false };
+                locations[id] = new(player, "BASE");
+            }
+        }
+        return scene with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones,
+            PlayerScores = new Dictionary<string, int> { [seed.P1] = 0, [seed.P2] = 0 } };
     }
 
     private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)

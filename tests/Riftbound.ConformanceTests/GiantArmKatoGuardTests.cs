@@ -59,7 +59,7 @@ public sealed class GiantArmKatoGuardTests
         Assert.Equal("P1", unit.ControllerId);
         Assert.Equal(3, unit.Power);
         Assert.Equal([CardObjectTags.UnitCard, "法盾"], unit.Tags);
-        Assert.False(unit.IsExhausted);
+        Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-GIANT-ARM-KATO", StringComparison.Ordinal)

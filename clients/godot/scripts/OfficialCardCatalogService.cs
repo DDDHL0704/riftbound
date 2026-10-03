@@ -14,8 +14,13 @@ public sealed class OfficialCardCatalogService
         string snapshotPath,
         CancellationToken cancellationToken = default)
     {
-        var globalPath = ProjectSettings.GlobalizePath(snapshotPath);
-        await using var stream = File.OpenRead(globalPath);
+        // Exported resources live inside a PCK, not the source checkout.
+        var bytes = Godot.FileAccess.GetFileAsBytes(snapshotPath);
+        if (bytes.Length == 0)
+        {
+            throw new FileNotFoundException("客户端卡牌资料缺失，请重新安装完整客户端。", snapshotPath);
+        }
+        await using var stream = new MemoryStream(bytes);
         using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
         var cards = document.RootElement.GetProperty("cards");
         var entries = new Dictionary<string, CardCatalogEntry>(StringComparer.Ordinal);
@@ -81,7 +86,12 @@ public sealed class OfficialCardCatalogService
             if (item.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(item.GetString()))
             {
-                values.Add(item.GetString()!);
+                values.Add(item.GetString()!.ToLowerInvariant() switch
+                {
+                    "red" => "红色", "blue" => "蓝色", "green" => "绿色",
+                    "yellow" => "黄色", "purple" => "紫色", "orange" => "橙色",
+                    "colorless" => "无色", _ => item.GetString()!
+                });
             }
         }
 

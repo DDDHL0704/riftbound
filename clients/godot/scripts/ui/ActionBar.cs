@@ -36,7 +36,7 @@ public partial class ActionBar : Control
         _submitButton.Pressed += SubmitCurrent;
 
         ApplyTheme();
-        SetWaiting("等待服务端提供下一步行动。");
+        SetWaiting("正在同步下一步行动。");
     }
 
     public void ApplyTheme()
@@ -55,9 +55,8 @@ public partial class ActionBar : Control
         }
 
         _pending = false;
-        _guidance.Text = string.IsNullOrWhiteSpace(guidance)
-            ? "请选择服务端提供的行动。"
-            : guidance;
+        _guidance.Text = "可用行动";
+        _guidance.TooltipText = guidance;
         ClearChildren(_actionChoices);
         foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial))
         {
@@ -68,6 +67,7 @@ public partial class ActionBar : Control
                 CustomMinimumSize = new Vector2(104, 40),
                 FocusMode = FocusModeEnum.All
             };
+            MinimalTheme.Apply(button);
             if (string.Equals(action.Name, "SURRENDER", StringComparison.Ordinal))
             {
                 button.AddThemeColorOverride("font_color", MinimalTheme.Hostile);
@@ -101,7 +101,7 @@ public partial class ActionBar : Control
         _current = state;
         _selectionSummary.Text = state.Summary;
         _stepLabel.Text = string.IsNullOrWhiteSpace(stepLabel)
-            ? state.CanSubmit ? "可以提交" : "等待服务端选项"
+            ? state.CanSubmit ? "可以提交" : "等待可选行动"
             : stepRequired ? $"{stepLabel}（必选）" : $"{stepLabel}（可选）";
         ClearChildren(_stepChoices);
         foreach (var choice in choices)
@@ -114,6 +114,7 @@ public partial class ActionBar : Control
                 FocusMode = FocusModeEnum.All,
                 Disabled = _pending
             };
+            MinimalTheme.Apply(button);
             var role = choice.Role;
             var choiceId = choice.Id;
             button.Pressed += () => ChoiceSelected?.Invoke(role, choiceId);
@@ -136,7 +137,7 @@ public partial class ActionBar : Control
         }
 
         _current = null;
-        _selectionSummary.Text = "选择行动后，桌面会标出服务器允许的对象。";
+        _selectionSummary.Text = "选择行动后，可选择的卡牌会高亮显示。";
         _stepLabel.Text = string.Empty;
         ClearChildren(_stepChoices);
         _cancelButton.Visible = false;
@@ -154,7 +155,7 @@ public partial class ActionBar : Control
         _pending = false;
         _guidance.Text = guidance;
         ClearChildren(_actionChoices);
-        _actionChoices.AddChild(SecondaryLabel("等待服务端"));
+        _actionChoices.AddChild(SecondaryLabel("正在同步"));
         ClearSelectionDisplay();
     }
 
@@ -269,7 +270,7 @@ public partial class ActionBar : Control
 
     private static string FriendlyChoiceLabel(string label)
     {
-        var value = string.IsNullOrWhiteSpace(label) ? "服务端选项" : label.Trim();
+        var value = string.IsNullOrWhiteSpace(label) ? "可选行动" : label.Trim();
         const int maxLength = 24;
         return value.Length <= maxLength ? value : $"{value[..(maxLength - 1)]}…";
     }

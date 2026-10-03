@@ -4379,7 +4379,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void MatchStateBattlefieldControllerAndStandbyCleanupUseLegacyOwnershipFallback()
+    public void MatchStateOwnedUncontrolledBattlefieldRemovesBothPlayersStandby()
     {
         var state = new MatchState(
             "battlefield-legacy-controller-standby-room",
@@ -4430,12 +4430,12 @@ public sealed class ConformanceFixtureShapeTests
             });
 
         var battlefield = Assert.Single(state.BattlefieldStates.Values);
-        Assert.Equal("alice", battlefield.ControllerId);
-        Assert.Equal("CONTROLLED", battlefield.Status);
+        Assert.Null(battlefield.ControllerId);
+        Assert.Equal("UNCONTROLLED", battlefield.Status);
         Assert.False(battlefield.Contested);
         Assert.Equal(["A-STANDBY-LEGACY", "B-STANDBY-LEGACY"], battlefield.StandbyObjectIds);
 
-        Assert.DoesNotContain(
+        Assert.Contains(
             state.PendingCleanupTasks,
             task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
                 && string.Equals(task.ObjectId, "A-STANDBY-LEGACY", StringComparison.Ordinal));
@@ -4449,8 +4449,8 @@ public sealed class ConformanceFixtureShapeTests
         var lanes = Assert.IsType<Dictionary<string, object?>>(snapshot.Lanes);
         var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(lanes["battlefields"]);
         var battlefieldView = Assert.Single(battlefields);
-        Assert.Equal("alice", Assert.IsType<string>(battlefieldView["controllerId"]));
-        Assert.Equal("CONTROLLED", Assert.IsType<string>(battlefieldView["status"]));
+        Assert.Null(battlefieldView["controllerId"]);
+        Assert.Equal("UNCONTROLLED", Assert.IsType<string>(battlefieldView["status"]));
         Assert.Equal(["REMOVE_ILLEGAL_STANDBY"], StringList(battlefieldView["pendingTaskKinds"]));
     }
 

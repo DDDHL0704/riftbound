@@ -25,6 +25,7 @@ public interface IPublicMatchDirectory
 public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
 {
     private readonly Func<DateTimeOffset> clock;
+    private readonly PlayerConnections? connections;
     private readonly Dictionary<string, PublicMatchEntry> matches = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim gate = new(1, 1);
 
@@ -33,9 +34,10 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
     {
     }
 
-    public InMemoryPublicMatchDirectory(Func<DateTimeOffset> clock)
+    public InMemoryPublicMatchDirectory(Func<DateTimeOffset> clock, PlayerConnections? connections = null)
     {
         this.clock = clock;
+        this.connections = connections;
     }
 
     public async ValueTask<PublicMatchDto> CreateAsync(
@@ -51,6 +53,10 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            foreach (var previous in matches.Values.Where(item => item.HostPlayerId == normalizedHostPlayerId).ToArray())
+            {
+                matches.Remove(previous.RoomId);
+            }
             matches[normalizedRoomId] = entry;
             return entry.ToDto();
         }
@@ -66,6 +72,7 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
         try
         {
             return matches.Values
+                .Where(match => connections is null || connections.IsInRoom(match.HostPlayerId, match.RoomId))
                 .OrderBy(match => match.CreatedAt)
                 .ThenBy(match => match.RoomId, StringComparer.Ordinal)
                 .Select(match => match.ToDto())

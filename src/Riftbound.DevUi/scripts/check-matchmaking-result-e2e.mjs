@@ -54,8 +54,13 @@ try {
   await invokeHub(clients[1], "Ready", roomId, clients[1].playerId, intentId("ready-p2"));
   await waitFor(() => phase(clients[0]) === "MULLIGAN" && phase(clients[1]) === "MULLIGAN", "mulligan phase");
 
-  await submit(clients[0], { cmdType: "MULLIGAN", handObjectIds: [] }, "mulligan-p1");
-  await submit(clients[1], { cmdType: "MULLIGAN", handObjectIds: [] }, "mulligan-p2");
+  for (let index = 0; index < clients.length; index++) {
+    const active = await waitFor(
+      () => clients.find((client) => client.state.prompt?.actionable && client.state.prompt?.actions?.includes("MULLIGAN")),
+      `mulligan actor ${index + 1}`);
+    await submit(active, { cmdType: "MULLIGAN", handObjectIds: [] }, `mulligan-${index}`);
+    await waitFor(() => !active.state.prompt?.actions?.includes("MULLIGAN"), "mulligan acknowledged");
+  }
   await waitFor(() => phase(clients[0]) === "MAIN" && phase(clients[1]) === "MAIN", "main phase");
   assertOpponentHandRedacted(clients[0], clients[1].playerId);
   assertOpponentHandRedacted(clients[1], clients[0].playerId);

@@ -5906,7 +5906,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.TapRune, prompt.SnapshotTick.Value);
             },
             ErrorCodes.PhaseNotAllowed,
-            "横置符文只能在当前玩家的开放主阶段提交。");
+            "当前玩家没有使用符文资源的行动权或焦点。");
     }
 
     private static async Task AssertTapRuneFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
@@ -6159,7 +6159,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.RecycleRune, prompt.SnapshotTick.Value);
             },
             ErrorCodes.PhaseNotAllowed,
-            "回收符文只能在当前玩家的开放主阶段提交。");
+            "当前玩家没有使用符文资源的行动权或焦点。");
     }
 
     private static async Task AssertRecycleRuneFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
@@ -10443,7 +10443,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-tap-rune-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.TapRune, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "横置符文只能在当前玩家的开放主阶段提交。");
+            "当前玩家没有使用符文资源的行动权或焦点。");
     }
 
     [Fact]
@@ -10476,7 +10476,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-recycle-rune-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.RecycleRune, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.PhaseNotAllowed,
-            "回收符文只能在当前玩家的开放主阶段提交。");
+            "当前玩家没有使用符文资源的行动权或焦点。");
     }
 
     [Fact]
@@ -15266,7 +15266,7 @@ public sealed class OfficialOpeningTests
 
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("横置符文只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15319,7 +15319,7 @@ public sealed class OfficialOpeningTests
 
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("回收符文只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);

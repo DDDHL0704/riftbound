@@ -63,7 +63,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
         Assert.Equal("P1", unit.ControllerId);
         Assert.Equal(5, unit.Power);
         Assert.Equal([CardObjectTags.UnitCard], unit.Tags);
-        Assert.False(unit.IsExhausted);
+        Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal)

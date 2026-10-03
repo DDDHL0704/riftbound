@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Godot;
 
 namespace Riftbound.GodotClient;
@@ -16,11 +17,12 @@ internal sealed record CardViewData(
     string ColorText,
     bool Visible,
     bool FaceDown,
-    string ImagePath)
+    string ImagePath,
+    bool IsExhausted = false)
 {
     public string Label => Visible && !string.IsNullOrWhiteSpace(CardNo)
         ? string.IsNullOrWhiteSpace(CardName) ? CardNo : $"{CardNo}\n{CardName}"
-        : "Hidden";
+        : "隐藏卡牌";
 
     public string PreviewSummary
     {
@@ -28,7 +30,7 @@ internal sealed record CardViewData(
         {
             if (!Visible || FaceDown)
             {
-                return "Hidden card\nIdentity is hidden by the server snapshot.";
+                return "隐藏卡牌\n卡牌身份尚未公开。";
             }
 
             var title = string.IsNullOrWhiteSpace(CardName)
@@ -72,12 +74,12 @@ internal sealed record CardViewData(
             var stats = new List<string>();
             if (Energy >= 0)
             {
-                stats.Add($"Cost {Energy}");
+                stats.Add($"费用 {Energy}");
             }
 
             if (Power >= 0)
             {
-                stats.Add($"Power {Power}");
+                stats.Add($"战力 {Power}");
             }
 
             if (stats.Count > 0)
@@ -87,10 +89,19 @@ internal sealed record CardViewData(
 
             if (!string.IsNullOrWhiteSpace(EffectText))
             {
-                lines.Add(EffectText);
+                lines.Add(Regex.Replace(EffectText, @"\{\{([^{}]+)\}\}", match =>
+                {
+                    var token = match.Groups[1].Value;
+                    return token switch
+                    {
+                        "S" => "战力", "A" => "任意符能",
+                        "红色" or "蓝色" or "绿色" or "黄色" or "紫色" or "橙色" => token + "符能",
+                        _ => int.TryParse(token, out _) ? token + "法力" : token
+                    };
+                }));
             }
 
-            return lines.Count == 0 ? "Visible card" : string.Join("\n", lines);
+            return lines.Count == 0 ? "可见卡牌" : string.Join("\n", lines);
         }
     }
 
@@ -103,6 +114,7 @@ internal sealed record CardViewData(
             ["cardNo"] = CardNo,
             ["visible"] = Visible,
             ["faceDown"] = FaceDown,
+            ["isExhausted"] = IsExhausted,
             ["category"] = Category,
             ["energy"] = Energy,
             ["power"] = Power,

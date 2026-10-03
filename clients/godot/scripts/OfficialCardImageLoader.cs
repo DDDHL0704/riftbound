@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -11,7 +12,36 @@ namespace Riftbound.GodotClient;
 
 public sealed class OfficialCardImageLoader
 {
-    private static readonly System.Net.Http.HttpClient HttpClient = new();
+    private static readonly System.Net.Http.HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
+    private readonly ConcurrentDictionary<string, Lazy<Task<string?>>> _requests = new(StringComparer.Ordinal);
+    private readonly SemaphoreSlim _downloads = new(6);
+    public event Action? ImageAvailable;
+
+    // Snapshot rendering must never depend on CDN latency. A completed cache
+    // request is reused, including failures, so every snapshot cannot re-download.
+    public string? GetOrRequestFrontImagePath(CardCatalogEntry card, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(card.FrontImage)) return null;
+        var request = _requests.GetOrAdd(card.FrontImage, _ => new Lazy<Task<string?>>(
+            () => DownloadAndNotifyAsync(card, cancellationToken))).Value;
+        return request.IsCompletedSuccessfully ? request.Result : null;
+    }
+
+    private async Task<string?> DownloadAndNotifyAsync(CardCatalogEntry card, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _downloads.WaitAsync(cancellationToken);
+            try
+            {
+                var path = await LoadOfficialFrontImagePathAsync(card, cancellationToken);
+                if (path is not null) ImageAvailable?.Invoke();
+                return path;
+            }
+            finally { _downloads.Release(); }
+        }
+        catch (OperationCanceledException) { return null; }
+    }
 
     public async Task<Image?> LoadOfficialFrontImageAsync(
         CardCatalogEntry card,
@@ -41,6 +71,11 @@ public sealed class OfficialCardImageLoader
         try
         {
             return await EnsureCachedOrDownloadAsync(card, cachePath, extension, cancellationToken);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            GD.PushWarning($"Official card image timed out: {card.CardNo}");
+            return null;
         }
         catch (OperationCanceledException)
         {
@@ -82,7 +117,16 @@ public sealed class OfficialCardImageLoader
             return null;
         }
 
-        await File.WriteAllBytesAsync(cachePath, bytes, cancellationToken);
+        var temporaryPath = cachePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            await File.WriteAllBytesAsync(temporaryPath, bytes, cancellationToken);
+            File.Move(temporaryPath, cachePath, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath)) TryDeleteBadCache(temporaryPath);
+        }
         image.Dispose();
         return cachePath;
     }

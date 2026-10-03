@@ -18,7 +18,8 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "本 fixture 覆盖先打出源单位、结算成为场上对象，再用该对象的卡号身份执行无目标激活技能；技能目标税、横置技能、装备技能和通用技能 registry 仍暂缓。"
-    }
+    },
+    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
   ],
   "roomId": "p4-play-then-activate-vi-room",
   "players": ["P1", "P2"],
@@ -200,7 +201,7 @@
           "cardNo": "UNL-030/219",
           "power": 6,
           "untilEndOfTurnPowerModifier": 3,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT", "法盾"],
           "manaCost": 0
         }

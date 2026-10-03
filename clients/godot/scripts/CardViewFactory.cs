@@ -16,7 +16,8 @@ internal sealed class CardViewFactory
     public async Task<CardViewData> BuildAsync(
         SnapshotCardRef card,
         IReadOnlyDictionary<string, CardCatalogEntry> officialCatalog,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool waitForImage = true)
     {
         if (!card.Visible || !officialCatalog.TryGetValue(card.CardNo, out var entry))
         {
@@ -33,10 +34,13 @@ internal sealed class CardViewFactory
                 string.Empty,
                 card.Visible,
                 card.FaceDown,
-                ImagePath: string.Empty);
+                ImagePath: string.Empty,
+                IsExhausted: card.IsExhausted);
         }
 
-        var imagePath = await _imageLoader.LoadOfficialFrontImagePathAsync(entry, cancellationToken);
+        var imagePath = waitForImage
+            ? await _imageLoader.LoadOfficialFrontImagePathAsync(entry, cancellationToken)
+            : _imageLoader.GetOrRequestFrontImagePath(entry, cancellationToken);
         return new CardViewData(
             card.ObjectId,
             entry.CardNo,
@@ -50,6 +54,7 @@ internal sealed class CardViewFactory
             entry.ColorText,
             Visible: true,
             FaceDown: false,
-            imagePath ?? string.Empty);
+            imagePath ?? string.Empty,
+            IsExhausted: card.IsExhausted);
     }
 }

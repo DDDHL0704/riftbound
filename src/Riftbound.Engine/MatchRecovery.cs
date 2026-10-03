@@ -6728,10 +6728,6 @@ public static class MatchRecoveryValidator
             errors.Add($"{payloadLabel} {objectLabel} list must not be empty");
         }
 
-        if (objectIds.Count > 2)
-        {
-            errors.Add($"{payloadLabel} {objectLabel} list must contain at most 2 items");
-        }
     }
 
     private static void ValidateBattleResolutionResultListObjectMembership(

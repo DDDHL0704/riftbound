@@ -18,7 +18,8 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
-    }
+    },
+    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
   ],
   "roomId": "p2-preflight-ogn-commander-ledros-spirit-room",
   "players": ["P1", "P2"],
@@ -110,7 +111,7 @@
         "P1-UNIT-OGN-COMMANDER-LEDROS": {
           "power": 8,
           "tags": ["CARD_TYPE:UNIT", "法盾", "游走", "灵体"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

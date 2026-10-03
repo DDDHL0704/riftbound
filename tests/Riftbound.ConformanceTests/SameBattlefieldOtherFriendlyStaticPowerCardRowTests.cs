@@ -67,9 +67,7 @@ public sealed class SameBattlefieldOtherFriendlyStaticPowerCardRowTests
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
 
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, DefenderObjectId, StringComparison.Ordinal));
+        var defenderDamageEvent = CombatTestDriver.DamageFrom(result, DefenderObjectId);
         Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);

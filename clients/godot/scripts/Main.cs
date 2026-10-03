@@ -43,8 +43,8 @@ public partial class Main : Control
     ];
 
     [Export] public string ServerUrl { get; set; } = "http://127.0.0.1:5088";
-    [Export] public bool AutoConnectOnReady { get; set; } = true;
-    [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://../../data/official/card-catalog.zh-CN.json";
+    [Export] public bool AutoConnectOnReady { get; set; } = false;
+    [Export] public string OfficialCatalogSnapshotPath { get; set; } = "res://data/card-catalog.zh-CN.json";
 
     private static readonly JsonSerializerOptions ClientJsonOptions = CreateClientJsonOptions();
     private readonly CancellationTokenSource _shutdown = new();
@@ -66,6 +66,8 @@ public partial class Main : Control
     private MulliganOverlay? _mulliganOverlay;
     private TriggerOrderOverlay? _triggerOrderOverlay;
     private DamageAssignmentOverlay? _damageAssignmentOverlay;
+    private MovementOverlay? _movementOverlay;
+    private Godot.Collections.Dictionary? _movementAction;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
     private string _visualScreenshotPath = string.Empty;
@@ -98,6 +100,9 @@ public partial class Main : Control
     private bool _ephemeralSession;
     private bool _isShuttingDown;
     private int _snapshotRenderVersion;
+    private WsServerMessage? _latestSnapshotMessage;
+    private int _imageRefreshRequested;
+    private double _imageRefreshElapsed;
     private string _lastJoinedMatchmakingRoom = string.Empty;
     private readonly HashSet<string> _autoSmokePromptSubmissions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _autoSmokeActionSubmissions = new(StringComparer.Ordinal);
@@ -116,6 +121,7 @@ public partial class Main : Control
     public Main()
     {
         _cardViewFactory = new CardViewFactory(_cardImageLoader);
+        _cardImageLoader.ImageAvailable += () => Interlocked.Exchange(ref _imageRefreshRequested, 1);
     }
 
     public override async void _Ready()
@@ -159,12 +165,13 @@ public partial class Main : Control
             ? PlayerSessionSettings.CreateDefault()
             : await _sessionStore.LoadAsync();
         _session = ApplyCommandLineOverrides(_session, args);
+        ServerUrl = ArgValue(args, "--riftbound-server=") ?? _session.ServerUrl ?? ServerUrl;
         ApplySessionToInputs();
         _officialCatalogLoadTask = LoadOfficialCatalogAsync();
         _ = LoadDecksAsync();
         _ = LoadPublicMatchesAsync();
 
-        if (AutoConnectOnReady && !_autoSmokeQuickMatch && !_autoSmokePublicMatch && !_autoSmokeJoinPublicMatch)
+        if ((AutoConnectOnReady || _autoSmoke) && !_autoSmokeQuickMatch && !_autoSmokePublicMatch && !_autoSmokeJoinPublicMatch)
         {
             await ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         }
@@ -209,6 +216,11 @@ public partial class Main : Control
 
     private bool HandleKeyboardAction(InputEvent input)
     {
+        if (_movementOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection")) _movementOverlay.Hide();
+            return input.IsActionPressed("ui_cancel_selection");
+        }
         if (_cardInspectOverlay?.IsVisibleInTree() == true)
         {
             if (input.IsActionPressed("ui_cancel_selection"))
@@ -325,6 +337,16 @@ public partial class Main : Control
 
     private void WireButtons()
     {
+        _movementOverlay = new MovementOverlay(); AddChild(_movementOverlay);
+        _movementOverlay.Confirmed += (destination, ids) =>
+        {
+            if (_movementAction is null || ids.Count == 0) return;
+            _ = SubmitSpecialPromptAsync(_movementAction, new Dictionary<string, object?>
+            {
+                ["cmdType"] = "MOVE_UNIT", ["sourceObjectId"] = ids[0], ["sourceObjectIds"] = ids,
+                ["destination"] = destination
+            }, "move_units");
+        };
         _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
         _lobbyScreen.ReconnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         _lobbyScreen.CreatePublicMatchRequested += () => _ = CreatePublicMatchAsync();
@@ -333,8 +355,12 @@ public partial class Main : Control
         _lobbyScreen.JoinPublicMatchRequested += () => _ = JoinSelectedPublicMatchAsync();
         _lobbyScreen.SubmitDeckRequested += () => _ = SubmitSelectedDeckAsync();
         _lobbyScreen.ReadyRequested += () => _ = ReadyAsync();
+        _lobbyScreen.RefreshPublicMatchesRequested += () => _ = LoadPublicMatchesAsync();
+        _lobbyScreen.DeckSelectionChanged += () => _ = RefreshDeckPreviewAsync();
         _matchScreen!.CardActivated += HandleMatchCardActivated;
         _matchScreen.ActionBar.ActionSelected += HandlePromptActionSelected;
+        _matchScreen.ReconnectRequested += () => _ = RetryConnectionAsync();
+        _matchScreen.ReturnToLobbyRequested += () => _ = ReturnToLobbyAsync();
         _matchScreen.ActionBar.ChoiceSelected += HandlePromptChoiceSelected;
         _matchScreen.ActionBar.CancelRequested += _promptInteractionController.ClearSelection;
         _matchScreen.ActionBar.SubmitRequested += state => _ = SubmitPromptSelectionAsync(state);
@@ -365,7 +391,36 @@ public partial class Main : Control
 
     private void HandlePromptActionSelected(string actionName)
     {
+        if (actionName == "MOVE_UNIT" && TryGetCurrentSpecialAction(actionName, out var action))
+        {
+            using var document = JsonDocument.Parse(action["candidateJson"].AsString());
+            if (_movementOverlay?.Open(document.RootElement, action["promptId"].AsString(),
+                action["snapshotTick"].AsInt64(), VisibleMovementCardView,
+                label => _officialCatalog.TryGetValue(label, out var entry) ? entry.CardName : label) == true)
+            {
+                _movementAction = action;
+                _promptInteractionController.ClearSelection();
+                return;
+            }
+        }
         _promptInteractionController.SelectAction(actionName);
+    }
+
+    private Godot.Collections.Dictionary? VisibleMovementCardView(string objectId)
+    {
+        if (_lastSnapshotSections is null) return null;
+        foreach (var section in _lastSnapshotSections)
+        {
+            if (!section.TryGetValue("kind", out var kind) || kind.AsString() != "wireTable") continue;
+            var zones = new List<Godot.Collections.Dictionary> { section["self"].AsGodotDictionary() };
+            zones.AddRange(section["lanes"].As<Godot.Collections.Array<Godot.Collections.Dictionary>>());
+            foreach (var zone in zones)
+                foreach (var key in new[] { "base", "selfUnits" })
+                    if (zone.TryGetValue(key, out var cards))
+                        foreach (var card in cards.As<Godot.Collections.Array<Godot.Collections.Dictionary>>())
+                            if (card.TryGetValue("objectId", out var id) && id.AsString() == objectId) return card;
+        }
+        return null;
     }
 
     private void HandlePromptChoiceSelected(string role, string choiceId)
@@ -451,7 +506,7 @@ public partial class Main : Control
 
         _matchScreen.ActionBar.ShowSelection(
             state,
-            _promptInteractionController.CurrentChoices,
+            FriendlyPromptChoices(),
             _promptInteractionController.CurrentStepLabel,
             _promptInteractionController.CurrentStepRequired);
         RefreshPromptInteractionVisuals();
@@ -462,6 +517,10 @@ public partial class Main : Control
         _matchScreen?.ActionBar.ClearSelectionDisplay();
         RefreshPromptInteractionVisuals();
     }
+
+    private IReadOnlyList<PromptChoice> FriendlyPromptChoices() => _promptInteractionController.CurrentChoices
+        .Select(choice => _officialCatalog.TryGetValue(choice.Label, out var entry)
+            ? choice with { Label = entry.CardName } : choice).ToArray();
 
     private void TryStageAutoSmokeUiAction()
     {
@@ -636,6 +695,7 @@ public partial class Main : Control
         {
             _lobbyScreen.HandleText = _session.Handle;
             _lobbyScreen.RoomText = _session.RoomId;
+            _lobbyScreen.ServerText = ServerUrl;
         }
     }
 
@@ -653,7 +713,7 @@ public partial class Main : Control
             room = PlayerSessionSettings.DefaultRoomId;
         }
 
-        return _session with { Handle = handle, RoomId = room };
+        return _session with { Handle = handle, RoomId = room, ServerUrl = _lobbyScreen?.ServerText.Trim().TrimEnd('/') ?? ServerUrl };
     }
 
     private async Task LoadDecksAsync()
@@ -738,10 +798,45 @@ public partial class Main : Control
         }
     }
 
+    private async Task RetryConnectionAsync()
+    {
+        try
+        {
+            await DisconnectAsync();
+            await ConnectAndRequestSnapshotAsync(useReconnectToken: true);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Connection error");
+            AppendLog($"Reconnect failed: {Escape(ex.Message)}");
+        }
+    }
+
     private async Task<bool> EnsureAuthenticatedConnectionAsync()
     {
         _session = PlayerSessionSettings.WithUsableKey(ReadSessionFromInputs());
+        if (!Uri.TryCreate(_session.ServerUrl, UriKind.Absolute, out var serverUri)
+            || (serverUri.Scheme != "http" && serverUri.Scheme != "https")
+            || !string.IsNullOrEmpty(serverUri.UserInfo) || !string.IsNullOrEmpty(serverUri.Query))
+        {
+            SetStatus("请输入有效的服务器地址，例如 https://game.example.com");
+            return false;
+        }
+        var serverChanged = ServerUrl != _session.ServerUrl;
+        if (_hub is not null && (serverChanged || (!string.IsNullOrEmpty(_authenticatedHandle)
+            && _authenticatedHandle != _session.Handle.Trim().ToLowerInvariant())))
+        {
+            await DisconnectAsync();
+            _authenticatedHandle = string.Empty;
+            _session = _session with { ReconnectToken = null };
+        }
+        ServerUrl = _session.ServerUrl!;
         await SaveSessionAsync();
+        if (serverChanged)
+        {
+            await LoadDecksAsync();
+            await LoadPublicMatchesAsync();
+        }
 
         SetStatus("Connecting");
         var hub = EnsureHubClient();
@@ -759,7 +854,11 @@ public partial class Main : Control
         AppendLog($"Authenticate: {auth.Status} ({auth.Handle}).");
         if (!auth.Authenticated)
         {
-            SetStatus($"Authentication rejected: {auth.Status}");
+            await DisconnectAsync();
+            _authenticatedHandle = string.Empty;
+            SetStatus(auth.Status == "HandleClaimed"
+                ? "这个玩家名已被使用，请更换名字后重新连接。"
+                : "身份验证失败，请检查玩家名后重新连接。");
             return false;
         }
 
@@ -776,9 +875,23 @@ public partial class Main : Control
 
         _hub = new RiftboundGameHubClient(ServerUrl);
         _hub.StatusChanged += SetStatus;
+        _hub.RestoreSession += RestoreSessionAfterReconnectAsync;
         _hub.LogReceived += AppendLog;
         _hub.ServerMessageReceived += LogMessage;
         return _hub;
+    }
+
+    private async Task RestoreSessionAfterReconnectAsync()
+    {
+        var hub = _hub ?? throw new InvalidOperationException("连接已关闭。");
+        var auth = await hub.AuthenticateAsync(_session.Handle, _session.PlayerKey, _shutdown.Token);
+        if (!auth.Authenticated) throw new InvalidOperationException("身份验证失败，请返回大厅重新连接。");
+        _authenticatedHandle = auth.Handle;
+        if (!string.IsNullOrWhiteSpace(_session.ReconnectToken))
+            await hub.ReconnectAsync(_session.RoomId, auth.Handle, _session.ReconnectToken, _shutdown.Token);
+        else
+            await hub.JoinRoomAsync(_session.RoomId, auth.Handle, null, _shutdown.Token);
+        await hub.RequestSnapshotAsync(_session.RoomId, auth.Handle, _shutdown.Token);
     }
 
     private async Task CreatePublicMatchAsync()
@@ -1525,6 +1638,7 @@ public partial class Main : Control
         }
         else if (channel == "Snapshot")
         {
+            _latestSnapshotMessage = message;
             var renderVersion = Interlocked.Increment(ref _snapshotRenderVersion);
             _ = RenderSnapshotAsync(message, renderVersion);
         }
@@ -2436,7 +2550,6 @@ public partial class Main : Control
                     QueueMainThread(nameof(ApplyMatchResult), snapshotMatchResult);
                 }
 
-                return;
             }
 
             if (IsStaleSnapshotRender(renderVersion))
@@ -2500,7 +2613,6 @@ public partial class Main : Control
     private bool IsStaleSnapshotRender(int renderVersion)
     {
         return _isShuttingDown
-            || _matchFinished
             || Volatile.Read(ref _snapshotRenderVersion) != renderVersion;
     }
 
@@ -2797,6 +2909,7 @@ public partial class Main : Control
             ["label"] = $"{(side == "self" ? "P1 我方" : "P2 对手")} · {playerId}",
             ["missing"] = false,
             ["score"] = ReadSnapshotPlayerScore(snapshot, playerId),
+            ["resources"] = ReadSnapshotPlayerResources(snapshot, playerId),
             ["mainDeckCount"] = Math.Max(0, ReadInt(zones, "mainDeckCount")),
             ["runeDeckCount"] = Math.Max(0, ReadInt(zones, "runeDeckCount")),
             ["runeDeckSize"] = runeDeckSize,
@@ -2884,6 +2997,7 @@ public partial class Main : Control
             ["opponentStandby"] = standby.Opponent.Cards,
             ["hiddenStandbyCount"] = Math.Max(ReadInt(battlefield, "hiddenStandbyCount"), ReadInt(battlefield, "faceDownStandbyCount")),
             ["controllerId"] = ReadString(battlefield, "controllerId"),
+            ["contested"] = ReadBool(battlefield, "contested"),
             ["scoredThisTurn"] = ReadBool(battlefield, "scoredThisTurn")
         }, cardCount, officialImageCount);
     }
@@ -3029,6 +3143,23 @@ public partial class Main : Control
         }
 
         return ReadInt(player, "score");
+    }
+
+    private static string ReadSnapshotPlayerResources(JsonElement snapshot, string playerId)
+    {
+        if (!snapshot.TryGetProperty("players", out var players) || players.ValueKind != JsonValueKind.Object
+            || !players.TryGetProperty(playerId, out var player) || player.ValueKind != JsonValueKind.Object
+            || !player.TryGetProperty("runePool", out var pool) || pool.ValueKind != JsonValueKind.Object)
+            return string.Empty;
+        var summary = $"法力 {ReadInt(pool, "mana")} · 符能 {ReadInt(pool, "power")}";
+        if (pool.TryGetProperty("powerByTrait", out var traits) && traits.ValueKind == JsonValueKind.Object)
+        {
+            var colors = traits.EnumerateObject().Where(trait => trait.Value.TryGetInt32(out var count) && count > 0)
+                .Select(trait => $"{trait.Name switch { "red" => "红", "green" => "绿", "blue" => "蓝", "yellow" => "黄", "orange" => "橙", "purple" => "紫", _ => trait.Name }} {trait.Value.GetInt32()}");
+            var details = string.Join(" · ", colors);
+            if (details.Length > 0) summary += "\n" + details;
+        }
+        return summary;
     }
 
     private async Task<(Godot.Collections.Dictionary Section, int CardCount, int OfficialImageCount)> BuildPlayerSectionAsync(
@@ -3354,13 +3485,44 @@ public partial class Main : Control
             controllerOrOwner = ReadString(card, "ownerId");
         }
 
-        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown, controllerOrOwner);
+        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown, controllerOrOwner,
+            IsExhausted: ReadBool(card, "isExhausted"));
     }
 
     private async Task<Godot.Collections.Dictionary> BuildCardViewAsync(SnapshotCardRef card)
     {
-        var view = await _cardViewFactory.BuildAsync(card, _officialCatalog, _shutdown.Token);
+        var view = await _cardViewFactory.BuildAsync(card, _officialCatalog, _shutdown.Token, waitForImage: false);
         return view.ToGodotDictionary();
+    }
+
+    public override void _Process(double delta)
+    {
+        _imageRefreshElapsed += delta;
+        if (_isShuttingDown || _imageRefreshElapsed < 0.2
+            || Interlocked.Exchange(ref _imageRefreshRequested, 0) == 0) return;
+        _imageRefreshElapsed = 0;
+        if (_lobbyScreen?.Visible == true) _ = RefreshDeckPreviewAsync();
+        if (_latestSnapshotMessage is not null)
+            _ = RenderSnapshotAsync(_latestSnapshotMessage, Volatile.Read(ref _snapshotRenderVersion));
+    }
+
+    private async Task RefreshDeckPreviewAsync()
+    {
+        if (_officialCatalogLoadTask is not null) await _officialCatalogLoadTask;
+        var deck = SelectedDeck();
+        if (deck is null || _isShuttingDown) return;
+        var card = await _cardViewFactory.BuildAsync(new SnapshotCardRef("deck-preview", deck.ChampionCardNo,
+            true, false, string.Empty), _officialCatalog, _shutdown.Token, waitForImage: false);
+        QueueMainThread(nameof(ApplyDeckPreview), new Godot.Collections.Dictionary
+        {
+            ["name"] = deck.Name, ["description"] = deck.Description, ["card"] = card.ToGodotDictionary()
+        });
+    }
+
+    public void ApplyDeckPreview(Godot.Collections.Dictionary preview)
+    {
+        _lobbyScreen?.SetDeckPreview(preview["name"].AsString(), preview["description"].AsString(),
+            preview["card"].AsGodotDictionary());
     }
 
     private void UpdateJoinedSession(WsServerMessage message)
@@ -3655,6 +3817,8 @@ public partial class Main : Control
 
     private void ResetLobbyPromptState()
     {
+        _latestSnapshotMessage = null;
+        Interlocked.Increment(ref _snapshotRenderVersion);
         _lobbyCanSubmitDeckFromPrompt = false;
         _lobbyCanReadyFromPrompt = false;
         QueueMainThread(nameof(ApplyLobbySetupState));
@@ -3679,8 +3843,21 @@ public partial class Main : Control
 
     public void ApplyStatus(string text)
     {
-        var connected = IsConnected() || string.Equals(text, "Connected", StringComparison.OrdinalIgnoreCase);
+        var connected = IsConnected();
         _lobbyScreen?.SetStatus(text, connected, _matchmakingWaiting);
+        var recovering = text is "Connecting" or "Reconnecting" or "Restoring";
+        _matchScreen?.SetConnectionStatus(connected, recovering);
+        if (!connected)
+        {
+            _promptInteractionController.ClearSelection();
+            _movementOverlay?.Hide();
+            HideSpecialPromptOverlays();
+            _matchScreen?.ClearPromptStates();
+        }
+        else if (_lastAppliedPromptView is not null)
+        {
+            PresentPromptInteraction(_lastAppliedPromptView);
+        }
         RefreshLobbySetupState(connected);
     }
 
@@ -3915,6 +4092,10 @@ public partial class Main : Control
                         AppendLog($"[color=yellow]Mulligan overlay disabled: {Escape(reason)}[/color]");
                     }
                 }
+                else
+                {
+                    _mulliganOverlay?.RefreshVisibleCards(visibleHandCards);
+                }
 
                 break;
             case "ORDER_TRIGGERS":
@@ -4008,6 +4189,11 @@ public partial class Main : Control
 
     private void PresentPromptInteraction(Godot.Collections.Dictionary view)
     {
+        if (!IsConnected()) return;
+        if (_movementOverlay?.Visible == true
+            && (_movementOverlay.PromptId != view["promptId"].AsString()
+                || _movementOverlay.SnapshotTick != view["snapshotTick"].AsInt64()))
+            _movementOverlay.Hide();
         if (_matchScreen is null)
         {
             return;
@@ -4023,6 +4209,12 @@ public partial class Main : Control
                 : actionable
                     ? "请选择一个服务端候选行动。"
                     : "等待对手行动。";
+        detail = detail switch
+        {
+            "当前玩家普通开环行动" => "选择手牌或场上的卡牌行动，也可以结束回合。",
+            "等待普通开行动玩家" => "对手正在行动，你可以查看公开卡牌。",
+            _ => detail
+        };
         _matchScreen.SetTurnStatus(
             actionable ? "轮到你行动" : "等待对手行动",
             detail,
@@ -4032,7 +4224,7 @@ public partial class Main : Control
         {
             _matchScreen.ActionBar.ShowSelection(
                 state,
-                _promptInteractionController.CurrentChoices,
+                FriendlyPromptChoices(),
                 _promptInteractionController.CurrentStepLabel,
                 _promptInteractionController.CurrentStepRequired);
         }
@@ -4284,6 +4476,7 @@ public partial class Main : Control
         }
 
         _lobbyScreen.SetDeckOptions(decks, selected);
+        _ = RefreshDeckPreviewAsync();
         RefreshLobbySetupState();
     }
 

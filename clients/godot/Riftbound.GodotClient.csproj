@@ -1,4 +1,4 @@
-<Project Sdk="Godot.NET.Sdk/4.7.0">
+<Project Sdk="Godot.NET.Sdk/4.7.2">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
     <ProjectReference Include="../../src/Riftbound.Contracts/Riftbound.Contracts.csproj" />
   </ItemGroup>
+  <Target Name="BundleOfficialCatalog" BeforeTargets="BeforeBuild">
+    <MakeDir Directories="$(MSBuildProjectDirectory)/data" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../../data/official/card-catalog.zh-CN.json"
+          DestinationFiles="$(MSBuildProjectDirectory)/data/card-catalog.zh-CN.json" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

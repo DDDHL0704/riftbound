@@ -18,7 +18,8 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p57 rule 413.4",
       "note": "反应牌可在优先权窗口中打出；单位与法术需要支付费用并作为结算链项目在双方让过后结算；单位可在区域间移动，伤害可从单位对象上移除。"
-    }
+    },
+    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
   ],
   "roomId": "p2-preflight-janna-room",
   "players": ["P1", "P2"],
@@ -270,7 +271,7 @@
           "damage": 0,
           "power": 3,
           "tags": ["CARD_TYPE:UNIT"],
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-UNIT-JANNA-FRIENDLY-001": {
           "damage": 2,

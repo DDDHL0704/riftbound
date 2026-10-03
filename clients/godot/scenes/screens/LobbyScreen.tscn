@@ -20,7 +20,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+offset_left = 48.0
+offset_top = 40.0
+offset_right = -476.0
+offset_bottom = -40.0
+theme_override_constants/separation = 24
+
+[node name="Brand" type="Label" parent="PrimaryFlow"]
+layout_mode = 2
+text = "R I F T B O U N D   /   符文战场"
+theme_override_font_sizes/font_size = 16
+
+[node name="Title" type="Label" parent="PrimaryFlow"]
+layout_mode = 2
+text = "下一场对决，由你开启。"
+theme_override_font_sizes/font_size = 36
+
+[node name="Subtitle" type="Label" parent="PrimaryFlow"]
+layout_mode = 2
+text = "选好你的卡组，邀请好友，或寻找一位旗鼓相当的对手。"
 
 [node name="ConnectionStatus" type="Label" parent="PrimaryFlow"]
 unique_name_in_owner = true
@@ -36,6 +54,20 @@ layout_mode = 2
 [node name="ConnectionTitle" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
 layout_mode = 2
 text = "连接房间"
+
+[node name="ServerRow" type="HBoxContainer" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
+layout_mode = 2
+
+[node name="ServerLabel" type="Label" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/ServerRow"]
+layout_mode = 2
+text = "服务器"
+custom_minimum_size = Vector2(72, 0)
+
+[node name="ServerInput" type="LineEdit" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/ServerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "输入对战服务器地址"
 
 [node name="IdentityRow" type="HBoxContainer" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow"]
 layout_mode = 2
@@ -63,7 +95,7 @@ size_flags_horizontal = 3
 [node name="ConnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "连接"
+text = "进入房间"
 
 [node name="ReconnectButton" type="Button" parent="PrimaryFlow/ConnectionFrame/ConnectionFlow/IdentityRow"]
 unique_name_in_owner = true
@@ -113,6 +145,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "加入房间"
 
+[node name="RefreshRoomsButton" type="Button" parent="PrimaryFlow/MatchmakingFrame/MatchmakingFlow/PublicRoomRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新"
+
 [node name="DeckFrame" type="PanelContainer" parent="PrimaryFlow"]
 layout_mode = 2
 
@@ -144,3 +181,34 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "准备"
+
+[node name="DeckSpotlight" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -440.0
+offset_top = 254.0
+offset_right = -48.0
+offset_bottom = 718.0
+
+[node name="Flow" type="VBoxContainer" parent="DeckSpotlight"]
+layout_mode = 2
+
+[node name="Eyebrow" type="Label" parent="DeckSpotlight/Flow"]
+layout_mode = 2
+text = "你的出战卡组"
+horizontal_alignment = 1
+
+[node name="Art" type="CenterContainer" parent="DeckSpotlight/Flow"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="DeckSpotlight/Flow"]
+layout_mode = 2
+text = "选择你的英雄"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="DeckSpotlight/Flow"]
+layout_mode = 2
+text = "从预组卡组开始一场对决。"
+horizontal_alignment = 1
+autowrap_mode = 2

@@ -59,7 +59,7 @@ public sealed class VexSpellshieldGuardTests
         Assert.Equal("P1", unit.ControllerId);
         Assert.Equal(4, unit.Power);
         Assert.Equal([CardObjectTags.UnitCard, "法盾", "约德尔人"], unit.Tags);
-        Assert.False(unit.IsExhausted);
+        Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-VEX", StringComparison.Ordinal)

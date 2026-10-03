@@ -1,0 +1,123 @@
+{
+  "source": "https://www.playloltcg.com/rules.html",
+  "fetchedAt": "2026-10-04",
+  "rules": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-04/01.pdf"
+    },
+    {
+      "ruleCategory": "赛事规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》赛事规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/2b71d36e454940cc9f20b5e9a5affe52.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/836060c4535a4f71af5e8cff575097f1.pdf",
+      "sha256": "1fb6e2f7d6a5608d52aba156d5ee1a6f6127a15ed2a5fc02f2bbbcce86f78569",
+      "localPath": "var/official/2026-10-04/02.pdf"
+    },
+    {
+      "ruleCategory": "化神争锋系列 FAQ",
+      "ruleName": "化神争锋系列 官方FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/b12f3a27b677490da7065297f5683fc3.jpg",
+      "updateDate": "2026-08-14",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "localPath": "var/official/2026-10-04/03.pdf"
+    },
+    {
+      "ruleCategory": "化神争锋系列 勘误",
+      "ruleName": "化神争锋系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/e6805683852241faad370f96f9ecf333.jpg",
+      "updateDate": "2026-07-24",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf",
+      "sha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "localPath": "var/official/2026-10-04/04.pdf"
+    },
+    {
+      "ruleCategory": "禁卡表",
+      "ruleName": "禁卡表",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/55e0f4d873d4408095d88ab3c1fb2b9f.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf",
+      "sha256": "e0326381f003a3e5d0a12db9521dc15eb1cc4ed0456188cee9fc46e0eb6d5ef7",
+      "localPath": "var/official/2026-10-04/05.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 FAQ",
+      "ruleName": "破限系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+      "updateDate": "2026-05-11",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "localPath": "var/official/2026-10-04/06.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 勘误",
+      "ruleName": "破限系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+      "updateDate": "2026-04-03",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "localPath": "var/official/2026-10-04/07.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 FAQ",
+      "ruleName": "破限系列 官方FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/0ea83c83cee24b9baf4e0b59b2b31541.jpg",
+      "updateDate": "2026-04-30",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf",
+      "sha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70",
+      "localPath": "var/official/2026-10-04/08.pdf"
+    },
+    {
+      "ruleCategory": "铸魂淬炼系列 勘误",
+      "ruleName": "铸魂淬炼系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/2670e85eea67443cbaf663479bfb359e.jpeg",
+      "updateDate": "2026-01-14",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_勘误汇总_260114.pdf",
+      "sha256": "13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d",
+      "localPath": "var/official/2026-10-04/09.pdf"
+    },
+    {
+      "ruleCategory": "铸魂淬炼系列 FAQ",
+      "ruleName": "铸魂淬炼系列 官方FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/c8fe15554b65440e82a8bbb3517b2cc4.jpeg",
+      "updateDate": "2026-01-14",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+      "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+      "localPath": "var/official/2026-10-04/10.pdf"
+    },
+    {
+      "ruleCategory": "铸魂淬炼系列 FAQ",
+      "ruleName": "铸魂淬炼系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-19/56c7dfe1e21846f3956989b3bcfcb8f8.jpeg",
+      "updateDate": "2026-01-14",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "localPath": "var/official/2026-10-04/11.pdf"
+    },
+    {
+      "ruleCategory": "起源系列 FAQ",
+      "ruleName": "起源系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/2b68dffacd9c44cfaebcbce6f2a6d299.jpeg",
+      "updateDate": "2025-10-24",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "localPath": "var/official/2026-10-04/12.pdf"
+    },
+    {
+      "ruleCategory": "起源系列 勘误",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》起源系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/d48a3431a1024577aa288883edd75fef.jpeg",
+      "updateDate": "2025-10-28",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf",
+      "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c",
+      "localPath": "var/official/2026-10-04/13.pdf"
+    }
+  ]
+}

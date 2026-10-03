@@ -1013,6 +1013,30 @@ public sealed class TriggerPaymentTests
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task IcevaleAttackPaymentPrecedesDamageAndResumesAllParticipants(bool pay)
+    {
+        var engine = new CoreRuleEngine();
+        var opened = await DeclareIcevaleBattleAsync(BuildIcevaleArcherAttackState(), engine);
+        var payment = AssertIcevalePaymentOpen(opened);
+        Assert.DoesNotContain(opened.Events, e => e.Kind == "DAMAGE_APPLIED");
+        Assert.Equal(2, opened.State.BattleState.DefenderObjectIds.Count);
+        var paid = await engine.ResolveAsync(opened.State, new("icevale-before-damage", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? PayOneMana : Decline]), default);
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "DAMAGE_APPLIED");
+        Assert.Equal(pay ? 2 : 3, paid.State.CardObjects["P2-BATTLEFIELD-ICEVALE-TARGET"].Power);
+        var finished = await CombatTestDriver.FinishAsync(paid, engine);
+        Assert.False(finished.State.BattleState.IsActive);
+        Assert.Contains(finished.Events, e => e.Kind == "DAMAGE_APPLIED");
+        Assert.DoesNotContain(finished.Events, e => e.Kind == "PAYMENT_WINDOW_OPENED");
+        Assert.Contains("P1-BATTLEFIELD-ICEVALE", finished.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P2-BATTLEFIELD-ICEVALE-TARGET", finished.State.PlayerZones["P2"].Battlefields);
+    }
+
     [Fact]
     public async Task IcevaleArcherAttackPaymentRejectsPostPaymentReplayWithoutMutation()
     {
@@ -2720,7 +2744,7 @@ public sealed class TriggerPaymentTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1");
+                controllerId: "P2");
             cardObjects["P1-BATTLEFIELD-NEXT-UNIT"] = new(
                 "P1-BATTLEFIELD-NEXT-UNIT",
                 cardNo: "SFD·125/221",

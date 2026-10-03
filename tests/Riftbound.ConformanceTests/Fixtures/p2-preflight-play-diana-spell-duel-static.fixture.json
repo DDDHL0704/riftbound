@@ -18,7 +18,8 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p35-p36 rules 341-348; p39-p42 rules 355-356; p58-p59 rule 416; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；法术对决和洞察由后续 fixture 单独覆盖。"
-    }
+    },
+    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
   ],
   "roomId": "p2-preflight-diana-spell-duel-room",
   "players": ["P1", "P2"],
@@ -110,7 +111,7 @@
         "P1-UNIT-DIANA-SPELL-DUEL": {
           "power": 3,
           "tags": ["CARD_TYPE:UNIT", "巨神峰"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

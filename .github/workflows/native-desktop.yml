@@ -1,0 +1,79 @@
+name: Native desktop and China rules
+
+on:
+  push:
+    branches: [main, 'codex/native-platform-*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: dotnet test tests/Riftbound.ConformanceTests --logger 'trx;LogFileName=conformance.trx'
+      - name: Native client connection recovery
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:15089
+          ConnectionStrings__Riftbound: ''
+          RIFTBOUND_SERVER_URL: http://127.0.0.1:15089
+        run: |
+          dotnet run --project src/Riftbound.Api --no-build --no-launch-profile > /tmp/riftbound-api.log 2>&1 &
+          riftbound_api_pid=$!
+          trap 'kill "$riftbound_api_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$RIFTBOUND_SERVER_URL/health"; then break; fi
+            sleep 1
+          done
+          dotnet run --project tests/Riftbound.NativeNetworkSmoke
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: conformance-results
+          path: tests/Riftbound.ConformanceTests/TestResults/*.trx
+          retention-days: 7
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: python3 clients/godot/tools/ci-desktop.py
+        shell: bash
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: native-${{ matrix.os }}
+          path: |
+            clients/godot/exports/ci-logs/
+            clients/godot/exports/macos/Riftbound.zip
+            clients/godot/exports/windows/Riftbound-windows-x64.zip
+          retention-days: 7
+          compression-level: 0

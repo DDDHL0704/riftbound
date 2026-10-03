@@ -1,5 +1,17 @@
 # 规则证据索引
 
+2026-10-04 多人战斗修正（本批回归通过）：中国区核心规则 464.2.c.3 要求实际战场上所有双方单位参与战斗，服务端不再接受通过客户端子集遗漏其他单位；伤害分配参与者、prompt 数量与保存恢复同步取消每方两名上限。自动伤害与已验证的玩家分配伤害共用战斗清理、战场技能、计分及控制权收尾。历史记录的参与者和事件顺序在保存/恢复中保留。寒谷弓手按 383.4.e / 464.2.e 在伤害前提出进攻费用，支付或放弃后恢复战斗；测试覆盖其随后死亡的场景。证据入口：OfficialBattleParticipationTests、BattleDamageAssignmentLifecycleTests、TriggerPaymentTests、CombatTestDriver 与 FullGameEndToEndTests。focused 64/64、相关 guard 168/168 和后端全量 9252/9252 均通过；465.2.c 跨来源总伤害/自由排序、替换效果、完整进攻防守触发顺序仍未完成。交付详情与后续实际通过记录统一见 NATIVE_DELIVERY_2026-10-04.md。
+
+
+2026-10-04 争夺与同时移动补充：CN 464.2.c.1 按实际令战场进入争夺的玩家确立进攻方，记录到权威局面并参与保存/回放，物理战场所属者不再决定进攻方。CN 144.3 / 144.3.a-c 支持一条 MOVE_UNIT 携带 sourceObjectIds，在验证所有来源、目的地与额外费用后共同休眠/移动，之后才进行触发、清理与争夺。允许不同起点共享终点，战场间移动仍要求游走或对应战场许可；144.4 / 810 不以战场对象 ID 的玩家前缀限制真实战场。UNL-163/219 搜魔人巡管按额外单位逐名收取任意符能。新用例 StandardGroupMovementTests 与 OfficialBattlefieldControlTests 覆盖拒绝不变性、原子移动、进攻方恢复和费用；多人参战重构前全量 9246/9246 通过；原生客户端群组选取、取消与过期关闭已接入并实测，新战斗重构全量 9252/9252 已通过，不能视为全规则完成。
+
+2026-10-04 中国区基础规则修正：除开局控制权、入场休眠及普通单位合法目的地外，资源反应按 429.3 保留当前优先权/焦点；再次争夺按 190.3.a.1 清理旧对决完成标记。SFD·209/221「遗忘丰碑」只限制“此处”得分，不能抑制其他战场；第三回合后仍可正常据守。OGN·290/298 的首回合触发不替代正常据守。461 / 464.2.c.3 不要求单位备战，标准移动后的休眠单位仍参与战斗。新增用例先复现旧错误再修正；本批最终全量 9252/9252 通过，尚非完整战斗规则或全卡完成证明。官方来源为本次 rules-manifest 与 card-catalog 快照，旧测试中的相反预期作废。
+
+
+2026-10-04 CN core correction: the current Chinese PDF (SHA-256 in `data/official/upstream/2026-10-04/rules-manifest.json`) supersedes historical fixture assumptions. Rule 143.4 (p17) makes ordinary units enter exhausted; explicit ready-entry effects and paid Haste are exceptions. Rules 190.2/190.4 (p27), 439.4.b (p83) separate battlefield ownership from control and start battlefields uncontrolled. Rule 355.2.a (p43) limits ordinary unit play to the player base or controlled battlefields. `OfficialBattlefieldControlTests` independently checks opening no-score, command/prompt destination parity, no payment on rejection, legacy-destination spoof rejection, and exhausted entry to both zones. Historical full-game scripts are being migrated to legal base -> ready -> move -> spell-duel claim sequences. The current batch passes 9252/9252 full conformance tests; this does not establish complete official-rule coverage.
+
+2026-10-04：中国区标准赛制禁卡依据为官网禁卡 PDF（2026-07-17 更新，2026-07-24 最新生效，p1–p3 标准禁卡、p3–p4 2v2 附加禁卡），精确来源及 SHA-256 见 `ChinaStandardBanList` 和新规则 manifest。`ChinaStandardLegalityTests` 覆盖所有标准禁卡名称的异画版本、德莱文副标题区分、2v2 易传奇不误禁、预组合法性及非法提交无状态改变。详见 `docs/NATIVE_DELIVERY_2026-10-04.md`；不代表新增卡池或每条最新规则已实现。
+
 更新时间：2026-07-07
 
 2026-07-07 最新补充：Plan B / Sea Monster Hook activated ability representative 追加 multi-eligible empty-choice B0 replay 证据。审计入口为 `docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_SEA_MONSTER_HOOK_ACTIVATED_ABILITY_EVIDENCE.md`；focused `OfficialDeckMidgameDeclinesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash` 1/1、adjacent `SeaMonsterHook|CardChoice|ChooseCards|FullGameEndToEnd|MatchRecovery|PaymentEngine` 2927/2927、backend full conformance 9197/9197 通过。本批继续依据 `data/official/card-catalog.zh-CN.json` 中 `OGN·242/298` 海兽钓钩官方文本；B0 official-deck-derived replay 现在覆盖多个合法 top-five 单位时控制者提交空 `chosenObjectIds`，不打出任何单位，私下回收全部查看牌，`CHOOSE_CARDS` 空 payload 可 action-log replay 到相同 final state hash。本批不关闭完整可选选择 UX、FAQ adjudication、完整 hidden-zone UX、完整 PaymentEngine / card matrix、P0/P1 或 READY。

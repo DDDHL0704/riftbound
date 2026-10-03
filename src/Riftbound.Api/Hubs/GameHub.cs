@@ -29,12 +29,19 @@ public sealed class GameHub(
     PlayerIdentityService? playerIdentity = null,
     IMatchmakingQueue? matchmakingQueue = null,
     IPublicMatchDirectory? publicMatches = null,
-    IMatchResultStore? matchResultStore = null) : Hub<IGameClient>
+    IMatchResultStore? matchResultStore = null,
+    PlayerConnections? playerConnections = null) : Hub<IGameClient>
 {
     private const string AuthenticatedHandleItemKey = "riftbound:authenticatedHandle";
 
     public async Task<AuthResultDto> Authenticate(string handle, string playerKey)
     {
+        if (Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var currentHandle)
+            && currentHandle is string current
+            && current != PlayerIdentityService.NormalizeHandle(handle))
+        {
+            return new AuthResultDto(false, "IDENTITY_MISMATCH", current);
+        }
         if (playerIdentity is null)
         {
             return new AuthResultDto(false, "IDENTITY_NOT_CONFIGURED", PlayerIdentityService.NormalizeHandle(handle));
@@ -44,9 +51,20 @@ public sealed class GameHub(
         if (result.Authenticated)
         {
             Context.Items[AuthenticatedHandleItemKey] = result.NormalizedHandle;
+            playerConnections?.Register(Context.ConnectionId, result.NormalizedHandle);
         }
 
         return new AuthResultDto(result.Authenticated, result.Status.ToString(), result.NormalizedHandle);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var playerId = playerConnections?.Disconnect(Context.ConnectionId);
+        if (playerId is not null && matchmakingQueue is not null)
+        {
+            await matchmakingQueue.RemoveDisconnectedAsync(playerId, CancellationToken.None);
+        }
+        await base.OnDisconnectedAsync(exception);
     }
 
     public async Task<MatchmakingStatusDto> EnqueueMatchmaking(string playerId)
@@ -194,6 +212,7 @@ public sealed class GameHub(
             session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
             match = await publicMatches.CreateAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
+            playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
@@ -240,6 +259,7 @@ public sealed class GameHub(
         {
             session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
+            playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);
             if (publicMatches is not null)
             {
                 await publicMatches.NotifyPlayerJoinedAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
@@ -282,6 +302,7 @@ public sealed class GameHub(
                 normalizedPlayerId,
                 reconnectToken,
                 Context.ConnectionAborted);
+            playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {

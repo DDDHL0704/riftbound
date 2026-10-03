@@ -73,7 +73,11 @@ public sealed record OfficialCard(
     string BackImage,
     int? ListSort,
     int? Status,
-    int? CardGroupLimit);
+    int? CardGroupLimit)
+{
+    public IReadOnlyList<string> CardCategoryList { get; init; } = [CardCategory];
+    public IReadOnlyList<string> CardCategoryNameList { get; init; } = [CardCategoryName];
+}
 
 public sealed record FunctionalUnit(
     string Id,
@@ -132,8 +136,8 @@ public static class OfficialCardCatalogLoader
     {
         return new OfficialCard(
             raw.Id,
-            Value(raw.CardCategory),
-            Value(raw.CardCategoryName),
+            raw.CardCategoryList is { Count: > 0 } ? string.Join(" / ", raw.CardCategoryList) : Value(raw.CardCategory),
+            raw.CardCategoryNameList is { Count: > 0 } ? string.Join(" / ", raw.CardCategoryNameList) : Value(raw.CardCategoryName),
             Value(raw.CardNo),
             Value(raw.CardName),
             Value(raw.SubTitle),
@@ -159,7 +163,11 @@ public static class OfficialCardCatalogLoader
             Value(raw.BackImage),
             raw.ListSort,
             raw.Status,
-            raw.CardGroupLimit);
+            raw.CardGroupLimit)
+        {
+            CardCategoryList = raw.CardCategoryList ?? [Value(raw.CardCategory)],
+            CardCategoryNameList = raw.CardCategoryNameList ?? [Value(raw.CardCategoryName)]
+        };
     }
 
     private static string Value(string? raw)
@@ -203,7 +211,9 @@ public static class OfficialCardCatalogLoader
         string? BackImage,
         int? ListSort,
         int? Status,
-        int? CardGroupLimit);
+        int? CardGroupLimit,
+        IReadOnlyList<string>? CardCategoryList,
+        IReadOnlyList<string>? CardCategoryNameList);
 }
 
 public static partial class FunctionalUnitBuilder

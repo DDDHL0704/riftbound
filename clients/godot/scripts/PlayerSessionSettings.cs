@@ -11,14 +11,16 @@ public sealed record PlayerSessionSettings(
     string RoomId,
     string PlayerKey,
     string? ReconnectToken = null,
-    string? LastDeckId = null)
+    string? LastDeckId = null,
+    string? ServerUrl = null)
 {
     public const string DefaultHandle = "godot";
     public const string DefaultRoomId = "godot-local";
 
     public static PlayerSessionSettings CreateDefault()
     {
-        return new PlayerSessionSettings(DefaultHandle, DefaultRoomId, GeneratePlayerKey());
+        return new PlayerSessionSettings($"玩家-{Guid.NewGuid().ToString("N")[..8]}",
+            $"RB-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}", GeneratePlayerKey());
     }
 
     public static PlayerSessionSettings WithUsableKey(PlayerSessionSettings settings)

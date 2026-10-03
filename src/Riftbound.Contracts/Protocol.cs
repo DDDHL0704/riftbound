@@ -228,7 +228,8 @@ public sealed record MoveUnitCommand(
     string SourceObjectId,
     string Origin = "",
     string Destination = "",
-    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("MOVE_UNIT");
+    IReadOnlyList<string>? OptionalCosts = null,
+    IReadOnlyList<string>? SourceObjectIds = null) : GameCommand("MOVE_UNIT");
 
 public sealed record AssembleEquipmentCommand(
     string SourceObjectId,

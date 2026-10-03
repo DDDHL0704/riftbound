@@ -83,6 +83,21 @@ offset_bottom = 34.0
 grow_horizontal = 0
 mouse_filter = 2
 
+[node name="ExhaustedLabel" type="Label" parent="CardLayer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+text = "休眠"
+horizontal_alignment = 1
+
 [node name="CountLabel" type="Label" parent="CardLayer/CountBadge"]
 unique_name_in_owner = true
 layout_mode = 2

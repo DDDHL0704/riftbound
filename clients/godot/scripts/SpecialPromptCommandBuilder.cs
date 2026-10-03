@@ -240,6 +240,11 @@ public static class SpecialPromptCommandBuilder
             ChoiceIdsByIndex(requirement, "targetChoicesByIndex"),
             ChoiceIds(requirement, "targetChoices"),
             ChoiceIds(candidate, "targets"));
+        var attackerObjectIds = FirstNonEmptyStrings(
+            DistinctChoiceIdsByIndex(requirement, "attackerChoicesByIndex"),
+            new[] { sourceObjectId });
+        defenderObjectIds = FirstNonEmptyStrings(
+            DistinctChoiceIdsByIndex(requirement, "targetChoicesByIndex"), defenderObjectIds);
         var battlefieldTargetObjectIds = FirstNonEmptyStrings(
             ChoiceIdsByIndex(requirement, "battlefieldTargetChoicesByIndex"),
             ChoiceIds(requirement, "battlefieldTargetChoices"));
@@ -267,7 +272,7 @@ public static class SpecialPromptCommandBuilder
         {
             ["cmdType"] = "DECLARE_BATTLE",
             ["battlefieldId"] = battlefieldId,
-            ["attackerObjectIds"] = new[] { sourceObjectId },
+            ["attackerObjectIds"] = attackerObjectIds,
             ["defenderObjectIds"] = defenderObjectIds,
             ["optionalCosts"] = optionalCosts
         };
@@ -280,7 +285,7 @@ public static class SpecialPromptCommandBuilder
         payloadKey = string.Join(",",
             new[]
             {
-                $"attacker={sourceObjectId}",
+                $"attacker={string.Join("+", attackerObjectIds)}",
                 $"battlefield={battlefieldId}",
                 $"defenders={string.Join("+", defenderObjectIds)}",
                 $"battlefieldTargets={string.Join("+", battlefieldTargetObjectIds)}",
@@ -1082,6 +1087,20 @@ public static class SpecialPromptCommandBuilder
         }
 
         return [];
+    }
+
+    private static string[] DistinctChoiceIdsByIndex(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var indexed) || indexed.ValueKind != JsonValueKind.Object) return [];
+        var selected = new List<string>();
+        foreach (var group in indexed.EnumerateObject().OrderBy(group => NumericKey(group.Name)))
+        {
+            if (group.Value.ValueKind != JsonValueKind.Array) continue;
+            var id = group.Value.EnumerateArray().Select(choice => ReadString(choice, "id"))
+                .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value) && !selected.Contains(value, StringComparer.Ordinal));
+            if (!string.IsNullOrWhiteSpace(id)) selected.Add(id);
+        }
+        return selected.ToArray();
     }
 
     private static string[] FirstNonEmptyStrings(params string[][] values)
