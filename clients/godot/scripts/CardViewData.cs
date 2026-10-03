@@ -18,7 +18,10 @@ internal sealed record CardViewData(
     bool Visible,
     bool FaceDown,
     string ImagePath,
-    bool IsExhausted = false)
+    bool IsExhausted = false,
+    int? CurrentPower = null,
+    int Damage = 0,
+    bool IsStandby = false)
 {
     public string Label => Visible && !string.IsNullOrWhiteSpace(CardNo)
         ? string.IsNullOrWhiteSpace(CardName) ? CardNo : $"{CardNo}\n{CardName}"
@@ -49,6 +52,7 @@ internal sealed record CardViewData(
             {
                 lines.Add(Category);
             }
+            if (IsStandby) lines.Add("待命 · 牌面仅你可见");
 
             var details = new List<string>();
             if (!string.IsNullOrWhiteSpace(Trait))
@@ -77,7 +81,12 @@ internal sealed record CardViewData(
                 stats.Add($"费用 {Energy}");
             }
 
-            if (Power >= 0)
+            if (CurrentPower is { } currentPower)
+            {
+                stats.Add($"当前战力 {currentPower}");
+                if (Damage > 0) stats.Add($"已受伤害 {Damage}");
+            }
+            else if (Power >= 0)
             {
                 stats.Add($"战力 {Power}");
             }
@@ -115,6 +124,7 @@ internal sealed record CardViewData(
             ["visible"] = Visible,
             ["faceDown"] = FaceDown,
             ["isExhausted"] = IsExhausted,
+            ["isStandby"] = IsStandby,
             ["category"] = Category,
             ["energy"] = Energy,
             ["power"] = Power,
@@ -128,6 +138,12 @@ internal sealed record CardViewData(
         if (!string.IsNullOrWhiteSpace(CardName))
         {
             view["cardName"] = CardName;
+        }
+
+        if (CurrentPower is { } currentPower)
+        {
+            view["currentPower"] = currentPower;
+            view["damage"] = Damage;
         }
 
         if (!string.IsNullOrWhiteSpace(ImagePath))

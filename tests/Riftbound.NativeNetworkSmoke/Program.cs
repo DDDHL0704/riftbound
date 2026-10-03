@@ -4,6 +4,28 @@ using System.Net.Sockets;
 using System.Text.Json;
 using Riftbound.GodotClient;
 
+using (var own = JsonDocument.Parse("""
+    {"cardNo":"SFD·125/221","isFaceDown":true,"ownerId":"p1","controllerId":"p1","effectivePower":99,"damage":88}
+    """))
+{
+    var visible = SnapshotCardRef.FromSnapshot("own-standby", own.RootElement, "p1");
+    var hidden = SnapshotCardRef.FromSnapshot("enemy-standby", own.RootElement, "p2");
+    var spectator = SnapshotCardRef.FromSnapshot("spectator-standby", own.RootElement, "");
+    if (!visible.Visible || !visible.FaceDown || visible.CardNo != "SFD·125/221" || visible.CurrentPower is not null
+        || hidden.Visible || hidden.CardNo != "" || hidden.CurrentPower is not null || hidden.Damage != 0
+        || spectator.Visible || spectator.CardNo != "")
+        throw new InvalidOperationException("Native standby identity boundary failed.");
+}
+using (var unit = JsonDocument.Parse("""
+    {"cardNo":"SFD·125/221","ownerId":"p1","tags":["CARD_TYPE:UNIT"],"location":{"zone":"BASE"},"effectivePower":7,"damage":2}
+    """))
+{
+    var visible = SnapshotCardRef.FromSnapshot("public-unit", unit.RootElement, "p2");
+    if (!visible.Visible || visible.CurrentPower != 7 || visible.Damage != 2)
+        throw new InvalidOperationException("Native card ignored authoritative power or damage.");
+}
+Console.WriteLine("Native snapshot projection passed: own standby, opponent/spectator redaction, authoritative public stats.");
+
 var url = Environment.GetEnvironmentVariable("RIFTBOUND_SERVER_URL") ?? "http://127.0.0.1:15089";
 var upstream = new Uri(url);
 if (upstream.Scheme != "http" || !upstream.IsLoopback) throw new InvalidOperationException("This gate requires a local test API.");

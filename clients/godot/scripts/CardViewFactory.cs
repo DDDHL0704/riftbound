@@ -35,7 +35,9 @@ internal sealed class CardViewFactory
                 card.Visible,
                 card.FaceDown,
                 ImagePath: string.Empty,
-                IsExhausted: card.IsExhausted);
+                IsExhausted: card.IsExhausted,
+                CurrentPower: card.CurrentPower,
+                Damage: card.Damage);
         }
 
         var imagePath = waitForImage
@@ -55,6 +57,9 @@ internal sealed class CardViewFactory
             Visible: true,
             FaceDown: false,
             imagePath ?? string.Empty,
-            IsExhausted: card.IsExhausted);
+            IsExhausted: card.IsExhausted,
+            CurrentPower: card.CurrentPower,
+            Damage: card.Damage,
+            IsStandby: card.FaceDown);
     }
 }

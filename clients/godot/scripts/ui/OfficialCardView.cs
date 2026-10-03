@@ -14,6 +14,7 @@ public partial class OfficialCardView : PanelContainer
     private PanelContainer _countBadge = null!;
     private Label _countLabel = null!;
     private Label _exhaustedLabel = null!;
+    private Label _damageLabel = null!;
     private Godot.Collections.Dictionary _card = new();
     private OfficialCardVisualState _state = OfficialCardVisualState.Disabled;
     private bool _hasPendingDisplay;
@@ -43,6 +44,7 @@ public partial class OfficialCardView : PanelContainer
         _countBadge = GetNode<PanelContainer>("%CountBadge");
         _countLabel = GetNode<Label>("%CountLabel");
         _exhaustedLabel = GetNode<Label>("%ExhaustedLabel");
+        _damageLabel = GetNode<Label>("%DamageLabel");
 
         GuiInput += OnGuiInput;
         _cardTexture.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
@@ -55,6 +57,9 @@ public partial class OfficialCardView : PanelContainer
         _exhaustedLabel.AddThemeStyleboxOverride("normal", CountBadgeStyle());
         _exhaustedLabel.AddThemeFontSizeOverride("font_size", 11);
         _exhaustedLabel.AddThemeColorOverride("font_color", MinimalTheme.Selected);
+        _damageLabel.AddThemeStyleboxOverride("normal", CountBadgeStyle());
+        _damageLabel.AddThemeFontSizeOverride("font_size", 11);
+        _damageLabel.SelfModulate = new Color("ff9c99");
         if (_hasPendingDisplay)
         {
             ApplyDisplay();
@@ -104,9 +109,20 @@ public partial class OfficialCardView : PanelContainer
             : MinimalTheme.TextSecondary);
 
         var count = ReadInt(_card, "count", 1);
-        _countBadge.Visible = count > 1;
-        _countLabel.Text = count.ToString();
-        _exhaustedLabel.Visible = canRevealIdentity && ReadBool(_card, "isExhausted", false);
+        var hasCurrentPower = canRevealIdentity && _card.ContainsKey("currentPower");
+        var currentPower = ReadInt(_card, "currentPower", 0);
+        var printedPower = ReadInt(_card, "power", currentPower);
+        _countBadge.Visible = count > 1 || hasCurrentPower;
+        _countLabel.Text = (hasCurrentPower ? currentPower : count).ToString();
+        _countLabel.SelfModulate = !hasCurrentPower || currentPower == printedPower ? Colors.White
+            : currentPower > printedPower ? MinimalTheme.Selectable : new Color("ff9c99");
+        _countBadge.TooltipText = hasCurrentPower ? "当前战力" : "卡牌数量";
+        var damage = ReadInt(_card, "damage", 0);
+        _damageLabel.Visible = hasCurrentPower && damage > 0;
+        _damageLabel.Text = $"伤 {damage}";
+        var isStandby = ReadBool(_card, "isStandby", false);
+        _exhaustedLabel.Visible = canRevealIdentity && (ReadBool(_card, "isExhausted", false) || isStandby);
+        _exhaustedLabel.Text = isStandby ? "待命" : "休眠";
         _stateBorder.AddThemeStyleboxOverride("panel", MinimalTheme.Outline(_state));
         Modulate = _state == OfficialCardVisualState.Disabled
             ? new Color(0.66f, 0.68f, 0.72f, 0.72f)
@@ -116,7 +132,7 @@ public partial class OfficialCardView : PanelContainer
         TooltipText = canRevealIdentity
             ? ReadString(_card, "previewSummary", _fallbackLabel.Text)
             : "隐藏卡牌";
-        if (_exhaustedLabel.Visible) TooltipText += "\n当前状态：休眠";
+        if (_exhaustedLabel.Visible) TooltipText += $"\n当前状态：{_exhaustedLabel.Text}";
     }
 
     public void Clear()
@@ -137,6 +153,7 @@ public partial class OfficialCardView : PanelContainer
         _countBadge.Visible = false;
         _countLabel.Text = string.Empty;
         _exhaustedLabel.Visible = false;
+        _damageLabel.Visible = false;
         _stateBorder.AddThemeStyleboxOverride("panel", MinimalTheme.Outline(_state));
         TooltipText = string.Empty;
         FocusMode = FocusModeEnum.None;

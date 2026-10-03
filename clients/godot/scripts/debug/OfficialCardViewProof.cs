@@ -76,7 +76,7 @@ public partial class OfficialCardViewProof : Control
             card.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
             card.SizeFlagsVertical = SizeFlags.ShrinkCenter;
             var hidden = States[index].State == OfficialCardVisualState.Hidden;
-            card.Display(new Godot.Collections.Dictionary
+            var view = new Godot.Collections.Dictionary
             {
                 ["visible"] = !hidden,
                 ["faceDown"] = hidden,
@@ -84,8 +84,15 @@ public partial class OfficialCardViewProof : Control
                 ["cardName"] = "Official card",
                 ["previewSummary"] = "Official card face · complete aspect ratio",
                 ["imagePath"] = imagePath,
-                ["count"] = index == 1 ? 3 : 1
-            }, States[index].State);
+                ["count"] = index == 1 ? 3 : 1,
+                ["isExhausted"] = index == 2
+            };
+            if (index is 0 or 2 || hidden)
+            {
+                view["currentPower"] = 5;
+                view["damage"] = 2;
+            }
+            card.Display(view, States[index].State);
             item.AddChild(card);
 
             var label = new Label

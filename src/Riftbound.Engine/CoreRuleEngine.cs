@@ -4223,7 +4223,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId) - cardObject.Damage)
+                    ? Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -4239,7 +4239,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         BattleState battle,
         string objectId,
         out int keywordBonus,
-        out int staticPowerBonus)
+        out int staticPowerBonus,
+        bool damageContribution = true)
     {
         keywordBonus = 0;
         staticPowerBonus = 0;
@@ -4270,7 +4271,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             0,
             readyEnemyUnitCount,
             out keywordBonus,
-            out staticPowerBonus);
+            out staticPowerBonus,
+            damageContribution);
     }
 
     private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)
@@ -18209,7 +18211,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         battlefieldSteadfastKeywordBonus,
                         0,
                         out _,
-                        out _);
+                        out _,
+                        damageContribution: false);
                     var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
                     var damageAmount = defenderIndex == defenderAssignments.Count - 1
                         ? remainingAttackerDamage
@@ -18288,7 +18291,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         battlefieldSteadfastKeywordBonus,
                         readyEnemyUnitCount,
                         out _,
-                        out _);
+                        out _,
+                        damageContribution: false);
                     var lethalDamage = Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
                     var damageAmount = attackerIndex == attackerAssignments.Count - 1
                         ? remainingDefenderDamage
@@ -20649,11 +20653,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int battlefieldSteadfastKeywordBonus,
         int readyEnemyUnitCount,
         out int keywordBonus,
-        out int staticPowerBonus)
+        out int staticPowerBonus,
+        bool damageContribution = true)
     {
         keywordBonus = 0;
         staticPowerBonus = 0;
-        if (IsStunnedForBattle(cardObject))
+        // CN 423.1.b/c: stun suppresses damage contribution, not actual might
+        // or the amount of damage required to destroy this unit.
+        if (damageContribution && IsStunnedForBattle(cardObject))
         {
             return 0;
         }

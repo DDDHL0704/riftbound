@@ -4773,7 +4773,8 @@ public sealed record ResolutionResult(
         return BattleParticipantObjectIds(battle)
             .ToDictionary(
                 objectId => objectId,
-                objectId => Math.Max(0, BattleEffectivePowerFor(state, battle, objectId)),
+                objectId => state.CardObjects.TryGetValue(objectId, out var card) && IsStunnedForBattle(card)
+                    ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId)),
                 StringComparer.Ordinal);
     }
 
@@ -4837,11 +4838,6 @@ public sealed record ResolutionResult(
             return 0;
         }
 
-        if (IsStunnedForBattle(cardObject))
-        {
-            return 0;
-        }
-
         var keyword = battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal)
             ? CardCombatKeywordNames.Assault
             : battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
@@ -4855,7 +4851,7 @@ public sealed record ResolutionResult(
         var staticPowerBonus = state.ContinuousEffects
             .Where(effect => string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal)
                 && string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
-            .Sum(effect => effect.PowerDelta);
+            .Sum(ProjectedStaticPowerAdjustment);
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
 
@@ -6564,7 +6560,7 @@ public sealed record ResolutionResult(
             ["damage"] = cardObject.Damage,
             ["power"] = cardObject.Power,
             ["basePower"] = ResolveBasePower(cardObject),
-            ["effectivePower"] = cardObject.Power,
+            ["effectivePower"] = SnapshotEffectivePower(state, cardObject, location),
             ["untilEndOfTurnPowerModifier"] = cardObject.UntilEndOfTurnPowerModifier,
             ["isExhausted"] = cardObject.IsExhausted,
             ["isFaceDown"] = cardObject.IsFaceDown,
@@ -6589,6 +6585,27 @@ public sealed record ResolutionResult(
     private static int ResolveBasePower(CardObjectState cardObject)
     {
         return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+    }
+
+    private static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
+    {
+        if (card.IsFaceDown || !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || location?.Zone is not ("BASE" or "BATTLEFIELD")) return card.Power;
+        if (state.BattleState.IsActive && BattleParticipantObjectIds(state.BattleState).Contains(card.ObjectId, StringComparer.Ordinal))
+            return BattleEffectivePowerFor(state, card.ObjectId);
+        // Power modifiers already materialized on the object must not be counted
+        // twice. Add only the engine's currently applicable static aura layer.
+        return Math.Max(0, card.Power + state.ContinuousEffects
+            .Where(effect => effect.Layer == ContinuousEffectLayers.StaticAura && effect.TargetObjectId == card.ObjectId)
+            .Sum(ProjectedStaticPowerAdjustment));
+    }
+
+    private static int ProjectedStaticPowerAdjustment(ContinuousEffectState effect)
+    {
+        // This family is recomputed directly into CardObjectState.Power. Its
+        // static-aura record explains that value; adding it again would double it.
+        return effect.EffectKind == StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower
+            ? 0 : effect.PowerDelta;
     }
 
     private static Dictionary<string, object?> BuildObjectLocationSnapshotView(

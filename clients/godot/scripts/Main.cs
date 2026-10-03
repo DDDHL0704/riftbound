@@ -3424,7 +3424,7 @@ public partial class Main : Control
             .ToDictionary(property => property.Name, property => property.Value, StringComparer.Ordinal);
     }
 
-    private static IReadOnlyDictionary<string, SnapshotCardRef> VisibleObjectIndex(JsonElement snapshot, JsonElement table)
+    private IReadOnlyDictionary<string, SnapshotCardRef> VisibleObjectIndex(JsonElement snapshot, JsonElement table)
     {
         var index = new Dictionary<string, SnapshotCardRef>(StringComparer.Ordinal);
         if (snapshot.TryGetProperty("players", out var players) && players.ValueKind == JsonValueKind.Object)
@@ -3465,7 +3465,7 @@ public partial class Main : Control
         return index;
     }
 
-    private static SnapshotCardRef CardRefFor(string objectId, IReadOnlyDictionary<string, JsonElement> objects)
+    private SnapshotCardRef CardRefFor(string objectId, IReadOnlyDictionary<string, JsonElement> objects)
     {
         if (!objects.TryGetValue(objectId, out var card) || card.ValueKind != JsonValueKind.Object)
         {
@@ -3475,19 +3475,8 @@ public partial class Main : Control
         return CardRefFromObject(objectId, card);
     }
 
-    private static SnapshotCardRef CardRefFromObject(string objectId, JsonElement card)
-    {
-        var faceDown = ReadBool(card, "isFaceDown");
-        var cardNo = faceDown ? string.Empty : ReadString(card, "cardNo");
-        var controllerOrOwner = ReadString(card, "controllerId");
-        if (string.IsNullOrWhiteSpace(controllerOrOwner))
-        {
-            controllerOrOwner = ReadString(card, "ownerId");
-        }
-
-        return new SnapshotCardRef(objectId, cardNo, !string.IsNullOrWhiteSpace(cardNo), faceDown, controllerOrOwner,
-            IsExhausted: ReadBool(card, "isExhausted"));
-    }
+    private SnapshotCardRef CardRefFromObject(string objectId, JsonElement card)
+        => SnapshotCardRef.FromSnapshot(objectId, card, _authenticatedHandle);
 
     private async Task<Godot.Collections.Dictionary> BuildCardViewAsync(SnapshotCardRef card)
     {

@@ -3,7 +3,7 @@
   "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
   "sourceDate": "2026-07-17",
   "clauseCount": 2381,
-  "note": "Numbered clause inventory only. Existing regression tests do not automatically prove current-source coverage.",
+  "note": "Current-source clause review ledger. Only explicitly verified entries carry conformance evidence; historical test counts do not certify the remaining clauses.",
   "clauses": [
     {
       "rule": "000",
@@ -7994,14 +7994,24 @@
     {
       "rule": "423.1.b",
       "page": 73,
-      "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "status": "VERIFIED_CURRENT_SOURCE",
+      "tests": [
+        "OfficialStunCombatTests",
+        "BattleDamageAssignmentLifecycleTests.NaturalBattleResponseActivationStunnedAttackerUsesZeroAssignmentDamagePool"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "validatedOn": "2026-10-04"
     },
     {
       "rule": "423.1.c",
       "page": 73,
-      "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "status": "VERIFIED_CURRENT_SOURCE",
+      "tests": [
+        "OfficialStunCombatTests",
+        "BattleDamageAssignmentLifecycleTests.NaturalBattleResponseActivationStunnedAttackerUsesZeroAssignmentDamagePool"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "validatedOn": "2026-10-04"
     },
     {
       "rule": "423.2",

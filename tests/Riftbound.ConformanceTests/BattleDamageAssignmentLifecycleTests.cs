@@ -919,12 +919,12 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(2, damagePool[BulwarkDefenderObjectId]);
         Assert.Equal(1, damagePool[ShadowObjectId]);
         var lethalThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["lethalDamageThreshold"]);
-        Assert.Equal(0, lethalThreshold[AttackerObjectId]);
+        Assert.Equal(5, lethalThreshold[AttackerObjectId]); // CN 423.1.c: stun preserves might.
         var battleParticipants = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["battleParticipants"]);
         var attackerParticipant = Assert.Single(
             battleParticipants,
             participant => string.Equals(participant["objectId"] as string, AttackerObjectId, StringComparison.Ordinal));
-        Assert.Equal(0, Assert.IsType<int>(attackerParticipant["power"]));
+        Assert.Equal(5, Assert.IsType<int>(attackerParticipant["power"]));
         var requiredAssignments = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["requiredAssignments"]).ToArray();
         Assert.DoesNotContain(requiredAssignments, assignment =>
             string.Equals(assignment["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
@@ -6127,8 +6127,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         [
             new CombatDamageAssignmentDto(SecondAttackerObjectId, BulwarkDefenderObjectId, 2),
             new CombatDamageAssignmentDto(SecondAttackerObjectId, ShadowObjectId, 2),
-            new CombatDamageAssignmentDto(BulwarkDefenderObjectId, SecondAttackerObjectId, 2),
-            new CombatDamageAssignmentDto(ShadowObjectId, SecondAttackerObjectId, 1)
+            new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+            new CombatDamageAssignmentDto(ShadowObjectId, AttackerObjectId, 1)
         ];
     }
 

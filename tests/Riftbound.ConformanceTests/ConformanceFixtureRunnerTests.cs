@@ -40189,6 +40189,14 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79FriendlyFilteredStaticPowerAddsOneToMatchingFriendlyUnits()
     {
         var state = FriendlyFilteredStaticPowerState();
+        foreach (var snapshot in ResolutionResult.BuildSnapshots(state).Values)
+        {
+            var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+            var objects = Assert.IsType<Dictionary<string, object?>>(player["objects"]);
+            var ally = Assert.IsType<Dictionary<string, object?>>(objects["P1-RUMBLE-MECH-ALLY"]);
+            Assert.Equal(3, ally["effectivePower"]); // Printed 2 plus Rumble's friendly-mech aura.
+        }
+
         var rumbleAuras = state.ContinuousEffects
             .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
                 && string.Equals(effect.SourceObjectId, "P1-RUMBLE-SOURCE", StringComparison.Ordinal))
