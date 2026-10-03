@@ -6138,8 +6138,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         [
             new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
             new CombatDamageAssignmentDto(AttackerObjectId, BackRowDefenderObjectId, 1),
-            new CombatDamageAssignmentDto(SecondAttackerObjectId, BulwarkDefenderObjectId, 2),
-            new CombatDamageAssignmentDto(SecondAttackerObjectId, BackRowDefenderObjectId, 3),
+            new CombatDamageAssignmentDto(SecondAttackerObjectId, BackRowDefenderObjectId, 5),
             new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
             new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 3),
             new CombatDamageAssignmentDto(BackRowDefenderObjectId, SecondAttackerObjectId, 1)

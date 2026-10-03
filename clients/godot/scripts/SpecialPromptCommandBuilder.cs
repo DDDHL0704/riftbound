@@ -8,16 +8,6 @@ namespace Riftbound.GodotClient;
 
 public sealed record TriggerPromptItem(string TriggerId, string Label, int ControllerBlockIndex);
 
-public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold);
-
-public sealed record DamageAssignmentPromptItem(
-    string SourceObjectId,
-    string SourceLabel,
-    int DamagePool,
-    IReadOnlyList<DamageTargetPromptItem> Targets);
-
-public sealed record DamageAssignmentSelection(string SourceObjectId, string TargetObjectId, int Damage);
-
 public static class SpecialPromptCommandBuilder
 {
     public static bool TryReadOrderTriggers(
@@ -667,6 +657,7 @@ public static class SpecialPromptCommandBuilder
         }
 
         var lethalDamageThreshold = ReadNonNegativeIntMap(metadata, "lethalDamageThreshold");
+        var targetPriority = ReadNonNegativeIntMap(metadata, "targetPriority");
         if (lethalDamageThreshold.Count == 0)
         {
             reason = "lethalDamageThreshold is missing";
@@ -755,7 +746,13 @@ public static class SpecialPromptCommandBuilder
                     return false;
                 }
 
-                targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel, threshold));
+                var suggestedDamage = metadata.TryGetProperty("suggestedDamageByTarget", out var suggestions)
+                    && suggestions.ValueKind == JsonValueKind.Object
+                    && suggestions.TryGetProperty(targetObjectId, out var suggestion)
+                    && suggestion.ValueKind == JsonValueKind.Number
+                    && suggestion.TryGetInt64(out var suggested) && suggested >= 0 ? suggested : 0;
+                targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel, threshold,
+                    targetPriority.GetValueOrDefault(targetObjectId, 1), suggestedDamage));
             }
 
             parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, poolDamage, targets));
@@ -788,7 +785,7 @@ public static class SpecialPromptCommandBuilder
     {
         orderedSelections = [];
         reason = string.Empty;
-        var byPair = new Dictionary<(string Source, string Target), int>();
+        var byPair = new Dictionary<(string Source, string Target), long>();
         foreach (var selection in selections)
         {
             if (selection.Damage <= 0)
@@ -796,54 +793,30 @@ public static class SpecialPromptCommandBuilder
                 reason = "damage assignment must be a positive integer";
                 return false;
             }
-
-            var source = serverAssignments.FirstOrDefault(item => string.Equals(item.SourceObjectId, selection.SourceObjectId, StringComparison.Ordinal));
-            if (source is null || !source.Targets.Any(target => string.Equals(target.TargetObjectId, selection.TargetObjectId, StringComparison.Ordinal)))
+            var source = serverAssignments.FirstOrDefault(item => item.SourceObjectId == selection.SourceObjectId);
+            if (source is null || !source.Targets.Any(target => target.TargetObjectId == selection.TargetObjectId))
             {
                 reason = "damage assignment is not a server-provided choice";
                 return false;
             }
-
             var key = (selection.SourceObjectId, selection.TargetObjectId);
             byPair[key] = byPair.GetValueOrDefault(key) + selection.Damage;
         }
-
         var ordered = new List<DamageAssignmentSelection>();
         foreach (var source in serverAssignments)
         {
-            var sourceDamage = 0;
-            for (var targetIndex = 0; targetIndex < source.Targets.Count; targetIndex++)
-            {
-                var target = source.Targets[targetIndex];
-                var damage = byPair.GetValueOrDefault((source.SourceObjectId, target.TargetObjectId));
-                sourceDamage += damage;
-                var isLastTarget = targetIndex == source.Targets.Count - 1;
-                if (!isLastTarget && damage > target.LethalDamageThreshold)
-                {
-                    reason = "damage assignment exceeds a server lethalDamageThreshold";
-                    return false;
-                }
-
-                if (!isLastTarget && damage < target.LethalDamageThreshold
-                    && source.Targets.Skip(targetIndex + 1).Any(later => byPair.GetValueOrDefault((source.SourceObjectId, later.TargetObjectId)) > 0))
-                {
-                    reason = "damage assignment must satisfy server target order and lethalDamageThreshold";
-                    return false;
-                }
-
-                if (damage > 0)
-                {
-                    ordered.Add(new DamageAssignmentSelection(source.SourceObjectId, target.TargetObjectId, damage));
-                }
-            }
-
-            if (sourceDamage != source.DamagePool)
+            if (source.Targets.Sum(target => byPair.GetValueOrDefault((source.SourceObjectId, target.TargetObjectId))) != source.DamagePool)
             {
                 reason = "damage assignment must allocate the full server damage pool";
                 return false;
             }
+            foreach (var target in source.Targets)
+            {
+                var damage = byPair.GetValueOrDefault((source.SourceObjectId, target.TargetObjectId));
+                if (damage > 0) ordered.Add(new(source.SourceObjectId, target.TargetObjectId, checked((int)damage)));
+            }
         }
-
+        // The server judges pooled lethal thresholds, priority and replacements.
         orderedSelections = ordered;
         return true;
     }
@@ -897,7 +870,9 @@ public static class SpecialPromptCommandBuilder
             }
 
             roleCounts[role] = roleCounts.GetValueOrDefault(role) + 1;
-            labels[objectId] = $"{FriendlyParticipantRole(role)} {roleCounts[role]} · 战力 {power} · 已受伤 {damage}";
+            var name = ReadString(participant, "displayName");
+            var title = string.IsNullOrWhiteSpace(name) ? FriendlyParticipantRole(role) : name;
+            labels[objectId] = $"{title} {roleCounts[role]} · 战力 {power} · 已受伤 {damage}";
         }
 
         if (labels.Count == 0)
@@ -973,8 +948,8 @@ public static class SpecialPromptCommandBuilder
     {
         return role.ToUpperInvariant() switch
         {
-            "ATTACKER" => "攻击单位",
-            "DEFENDER" or "BLOCKER" => "阻挡单位",
+            "ATTACKER" => "进攻单位",
+            "DEFENDER" or "BLOCKER" => "防守单位",
             _ => "战斗单位"
         };
     }

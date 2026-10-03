@@ -10009,13 +10009,25 @@
       "rule": "465.2.a",
       "page": 88,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.b",
       "page": 88,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c",
@@ -10027,7 +10039,13 @@
       "rule": "465.2.c.1",
       "page": 89,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c.1.a",
@@ -10045,13 +10063,25 @@
       "rule": "465.2.c.3",
       "page": 89,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c.4",
       "page": 89,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c.4.a",
@@ -10069,13 +10099,25 @@
       "rule": "465.2.c.6",
       "page": 89,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c.7",
       "page": 89,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPooledCombatDamageTests",
+        "NativePooledDamageSelectionTests"
+      ],
+      "evidence": "docs/NATIVE_DELIVERY_2026-10-04.md",
+      "remaining": "Audit interactions with damage replacements, immune units, conflicting priorities and full combat trigger timing."
     },
     {
       "rule": "465.2.c.8",

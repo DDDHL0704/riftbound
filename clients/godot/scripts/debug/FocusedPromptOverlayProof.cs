@@ -123,6 +123,8 @@ public partial class FocusedPromptOverlayProof : Control
             "legalTargets": {
               "P1-ATTACKER": ["P2-GUARD", "P2-BACKROW"]
             },
+            "suggestedDamageByTarget": { "P2-GUARD": 2, "P2-BACKROW": 3 },
+            "targetPriority": { "P2-GUARD": 0, "P2-BACKROW": 2 },
             "lethalDamageThreshold": {
               "P2-GUARD": 2,
               "P2-BACKROW": 1

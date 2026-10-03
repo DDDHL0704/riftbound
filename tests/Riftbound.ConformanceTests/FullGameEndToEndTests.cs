@@ -16470,35 +16470,7 @@ public sealed class FullGameEndToEndTests
             ?? throw new InvalidOperationException("ASSIGN_COMBAT_DAMAGE prompt missing metadata.");
         var battleId = Assert.IsType<string>(metadata["battleId"]);
         var battlefieldId = Assert.IsType<string>(metadata["battlefieldId"]);
-        var damagePool = IntMap(metadata["assignableDamagePool"]);
-        var legalTargets = StringListMap(metadata["legalTargets"]);
-        var lethalThreshold = IntMap(metadata["lethalDamageThreshold"]);
-        var assignments = new List<CombatDamageAssignmentDto>();
-        foreach (var (sourceObjectId, damage) in damagePool)
-        {
-            if (damage <= 0 || !legalTargets.TryGetValue(sourceObjectId, out var targets) || targets.Count == 0)
-            {
-                continue;
-            }
-
-            var remainingDamage = damage;
-            for (var targetIndex = 0; targetIndex < targets.Count && remainingDamage > 0; targetIndex++)
-            {
-                var targetObjectId = targets[targetIndex];
-                var isLastTarget = targetIndex == targets.Count - 1;
-                var assignDamage = isLastTarget
-                    ? remainingDamage
-                    : Math.Min(remainingDamage, Math.Max(0, lethalThreshold.GetValueOrDefault(targetObjectId)));
-                if (assignDamage <= 0)
-                {
-                    continue;
-                }
-
-                assignments.Add(new CombatDamageAssignmentDto(sourceObjectId, targetObjectId, assignDamage));
-                remainingDamage -= assignDamage;
-            }
-        }
-
+        var assignments = CombatTestDriver.Assignments(prompt);
         Assert.NotEmpty(assignments);
         var command = new AssignCombatDamageCommand(battleId, battlefieldId, assignments);
         var result = await session.SubmitAsync(

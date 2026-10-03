@@ -312,6 +312,8 @@ public partial class Main : Control
         _mulliganOverlay = GetNode<MulliganOverlay>("MulliganOverlay");
         _triggerOrderOverlay = GetNode<TriggerOrderOverlay>("TriggerOrderOverlay");
         _damageAssignmentOverlay = GetNode<DamageAssignmentOverlay>("DamageAssignmentOverlay");
+        _damageAssignmentOverlay.CardViewFor = id => VisibleTableCardView(id, includeOpponents: true);
+        _damageAssignmentOverlay.CardInspectionRequested += ApplyCardPreview;
     }
 
     private void ApplyMinimalTheme()
@@ -407,15 +409,19 @@ public partial class Main : Control
     }
 
     private Godot.Collections.Dictionary? VisibleMovementCardView(string objectId)
+        => VisibleTableCardView(objectId, includeOpponents: false);
+
+    private Godot.Collections.Dictionary? VisibleTableCardView(string objectId, bool includeOpponents)
     {
         if (_lastSnapshotSections is null) return null;
         foreach (var section in _lastSnapshotSections)
         {
             if (!section.TryGetValue("kind", out var kind) || kind.AsString() != "wireTable") continue;
             var zones = new List<Godot.Collections.Dictionary> { section["self"].AsGodotDictionary() };
+            if (includeOpponents) zones.Add(section["opponent"].AsGodotDictionary());
             zones.AddRange(section["lanes"].As<Godot.Collections.Array<Godot.Collections.Dictionary>>());
             foreach (var zone in zones)
-                foreach (var key in new[] { "base", "selfUnits" })
+                foreach (var key in includeOpponents ? new[] { "base", "selfUnits", "opponentUnits" } : new[] { "base", "selfUnits" })
                     if (zone.TryGetValue(key, out var cards))
                         foreach (var card in cards.As<Godot.Collections.Array<Godot.Collections.Dictionary>>())
                             if (card.TryGetValue("objectId", out var id) && id.AsString() == objectId) return card;
@@ -3727,10 +3733,14 @@ public partial class Main : Control
 
     private void AppendReceipt(string label, CommandReceiptDto receipt)
     {
+        if (!receipt.Accepted && receipt.CmdType == CommandTypes.AssignCombatDamage)
+            QueueMainThread(nameof(ApplyDamageRejection), receipt.Message);
         var tone = receipt.Accepted ? "green" : "red";
         AppendLog(
             $"[color={tone}]{Escape(label)} receipt accepted={receipt.Accepted} state={Escape(receipt.State)} message={Escape(receipt.Message)}[/color]");
     }
+
+    public void ApplyDamageRejection(string message) => _damageAssignmentOverlay?.ShowServerRejection(message);
 
     private async Task DisconnectAsync()
     {
@@ -3968,7 +3978,15 @@ public partial class Main : Control
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];
-        HideSpecialPromptOverlays();
+        // Rejected damage commands resend the same prompt. Keep the editable
+        // totals and feedback; a new prompt/tick still invalidates all selections.
+        var preserveDamageSelection = _damageAssignmentOverlay is { Visible: true, CanUsePrompt: true }
+            && _lastAppliedPromptView is not null
+            && view.TryGetValue("promptId", out var promptId)
+            && _lastAppliedPromptView.TryGetValue("promptId", out var previousId) && promptId.AsString() == previousId.AsString()
+            && view.TryGetValue("snapshotTick", out var tick)
+            && _lastAppliedPromptView.TryGetValue("snapshotTick", out var previousTick) && tick.AsInt64() == previousTick.AsInt64();
+        if (!preserveDamageSelection) HideSpecialPromptOverlays();
         _lastAppliedPromptView = view.Duplicate(true);
         _promptInteractionController.Load(view);
         PresentPromptInteraction(view);

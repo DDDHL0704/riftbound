@@ -3830,117 +3830,62 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var damagePool = BuildCombatDamagePool(state, battle);
         var legalTargets = BuildCombatDamageLegalTargets(state, battle);
         var lethalThreshold = BuildCombatLethalDamageThreshold(state, battle);
-        var participantIds = damagePool.Keys.ToHashSet(StringComparer.Ordinal);
         var requiredSources = requiredSourceObjectIds.ToHashSet(StringComparer.Ordinal);
+        CombatDamageAssignmentValidationResult Reject(string code, string message) =>
+            CombatDamageAssignmentValidationResult.Rejected(code, message, damagePool, lethalThreshold);
         if (requiredSources.Count == 0)
-        {
-            return CombatDamageAssignmentValidationResult.Rejected(
-                ErrorCodes.PhaseNotAllowed,
-                "当前玩家没有需要分配的战斗伤害源。",
-                damagePool,
-                lethalThreshold);
-        }
+            return Reject(ErrorCodes.PhaseNotAllowed, "当前玩家没有需要分配的战斗伤害源。");
 
-        var sourceTargetDamage = new Dictionary<(string Source, string Target), int>();
+        // Sources remain in the wire format for the damage ledger. CN 465.2.a-c
+        // judges lethal assignment across the whole side, never source by source.
+        var sourceTotals = new Dictionary<string, long>(StringComparer.Ordinal);
+        var targetTotals = new Dictionary<string, long>(StringComparer.Ordinal);
         foreach (var assignment in assignments)
         {
-            if (!participantIds.Contains(assignment.SourceObjectId)
-                || !participantIds.Contains(assignment.TargetObjectId))
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidTarget,
-                    "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            if (!requiredSources.Contains(assignment.SourceObjectId))
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidTarget,
-                    "ASSIGN_COMBAT_DAMAGE 只能分配当前玩家控制的战斗伤害源。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            if (!legalTargets.TryGetValue(assignment.SourceObjectId, out var legalTargetsForSource)
-                || !legalTargetsForSource.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidTarget,
-                    "ASSIGN_COMBAT_DAMAGE 只能分配给敌方战斗参与者。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            var key = (assignment.SourceObjectId, assignment.TargetObjectId);
-            sourceTargetDamage[key] = sourceTargetDamage.TryGetValue(key, out var existingDamage)
-                ? existingDamage + assignment.Damage
-                : assignment.Damage;
+            if (!requiredSources.Contains(assignment.SourceObjectId)
+                || !damagePool.ContainsKey(assignment.TargetObjectId)
+                || !legalTargets.TryGetValue(assignment.SourceObjectId, out var targets)
+                || !targets.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
+                return Reject(ErrorCodes.InvalidTarget, "ASSIGN_COMBAT_DAMAGE 只能将当前玩家的战斗伤害分配给敌方战斗参与者。");
+            if (assignment.Damage <= 0)
+                return Reject(ErrorCodes.InvalidPayload, "战斗伤害分配量必须为正整数。");
+            sourceTotals[assignment.SourceObjectId] = sourceTotals.GetValueOrDefault(assignment.SourceObjectId) + assignment.Damage;
+            targetTotals[assignment.TargetObjectId] = targetTotals.GetValueOrDefault(assignment.TargetObjectId) + assignment.Damage;
         }
+        foreach (var source in requiredSources)
+            if (sourceTotals.GetValueOrDefault(source) != damagePool.GetValueOrDefault(source))
+                return Reject(ErrorCodes.InvalidPayload, "ASSIGN_COMBAT_DAMAGE 必须完整分配当前玩家每个伤害源的战斗伤害池。");
 
-        foreach (var sourceObjectId in requiredSources)
+        foreach (var side in new[] { battle.AttackerObjectIds, battle.DefenderObjectIds })
         {
-            if (!legalTargets.TryGetValue(sourceObjectId, out var legalTargetsForSource)
-                || legalTargetsForSource.Count == 0)
+            var source = side.FirstOrDefault(requiredSources.Contains);
+            if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
+            var targetPriority = targets.ToDictionary(id => id,
+                id => state.CardObjects.TryGetValue(id, out var card)
+                    ? BattleDamageAssignmentPriority(state, state.PlayerZones, id, card) : 1,
+                StringComparer.Ordinal);
+            var partiallyAssigned = 0;
+            var overAssigned = 0;
+            foreach (var target in targets)
             {
-                continue;
-            }
-
-            var expectedDamage = damagePool.TryGetValue(sourceObjectId, out var sourceDamage)
-                ? sourceDamage
-                : 0;
-            var assignedDamage = sourceTargetDamage
-                .Where(entry => string.Equals(entry.Key.Source, sourceObjectId, StringComparison.Ordinal))
-                .Sum(entry => entry.Value);
-            if (assignedDamage != expectedDamage)
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidPayload,
-                    "ASSIGN_COMBAT_DAMAGE 必须完整分配当前玩家每个伤害源的战斗伤害池。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            for (var targetIndex = 0; targetIndex < legalTargetsForSource.Count; targetIndex++)
-            {
-                var targetObjectId = legalTargetsForSource[targetIndex];
-                var assignedToTarget = sourceTargetDamage.TryGetValue((sourceObjectId, targetObjectId), out var targetDamage)
-                    ? targetDamage
-                    : 0;
-                var lethalDamage = lethalThreshold.TryGetValue(targetObjectId, out var threshold)
-                    ? threshold
-                    : 0;
-                var isLastLegalTarget = targetIndex == legalTargetsForSource.Count - 1;
-                if (!isLastLegalTarget && assignedToTarget > lethalDamage)
+                var damage = targetTotals.GetValueOrDefault(target);
+                var lethal = lethalThreshold.GetValueOrDefault(target);
+                if (damage <= 0) continue;
+                if (targets.Any(other => targetPriority[other] < targetPriority[target]
+                    && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)))
+                    return Reject(ErrorCodes.InvalidPayload, "必须先向更高优先级的单位分配致命伤害。");
+                if (damage < lethal && ++partiallyAssigned > 1)
+                    return Reject(ErrorCodes.InvalidPayload, "不能同时向多个单位分配不足致命的伤害。");
+                if (damage > lethal)
                 {
-                    return CombatDamageAssignmentValidationResult.Rejected(
-                        ErrorCodes.InvalidPayload,
-                        "ASSIGN_COMBAT_DAMAGE 对非末位目标不能超过致命伤害。",
-                        damagePool,
-                        lethalThreshold);
-                }
-
-                if (isLastLegalTarget || assignedToTarget >= lethalDamage)
-                {
-                    continue;
-                }
-
-                var laterTargetHasDamage = legalTargetsForSource
-                    .Skip(targetIndex + 1)
-                    .Any(laterTarget => sourceTargetDamage.TryGetValue((sourceObjectId, laterTarget), out var laterDamage)
-                        && laterDamage > 0);
-                if (laterTargetHasDamage)
-                {
-                    return CombatDamageAssignmentValidationResult.Rejected(
-                        ErrorCodes.InvalidPayload,
-                        "ASSIGN_COMBAT_DAMAGE 必须先向前序目标分配致命伤害。",
-                        damagePool,
-                        lethalThreshold);
+                    // Excess can only remain on the last target in a legal order.
+                    if (++overAssigned > 1 || targets.Any(other => other != target
+                        && (targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)
+                            || targetPriority[other] > targetPriority[target])))
+                        return Reject(ErrorCodes.InvalidPayload, "其他单位尚可分配伤害时，不能向此单位分配过量伤害。");
                 }
             }
         }
-
         return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
     }
 
@@ -3948,100 +3893,34 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         BattleState battle,
         IReadOnlyList<CombatDamageAssignmentDto> assignments)
+        => ValidateCombatDamageAssignmentsForSources(state, battle, assignments,
+            battle.AttackerObjectIds.Concat(battle.DefenderObjectIds).ToArray());
+
+    internal static IReadOnlyDictionary<string, long> SuggestCombatDamageByTarget(
+        MatchState state, BattleState battle, IReadOnlyList<string> sources)
     {
-        var damagePool = BuildCombatDamagePool(state, battle);
+        var pool = BuildCombatDamagePool(state, battle);
         var legalTargets = BuildCombatDamageLegalTargets(state, battle);
-        var lethalThreshold = BuildCombatLethalDamageThreshold(state, battle);
-        var participantIds = damagePool.Keys.ToHashSet(StringComparer.Ordinal);
-        var sourceTargetDamage = new Dictionary<(string Source, string Target), int>();
-        foreach (var assignment in assignments)
+        var lethal = BuildCombatLethalDamageThreshold(state, battle);
+        var totals = new Dictionary<string, long>(StringComparer.Ordinal);
+        var assignments = new List<CombatDamageAssignmentDto>();
+        foreach (var source in sources)
         {
-            if (!participantIds.Contains(assignment.SourceObjectId)
-                || !participantIds.Contains(assignment.TargetObjectId))
+            var remaining = pool.GetValueOrDefault(source);
+            if (!legalTargets.TryGetValue(source, out var targets)) continue;
+            for (var i = 0; i < targets.Count && remaining > 0; i++)
             {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidTarget,
-                    "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            if (!legalTargets.TryGetValue(assignment.SourceObjectId, out var legalTargetsForSource)
-                || !legalTargetsForSource.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidTarget,
-                    "ASSIGN_COMBAT_DAMAGE 只能分配给敌方战斗参与者。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            var key = (assignment.SourceObjectId, assignment.TargetObjectId);
-            sourceTargetDamage[key] = sourceTargetDamage.TryGetValue(key, out var existingDamage)
-                ? existingDamage + assignment.Damage
-                : assignment.Damage;
-        }
-
-        foreach (var sourceEntry in damagePool)
-        {
-            if (!legalTargets.TryGetValue(sourceEntry.Key, out var legalTargetsForSource)
-                || legalTargetsForSource.Count == 0)
-            {
-                continue;
-            }
-
-            var assignedDamage = sourceTargetDamage
-                .Where(entry => string.Equals(entry.Key.Source, sourceEntry.Key, StringComparison.Ordinal))
-                .Sum(entry => entry.Value);
-            if (assignedDamage != sourceEntry.Value)
-            {
-                return CombatDamageAssignmentValidationResult.Rejected(
-                    ErrorCodes.InvalidPayload,
-                    "ASSIGN_COMBAT_DAMAGE 必须为每个伤害源完整分配其战斗伤害池。",
-                    damagePool,
-                    lethalThreshold);
-            }
-
-            for (var targetIndex = 0; targetIndex < legalTargetsForSource.Count; targetIndex++)
-            {
-                var targetObjectId = legalTargetsForSource[targetIndex];
-                var assignedToTarget = sourceTargetDamage.TryGetValue((sourceEntry.Key, targetObjectId), out var targetDamage)
-                    ? targetDamage
-                    : 0;
-                var lethalDamage = lethalThreshold.TryGetValue(targetObjectId, out var threshold)
-                    ? threshold
-                    : 0;
-                var isLastLegalTarget = targetIndex == legalTargetsForSource.Count - 1;
-                if (!isLastLegalTarget && assignedToTarget > lethalDamage)
-                {
-                    return CombatDamageAssignmentValidationResult.Rejected(
-                        ErrorCodes.InvalidPayload,
-                        "ASSIGN_COMBAT_DAMAGE 对非末位目标不能超过致命伤害。",
-                        damagePool,
-                        lethalThreshold);
-                }
-
-                if (isLastLegalTarget || assignedToTarget >= lethalDamage)
-                {
-                    continue;
-                }
-
-                var laterTargetHasDamage = legalTargetsForSource
-                    .Skip(targetIndex + 1)
-                    .Any(laterTarget => sourceTargetDamage.TryGetValue((sourceEntry.Key, laterTarget), out var laterDamage)
-                        && laterDamage > 0);
-                if (laterTargetHasDamage)
-                {
-                    return CombatDamageAssignmentValidationResult.Rejected(
-                        ErrorCodes.InvalidPayload,
-                        "ASSIGN_COMBAT_DAMAGE 必须先向前序目标分配致命伤害。",
-                        damagePool,
-                        lethalThreshold);
-                }
+                var target = targets[i];
+                var amount = i == targets.Count - 1 ? remaining
+                    : (int)Math.Min(remaining, Math.Max(0, lethal.GetValueOrDefault(target) - totals.GetValueOrDefault(target)));
+                if (amount <= 0) continue;
+                assignments.Add(new(source, target, amount));
+                totals[target] = totals.GetValueOrDefault(target) + amount;
+                remaining -= amount;
             }
         }
-
-        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+        return ValidateCombatDamageAssignmentsForSources(state, battle, assignments, sources).Accepted
+            ? totals : new Dictionary<string, long>();
     }
 
     private sealed record SubmittedCombatDamage(
@@ -28836,6 +28715,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObject,
                 CardCombatKeywordNames.BackRow) > 0;
     }
+
+    internal static int CombatDamageTargetPriorityFor(MatchState state, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var card)
+            ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, card) : 1;
 
     private static int BattleDamageAssignmentPriority(
         MatchState state,

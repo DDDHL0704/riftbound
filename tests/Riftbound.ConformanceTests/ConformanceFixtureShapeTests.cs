@@ -2653,8 +2653,8 @@ public sealed class ConformanceFixtureShapeTests
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
                 [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 3),
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 2)
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 4),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 1)
                 ]),
             CancellationToken.None);
         var lethalFirst = await engine.ResolveAsync(

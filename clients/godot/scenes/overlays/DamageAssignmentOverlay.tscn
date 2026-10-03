@@ -55,12 +55,18 @@ theme_override_constants/separation = 12
 [node name="DamageTitle" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "分配伤害"
+text = "分配战斗伤害"
 horizontal_alignment = 1
 
 [node name="DamageSummary" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
 unique_name_in_owner = true
 layout_mode = 2
+horizontal_alignment = 1
+
+[node name="Guidance" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+layout_mode = 2
+text = "先壁垒，再普通单位，最后后排；同级可自由选择。\n一个目标达到致命伤害后，再分配下一个目标。提交后由服务端裁定。"
+autowrap_mode = 2
 horizontal_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
@@ -74,16 +80,29 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
+[node name="DamageFeedback" type="Label" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+horizontal_alignment = 1
+
 [node name="Actions" type="HBoxContainer" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 12
 
+[node name="SuggestButton" type="Button" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+text = "按优先级分配"
+tooltip_text = "使用服务端提供的分配建议，确认后生效"
+
 [node name="CancelButton" type="Button" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 42)
 layout_mode = 2
-text = "重置选择"
+text = "返回战场"
 
 [node name="ConfirmButton" type="Button" parent="DamageCenter/DamagePanel/ContentMargin/DamageContent/Actions"]
 unique_name_in_owner = true

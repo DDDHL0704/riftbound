@@ -4921,24 +4921,12 @@ public sealed record ResolutionResult(
             {
                 ObjectId = objectId,
                 Index = index,
-                Priority = state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? BattleDamageAssignmentPriority(cardObject.Tags)
-                    : 1
+                Priority = CoreRuleEngine.CombatDamageTargetPriorityFor(state, objectId)
             })
             .OrderBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => item.ObjectId)
             .ToArray();
-    }
-
-    private static int BattleDamageAssignmentPriority(IReadOnlyList<string> tags)
-    {
-        if (tags.Contains(CardCombatKeywordNames.Bulwark, StringComparer.Ordinal))
-        {
-            return 0;
-        }
-
-        return tags.Contains(CardCombatKeywordNames.BackRow, StringComparer.Ordinal) ? 2 : 1;
     }
 
     internal static string BattleParticipantRole(BattleState battle, string objectId)
@@ -16625,6 +16613,10 @@ internal static class ActionPromptBuilder
             {
                 ["objectId"] = objectId,
                 ["role"] = ResolutionResult.BattleParticipantRole(battle, objectId),
+                ["displayName"] = state.CardObjects.TryGetValue(objectId, out var participant)
+                    && !participant.IsFaceDown && !string.IsNullOrWhiteSpace(participant.CardNo)
+                    && CardBehaviorRegistry.TryGetByCardNo(participant.CardNo, out var behavior)
+                        ? behavior.DisplayName : string.Empty,
                 ["controllerId"] = battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
                     ? controllerId
                     : string.Empty,
@@ -16647,6 +16639,12 @@ internal static class ActionPromptBuilder
             ["assigningPlayerId"] = assigningPlayerId,
             ["damagePool"] = damagePool,
             ["assignableDamagePool"] = assignableDamagePool,
+            ["totalAssignableDamage"] = assignableDamagePool.Values.Sum(value => (long)value),
+            ["assignmentRule"] = "SIDE_POOL_LETHAL_PRIORITY",
+            ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
+            ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
+                .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
+            ["assignmentGuidance"] = "先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
             ["assigningSourceObjectIds"] = assigningSourceIds,
             ["legalTargets"] = assignableLegalTargets,
             ["allLegalTargets"] = legalTargets,
@@ -20447,6 +20445,7 @@ public sealed class MatchSession : IMatchSession
             "ornn-equipment-look" => BuildOrnnEquipmentLookScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
             "standard-group-movement" => BuildStandardGroupMovementScenario(current, seed),
+            "pooled-combat" => BuildPooledCombatScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
@@ -22447,6 +22446,30 @@ public sealed class MatchSession : IMatchSession
         }
         return scene with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones,
             PlayerScores = new Dictionary<string, int> { [seed.P1] = 0, [seed.P2] = 0 } };
+    }
+
+    private static MatchState BuildPooledCombatScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var scene = BuildStandardGroupMovementScenario(current, seed);
+        var cards = scene.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var locations = scene.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var zones = scene.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var battlefield = cards.Values.First(card => card.OwnerId == seed.P2
+            && card.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)).ObjectId;
+        foreach (var (id, player, power) in new[]
+        {
+            ("QA-POOL-A1", seed.P1, 2), ("QA-POOL-A2", seed.P1, 2),
+            ("QA-POOL-D1", seed.P2, 3), ("QA-POOL-D2", seed.P2, 1)
+        })
+        {
+            cards[id] = new(id, cardNo: "SFD·125/221", power: power, ownerId: player, controllerId: player,
+                isAttacking: player == seed.P1, isDefending: player == seed.P2,
+                tags: id == "QA-POOL-D1" ? [CardObjectTags.UnitCard, CardCombatKeywordNames.Bulwark] : [CardObjectTags.UnitCard]);
+            locations[id] = new(player, "BATTLEFIELD", battlefield);
+            zones[player] = zones[player] with { Battlefields = zones[player].Battlefields.Append(id).ToArray() };
+        }
+        return scene with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted(battlefield)] };
     }
 
     private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)

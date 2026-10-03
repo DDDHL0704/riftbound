@@ -9,23 +9,24 @@ public partial class DamageAssignmentOverlay : Control
 {
     public event Action<IReadOnlyList<DamageAssignmentSelection>>? Confirmed;
     public event Action? Cancelled;
+    public event Action<Godot.Collections.Dictionary>? CardInspectionRequested;
+    public Func<string, Godot.Collections.Dictionary?>? CardViewFor { get; set; }
 
     private readonly List<DamageAssignmentPromptItem> _assignments = [];
-    private readonly Dictionary<(string Source, string Target), int> _damageByPair = new();
+    private readonly Dictionary<string, long> _damageByTarget = new(StringComparer.Ordinal);
+    private readonly List<DamageTargetPromptItem> _targets = [];
+    private readonly Dictionary<string, SpinBox> _steppers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Label> _targetSummaries = new(StringComparer.Ordinal);
     private VBoxContainer _rows = null!;
     private Label _summary = null!;
+    private Label _feedback = null!;
     private Button _cancelButton = null!;
     private Button _confirmButton = null!;
+    private Button _suggestButton = null!;
     private bool _canUsePrompt;
 
-    public IReadOnlyList<DamageAssignmentSelection> RequiredAssignments => _assignments
-        .SelectMany(assignment => assignment.Targets
-            .Select(target => new DamageAssignmentSelection(
-                assignment.SourceObjectId,
-                target.TargetObjectId,
-                _damageByPair.GetValueOrDefault((assignment.SourceObjectId, target.TargetObjectId))))
-            .Where(selection => selection.Damage > 0))
-        .ToArray();
+    public IReadOnlyList<DamageAssignmentSelection> RequiredAssignments =>
+        PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out var selections) ? selections : [];
 
     public bool CanUsePrompt => _canUsePrompt;
 
@@ -33,8 +34,12 @@ public partial class DamageAssignmentOverlay : Control
     {
         _rows = GetNode<VBoxContainer>("%DamageRows");
         _summary = GetNode<Label>("%DamageSummary");
+        _feedback = GetNode<Label>("%DamageFeedback");
+        _feedback.AddThemeColorOverride("font_color", MinimalTheme.Hostile);
         _cancelButton = GetNode<Button>("%CancelButton");
         _confirmButton = GetNode<Button>("%ConfirmButton");
+        _suggestButton = GetNode<Button>("%SuggestButton");
+        _suggestButton.Pressed += ApplySuggestedDistribution;
         _cancelButton.Pressed += Cancel;
         _confirmButton.Pressed += Confirm;
 
@@ -61,7 +66,10 @@ public partial class DamageAssignmentOverlay : Control
         }
 
         _assignments.AddRange(assignments);
+        _targets.AddRange(assignments.SelectMany(source => source.Targets)
+            .DistinctBy(target => target.TargetObjectId).OrderBy(target => target.Priority));
         _canUsePrompt = ReadBool(action, "enabled");
+        _suggestButton.Disabled = !_canUsePrompt || _targets.Sum(target => target.SuggestedDamage) != TotalDamage;
         Visible = true;
         MoveToFront();
         RenderRows();
@@ -91,138 +99,103 @@ public partial class DamageAssignmentOverlay : Control
         Cancel();
     }
 
-    private void RenderRows(string focusSourceId = "", string focusTargetId = "")
+    private long TotalDamage => _assignments.Sum(source => (long)source.DamagePool);
+    private long RemainingDamage => TotalDamage - _damageByTarget.Values.Sum();
+
+    private void RenderRows()
     {
         ClearChildren(_rows);
-        foreach (var assignment in _assignments)
+        _steppers.Clear();
+        _targetSummaries.Clear();
+        foreach (var target in _targets)
         {
-            var row = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            row.AddChild(new Label { Text = assignment.SourceLabel });
-            row.AddChild(new Label
+            var panel = new PanelContainer();
+            panel.AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.Surface));
+            var row = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+            row.AddThemeConstantOverride("separation", 20);
+            if (CardViewFor?.Invoke(target.TargetObjectId) is { } card
+                && card.TryGetValue("visible", out var visible) && visible.AsBool()
+                && (!card.TryGetValue("faceDown", out var faceDown) || !faceDown.AsBool()))
             {
-                Name = "RemainingDamage",
-                Text = $"来源剩余伤害：{RemainingDamage(assignment)}",
-                TooltipText = "服务端提供的可分配伤害"
-            });
-
-            for (var targetIndex = 0; targetIndex < assignment.Targets.Count; targetIndex++)
-            {
-                var target = assignment.Targets[targetIndex];
-                var targetRow = new HBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-                var targetId = target.TargetObjectId;
-                targetRow.AddChild(new Label
-                {
-                    Text = $"{target.Label} · 致命阈值 {target.LethalDamageThreshold}",
-                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
-                });
-                var spinBox = new SpinBox
-                {
-                    Name = "DamageAmountStepper",
-                    MinValue = 0,
-                    MaxValue = targetIndex == assignment.Targets.Count - 1
-                        ? assignment.DamagePool
-                        : Math.Min(assignment.DamagePool, target.LethalDamageThreshold),
-                    Step = 1,
-                    AllowGreater = false,
-                    Editable = _canUsePrompt,
-                    Value = _damageByPair.GetValueOrDefault((assignment.SourceObjectId, targetId))
-                };
-                spinBox.ValueChanged += value => DamageValueChanged(
-                    assignment.SourceObjectId,
-                    targetId,
-                    (int)Math.Round(value));
-                spinBox.SetMeta("sourceObjectId", assignment.SourceObjectId);
-                spinBox.SetMeta("targetObjectId", targetId);
-                targetRow.AddChild(spinBox);
-                row.AddChild(targetRow);
+                var preview = GD.Load<PackedScene>("res://scenes/components/OfficialCardView.tscn").Instantiate<OfficialCardView>();
+                preview.CustomMinimumSize = new Vector2(76, 106);
+                preview.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+                row.AddChild(preview);
+                preview.Display(card, OfficialCardVisualState.Normal);
+                preview.Activated += selected => CardInspectionRequested?.Invoke(selected);
             }
-
-            _rows.AddChild(row);
+            var labels = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+            var priority = target.Priority switch { 0 => "壁垒 · 优先分配", 2 => "后排 · 最后分配", _ => "普通单位" };
+            var heading = new Label { Text = target.Label };
+            heading.AddThemeFontSizeOverride("font_size", 18);
+            labels.AddChild(heading);
+            labels.AddChild(new Label { Text = $"{priority}    致命所需 {target.LethalDamageThreshold}" });
+            var status = new Label();
+            _targetSummaries[target.TargetObjectId] = status;
+            labels.AddChild(status);
+            row.AddChild(labels);
+            var spinBox = new SpinBox
+            {
+                Name = "DamageAmountStepper", MinValue = 0, MaxValue = TotalDamage,
+                Step = 1, AllowGreater = false, Editable = _canUsePrompt,
+                CustomMinimumSize = new Vector2(140, 48),
+                Value = _damageByTarget.GetValueOrDefault(target.TargetObjectId),
+                TooltipText = "分配给此目标的总伤害"
+            };
+            spinBox.ValueChanged += value => DamageValueChanged(target.TargetObjectId, (long)Math.Round(value));
+            _steppers[target.TargetObjectId] = spinBox;
+            row.AddChild(spinBox);
+            panel.AddChild(row);
+            _rows.AddChild(panel);
         }
-
-        var completed = _assignments.Count(assignment => RemainingDamage(assignment) == 0);
-        _summary.Text = $"已完成 {completed} / {_assignments.Count} 个伤害来源。";
-        _confirmButton.Disabled = !_canUsePrompt || !HasValidServerDistribution();
-        if (!string.IsNullOrWhiteSpace(focusSourceId) && !string.IsNullOrWhiteSpace(focusTargetId))
-        {
-            FocusStepper(focusSourceId, focusTargetId);
-        }
+        UpdateSummary();
     }
 
     private void FocusFirstControl()
     {
-        var firstStepper = FindChildren("*", "SpinBox", recursive: true, owned: false)
-            .OfType<SpinBox>()
-            .FirstOrDefault(spinBox => spinBox.Editable);
-        if (firstStepper is not null)
-        {
-            firstStepper.GrabFocus();
-            return;
-        }
-
-        _cancelButton.GrabFocus();
+        var first = _steppers.Values.FirstOrDefault(stepper => stepper.Editable);
+        if (first is not null) first.GetLineEdit().GrabFocus();
+        else _cancelButton.GrabFocus();
     }
 
-    private void FocusStepper(string sourceObjectId, string targetObjectId)
+    private void DamageValueChanged(string targetObjectId, long damage)
     {
-        var stepper = FindChildren("*", "SpinBox", recursive: true, owned: false)
-            .OfType<SpinBox>()
-            .FirstOrDefault(candidate =>
-                candidate.GetMeta("sourceObjectId", string.Empty).AsString() == sourceObjectId
-                && candidate.GetMeta("targetObjectId", string.Empty).AsString() == targetObjectId);
-        if (stepper is not null)
-        {
-            stepper.GrabFocus();
-        }
+        if (!_canUsePrompt) return;
+        _damageByTarget[targetObjectId] = Math.Max(0, damage);
+        _feedback.Text = string.Empty;
+        // Keep controls alive while editing; rebuilding them loses keyboard focus.
+        UpdateSummary();
     }
 
-    private void DamageValueChanged(string sourceObjectId, string targetObjectId, int damage)
+    private void UpdateSummary()
     {
-        if (!_canUsePrompt)
+        var remaining = RemainingDamage;
+        _summary.Text = $"总伤害 {TotalDamage}    已分配 {TotalDamage - remaining}    "
+            + (remaining < 0 ? $"超出 {-remaining}" : $"剩余 {remaining}");
+        _summary.AddThemeColorOverride("font_color", remaining < 0 ? MinimalTheme.Hostile : MinimalTheme.Text);
+        foreach (var target in _targets)
         {
-            return;
+            var amount = _damageByTarget.GetValueOrDefault(target.TargetObjectId);
+            var status = _targetSummaries[target.TargetObjectId];
+            status.Text = amount == 0 ? "尚未分配" : amount >= target.LethalDamageThreshold
+                ? $"已分配 {amount} · 达到致命阈值" : $"已分配 {amount} · 距致命还差 {target.LethalDamageThreshold - amount}";
+            status.AddThemeColorOverride("font_color", amount >= target.LethalDamageThreshold && amount > 0
+                ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
         }
-
-        _damageByPair[(sourceObjectId, targetObjectId)] = Math.Max(0, damage);
-        RenderRows(sourceObjectId, targetObjectId);
+        _confirmButton.Disabled = !_canUsePrompt || !PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out _);
     }
 
-    private int RemainingDamage(DamageAssignmentPromptItem assignment)
+    private void ApplySuggestedDistribution()
     {
-        var assignedDamage = assignment.Targets.Sum(target =>
-            _damageByPair.GetValueOrDefault((assignment.SourceObjectId, target.TargetObjectId)));
-        return assignment.DamagePool - assignedDamage;
+        if (_suggestButton.Disabled) return;
+        foreach (var target in _targets)
+            _steppers[target.TargetObjectId].Value = target.SuggestedDamage;
+        UpdateSummary();
     }
 
-    private bool HasValidServerDistribution()
+    public void ShowServerRejection(string message)
     {
-        foreach (var assignment in _assignments)
-        {
-            if (RemainingDamage(assignment) != 0)
-            {
-                return false;
-            }
-
-            for (var targetIndex = 0; targetIndex < assignment.Targets.Count - 1; targetIndex++)
-            {
-                var target = assignment.Targets[targetIndex];
-                var damage = _damageByPair.GetValueOrDefault((assignment.SourceObjectId, target.TargetObjectId));
-                if (damage > target.LethalDamageThreshold)
-                {
-                    return false;
-                }
-
-                var laterHasDamage = assignment.Targets
-                    .Skip(targetIndex + 1)
-                    .Any(later => _damageByPair.GetValueOrDefault((assignment.SourceObjectId, later.TargetObjectId)) > 0);
-                if (laterHasDamage && damage < target.LethalDamageThreshold)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return _assignments.Count > 0;
+        if (Visible) _feedback.Text = message;
     }
 
     private void Confirm()
@@ -248,18 +221,24 @@ public partial class DamageAssignmentOverlay : Control
         MoveToFront();
         _summary.Text = "服务端尚未提供可用的伤害分配数据。";
         _confirmButton.Disabled = true;
+        _suggestButton.Disabled = true;
     }
 
     private void Reset()
     {
         _assignments.Clear();
-        _damageByPair.Clear();
+        _damageByTarget.Clear();
+        _targets.Clear();
+        _steppers.Clear();
+        _targetSummaries.Clear();
         _canUsePrompt = false;
         if (IsNodeReady())
         {
             ClearChildren(_rows);
             _summary.Text = string.Empty;
+            _feedback.Text = string.Empty;
             _confirmButton.Disabled = true;
+        _suggestButton.Disabled = true;
             _cancelButton.Disabled = false;
         }
     }

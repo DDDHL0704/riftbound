@@ -14,16 +14,18 @@ internal static class CombatTestDriver
         var targets = metadata.GetProperty("legalTargets");
         var lethal = metadata.GetProperty("lethalDamageThreshold");
         var result = new List<CombatDamageAssignmentDto>();
+        var assignedByTarget = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var source in pool.EnumerateObject())
         {
             var remaining = source.Value.GetInt32();
             var legal = targets.GetProperty(source.Name).EnumerateArray().Select(value => value.GetString()!).ToArray();
             for (var i = 0; i < legal.Length && remaining > 0; i++)
             {
-                var amount = i == legal.Length - 1 ? remaining : Math.Min(remaining, lethal.GetProperty(legal[i]).GetInt32());
+                var amount = i == legal.Length - 1 ? remaining : Math.Min(remaining, Math.Max(0, lethal.GetProperty(legal[i]).GetInt32() - assignedByTarget.GetValueOrDefault(legal[i])));
                 if (amount <= 0) continue;
                 result.Add(new(source.Name, legal[i], amount));
                 remaining -= amount;
+                assignedByTarget[legal[i]] = assignedByTarget.GetValueOrDefault(legal[i]) + amount;
             }
         }
         return result;
