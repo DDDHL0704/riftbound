@@ -81,6 +81,12 @@ public static class MinimalTheme
                 break;
             case OptionButton optionButton:
                 ApplyButton(optionButton);
+                var menu = optionButton.GetPopup();
+                menu.AddThemeStyleboxOverride("panel", Panel(SurfaceRaised));
+                menu.AddThemeColorOverride("font_color", Text);
+                menu.AddThemeColorOverride("font_hover_color", Text);
+                menu.AddThemeFontSizeOverride("font_size", 16);
+                menu.AddThemeConstantOverride("v_separation", 10);
                 break;
             case Button button:
                 ApplyButton(button);

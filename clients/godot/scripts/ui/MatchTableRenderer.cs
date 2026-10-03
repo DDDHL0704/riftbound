@@ -12,6 +12,7 @@ public sealed class MatchTableRenderer
 
     private readonly MatchScreen _screen;
     private readonly Action<CardDictionary> _cardActivated;
+    private readonly Action<string, CardArray> _pileRequested;
     private readonly PackedScene _officialCardScene;
     private readonly Label _opponentSummary;
     private readonly Label _selfSummary;
@@ -29,10 +30,12 @@ public sealed class MatchTableRenderer
     private Vector2 _compactCardSize = new(58, 81);
     private Vector2 SiteCardSize => new(_tableCardSize.Y, _tableCardSize.X);
 
-    public MatchTableRenderer(MatchScreen screen, Action<CardDictionary> cardActivated)
+    public MatchTableRenderer(MatchScreen screen, Action<CardDictionary> cardActivated,
+        Action<string, CardArray> pileRequested)
     {
         _screen = screen;
         _cardActivated = cardActivated;
+        _pileRequested = pileRequested;
         _officialCardScene = GD.Load<PackedScene>(OfficialCardScenePath)
             ?? throw new InvalidOperationException($"Unable to load {OfficialCardScenePath}.");
         _opponentSummary = screen.GetNode<Label>("%OpponentSummary");
@@ -175,7 +178,24 @@ public sealed class MatchTableRenderer
                 SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
             };
             zone.AddThemeConstantOverride("separation", 3);
-            zone.AddChild(SecondaryLabel(cards.Count == 0 ? $"{label} 0" : label));
+            if (key is "graveyard" or "banished" && cards.Count > 0)
+            {
+                var side = ReadString(player, "playerId") == _viewerPlayerId ? "我方" : "对手";
+                var title = $"{side}{(key == "graveyard" ? "废牌堆" : "放逐区")}";
+                var browse = new Button { Text = $"{label} ›", TooltipText = $"查看{title}的全部 {cards.Count} 张牌" };
+                browse.Pressed += () => _pileRequested(title, cards);
+                zone.AddChild(browse);
+                MinimalTheme.Apply(browse);
+                browse.CustomMinimumSize = new Vector2(66, 28);
+                browse.AddThemeFontSizeOverride("font_size", 14);
+                var quiet = MinimalTheme.Panel(MinimalTheme.TableSurface);
+                quiet.SetContentMarginAll(3);
+                browse.AddThemeStyleboxOverride("normal", quiet);
+            }
+            else
+            {
+                zone.AddChild(SecondaryLabel(cards.Count == 0 ? $"{label} 0" : label));
+            }
             parent.AddChild(zone);
 
             if (showEveryCard && cards.Count > 0)
@@ -418,7 +438,7 @@ public sealed class MatchTableRenderer
         ("hero", "英雄"),
         ("base", "基地"),
         ("baseRunes", "基地符文"),
-        ("graveyard", "弃牌"),
+        ("graveyard", "废牌"),
         ("banished", "放逐")
     ];
 

@@ -360,6 +360,7 @@ public partial class Main : Control
         _lobbyScreen.RefreshPublicMatchesRequested += () => _ = LoadPublicMatchesAsync();
         _lobbyScreen.DeckSelectionChanged += () => _ = RefreshDeckPreviewAsync();
         _matchScreen!.CardActivated += HandleMatchCardActivated;
+        _matchScreen.PublicPileRequested += (title, cards) => _cardInspectOverlay?.ShowPile(title, cards);
         _matchScreen.ActionBar.ActionSelected += HandlePromptActionSelected;
         _matchScreen.ReconnectRequested += () => _ = RetryConnectionAsync();
         _matchScreen.ReturnToLobbyRequested += () => _ = ReturnToLobbyAsync();
@@ -3975,6 +3976,9 @@ public partial class Main : Control
 
     public void ApplyPrompt(Godot.Collections.Dictionary view)
     {
+        if (view.TryGetValue("snapshotTick", out var nextTick)
+            && nextTick.AsInt64() != _promptInteractionController.SnapshotTick)
+            _cardInspectOverlay?.HidePile();
         var actions = view.TryGetValue("actions", out var actionsValue)
             ? actionsValue.As<Godot.Collections.Array<Godot.Collections.Dictionary>>()
             : [];

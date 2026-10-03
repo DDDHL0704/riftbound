@@ -6,6 +6,7 @@ namespace Riftbound.GodotClient.Ui;
 public partial class MatchScreen : AppScreen
 {
     public event Action<Godot.Collections.Dictionary>? CardActivated;
+    public event Action<string, Godot.Collections.Array<Godot.Collections.Dictionary>>? PublicPileRequested;
     public event Action? ReconnectRequested;
     public event Action? ReturnToLobbyRequested;
 
@@ -38,7 +39,8 @@ public partial class MatchScreen : AppScreen
         var layout = GetNode<VBoxContainer>("MatchLayout");
         layout.AddChild(_connectionBanner);
         layout.MoveChild(_connectionBanner, 0);
-        _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card));
+        _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card),
+            (title, cards) => PublicPileRequested?.Invoke(title, cards));
 
         ApplyTheme();
         RenderSections(_lastSections ?? []);
