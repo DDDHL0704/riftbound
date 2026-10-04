@@ -119,7 +119,7 @@ public sealed class ReprimandReturnToHandGuardTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-REPRIMAND"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-BASE-UNIT"], result.State.PlayerZones["P2"].Base);
         Assert.Equal(
@@ -539,7 +539,7 @@ public sealed class ReprimandReturnToHandGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(2, 0),
+                ["P1"] = new(2, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

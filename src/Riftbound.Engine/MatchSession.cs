@@ -5446,10 +5446,10 @@ public sealed record ResolutionResult(
                 : entry.Value;
         }
 
-        return PaymentCostRules.CanPayPowerCost(
+        return PaymentCostRules.PowerDeficit(
             new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
-            genericPowerCost,
-            powerCostByTrait);
+            genericPowerCost, powerCostByTrait)
+            < PaymentCostRules.PowerDeficit(runePool, genericPowerCost, powerCostByTrait);
     }
 
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(
@@ -11843,10 +11843,10 @@ internal static class ActionPromptBuilder
                 : entry.Value;
         }
 
-        return PaymentCostRules.CanPayPowerCost(
+        return PaymentCostRules.PowerDeficit(
             new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
-            genericPowerCost,
-            powerCostByTrait);
+            genericPowerCost, powerCostByTrait)
+            < PaymentCostRules.PowerDeficit(runePool, genericPowerCost, powerCostByTrait);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
@@ -12210,7 +12210,7 @@ internal static class ActionPromptBuilder
         }
 
         return PaymentCostRules.CanPayPowerCost(
-            new RunePool(runePool.Mana, runePool.Power, requirement.AvailablePowerByTraitWithPaymentResources),
+            new RunePool(runePool.Mana, Math.Max(0, requirement.AvailablePowerWithPaymentResources - requirement.AvailablePowerByTraitWithPaymentResources.Values.Sum()), requirement.AvailablePowerByTraitWithPaymentResources),
             requirement.PowerCost,
             requirement.PowerCostByTrait);
     }
@@ -12760,19 +12760,16 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(
-            runePool,
-            paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        if (AssembleEquipmentUsesAnyPower(assembleProfile))
+        var resources = paymentResourcePowerByTrait ?? new Dictionary<string, int>();
+        var available = runePool with
         {
-            var genericPaymentResourcePower = (paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal))
-                .Where(entry => string.IsNullOrWhiteSpace(RuneTrait.Normalize(entry.Key)))
-                .Sum(entry => Math.Max(0, entry.Value));
-            return runePool.Power + availablePowerByTrait.Values.Sum() + genericPaymentResourcePower >= assembleProfile.PowerCost;
-        }
-
-        return availablePowerByTrait.TryGetValue(assembleProfile.PowerTrait, out var power)
-            && power >= assembleProfile.PowerCost;
+            Power = runePool.Power + resources.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, resources)
+        };
+        return PaymentCostRules.CanPayPowerCost(available,
+            AssembleEquipmentUsesAnyPower(assembleProfile) ? assembleProfile.PowerCost : 0,
+            AssembleEquipmentUsesAnyPower(assembleProfile) ? new Dictionary<string, int>()
+                : new Dictionary<string, int> { [assembleProfile.PowerTrait] = assembleProfile.PowerCost });
     }
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentManaCostByTargetObjectId(
@@ -12835,14 +12832,11 @@ internal static class ActionPromptBuilder
                     choice.Reason);
             })
             .ToArray();
-        var temporaryChoices = AssembleEquipmentUsesAnyPower(assembleProfile)
-            ? TemporaryPaymentResourceChoicesForGenericPower(
-                state,
-                playerId,
-                assembleProfile.PowerCost,
-                new Dictionary<string, int>(StringComparer.Ordinal),
-                assembleProfile.PaymentResourceReason)
-            : [];
+        var temporaryChoices = TemporaryPaymentResourceChoicesForGenericPower(
+            state, playerId, AssembleEquipmentUsesAnyPower(assembleProfile) ? assembleProfile.PowerCost : 0,
+            AssembleEquipmentUsesAnyPower(assembleProfile) ? new Dictionary<string, int>()
+                : new Dictionary<string, int> { [assembleProfile.PowerTrait] = assembleProfile.PowerCost },
+            assembleProfile.PaymentResourceReason);
         return recycleChoices.Concat(temporaryChoices).ToArray();
     }
 
@@ -15104,6 +15098,13 @@ internal static class ActionPromptBuilder
                 .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
+    private static IReadOnlyList<ActionPromptChoiceDto> PrintedPowerChoices(CardBehaviorDefinition behavior)
+        => PrintedPowerCostRules.ForCard(behavior.CardNo).Traits.Count < 2 ? [] :
+            PrintedPowerCostRules.Allocations(behavior.CardNo).Select(allocation => new ActionPromptChoiceDto(
+                PrintedPowerCostRules.ChoiceId(allocation),
+                "卡面费用：" + string.Join(" + ", allocation.Select(x => $"{x.Value} {RuneTraitLabel(x.Key)}符能")),
+                "选择支付卡面符能的特性，彩虹符能可补足不足部分")).ToArray();
+
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardOptionalCostChoicesForBehavior(
         MatchState state,
         string playerId,
@@ -15247,6 +15248,7 @@ internal static class ActionPromptBuilder
             }
         }
 
+        choices.AddRange(PrintedPowerChoices(behavior));
         choices.AddRange(paymentResourceChoices);
         return choices;
     }
@@ -15914,16 +15916,23 @@ internal static class ActionPromptBuilder
         var requirements = new List<PlayCardPowerPaymentRequirement>();
         void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
         {
-            var normalizedPowerCostByTrait = PaymentCostRules.NormalizePowerCostByTrait(
-                powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-            if ((genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
-                || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, normalizedPowerCostByTrait))
+            var printed = PrintedPowerCostRules.ForCard(behavior.CardNo);
+            genericPowerCost += printed.Traits.Count == 0 ? printed.Amount : 0;
+            foreach (var allocation in PrintedPowerCostRules.Allocations(behavior.CardNo))
             {
-                return;
-            }
+                var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
+                    powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
+                if ((genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
+                    || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, normalizedPowerCostByTrait))
+                {
+                    continue;
+                }
 
-            requirements.Add(new PlayCardPowerPaymentRequirement(genericPowerCost, normalizedPowerCostByTrait));
+                requirements.Add(new PlayCardPowerPaymentRequirement(genericPowerCost, normalizedPowerCostByTrait));
+            }
         }
+
+        AddRequirement(0);
 
         if (behavior.DamageAmountFromOptionalPowerCost)
         {
@@ -16031,8 +16040,8 @@ internal static class ActionPromptBuilder
             : BasicRuneRecyclePowerGain;
         var adjustedPool = new RunePool(runePool.Mana, runePool.Power, powerByTrait);
         return requirements.Any(requirement =>
-            !PaymentCostRules.CanPayPowerCost(runePool, requirement.GenericPowerCost, requirement.PowerCostByTrait)
-            && PaymentCostRules.CanPayPowerCost(adjustedPool, requirement.GenericPowerCost, requirement.PowerCostByTrait));
+            PaymentCostRules.PowerDeficit(adjustedPool, requirement.GenericPowerCost, requirement.PowerCostByTrait)
+                < PaymentCostRules.PowerDeficit(runePool, requirement.GenericPowerCost, requirement.PowerCostByTrait));
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
@@ -16095,26 +16104,27 @@ internal static class ActionPromptBuilder
                 StringComparer.Ordinal);
     }
 
+    private static bool CanPayPlayPowerCosts(RunePool pool, IReadOnlyDictionary<string, int> resources,
+        CardBehaviorDefinition behavior, int amount, string trait)
+    {
+        var available = pool with
+        {
+            Power = pool.Power + resources.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(pool, resources)
+        };
+        var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
+            : new Dictionary<string, int> { [trait] = amount };
+        PrintedPowerCostRules.TrySelect(behavior.CardNo, null, available,
+            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
+        return PaymentCostRules.CanPayPowerCost(available, generic, typed);
+    }
+
     private static bool CanPayHasteReadyPowerCost(
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
-    {
-        if (behavior.HasteReadyPowerCost <= 0)
-        {
-            return true;
-        }
-
-        var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
-        if (string.IsNullOrWhiteSpace(hasteReadyPowerTrait))
-        {
-            return runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum() >= behavior.HasteReadyPowerCost;
-        }
-
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(hasteReadyPowerTrait, out var availablePower)
-            && availablePower >= behavior.HasteReadyPowerCost;
-    }
+        => CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.HasteReadyPowerCost, HasteReadyPowerTrait(behavior));
 
     private static bool CanPaySourceDrawOptionalPowerCost(
         RunePool runePool,
@@ -16133,9 +16143,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(sourceDrawPowerTrait, out var availablePower)
-            && availablePower >= behavior.SourceDrawAdditionalPowerCost;
+        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.SourceDrawAdditionalPowerCost, sourceDrawPowerTrait);
     }
 
     private static bool CanPaySourceReadyPowerModifierOptionalCost(
@@ -16155,9 +16164,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(sourceReadyPowerTrait, out var availablePower)
-            && availablePower >= behavior.SourceReadyPowerModifierAdditionalPowerCost;
+        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.SourceReadyPowerModifierAdditionalPowerCost, sourceReadyPowerTrait);
     }
 
     private static bool CanPromptTargetEffectAdditionalCost(
@@ -16209,9 +16217,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(targetEffectPowerTrait, out var availablePower)
-            && availablePower >= behavior.TargetEffectAdditionalPowerCost;
+        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.TargetEffectAdditionalPowerCost, targetEffectPowerTrait);
     }
 
     private static string TargetEffectAdditionalManaCostLabel(CardBehaviorDefinition behavior)
@@ -16303,7 +16310,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return behavior.DamageAmountFromOptionalPowerCost
+        return PrintedPowerCostRules.ForCard(behavior.CardNo).Amount > 0
+            || behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
             || behavior.TargetEffectAdditionalPowerCost > 0
@@ -17781,6 +17789,10 @@ internal static class ActionPromptBuilder
             sourceObjectId,
             minimumManaCost);
 
+        PrintedPowerCostRules.TrySelect(behavior.CardNo, null, runePool, 0, new Dictionary<string, int>(),
+            out var printedGenericCost, out var printedTypedCost);
+        var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
+
         return new Dictionary<string, object?>
         {
             ["sourceObjectId"] = sourceObjectId,
@@ -17790,6 +17802,11 @@ internal static class ActionPromptBuilder
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = minimumManaCost,
+            ["minimumPrintedPowerShortfall"] = printedPowerShortfall,
+            ["printedPowerCost"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Amount,
+            ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Traits,
+            ["printedPowerChoices"] = PrintedPowerChoices(behavior),
+            ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
             ["dragonUnitCostReductionMana"] = dragonUnitCostReductionMana,
             ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
@@ -20675,7 +20692,7 @@ public sealed class MatchSession : IMatchSession
             172,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(3, 0),
+                [seed.P1] = new(3, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -20725,7 +20742,7 @@ public sealed class MatchSession : IMatchSession
             173,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(5, 0),
+                [seed.P1] = new(5, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -21172,7 +21189,7 @@ public sealed class MatchSession : IMatchSession
             697,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(5, 0),
+                [seed.P1] = new(5, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -21204,13 +21221,13 @@ public sealed class MatchSession : IMatchSession
                     "P1-RUNE-PURPLE-HASTE-PAYMENT-001",
                     isExhausted: true,
                     tags: [CardObjectTags.RuneCard, "COLOR:purple"],
-                    cardNo: "UNL-R04",
+                    cardNo: "UNL-R05",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P1-RUNE-BOTTOM-001"] = new(
                     "P1-RUNE-BOTTOM-001",
                     tags: [CardObjectTags.RuneCard, "COLOR:blue"],
-                    cardNo: "UNL-R02",
+                    cardNo: "UNL-R03",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
@@ -21225,7 +21242,7 @@ public sealed class MatchSession : IMatchSession
             698,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(5, 0),
+                [seed.P1] = new(5, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -21261,20 +21278,20 @@ public sealed class MatchSession : IMatchSession
                     "P1-RUNE-BLUE-HASTE-PAYMENT-001",
                     isExhausted: true,
                     tags: [CardObjectTags.RuneCard, "COLOR:blue"],
-                    cardNo: "UNL-R02",
+                    cardNo: "UNL-R03",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P1-RUNE-PURPLE-HASTE-PAYMENT-001"] = new(
                     "P1-RUNE-PURPLE-HASTE-PAYMENT-001",
                     isExhausted: true,
                     tags: [CardObjectTags.RuneCard, "COLOR:purple"],
-                    cardNo: "UNL-R04",
+                    cardNo: "UNL-R05",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P1-RUNE-BOTTOM-001"] = new(
                     "P1-RUNE-BOTTOM-001",
                     tags: [CardObjectTags.RuneCard, "COLOR:blue"],
-                    cardNo: "UNL-R02",
+                    cardNo: "UNL-R03",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
@@ -22435,7 +22452,7 @@ public sealed class MatchSession : IMatchSession
             68,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(2, 0),
+                [seed.P1] = new(2, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -22492,7 +22509,7 @@ public sealed class MatchSession : IMatchSession
             9,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(1, 0),
+                [seed.P1] = new(1, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -22538,7 +22555,7 @@ public sealed class MatchSession : IMatchSession
             93,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(1, 0),
+                [seed.P1] = new(1, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -23082,7 +23099,7 @@ public sealed class MatchSession : IMatchSession
             92,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(5, 0),
+                [seed.P1] = new(5, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -23398,7 +23415,7 @@ public sealed class MatchSession : IMatchSession
             802,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(4, 0),
+                [seed.P1] = new(4, 2),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -25068,7 +25085,7 @@ public sealed class MatchSession : IMatchSession
             166,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(1, 0),
+                [seed.P1] = new(1, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -25662,7 +25679,7 @@ public sealed class MatchSession : IMatchSession
             170,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(2, 0),
+                [seed.P1] = new(2, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

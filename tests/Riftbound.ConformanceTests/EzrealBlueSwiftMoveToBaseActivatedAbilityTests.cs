@@ -100,8 +100,8 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]).ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{BlueRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(
+        Assert.Equal([$"RECYCLE_RUNE:{BlueRuneObjectId}", PaymentCostRules.TemporaryPaymentResourceActionId(state.TemporaryPaymentResources.Single().ResourceId)], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Contains(
             paymentResourceChoices,
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
@@ -110,7 +110,7 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
     }
 
     [Fact]
-    public void PromptDoesNotExposeEzrealSwiftMoveRequirementWithOnlyGenericTemporaryResource()
+    public void PromptExposesEzrealSwiftMoveRequirementWithOnlyRainbowTemporaryResource()
     {
         var state = BuildEzrealSwiftState(P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo, RunePool.Empty) with
         {
@@ -126,13 +126,13 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
 
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements,
             entry => string.Equals(
                 entry["abilityId"] as string,
                 P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
                 StringComparison.Ordinal));
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }

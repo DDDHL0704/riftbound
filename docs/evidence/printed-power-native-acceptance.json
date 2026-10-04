@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-04",
+  "baseline": "China official rules",
+  "scope": "Printed power payment and native play-card overlay; development fixtures only",
+  "fullConformance": {
+    "passed": 9328,
+    "failed": 0,
+    "skipped": 0,
+    "duration": "5m 2s",
+    "trx": "printed-power-delivery-verified.trx"
+  },
+  "nativeFixtureFocused": {
+    "passed": 422,
+    "failed": 0,
+    "trx": "printed-power-native-final.trx"
+  },
+  "nativeUi": {
+    "viewport": "1280x720",
+    "cancel": "Escape closes without consuming card or resources",
+    "rejection": "Haste without extra power rejected; snapshot including tick unchanged; selection retained; Chinese insufficient-cost feedback verified",
+    "stale": "Second authenticated connection recycled the blue rune; tick 7 to 8 closed old overlay",
+    "acceptedPayment": {
+      "card": "SFD·143/221",
+      "mana": 5,
+      "power": 2,
+      "recycledCard": "UNL-R05",
+      "remainingMana": 0,
+      "remainingPower": 0,
+      "handCount": 0,
+      "unitResolvedTo": "BASE",
+      "isExhausted": false
+    },
+    "mixedPayment": "Real server candidate; one resource leaves confirm disabled; blue plus green enable confirm; emitted payload replayed via GameCommandJsonMapper"
+  },
+  "packages": [
+    {
+      "path": "clients/godot/exports/macos/Riftbound.zip",
+      "sha256": "f40c2e2e620b6104d62fe5e7d794c166142c4177f5c91a835ef70f677917c994",
+      "bytes": 127446843
+    },
+    {
+      "path": "clients/godot/exports/windows/Riftbound-windows-x64.zip",
+      "sha256": "3e93962111da5b26b73deaed8ad41babc903fac17f1609d0b43e9d1e9a86877a",
+      "bytes": 74260984
+    }
+  ],
+  "boundaries": [
+    "No Windows runtime execution",
+    "No formal full match from a legal deck in this UI acceptance",
+    "No all-card/all-rule completeness claim",
+    "Permanent-card responsive stack timing is still pending",
+    "Exact extra-fee preview and rainbow pool-spend preference remain pending",
+    "GitHub workflow permission still blocks remote CI"
+  ],
+  "nativeUiPayload": {
+    "passed": 19,
+    "failed": 0,
+    "trx": "printed-power-native-ui-payload-final.trx",
+    "commandFile": "docs/evidence/printed-power-native-command.json"
+  }
+}

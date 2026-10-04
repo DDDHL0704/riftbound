@@ -63,7 +63,7 @@ public sealed class CharmMoveToBaseGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Null(result.State.PendingPayment);
-        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-CHARM"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-FRIENDLY-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-BASE-UNIT"], result.State.PlayerZones["P2"].Base);
@@ -460,7 +460,7 @@ public sealed class CharmMoveToBaseGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(1, 0),
+                ["P1"] = new(1, 1),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

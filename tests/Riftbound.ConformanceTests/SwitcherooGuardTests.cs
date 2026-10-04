@@ -395,7 +395,7 @@ public sealed class SwitcherooGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Null(result.State.PendingPayment);
-        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-SWITCHEROO"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-BASE-SWITCHEROO", "P1-BASE-UNIT"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
@@ -623,7 +623,7 @@ public sealed class SwitcherooGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

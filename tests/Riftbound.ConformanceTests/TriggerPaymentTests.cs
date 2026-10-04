@@ -1584,7 +1584,7 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
-    public async Task SfdFioraTriggerPaymentPromptDoesNotQuoteGenericTemporaryPaymentResource()
+    public async Task SfdFioraTriggerPaymentPromptQuotesRainbowTemporaryPaymentResource()
     {
         var temporaryResource = new TemporaryPaymentResourceState(
             "MALZAHAR:TEMP-FIORA-GENERIC-PROMPT",
@@ -1614,16 +1614,16 @@ public sealed class TriggerPaymentTests
         var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.DoesNotContain(resourceAction, resourceChoices);
-        Assert.Empty(resourceChoices);
+        Assert.Contains(resourceAction, resourceChoices);
+        Assert.Single(resourceChoices);
         var resourceActionIds = Assert.IsAssignableFrom<IEnumerable<string>>(metadata["paymentResourceActionIds"])
             .ToArray();
-        Assert.DoesNotContain(resourceAction, resourceActionIds);
-        Assert.Empty(resourceActionIds);
+        Assert.Contains(resourceAction, resourceActionIds);
+        Assert.Single(resourceActionIds);
         var powerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             metadata["paymentResourcePowerByChoice"]);
-        Assert.Empty(powerByChoice);
-        Assert.Equal(0, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
+        Assert.Single(powerByChoice);
+        Assert.Equal(1, Assert.IsType<int>(metadata["availablePowerWithPaymentResources"]));
         var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             metadata["availablePowerByTraitWithPaymentResources"]);
         Assert.Empty(availablePowerByTrait);

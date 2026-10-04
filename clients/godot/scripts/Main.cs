@@ -66,6 +66,8 @@ public partial class Main : Control
     private MulliganOverlay? _mulliganOverlay;
     private TriggerOrderOverlay? _triggerOrderOverlay;
     private DamageAssignmentOverlay? _damageAssignmentOverlay;
+    private PlayCardOverlay? _playCardOverlay;
+    private Godot.Collections.Dictionary? _playCardAction;
     private MovementOverlay? _movementOverlay;
     private Godot.Collections.Dictionary? _movementAction;
     private RiftboundGameHubClient? _hub;
@@ -126,6 +128,11 @@ public partial class Main : Control
 
     public override async void _Ready()
     {
+        if (OS.GetCmdlineUserArgs().Contains("--riftbound-play-card-proof"))
+        {
+            GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/debug/PlayCardOverlayProof.tscn");
+            return;
+        }
         RenderingServer.SetDefaultClearColor(MinimalTheme.AppBackground);
         GetWindow().MinSize = new Vector2I(1280, 720);
         BindNodes();
@@ -216,6 +223,11 @@ public partial class Main : Control
 
     private bool HandleKeyboardAction(InputEvent input)
     {
+        if (_playCardOverlay?.IsVisibleInTree() == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection")) _playCardOverlay.Hide();
+            return input.IsActionPressed("ui_cancel_selection");
+        }
         if (_movementOverlay?.IsVisibleInTree() == true)
         {
             if (input.IsActionPressed("ui_cancel_selection")) _movementOverlay.Hide();
@@ -339,6 +351,11 @@ public partial class Main : Control
 
     private void WireButtons()
     {
+        _playCardOverlay = new PlayCardOverlay(); AddChild(_playCardOverlay);
+        _playCardOverlay.Confirmed += payload =>
+        {
+            if (_playCardAction is not null) _ = SubmitSpecialPromptAsync(_playCardAction, payload, "play_card");
+        };
         _movementOverlay = new MovementOverlay(); AddChild(_movementOverlay);
         _movementOverlay.Confirmed += (destination, ids) =>
         {
@@ -383,6 +400,7 @@ public partial class Main : Control
         var objectId = card.TryGetValue("objectId", out var objectValue)
             ? objectValue.AsString()
             : string.Empty;
+        if (!string.IsNullOrWhiteSpace(objectId) && _promptInteractionController.Current is null && TryOpenPlayCard(objectId)) return;
         if (!string.IsNullOrWhiteSpace(objectId)
             && _promptInteractionController.TrySelectObject(objectId))
         {
@@ -392,8 +410,20 @@ public partial class Main : Control
         ApplyCardPreview(card);
     }
 
+    private bool TryOpenPlayCard(string? sourceId = null)
+    {
+        if (!TryGetCurrentSpecialAction("PLAY_CARD", out var action)) return false;
+        using var document = JsonDocument.Parse(action["candidateJson"].AsString());
+        if (_playCardOverlay?.Open(document.RootElement, action["promptId"].AsString(),
+                action["snapshotTick"].AsInt64(), objectId => VisibleTableCardView(objectId, includeOpponents: true), sourceId) != true) return false;
+        _playCardAction = action;
+        _promptInteractionController.ClearSelection();
+        return true;
+    }
+
     private void HandlePromptActionSelected(string actionName)
     {
+        if (actionName == "PLAY_CARD" && TryOpenPlayCard()) return;
         if (actionName == "MOVE_UNIT" && TryGetCurrentSpecialAction(actionName, out var action))
         {
             using var document = JsonDocument.Parse(action["candidateJson"].AsString());
@@ -422,7 +452,9 @@ public partial class Main : Control
             if (includeOpponents) zones.Add(section["opponent"].AsGodotDictionary());
             zones.AddRange(section["lanes"].As<Godot.Collections.Array<Godot.Collections.Dictionary>>());
             foreach (var zone in zones)
-                foreach (var key in includeOpponents ? new[] { "base", "selfUnits", "opponentUnits" } : new[] { "base", "selfUnits" })
+                foreach (var key in includeOpponents
+                    ? new[] { "base", "baseRunes", "hand", "legend", "hero", "graveyard", "banished", "selfUnits", "opponentUnits" }
+                    : new[] { "base", "selfUnits" })
                     if (zone.TryGetValue(key, out var cards))
                         foreach (var card in cards.As<Godot.Collections.Array<Godot.Collections.Dictionary>>())
                             if (card.TryGetValue("objectId", out var id) && id.AsString() == objectId) return card;
@@ -1310,7 +1342,20 @@ public partial class Main : Control
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
+        if (intentSuffix == "play_card")
+            QueueMainThread(nameof(ApplyPlayCardReceipt), new Godot.Collections.Dictionary
+            {
+                ["promptId"] = promptId, ["tick"] = snapshotTick,
+                ["accepted"] = receipt.Accepted,
+                ["message"] = receipt.ErrorCode == ErrorCodes.InsufficientCost
+                    ? "资源不足以支付所选费用，请补充法力或符能，或调整额外费用。"
+                    : receipt.Message
+            });
     }
+
+    public void ApplyPlayCardReceipt(Godot.Collections.Dictionary receipt)
+        => _playCardOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(),
+            receipt["accepted"].AsBool(), receipt["message"].AsString());
 
     private async Task SubmitMulliganAsync(
         Godot.Collections.Dictionary action,
@@ -3851,6 +3896,7 @@ public partial class Main : Control
         {
             _promptInteractionController.ClearSelection();
             _movementOverlay?.Hide();
+            _playCardOverlay?.Hide();
             HideSpecialPromptOverlays();
             _matchScreen?.ClearPromptStates();
         }
@@ -4201,6 +4247,10 @@ public partial class Main : Control
     private void PresentPromptInteraction(Godot.Collections.Dictionary view)
     {
         if (!IsConnected()) return;
+        if (_playCardOverlay?.Visible == true
+            && (_playCardOverlay.PromptId != view["promptId"].AsString()
+                || _playCardOverlay.SnapshotTick != view["snapshotTick"].AsInt64()))
+            _playCardOverlay.Hide();
         if (_movementOverlay?.Visible == true
             && (_movementOverlay.PromptId != view["promptId"].AsString()
                 || _movementOverlay.SnapshotTick != view["snapshotTick"].AsInt64()))
@@ -4263,6 +4313,7 @@ public partial class Main : Control
         }
 
         _lastSnapshotSections = sections;
+        if (_playCardOverlay?.Visible == true) _playCardOverlay.RefreshCardPreview();
         var battleActive = HasWireTableSection(sections);
         SetBattleChromeVisible(_matchFinished || battleActive);
         if (_matchFinished && !battleActive)

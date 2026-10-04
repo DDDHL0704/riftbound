@@ -512,7 +512,7 @@ public sealed class HuntReadyGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchStateHasher.Hash(initialState), MatchStateHasher.Hash(result.State));
-        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(initialState.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-HUNT"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.StackItems);
@@ -543,7 +543,7 @@ public sealed class HuntReadyGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(1, 0),
+                ["P1"] = new(1, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

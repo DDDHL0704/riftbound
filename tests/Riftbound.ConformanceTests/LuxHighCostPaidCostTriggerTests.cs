@@ -443,7 +443,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, PrintedCostFixture.Power(spellCardNo)),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

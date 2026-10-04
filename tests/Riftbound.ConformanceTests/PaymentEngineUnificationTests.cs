@@ -636,7 +636,7 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
-    public async Task AssembleEquipmentRejectsTemporaryPaymentResourceForTypedPowerWithoutMutation()
+    public async Task AssembleEquipmentAcceptsRainbowTemporaryResourceForTypedPower()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-ASSEMBLE-TYPED", remainingPower: 1);
         var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
@@ -657,7 +657,7 @@ public sealed class PaymentEngineUnificationTests
         {
             var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"]);
-            Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+            Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
         }
 
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -669,10 +669,9 @@ public sealed class PaymentEngineUnificationTests
                 [resourceAction, "ASSEMBLE_RED"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
     }
 
     [Fact]
@@ -2592,7 +2591,6 @@ public sealed class PaymentEngineUnificationTests
     [InlineData("duplicate-id")]
     [InlineData("unnecessary")]
     [InlineData("typed-wrong-trait")]
-    [InlineData("generic-for-typed")]
     public async Task PendingPayCostRejectsInvalidTemporaryPaymentResourceActiveWindowWithoutMutation(string scenario)
     {
         var (
@@ -2630,6 +2628,19 @@ public sealed class PaymentEngineUnificationTests
             paymentId,
             paymentChoiceId,
             expectedPromptPaymentResourceActions);
+    }
+
+    [Fact]
+    public async Task PendingPayCostAcceptsRainbowTemporaryResourceForTypedCost()
+    {
+        var (state, paymentId, _, choices, _) = PendingPayCostTemporaryResourceGuardCase("generic-for-typed");
+        var result = await new CoreRuleEngine().ResolveAsync(state,
+            new("rainbow-typed", "P1", CommandTypes.PayCost),
+            new PayCostCommand(paymentId, "TEST_PENDING_PAY_COST", choices), default);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Null(result.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.All(result.State.TemporaryPaymentResources, resource => Assert.Equal(0, resource.RemainingPower));
     }
 
     [Fact]

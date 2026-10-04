@@ -3437,7 +3437,7 @@ public sealed class PaymentEngineCoverageAuditTests
                 nameof(GoldTokenResourceSkillTests.GoldTokenReactionPromptExposesServerFilteredDestroyCostResourceSkills),
                 nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillDestroysSourceAndCreatesGenericTemporaryLedger),
                 nameof(GoldTokenResourceSkillTests.GoldTemporaryGenericResourcePaysGenericRuneCostAndCleansUp),
-                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourceRejectsNonRuneOrUnnecessaryUseWithoutMutation),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourcePaysColoredCostAndRejectsNonRuneOrUnnecessaryUse),
                 nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillRejectsInvalidSourceTimingOrPayloadWithoutMutation)
             ],
             "GoldTokenResourceSkillTests binds UNL·T05 prompt, destroy-cost command, generated generic temporary payment resource lifetime, legal rune payment cleanup and invalid-source / wrong-resource rollback to the official card row."),
@@ -3537,7 +3537,7 @@ public sealed class PaymentEngineCoverageAuditTests
                 nameof(GoldTokenResourceSkillTests.GoldTokenReactionPromptExposesServerFilteredDestroyCostResourceSkills),
                 nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillDestroysSourceAndCreatesGenericTemporaryLedger),
                 nameof(GoldTokenResourceSkillTests.GoldTemporaryGenericResourcePaysGenericRuneCostAndCleansUp),
-                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourceRejectsNonRuneOrUnnecessaryUseWithoutMutation),
+                nameof(GoldTokenResourceSkillTests.GoldTemporaryResourcePaysColoredCostAndRejectsNonRuneOrUnnecessaryUse),
                 nameof(GoldTokenResourceSkillTests.GoldTokenResourceSkillRejectsInvalidSourceTimingOrPayloadWithoutMutation)
             ],
             "GoldTokenResourceSkillTests binds SFD·T03 prompt, destroy-cost command, generated generic temporary payment resource lifetime, legal rune payment cleanup and invalid-source / wrong-resource rollback to the official card row."),
@@ -4038,7 +4038,7 @@ public sealed class PaymentEngineCoverageAuditTests
                     nameof(AzirSwiftSwapActivatedAbilityTests.AzirSelectedLegalArmamentReattachesToAzirOnResolution),
                     nameof(AzirSwiftSwapActivatedAbilityTests.AzirCanRecycleGreenRuneForTypedGreenShortfall),
                     nameof(AzirSwiftSwapActivatedAbilityTests.AzirOncePerTurnRejectsSecondActivationAndClearsAtTurnEnd),
-                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirRejectsInvalidCommandsWithoutMutation),
+                    nameof(AzirSwiftSwapActivatedAbilityTests.AzirAcceptsRainbowAndRejectsInvalidCommandsWithoutMutation),
                     nameof(AzirSwiftSwapActivatedAbilityTests.AzirRejectsInvalidArmamentReattachChoicesWithoutMutation),
                     nameof(AzirSwiftSwapActivatedAbilityTests.AzirStaleSelectedArmamentSkipsReattachWithoutFalseEventAndStillSwaps)
                 ],
@@ -7011,7 +7011,7 @@ public sealed class PaymentEngineCoverageAuditTests
                 "payment-cost rollback / command-side revalidation",
                 [
                     "PaymentEngineUnificationTests.PlayCardRejectsInsufficientTemporaryPaymentResourceWithoutMutation",
-                    "PaymentEngineUnificationTests.AssembleEquipmentRejectsTemporaryPaymentResourceForTypedPowerWithoutMutation",
+                    "PaymentEngineUnificationTests.AssembleEquipmentAcceptsRainbowTemporaryResourceForTypedPower",
                     "PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidTemporaryPaymentResourceActionsWithoutMutation",
                     "PaymentEngineUnificationTests.ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxManaIsMissingWithoutMutation"
                 ],
@@ -7371,7 +7371,7 @@ public sealed class PaymentEngineCoverageAuditTests
                     "PaymentEngineUnificationTests.AssembleEquipmentCostPaidUsesPaymentPlanAuditMetadata",
                     "PaymentEngineUnificationTests.ActivateAbilityXerathPaysSpellshieldTaxAndRecyclesRunePaymentResource",
                     "PaymentEngineUnificationTests.PlayCardRejectsInsufficientTemporaryPaymentResourceWithoutMutation",
-                    "PaymentEngineUnificationTests.AssembleEquipmentRejectsTemporaryPaymentResourceForTypedPowerWithoutMutation",
+                    "PaymentEngineUnificationTests.AssembleEquipmentAcceptsRainbowTemporaryResourceForTypedPower",
                     "PaymentEngineUnificationTests.ActivateAbilityRejectsInvalidTemporaryPaymentResourceActionsWithoutMutation",
                     "PaymentEngineUnificationTests.ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxManaIsMissingWithoutMutation"
                 ],

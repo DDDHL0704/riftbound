@@ -340,7 +340,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildCrimsonSignetTreantMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildCrimsonSignetTreantMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -509,7 +509,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildLeblancMirrorImageMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildLeblancMirrorImageMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -546,7 +546,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildFizzSourceUnitPlayedGraveyardRuneSpellMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildFizzSourceUnitPlayedGraveyardRuneSpellMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -1795,7 +1795,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-void-gate-target-spell-skill-damage-bonus-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldTargetSpellSkillDamageBonusMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldTargetSpellSkillDamageBonusMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2067,7 +2067,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-ornn-forge-equipment-cost-reduction-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldEquipmentCostReductionMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.Add(BuildBattlefieldEquipmentCostReductionMidgameInitialState(openingResult.State), "P1", LongSwordEquipmentCardNo);
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2247,7 +2247,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-battlefield-prevent-unit-play-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldPreventUnitPlayMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldPreventUnitPlayMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2283,7 +2283,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-lost-library-high-cost-spell-insight-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldHighCostSpellInsightMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldHighCostSpellInsightMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2324,7 +2324,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-flowing-time-mirror-equipment-cleanup-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildFlowingTimeMirrorEquipmentCleanupMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildFlowingTimeMirrorEquipmentCleanupMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2365,7 +2365,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-flowing-time-mirror-leblanc-suppressed-cleanup-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildFlowingTimeMirrorLeblancSuppressionMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildFlowingTimeMirrorLeblancSuppressionMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2458,7 +2458,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-idol-valley-unit-play-boon-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldPlayUnitBoonMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldPlayUnitBoonMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2496,7 +2496,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-meteor-spring-first-unit-move-other-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldFirstUnitMoveOtherMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldFirstUnitMoveOtherMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2646,7 +2646,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-dunehorn-beast-low-hand-active-entry-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildDunehornBeastLowHandActiveEntryMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildDunehornBeastLowHandActiveEntryMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2682,7 +2682,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-dunehorn-beast-high-hand-active-entry-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildDunehornBeastHighHandActiveEntryMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildDunehornBeastHighHandActiveEntryMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2719,7 +2719,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-aggressive-dragonhound-unconditional-active-entry-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildAggressiveDragonhoundUnconditionalActiveEntryMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildAggressiveDragonhoundUnconditionalActiveEntryMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2907,7 +2907,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildFlameclawLevelActiveEntryMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildFlameclawLevelActiveEntryMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -2976,7 +2976,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildBandleSoldierLevelActiveEntryMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBandleSoldierLevelActiveEntryMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3013,9 +3013,9 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildBandleSoldierLevelActiveEntryMidgameInitialState(
+        var initialState = PrintedCostFixture.FundHand(BuildBandleSoldierLevelActiveEntryMidgameInitialState(
             openingResult.State,
-            playerOneExperience: 2);
+            playerOneExperience: 2));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3612,7 +3612,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildSameBattlefieldStaticAuraMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildSameBattlefieldStaticAuraMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3674,11 +3674,11 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildSameBattlefieldStaticAuraMidgameInitialState(
+        var initialState = PrintedCostFixture.FundHand(BuildSameBattlefieldStaticAuraMidgameInitialState(
             openingResult.State,
             DariusSameBattlefieldStaticAuraCardNo,
             AggressiveDragonhoundCardNo,
-            mana: 9);
+            mana: 9));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3786,7 +3786,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-battlefield-all-units-static-aura-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldAllUnitsStaticAuraMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldAllUnitsStaticAuraMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3838,7 +3838,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-battlefield-all-units-static-keyword-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildBattlefieldAllUnitsStaticKeywordMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildBattlefieldAllUnitsStaticKeywordMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -3999,7 +3999,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildSameBattlefieldBoonCountStaticAuraMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildSameBattlefieldBoonCountStaticAuraMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4275,7 +4275,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildPrescientMechStaticGrantedPredictMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildPrescientMechStaticGrantedPredictMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4312,7 +4312,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4411,7 +4411,7 @@ public sealed class FullGameEndToEndTests
             "b0-full-game-other-friendly-static-aura-replay-room",
             p1Deck,
             p2Deck);
-        var initialState = BuildOtherFriendlyStaticAuraMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildOtherFriendlyStaticAuraMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4927,7 +4927,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildSameBattlefieldStaticKeywordMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildSameBattlefieldStaticKeywordMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4984,7 +4984,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildSameBattlefieldSteadfastStaticKeywordMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildSameBattlefieldSteadfastStaticKeywordMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -5145,7 +5145,7 @@ public sealed class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = BuildTaricBulwarkDamageAssignmentMidgameInitialState(openingResult.State);
+        var initialState = PrintedCostFixture.FundHand(BuildTaricBulwarkDamageAssignmentMidgameInitialState(openingResult.State));
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -8273,7 +8273,7 @@ public sealed class FullGameEndToEndTests
             AggressiveDragonhoundCardNo)
             ?? throw new InvalidOperationException("B0 Ornn's Forge assertion could not locate Aggressive Dragonhound in P1 base.");
 
-        Assert.Equal(new RunePool(mana: 1, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), beforeEquipment.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(mana: 1, power: 1, new Dictionary<string, int>(StringComparer.Ordinal)), beforeEquipment.State.RunePools["P1"]);
         Assert.Equal(new RunePool(mana: 0, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)), result.State.RunePools["P1"]);
         Assert.DoesNotContain(equipmentObjectId, result.State.PlayerZones["P1"].Hand);
         Assert.Contains("PLAYED_EQUIPMENT_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
@@ -15956,6 +15956,7 @@ public sealed class FullGameEndToEndTests
         string intentPrefix,
         IReadOnlyList<string>? optionalCosts = null)
     {
+        current = await SupplyPlayPowerThroughLegalRuneActionsAsync(session, current, playerId, cardNo, intentPrefix, optionalCosts);
         var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
             ?? throw new InvalidOperationException($"B0 Treant driver could not find {cardNo} in {playerId}'s hand.");
         var play = await session.SubmitAsync(
@@ -15967,6 +15968,44 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(play);
         AssertNoHiddenZoneLeak(play);
         return await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+    }
+
+    private static async ValueTask<ResolutionResult> SupplyPlayPowerThroughLegalRuneActionsAsync(
+        MatchSession session, ResolutionResult current, string playerId, string cardNo, string intentPrefix,
+        IReadOnlyList<string>? optionalCosts)
+    {
+        var extraGeneric = 0;
+        var extraTyped = new Dictionary<string, int>();
+        if (optionalCosts?.Contains(HasteReadyOptionalCost) == true && CardBehaviorRegistry.TryGetByCardNo(cardNo, out var behavior))
+        {
+            var trait = RuneTrait.Normalize(behavior.HasteReadyPowerTrait);
+            if (string.IsNullOrEmpty(trait)) extraGeneric = behavior.HasteReadyPowerCost;
+            else extraTyped[trait] = behavior.HasteReadyPowerCost;
+        }
+        int Deficit(RunePool pool)
+        {
+            PrintedPowerCostRules.TrySelect(cardNo, null, pool, extraGeneric, extraTyped, out var generic, out var typed);
+            return PaymentCostRules.PowerDeficit(pool, generic, typed);
+        }
+        for (var index = 0; index < 12 && Deficit(current.State.RunePools[playerId]) > 0; index++)
+        {
+            var pool = current.State.RunePools[playerId];
+            var source = EnabledCandidate(current.Prompts[playerId], CommandTypes.RecycleRune)?.Sources?.FirstOrDefault(choice =>
+            {
+                var card = current.State.CardObjects[choice.Id];
+                var trait = card.Tags.FirstOrDefault(tag => tag.StartsWith("COLOR:", StringComparison.Ordinal))?[6..];
+                if (trait is null) return false;
+                var typed = pool.PowerByTrait.ToDictionary(x => x.Key, x => x.Value);
+                typed[trait] = typed.GetValueOrDefault(trait) + 1;
+                return Deficit(pool with { PowerByTrait = typed }) < Deficit(pool);
+            });
+            if (source is null) throw new InvalidOperationException($"No legal rune payment for {cardNo}; player={playerId}, deficit={Deficit(pool)}.");
+            var command = new RecycleRuneCommand(source.Id);
+            current = await session.SubmitAsync(playerId, $"{intentPrefix}-printed-power-{index}", command, RawCommand(command), CancellationToken.None);
+            AssertAccepted(current);
+            AssertNoHiddenZoneLeak(current);
+        }
+        return current;
     }
 
     private static async ValueTask<ResolutionResult> SubmitPrescientMechStaticGrantedPredictProgressGloryAsync(
@@ -25476,6 +25515,11 @@ public sealed class FullGameEndToEndTests
             {
                 cmdType = tapRune.CmdType,
                 sourceObjectId = tapRune.SourceObjectId
+            }),
+            RecycleRuneCommand recycleRune => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = recycleRune.CmdType,
+                sourceObjectId = recycleRune.SourceObjectId
             }),
             PlayCardCommand playCard => JsonSerializer.SerializeToElement(new
             {

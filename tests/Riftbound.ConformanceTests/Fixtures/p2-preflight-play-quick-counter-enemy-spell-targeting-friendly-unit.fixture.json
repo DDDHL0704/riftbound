@@ -43,7 +43,10 @@
       },
       "P2": {
         "mana": 2,
-        "power": 0
+        "power": 0,
+        "powerByTrait": {
+          "green": 1
+        }
       }
     },
     "players": {

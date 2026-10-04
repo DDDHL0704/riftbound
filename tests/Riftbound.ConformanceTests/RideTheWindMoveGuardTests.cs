@@ -324,7 +324,7 @@ public sealed class RideTheWindMoveGuardTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-RIDE-THE-WIND"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-BASE-UNIT"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(
@@ -524,7 +524,7 @@ public sealed class RideTheWindMoveGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(2, 0),
+                ["P1"] = new(2, 1),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

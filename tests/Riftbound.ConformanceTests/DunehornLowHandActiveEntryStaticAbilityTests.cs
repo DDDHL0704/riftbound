@@ -160,7 +160,7 @@ public sealed class DunehornLowHandActiveEntryStaticAbilityTests
             TimingState = TimingStates.NeutralOpen,
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(7, 0),
+                ["P1"] = new(7, 1),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

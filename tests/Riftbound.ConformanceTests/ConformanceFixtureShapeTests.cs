@@ -7290,8 +7290,8 @@ public sealed class ConformanceFixtureShapeTests
         var genericPowerCandidate = Assert.Single(
             genericPowerPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
-        Assert.False(genericPowerCandidate.Enabled);
-        Assert.Empty(genericPowerCandidate.Sources ?? []);
+        Assert.True(genericPowerCandidate.Enabled);
+        Assert.Contains(genericPowerCandidate.Sources ?? [], source => source.Id == "P1-LONG-SWORD");
 
         var recyclePaymentState = noPowerState with
         {

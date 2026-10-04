@@ -40,7 +40,10 @@
     "runePools": {
       "P1": {
         "mana": 5,
-        "power": 0
+        "power": 0,
+        "powerByTrait": {
+          "orange": 2
+        }
       },
       "P2": {
         "mana": 0,

@@ -521,7 +521,7 @@ public sealed class ZenithBladeStunGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchStateHasher.Hash(initialState), MatchStateHasher.Hash(result.State));
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(initialState.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-ZENITH-BLADE", "P1-HAND-UNIT"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.StackItems);
@@ -552,7 +552,7 @@ public sealed class ZenithBladeStunGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(3, 0),
+                ["P1"] = new(3, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

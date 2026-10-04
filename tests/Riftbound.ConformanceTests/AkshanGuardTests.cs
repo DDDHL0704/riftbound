@@ -458,7 +458,7 @@ public sealed class AkshanGuardTests
     }
 
     [Fact]
-    public void AkshanOrangeStealPromptDoesNotQuoteGenericTemporaryResourceInPlayCardWindow()
+    public void AkshanOrangeStealPromptQuotesRainbowTemporaryResourceInPlayCardWindow()
     {
         var state = BuildAkshanStealState(orangePower: 1, includeOrangeRune: true) with
         {
@@ -475,7 +475,7 @@ public sealed class AkshanGuardTests
 
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, StealCost(EnemyWeaponObjectId), StringComparison.Ordinal));
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, RecycleOrangeRuneCost(), StringComparison.Ordinal));
-        Assert.DoesNotContain(
+        Assert.Contains(
             paymentResourceChoices,
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }
@@ -1014,7 +1014,7 @@ public sealed class AkshanGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0, powerByTrait),
+                ["P1"] = new(mana, includeVengeance ? 2 : 0, powerByTrait),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

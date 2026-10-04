@@ -107,10 +107,10 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var costEvent = Assert.Single(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(6, costEvent.Payload["baseManaCost"]);
         Assert.Equal(7, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(optionalCosts, Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
-        Assert.Equal(1, powerByTrait[RuneTrait.Red]);
+        Assert.Equal(2, powerByTrait[RuneTrait.Red]);
 
         var resolved = await ResolveTopStackAsync(engine, played.State);
 
@@ -725,7 +725,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
             TimingState = TimingStates.NeutralOpen,
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new RunePool(mana, 0, powerByTrait),
+                ["P1"] = new RunePool(mana, 1, powerByTrait),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

@@ -31,8 +31,17 @@
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 8, "power": 0, "powerByTrait": { "yellow": 1 } },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 8,
+        "power": 0,
+        "powerByTrait": {
+          "yellow": 2
+        }
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
@@ -87,15 +96,19 @@
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
           "mana": 8,
-          "power": 1,
+          "power": 2,
           "baseMana": 7,
-          "optionalCosts": ["HASTE_READY"]
+          "optionalCosts": [
+            "HASTE_READY"
+          ]
         }
       },
       {
@@ -108,9 +121,15 @@
           "effectKind": "KARINA_VERAZE_PLAY_UNIT_NO_OPTIONAL_HASTE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -120,7 +139,10 @@
           "unitName": "卡银娜·薇蕊泽",
           "destinationZone": "BASE",
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "急速"
+          ],
           "isExhausted": false,
           "hasteReadyOptionalCostPaid": true
         }

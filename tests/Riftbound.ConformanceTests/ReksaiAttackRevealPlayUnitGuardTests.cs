@@ -404,7 +404,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
     {
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(mana, 1), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-REKSAI"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-REKSAI", "P1-FACE-DOWN-STANDBY-REKSAI"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-UNIT-REKSAI"], result.State.PlayerZones["P2"].Hand);
@@ -590,7 +590,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, 1),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

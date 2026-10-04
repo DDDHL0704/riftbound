@@ -2854,6 +2854,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var engine = new CoreRuleEngine();
         var state = PunishmentState(mana: 2);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var command = new PlayCardCommand(
             "P1-SPELL-PUNISHMENT",
             "UNL-007/219",
@@ -2906,6 +2907,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task PlayCardStalePromptReplayAfterStackPriorityStartsRejectsWithoutMutation()
     {
         var state = PunishmentState(mana: 2);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
@@ -3085,6 +3087,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task PlayCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         var state = PunishmentState(mana: 2);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
@@ -5591,6 +5594,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·143/221");
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -5633,18 +5637,18 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-UNIT-SIVIR", costEvent.Payload["sourceObjectId"]);
         Assert.Equal("SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE", costEvent.Payload["reason"]);
         Assert.Equal(5, costEvent.Payload["mana"]);
-        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal(2, costEvent.Payload["power"]);
         Assert.Equal(4, costEvent.Payload["baseManaCost"]);
         Assert.Equal(5, costEvent.Payload["totalManaCost"]);
         Assert.Equal(0, costEvent.Payload["genericPower"]);
-        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
-        Assert.Equal(1, powerByTrait[RuneTrait.Purple]);
+        Assert.Equal(2, powerByTrait[RuneTrait.Purple]);
         var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Purple, remainingPowerByTrait.Keys);
 
@@ -8794,6 +8798,7 @@ public sealed class ConformanceFixtureRunnerTests
                     isAttacking: false)
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "UNL-010/219");
         var engine = new CoreRuleEngine();
 
         var playResult = await engine.ResolveAsync(
@@ -15030,6 +15035,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·075/221");
         var engine = new CoreRuleEngine();
 
         var playResult = await engine.ResolveAsync(
@@ -16849,6 +16855,7 @@ public sealed class ConformanceFixtureRunnerTests
                 }
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·032/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -17580,6 +17587,7 @@ public sealed class ConformanceFixtureRunnerTests
                 }
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·101/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -18053,6 +18061,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·030/298");
 
         var engine = new CoreRuleEngine();
         var play = await engine.ResolveAsync(
@@ -26245,6 +26254,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "UNL-200/219");
         var engine = new CoreRuleEngine();
         var playResult = await engine.ResolveAsync(
             state,
@@ -27339,6 +27349,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -29965,6 +29976,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·105/298");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -29999,6 +30011,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-UNIT-001"] = new("P2-UNIT-001", power: 5)
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·023/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -32303,6 +32316,7 @@ public sealed class ConformanceFixtureRunnerTests
                     2,
                     timingContext: TimingStates.SpellDuelOpen)
             ]);
+        state = PrintedCostFixture.Add(state, "P2", "UNL-190/219");
 
         var engine = new CoreRuleEngine();
         var playReaction = await engine.ResolveAsync(
@@ -35915,6 +35929,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerSivirReadiesWhenEnemyUnitDestroyed()
     {
         var state = SivirEnemyDestroyState("SFD·250/221", "P1-LEGEND-SIVIR-REPRINT");
+        state = PrintedCostFixture.Add(state, "P1", "UNL-159/219");
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -35948,6 +35963,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerSivirReadiesWhenOpponentDestroysOwnUnit()
     {
         var state = SivirOpponentSelfDestroyState("SFD·203/221", "P1-LEGEND-SIVIR");
+        state = PrintedCostFixture.Add(state, "P2", "UNL-159/219");
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -35985,6 +36001,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerJhinCompletesFourthBanishedHighCostSpell(string sourceCardNo, string sourceObjectId)
     {
         var state = JhinHighCostSpellCompletionState(sourceCardNo, sourceObjectId);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-180/219");
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -36030,6 +36047,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerJhinSkipsHighCostSpellWhenLegendBecomesOpponentOwned()
     {
         var state = JhinHighCostSpellCompletionState("UNL-181/219", "P1-LEGEND-JHIN");
+        state = PrintedCostFixture.Add(state, "P1", "UNL-180/219");
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -36075,6 +36093,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendActEzrealDrawsAfterSecondEnemyTargetThisTurn()
     {
         var state = EzrealEnemyTargetSpellState("SFD·199/221", "P1-LEGEND-EZREAL", priorTargetCount: 1);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-159/219");
 
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -41041,6 +41060,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41175,6 +41195,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41320,6 +41341,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298", "OGN·229/298");
 
         var firstPlay = await engine.ResolveAsync(
             state,
@@ -41446,6 +41468,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41520,6 +41543,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41585,6 +41609,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.RuneCard])
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41657,6 +41682,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41759,6 +41785,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41868,6 +41895,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -41943,6 +41971,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -42009,6 +42038,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -42077,6 +42107,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -42146,6 +42177,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
 
         var play = await engine.ResolveAsync(
             state,
@@ -42699,6 +42731,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79RagingDrakeCreatesNextSpellCostReductionAfterResolution()
     {
         var state = RagingDrakePlayState();
+        state = PrintedCostFixture.Add(state, "P1", "OGN·031/298");
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -42764,6 +42797,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79RagingDrakeNextSpellCostReductionPaysReducedSpellCostAndConsumesMarker()
     {
         var state = RagingDrakeNextSpellCostReductionState(mana: 0);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -42795,6 +42829,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79PoroHerderGrantsBoonAndDrawsWhenControllerHasPoro()
     {
         var state = PoroHerderWithPoroState();
+        state = PrintedCostFixture.Add(state, "P1", "OGN·061/298");
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -42937,6 +42972,7 @@ public sealed class ConformanceFixtureRunnerTests
         string expectedEventKind)
     {
         var state = RoyalAttendantLegendModeState(initialLegendExhausted);
+        state = PrintedCostFixture.Add(state, "P1", "SFD·039/221");
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -43012,6 +43048,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79OrnnDrawsSelectedTopEquipmentAndRecyclesRest(string cardNo, string sourceObjectId)
     {
         var state = OrnnEquipmentLookState(cardNo, sourceObjectId);
+        state = PrintedCostFixture.Add(state, "P1", cardNo);
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -43060,6 +43097,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79OrnnMayDeclineEquipmentAndRecyclesViewedCards(string cardNo, string sourceObjectId)
     {
         var state = OrnnEquipmentLookState(cardNo, sourceObjectId);
+        state = PrintedCostFixture.Add(state, "P1", cardNo);
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -43726,6 +43764,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldStaticReducesFirstEquipmentCost()
     {
         var state = BattlefieldEquipmentCostReductionState();
+        state = PrintedCostFixture.Add(state, "P1", "SFD·022/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -43802,6 +43841,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79ArenaServiceCrewReadiesWhenControllerPlaysEquipment()
     {
         var state = ArenaServiceCrewEquipmentReadyState();
+        state = PrintedCostFixture.Add(state, "P1", "SFD·022/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -43826,6 +43866,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79ArenaServiceCrewSkipsOpponentEquipment()
     {
         var state = ArenaServiceCrewEquipmentReadyState(playerId: "P2");
+        state = PrintedCostFixture.Add(state, "P2", "SFD·022/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -43851,6 +43892,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = AddArenaEquipmentTarget(
             WithStandbyTag(ArenaServiceCrewEquipmentReadyState(), "P1-UNIT-ARENA-SERVICE-CREW"));
+        state = PrintedCostFixture.Add(state, "P1", "SFD·022/221");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -44707,6 +44749,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldTargetDamageBonusAddsOneToSpellDamage()
     {
         var state = BattlefieldTargetDamageBonusState();
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -44741,6 +44784,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldTargetDamageBonusSkipsOpponentControlledSource()
     {
         var state = BattlefieldTargetDamageBonusState();
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         dirtyObjects["P2-BATTLEFIELD-VOID-GATE"] = dirtyObjects["P2-BATTLEFIELD-VOID-GATE"] with
         {
@@ -44780,6 +44824,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldTargetDamageBonusSkipsTargetsWithoutVoidGate()
     {
         var state = BattlefieldTargetDamageBonusState(includeVoidGate: false);
+        state = PrintedCostFixture.Add(state, "P1", "UNL-007/219");
         var engine = new CoreRuleEngine();
 
         var play = await engine.ResolveAsync(
@@ -47063,6 +47108,7 @@ public sealed class ConformanceFixtureRunnerTests
             },
             UntilEndOfTurnEffects = ["BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2"]
         };
+        state = PrintedCostFixture.Add(state, "P2", "UNL-007/219");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -47376,6 +47422,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard])
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "OGN·114/298");
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -47629,6 +47676,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.RuneCard])
             }
         };
+        state = PrintedCostFixture.Add(state, "P1", "SFD·175/221");
         var engine = new CoreRuleEngine();
 
         var playResult = await engine.ResolveAsync(
@@ -60405,7 +60453,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4AssembleEquipmentCommandRejectsGenericPowerForRedAssembleCost()
+    public async Task P4AssembleEquipmentCommandAcceptsRainbowPowerForRedAssembleCost()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -60445,11 +60493,9 @@ public sealed class ConformanceFixtureRunnerTests
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
-        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
     }
 
     [Fact]

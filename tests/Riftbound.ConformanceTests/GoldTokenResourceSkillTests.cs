@@ -552,7 +552,7 @@ public sealed class GoldTokenResourceSkillTests
     [InlineData("mana-only")]
     [InlineData("wrong-trait")]
     [InlineData("unnecessary")]
-    public async Task GoldTemporaryResourceRejectsNonRuneOrUnnecessaryUseWithoutMutation(string caseName)
+    public async Task GoldTemporaryResourcePaysColoredCostAndRejectsNonRuneOrUnnecessaryUse(string caseName)
     {
         var resourceState = (await ResolveGoldAsync(
             BuildGoldPriorityState(),
@@ -609,6 +609,12 @@ public sealed class GoldTokenResourceSkillTests
             new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, [resourceAction, spendChoice]),
             CancellationToken.None);
 
+        if (caseName == "wrong-trait") // Historical name: the resource is rainbow and this is now a legal colored cost.
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Null(result.State.PendingPayment);
+            return;
+        }
         Assert.False(result.Accepted);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
         Assert.Empty(result.Events);

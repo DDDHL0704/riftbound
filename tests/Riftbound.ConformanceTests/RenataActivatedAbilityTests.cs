@@ -62,8 +62,8 @@ public sealed class RenataActivatedAbilityTests
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]);
-        Assert.Equal([paymentResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(
+        Assert.Equal([paymentResourceAction, PaymentCostRules.TemporaryPaymentResourceActionId(state.TemporaryPaymentResources.Single().ResourceId)], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Contains(
             paymentResourceChoices,
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
@@ -112,7 +112,7 @@ public sealed class RenataActivatedAbilityTests
     }
 
     [Fact]
-    public void RenataOpenMainPromptDoesNotTreatGenericTemporaryResourceAsBluePayment()
+    public void RenataOpenMainPromptTreatsRainbowTemporaryResourceAsBluePayment()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-RENATA-GENERIC-PROMPT");
         var state = BuildRenataState(P4ActivatedAbilityCatalog.RenataGlascCardNo, new RunePool(1, 0)) with
@@ -129,13 +129,13 @@ public sealed class RenataActivatedAbilityTests
         var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
 
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements,
             entry => string.Equals(
                 entry["abilityId"] as string,
                 P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
                 StringComparison.Ordinal));
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }
@@ -198,9 +198,9 @@ public sealed class RenataActivatedAbilityTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]).ToArray();
         Assert.Equal(
-            ["RECYCLE_RUNE:P1-RUNE-BLUE-1", "RECYCLE_RUNE:P1-RUNE-BLUE-2", "RECYCLE_RUNE:P1-RUNE-BLUE-3", "RECYCLE_RUNE:P1-RUNE-BLUE-4"],
+            ["RECYCLE_RUNE:P1-RUNE-BLUE-1", "RECYCLE_RUNE:P1-RUNE-BLUE-2", "RECYCLE_RUNE:P1-RUNE-BLUE-3", "RECYCLE_RUNE:P1-RUNE-BLUE-4", PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId)],
             paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(
+        Assert.Contains(
             paymentResourceChoices,
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
         var availablePowerByTraitWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(

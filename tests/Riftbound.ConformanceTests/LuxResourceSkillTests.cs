@@ -522,7 +522,7 @@ public sealed class LuxResourceSkillTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new RunePool(mana, 0),
+                ["P1"] = new RunePool(mana, PrintedCostFixture.Power(cardNo)),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

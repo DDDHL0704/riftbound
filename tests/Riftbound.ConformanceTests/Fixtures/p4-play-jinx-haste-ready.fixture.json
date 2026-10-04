@@ -34,8 +34,17 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 4, "power": 0, "powerByTrait": { "red": 1 } },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 4,
+        "power": 0,
+        "powerByTrait": {
+          "red": 2
+        }
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
@@ -104,15 +113,19 @@
       "CARD_DISCARDED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
           "mana": 4,
-          "power": 1,
+          "power": 2,
           "baseMana": 3,
-          "optionalCosts": ["HASTE_READY"]
+          "optionalCosts": [
+            "HASTE_READY"
+          ]
         }
       },
       {
@@ -121,13 +134,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-JINX",
           "cardNo": "OGN·030/298",
-          "targetObjectIds": ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"],
+          "targetObjectIds": [
+            "P1-JINX-DISCARD-001",
+            "P1-JINX-DISCARD-002"
+          ],
           "effectKind": "JINX_PLAY_UNIT_DISCARD_TWO_HAND"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -137,7 +159,11 @@
           "unitName": "金克丝",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "强攻2", "急速"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "强攻2",
+            "急速"
+          ],
           "isExhausted": false,
           "hasteReadyOptionalCostPaid": true
         }

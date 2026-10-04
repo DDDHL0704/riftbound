@@ -15,6 +15,7 @@ public sealed class SwiftStackPriorityPlayCardTests
     {
         var state = BuildStackPriorityState() with { TimingState = TimingStates.SpellDuelOpen,
             StackItems = [], PriorityPlayerId = null, FocusPlayerId = "P2" };
+        state = PrintedCostFixture.Add(state, "P2", PunishmentCardNo);
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");

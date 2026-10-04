@@ -2659,10 +2659,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : entry.Value;
         }
 
-        return PaymentCostRules.CanPayPowerCost(
+        return PaymentCostRules.PowerDeficit(
             new RunePool(runePool.Mana, runePool.Power + resource.RemainingPower, powerByTrait),
-            genericPowerCost,
-            powerCostByTrait);
+            genericPowerCost, powerCostByTrait)
+            < PaymentCostRules.PowerDeficit(runePool, genericPowerCost, powerCostByTrait);
     }
 
     private static bool TryApplyTemporaryPaymentResourcesToPendingPayment(
@@ -2747,6 +2747,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             resource => resource.RemainingPowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             StringComparer.Ordinal);
         var poolPowerByTraitAfterTypedCosts = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var poolRainbowAfterTypedCosts = pool.Power;
 
         foreach (var cost in PaymentCostRules.NormalizePowerCostByTrait(pendingPayment.PowerCostByTrait))
         {
@@ -2775,6 +2776,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 unmetTraitCost -= consumedTraitPower;
             }
 
+            var paidFromPoolRainbow = Math.Min(poolRainbowAfterTypedCosts, unmetTraitCost);
+            poolRainbowAfterTypedCosts -= paidFromPoolRainbow;
+            unmetTraitCost -= paidFromPoolRainbow;
+            foreach (var resource in selectedResources)
+            {
+                var rainbowPayment = Math.Min(remainingGenericById[resource.ResourceId], unmetTraitCost);
+                remainingGenericById[resource.ResourceId] -= rainbowPayment;
+                consumedGenericById[resource.ResourceId] += rainbowPayment;
+                unmetTraitCost -= rainbowPayment;
+            }
+
             if (unmetTraitCost > 0)
             {
                 rejection = "临时费用资源不足或并非当前支付窗口所需。";
@@ -2782,7 +2794,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
         }
 
-        var genericPowerNeeded = Math.Max(0, pendingPayment.PowerCost - (pool.Power + poolPowerByTraitAfterTypedCosts.Values.Sum()));
+        var genericPowerNeeded = Math.Max(0, pendingPayment.PowerCost - (poolRainbowAfterTypedCosts + poolPowerByTraitAfterTypedCosts.Values.Sum()));
         foreach (var resource in selectedResources)
         {
             if (genericPowerNeeded <= 0)
@@ -5287,7 +5299,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountFromOptionalPowerCost ? plan.TotalPowerCost : behavior.DamageAmount,
+            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
@@ -29482,6 +29494,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var printedPowerChoices = normalizedCommandOptionalCosts
+            .Where(cost => cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
+        if (printedPowerChoices.Length > 1)
+        {
+            rejection = RejectWithCorePrompts(state, "Choose one printed power allocation.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        normalizedCommandOptionalCosts = normalizedCommandOptionalCosts
+            .Where(cost => !cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
         if (!TryExtractLuxSpellOnlyResourceActions(
                 normalizedCommandOptionalCosts,
                 out var optionalCostsWithoutLuxResources,
@@ -29719,19 +29740,35 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + extraManaCost
             + battlefieldHeldUnitCostIncreaseMana
             + spellshieldTaxMana;
-        var totalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum();
+        var optionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum();
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         var paymentAdjustedPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
+        var selectedTemporaryResources = state.TemporaryPaymentResources.Where(resource =>
+            string.Equals(resource.OwnerPlayerId, intent.PlayerId, StringComparison.Ordinal)
+            && temporaryPaymentResourceActions.Contains(PaymentCostRules.TemporaryPaymentResourceActionId(resource.ResourceId), StringComparer.Ordinal)).ToArray();
+        var allocationPool = paymentAdjustedPool with
+        {
+            Power = paymentAdjustedPool.Power + selectedTemporaryResources.Sum(resource => resource.RemainingPower),
+            PowerByTrait = selectedTemporaryResources.Aggregate(paymentAdjustedPool.PowerByTrait,
+                (traits, resource) => PrintedPowerCostRules.Combine(traits, resource.RemainingPowerByTrait))
+        };
+        if (!PrintedPowerCostRules.TrySelect(behavior.CardNo, printedPowerChoices.SingleOrDefault(),
+                allocationPool, extraPowerCost, extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait))
+        {
+            rejection = RejectWithCorePrompts(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         if (!AreRecycleRunePaymentResourceActionsRequired(
                 currentPool,
                 state.CardObjects,
                 recycledPaymentRuneObjectIds,
-                extraPowerCost,
-                extraPowerCostByTrait))
+                totalGenericPowerCost,
+                totalPowerCostByTrait))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -29768,9 +29805,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             baseManaCost: behavior.ManaCost,
             totalManaCost: totalManaCost,
-            genericPowerCost: extraPowerCost,
+            genericPowerCost: totalGenericPowerCost,
             totalPowerCost: totalPowerCost,
-            powerCostByTrait: extraPowerCostByTrait,
+            powerCostByTrait: totalPowerCostByTrait,
             experienceCost: totalExperienceCost,
             optionalCostIds: optionalCosts,
             paymentResourceActionIds: paymentResourceActions,
@@ -29802,8 +29839,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan.PaymentId,
             paymentPlan.PaymentWindow,
             intent.PlayerId,
-            extraPowerCost,
-            extraPowerCostByTrait,
+            totalGenericPowerCost,
+            totalPowerCostByTrait,
             behavior.EffectKind,
             paymentResourceActions);
         if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
@@ -29834,7 +29871,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var errorMessage = paymentAdjustedPool.Mana < totalManaCost
                 ? $"Not enough mana to play {behavior.DisplayName}."
-                : !CanPayPowerCost(paymentAdjustedPool, extraPowerCost, extraPowerCostByTrait)
+                : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
                     ? $"Not enough power to play {behavior.DisplayName}."
                     : currentExperience < totalExperienceCost
                         ? $"Not enough experience to play {behavior.DisplayName}."
@@ -29851,9 +29888,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             zones,
             targetObjectIds,
             totalManaCost,
-            extraPowerCost,
-            extraPowerCostByTrait,
+            totalGenericPowerCost,
+            totalPowerCostByTrait,
             totalPowerCost,
+            optionalPowerCost,
             totalExperienceCost,
             effectRepeatCount,
             optionalCosts,
@@ -49874,6 +49912,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AnyPowerCost,
         IReadOnlyDictionary<string, int> PowerCostByTrait,
         int TotalPowerCost,
+        int OptionalPowerCost,
         int TotalExperienceCost,
         int EffectRepeatCount,
         IReadOnlyList<string> OptionalCosts,

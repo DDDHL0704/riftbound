@@ -122,7 +122,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-EQUIPMENT-LONG-SWORD", result.State.PlayerZones["P1"].Base);
         Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
@@ -439,7 +439,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(3, 0),
+                ["P1"] = new(3, PrintedCostFixture.Power(cardNo)),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

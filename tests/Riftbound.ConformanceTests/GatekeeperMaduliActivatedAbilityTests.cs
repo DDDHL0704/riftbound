@@ -81,8 +81,8 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]).ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{PurpleRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(
+        Assert.Equal([$"RECYCLE_RUNE:{PurpleRuneObjectId}", PaymentCostRules.TemporaryPaymentResourceActionId(state.TemporaryPaymentResources.Single().ResourceId)], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Contains(
             paymentResourceChoices,
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
@@ -94,7 +94,7 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
     }
 
     [Fact]
-    public void MaduliOpenMainPromptDoesNotTreatGenericTemporaryResourceAsPurplePayment()
+    public void MaduliOpenMainPromptTreatsRainbowTemporaryResourceAsPurplePayment()
     {
         var state = BuildMaduliState(RunePool.Empty) with
         {
@@ -106,24 +106,18 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
         var activateCandidates = (prompt.Candidates ?? [])
             .Where(candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal))
             .ToArray();
-        if (activateCandidates.Length == 0)
-        {
-            Assert.Empty(activateCandidates);
-            return;
-        }
-
         var activateCandidate = Assert.Single(activateCandidates);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
         var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
 
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements,
             entry => string.Equals(
                 entry["abilityId"] as string,
                 P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
                 StringComparison.Ordinal));
-        Assert.DoesNotContain(
+        Assert.Contains(
             requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
             choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }

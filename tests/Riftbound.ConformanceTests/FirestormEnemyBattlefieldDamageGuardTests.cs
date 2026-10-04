@@ -466,7 +466,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchStateHasher.Hash(initialState), MatchStateHasher.Hash(result.State));
-        Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
+        Assert.Equal(initialState.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-FIRESTORM"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.StackItems);
@@ -497,7 +497,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(6, 0),
+                ["P1"] = new(6, 1),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

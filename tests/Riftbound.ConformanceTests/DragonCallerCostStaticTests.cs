@@ -31,6 +31,7 @@ public sealed class DragonCallerCostStaticTests
             handObjectIds: ["P1-UNIT-RAGING-DRAKE"],
             dragonCallerObjectIds: ["P1-BASE-DRAGON-CALLER"]);
 
+        state = PrintedCostFixture.Add(state, "P1", "OGN·031/298");
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-dragon-caller-reduced-dragon-unit", "P1", CommandTypes.PlayCard),

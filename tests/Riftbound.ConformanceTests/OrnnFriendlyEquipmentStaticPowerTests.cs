@@ -590,6 +590,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
                     cardNo: "SFD·046/221")
             });
 
+        state = PrintedCostFixture.Add(state, "P1", "SFD·046/221");
         var played = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-ornn-dynamic-play-equipment", "P1", CommandTypes.PlayCard),
@@ -640,6 +641,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             "full official LayerEngine coverage"
         };
 
+        state = PrintedCostFixture.Add(state, "P1", "SFD·046/221");
         var played = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-ornn-dynamic-metadata-play-equipment", "P1", CommandTypes.PlayCard),
@@ -751,6 +753,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             "full official LayerEngine coverage"
         };
 
+        state = PrintedCostFixture.Add(state, "P2", "SFD·046/221");
         var played = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-ornn-dynamic-enemy-equipment-play", "P2", CommandTypes.PlayCard),
@@ -1175,6 +1178,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
                     controllerId: "P1")
             });
 
+        state = PrintedCostFixture.Add(state, "P1", "OGN·229/298");
         var initialAura = Assert.Single(
             state.ContinuousEffects,
             effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)

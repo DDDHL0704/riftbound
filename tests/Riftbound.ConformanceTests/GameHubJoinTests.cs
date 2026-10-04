@@ -6217,8 +6217,8 @@ public sealed class GameHubJoinTests
             .Select(choice => choice.Id)
             .ToArray();
         Assert.Contains(paymentResourceAction, paymentResourceChoices);
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["hasteReadyPowerCost"]));
 
         var playClients = new RecordingHubClients();
@@ -6237,7 +6237,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(5, costEvent.Payload["mana"]);
-        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal(2, costEvent.Payload["power"]);
         Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         var playSnapshot = SnapshotFor(playClients, "P1");
@@ -6304,7 +6304,7 @@ public sealed class GameHubJoinTests
         var sourceRequirement = Assert.Single(
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
         Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(sourceRequirement["hasteReadyPowerTrait"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePower"]));
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["hasteReadyPowerCost"]));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["paymentResourceChoices"])
@@ -6312,7 +6312,7 @@ public sealed class GameHubJoinTests
             .ToArray();
         Assert.DoesNotContain(bluePaymentResourceAction, paymentResourceChoices);
         Assert.Contains(purplePaymentResourceAction, paymentResourceChoices);
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.DoesNotContain(RuneTrait.Blue, availablePowerByTraitWithPaymentResources.Keys);

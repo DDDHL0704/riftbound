@@ -324,7 +324,7 @@ public sealed class SfurSongGuardTests
         Assert.Equal(expectedErrorCode, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(mana, 1), result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-SFUR-SONG"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-SFUR-SONG", "P1-FACE-DOWN-STANDBY-SFUR-SONG"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-EQUIPMENT-SFUR-SONG"], result.State.PlayerZones["P2"].Hand);
@@ -494,7 +494,7 @@ public sealed class SfurSongGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, 1),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

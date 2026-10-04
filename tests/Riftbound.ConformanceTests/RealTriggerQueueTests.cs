@@ -3478,10 +3478,10 @@ public sealed class RealTriggerQueueTests
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = string.Equals(spellPlayerId, "P1", StringComparison.Ordinal)
-                    ? new RunePool(spellMana, 0)
+                    ? new RunePool(spellMana, PrintedCostFixture.Power(spellCardNo))
                     : RunePool.Empty,
                 ["P2"] = string.Equals(spellPlayerId, "P2", StringComparison.Ordinal)
-                    ? new RunePool(spellMana, 0)
+                    ? new RunePool(spellMana, PrintedCostFixture.Power(spellCardNo))
                     : RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

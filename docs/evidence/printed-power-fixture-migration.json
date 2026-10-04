@@ -1,0 +1,3303 @@
+{
+  "authority": "CN core 131.3 / 135.2.e.5-6 / 356; data/official/card-catalog.zh-CN.json",
+  "purpose": "Supply the formerly omitted printed cost; preserve the original effects and final resource expectations.",
+  "fixtures": [
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json",
+      "cardNo": "OGN·009/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-icathian-rain-can-hit-same-unit-six-times.fixture.json",
+      "cardNo": "OGN·248/298",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-behemoth-return-friendly-and-enemy.fixture.json",
+      "cardNo": "SFD·132/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-damage-stack.fixture.json",
+      "cardNo": "UNL-014/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-face-down-damage-stack.fixture.json",
+      "cardNo": "UNL-014/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json",
+      "cardNo": "SFD·006/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-alpha-strike-single-enemy-power-damage.fixture.json",
+      "cardNo": "UNL-192/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ancient-dragon-alt-a-lethal-damage-static.fixture.json",
+      "cardNo": "UNL-118a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 4,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ancient-dragon-lethal-damage-static.fixture.json",
+      "cardNo": "UNL-118/219",
+      "playerId": "P1",
+      "addedPrintedPower": 4,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ancient-stele-equipment.fixture.json",
+      "cardNo": "SFD·117/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-annie-return-graveyard-spell.fixture.json",
+      "cardNo": "OGS·010/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-apprentice-engineer-return-graveyard-equipment.fixture.json",
+      "cardNo": "SFD·061/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-caitlyn-damage-order-static.fixture.json",
+      "cardNo": "ARC-002/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json",
+      "cardNo": "ARC-003/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-jinx-discard-trigger-static.fixture.json",
+      "cardNo": "ARC-005/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-vi-roam-static.fixture.json",
+      "cardNo": "ARC-001/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-viktor-destroyed-unit-trigger-static.fixture.json",
+      "cardNo": "ARC-006/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arc-warwick-active-unit.fixture.json",
+      "cardNo": "ARC-004/006",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arcane-shift-banish-friendly-damage-enemy.fixture.json",
+      "cardNo": "SFD·200/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-arena-service-crew-equipment-ready.fixture.json",
+      "cardNo": "SFD·022/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-armed-assaulter-no-optional-haste.fixture.json",
+      "cardNo": "SFD·002/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ashe-hand-banish-static.fixture.json",
+      "cardNo": "UNL-169/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-atakhan-no-optional-destroy-roam-static.fixture.json",
+      "cardNo": "UNL-170/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-azure-glyph-golem-alt-a-steadfast2-keyword-unit.fixture.json",
+      "cardNo": "UNL-087a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-azure-glyph-golem-steadfast2-keyword-unit.fixture.json",
+      "cardNo": "UNL-087/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-back-against-wall-double-power-ephemeral.fixture.json",
+      "cardNo": "OGN·069/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bandle-soldier-keyword-unit.fixture.json",
+      "cardNo": "UNL-151/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-baron-nashor-alt-a-pit-static.fixture.json",
+      "cardNo": "UNL-147a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-baron-nashor-pit-static.fixture.json",
+      "cardNo": "UNL-147/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-baron-nashor-promo-pit-static.fixture.json",
+      "cardNo": "UNL-238/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bellows-breath-up-to-three-units-damage.fixture.json",
+      "cardNo": "SFD·080/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-berserk-impulse-play-opponent-top-unit.fixture.json",
+      "cardNo": "OGN·025/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blade-of-ruined-king-equipment.fixture.json",
+      "cardNo": "SFD·178/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blast-cone-equipment-no-move.fixture.json",
+      "cardNo": "UNL-133/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blastcone-sprout-power-minus-2-floor.fixture.json",
+      "cardNo": "OGN·097/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blueflame-guardian-power-plus-8.fixture.json",
+      "cardNo": "OGN·082/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bone-skewer-opponent-hand-unit-stunned.fixture.json",
+      "cardNo": "UNL-139/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bright-future-play-each-player-top-five-unit.fixture.json",
+      "cardNo": "OGN·115/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bromain-lord-ambush-static.fixture.json",
+      "cardNo": "UNL-012/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-buhru-captain-draw-mode.fixture.json",
+      "cardNo": "SFD·091/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-buhru-captain-self-boon-mode.fixture.json",
+      "cardNo": "SFD·091/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-cannon-barrage-damage-enemy-combat-units.fixture.json",
+      "cardNo": "OGN·127/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-carnivorous-vinetendril-source-target-damage.fixture.json",
+      "cardNo": "OGN·149/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-charm-move-enemy-battlefield-unit-to-base.fixture.json",
+      "cardNo": "OGN·043/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-clash-of-giants-mutual-power-damage.fixture.json",
+      "cardNo": "UNL-110/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-convergent-mutation-match-friendly-power.fixture.json",
+      "cardNo": "OGN·108/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-corpse-flower-predator-keyword-unit.fixture.json",
+      "cardNo": "OGN·161/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-corrupt-enforcer-move-discard-static.fixture.json",
+      "cardNo": "SFD·123/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card.fixture.json",
+      "cardNo": "OGN·156/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-crescent-strike-target-plus-splash.fixture.json",
+      "cardNo": "UNL-072/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-crimson-signet-treant-alt-a-no-optional-haste.fixture.json",
+      "cardNo": "UNL-029a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-crimson-signet-treant-no-optional-haste.fixture.json",
+      "cardNo": "UNL-029/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-cursed-sarcophagus-equipment-banish-graveyard-units.fixture.json",
+      "cardNo": "UNL-148/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-custodian-judgment-unit-to-deck-bottom.fixture.json",
+      "cardNo": "UNL-204/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-custodian-judgment-unit-to-deck-top.fixture.json",
+      "cardNo": "UNL-204/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-daisy-no-trait-discount-active-unit.fixture.json",
+      "cardNo": "UNL-196/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dancing-grenade-base-unit-damage.fixture.json",
+      "cardNo": "UNL-020/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-danger-temperature-mechanical-power-plus-1.fixture.json",
+      "cardNo": "SFD·182/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-darkin-blade-destroy-target-controller-draw.fixture.json",
+      "cardNo": "OGN·213/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-decisive-strike-all-friendly-power-plus-2.fixture.json",
+      "cardNo": "OGS·024/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-detonation-destroy-battlefield-unit-stack.fixture.json",
+      "cardNo": "OGS·012/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-diana-alt-a-ambush-spell-power-static.fixture.json",
+      "cardNo": "UNL-149a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-diana-ambush-spell-power-static.fixture.json",
+      "cardNo": "UNL-149/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-discord-sigil-equipment.fixture.json",
+      "cardNo": "SFD·234/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-distance-break-dance-split-power-modifiers.fixture.json",
+      "cardNo": "SFD·196/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dragon-cavalry-destroy-enemy-unit.fixture.json",
+      "cardNo": "OGN·234/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dragons-rage-move-then-mutual-damage.fixture.json",
+      "cardNo": "OGN·258/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-duel-mutual-power-damage.fixture.json",
+      "cardNo": "OGN·128/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dunehorn-beast-low-hand-active-static.fixture.json",
+      "cardNo": "SFD·027/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-eclipse-vanguard-stun-trigger-static.fixture.json",
+      "cardNo": "OGN·059/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ekko-no-optional-haste.fixture.json",
+      "cardNo": "OGN·110/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-evolution-day-draw-stack.fixture.json",
+      "cardNo": "OGN·114/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-existential-dread-echo-stun-then-return.fixture.json",
+      "cardNo": "UNL-134/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ezreal-alt-a-discard-draw-two.fixture.json",
+      "cardNo": "SFD·149a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ezreal-discard-draw-two.fixture.json",
+      "cardNo": "SFD·149/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-faerie-dragon-grant-four-boons.fixture.json",
+      "cardNo": "SFD·101/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-farron-captain-trifarian-static-assault.fixture.json",
+      "cardNo": "OGN·015/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-fearless-vanguard-keyword-unit.fixture.json",
+      "cardNo": "SFD·093/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-featherstorm-create-warhawks.fixture.json",
+      "cardNo": "UNL-044/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json",
+      "cardNo": "OGS·002/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flameclaw-keyword-unit.fixture.json",
+      "cardNo": "UNL-016/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral.fixture.json",
+      "cardNo": "OGN·180/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flowing-time-mirror-equipment-ephemeral.fixture.json",
+      "cardNo": "OGN·180/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-focus-sigil-equipment.fixture.json",
+      "cardNo": "SFD·226/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-forced-conscription-control-small-enemy-recall.fixture.json",
+      "cardNo": "UNL-140/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gai-beast-entry-power-static.fixture.json",
+      "cardNo": "SFD·175/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-galio-keyword-unit.fixture.json",
+      "cardNo": "UNL-171/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-garen-keyword-unit.fixture.json",
+      "cardNo": "OGS·007/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gatekeeper-maduli-move-static.fixture.json",
+      "cardNo": "UNL-144/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gentleman-duel-power-then-mutual-damage.fixture.json",
+      "cardNo": "OGS·008/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ghost-matron-graveyard-unit-base.fixture.json",
+      "cardNo": "OGN·226/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ghost-matron-spirit-revive-static.fixture.json",
+      "cardNo": "OGN·226/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-giant-arm-kato-keyword-unit.fixture.json",
+      "cardNo": "SFD·112/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-glasc-bartender-last-breath-static.fixture.json",
+      "cardNo": "SFD·165/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-grand-strategy-all-friendly-power-plus-5.fixture.json",
+      "cardNo": "OGN·233/298",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-guerrilla-warfare-return-standby-graveyard.fixture.json",
+      "cardNo": "OGN·264/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-happenstance-return-friendly-and-enemy.fixture.json",
+      "cardNo": "UNL-128/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-harrowing-play-graveyard-unit-base.fixture.json",
+      "cardNo": "OGN·198/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-heart-of-ice-equipment.fixture.json",
+      "cardNo": "SFD·052/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hearthfire-cloak-equipment.fixture.json",
+      "cardNo": "SFD·190/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-heartsplit-dragon-discard-opponent-hand.fixture.json",
+      "cardNo": "OGN·192/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-help-arrives-friendly-hand-unit-free.fixture.json",
+      "cardNo": "SFD·111/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-anomaly-equipment.fixture.json",
+      "cardNo": "SFD·083/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json",
+      "cardNo": "OGN·009/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hidden-tracker-follow-move-static.fixture.json",
+      "cardNo": "OGN·177/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highway-robbery-enemy-unit-damage.fixture.json",
+      "cardNo": "OGN·033/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highway-robbery-target-controller-draw-choice.fixture.json",
+      "cardNo": "OGN·033/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hostile-takeover-gain-control-ready-battlefield-unit.fixture.json",
+      "cardNo": "SFD·202/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-housecleaning-destroy-each-player-unit.fixture.json",
+      "cardNo": "OGN·209/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-huge-yordle-keyword-unit.fixture.json",
+      "cardNo": "SFD·055/221",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-ready-all-friendly-units.fixture.json",
+      "cardNo": "SFD·204/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-the-weak-destroy-small-battlefield-unit.fixture.json",
+      "cardNo": "UNL-159/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunting-rhythm-banish-play-battlefield.fixture.json",
+      "cardNo": "UNL-184/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hurricane-sweep-each-player-return-unit.fixture.json",
+      "cardNo": "OGN·187/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hwei-move-discard-static.fixture.json",
+      "cardNo": "UNL-080/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-immortal-phoenix-keyword-unit.fixture.json",
+      "cardNo": "OGN·037/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-insight-sigil-equipment.fixture.json",
+      "cardNo": "SFD·229/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ironclad-vanguard-keyword-unit.fixture.json",
+      "cardNo": "SFD·021/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ivern-alt-a-look-unit-static.fixture.json",
+      "cardNo": "UNL-051a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ivern-look-unit-static.fixture.json",
+      "cardNo": "UNL-051/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jar-meddarda-spell-target-static.fixture.json",
+      "cardNo": "SFD·142/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jhin-alt-a-spellshield-roam-keyword-unit.fixture.json",
+      "cardNo": "UNL-022a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jhin-spellshield-roam-keyword-unit.fixture.json",
+      "cardNo": "UNL-022/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jinx-alt-a-discard-two-hand.fixture.json",
+      "cardNo": "OGN·030a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jinx-discard-two-hand.fixture.json",
+      "cardNo": "OGN·030/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-judgment-day-recycle-unkept.fixture.json",
+      "cardNo": "OGN·244/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-jungle-ambush-create-gold.fixture.json",
+      "cardNo": "SFD·004/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-junkyard-bully-no-encourage-mechanical-unit.fixture.json",
+      "cardNo": "OGN·020/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kadregrin-draw-powerful-units.fixture.json",
+      "cardNo": "OGN·038/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-karina-veraze-no-optional-haste.fixture.json",
+      "cardNo": "SFD·179/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-katarina-face-down-static.fixture.json",
+      "cardNo": "UNL-023/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kayn-roam-keyword-unit.fixture.json",
+      "cardNo": "OGN·189/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-khazix-alt-a-hunt-keyword-unit.fixture.json",
+      "cardNo": "UNL-119a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-khazix-alt-a-lone-enemy-static.fixture.json",
+      "cardNo": "UNL-143a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-khazix-hunt-keyword-unit.fixture.json",
+      "cardNo": "UNL-119/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-khazix-lone-enemy-static.fixture.json",
+      "cardNo": "UNL-143/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-king-of-the-hill-draw-no-controlled-battlefields.fixture.json",
+      "cardNo": "UNL-015/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kings-edict-destroy-enemy-unit.fixture.json",
+      "cardNo": "OGN·237/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kinkou-monk-grant-two-boons.fixture.json",
+      "cardNo": "OGN·141/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-knockdown-friendly-power-damage.fixture.json",
+      "cardNo": "SFD·107/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kraken-hunter-no-optional-haste.fixture.json",
+      "cardNo": "OGN·150/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-lantern-sea-fiend-bounce-static.fixture.json",
+      "cardNo": "UNL-132/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-last-breath-ready-damage-enemy-battlefield.fixture.json",
+      "cardNo": "OGN·260/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-lee-sin-alt-a-steadfast-keyword-unit.fixture.json",
+      "cardNo": "OGN·078a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-lee-sin-steadfast-keyword-unit.fixture.json",
+      "cardNo": "OGN·078/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-leona-alt-a-steadfast-keyword-unit.fixture.json",
+      "cardNo": "OGN·238a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-leona-steadfast-keyword-unit.fixture.json",
+      "cardNo": "OGN·238/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-long-sword-agile-equipment.fixture.json",
+      "cardNo": "SFD·022/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mechanical-trickster-vanilla-unit.fixture.json",
+      "cardNo": "OGN·239/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-megashark-cannon-damage-enemy-battlefield.fixture.json",
+      "cardNo": "OGN·092/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-might-makes-right-draw-powerful-units.fixture.json",
+      "cardNo": "SFD·106/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mirror-image-copy-ephemeral-base.fixture.json",
+      "cardNo": "UNL-200/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-miss-fortune-alt-a-no-optional-haste.fixture.json",
+      "cardNo": "OGN·162a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-miss-fortune-no-optional-haste.fixture.json",
+      "cardNo": "OGN·162/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json",
+      "cardNo": "UNL-198/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moss-stepper-keyword-unit.fixture.json",
+      "cardNo": "UNL-047/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mountain-ape-elder-boon-ready-static.fixture.json",
+      "cardNo": "SFD·047/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-nidalee-cat-static.fixture.json",
+      "cardNo": "UNL-114/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-nilah-no-optional-haste.fixture.json",
+      "cardNo": "UNL-115/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-nocturne-roam-keyword-unit.fixture.json",
+      "cardNo": "OGN·194/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-ahri-alt-a-combat-power-static.fixture.json",
+      "cardNo": "OGN·119a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-ahri-alt-a-hold-score-static.fixture.json",
+      "cardNo": "OGN·066a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-ahri-combat-power-static.fixture.json",
+      "cardNo": "OGN·119/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-ahri-hold-score-static.fixture.json",
+      "cardNo": "OGN·066/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-anivia-attack-damage-static.fixture.json",
+      "cardNo": "OGN·148/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-blitzcrank-barrier-static.fixture.json",
+      "cardNo": "OGN·067/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-caitlyn-back-row-static.fixture.json",
+      "cardNo": "OGN·068/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-commander-ledros-spirit-static.fixture.json",
+      "cardNo": "OGN·231/298",
+      "playerId": "P1",
+      "addedPrintedPower": 4,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-darius-alt-a-no-encourage-trifarian-unit.fixture.json",
+      "cardNo": "OGN·243a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-darius-alt-a-second-card-trigger-static.fixture.json",
+      "cardNo": "OGN·027a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-darius-no-encourage-trifarian-unit.fixture.json",
+      "cardNo": "OGN·243/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-darius-second-card-trigger-static.fixture.json",
+      "cardNo": "OGN·027/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-discord-sigil-equipment.fixture.json",
+      "cardNo": "OGN·204/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-draven-score-static-zero.fixture.json",
+      "cardNo": "OGN·028/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-focus-sigil-equipment.fixture.json",
+      "cardNo": "OGN·081/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-gemstone-seer-predict-recycle.fixture.json",
+      "cardNo": "OGN·100/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-gemstone-seer-predict-static.fixture.json",
+      "cardNo": "OGN·100/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-heimerdinger-yordle-static.fixture.json",
+      "cardNo": "OGN·111/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-insight-sigil-equipment.fixture.json",
+      "cardNo": "OGN·120/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-jinx-alt-a-discard-trigger-static.fixture.json",
+      "cardNo": "OGN·202a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-jinx-discard-trigger-static.fixture.json",
+      "cardNo": "OGN·202/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-kaisa-alt-a-roam-conquer-static.fixture.json",
+      "cardNo": "OGN·112a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-kaisa-roam-conquer-static.fixture.json",
+      "cardNo": "OGN·112/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-karma-predict-static.fixture.json",
+      "cardNo": "OGN·235/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-karthus-spirit-last-breath-static.fixture.json",
+      "cardNo": "OGN·236/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json",
+      "cardNo": "OGN·190/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-leona-alt-a-score-static.fixture.json",
+      "cardNo": "OGN·079a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-leona-score-static.fixture.json",
+      "cardNo": "OGN·079/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-mageseeker-warden-static.fixture.json",
+      "cardNo": "OGN·070/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-miss-fortune-alt-a-keyword-unit.fixture.json",
+      "cardNo": "OGN·193a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-miss-fortune-alt-b-keyword-unit.fixture.json",
+      "cardNo": "OGN·193b/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-miss-fortune-keyword-unit.fixture.json",
+      "cardNo": "OGN·193/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-molten-drake-active-entry-static.fixture.json",
+      "cardNo": "OGN·011/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-mundo-graveyard-power-static.fixture.json",
+      "cardNo": "OGN·109/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-peak-guardian-boon-static.fixture.json",
+      "cardNo": "OGN·223/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-power-sigil-equipment.fixture.json",
+      "cardNo": "OGN·163/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-rage-sigil-equipment.fixture.json",
+      "cardNo": "OGN·040/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-sett-alt-a-barrier-keyword-unit.fixture.json",
+      "cardNo": "OGN·240a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-sett-alt-a-self-boon.fixture.json",
+      "cardNo": "OGN·164a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-sett-barrier-keyword-unit.fixture.json",
+      "cardNo": "OGN·240/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-sett-self-boon.fixture.json",
+      "cardNo": "OGN·164/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-sona-ready-runes-static.fixture.json",
+      "cardNo": "OGN·073/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-soulsipper-spirit-static.fixture.json",
+      "cardNo": "OGN·196/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-teemo-alt-a-standby-static.fixture.json",
+      "cardNo": "OGN·121a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-teemo-standby-static.fixture.json",
+      "cardNo": "OGN·121/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-tryndamere-overkill-score-static.fixture.json",
+      "cardNo": "OGN·034/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-udyr-boon-stance-static.fixture.json",
+      "cardNo": "OGN·157/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-unity-sigil-equipment.fixture.json",
+      "cardNo": "OGN·245/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-vayne-assault3-static.fixture.json",
+      "cardNo": "OGN·035/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-vi-roam-recycle-static.fixture.json",
+      "cardNo": "OGN·036/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-viktor-alt-a-destroyed-unit-token-static.fixture.json",
+      "cardNo": "OGN·246a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-viktor-alt-a-opponent-turn-token-static.fixture.json",
+      "cardNo": "OGN·117a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-viktor-destroyed-unit-token-static.fixture.json",
+      "cardNo": "OGN·246/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-viktor-opponent-turn-token-static.fixture.json",
+      "cardNo": "OGN·117/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-volibear-alt-a-spellshield2-keyword-unit.fixture.json",
+      "cardNo": "OGN·041a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-volibear-alt-a-steadfast3-barrier-keyword-unit.fixture.json",
+      "cardNo": "OGN·158a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-volibear-spellshield2-keyword-unit.fixture.json",
+      "cardNo": "OGN·041/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-volibear-steadfast3-barrier-keyword-unit.fixture.json",
+      "cardNo": "OGN·158/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-yasuo-alt-a-attack-damage-static.fixture.json",
+      "cardNo": "OGN·076a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-yasuo-alt-a-roam-keyword-unit.fixture.json",
+      "cardNo": "OGN·205a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-yasuo-attack-damage-static.fixture.json",
+      "cardNo": "OGN·076/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-yasuo-roam-keyword-unit.fixture.json",
+      "cardNo": "OGN·205/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogs-annie-damage-plus-static.fixture.json",
+      "cardNo": "OGS·001/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogs-garen-elite-static-unit.fixture.json",
+      "cardNo": "OGS·013/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogs-lux-high-cost-spell-static.fixture.json",
+      "cardNo": "OGS·006/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogs-yi-eight-runes-static.fixture.json",
+      "cardNo": "OGS·004/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-open-action-grant-all-boons.fixture.json",
+      "cardNo": "OGN·153/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-overcharged-energy-exhaust-friendly-damage-all-battlefield.fixture.json",
+      "cardNo": "OGN·123/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-piercing-light-two-target-damage-stack.fixture.json",
+      "cardNo": "SFD·023/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-playful-tentacles-move-total-power-eight.fixture.json",
+      "cardNo": "UNL-054/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-poppy-alt-a-no-experience-ambush-barrier-static.fixture.json",
+      "cardNo": "UNL-178a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-poppy-no-experience-ambush-barrier-static.fixture.json",
+      "cardNo": "UNL-178/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-poro-herder-no-poro-static.fixture.json",
+      "cardNo": "OGN·061/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-poro-snax-equipment-draw.fixture.json",
+      "cardNo": "SFD·046/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json",
+      "cardNo": "OGN·102/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-power-punch-overwhelm-roam-attacking-power.fixture.json",
+      "cardNo": "UNL-010/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-power-sigil-equipment.fixture.json",
+      "cardNo": "SFD·231/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-predictive-offensive-draw-one-recycle-other.fixture.json",
+      "cardNo": "SFD·122/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-create-robot-draw.fixture.json",
+      "cardNo": "SFD·076/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-reduced-by-mechanical.fixture.json",
+      "cardNo": "SFD·076/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-progress-glory-mechanical-unit.fixture.json",
+      "cardNo": "SFD·075/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-progress-glory-static-granted-predict-recycle.fixture.json",
+      "cardNo": "SFD·075/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-prophets-omen-draw-stack.fixture.json",
+      "cardNo": "SFD·087/221",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-damage-stack.fixture.json",
+      "cardNo": "UNL-007/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-qiyana-spellshield-keyword-unit.fixture.json",
+      "cardNo": "OGN·155/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quicksand-mage-destroy-small-enemy.fixture.json",
+      "cardNo": "SFD·158/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json",
+      "cardNo": "SFD·164/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rabadons-deathcap-equipment.fixture.json",
+      "cardNo": "SFD·191/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rage-sigil-equipment.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-raging-drake-next-spell-cost-static.fixture.json",
+      "cardNo": "OGN·031/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rengar-alt-a-no-optional-haste.fixture.json",
+      "cardNo": "UNL-024a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rengar-no-optional-haste.fixture.json",
+      "cardNo": "UNL-024/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reprimand-return-battlefield-unit.fixture.json",
+      "cardNo": "OGN·172/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-resonant-soul-destroy-trigger-static.fixture.json",
+      "cardNo": "OGN·118/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-revna-roam-keyword-unit.fixture.json",
+      "cardNo": "UNL-005/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rewind-timeline-discard-hands-draw-four.fixture.json",
+      "cardNo": "OGN·201/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rhasa-full-cost-spirit-unit.fixture.json",
+      "cardNo": "OGN·195/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ride-the-wind-move-friendly-battlefield-unit-to-base-ready.fixture.json",
+      "cardNo": "OGN·173/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rift-herald-alt-a-move-last-breath-static.fixture.json",
+      "cardNo": "UNL-179a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rift-herald-move-last-breath-static.fixture.json",
+      "cardNo": "UNL-179/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rising-dragon-kick-move-enemy-battlefield-unit-to-base.fixture.json",
+      "cardNo": "UNL-038/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json",
+      "cardNo": "SFD·077/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-destroy-equipment-mode.fixture.json",
+      "cardNo": "SFD·077/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-royal-attendant-legend-ready-static.fixture.json",
+      "cardNo": "SFD·039/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ruination-destroy-all-units.fixture.json",
+      "cardNo": "UNL-180/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ruined-shark-cannon-last-breath-static.fixture.json",
+      "cardNo": "UNL-067/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-base-unit-stun-stack.fixture.json",
+      "cardNo": "OGN·050/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-stun-stack.fixture.json",
+      "cardNo": "OGN·050/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ruthless-pursuit-move-friendly-unit-recall-mark.fixture.json",
+      "cardNo": "SFD·184/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sacred-shears-equipment.fixture.json",
+      "cardNo": "SFD·172/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-safety-inspector-experience-destroy-static.fixture.json",
+      "cardNo": "UNL-164/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-salvage-destroy-equipment-draw.fixture.json",
+      "cardNo": "OGN·224/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-salvage-draw-no-equipment.fixture.json",
+      "cardNo": "OGN·224/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sand-soldiers-rise-ready-two.fixture.json",
+      "cardNo": "SFD·198/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sett-promo-self-boon.fixture.json",
+      "cardNo": "SFD·232*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sett-self-boon.fixture.json",
+      "cardNo": "SFD·232/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-049-aphelios-weapon-trigger-static.fixture.json",
+      "cardNo": "SFD·049/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-050-azir-swap-skill-static.fixture.json",
+      "cardNo": "SFD·050/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-050a-azir-swap-skill-static.fixture.json",
+      "cardNo": "SFD·050a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058-ornn-equipment-look-static.fixture.json",
+      "cardNo": "SFD·058/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058a-ornn-equipment-look-static.fixture.json",
+      "cardNo": "SFD·058a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-082-ezreal-combat-damage-static.fixture.json",
+      "cardNo": "SFD·082/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-082a-ezreal-combat-damage-static.fixture.json",
+      "cardNo": "SFD·082a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-082b-ezreal-combat-damage-static.fixture.json",
+      "cardNo": "SFD·082b/221·P",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-089-rumble-mechanical-static.fixture.json",
+      "cardNo": "SFD·089/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-089a-rumble-mechanical-static.fixture.json",
+      "cardNo": "SFD·089a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-119-jax-alt-a-no-optional-assemble.fixture.json",
+      "cardNo": "SFD·119a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-119-jax-no-optional-assemble.fixture.json",
+      "cardNo": "SFD·119/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-141-irelia-spell-cost-static.fixture.json",
+      "cardNo": "SFD·141/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-141a-irelia-spell-cost-static.fixture.json",
+      "cardNo": "SFD·141a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-170-reksai-attack-reveal-static.fixture.json",
+      "cardNo": "SFD·170/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-170a-reksai-attack-reveal-static.fixture.json",
+      "cardNo": "SFD·170a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-228-bard-no-optional-legend-static.fixture.json",
+      "cardNo": "SFD·228/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-228-promo-bard-no-optional-legend-static.fixture.json",
+      "cardNo": "SFD·228*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-230-promo-teemo-standby-static.fixture.json",
+      "cardNo": "SFD·230*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-230-teemo-standby-static.fixture.json",
+      "cardNo": "SFD·230/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-237-karma-predict-static.fixture.json",
+      "cardNo": "SFD·237/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-237-promo-karma-predict-static.fixture.json",
+      "cardNo": "SFD·237*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-239-promo-soraka-damage-redirection-static.fixture.json",
+      "cardNo": "SFD·239*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-239-soraka-damage-redirection-static.fixture.json",
+      "cardNo": "SFD·239/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-ahri-promo-vanilla-unit.fixture.json",
+      "cardNo": "SFD·227*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-ahri-vanilla-unit.fixture.json",
+      "cardNo": "SFD·227/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-aphelios-promo-vanilla-unit.fixture.json",
+      "cardNo": "SFD·224*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-aphelios-vanilla-unit.fixture.json",
+      "cardNo": "SFD·224/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-bard-no-optional-legend-static.fixture.json",
+      "cardNo": "SFD·079/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-darius-promo-trifarian-unit.fixture.json",
+      "cardNo": "SFD·236*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-darius-trifarian-unit.fixture.json",
+      "cardNo": "SFD·236/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-draven-alt-a-keyword-unit.fixture.json",
+      "cardNo": "SFD·148a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-draven-keyword-unit.fixture.json",
+      "cardNo": "SFD·148/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-fiora-alt-a-one-on-one-vanilla-unit.fixture.json",
+      "cardNo": "SFD·110a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-fiora-one-on-one-vanilla-unit.fixture.json",
+      "cardNo": "SFD·110/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-fizz-graveyard-spell-static.fixture.json",
+      "cardNo": "SFD·140/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-jax-alt-a-keyword-unit.fixture.json",
+      "cardNo": "SFD·054a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-jax-keyword-unit.fixture.json",
+      "cardNo": "SFD·054/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-renata-glasc-alt-a-vanilla-unit.fixture.json",
+      "cardNo": "SFD·171a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-renata-glasc-vanilla-unit.fixture.json",
+      "cardNo": "SFD·171/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-rengar-promo-reaction-overwhelm-keyword-unit.fixture.json",
+      "cardNo": "SFD·025a/221·P",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-rengar-reaction-overwhelm-keyword-unit.fixture.json",
+      "cardNo": "SFD·025/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-sivir-alt-a-spellshield2-keyword-unit.fixture.json",
+      "cardNo": "SFD·120a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-sivir-spellshield2-keyword-unit.fixture.json",
+      "cardNo": "SFD·120/221",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-soraka-damage-redirection-static.fixture.json",
+      "cardNo": "SFD·173/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-vayne-keyword-unit.fixture.json",
+      "cardNo": "SFD·223/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-vayne-promo-keyword-unit.fixture.json",
+      "cardNo": "SFD·223*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-vex-combat-spell-cost-static.fixture.json",
+      "cardNo": "SFD·146/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-yasuo-keyword-unit.fixture.json",
+      "cardNo": "SFD·235/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-yasuo-promo-keyword-unit.fixture.json",
+      "cardNo": "SFD·235*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-yone-no-optional-assemble.fixture.json",
+      "cardNo": "SFD·233/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-yone-precon-no-optional-assemble.fixture.json",
+      "cardNo": "SFD·116/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-yone-promo-no-optional-assemble.fixture.json",
+      "cardNo": "SFD·233*/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfur-song-equipment.fixture.json",
+      "cardNo": "SFD·059/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shadow-guard-vanilla-unit.fixture.json",
+      "cardNo": "UNL-037/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shen-reaction-steadfast2-barrier-keyword-unit.fixture.json",
+      "cardNo": "OGN·241/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shepherd-dog-return-graveyard-unit.fixture.json",
+      "cardNo": "OGN·165/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shimmering-aurora-equipment.fixture.json",
+      "cardNo": "OGN·160/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shoot-first-power-plus-5-stack.fixture.json",
+      "cardNo": "SFD·097/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shurelyas-requiem-equipment-ready-all.fixture.json",
+      "cardNo": "SFD·192/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sigil-burst-destroy-equipment-draw.fixture.json",
+      "cardNo": "SFD·005/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sinful-pleasure-discard-damage.fixture.json",
+      "cardNo": "OGN·008/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-siphon-energy-battlefield-power-split.fixture.json",
+      "cardNo": "OGN·266/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sivir-alt-a-no-optional-haste.fixture.json",
+      "cardNo": "SFD·143a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sivir-no-optional-haste.fixture.json",
+      "cardNo": "SFD·143/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-skyvoice-wyrmling-dragon-unit.fixture.json",
+      "cardNo": "UNL-027/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-smoke-bomb-power-floor-stack.fixture.json",
+      "cardNo": "OGN·093/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-snowstalking-wolf-trait-destroy-ambush-static.fixture.json",
+      "cardNo": "UNL-166/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-solari-leader-destroy-stunned-enemy.fixture.json",
+      "cardNo": "OGN·225/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-solari-leader-stun-enemy-unit.fixture.json",
+      "cardNo": "OGN·225/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-soulguard-equipment-boon.fixture.json",
+      "cardNo": "OGN·063/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-speeding-mech-yordle-mechanical-unit.fixture.json",
+      "cardNo": "SFD·071/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spinning-axe-agile-ephemeral-equipment.fixture.json",
+      "cardNo": "SFD·186/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spirited-poro-attack-move-static.fixture.json",
+      "cardNo": "UNL-137/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spoils-of-war-draw-stack.fixture.json",
+      "cardNo": "OGN·144/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spring-messenger-experience-static.fixture.json",
+      "cardNo": "UNL-034/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sprite-lantern-equipment-create-sprite.fixture.json",
+      "cardNo": "UNL-078/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sprite-mother-create-sprite.fixture.json",
+      "cardNo": "OGN·106/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sprite-queen-create-sprite.fixture.json",
+      "cardNo": "UNL-084/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-starhound-graveyard-return-static.fixture.json",
+      "cardNo": "UNL-167/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-steadfast-loyalty-graveyard-unit-base.fixture.json",
+      "cardNo": "UNL-168/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json",
+      "cardNo": "OGN·105/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-steraks-gage-agile-equipment.fixture.json",
+      "cardNo": "SFD·056/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stunning-display-boon-move-base-unit.fixture.json",
+      "cardNo": "OGN·270/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sun-disc-equipment.fixture.json",
+      "cardNo": "OGN·021/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-super-mega-death-rocket-damage-stack.fixture.json",
+      "cardNo": "OGN·252/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-switcheroo-swap-battlefield-unit-powers.fixture.json",
+      "cardNo": "SFD·145/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sword-vagrant-destroy-equipment.fixture.json",
+      "cardNo": "SFD·032/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-syndra-spell-duel-echo-static.fixture.json",
+      "cardNo": "UNL-146/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-taken-for-a-ride-control-enemy-recall.fixture.json",
+      "cardNo": "OGN·203/298",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-taric-keyword-unit.fixture.json",
+      "cardNo": "OGN·074/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-terror-spider-hunt-keyword-unit.fixture.json",
+      "cardNo": "UNL-117/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thermogenic-beam-destroy-all-equipment.fixture.json",
+      "cardNo": "OGN·022/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thousand-tailed-watcher-all-enemy-units-minus-3.fixture.json",
+      "cardNo": "OGN·116/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thundering-drop-base-power-damage-move.fixture.json",
+      "cardNo": "OGN·250/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thundering-sky-cost-reduced-damage-stack.fixture.json",
+      "cardNo": "OGN·014/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tianna-crownguard-keyword-unit.fixture.json",
+      "cardNo": "SFD·060/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tibbers-damage-all-battlefield-units.fixture.json",
+      "cardNo": "OGS·018/024",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-time-twist-extra-turn-banish-source.fixture.json",
+      "cardNo": "OGN·122/298",
+      "playerId": "P1",
+      "addedPrintedPower": 4,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-treasure-golem-create-four-gold.fixture.json",
+      "cardNo": "SFD·174/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tremendous-strength-power-plus-7.fixture.json",
+      "cardNo": "OGN·154/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-undercover-agent-last-breath-static.fixture.json",
+      "cardNo": "OGN·178/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-undertow-return-all-units.fixture.json",
+      "cardNo": "SFD·147/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-unity-sigil-equipment.fixture.json",
+      "cardNo": "SFD·238/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-unl-leblanc-alt-a-assault-unit.fixture.json",
+      "cardNo": "UNL-172a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-unl-leblanc-assault-unit.fixture.json",
+      "cardNo": "UNL-172/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-unl-rengar-alt-a-cat-static.fixture.json",
+      "cardNo": "UNL-120a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-unl-rengar-cat-static.fixture.json",
+      "cardNo": "UNL-120/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vanguard-armory-equipment.fixture.json",
+      "cardNo": "SFD·168/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vanguard-captain-no-encourage-elite-unit.fixture.json",
+      "cardNo": "OGN·218/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vanguard-squire-active-unit.fixture.json",
+      "cardNo": "OGS·016/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vengeance-destroy-unit-stack.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vex-alt-a-keyword-unit.fixture.json",
+      "cardNo": "UNL-055a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vex-keyword-unit.fixture.json",
+      "cardNo": "UNL-055/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json",
+      "cardNo": "UNL-176a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vi-ambush-attack-stun-static.fixture.json",
+      "cardNo": "UNL-176/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vilemaw-alt-a-spider-static.fixture.json",
+      "cardNo": "UNL-060a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vilemaw-spider-unit.fixture.json",
+      "cardNo": "UNL-060/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-assault-move-friendly-and-enemy-unit.fixture.json",
+      "cardNo": "UNL-202/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-rush-draw-no-free-play.fixture.json",
+      "cardNo": "SFD·188/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-seeker-damage-draw-stack.fixture.json",
+      "cardNo": "OGN·024/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-warwick-active-unit.fixture.json",
+      "cardNo": "OGN·159/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-wellspring-of-hatred-destroy-battlefield-unit.fixture.json",
+      "cardNo": "UNL-186/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-wildclaw-beastmaster-keyword-unit.fixture.json",
+      "cardNo": "UNL-057/219",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-windrunner-fox-keyword-unit.fixture.json",
+      "cardNo": "UNL-075/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-xersai-fish-no-optional-haste.fixture.json",
+      "cardNo": "SFD·103/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-xin-zhao-keyword-unit.fixture.json",
+      "cardNo": "SFD·176/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-yashila-vanilla-unit.fixture.json",
+      "cardNo": "UNL-050/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-yi-active-unit.fixture.json",
+      "cardNo": "OGS·009/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-yi-alt-a-no-level-reduction-static.fixture.json",
+      "cardNo": "UNL-059a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-yi-no-level-reduction-static.fixture.json",
+      "cardNo": "UNL-059/219",
+      "playerId": "P1",
+      "addedPrintedPower": 3,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-yuumi-faerie-cat-unit.fixture.json",
+      "cardNo": "UNL-056/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-zaun-bodyguard-return-battlefield-unit.fixture.json",
+      "cardNo": "OGN·188/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit.fixture.json",
+      "cardNo": "OGN·262/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-zephyr-sage-keyword-unit.fixture.json",
+      "cardNo": "OGS·005/024",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-zilean-token-copy-static.fixture.json",
+      "cardNo": "UNL-086/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-banishes-unit.fixture.json",
+      "cardNo": "UNL-007/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-rune-prison-stun-expires-end-turn.fixture.json",
+      "cardNo": "OGN·050/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-can-damage-same-unit-twice.fixture.json",
+      "cardNo": "OGN·029/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-damages-two-units.fixture.json",
+      "cardNo": "OGN·029/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-void-seeker-draw-burnout-stack.fixture.json",
+      "cardNo": "OGN·024/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-guerrilla-warfare-free-standby-hide.fixture.json",
+      "cardNo": "OGN·264/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-armed-assaulter-haste-ready.fixture.json",
+      "cardNo": "SFD·002/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-crimson-signet-treant-alt-a-haste-ready.fixture.json",
+      "cardNo": "UNL-029a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-crimson-signet-treant-haste-ready.fixture.json",
+      "cardNo": "UNL-029/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-ekko-haste-ready.fixture.json",
+      "cardNo": "OGN·110/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-jinx-alt-a-haste-ready.fixture.json",
+      "cardNo": "OGN·030a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-jinx-haste-ready.fixture.json",
+      "cardNo": "OGN·030/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-karina-veraze-haste-ready.fixture.json",
+      "cardNo": "SFD·179/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-kraken-hunter-haste-ready.fixture.json",
+      "cardNo": "OGN·150/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-miss-fortune-alt-a-haste-ready.fixture.json",
+      "cardNo": "OGN·162a/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-miss-fortune-haste-ready.fixture.json",
+      "cardNo": "OGN·162/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-moss-stepper-level3-spellshield.fixture.json",
+      "cardNo": "UNL-047/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-nilah-haste-ready.fixture.json",
+      "cardNo": "UNL-115/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-poppy-spend-experience-reduce-cost.fixture.json",
+      "cardNo": "UNL-178/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-rengar-alt-a-haste-ready.fixture.json",
+      "cardNo": "UNL-024a/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-rengar-haste-ready.fixture.json",
+      "cardNo": "UNL-024/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-sivir-alt-a-haste-ready.fixture.json",
+      "cardNo": "SFD·143a/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-sivir-haste-ready.fixture.json",
+      "cardNo": "SFD·143/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-thousand-tailed-watcher-haste-ready.fixture.json",
+      "cardNo": "OGN·116/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-windrunner-fox-level3-roam.fixture.json",
+      "cardNo": "UNL-075/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-xersai-fish-haste-ready.fixture.json",
+      "cardNo": "SFD·103/221",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p5-equipment-detaches-when-host-destroyed.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p5-last-breath-watchful-sentinel-draw-on-destroy.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p5-stand-firm-prevents-xerath-skill-damage.fixture.json",
+      "cardNo": "OGN·145/298",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p6-play-swift-hextech-ray-in-spell-duel-focus.fixture.json",
+      "cardNo": "OGN·009/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-counterstorm-prevent-next-damage.fixture.json",
+      "cardNo": "SFD·194/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-cruel-revival-destroy-unit-play-graveyard-unit.fixture.json",
+      "cardNo": "UNL-142/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "purple"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-defiance-counter-spell-cost-limit.fixture.json",
+      "cardNo": "OGN·045/298",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-featherstorm-counter-spell.fixture.json",
+      "cardNo": "UNL-044/219",
+      "playerId": "P2",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highlander-bloodline-recall-if-destroyed.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-imperial-decree-damage-destroys-unit.fixture.json",
+      "cardNo": "OGN·221/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-janna-remove-damage-move-enemy-unit.fixture.json",
+      "cardNo": "SFD·053/221",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-laurent-duelist-counter-spell-power-by-cost.fixture.json",
+      "cardNo": "SFD·206/221",
+      "playerId": "P2",
+      "addedPrintedPower": 2,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-minimum-power-ordering-sequence.fixture.json",
+      "cardNo": "OGN·093/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-nightfall-lullaby-counter-spell.fixture.json",
+      "cardNo": "UNL-190/219",
+      "playerId": "P2",
+      "addedPrintedPower": 2,
+      "trait": "blue"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-noxian-guillotine-next-damage-destroys.fixture.json",
+      "cardNo": "OGN·254/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quick-counter-enemy-spell-targeting-friendly-unit.fixture.json",
+      "cardNo": "SFD·045/221",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-repel-counter-enemy-spell-targeting-chosen-friendly-unit.fixture.json",
+      "cardNo": "UNL-106/219",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reversal-gain-stack-spell-control.fixture.json",
+      "cardNo": "OGN·080/298",
+      "playerId": "P2",
+      "addedPrintedPower": 3,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stand-firm-prevent-spell-damage-this-turn.fixture.json",
+      "cardNo": "OGN·145/298",
+      "playerId": "P2",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tactical-retreat-recall-if-destroyed.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-wind-wall-counter-spell.fixture.json",
+      "cardNo": "OGN·064/298",
+      "playerId": "P2",
+      "addedPrintedPower": 2,
+      "trait": "green"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-banishes-if-destroyed-later.fixture.json",
+      "cardNo": "UNL-007/219",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-banishes-if-destroyed-later.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json",
+      "cardNo": "OGN·229/298",
+      "playerId": "P1",
+      "addedPrintedPower": 2,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json",
+      "cardNo": "OGN·144/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "orange"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-dangerous-duo-encourage-target-temp-might.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-junkyard-bully-encourage-discard-draw.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-junkyard-bully-encourage-discard-draw.fixture.json",
+      "cardNo": "OGN·020/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-noxian-recruit-encourage-cost-reduction.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-vanguard-captain-encourage-create-minions.fixture.json",
+      "cardNo": "SFD·222/221",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "red"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-vanguard-captain-encourage-create-minions.fixture.json",
+      "cardNo": "OGN·218/298",
+      "playerId": "P1",
+      "addedPrintedPower": 1,
+      "trait": "yellow"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p6-play-reaction-prophets-omen-in-priority.fixture.json",
+      "cardNo": "SFD·087/221",
+      "playerId": "P2",
+      "addedPrintedPower": 3,
+      "trait": "blue"
+    }
+  ]
+}

@@ -190,7 +190,7 @@ public sealed class OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests
             TimingState = TimingStates.NeutralOpen,
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(4, 0),
+                ["P1"] = new(4, 1),
                 ["P2"] = RunePool.Empty
             },
             PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)

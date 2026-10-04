@@ -83,7 +83,7 @@ public sealed class HostileTakeoverGuardTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Null(result.State.PendingPayment);
-        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(state.RunePools["P1"], result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-HOSTILE-TAKEOVER"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-FRIENDLY-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-HAND-UNIT"], result.State.PlayerZones["P2"].Hand);
@@ -596,7 +596,7 @@ public sealed class HostileTakeoverGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(5, 0),
+                ["P1"] = new(5, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -768,7 +768,7 @@ public sealed class HostileTakeoverGuardTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(5, 0),
+                ["P1"] = new(5, 2),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

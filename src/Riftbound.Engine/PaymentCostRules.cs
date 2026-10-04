@@ -331,19 +331,16 @@ public static class PaymentCostRules
             return false;
         }
 
-        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
-        {
-            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
-                || available < cost.Value)
-            {
-                return false;
-            }
+        return PowerDeficit(pool, anyPowerCost, powerCostByTrait) == 0;
+    }
 
-            remainingPowerByTrait[cost.Key] = available - cost.Value;
-        }
-
-        return pool.Power + remainingPowerByTrait.Values.Sum() >= anyPowerCost;
+    public static int PowerDeficit(RunePool pool, int anyPowerCost, IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        var costs = NormalizePowerCostByTrait(powerCostByTrait);
+        var coloredDeficit = costs.Sum(cost => Math.Max(0, cost.Value - pool.PowerByTrait.GetValueOrDefault(cost.Key)));
+        // Rainbow [A] may pay any trait; unrelated colored power cannot.
+        return Math.Max(Math.Max(0, coloredDeficit - pool.Power),
+            Math.Max(0, Math.Max(0, anyPowerCost) + costs.Values.Sum() - pool.TotalPower));
     }
 
     public static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
@@ -355,7 +352,10 @@ public static class PaymentCostRules
         var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
         {
-            remainingPowerByTrait[cost.Key] -= cost.Value;
+            var available = remainingPowerByTrait.GetValueOrDefault(cost.Key);
+            var coloredPayment = Math.Min(available, cost.Value);
+            remainingPowerByTrait[cost.Key] = available - coloredPayment;
+            remainingAnyPower -= cost.Value - coloredPayment;
         }
 
         var remainingAnyCost = anyPowerCost;

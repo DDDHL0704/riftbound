@@ -98,7 +98,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
     }
 
     [Fact]
-    public void PromptDoesNotExposeGenericTemporaryResourceForTypedRedHasteReadyPayment()
+    public void PromptExposesRainbowTemporaryResourceForTypedRedHasteReadyPayment()
     {
         const string genericTempResourceId = "MALZAHAR:TEMP-REKSAI-PROMPT";
         var genericTempAction = PaymentCostRules.TemporaryPaymentResourceActionId(genericTempResourceId);
@@ -132,13 +132,13 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .ToArray();
-        Assert.Equal([redRecycleAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, genericTempAction, StringComparison.Ordinal));
+        Assert.Equal([redRecycleAction, genericTempAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, genericTempAction, StringComparison.Ordinal));
 
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
-        Assert.DoesNotContain(genericTempAction, paymentResourcePowerByChoice.Keys);
-        var redChoicePower = Assert.Single(paymentResourcePowerByChoice);
+        Assert.Contains(genericTempAction, paymentResourcePowerByChoice.Keys);
+        var redChoicePower = Assert.Single(paymentResourcePowerByChoice, x => x.Key == redRecycleAction);
         Assert.Equal(redRecycleAction, redChoicePower.Key);
         Assert.Equal(RuneTrait.Red, redChoicePower.Value["trait"]);
 
@@ -485,7 +485,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
     [InlineData("unnecessary-recycle")]
     [InlineData("unsupported-optional-cost")]
     [InlineData("submitted-target")]
-    public async Task InvalidHasteReadyPaymentCommandsRejectWithoutMutation(string scenario)
+    public async Task HasteReadyPaymentAcceptsRainbowAndRejectsInvalidCommandsWithoutMutation(string scenario)
     {
         var state = InvalidScenarioState(scenario);
         var command = scenario switch
@@ -519,6 +519,14 @@ public sealed class ReksaiHasteReadyRedPaymentTests
             _ => ReksaiCommand(ReksaiCardNo)
         };
 
+        if (scenario == "generic-temporary-resource")
+        {
+            var accepted = await new CoreRuleEngine().ResolveAsync(state,
+                new("reksai-rainbow", "P1", CommandTypes.PlayCard), command, default);
+            Assert.True(accepted.Accepted, accepted.ErrorMessage);
+            Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
+            return;
+        }
         await AssertRejectedNoMutationAsync(state, command);
     }
 
