@@ -100,7 +100,7 @@ public sealed class MatchTableRenderer
             battlefield.OpponentUnits.AddChild(SecondaryLabel("暂无单位"));
             battlefield.OfficialSite.AddChild(SecondaryLabel("未放置场地"));
             battlefield.SelfUnits.AddChild(SecondaryLabel("暂无单位"));
-            battlefield.Standby.AddChild(SecondaryLabel("备战区为空"));
+            battlefield.Standby.AddChild(SecondaryLabel("待命区为空"));
             battlefield.State.Text = "等待战场数据";
         }
     }
@@ -239,11 +239,11 @@ public sealed class MatchTableRenderer
         var hiddenCount = ReadInt(lane, "hiddenStandbyCount");
         if (opponentCards.Count == 0 && selfCards.Count == 0 && hiddenCount == 0)
         {
-            parent.AddChild(SecondaryLabel("备战区为空"));
+            parent.AddChild(SecondaryLabel("待命区为空"));
             return;
         }
 
-        parent.AddChild(SecondaryLabel("对手备战"));
+        parent.AddChild(SecondaryLabel("对手待命"));
         var renderedHidden = 0;
         foreach (var card in opponentCards)
         {
@@ -261,7 +261,7 @@ public sealed class MatchTableRenderer
             AddCard(parent, NeutralHiddenCard(additionalHidden), _compactCardSize);
         }
 
-        parent.AddChild(SecondaryLabel("我方备战"));
+        parent.AddChild(SecondaryLabel("我方待命"));
         foreach (var card in selfCards)
         {
             AddCard(parent, card, _compactCardSize);

@@ -10,6 +10,11 @@
   "seed": 2603302813,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·200/221 奥术跃迁",
       "note": "官方卡面：《奥术跃迁》费用 3；迅捷；放逐一名友方单位，然后让其拥有者打出该单位，无视费用；对战场上的一名敌方单位造成 3 点伤害；放逐此牌。当前 fixture 将重新打出目的地限制为拥有者基地。"
@@ -275,7 +280,7 @@
           "tags": [
             "CARD_TYPE:UNIT"
           ],
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-ARCANE-SHIFT-ENEMY-001": {
           "damage": 3,

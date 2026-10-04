@@ -6294,7 +6294,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[playedObjectId].Zone);
         Assert.Equal(ProgressGloryMechanicalUnitCardNo, result.State.CardObjects[playedObjectId].CardNo);
         Assert.Contains("机械", result.State.CardObjects[playedObjectId].Tags);
-        Assert.False(result.State.CardObjects[playedObjectId].IsExhausted);
+        Assert.True(result.State.CardObjects[playedObjectId].IsExhausted); // CN 143.4.
         AssertNoHiddenZoneLeak(result);
     }
 

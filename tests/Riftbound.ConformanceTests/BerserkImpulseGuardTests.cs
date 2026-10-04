@@ -39,7 +39,9 @@ public sealed class BerserkImpulseGuardTests
         Assert.Equal(6, p2Pass.State.CardObjects["P2-TOP-UNIT"].Power);
         Assert.Equal(0, p2Pass.State.CardObjects["P2-TOP-UNIT"].UntilEndOfTurnPowerModifier);
         Assert.Empty(p2Pass.State.CardObjects["P2-TOP-UNIT"].UntilEndOfTurnEffects);
-        Assert.False(p2Pass.State.CardObjects["P2-TOP-UNIT"].IsExhausted);
+        Assert.True(p2Pass.State.CardObjects["P2-TOP-UNIT"].IsExhausted); // CN 143.4.
+        Assert.Equal("P2", p2Pass.State.CardObjects["P2-TOP-UNIT"].OwnerId);
+        Assert.Equal("P1", p2Pass.State.CardObjects["P2-TOP-UNIT"].ControllerId);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-BERSERK-IMPULSE", StringComparison.Ordinal)

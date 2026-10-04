@@ -1707,7 +1707,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "BOTTOM",
                 out _,
                 out _)
-            || !TryPlayGraveyardCardToBase(playerZones, cardObjects, intent.PlayerId, playedObjectId))
+            || !TryPlayGraveyardCardToBase(state, playerZones, cardObjects, intent.PlayerId, playedObjectId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -24683,6 +24683,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
         if (unitConquestPlayGraveyardMechanicalUnitTrigger is not null
             && TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger(
+                state,
                 playerZones,
                 cardObjects,
                 playerId,
@@ -25054,6 +25055,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -25117,7 +25119,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "BOTTOM",
                 out _,
                 out _)
-            || !TryPlayGraveyardCardToBase(playerZones, cardObjects, playerId, playedObjectId))
+            || !TryPlayGraveyardCardToBase(state, playerZones, cardObjects, playerId, playedObjectId))
         {
             return false;
         }
@@ -38447,7 +38449,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryPlayGraveyardCardToBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
+                if (!TryPlayGraveyardCardToBase(state, playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
                 {
                     continue;
                 }
@@ -38470,6 +38472,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
                 if (!TryPlayHandCardToBase(
+                        state,
                         playerZones,
                         cardObjects,
                         targetObjectId,
@@ -38511,6 +38514,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
                 if (!TryPlayOpponentTopMainDeckUnitToBase(
+                        state,
                         playerZones,
                         cardObjects,
                         stackItem.ControllerId,
@@ -39575,6 +39579,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     if (ShouldApplyBanishPlayToTarget(behavior, targetIndex)
                         && (behavior.BanishesTargetThenPlaysToBase || behavior.BanishesTargetThenPlaysToBattlefield)
                         && TryBanishTargetThenPlayToOwnerField(
+                            state,
                             playerZones,
                             cardObjects,
                             targetObjectId,
@@ -44059,92 +44064,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            ? sourceState
-            : new CardObjectState(stackItem.SourceObjectId);
-        var baseUnitPower = behavior.SourceUnitPower > 0
-            ? behavior.SourceUnitPower
-            : existingState.Power;
-        var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
-            ? baseUnitPower + zones.Graveyard.Count
-            : baseUnitPower;
-        var friendlyEquipmentPowerBonus = ResolveFriendlyEquipmentStaticPowerBonus(
-            behavior,
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId);
-        var levelApplies = ControllerMeetsLevelExperienceThreshold(
-            behavior,
-            stackItem.ControllerId,
-            playerExperience);
-        if (levelApplies)
-        {
-            unitPower += behavior.LevelSourceUnitPowerBonus;
-        }
-        unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
-        unitPower += friendlyEquipmentPowerBonus;
-
-        var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
-            behavior,
-            stackItem.OptionalCosts);
-        var exhaustsForUnpaidHasteReady = HasHasteReadyEntryCost(behavior) && !hasteReadyOptionalCostPaid;
-        var sourceReadyOptionalCostPaid = IsSourceReadyOptionalCostPaid(
-            behavior,
-            stackItem.OptionalCosts,
-            stackItem.ControllerId,
-            untilEndOfTurnEffects);
-        var entersReadyFromSourceUnitStaticAbility =
-            TryGetSourceUnitEnterReadyStaticAbility(
-                behavior,
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                stackItem.ControllerId,
-                playerExperience,
-                destroyedUnitOwnerIdsThisTurn,
-                IsStackItemBattlefieldDestination(stackItem),
-                out var sourceUnitEntryStaticAbility);
-        var entersReadyFromOtherFriendlyStaticAbility =
-            TryGetFriendlyUnitEnterReadyStaticAbilitySource(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                behavior.CardNo,
-                playerExperience,
-                out var entryStaticAbilitySourceObjectId,
-                out var entryStaticAbilitySourceState,
-                out var entryStaticAbility);
-        var appliedEntryStaticAbility = entersReadyFromSourceUnitStaticAbility
-            ? sourceUnitEntryStaticAbility
-            : entersReadyFromOtherFriendlyStaticAbility
-                ? entryStaticAbility
-                : null;
-        var appliedEntryStaticAbilitySourceObjectId = entersReadyFromSourceUnitStaticAbility
-            ? stackItem.SourceObjectId
-            : entryStaticAbilitySourceObjectId;
-        var appliedEntryStaticAbilitySourceCardNo = entersReadyFromSourceUnitStaticAbility
-            ? behavior.CardNo
-            : entryStaticAbilitySourceState.CardNo;
-        var unitState = existingState with
-        {
-            Power = unitPower,
-            IsExhausted = entersReadyFromSourceUnitStaticAbility
-                || entersReadyFromOtherFriendlyStaticAbility
-                || sourceReadyOptionalCostPaid
-                || hasteReadyOptionalCostPaid
-                    ? false
-                    : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
-            CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
-            Tags = existingState.Tags
-                .Concat([CardObjectTags.UnitCard])
-                .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
-                .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
-                .Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
-        };
+        var (unitState, hasteReadyOptionalCostPaid, sourceReadyOptionalCostPaid,
+            friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
+            appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
+            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
+                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
         playerZones[stackItem.ControllerId] = zones with
@@ -44203,88 +44127,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            ? sourceState
-            : new CardObjectState(stackItem.SourceObjectId);
-        var baseUnitPower = behavior.SourceUnitPower > 0
-            ? behavior.SourceUnitPower
-            : existingState.Power;
-        var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
-            ? baseUnitPower + zones.Graveyard.Count
-            : baseUnitPower;
-        var friendlyEquipmentPowerBonus = ResolveFriendlyEquipmentStaticPowerBonus(
-            behavior,
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId);
-        var levelApplies = ControllerMeetsLevelExperienceThreshold(
-            behavior,
-            stackItem.ControllerId,
-            playerExperience);
-        if (levelApplies)
-        {
-            unitPower += behavior.LevelSourceUnitPowerBonus;
-        }
-        unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
-        unitPower += friendlyEquipmentPowerBonus;
-
-        var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
-            behavior,
-            stackItem.OptionalCosts);
-        var exhaustsForUnpaidHasteReady = HasHasteReadyEntryCost(behavior) && !hasteReadyOptionalCostPaid;
-        var entersReadyFromSourceUnitStaticAbility =
-            TryGetSourceUnitEnterReadyStaticAbility(
-                behavior,
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                stackItem.ControllerId,
-                playerExperience,
-                destroyedUnitOwnerIdsThisTurn,
-                IsStackItemBattlefieldDestination(stackItem),
-                out var sourceUnitEntryStaticAbility);
-        var entersReadyFromOtherFriendlyStaticAbility =
-            TryGetFriendlyUnitEnterReadyStaticAbilitySource(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                behavior.CardNo,
-                playerExperience,
-                out var entryStaticAbilitySourceObjectId,
-                out var entryStaticAbilitySourceState,
-                out var entryStaticAbility);
-        var appliedEntryStaticAbility = entersReadyFromSourceUnitStaticAbility
-            ? sourceUnitEntryStaticAbility
-            : entersReadyFromOtherFriendlyStaticAbility
-                ? entryStaticAbility
-                : null;
-        var appliedEntryStaticAbilitySourceObjectId = entersReadyFromSourceUnitStaticAbility
-            ? stackItem.SourceObjectId
-            : entryStaticAbilitySourceObjectId;
-        var appliedEntryStaticAbilitySourceCardNo = entersReadyFromSourceUnitStaticAbility
-            ? behavior.CardNo
-            : entryStaticAbilitySourceState.CardNo;
-
-        var unitState = existingState with
-        {
-            Power = unitPower,
-            IsExhausted = entersReadyFromSourceUnitStaticAbility
-                || entersReadyFromOtherFriendlyStaticAbility
-                || hasteReadyOptionalCostPaid
-                || IsSourceReadyOptionalCostPaid(behavior, stackItem.OptionalCosts, stackItem.ControllerId, untilEndOfTurnEffects)
-                ? false
-                : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
-            CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
-            Tags = existingState.Tags
-                .Concat([CardObjectTags.UnitCard])
-                .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
-                .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
-                .Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
-        };
+        var (unitState, hasteReadyOptionalCostPaid, sourceReadyOptionalCostPaid,
+            friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
+            appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
+            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
+                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
         playerZones[stackItem.ControllerId] = zones with
@@ -46421,6 +46268,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryBanishTargetThenPlayToOwnerField(
+        MatchState context,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
@@ -46442,37 +46290,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
                 ? existingTargetState
                 : new CardObjectState(targetObjectId);
+            ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-                Banished = zones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Banished
-                    : zones.Banished.Concat([targetObjectId]).ToArray()
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
-
-            var banishedZones = playerZones[playerId];
-            playerZones[playerId] = banishedZones with
+            var ownerZones = playerZones[ownerPlayerId];
+            playerZones[ownerPlayerId] = ownerZones with
             {
-                Banished = RemoveFromZone(banishedZones.Banished, targetObjectId),
-                Base = playToBattlefield || banishedZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? banishedZones.Base
-                    : banishedZones.Base.Concat([targetObjectId]).ToArray(),
-                Battlefields = !playToBattlefield || banishedZones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? banishedZones.Battlefields
-                    : banishedZones.Battlefields.Concat([targetObjectId]).ToArray()
+                Base = playToBattlefield || ownerZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? ownerZones.Base : ownerZones.Base.Concat([targetObjectId]).ToArray(),
+                Battlefields = !playToBattlefield || ownerZones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? ownerZones.Battlefields : ownerZones.Battlefields.Concat([targetObjectId]).ToArray()
             };
-            cardObjects[targetObjectId] = targetState with
-            {
-                ObjectGeneration = checked(targetState.ObjectGeneration + 2),
-                Damage = 0,
-                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
-                UntilEndOfTurnEffects = [],
-                UntilEndOfTurnPowerModifier = 0,
-                UntilEndOfTurnPowerModifiers = [],
-                IsExhausted = false
-            };
-            ownerPlayerId = playerId;
+            InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
+                ownerPlayerId, ownerPlayerId, toBattlefield: playToBattlefield, crossedZones: 2);
             return true;
         }
 
@@ -46663,6 +46497,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryPlayGraveyardCardToBase(
+        MatchState context,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -46686,19 +46521,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
             ? existingTargetState
             : new CardObjectState(targetObjectId);
-        cardObjects[targetObjectId] = targetState with
-        {
-            Damage = 0,
-            Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
-            UntilEndOfTurnEffects = [],
-            UntilEndOfTurnPowerModifier = 0,
-            UntilEndOfTurnPowerModifiers = [],
-            IsExhausted = false
-        };
+        InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
+            NonFieldDestinationOwner(playerZones, targetState, playerId), playerId);
         return true;
     }
 
     private static bool TryPlayHandCardToBase(
+        MatchState context,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
@@ -46727,22 +46556,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : zones.Base.Concat([targetObjectId]).ToArray()
             };
 
-            targetState = targetState with
-            {
-                Damage = 0,
-                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
-                UntilEndOfTurnEffects = string.IsNullOrWhiteSpace(statusEffectId)
-                    ? []
-                    : targetState.UntilEndOfTurnEffects
-                        .Concat([statusEffectId])
-                        .Distinct(StringComparer.Ordinal)
-                        .OrderBy(effectId => effectId, StringComparer.Ordinal)
-                        .ToArray(),
-                UntilEndOfTurnPowerModifier = 0,
-                UntilEndOfTurnPowerModifiers = [],
-                IsExhausted = false
-            };
-            cardObjects[targetObjectId] = targetState;
+            targetState = InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
+                NonFieldDestinationOwner(playerZones, targetState, playerId), playerId,
+                statusEffectId: statusEffectId);
             ownerPlayerId = playerId;
             return true;
         }
@@ -46751,6 +46567,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryPlayOpponentTopMainDeckUnitToBase(
+        MatchState context,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string controllerId,
@@ -46791,16 +46608,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : controllerZones.Base.Concat([targetObjectId]).ToArray()
             };
 
-            targetState = targetState with
-            {
-                Damage = 0,
-                Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
-                UntilEndOfTurnEffects = [],
-                UntilEndOfTurnPowerModifier = 0,
-                UntilEndOfTurnPowerModifiers = [],
-                IsExhausted = false
-            };
-            cardObjects[targetObjectId] = targetState;
+            targetState = InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
+                NonFieldDestinationOwner(playerZones, targetState, playerId), controllerId);
             ownerPlayerId = playerId;
             return true;
         }

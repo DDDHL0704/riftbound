@@ -497,7 +497,7 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.Equal("SFD·065/221", mechanicalUnit.CardNo);
         Assert.Contains(CardObjectTags.UnitCard, mechanicalUnit.Tags);
         Assert.Contains("机械", mechanicalUnit.Tags);
-        Assert.False(mechanicalUnit.IsExhausted);
+        Assert.True(mechanicalUnit.IsExhausted); // CN 143.4 also applies to effect-driven plays.
         Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[RumbleRecycledUnitObjectId].Zone);
         Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[RumbleGraveyardMechanicalUnitObjectId].Zone);
     }

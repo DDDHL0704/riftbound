@@ -4218,12 +4218,12 @@ public partial class Main : Control
             : !string.IsNullOrWhiteSpace(reason)
                 ? reason
                 : actionable
-                    ? "请选择一个服务端候选行动。"
+                    ? "选择手牌或场上的卡牌行动，也可以结束回合。"
                     : "等待对手行动。";
         detail = detail switch
         {
             "当前玩家普通开环行动" => "选择手牌或场上的卡牌行动，也可以结束回合。",
-            "等待普通开行动玩家" => "对手正在行动，你可以查看公开卡牌。",
+            "等待普通开行动玩家" or "等待对手行动" or "等待对手行动。" => "对手正在行动，你可以查看手牌和公开卡牌。",
             _ => detail
         };
         _matchScreen.SetTurnStatus(

@@ -10,6 +10,11 @@
   "seed": 2603301981,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·198/298 蚀魂夜",
       "note": "官方卡面：费用 6；从你的废牌堆中打出一名单位，无视其法力费用，仍需支付所有符能费用。当前 fixture 锁定目的地受限模型下打出到基地的代表路径。"
@@ -190,7 +195,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

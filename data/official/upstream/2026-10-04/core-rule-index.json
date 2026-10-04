@@ -939,9 +939,10 @@
         "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
         "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
         "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain",
-        "OfficialStackTargetContinuityTests"
+        "OfficialStackTargetContinuityTests",
+        "OfficialEffectUnitEntryTests"
       ],
-      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
+      "remaining": "Ordinary/effect-play entry characteristics verified in selected paths. Complete nested play costs, optional choices, destinations, play triggers, tokens and full clause audit remain open."
     },
     {
       "rule": "124.2",
@@ -1980,13 +1981,21 @@
       "rule": "143.4",
       "page": 17,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialEffectUnitEntryTests"
+      ],
+      "remaining": "Ordinary/effect-play entry characteristics verified in selected paths. Complete nested play costs, optional choices, destinations, play triggers, tokens and full clause audit remain open."
     },
     {
       "rule": "143.4.a",
       "page": 17,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialEffectUnitEntryTests"
+      ],
+      "remaining": "Ordinary/effect-play entry characteristics verified in selected paths. Complete nested play costs, optional choices, destinations, play triggers, tokens and full clause audit remain open."
     },
     {
       "rule": "144",

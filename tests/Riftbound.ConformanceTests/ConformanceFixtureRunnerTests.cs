@@ -9283,7 +9283,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-HARROWING-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-GRAVE-OTHER-001", "P1-SPELL-HARROWING"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(4, result.FinalState.CardObjects["P1-HARROWING-GRAVE-UNIT-001"].Power);
-        Assert.False(result.FinalState.CardObjects["P1-HARROWING-GRAVE-UNIT-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-HARROWING-GRAVE-UNIT-001"].IsExhausted); // CN 143.4.
     }
 
     [Fact]
@@ -9303,7 +9303,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-GRAVE-OTHER-001"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-GHOST-MATRON"].Power);
         Assert.Equal(2, result.FinalState.CardObjects["P1-GHOST-MATRON-GRAVE-UNIT-001"].ManaCost);
-        Assert.False(result.FinalState.CardObjects["P1-GHOST-MATRON-GRAVE-UNIT-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-GHOST-MATRON-GRAVE-UNIT-001"].IsExhausted); // CN 143.4.
         Assert.Equal("BASE", result.FinalState.ObjectLocations["P1-GHOST-MATRON-GRAVE-UNIT-001"].Zone);
     }
 
@@ -9503,7 +9503,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-STEADFAST-LOYALTY-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-GRAVE-OTHER-001", "P1-SPELL-STEADFAST-LOYALTY"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, result.FinalState.CardObjects["P1-STEADFAST-LOYALTY-GRAVE-UNIT-001"].ManaCost);
-        Assert.False(result.FinalState.CardObjects["P1-STEADFAST-LOYALTY-GRAVE-UNIT-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-STEADFAST-LOYALTY-GRAVE-UNIT-001"].IsExhausted); // CN 143.4.
     }
 
     [Fact]
@@ -9524,7 +9524,7 @@ public sealed class ConformanceFixtureRunnerTests
             ["P1-CRUEL-REVIVAL-COST-UNIT-001", "P1-SPELL-CRUEL-REVIVAL", "P1-SPELL-INCINERATE"],
             result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, result.FinalState.CardObjects["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"].ManaCost);
-        Assert.False(result.FinalState.CardObjects["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"].IsExhausted); // CN 143.4.
     }
 
     [Fact]
@@ -22810,7 +22810,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-SPELL-BERSERK-IMPULSE"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(0, result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].Damage);
         Assert.Empty(result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].UntilEndOfTurnEffects);
-        Assert.False(result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].IsExhausted); // CN 143.4.
     }
 
     [Fact]

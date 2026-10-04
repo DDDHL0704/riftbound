@@ -10,6 +10,11 @@
   "seed": 2603301021,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·102/298 传送门大营救",
       "note": "官方卡面：费用 3；迅捷；放逐一名友方单位，然后让其拥有者将它打出到其所属基地，无视费用。"
@@ -206,7 +211,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

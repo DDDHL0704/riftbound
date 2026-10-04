@@ -10,6 +10,11 @@
   "seed": 2603302820,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·111/221 前来相助",
       "note": "官方卡面：费用 2；待命；迅捷；你可以选择将一名单位从手牌打出到你控制的一处战场，其费用减少 3。当前 fixture 覆盖选择一名 3 费友方手牌单位，费用减少至 0 后打出到控制者基地；待命、迅捷时机、战场选择和高于 3 费时的额外支付暂缓。"
@@ -192,7 +197,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         },
         "P1-HELP-ARRIVES-HAND-SPELL": {
           "manaCost": 1,

@@ -10,6 +10,11 @@
   "seed": 2603302837,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；此处仅验证入场状态，不代表嵌套打出的全部费用、目的地与触发流程完成。"
+    },
+    {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·025/298 暴怒冲动",
       "note": "官方卡面：费用 4；返还 2；迅捷；每名对手展示主牌堆顶一张牌，你从中选择一张，并当作自己的牌打出、无视费用，然后回收其余卡牌。当前 2P fixture 覆盖唯一对手牌堆顶为单位牌时，将其从对手主牌堆顶打出到来源控制者基地；多对手其余已展示牌回收、非单位牌免费打出分支和法术对决时机暂缓。"
@@ -193,7 +198,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-BERSERK-IMPULSE-DECK-KEEP": {
           "manaCost": 1,

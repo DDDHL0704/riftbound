@@ -10,6 +10,11 @@
   "seed": 2603302819,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-139/219 透骨尖钉",
       "note": "官方卡面：费用 2；待命；选择一处战场，让一名对手展示手牌；你可以从中选择一名单位，使该对手无视费用将该单位打出到该战场；如此做时眩晕该单位。当前 fixture 覆盖选择对手手牌单位、免费打出到对手基地并施加眩晕；待命、战场选择和展示手牌提示暂缓。"
@@ -196,7 +201,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": ["STUNNED"],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-BONE-SKEWER-HAND-SPELL": {
           "tags": ["CARD_TYPE:SPELL"]

@@ -10,6 +10,11 @@
   "seed": 2603302291,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-168/219 忠诚不渝",
       "note": "官方卡面：费用 2；若所选单位为指定动物属性则减费 2；从己方废牌堆打出一名费用不高于 2 且不高于当前法力费用的单位，无视其费用。当前 fixture 覆盖未触发属性减费时，选择 2 费废牌堆单位并打出到基地的代表路径；动物属性减费和完整目的地选择暂缓。"
@@ -163,7 +168,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

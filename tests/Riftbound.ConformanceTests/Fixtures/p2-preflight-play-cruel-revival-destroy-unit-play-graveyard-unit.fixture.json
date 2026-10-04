@@ -10,6 +10,11 @@
   "seed": 2603302813,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "2026-10-04: 普通单位由效果打出同样休眠入场；此处仅验证入场状态，不代表嵌套打出的全部费用、目的地与触发流程完成。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-142/219 残酷复活; OGS·003/024 焚烧",
       "note": "官方卡面：《残酷复活》费用 2；反应；必须摧毁一名友方单位作为额外费用；从己方废牌堆打出一名法力和符能费用不高于被摧毁单位的单位，无视其费用。《焚烧》用于打开优先权窗口。当前 fixture 覆盖反应时机、摧毁友方单位额外费用，以及法力费用不高于被摧毁单位的废牌堆单位打出到基地路径；符能费用维度和完整目的地选择暂缓。"
@@ -263,7 +268,7 @@
           "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-UNIT-CRUEL-REVIVAL-001": {
           "damage": 2,
