@@ -23,6 +23,8 @@ public partial class MovementOverlay : Control
     private readonly HashSet<string> _selected = new(StringComparer.Ordinal);
     private readonly List<(string Id, string Name, string[] Destinations)> _sources = [];
     private readonly List<string> _destinations = [];
+    private readonly Dictionary<string, string> _origins = new(StringComparer.Ordinal);
+    public string OriginFor(string objectId) => _origins.GetValueOrDefault(objectId, string.Empty);
     private readonly Dictionary<string, int> _powerPerExtraUnit = new(StringComparer.Ordinal);
     private readonly Dictionary<string, CheckBox> _checks = new(StringComparer.Ordinal);
     private Func<string, Godot.Collections.Dictionary?>? _cardView;
@@ -76,13 +78,14 @@ public partial class MovementOverlay : Control
         if (!candidate.TryGetProperty("metadata", out var metadata)
             || !metadata.TryGetProperty("supportsSimultaneousMovement", out var supported) || !supported.GetBoolean()
             || !metadata.TryGetProperty("sourceRequirements", out var requirements)) return false;
-        _sources.Clear(); _destinations.Clear(); _selected.Clear(); _destination.Clear(); _cardView = cardView;
+        _sources.Clear(); _destinations.Clear(); _selected.Clear(); _destination.Clear(); _origins.Clear(); _cardView = cardView;
         _powerPerExtraUnit.Clear(); _submitting = false; _feedback = "";
         if (metadata.TryGetProperty("powerPerExtraUnitByDestination", out var taxes))
             foreach (var tax in taxes.EnumerateObject()) _powerPerExtraUnit[tax.Name] = tax.Value.GetInt32();
         var destinations = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var group in requirements.EnumerateArray().GroupBy(item => item.GetProperty("sourceObjectId").GetString()!))
         {
+            _origins[group.Key] = group.First().GetProperty("origin").GetString() ?? string.Empty;
             var allowed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var requirement in group)
                 foreach (var choice in requirement.GetProperty("destinationChoices").EnumerateArray())

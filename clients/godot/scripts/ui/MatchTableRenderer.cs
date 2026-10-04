@@ -239,7 +239,7 @@ public sealed class MatchTableRenderer
         var style = MinimalTheme.Panel(new Color("1a2b44"));
         style.BorderColor = ReadBool(lane, "contested", false) ? MinimalTheme.Selected : controller == _viewerPlayerId
             ? new Color(MinimalTheme.Selectable, 0.55f) : controlled ? new Color(MinimalTheme.Hostile, 0.48f) : MinimalTheme.Border;
-        style.SetContentMarginAll(6); style.SetCornerRadiusAll(4); nodes.Panel.AddThemeStyleboxOverride("panel", style);
+        style.SetContentMarginAll(4); style.SetCornerRadiusAll(4); nodes.Panel.AddThemeStyleboxOverride("panel", style);
         var ownPower = ReadCards(lane, "selfUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
         var enemyPower = ReadCards(lane, "opponentUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
         nodes.Force.Text = $"战力  {ownPower} : {enemyPower}";

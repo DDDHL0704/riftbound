@@ -42,6 +42,7 @@ public partial class PlayCardOverlay
         var layout = MatchTableLayout.Column(panel, 8);
         MatchTableLayout.Label(layout, "打出卡牌", 22, MinimalTheme.Selected);
         MatchTableLayout.Label(layout, "直接点击牌桌上的目标或入场位置", 12, MinimalTheme.TextSecondary);
+        _origin = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; layout.AddChild(_origin);
         _source = new OptionButton { FitToLongestItem = false, CustomMinimumSize = new Vector2(0, 40) }; layout.AddChild(_source);
         _source.ItemSelected += _ => Rebuild();
         _preview = GD.Load<PackedScene>("res://scenes/components/OfficialCardView.tscn").Instantiate<OfficialCardView>();

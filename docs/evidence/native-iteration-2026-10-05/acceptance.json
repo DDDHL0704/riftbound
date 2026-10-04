@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-05",
+  "baselineCommit": "b0c5dcd6",
+  "sourceBranch": "codex/native-platform-20261004",
+  "backend": {
+    "testProject": "Riftbound.ConformanceTests",
+    "counts": {
+      "total": "9372",
+      "executed": "9372",
+      "passed": "9372",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx": "var/qa/iteration-2026-10-05/iteration-final.trx",
+    "trxSha256": "e45ae06dd16c0bc011ea2b1a2b3187762150d6a3e48294168d5f11f6eeb9ef77"
+  },
+  "client": {
+    "build": "0 warnings; 0 errors",
+    "tableBounds": [
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ],
+    "staticGates": [
+      "prompt-interaction-controller",
+      "auto-smoke-prompt-serialization",
+      "focused-prompt-overlays",
+      "minimal-responsive-scene"
+    ],
+    "networkSmokeLog": "var/qa/iteration-2026-10-05/native-network.log",
+    "finalLaunchLog": "var/qa/iteration-2026-10-05/final-artifact-launch.log",
+    "sourceSha256": "51ef46dd175e608cce002aa76f1dadb03a5013ce0a08d0e53d124fec6b751b28"
+  },
+  "performance": {
+    "machine": "Apple M4",
+    "display": "macOS",
+    "size": "(1440, 900)",
+    "sample": "synthetic full table with placeholder card faces",
+    "count": 900,
+    "meanMs": 8.685137777777777,
+    "medianMs": 8.643,
+    "p95Ms": 13.015,
+    "p99Ms": 18.983,
+    "maxMs": 73.387,
+    "interpretation": "Synthetic render sample only. Occasional >16.67ms frames observed; no claim of stable 60fps in all actual gameplay."
+  },
+  "fullGames": "full-games.json",
+  "macOs": {
+    "actualRuntime": true,
+    "outsideRepository": true,
+    "adHocSignatureVerified": true,
+    "developerIdSigned": false,
+    "notarized": false,
+    "fullGameCopies": "Bundle IDs changed for separate QA windows; executable, PCK and managed code copied from exports. Final unmodified artifact also launched outside repo."
+  },
+  "windows": {
+    "exported": true,
+    "actualRuntime": false,
+    "scaling100150200": false,
+    "crossPlatformNetwork": false,
+    "reason": "No accessible Windows runtime was provided or available in this session."
+  },
+  "artifacts": [
+    {
+      "name": "Riftbound-macos-universal.zip",
+      "platform": "macOS universal",
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261005/Riftbound-macos-universal.zip",
+      "bytes": 142034885,
+      "sha256": "96357fea02e7a79c4f5d6bd2306bb85ff09f7368decb5b88299d2a92233b5964"
+    },
+    {
+      "name": "Riftbound-windows-x64.zip",
+      "platform": "Windows x64",
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261005/Riftbound-windows-x64.zip",
+      "bytes": 88777321,
+      "sha256": "5b010d55ce740f3ef190187a8fb89a98a87cf2d3fcafc39eb55bd5d9401781b7"
+    }
+  ],
+  "screenshots": [
+    "m1-drag-verified.jpg",
+    "m1-move-accepted.jpg",
+    "m2-plain-immediate.jpg",
+    "m2-spell-awaits-response.jpg",
+    "m2-spell-resolved.jpg",
+    "m2-trigger-before-response.jpg",
+    "m2-trigger-resolved.jpg",
+    "m3-help-complete.jpg",
+    "m3-help-recovered-quote.jpg",
+    "m4-battle-declaration.jpg",
+    "m4-battle-resolved.jpg",
+    "m4-contested-final-table.jpg",
+    "m4-final-artifact-launch.jpg",
+    "m4-game-one-win.jpg",
+    "m4-game-two-win.jpg",
+    "m4-left-drag.jpg",
+    "m4-long-hand.jpg",
+    "m4-right-drag.jpg"
+  ],
+  "knownLimitations": [
+    "Post-entry target selection and fully independent simultaneous play triggers remain incomplete.",
+    "Standby reveal cost/timing and general source-generation last-known-information handling remain outside the completed ordinary-play path.",
+    "Plan B and other effect-play families have not all migrated.",
+    "Active catalog remains 1009 entries; upstream 1414 entries are downloaded evidence, not complete playable coverage.",
+    "Windows runtime, DPI, input, reconnect and cross-platform acceptance are pending.",
+    "Full accessibility and real-texture game performance have not been certified."
+  ],
+  "implementationCommits": {
+    "table": "ecdaa744",
+    "permanentConfirmation": "96b11e11",
+    "effectPlayAndRecovery": "a2a26053",
+    "clientAndEvidence": "containing commit"
+  }
+}

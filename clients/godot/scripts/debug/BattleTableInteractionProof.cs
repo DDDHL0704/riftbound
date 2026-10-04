@@ -32,6 +32,7 @@ public partial class BattleTableInteractionProof : Control
             var play = new PlayCardOverlay { TableMode = true }; screen.ComposerHost.AddChild(play);
             var source = moveCandidate.GetProperty("metadata").GetProperty("sourceRequirements")[0].GetProperty("sourceObjectId").GetString()!;
             Check(movement.Open(moveCandidate, "TABLE-PROOF", 1, Visible, label => label, source), "Movement candidate must open");
+            Check(movement.OriginFor(source) == "BASE", "Native movement must retain its server-authored origin for recovery");
             Check(movement.TableSelectedObjects.SequenceEqual(new[] { source }), "Clicking a unit must preselect exactly that unit");
             Check(!movement.TryToggleTableSource("not-authorized"), "Unknown source cannot be selected");
             Check(!movement.TrySelectTableDestination("BATTLEFIELD:invented"), "Unknown destination cannot be selected");
@@ -62,6 +63,9 @@ public partial class BattleTableInteractionProof : Control
             var confirm = (Button)play.FindChild("ConfirmPlayCardButton", true, false);
             play.ApplyQuote(new(old.RequestId, old.PromptId, old.SnapshotTick, true, true, "old quote"));
             Check(confirm.Disabled, "A previous prompt cannot authorize the new table selection");
+            Check(play.TrySelectTableObject(target), "Current target must remain selectable");
+            play.ApplyQuote(PlayCostQuoteDto.Rejected(latest!, -1, "PLAYER_NOT_IN_ROOM", "请先恢复对局。"));
+            Check(confirm.Disabled && confirm.Text == "确认打出", "A current rejected quote with no server tick must leave waiting state without enabling submit");
             play.Hide();
 
             CardDictionary Player(string id) => new()
@@ -95,6 +99,18 @@ public partial class BattleTableInteractionProof : Control
             screen.DropOnObject(drag, "one-opponent-0"); Check(drops == 1, "Valid drop edits one table selection");
             screen.InvalidateTableGesture(); screen.DropOnObject(drag, "one-opponent-0");
             Check(drops == 1 && !screen.CanDropOnDestination(drag, "BATTLEFIELD:one"), "Esc/snapshot invalidation must reject old drag tokens");
+            screen.ClearPromptStates(); screen.SetDestinationChoices(["BATTLEFIELD:one", "BATTLEFIELD:two"]);
+            var destinationsDropped = new List<string>(); screen.DestinationActivated += destinationsDropped.Add;
+            for (var side = 0; side < 2; side++)
+            {
+                screen.BeginTableDrag(Visible("own-hand-0"));
+                screen._Notification((int)Control.NotificationDragEnd);
+                screen._Input(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false,
+                    GlobalPosition = screen.TableLayout.Battlefields[side].Panel.GetGlobalRect().GetCenter() });
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            }
+            Check(destinationsDropped.SequenceEqual(new[] { "BATTLEFIELD:one", "BATTLEFIELD:two" }),
+                "DragEnd before release must preserve window coordinates for both battlefield destinations");
             Check(screen.TableLayout.OpponentHand.GetChildren().OfType<OfficialCardView>().All(card => !card.TryGetVisibleCard(out _)), "Opponent hand must remain anonymous");
             screen.SetComposerVisible(true); play.Open(playCandidate, "BOUNDS", 4, Visible, spellId);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -115,6 +131,44 @@ public partial class BattleTableInteractionProof : Control
             Check(controller.TrySelectChoice("source", "ability-b") && controller.Current?.CanSubmit == true, "Explicit server alias must remain selectable");
             ambiguousPrompt["snapshotTick"] = 2L; controller.Load(ambiguousPrompt);
             Check(controller.Current is null, "A new snapshot must discard the previous card choice");
+            using var battleCandidate = JsonDocument.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(path)!, "battle-declaration-prompt.json")));
+            var battle = new BattleDeclarationOverlay(); screen.ComposerHost.AddChild(battle);
+            Check(battle.Open(battleCandidate.RootElement, "BATTLE", 8, _ => "参战卡牌"), "Real native battle candidate must open");
+            var battleCount = 0;
+            battle.Confirmed += payload =>
+            {
+                battleCount++;
+                Check(((string[])payload["optionalCosts"]!).Contains("COMBAT_ASSIGNMENT"), "Server-required battle flag must be included without a player checkbox");
+                Check(((string[])payload["attackerObjectIds"]!).Length == 1 && ((string[])payload["defenderObjectIds"]!).Length == 1, "Both forced participants must be retained");
+                Check(!payload.TryGetValue("battlefieldTargetObjectIds", out var extra) || ((string[])extra!).Length == 0, "Battlefield location must never become an extra effect target");
+            };
+            var battleConfirm = (Button)battle.FindChild("ConfirmBattleButton", true, false);
+            Check(!battleConfirm.Disabled, "Forced legal participants need no additional choice");
+            battleConfirm.EmitSignal(Button.SignalName.Pressed); battleConfirm.EmitSignal(Button.SignalName.Pressed);
+            Check(battleCount == 1 && battle.IsSubmitting, "Battle confirmation must block duplicates");
+            battle.ApplyReceipt("old", 7, true, "old"); Check(battle.Visible, "Stale battle receipt cannot dismiss current selection");
+            battle.ApplyReceipt("BATTLE", 8, false, "重试"); Check(battle.Visible && !battleConfirm.Disabled, "Battle rejection must remain correctable");
+            battle.ApplyReceipt("BATTLE", 8, true, "ok"); Check(!battle.Visible, "Accepted battle closes its composer");
+            if (OS.GetCmdlineUserArgs().Contains("--measure-rendered-frames"))
+            {
+                Check(DisplayServer.GetName() != "headless", "Frame measurement requires an actual rendered window");
+                for (var i = 0; i < 120; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                var samples = new double[900];
+                var last = Time.GetTicksUsec();
+                for (var i = 0; i < samples.Length; i++)
+                {
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    var now = Time.GetTicksUsec(); samples[i] = (now - last) / 1000d; last = now;
+                }
+                Array.Sort(samples);
+                GD.Print("TABLE_FRAME_METRICS " + JsonSerializer.Serialize(new
+                {
+                    machine = OS.GetProcessorName(), display = DisplayServer.GetName(),
+                    size = GetViewportRect().Size.ToString(), sample = "synthetic full table with placeholder card faces",
+                    count = samples.Length, meanMs = samples.Average(), medianMs = samples[450],
+                    p95Ms = samples[854], p99Ms = samples[890], maxMs = samples[^1]
+                }));
+            }
             GD.Print("BATTLE_TABLE_INTERACTION_PASS"); GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }

@@ -71,6 +71,9 @@ public partial class Main : Control
     private CancellationTokenSource? _playCostPreviewCancellation;
     private MovementOverlay? _movementOverlay;
     private Godot.Collections.Dictionary? _movementAction;
+    private BattleDeclarationOverlay? _battleDeclaration;
+    private Godot.Collections.Dictionary? _battleDeclarationAction;
+    private bool _promptSubmissionInFlight;
     private RiftboundGameHubClient? _hub;
     private string _authenticatedHandle = string.Empty;
     private string _visualScreenshotPath = string.Empty;
@@ -225,6 +228,11 @@ public partial class Main : Control
 
     private bool HandleKeyboardAction(InputEvent input)
     {
+        if (_battleDeclaration?.Visible == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection") && !_battleDeclaration.IsSubmitting) _battleDeclaration.Hide();
+            return input.IsActionPressed("ui_cancel_selection");
+        }
         if (input.IsActionPressed("ui_cancel_selection")) _matchScreen?.InvalidateTableGesture();
         if (_playCardOverlay?.IsVisibleInTree() == true)
         {
@@ -354,6 +362,12 @@ public partial class Main : Control
 
     private void WireButtons()
     {
+        _battleDeclaration = new BattleDeclarationOverlay(); _matchScreen!.ComposerHost.AddChild(_battleDeclaration);
+        _battleDeclaration.VisibilityChanged += RefreshTableComposer;
+        _battleDeclaration.Confirmed += payload =>
+        {
+            if (_battleDeclarationAction is not null) _ = SubmitTableActionAsync(_battleDeclarationAction, payload, "declare_battle");
+        };
         _playCardOverlay = new PlayCardOverlay { TableMode = true }; _matchScreen!.ComposerHost.AddChild(_playCardOverlay);
         _playCardOverlay.VisibilityChanged += RefreshTableComposer;
         _playCardOverlay.TableSelectionChanged += RefreshPromptInteractionVisuals;
@@ -371,7 +385,7 @@ public partial class Main : Control
             _ = SubmitTableActionAsync(_movementAction, new Dictionary<string, object?>
             {
                 ["cmdType"] = "MOVE_UNIT", ["sourceObjectId"] = ids[0], ["sourceObjectIds"] = ids,
-                ["destination"] = destination
+                ["origin"] = _movementOverlay.OriginFor(ids[0]), ["destination"] = destination
             }, "move_units");
         };
         _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
@@ -389,7 +403,7 @@ public partial class Main : Control
         _matchScreen.DestinationActivated += HandleTableDestination;
         _matchScreen.TableDragRequested = card =>
         {
-            if (_playCardOverlay?.IsSubmitting == true || _movementOverlay?.IsSubmitting == true) return false;
+            if (_playCardOverlay?.IsSubmitting == true || _movementOverlay?.IsSubmitting == true || _battleDeclaration?.Visible == true) return false;
             var id = card.TryGetValue("objectId", out var value) ? value.AsString() : "";
             if (_playCardOverlay?.Visible == true && _playCardOverlay.TableSelectedObjects.FirstOrDefault() == id) return true;
             if (_movementOverlay?.Visible == true && _movementOverlay.TableSelectedObjects.Contains(id)) return true;
@@ -416,6 +430,7 @@ public partial class Main : Control
 
     private void HandleMatchCardActivated(Godot.Collections.Dictionary card)
     {
+        if (_battleDeclaration?.Visible == true) { _matchScreen?.PreviewCard(card); return; }
         var objectId = card.TryGetValue("objectId", out var objectValue)
             ? objectValue.AsString()
             : string.Empty;
@@ -459,7 +474,7 @@ public partial class Main : Control
 
     private void RefreshTableComposer()
     {
-        var composing = _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true;
+        var composing = _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true || _battleDeclaration?.Visible == true;
         _matchScreen?.SetComposerVisible(composing);
         _matchScreen?.ActionBar.SetComposerActive(composing);
         RefreshPromptInteractionVisuals();
@@ -474,8 +489,8 @@ public partial class Main : Control
         try
         {
             await Task.Delay(120, token);
-            if (!IsConnected() || _hub is null) return;
-            var quote = await _hub.PreviewPlayCardAsync(_session.RoomId, request, token);
+            if (!IsConnected() || _hub is null) throw new InvalidOperationException("连接尚未恢复。");
+            var quote = await _hub.PreviewPlayCardAsync(_session.RoomId, request, token).WaitAsync(TimeSpan.FromSeconds(10), token);
             if (!token.IsCancellationRequested) QueueMainThread(nameof(ApplyPlayCostQuote), JsonSerializer.Serialize(quote));
         }
         catch (OperationCanceledException) { }
@@ -505,10 +520,21 @@ public partial class Main : Control
 
     private void HandlePromptActionSelected(string actionName)
     {
-        _playCardOverlay?.Hide(); _movementOverlay?.Hide();
+        if (_promptSubmissionInFlight) return;
+        _playCardOverlay?.Hide(); _movementOverlay?.Hide(); _battleDeclaration?.Hide();
+        if (actionName == "DECLARE_BATTLE" && TryGetCurrentSpecialAction(actionName, out var battleAction))
+        {
+            using var battle = JsonDocument.Parse(battleAction["candidateJson"].AsString());
+            string CardName(string id) => VisibleTableCardView(id, true) is { } view && view.TryGetValue("cardName", out var name) ? name.AsString() : "公开卡牌";
+            if (_battleDeclaration?.Open(battle.RootElement, battleAction["promptId"].AsString(), battleAction["snapshotTick"].AsInt64(), CardName) == true)
+            { _battleDeclarationAction = battleAction; _promptInteractionController.ClearSelection(); return; }
+        }
         if (actionName == "PLAY_CARD" && TryOpenPlayCard()) return;
         if (actionName == "MOVE_UNIT" && TryOpenMovement()) return;
-        _promptInteractionController.SelectAction(actionName);
+        if (!_promptInteractionController.SelectAction(actionName)) return;
+        if (actionName is "PASS_PRIORITY" or "PASS_FOCUS" or "END_TURN"
+            && _promptInteractionController.Current is { CanSubmit: true } state)
+            _ = SubmitPromptSelectionAsync(state);
     }
 
     private bool TryOpenMovement(string? sourceId = null)
@@ -698,6 +724,7 @@ public partial class Main : Control
 
     private async Task SubmitPromptSelectionAsync(PromptSelectionState state)
     {
+        if (_promptSubmissionInFlight) return;
         var current = _promptInteractionController.Current;
         var action = _promptInteractionController.CurrentActionDictionary();
         if (current is null
@@ -710,6 +737,7 @@ public partial class Main : Control
             return;
         }
 
+        _promptSubmissionInFlight = true;
         _matchScreen?.ActionBar.SetPending(true);
         try
         {
@@ -747,6 +775,7 @@ public partial class Main : Control
         }
         finally
         {
+            _promptSubmissionInFlight = false;
             _matchScreen?.ActionBar.SetPending(false);
             _promptInteractionController.ClearSelection();
         }
@@ -1458,6 +1487,7 @@ public partial class Main : Control
     {
         _playCardOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
         _movementOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
+        _battleDeclaration?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
     }
 
     private async Task SubmitTableActionAsync(Godot.Collections.Dictionary action, Dictionary<string, object?> payload, string suffix)
@@ -1647,7 +1677,8 @@ public partial class Main : Control
             "selectedTargets" => selection.TargetObjectIds,
             "selectedDestination" => selection.DestinationId,
             "selectedMode" => selection.Mode,
-            "selectedOptionalCosts" => selection.OptionalCostIds,
+            "selectedOptionalCosts" => selection.OptionalCostIds.Concat(requirement is { } required
+                ? ReadStringArray(required, "requiredOptionalCosts") : []).Distinct(StringComparer.Ordinal).ToArray(),
             "candidateMetadata" => MetadataTemplateValue(binding, MetadataElement(candidate)),
             "requirementMetadata" => MetadataTemplateValue(binding, requirement),
             _ => null
@@ -3759,6 +3790,8 @@ public partial class Main : Control
         }
 
         var code = ReadString(element, "code");
+        if (code == "RECOVERY_INCONSISTENT")
+            SetStatus("这局暂时无法恢复，已保存记录仍保留。请检查服务端后重试。");
         if (string.Equals(code, ErrorCodes.InvalidReconnectToken, StringComparison.Ordinal))
         {
             _session = _session with { ReconnectToken = null };
@@ -4056,6 +4089,7 @@ public partial class Main : Control
         _matchScreen?.SetConnectionStatus(connected, recovering);
         if (!connected)
         {
+            _battleDeclaration?.Hide();
             _promptInteractionController.ClearSelection();
             _movementOverlay?.Hide();
             _playCardOverlay?.Hide();
@@ -4409,6 +4443,8 @@ public partial class Main : Control
     private void PresentPromptInteraction(Godot.Collections.Dictionary view)
     {
         if (!IsConnected()) return;
+        if (_battleDeclaration?.Visible == true && (_battleDeclaration.PromptId != view["promptId"].AsString()
+            || _battleDeclaration.SnapshotTick != view["snapshotTick"].AsInt64())) _battleDeclaration.Hide();
         if (_playCardOverlay?.Visible == true
             && (_playCardOverlay.PromptId != view["promptId"].AsString()
                 || _playCardOverlay.SnapshotTick != view["snapshotTick"].AsInt64()))

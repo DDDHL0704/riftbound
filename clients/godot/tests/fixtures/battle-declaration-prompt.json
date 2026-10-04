@@ -1,0 +1,255 @@
+{
+  "action": "DECLARE_BATTLE",
+  "label": "\u58F0\u660E\u6218\u6597",
+  "enabled": true,
+  "reason": "\u8BF7\u4E3A\u4E89\u593A\u6218\u573A\u58F0\u660E\u6218\u6597",
+  "sources": [
+    {
+      "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09",
+      "label": "OGN\u00B7096/298",
+      "reason": "implemented declare battle attacker source",
+      "objectIds": [
+        "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09"
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "id": "\u5B8C\u6574\u5BF9\u5C40\u4E59-MAIN-SFD-018-221-16",
+      "label": "SFD\u00B7018/221",
+      "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u9632\u5B88\u5355\u4F4D",
+      "objectIds": [
+        "\u5B8C\u6574\u5BF9\u5C40\u4E59-MAIN-SFD-018-221-16"
+      ]
+    }
+  ],
+  "destinations": [
+    {
+      "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-BATTLEFIELD-OGN-278-298-01",
+      "label": "OGN\u00B7278/298",
+      "reason": "\u5F53\u524D\u4E89\u593A\u6218\u573A\u6218\u6597\u4EFB\u52A1",
+      "objectIds": [
+        "\u5B8C\u6574\u5BF9\u5C40\u7532-BATTLEFIELD-OGN-278-298-01"
+      ]
+    }
+  ],
+  "optionalCosts": [
+    {
+      "id": "COMBAT_ASSIGNMENT",
+      "label": "\u6218\u6597\u5206\u914D",
+      "reason": "\u670D\u52A1\u7AEF\u5F53\u524D\u4EE3\u8868\u8DEF\u5F84\u5FC5\u9700",
+      "objectIds": [
+        "COMBAT_ASSIGNMENT"
+      ]
+    }
+  ],
+  "metadata": {
+    "sourcePolicy": "implemented-declare-battle-attacker-only",
+    "targetPolicy": "source-specific-server-filtered-defenders",
+    "attackerCount": 1,
+    "attackerCountMax": 1,
+    "attackerCountMin": 1,
+    "defenderCountMax": 1,
+    "defenderCountMin": 1,
+    "battlefieldPolicy": "source-specific-server-filtered-battlefields",
+    "candidateFiltering": "battlefield-zone-controlled-face-up-units-not-already-in-combat",
+    "optionalCostPolicy": "source-specific-required-combat-assignment-plus-server-filtered-brush-score-replacement",
+    "sourceRequirements": [
+      {
+        "cardNo": "OGN\u00B7096/298",
+        "composable": true,
+        "displayName": "OGN\u00B7096/298",
+        "availablePower": 0,
+        "sourceObjectId": "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09",
+        "maxAttackerCount": 1,
+        "maxDefenderCount": 1,
+        "minAttackerCount": 1,
+        "minDefenderCount": 1,
+        "unsupportedReason": null,
+        "attackerCountLabel": "\u5168\u90E8 1 \u540D\u8FDB\u653B\u5355\u4F4D",
+        "battlefieldChoices": [
+          {
+            "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-BATTLEFIELD-OGN-278-298-01",
+            "label": "OGN\u00B7278/298",
+            "reason": "\u5F53\u524D\u4E89\u593A\u6218\u573A\u6218\u6597\u4EFB\u52A1"
+          }
+        ],
+        "defenderCountLabel": "\u5168\u90E8 1 \u540D\u9632\u5B88\u5355\u4F4D",
+        "optionalCostChoices": [
+          {
+            "id": "COMBAT_ASSIGNMENT",
+            "label": "\u6218\u6597\u5206\u914D",
+            "reason": "\u670D\u52A1\u7AEF\u5F53\u524D\u4EE3\u8868\u8DEF\u5F84\u5FC5\u9700"
+          }
+        ],
+        "targetChoicesByIndex": {
+          "0": [
+            {
+              "id": "\u5B8C\u6574\u5BF9\u5C40\u4E59-MAIN-SFD-018-221-16",
+              "label": "SFD\u00B7018/221",
+              "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u9632\u5B88\u5355\u4F4D"
+            }
+          ]
+        },
+        "requiredOptionalCosts": [
+          "COMBAT_ASSIGNMENT"
+        ],
+        "attackerChoicesByIndex": {
+          "0": [
+            {
+              "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09",
+              "label": "OGN\u00B7096/298",
+              "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u653B\u51FB\u5355\u4F4D"
+            }
+          ]
+        },
+        "battlefieldTargetScope": "",
+        "paymentResourceChoices": [],
+        "maxBattlefieldTargetCount": 0,
+        "minBattlefieldTargetCount": 0,
+        "paymentResourcePowerByChoice": {},
+        "battlefieldTargetChoicesByIndex": {},
+        "availablePowerWithPaymentResources": 0
+      }
+    ],
+    "multiAttackerPolicy": "all-units-at-physical-battlefield",
+    "multiDefenderPolicy": "all-units-at-physical-battlefield",
+    "multiParticipantBattlePolicy": "server-includes-all-physical-battlefield-participants",
+    "samePriorityAssignmentPolicy": "preserve-player-submitted-object-order-within-same-priority"
+  },
+  "selectionSteps": [
+    {
+      "role": "source",
+      "label": "\u6765\u6E90",
+      "required": true,
+      "choices": [
+        {
+          "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09",
+          "label": "OGN\u00B7096/298",
+          "objectIds": [
+            "\u5B8C\u6574\u5BF9\u5C40\u7532-MAIN-OGN-096-298-09"
+          ],
+          "reason": "implemented declare battle attacker source"
+        }
+      ]
+    },
+    {
+      "role": "target",
+      "label": "\u76EE\u6807",
+      "required": true,
+      "choices": [
+        {
+          "id": "\u5B8C\u6574\u5BF9\u5C40\u4E59-MAIN-SFD-018-221-16",
+          "label": "SFD\u00B7018/221",
+          "objectIds": [
+            "\u5B8C\u6574\u5BF9\u5C40\u4E59-MAIN-SFD-018-221-16"
+          ],
+          "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u9632\u5B88\u5355\u4F4D"
+        }
+      ]
+    },
+    {
+      "role": "destination",
+      "label": "\u4F4D\u7F6E",
+      "required": true,
+      "choices": [
+        {
+          "id": "\u5B8C\u6574\u5BF9\u5C40\u7532-BATTLEFIELD-OGN-278-298-01",
+          "label": "OGN\u00B7278/298",
+          "objectIds": [
+            "\u5B8C\u6574\u5BF9\u5C40\u7532-BATTLEFIELD-OGN-278-298-01"
+          ],
+          "reason": "\u5F53\u524D\u4E89\u593A\u6218\u573A\u6218\u6597\u4EFB\u52A1"
+        }
+      ]
+    },
+    {
+      "role": "optionalCost",
+      "label": "\u8D39\u7528",
+      "required": false,
+      "choices": [
+        {
+          "id": "COMBAT_ASSIGNMENT",
+          "label": "\u6218\u6597\u5206\u914D",
+          "objectIds": [
+            "COMBAT_ASSIGNMENT"
+          ],
+          "reason": "\u670D\u52A1\u7AEF\u5F53\u524D\u4EE3\u8868\u8DEF\u5F84\u5FC5\u9700"
+        }
+      ]
+    }
+  ],
+  "commandTemplate": {
+    "cmdType": "DECLARE_BATTLE",
+    "bindings": [
+      {
+        "field": "attackerObjectIds",
+        "source": "selectedSource",
+        "required": true,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u6765\u6E90"
+      },
+      {
+        "field": "battlefieldId",
+        "source": "selectedDestination",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "battlefieldTargetObjectIds",
+        "source": "selectedDestination",
+        "required": true,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "defenderObjectIds",
+        "source": "selectedTargets",
+        "required": true,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u76EE\u6807"
+      },
+      {
+        "field": "optionalCosts",
+        "source": "selectedOptionalCosts",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u8D39\u7528"
+      }
+    ]
+  },
+  "composer": {
+    "supported": true,
+    "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+    "selectionRoles": [
+      "destination",
+      "optionalCost",
+      "source",
+      "target"
+    ],
+    "requiredSelectionRoles": [
+      "destination",
+      "source",
+      "target"
+    ],
+    "commandFields": [
+      "attackerObjectIds",
+      "battlefieldId",
+      "battlefieldTargetObjectIds",
+      "defenderObjectIds",
+      "optionalCosts"
+    ]
+  },
+  "presentation": {
+    "category": "battle",
+    "intent": "declare-battle",
+    "uiHint": "battle",
+    "priority": 130
+  }
+}

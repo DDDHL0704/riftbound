@@ -17,6 +17,7 @@ public partial class PlayCardOverlay : Control
     private OptionButton _source = null!;
     private VBoxContainer _choices = null!;
     private Label _cost = null!;
+    private Label _origin = null!;
     private Label _status = null!;
     private Button _confirm = null!;
     private Button _cancel = null!;
@@ -62,6 +63,7 @@ public partial class PlayCardOverlay : Control
         _cost = new Label { CustomMinimumSize = new Vector2(220, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         costScroll.AddChild(_cost);
         var right = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(630, 0) }; body.AddChild(right);
+        _origin = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; right.AddChild(_origin);
         _source = new OptionButton { CustomMinimumSize = new Vector2(0, 42), FitToLongestItem = false }; right.AddChild(_source);
         _source.ItemSelected += _ => Rebuild();
         var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 365), SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
@@ -101,6 +103,8 @@ public partial class PlayCardOverlay : Control
         _targets.Clear(); _optional.Clear(); _destination = null; _printed = null;
         var requirement = _requirements[_source.Selected];
         RefreshCardPreview();
+        _origin.Text = Text(requirement, "effectPlayReason");
+        _origin.Visible = _origin.Text.Length > 0;
         _cost.Text = $"卡面费用  {Number(requirement, "manaCost")} 法力 · {Number(requirement, "printedPowerCost")} 符能\n"
             + $"当前最低法力  {Number(requirement, "minimumManaCost")}\n\n可用资源  {Number(requirement, "availableMana")} 法力 · {Number(requirement, "availablePower")} 符能";
         _composable = !requirement.TryGetProperty("composable", out var composable) || composable.GetBoolean();
@@ -208,7 +212,8 @@ public partial class PlayCardOverlay : Control
 
     public void ApplyQuote(PlayCostQuoteDto quote)
     {
-        if (!Visible || quote.RequestId != _quoteRequestId || quote.PromptId != PromptId || quote.SnapshotTick != SnapshotTick) return;
+        if (!Visible || quote.RequestId != _quoteRequestId || quote.PromptId != PromptId
+            || (quote.IsValid && quote.SnapshotTick != SnapshotTick)) return;
         _quote = quote;
         _cost.Text = quote.Message;
         if (quote.Cost is { } cost)

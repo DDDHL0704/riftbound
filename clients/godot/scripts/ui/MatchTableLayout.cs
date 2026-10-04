@@ -54,9 +54,11 @@ internal sealed class MatchTableLayout
         ReduceMotion.AddThemeFontSizeOverride("font_size", 12); head.AddChild(ReduceMotion);
 
         var main = Row(Root, 12); main.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        var playArea = Column(main, 6);
+        playArea.SizeFlagsHorizontal = playArea.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         var boardScroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        main.AddChild(boardScroll);
+        playArea.AddChild(boardScroll);
         var table = Column(boardScroll, 8); table.SizeFlagsHorizontal = table.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         var opponent = Panel(table, new Color("17273e"));
         var enemyRow = Row(opponent, 12);
@@ -76,7 +78,7 @@ internal sealed class MatchTableLayout
         selfIdentity.AddChild(BaseDestination);
         SelfPublicZones = CardStrip(selfRow, 78);
 
-        var hand = Panel(table, new Color("101c30"));
+        var hand = Panel(playArea, new Color("101c30"));
         var handColumn = Column(hand, 5);
         var handHeader = Row(handColumn);
         var handTitle = Label(handHeader, "手牌 · 拖动或点选出牌", 12, MinimalTheme.TextSecondary); handTitle.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -130,7 +132,7 @@ internal sealed class MatchTableLayout
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, MouseFilter = Control.MouseFilterEnum.Ignore,
             Modulate = new Color(0.65f, 0.8f, 0.88f, 0.08f) };
         panel.AddChild(backdrop);
-        var content = Column(panel, 4);
+        var content = Column(panel, 2);
         var header = Row(content);
         var site = new HBoxContainer(); header.AddChild(site);
         var titles = Column(header, 2); titles.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -154,7 +156,7 @@ internal sealed class MatchTableLayout
     {
         var panel = new TableDropZone(); parent.AddChild(panel);
         var style = MinimalTheme.Panel(color); style.BorderColor = new Color("293c55");
-        style.SetContentMarginAll(6); style.SetCornerRadiusAll(4);
+        style.SetContentMarginAll(4); style.SetCornerRadiusAll(4);
         panel.AddThemeStyleboxOverride("panel", style); return panel;
     }
     internal static Label Label(Node parent, string text, int size = 14, Color? color = null, bool wrap = false)

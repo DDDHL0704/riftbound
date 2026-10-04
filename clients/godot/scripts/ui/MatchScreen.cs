@@ -276,28 +276,43 @@ public partial class MatchScreen : AppScreen
     public bool CanDropOnObject(Variant data, string id) => CurrentDrag(data) && _legalDropObjects.Contains(id);
     public bool CanDropOnDestination(Variant data, string id) => CurrentDrag(data) && _legalDropDestinations.Contains(id);
     public void DropOnObject(Variant data, string id)
-    { if (CanDropOnObject(data, id) && _renderer?.VisibleCard(id) is { } card) { CardActivated?.Invoke(card); GD.Print("[Table] Target drop selected."); } }
+    { if (CanDropOnObject(data, id) && _renderer?.VisibleCard(id) is { } card) { _dragSource = ""; CardActivated?.Invoke(card); GD.Print("[Table] Target drop selected."); } }
     public void DropOnDestination(Variant data, string id)
-    { if (CanDropOnDestination(data, id)) { DestinationActivated?.Invoke(id); GD.Print("[Table] Destination drop selected."); } }
+    { if (CanDropOnDestination(data, id)) { _dragSource = ""; DestinationActivated?.Invoke(id); GD.Print("[Table] Destination drop selected."); } }
     public void InvalidateTableGesture()
     { _dragGeneration++; _dragSource = ""; _linkObjects = []; _linkDestination = null; }
     public void SetSelectionLinks(IEnumerable<string> objects, string? destination = null)
     { _linkObjects = objects.ToArray(); _linkDestination = destination; }
     public override void _Notification(int what)
-    { if (what == NotificationDragEnd) { _dragGeneration++; _dragSource = ""; } }
+    {
+        if (what != NotificationDragEnd) return;
+        // DragEnd may arrive before this frame's release input. Keep that event's
+        // window coordinates authoritative; the OS cursor can belong to another window.
+        var generation = _dragGeneration;
+        Callable.From(() =>
+        {
+            if (_dragGeneration != generation) return;
+            _dragGeneration++; _dragSource = "";
+        }).CallDeferred();
+    }
     public override void _Input(InputEvent input)
     {
         // Resolve the release against table geometry as well as native drop controls.
         // Scroll/preview children must not intercept a valid battlefield drop.
         if (!IsVisibleInTree() || !CurrentDrag(_activeDrag)
             || input is not InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false } mouse) return;
+        ResolveTableDrop(mouse.GlobalPosition);
+    }
+    private void ResolveTableDrop(Vector2 position)
+    {
+        if (!IsVisibleInTree() || !CurrentDrag(_activeDrag)) return;
         foreach (var id in _legalDropObjects)
-            if (_renderer?.CardControl(id) is { } card && card.GetGlobalRect().HasPoint(mouse.GlobalPosition))
+            if (_renderer?.CardControl(id) is { } card && card.GetGlobalRect().HasPoint(position))
             { DropOnObject(_activeDrag, id); _dragSource = ""; return; }
         for (var i = 0; i < _destinations.Length; i++)
-            if (TableLayout.Battlefields[i].Panel.GetGlobalRect().HasPoint(mouse.GlobalPosition))
+            if (TableLayout.Battlefields[i].Panel.GetGlobalRect().HasPoint(position))
             { DropOnDestination(_activeDrag, _destinations[i]); _dragSource = ""; return; }
-        if (TableLayout.BaseZone.GetGlobalRect().HasPoint(mouse.GlobalPosition)) DropOnDestination(_activeDrag, "BASE");
+        if (TableLayout.BaseZone.GetGlobalRect().HasPoint(position)) DropOnDestination(_activeDrag, "BASE");
         _dragSource = "";
     }
     private (Vector2 From, Vector2 To)[] SelectionSegments()

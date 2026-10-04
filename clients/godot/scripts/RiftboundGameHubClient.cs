@@ -231,8 +231,14 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
         hubConnection.On<WsServerMessage>("Events", message => ServerMessageReceived?.Invoke("Events", message));
         hubConnection.On<WsServerMessage>("Error", message =>
         {
-            restorationSnapshot?.TrySetException(new InvalidOperationException("服务器未能恢复对局，请重新连接或返回大厅。"));
+            var recoveryRejected = message.Payload is JsonElement payload && payload.TryGetProperty("code", out var code)
+                && code.GetString() is "RECOVERY_INCONSISTENT" or "INVALID_RECONNECT_TOKEN";
+            if (recoveryRejected) restoringSession = true;
             ServerMessageReceived?.Invoke("Error", message);
+            // Deliver the rejection before signaling completion to observers.
+            if (restorationSnapshot is { } pending)
+                pending.TrySetException(new InvalidOperationException("服务器未能恢复对局，请重新连接或返回大厅。"));
+            else if (recoveryRejected) StatusChanged?.Invoke("Recovery failed");
         });
         hubConnection.On<WsServerMessage>("Matchmaking", message => ServerMessageReceived?.Invoke("Matchmaking", message));
     }

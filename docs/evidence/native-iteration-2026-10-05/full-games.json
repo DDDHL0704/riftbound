@@ -1,0 +1,109 @@
+[
+  {
+    "room": "CN-ITERATION-FINAL-A",
+    "status": "FINISHED",
+    "turnNumber": 17,
+    "firstPlayer": "完整对局乙",
+    "winnerPlayerId": "完整对局乙",
+    "playerScores": {
+      "完整对局乙": 8,
+      "完整对局甲": 0
+    },
+    "tick": 36,
+    "lastEventSequence": 237,
+    "validationErrors": [],
+    "isMatch": true,
+    "expectedStateHash": "2eb10a609d53d380b03731f337970ceb6a3aa63a470b511dd084e42445da2250",
+    "replayedStateHash": "2eb10a609d53d380b03731f337970ceb6a3aa63a470b511dd084e42445da2250",
+    "replayErrors": [],
+    "acceptedCommands": {
+      "SUBMIT_DECK": 2,
+      "READY": 2,
+      "MULLIGAN": 2,
+      "TAP_RUNE": 4,
+      "PLAY_CARD": 2,
+      "END_TURN": 16,
+      "MOVE_UNIT": 2,
+      "PASS_FOCUS": 4,
+      "DECLARE_BATTLE": 1,
+      "PASS_PRIORITY": 2
+    },
+    "rejectedCommands": [
+      {
+        "commandType": "DECLARE_BATTLE",
+        "errorMessage": "当前声明战斗路径尚未由服务端开放。"
+      },
+      {
+        "commandType": "DECLARE_BATTLE",
+        "errorMessage": "只有需要选择战场效果目标时才能提交战场目标。"
+      }
+    ],
+    "decks": {
+      "完整对局乙": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeckCount": 40,
+        "runeDeckCount": 12,
+        "battlefieldCount": 3
+      },
+      "完整对局甲": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeckCount": 40,
+        "runeDeckCount": 12,
+        "battlefieldCount": 3
+      }
+    },
+    "rulesFormat": "ChinaStandard20260724",
+    "source": "Read-only local PostgreSQL journal; native UI actions; no developer scenarios in these rooms"
+  },
+  {
+    "room": "CN-ITERATION-FINAL-2",
+    "status": "FINISHED",
+    "turnNumber": 17,
+    "firstPlayer": "完整对局甲",
+    "winnerPlayerId": "完整对局甲",
+    "playerScores": {
+      "完整对局乙": 0,
+      "完整对局甲": 8
+    },
+    "tick": 36,
+    "lastEventSequence": 237,
+    "validationErrors": [],
+    "isMatch": true,
+    "expectedStateHash": "c55c204cdf18370bac8828955a69a31403635b42393ffd0670a65a40011a4f38",
+    "replayedStateHash": "c55c204cdf18370bac8828955a69a31403635b42393ffd0670a65a40011a4f38",
+    "replayErrors": [],
+    "acceptedCommands": {
+      "SUBMIT_DECK": 2,
+      "READY": 2,
+      "MULLIGAN": 2,
+      "TAP_RUNE": 4,
+      "PLAY_CARD": 2,
+      "END_TURN": 16,
+      "MOVE_UNIT": 2,
+      "PASS_FOCUS": 4,
+      "DECLARE_BATTLE": 1,
+      "PASS_PRIORITY": 2
+    },
+    "rejectedCommands": [],
+    "decks": {
+      "完整对局乙": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeckCount": 40,
+        "runeDeckCount": 12,
+        "battlefieldCount": 3
+      },
+      "完整对局甲": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeckCount": 40,
+        "runeDeckCount": 12,
+        "battlefieldCount": 3
+      }
+    },
+    "rulesFormat": "ChinaStandard20260724",
+    "source": "Read-only local PostgreSQL journal; native UI actions; no developer scenarios in these rooms"
+  }
+]
