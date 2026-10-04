@@ -14,6 +14,8 @@ Godot .NET 原生桌面客户端（macOS / Windows）与 .NET 权威服务端。
 
 最新变更、证据、复现方式和未完成项见 [原生交付记录](docs/NATIVE_DELIVERY_2026-10-04.md)。GitHub 原生 CI 已编写，但尚未运行；本地凭证缺少新增 workflow 文件所需权限。
 
+下一批按共享费用与预览、常驻牌确认时机、效果再次打出的顺序推进，任务和完成标准见 [下一批迭代计划](docs/NEXT_NATIVE_PLAY_ITERATION_2026-10-04.md)。
+
 ## 本地运行原生客户端
 
 环境需要 .NET 10 SDK、Godot .NET 4.7.2（客户端目标 net8.0）。导出还需要同版本 Godot 模板。本机已有工具可由 `scripts/dev-env.sh` 加入 PATH；其他机器按自身安装路径配置。
