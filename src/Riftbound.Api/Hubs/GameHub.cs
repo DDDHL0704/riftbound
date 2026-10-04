@@ -398,6 +398,21 @@ public sealed class GameHub(
         return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd), cmd.Clone());
     }
 
+    public async Task<PlayCostQuoteDto> PreviewPlayCard(string roomId, PlayCostPreviewRequestDto request)
+    {
+        // The caller cannot supply another player's identity. A read must not create a room.
+        if (!Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var bound) || bound is not string playerId)
+            return PlayCostQuoteDto.Rejected(request, -1, ErrorCodes.AuthenticationRequired, "请先连接并完成身份认证。");
+        var session = await sessions.FindAsync(roomId, Context.ConnectionAborted);
+        if (session is null)
+            return PlayCostQuoteDto.Rejected(request, -1, ErrorCodes.PlayerNotInRoom, "请先进入对局。");
+        try { return await session.PreviewPlayCardAsync(playerId, request, Context.ConnectionAborted); }
+        catch (MatchSessionException ex)
+        {
+            return PlayCostQuoteDto.Rejected(request, -1, ex.Code, ex.Message);
+        }
+    }
+
     public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;

@@ -9,6 +9,9 @@ namespace Riftbound.Engine;
 
 public interface IRuleEngine
 {
+    PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
+        => PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.UnsupportedCommand, "当前引擎不支持费用预览。");
+
     ValueTask<ResolutionResult> ResolveAsync(
         MatchState state,
         PlayerIntent intent,
@@ -6983,11 +6986,6 @@ internal static class ActionPromptBuilder
         bool Composable,
         string? UnsupportedReason);
 
-    private sealed record SourceNextSpellCostReductionPromptEffect(
-        string EffectId,
-        string EffectKind,
-        string SourceObjectId,
-        int Mana);
 
     private sealed record HideCardPromptRequirement(
         string SourceObjectId,
@@ -12999,112 +12997,9 @@ internal static class ActionPromptBuilder
     }
 
     private static int PromptMinimumManaCost(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        string? sourceObjectId = null)
-    {
-        var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId);
-        reduction += PromptStaticUnitCostReductionMana(state, playerId, behavior, reduction);
-        reduction += PromptNextSpellCostReductionMana(state, playerId, behavior, reduction);
-        reduction += PromptBattlefieldSpellCostReductionMana(
-            state,
-            playerId,
-            behavior,
-            reduction);
-
-        return Math.Max(0, behavior.ManaCost - reduction)
-            + PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
-    }
-
-    private static int PromptBaseManaReductionBeforeBattlefieldSpellCost(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        string? sourceObjectId = null)
-    {
-        var reduction = PromptCostReductionMana(state, playerId, behavior);
-        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
-            ? currentExperience
-            : 0;
-        if (behavior.OptionalExperienceCost > 0
-            && behavior.ManaReductionIfExperiencePaid > 0
-            && experience >= behavior.OptionalExperienceCost)
-        {
-            reduction += behavior.ManaReductionIfExperiencePaid;
-        }
-
-        if (behavior.ManaReductionIfDiscardHandCardOptionalCost > 0
-            && !string.IsNullOrWhiteSpace(sourceObjectId)
-            && HasPromptDiscardHandCardOptionalCostTarget(state, playerId, sourceObjectId))
-        {
-            reduction += behavior.ManaReductionIfDiscardHandCardOptionalCost;
-        }
-
-        return reduction + PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
-    }
-
-    private static int PromptCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        if (behavior.CostReductionMana <= 0
-            || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
-        {
-            return 0;
-        }
-
-        return behavior.CostReductionConditionKind switch
-        {
-            CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
-                => PromptEnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
-            CardCostReductionConditionKinds.ControllerHighestUnitPower
-                => Math.Min(behavior.CostReductionMana, PromptHighestControlledUnitPower(state, playerId)),
-            CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
-                => PromptOpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
-            CardCostReductionConditionKinds.ControllerControlsTaggedUnit
-                => PromptControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
-                    ? behavior.CostReductionMana
-                    : 0,
-            CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
-                => PromptControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
-            _ => 0
-        };
-    }
-
-    private static bool PromptControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
-    {
-        return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
-            && count > 0;
-    }
-
-    private static bool PromptEnemyUnitDestroyedThisTurn(MatchState state, string playerId)
-    {
-        return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
-            !string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal));
-    }
-
-    private static int PromptHighestControlledUnitPower(MatchState state, string playerId)
-    {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            ? zones.Base.Concat(zones.Battlefields)
-                .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.Power : 0)
-                .DefaultIfEmpty(0)
-                .Max()
-            : 0;
-    }
-
-    private static bool PromptControllerControlsTaggedUnit(
-        MatchState state,
-        string playerId,
-        string requiredTag)
-    {
-        return !string.IsNullOrWhiteSpace(requiredTag)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Base.Concat(zones.Battlefields)
-                .Any(objectId => PromptCardObjectHasTags(state.CardObjects, objectId, requiredTag));
-    }
+        MatchState state, string playerId, CardBehaviorDefinition behavior,
+        string? sourceObjectId = null, int additionalMana = 0)
+        => CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId, additionalMana).Total;
 
     private static bool PromptCardObjectHasTags(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -13116,16 +13011,6 @@ internal static class ActionPromptBuilder
                 .All(tag => cardObject.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
-    private static bool PromptOpponentWithinWinningScoreDistance(
-        MatchState state,
-        string playerId,
-        int distance)
-    {
-        var opponentId = PromptOpponentOf(state, playerId);
-        return opponentId is not null
-            && state.PlayerScores.TryGetValue(opponentId, out var opponentScore)
-            && opponentScore >= PromptEffectiveWinningScore(state) - distance;
-    }
 
     private static string? PromptOpponentOf(MatchState state, string playerId)
     {
@@ -15140,7 +15025,7 @@ internal static class ActionPromptBuilder
         }
 
         if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + effectiveEchoManaCost)
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, effectiveEchoManaCost))
         {
             choices.Add(new ActionPromptChoiceDto(
                 "ECHO",
@@ -15149,7 +15034,7 @@ internal static class ActionPromptBuilder
         }
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + behavior.HasteReadyManaCost
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
             && CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait, behavior))
         {
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -15180,7 +15065,7 @@ internal static class ActionPromptBuilder
         }
 
         if (behavior.SourceBoonAdditionalManaCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + behavior.SourceBoonAdditionalManaCost)
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost))
         {
             choices.Add(new ActionPromptChoiceDto(
                 $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}",
@@ -15529,321 +15414,6 @@ internal static class ActionPromptBuilder
             out var ability)
             ? Math.Max(0, ability.Amount)
             : 0;
-    }
-
-    private static int PromptBattlefieldEquipmentCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        if (behavior.ManaCost <= 0
-            || !behavior.PlaysSourceToBaseAsEquipment
-            || state.UntilEndOfTurnEffects.Contains($"{PlayedEquipmentThisTurnEffectPrefix}{playerId}", StringComparer.Ordinal)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return 0;
-        }
-
-        var reductionAmount = zones.Battlefields
-            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                    ? BattlefieldEquipmentCostReductionAmount(cardObject.CardNo)
-                    : 0)
-            .DefaultIfEmpty(0)
-            .Max();
-
-        return Math.Min(reductionAmount, behavior.ManaCost);
-    }
-
-    private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
-    {
-        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
-            cardNo,
-            BattlefieldStaticAbilitySpecRules.IsBattlefieldEquipmentCostReductionAbility,
-            out var ability)
-            ? Math.Max(0, ability.Amount)
-            : 0;
-    }
-
-    private static int PromptStaticUnitCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!behavior.PlaysSourceToBaseAsUnit)
-        {
-            return 0;
-        }
-
-        var sources = PromptStaticUnitCostReductionSourceBehaviors(state, playerId)
-            .Where(source => PromptStaticUnitCostReductionAppliesToBehavior(source, behavior))
-            .ToArray();
-        if (sources.Length == 0)
-        {
-            return 0;
-        }
-
-        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticUnitCostReductionMinimumManaCost));
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > minimumManaCost
-            ? Math.Min(
-                sources.Sum(source => Math.Max(0, source.StaticUnitCostReductionMana)),
-                baseManaAfterExistingReductions - minimumManaCost)
-            : 0;
-    }
-
-    private static IEnumerable<CardBehaviorDefinition> PromptStaticUnitCostReductionSourceBehaviors(
-        MatchState state,
-        string playerId)
-    {
-        return state.PlayerZones.Values
-            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    || cardObject.IsFaceDown
-                    || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                    || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? "", out var sourceBehavior)
-                    || sourceBehavior.StaticUnitCostReductionMana <= 0)
-                {
-                    return null;
-                }
-
-                return sourceBehavior;
-            })
-            .OfType<CardBehaviorDefinition>();
-    }
-
-    private static bool PromptStaticUnitCostReductionAppliesToBehavior(
-        CardBehaviorDefinition sourceBehavior,
-        CardBehaviorDefinition behavior)
-    {
-        if (sourceBehavior.StaticUnitCostReductionMana <= 0
-            || !behavior.PlaysSourceToBaseAsUnit)
-        {
-            return false;
-        }
-
-        return string.IsNullOrWhiteSpace(sourceBehavior.StaticUnitCostReductionRequiredUnitTag)
-            || HasDelimitedTag(
-                behavior.SourceUnitTags,
-                sourceBehavior.StaticUnitCostReductionRequiredUnitTag);
-    }
-
-    private static int PromptNextSpellCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!IsPromptSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 0)
-        {
-            return 0;
-        }
-
-        var totalReductionMana = PromptSourceNextSpellCostReductionEffects(state, playerId)
-            .Sum(effect => effect.Mana);
-        if (totalReductionMana == 0)
-        {
-            return 0;
-        }
-
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return Math.Min(
-            totalReductionMana,
-            baseManaAfterExistingReductions);
-    }
-
-    private static IReadOnlyList<SourceNextSpellCostReductionPromptEffect> PromptSourceNextSpellCostReductionEffects(
-        MatchState state,
-        string playerId)
-    {
-        return state.UntilEndOfTurnEffects
-            .Select(effectId => TryParsePromptSourceNextSpellCostReductionEffect(
-                state,
-                playerId,
-                effectId,
-                out var effect)
-                    ? effect
-                    : null)
-            .OfType<SourceNextSpellCostReductionPromptEffect>()
-            .GroupBy(effect => effect.EffectId, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .OrderBy(effect => effect.EffectId, StringComparer.Ordinal)
-            .ToArray();
-    }
-
-    private static bool TryParsePromptSourceNextSpellCostReductionEffect(
-        MatchState state,
-        string playerId,
-        string effectId,
-        out SourceNextSpellCostReductionPromptEffect effect)
-    {
-        effect = default!;
-        var firstSeparatorIndex = effectId.IndexOf(':', StringComparison.Ordinal);
-        if (firstSeparatorIndex <= 0)
-        {
-            return false;
-        }
-
-        var secondSeparatorIndex = effectId.IndexOf(':', firstSeparatorIndex + 1);
-        if (secondSeparatorIndex <= firstSeparatorIndex + 1
-            || secondSeparatorIndex >= effectId.Length - 1)
-        {
-            return false;
-        }
-
-        var effectKind = effectId[..firstSeparatorIndex];
-        var effectPlayerId = effectId[(firstSeparatorIndex + 1)..secondSeparatorIndex];
-        if (!string.Equals(effectPlayerId, playerId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var sourceObjectId = effectId[(secondSeparatorIndex + 1)..];
-        if (!TryGetPromptSourceNextSpellCostReductionBehavior(
-                state,
-                sourceObjectId,
-                effectKind,
-                out var sourceBehavior)
-            || sourceBehavior.SourceNextSpellCostReductionMana <= 0)
-        {
-            return false;
-        }
-
-        effect = new SourceNextSpellCostReductionPromptEffect(
-            effectId,
-            effectKind,
-            sourceObjectId,
-            sourceBehavior.SourceNextSpellCostReductionMana);
-        return true;
-    }
-
-    private static bool TryGetPromptSourceNextSpellCostReductionBehavior(
-        MatchState state,
-        string sourceObjectId,
-        string effectKind,
-        out CardBehaviorDefinition behavior)
-    {
-        if (state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && !string.IsNullOrWhiteSpace(sourceState.CardNo)
-            && CardBehaviorRegistry.TryGetByCardNo(sourceState.CardNo, out var sourceBehavior)
-            && sourceBehavior.SourceNextSpellCostReductionMana > 0
-            && string.Equals(
-                sourceBehavior.SourceNextSpellCostReductionEffectKind,
-                effectKind,
-                StringComparison.Ordinal))
-        {
-            behavior = sourceBehavior;
-            return true;
-        }
-
-        return CardBehaviorRegistry.TryGetSourceNextSpellCostReductionByEffectKind(
-            effectKind,
-            out behavior);
-    }
-
-    private static int PromptBattlefieldSpellCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!IsPromptSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 0)
-        {
-            return 0;
-        }
-
-        var sources = PromptStaticSpellCostReductionSourceBehaviors(state, playerId).ToArray();
-        if (sources.Length == 0)
-        {
-            return 0;
-        }
-
-        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticSpellCostReductionMinimumManaCost));
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > minimumManaCost
-            ? Math.Min(
-                sources.Sum(source => Math.Max(0, source.StaticSpellCostReductionMana)),
-                baseManaAfterExistingReductions - minimumManaCost)
-            : 0;
-    }
-
-    private static IEnumerable<CardBehaviorDefinition> PromptStaticSpellCostReductionSourceBehaviors(
-        MatchState state,
-        string playerId)
-    {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        return zones.Battlefields
-            .Distinct(StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    || cardObject.IsFaceDown
-                    || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                    || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? "", out var sourceBehavior)
-                    || sourceBehavior.StaticSpellCostReductionMana <= 0)
-                {
-                    return null;
-                }
-
-                return sourceBehavior;
-            })
-            .OfType<CardBehaviorDefinition>();
-    }
-
-    private static int PromptBattlefieldHeldUnitCostIncreaseMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        if (!behavior.PlaysSourceToBaseAsUnit
-            || behavior.ManaCost <= 0
-            || P6TokenFactoryCatalog.TryGetByCardNo(behavior.CardNo, out _)
-            || !TryGetPromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, out var manaDelta))
-        {
-            return 0;
-        }
-
-        return manaDelta;
-    }
-
-    private static bool TryGetPromptBattlefieldHeldUnitCostIncreaseMana(
-        MatchState state,
-        string playerId,
-        out int manaDelta)
-    {
-        manaDelta = 0;
-        var effectPrefix = $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
-        foreach (var effectId in state.UntilEndOfTurnEffects)
-        {
-            if (!effectId.StartsWith(effectPrefix, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            var currentManaDelta = 1;
-            if (effectId.Length > effectPrefix.Length
-                && effectId[effectPrefix.Length] == ':'
-                && int.TryParse(effectId[(effectPrefix.Length + 1)..], out var parsedManaDelta)
-                && parsedManaDelta > 0)
-            {
-                currentManaDelta = parsedManaDelta;
-            }
-
-            manaDelta = Math.Max(manaDelta, currentManaDelta);
-        }
-
-        return manaDelta > 0;
     }
 
     private sealed record PlayCardPowerPaymentRequirement(
@@ -17759,29 +17329,8 @@ internal static class ActionPromptBuilder
         var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
             runePool,
             paymentResourcePowerByTrait);
-        var baseManaReductionBeforeBattlefieldSpellCost = PromptBaseManaReductionBeforeBattlefieldSpellCost(
-            state,
-            playerId,
-            behavior,
-            sourceObjectId);
-        var dragonUnitCostReductionMana = PromptStaticUnitCostReductionMana(
-            state,
-            playerId,
-            behavior,
-            baseManaReductionBeforeBattlefieldSpellCost);
-        var nextSpellCostReductionMana = PromptNextSpellCostReductionMana(
-            state,
-            playerId,
-            behavior,
-            baseManaReductionBeforeBattlefieldSpellCost + dragonUnitCostReductionMana);
-        var battlefieldSpellCostReductionMana = PromptBattlefieldSpellCostReductionMana(
-            state,
-            playerId,
-            behavior,
-            baseManaReductionBeforeBattlefieldSpellCost
-                + dragonUnitCostReductionMana
-                + nextSpellCostReductionMana);
-        var minimumManaCost = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        var manaCost = CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId);
+        var minimumManaCost = manaCost.Total;
         var luxSpellOnlyGeneratedMana = PromptLuxSpellOnlyGeneratedMana(
             state,
             playerId,
@@ -17807,11 +17356,11 @@ internal static class ActionPromptBuilder
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["availableRainbowPower"] = runePool.Power,
-            ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
-            ["dragonUnitCostReductionMana"] = dragonUnitCostReductionMana,
-            ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
-            ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
-            ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
+            ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
+            ["dragonUnitCostReductionMana"] = manaCost.UnitReduction,
+            ["nextSpellCostReductionMana"] = manaCost.NextSpellReduction,
+            ["battlefieldSpellCostReductionMana"] = manaCost.BattlefieldSpellReduction,
+            ["battlefieldHeldUnitCostIncreaseMana"] = manaCost.Increase,
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
             ["targetCountLabel"] = minTargetCount == maxTargetCount
@@ -18746,6 +18295,8 @@ public interface IMatchSession
 
     ActionPromptDto PromptFor(string playerId);
 
+    ValueTask<PlayCostQuoteDto> PreviewPlayCardAsync(string playerId, PlayCostPreviewRequestDto request, CancellationToken cancellationToken);
+
     ValueTask<ResolutionResult> SeedScenarioAsync(
         string playerId,
         string clientIntentId,
@@ -18776,6 +18327,8 @@ public interface IMatchSession
 
 public interface IMatchSessionRegistry
 {
+    ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken);
+
     ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
 }
 
@@ -18830,6 +18383,13 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         this.recoveryStore = recoveryStore;
         this.playerStore = playerStore;
         this.sessionOptions = sessionOptions ?? MatchSessionOptions.Default;
+    }
+
+    public async ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken)
+    {
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try { return sessions.GetValueOrDefault(roomId); }
+        finally { gate.Release(); }
     }
 
     public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
@@ -19212,6 +18772,27 @@ public sealed class MatchSession : IMatchSession
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
         return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
+    }
+
+    public async ValueTask<PlayCostQuoteDto> PreviewPlayCardAsync(
+        string playerId, PlayCostPreviewRequestDto request, CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        RequirePlayer(normalizedPlayerId);
+        await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (request.Command is null || string.IsNullOrWhiteSpace(request.RequestId))
+                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.InvalidTarget, "费用预览请求不完整。");
+            var prompts = BuildPromptFreshnessCandidates(state, normalizedPlayerId);
+            var prompt = prompts.FirstOrDefault(p => p.PromptId == request.PromptId && p.SnapshotTick == request.SnapshotTick);
+            if (prompt is null)
+                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PromptExpired, "行动窗口已更新，请重新选择。");
+            if (!prompt.Actionable || !prompt.Actions.Contains(CommandTypes.PlayCard, StringComparer.Ordinal))
+                return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed, "当前不能打出卡牌。");
+            return ruleEngine.PreviewPlayCard(state, normalizedPlayerId, request);
+        }
+        finally { serialGate.Release(); }
     }
 
     public async ValueTask<ResolutionResult> SeedScenarioAsync(

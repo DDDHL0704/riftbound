@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Godot;
+using Riftbound.Contracts;
 
 namespace Riftbound.GodotClient.Ui;
 
@@ -10,6 +11,7 @@ namespace Riftbound.GodotClient.Ui;
 public partial class PlayCardOverlay : Control
 {
     public event Action<Dictionary<string, object?>>? Confirmed;
+    public event Action<PlayCostPreviewRequestDto>? PreviewRequested;
     public string PromptId { get; private set; } = string.Empty;
     public long SnapshotTick { get; private set; } = -1;
     private OptionButton _source = null!;
@@ -28,6 +30,8 @@ public partial class PlayCardOverlay : Control
     private Func<string, Godot.Collections.Dictionary?>? _cardView;
     private bool _composable;
     private bool _submitting;
+    private string _quoteRequestId = string.Empty;
+    private PlayCostQuoteDto? _quote;
     private string _rejection = string.Empty;
     private int _powerShortfall;
     private readonly HashSet<string> _resourceIds = new(StringComparer.Ordinal);
@@ -51,8 +55,10 @@ public partial class PlayCardOverlay : Control
         var left = new VBoxContainer { CustomMinimumSize = new Vector2(240, 0) }; body.AddChild(left);
         _preview = GD.Load<PackedScene>("res://scenes/components/OfficialCardView.tscn").Instantiate<OfficialCardView>();
         _preview.CustomMinimumSize = new Vector2(240, 334); left.AddChild(_preview);
-        _cost = new Label { CustomMinimumSize = new Vector2(240, 0), AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        left.AddChild(_cost);
+        var costScroll = new ScrollContainer { CustomMinimumSize = new Vector2(240, 155), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        left.AddChild(costScroll);
+        _cost = new Label { CustomMinimumSize = new Vector2(220, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        costScroll.AddChild(_cost);
         var right = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(630, 0) }; body.AddChild(right);
         _source = new OptionButton { CustomMinimumSize = new Vector2(0, 42), FitToLongestItem = false }; right.AddChild(_source);
         _source.ItemSelected += _ => Rebuild();
@@ -62,7 +68,7 @@ public partial class PlayCardOverlay : Control
         _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; layout.AddChild(_status);
         var footer = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End }; layout.AddChild(footer);
         var cancel = new Button { Text = "取消  Esc", CustomMinimumSize = new Vector2(120, 42) }; footer.AddChild(cancel); cancel.Pressed += Hide;
-        _confirm = new Button { Text = "确认打出", CustomMinimumSize = new Vector2(160, 42) }; footer.AddChild(_confirm);
+        _confirm = new Button { Name = "ConfirmPlayCardButton", Text = "确认打出", CustomMinimumSize = new Vector2(160, 42) }; footer.AddChild(_confirm);
         _confirm.Pressed += Submit;
         MinimalTheme.Apply(panel); Hide();
     }
@@ -83,7 +89,7 @@ public partial class PlayCardOverlay : Control
         }
         if (_requirements.Count == 0) return false;
         PromptId = promptId; SnapshotTick = tick;
-        _submitting = false; _rejection = string.Empty;
+        _submitting = false; _rejection = string.Empty; _quote = null;
         _source.Select(0); Rebuild(); Show(); _source.GrabFocus(); return true;
     }
 
@@ -163,7 +169,7 @@ public partial class PlayCardOverlay : Control
         }
     }
 
-    private void Refresh(bool clearFeedback = true)
+    private void Refresh(bool clearFeedback = true, bool requestQuote = true)
     {
         if (clearFeedback) _rejection = string.Empty;
         var missing = _targets.Count(target => target.Required && target.Picker.Selected <= 0);
@@ -172,19 +178,59 @@ public partial class PlayCardOverlay : Control
         var selectedResources = _optional.Count(x => _resourceIds.Contains(x.Key) && x.Value.ButtonPressed);
         var selectedResourcePower = _optional.Where(x => _resourceIds.Contains(x.Key) && x.Value.ButtonPressed)
             .Sum(x => _resourcePower.GetValueOrDefault(x.Key));
-        _confirm.Disabled = _submitting || !_composable || missing > 0 || !legalCombination || selectedResourcePower < _powerShortfall;
+        if (requestQuote && !_submitting && PreviewRequested is not null)
+        {
+            _quote = null;
+            _quoteRequestId = Guid.NewGuid().ToString("N");
+            _cost.Text = missing == 0 && legalCombination ? "正在核对最终费用…" : "完成选择后显示最终费用。";
+            if (_composable && missing == 0 && legalCombination)
+                PreviewRequested.Invoke(new(_quoteRequestId, PromptId, SnapshotTick, BuildCommand()));
+        }
+        var needsQuote = PreviewRequested is not null;
+        _confirm.Disabled = _submitting || !_composable || missing > 0 || !legalCombination
+            || (needsQuote ? _quote?.CanPay != true : selectedResourcePower < _powerShortfall);
         _source.Disabled = _submitting;
         foreach (var control in _choices.GetChildren().OfType<BaseButton>()) control.Disabled = _submitting;
-        _confirm.Text = _submitting ? "正在提交…" : "确认打出";
+        _confirm.Text = _submitting ? "正在提交…" : needsQuote && _quote is null && missing == 0 && legalCombination ? "核对费用中…" : "确认打出";
         _status.Text = _submitting ? "正在等待对局确认，请稍候。"
             : _rejection.Length > 0 ? _rejection
             : !_composable ? "该效果的选择流程尚未完成，暂不能从客户端打出。"
             : missing > 0 ? $"还需选择 {missing} 个目标。"
             : !legalCombination ? "当前目标组合不可用，请调整选择。"
+            : needsQuote ? _quote?.Message ?? "正在核对最终费用…"
             : _powerShortfall > 0 ? $"支付前需补充 {_powerShortfall} 符能 · 所选 {selectedResources} 个资源可提供 {selectedResourcePower} 符能。"
             : "确认后支付费用；取消可返回战场。";
         _status.AddThemeColorOverride("font_color", _confirm.Disabled || _rejection.Length > 0 ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
     }
+
+    public void ApplyQuote(PlayCostQuoteDto quote)
+    {
+        if (!Visible || quote.RequestId != _quoteRequestId || quote.PromptId != PromptId || quote.SnapshotTick != SnapshotTick) return;
+        _quote = quote;
+        _cost.Text = quote.Message;
+        if (quote.Cost is { } cost)
+        {
+            static string Traits(IReadOnlyDictionary<string, int> traits) => string.Join(" · ", traits.Where(x => x.Value > 0).Select(x => $"{TraitName(x.Key)} {x.Value}"));
+            _cost.Text = $"最终应付  {cost.Mana} 法力\n{Traits(cost.PowerByTrait)}"
+                + (cost.GenericPower > 0 ? $" · 任意符能 {cost.GenericPower}" : "")
+                + (cost.Experience > 0 ? $"\n经验 {cost.Experience}" : "")
+                + $"\n卡面  {cost.PrintedMana} 法力 · {cost.PrintedPower} 符能";
+            foreach (var item in cost.Adjustments)
+                _cost.Text += $"\n{item.Label}  " + (item.Mana != 0 ? $"{item.Mana:+#;-#;0} 法力 " : "")
+                    + (item.Power != 0 ? $"{item.Power:+#;-#;0} 符能" : "");
+            if (cost.MissingMana + cost.MissingPower + cost.MissingExperience > 0)
+                _cost.Text += $"\n还缺  {cost.MissingMana} 法力 · {cost.MissingPower} 符能"
+                    + (cost.MissingExperience > 0 ? $" · {cost.MissingExperience} 经验" : "");
+            else _cost.Text += $"\n支付后  {cost.RemainingMana} 法力 · {cost.RemainingRainbowPower + (cost.RemainingPowerByTrait?.Values.Sum() ?? 0)} 符能";
+        }
+        Refresh(clearFeedback: false, requestQuote: false);
+    }
+
+    private static string TraitName(string trait) => trait switch
+    {
+        "red" => "红色符能", "blue" => "蓝色符能", "green" => "绿色符能",
+        "yellow" => "黄色符能", "purple" => "紫色符能", "orange" => "橙色符能", _ => trait
+    };
 
     public void ApplyReceipt(string promptId, long tick, bool accepted, string message)
     {
@@ -192,25 +238,32 @@ public partial class PlayCardOverlay : Control
         _submitting = false;
         if (accepted) { Hide(); return; }
         _rejection = message;
-        Refresh(clearFeedback: false);
+        Refresh(clearFeedback: false, requestQuote: false);
     }
 
     private void Submit()
     {
         if (_confirm.Disabled) return;
-        var requirement = _requirements[_source.Selected];
-        var optional = _optional.Where(x => x.Value.ButtonPressed).Select(x => x.Key).ToList();
-        if (_printed is not null && _printed.Selected > 0) optional.Add(_printedChoices[_printed.Selected]);
+        var command = BuildCommand();
         _submitting = true;
         Refresh();
         Confirmed?.Invoke(new Dictionary<string, object?>
         {
-            ["cmdType"] = "PLAY_CARD", ["sourceObjectId"] = Text(requirement, "sourceObjectId"),
-            ["cardNo"] = Text(requirement, "cardNo"), ["mode"] = Text(requirement, "mode"),
-            ["destination"] = _destination is null ? "" : _destinations[_destination.Selected],
-            ["targetObjectIds"] = _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray(),
-            ["optionalCosts"] = optional.ToArray()
+            ["cmdType"] = "PLAY_CARD", ["sourceObjectId"] = command.SourceObjectId,
+            ["cardNo"] = command.CardNo, ["mode"] = command.Mode,
+            ["destination"] = command.Destination, ["targetObjectIds"] = command.TargetObjectIds,
+            ["optionalCosts"] = command.OptionalCosts
         });
+    }
+
+    private PlayCardCommand BuildCommand()
+    {
+        var requirement = _requirements[_source.Selected];
+        var optional = _optional.Where(x => x.Value.ButtonPressed).Select(x => x.Key).ToList();
+        if (_printed is not null && _printed.Selected > 0) optional.Add(_printedChoices[_printed.Selected]);
+        return new(Text(requirement, "sourceObjectId"), Text(requirement, "cardNo"),
+            _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray(),
+            Text(requirement, "mode"), optional.ToArray(), _destination is null ? "" : _destinations[_destination.Selected]);
     }
 
     private static string Text(JsonElement value, string key) => value.TryGetProperty(key, out var found) && found.ValueKind == JsonValueKind.String ? found.GetString() ?? "" : "";

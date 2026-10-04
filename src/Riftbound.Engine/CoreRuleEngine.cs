@@ -5176,46 +5176,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty
             : command.Destination?.Trim() ?? string.Empty;
-        if (!string.IsNullOrWhiteSpace(destination)
-            && (!behavior.PlaysSourceToBaseAsUnit
-                || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} has unsupported play destination.",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (!string.IsNullOrWhiteSpace(destination)
-            && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "战场效果禁止将单位打出到该战场。",
-                ErrorCodes.InvalidTarget);
-        }
-
         const string paymentWindow = "PLAY_CARD";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
             paymentWindow,
             intent.PlayerId,
             command.SourceObjectId);
-        var paymentPlan = new PaymentCostRules.PaymentPlan(
-            paymentId,
-            paymentWindow,
-            intent.PlayerId,
-            baseManaCost: behavior.ManaCost,
-            totalManaCost: plan.TotalManaCost,
-            genericPowerCost: plan.AnyPowerCost,
-            totalPowerCost: plan.TotalPowerCost,
-            powerCostByTrait: plan.PowerCostByTrait,
-            experienceCost: plan.TotalExperienceCost,
-            optionalCostIds: plan.OptionalCosts,
-            paymentResourceActionIds: plan.PaymentResourceActions,
-            reason: behavior.EffectKind,
-            sourceObjectId: command.SourceObjectId,
-            auditMetadata: BuildPlayCardPaymentAuditMetadata(plan));
+        var paymentPlan = plan.Payment;
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -29338,14 +29305,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PlayCardCommand command,
         out PlayCardPlan plan,
-        out ResolutionResult rejection)
+        out ResolutionResult rejection,
+        bool includeRejectionProjections = true)
     {
+        ResolutionResult Reject(MatchState rejectedState, string message, string code)
+            => includeRejectionProjections ? RejectWithCorePrompts(rejectedState, message, code)
+                : new(false, message, rejectedState, [], new Dictionary<string, SnapshotDto>(), new Dictionary<string, ActionPromptDto>(), code);
+
         plan = default!;
         rejection = default!;
 
         if (!CardBehaviorRegistry.TryGetByCardNoAndMode(command.CardNo, command.Mode, out var behavior))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"Unsupported card behavior or mode: {command.CardNo} {command.Mode}",
                 ErrorCodes.UnsupportedCardBehavior);
@@ -29354,7 +29326,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 "PLAY_CARD source is already pending on the stack.",
                 ErrorCodes.PhaseNotAllowed);
@@ -29364,7 +29336,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
         if (!timingDecision.IsAllowed)
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 timingDecision.Reason,
                 ErrorCodes.PhaseNotAllowed);
@@ -29374,7 +29346,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 "出牌只能选择自己手牌中的牌。",
                 ErrorCodes.CardNotInHand);
@@ -29385,7 +29357,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (string.IsNullOrWhiteSpace(sourceState.CardNo))
             {
-                rejection = RejectWithCorePrompts(
+                rejection = Reject(
                     state,
                     "出牌需要服务端已确认的手牌信息。",
                     ErrorCodes.UnsupportedCardBehavior);
@@ -29394,7 +29366,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
             {
-                rejection = RejectWithCorePrompts(
+                rejection = Reject(
                     state,
                     "出牌的手牌信息与提交的牌不匹配。",
                     ErrorCodes.InvalidTarget);
@@ -29403,12 +29375,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
             {
-                rejection = RejectWithCorePrompts(
+                rejection = Reject(
                     state,
                     "出牌只能选择当前玩家控制的手牌。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
+        }
+
+        var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
+            ? string.Empty : command.Destination?.Trim() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(destination)
+            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)))
+        {
+            rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!string.IsNullOrWhiteSpace(destination)
+            && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
+        {
+            rejection = Reject(state, "战场效果禁止将单位打出到该战场。", ErrorCodes.InvalidTarget);
+            return false;
         }
 
         behavior = ApplyStaticGrantedPredictLifecycleDefault(
@@ -29448,7 +29435,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 !IsLegalChosenCardTarget(state, intent.PlayerId, targetObjectId, targetIndex,
                     targetObjectIds, targetScope, behavior)).Any())
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(targetScope)} target(s).",
                 ErrorCodes.InvalidTarget);
@@ -29461,7 +29448,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 command.SourceObjectId,
                 rengarUnitPlayedTargetObjectId))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 "雷恩加尔传奇触发目标必须是场上的单位或本次打出的单位。",
                 ErrorCodes.InvalidTarget);
@@ -29476,7 +29463,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 leonaStunBoonTargetObjectId))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 "蕾欧娜传奇触发目标必须是己方场上的单位或本次打出的单位。",
                 ErrorCodes.InvalidTarget);
@@ -29486,7 +29473,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.DiscardsTargetFromHand
             && targetObjectIds.Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a different hand card to discard.",
                 ErrorCodes.InvalidTarget);
@@ -29498,7 +29485,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(cost => cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
         if (printedPowerChoices.Length > 1)
         {
-            rejection = RejectWithCorePrompts(state, "Choose one printed power allocation.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "Choose one printed power allocation.", ErrorCodes.InvalidTarget);
             return false;
         }
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts
@@ -29509,7 +29496,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var luxSpellOnlyResourceActions,
                 out var luxSpellOnlyResourceSourceObjectIds))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"Unsupported Lux spell-only payment resource action for {behavior.DisplayName}.",
                 ErrorCodes.InvalidTarget);
@@ -29525,7 +29512,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var recycledPaymentRuneObjectIds,
                 out var temporaryPaymentResourceActions))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"Unsupported payment resource action for {behavior.DisplayName}.",
                 ErrorCodes.InvalidTarget);
@@ -29553,7 +29540,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var returnedAdditionalCostTargetObjectIds,
                 out var discardedOptionalCostTargetObjectIds))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"Unsupported optional cost for {behavior.DisplayName}.",
                 ErrorCodes.UnsupportedCardBehavior);
@@ -29562,7 +29549,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires its optional target only when its additional cost is paid.",
                 ErrorCodes.InvalidTarget);
@@ -29572,7 +29559,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
             && destroyedAdditionalCostTargetObjectIds.Count != 1)
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29582,7 +29569,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
             && destroyedAdditionalCostTargetObjectIds.Count != 1)
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29592,7 +29579,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
             && destroyedAdditionalCostTargetObjectIds.Count != 1)
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29602,7 +29589,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost
             && returnedAdditionalCostTargetObjectIds.Count != 1)
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29612,7 +29599,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires an active friendly unit for its optional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29623,7 +29610,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29634,7 +29621,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyPowerfulUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29645,7 +29632,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyTraitUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29656,7 +29643,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanReturnFriendlyEquipmentAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
@@ -29669,7 +29656,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 targetObjectIds,
                 destroyedAdditionalCostTargetObjectIds))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a graveyard unit with mana cost no greater than the destroyed unit.",
                 ErrorCodes.InvalidTarget);
@@ -29679,67 +29666,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (discardedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDiscardHandCardAsOptionalCost(state, intent.PlayerId, command.SourceObjectId, targetObjectId)))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"{behavior.DisplayName} requires a different hand card for its optional cost.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
 
-        var battlefieldEchoCostReductionMana = ResolveBattlefieldEchoCostReductionMana(
-            state,
-            intent.PlayerId,
-            behavior,
-            optionalCosts,
-            extraManaCost);
-        extraManaCost = Math.Max(0, extraManaCost - battlefieldEchoCostReductionMana);
-        var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
-        var battlefieldEquipmentCostReductionMana = ResolveBattlefieldEquipmentCostReductionMana(
-            state,
-            intent.PlayerId,
-            behavior);
-        var dragonUnitCostReductionMana = ResolveStaticUnitCostReductionMana(
-            state,
-            intent.PlayerId,
-            behavior,
-            costReductionMana + optionalCostManaReduction + battlefieldEquipmentCostReductionMana);
-        var nextSpellCostReductionMana = ResolveSourceNextSpellCostReductionMana(
-            state,
-            intent.PlayerId,
-            behavior,
-            costReductionMana
-                + optionalCostManaReduction
-                + battlefieldEquipmentCostReductionMana
-                + dragonUnitCostReductionMana);
-        var battlefieldSpellCostReductionMana = ResolveBattlefieldSpellCostReductionMana(
-            state,
-            intent.PlayerId,
-            behavior,
-            costReductionMana
-                + optionalCostManaReduction
-                + battlefieldEquipmentCostReductionMana
-                + dragonUnitCostReductionMana
-                + nextSpellCostReductionMana);
-        var battlefieldHeldUnitCostIncreaseMana = ResolveBattlefieldHeldUnitCostIncreaseMana(
-            state,
-            intent.PlayerId,
-            behavior);
-        var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
-            state,
-            intent.PlayerId,
-            behavior,
-            targetObjectIds,
-            out var spellshieldTaxTargetObjectIds);
-        var totalManaCost = Math.Max(0, behavior.ManaCost
-                - costReductionMana
-                - optionalCostManaReduction
-                - battlefieldEquipmentCostReductionMana
-                - dragonUnitCostReductionMana
-                - nextSpellCostReductionMana
-                - battlefieldSpellCostReductionMana)
-            + extraManaCost
-            + battlefieldHeldUnitCostIncreaseMana
-            + spellshieldTaxMana;
+        var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
+            optionalCostManaReduction, optionalCosts, targetObjectIds);
+        var battlefieldEchoCostReductionMana = manaCost.EchoReduction;
+        var costReductionMana = manaCost.CardReduction;
+        optionalCostManaReduction = manaCost.OptionalReduction;
+        var battlefieldEquipmentCostReductionMana = manaCost.EquipmentReduction;
+        var dragonUnitCostReductionMana = manaCost.UnitReduction;
+        var nextSpellCostReductionMana = manaCost.NextSpellReduction;
+        var battlefieldSpellCostReductionMana = manaCost.BattlefieldSpellReduction;
+        var battlefieldHeldUnitCostIncreaseMana = manaCost.Increase;
+        var spellshieldTaxMana = manaCost.Spellshield;
+        var spellshieldTaxTargetObjectIds = manaCost.SpellshieldTargets;
+        var totalManaCost = manaCost.Total;
         var optionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum();
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -29759,7 +29705,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!PrintedPowerCostRules.TrySelect(behavior.CardNo, printedPowerChoices.SingleOrDefault(),
                 allocationPool, extraPowerCost, extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait))
         {
-            rejection = RejectWithCorePrompts(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
             return false;
         }
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
@@ -29770,7 +29716,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 totalGenericPowerCost,
                 totalPowerCostByTrait))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 $"Payment resource actions are not required to play {behavior.DisplayName}.",
                 ErrorCodes.InvalidTarget);
@@ -29789,7 +29735,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var luxSpellOnlyRemainingMana,
                 out var luxSpellOnlyResourceRejection))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 luxSpellOnlyResourceRejection,
                 ErrorCodes.InsufficientCost);
@@ -29853,7 +29799,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out _,
                 out var temporaryResourceRejection))
         {
-            rejection = RejectWithCorePrompts(
+            rejection = Reject(
                 state,
                 temporaryResourceRejection,
                 ErrorCodes.InsufficientCost);
@@ -29863,26 +29809,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         paymentAdjustedPool = temporaryAdjustedRunePools.TryGetValue(intent.PlayerId, out var temporaryAdjustedPool)
             ? temporaryAdjustedPool
             : RunePool.Empty;
-        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
-            paymentPlan,
-            paymentAdjustedPool,
-            currentExperience);
-        if (!paymentAuthorization.Accepted)
-        {
-            var errorMessage = paymentAdjustedPool.Mana < totalManaCost
-                ? $"Not enough mana to play {behavior.DisplayName}."
-                : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
-                    ? $"Not enough power to play {behavior.DisplayName}."
-                    : currentExperience < totalExperienceCost
-                        ? $"Not enough experience to play {behavior.DisplayName}."
-                        : paymentAuthorization.Reason ?? $"Not enough resources to play {behavior.DisplayName}.";
-            rejection = RejectWithCorePrompts(
-                state,
-                errorMessage,
-                ErrorCodes.InsufficientCost);
-            return false;
-        }
-
         plan = new PlayCardPlan(
             behavior,
             zones,
@@ -29918,29 +29844,32 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             luxSpellOnlyConsumedMana,
             luxSpellOnlyRemainingMana,
             rengarUnitPlayedTargetObjectId,
-            leonaStunBoonTargetObjectId);
-        return true;
-    }
+            leonaStunBoonTargetObjectId,
+            paymentPlan,
+            paymentAdjustedPool,
+            currentExperience,
+            extraManaCost);
+        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
+            paymentPlan,
+            paymentAdjustedPool,
+            currentExperience);
+        if (!paymentAuthorization.Accepted)
+        {
+            var errorMessage = paymentAdjustedPool.Mana < totalManaCost
+                ? $"Not enough mana to play {behavior.DisplayName}."
+                : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
+                    ? $"Not enough power to play {behavior.DisplayName}."
+                    : currentExperience < totalExperienceCost
+                        ? $"Not enough experience to play {behavior.DisplayName}."
+                        : paymentAuthorization.Reason ?? $"Not enough resources to play {behavior.DisplayName}.";
+            rejection = Reject(
+                state,
+                errorMessage,
+                ErrorCodes.InsufficientCost);
+            return false;
+        }
 
-    private static IReadOnlyDictionary<string, object?> BuildPlayCardPaymentAuditMetadata(PlayCardPlan plan)
-    {
-        return BuildPlayCardPaymentAuditMetadata(
-            plan.CostReductionMana,
-            plan.OptionalCostManaReduction,
-            plan.BattlefieldEchoCostReductionMana,
-            plan.BattlefieldEquipmentCostReductionMana,
-            plan.DragonUnitCostReductionMana,
-            plan.NextSpellCostReductionMana,
-            plan.BattlefieldSpellCostReductionMana,
-            plan.BattlefieldHeldUnitCostIncreaseMana,
-            plan.SpellshieldTaxMana,
-            plan.SpellshieldTaxTargetObjectIds,
-            plan.RecycledPaymentRuneObjectIds,
-            plan.LuxSpellOnlyResourceActions,
-            plan.LuxSpellOnlyResourceSourceObjectIds,
-            plan.LuxSpellOnlyGeneratedMana,
-            plan.LuxSpellOnlyConsumedMana,
-            plan.LuxSpellOnlyRemainingMana);
+        return true;
     }
 
     private static IReadOnlyDictionary<string, object?> BuildPlayCardPaymentAuditMetadata(
@@ -35459,8 +35388,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (behavior.ManaCost <= 0
-            || !behavior.PlaysSourceToBaseAsEquipment
+        if (!behavior.PlaysSourceToBaseAsEquipment
             || ControllerPlayedEquipmentThisTurn(state, playerId)
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
@@ -35475,7 +35403,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .DefaultIfEmpty(0)
             .Max();
 
-        return Math.Min(reductionAmount, behavior.ManaCost);
+        return reductionAmount;
     }
 
     private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
@@ -35488,33 +35416,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static int ResolveStaticUnitCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!behavior.PlaysSourceToBaseAsUnit)
-        {
-            return 0;
-        }
-
-        var sources = StaticUnitCostReductionSourceBehaviors(state, playerId)
-            .Where(source => StaticUnitCostReductionAppliesToBehavior(source, behavior))
-            .ToArray();
-        if (sources.Length == 0)
-        {
-            return 0;
-        }
-
-        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticUnitCostReductionMinimumManaCost));
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > minimumManaCost
-            ? Math.Min(
-                sources.Sum(source => Math.Max(0, source.StaticUnitCostReductionMana)),
-                baseManaAfterExistingReductions - minimumManaCost)
-            : 0;
-    }
 
     private static IEnumerable<CardBehaviorDefinition> StaticUnitCostReductionSourceBehaviors(
         MatchState state,
@@ -35556,57 +35457,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 sourceBehavior.StaticUnitCostReductionRequiredUnitTag);
     }
 
-    private static int ResolveSourceNextSpellCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!IsSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 0)
-        {
-            return 0;
-        }
 
-        var totalReductionMana = SourceNextSpellCostReductionEffects(state, playerId)
-            .Sum(effect => effect.Mana);
-        if (totalReductionMana == 0)
-        {
-            return 0;
-        }
-
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return Math.Min(
-            totalReductionMana,
-            baseManaAfterExistingReductions);
-    }
-
-    private static int ResolveBattlefieldSpellCostReductionMana(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int alreadyAppliedBaseReductionMana)
-    {
-        if (!IsSpellPlayBehavior(behavior)
-            || behavior.ManaCost <= 0)
-        {
-            return 0;
-        }
-
-        var sources = StaticSpellCostReductionSourceBehaviors(state, playerId).ToArray();
-        if (sources.Length == 0)
-        {
-            return 0;
-        }
-
-        var minimumManaCost = sources.Max(source => Math.Max(0, source.StaticSpellCostReductionMinimumManaCost));
-        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
-        return baseManaAfterExistingReductions > minimumManaCost
-            ? Math.Min(
-                sources.Sum(source => Math.Max(0, source.StaticSpellCostReductionMana)),
-                baseManaAfterExistingReductions - minimumManaCost)
-            : 0;
-    }
 
     private static IEnumerable<CardBehaviorDefinition> StaticSpellCostReductionSourceBehaviors(
         MatchState state,
@@ -49939,7 +49790,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int LuxSpellOnlyConsumedMana,
         int LuxSpellOnlyRemainingMana,
         string RengarUnitPlayedTargetObjectId,
-        string LeonaStunBoonTargetObjectId);
+        string LeonaStunBoonTargetObjectId,
+        PaymentCostRules.PaymentPlan Payment,
+        RunePool AvailablePool,
+        int AvailableExperience,
+        int AdditionalManaCost);
 
     private sealed record SourceNextSpellCostReductionEffect(
         string EffectId,

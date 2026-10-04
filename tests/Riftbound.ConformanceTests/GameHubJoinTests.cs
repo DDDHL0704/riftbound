@@ -17,6 +17,43 @@ namespace Riftbound.ConformanceTests;
 public sealed class GameHubJoinTests
 {
     [Fact]
+    public async Task CostPreviewUsesBoundIdentityAndDoesNotBroadcastOrJournal()
+    {
+        var state = PlayCostPreviewTests.Position(new(8, 4));
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        var clients = new RecordingHubClients();
+        var hub = CreateHub(clients, new RecordingGroupManager(), "preview", new FixedMatchSessionRegistry(session));
+        var request = PlayCostPreviewTests.Request(state, PlayCostPreviewTests.Command([]));
+        Assert.Equal(ErrorCodes.AuthenticationRequired, (await hub.PreviewPlayCard(state.RoomId, request)).ErrorCode);
+        hub.Context.Items["riftbound:authenticatedHandle"] = "P1";
+        Assert.True((await hub.PreviewPlayCard(state.RoomId, request)).CanPay);
+        var foreign = await hub.PreviewPlayCard(state.RoomId,
+            request with { Command = request.Command with { SourceObjectId = "P2-CARD" } });
+        Assert.False(foreign.CanPay);
+        Assert.Null(foreign.Cost);
+        hub.Context.Items["riftbound:authenticatedHandle"] = "SPECTATOR";
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, (await hub.PreviewPlayCard(state.RoomId, request)).ErrorCode);
+        Assert.Empty(journal.Entries);
+        Assert.Empty(clients.CallerClient.EventMessages);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+        Assert.Equal(state.Tick, session.SnapshotFor("P1").Tick);
+    }
+
+    [Fact]
+    public async Task CostPreviewOfUnknownRoomDoesNotCreateIt()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var hub = CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "preview", registry);
+        hub.Context.Items["riftbound:authenticatedHandle"] = "P1";
+        var request = PlayCostPreviewTests.Request(PlayCostPreviewTests.Position(new(8, 4)), PlayCostPreviewTests.Command([]));
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, (await hub.PreviewPlayCard("MISSING", request)).ErrorCode);
+        Assert.Null(await registry.FindAsync("MISSING", default));
+    }
+
+    [Fact]
     public void GameEventObjectRefProjectorRecursesAssignmentArraysAndObjectRecords()
     {
         var state = new MatchState(
@@ -17807,6 +17844,9 @@ public sealed class GameHubJoinTests
 
     private sealed class FixedMatchSessionRegistry(IMatchSession session) : IMatchSessionRegistry
     {
+        public ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken)
+            => ValueTask.FromResult<IMatchSession?>(session.RoomId == roomId ? session : null);
+
         public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
         {
             return ValueTask.FromResult(session);

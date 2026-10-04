@@ -68,6 +68,7 @@ public partial class Main : Control
     private DamageAssignmentOverlay? _damageAssignmentOverlay;
     private PlayCardOverlay? _playCardOverlay;
     private Godot.Collections.Dictionary? _playCardAction;
+    private CancellationTokenSource? _playCostPreviewCancellation;
     private MovementOverlay? _movementOverlay;
     private Godot.Collections.Dictionary? _movementAction;
     private RiftboundGameHubClient? _hub;
@@ -203,6 +204,7 @@ public partial class Main : Control
     {
         _isShuttingDown = true;
         _shutdown.Cancel();
+        _playCostPreviewCancellation?.Dispose();
         ReleaseRuntimeUiResources();
         _ = DisconnectAsync();
         _shutdown.Dispose();
@@ -352,6 +354,7 @@ public partial class Main : Control
     private void WireButtons()
     {
         _playCardOverlay = new PlayCardOverlay(); AddChild(_playCardOverlay);
+        _playCardOverlay.PreviewRequested += request => _ = RequestPlayCostPreviewAsync(request);
         _playCardOverlay.Confirmed += payload =>
         {
             if (_playCardAction is not null) _ = SubmitSpecialPromptAsync(_playCardAction, payload, "play_card");
@@ -408,6 +411,33 @@ public partial class Main : Control
         }
 
         ApplyCardPreview(card);
+    }
+
+    private async Task RequestPlayCostPreviewAsync(PlayCostPreviewRequestDto request)
+    {
+        _playCostPreviewCancellation?.Cancel();
+        _playCostPreviewCancellation?.Dispose();
+        _playCostPreviewCancellation = CancellationTokenSource.CreateLinkedTokenSource(_shutdown.Token);
+        var token = _playCostPreviewCancellation.Token;
+        try
+        {
+            await Task.Delay(120, token);
+            if (!IsConnected() || _hub is null) return;
+            var quote = await _hub.PreviewPlayCardAsync(_session.RoomId, request, token);
+            if (!token.IsCancellationRequested) QueueMainThread(nameof(ApplyPlayCostQuote), JsonSerializer.Serialize(quote));
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception)
+        {
+            if (!token.IsCancellationRequested)
+                QueueMainThread(nameof(ApplyPlayCostQuote), JsonSerializer.Serialize(PlayCostQuoteDto.Rejected(request,
+                    request.SnapshotTick, "PREVIEW_UNAVAILABLE", "费用暂时无法核对，请检查连接后重新选择。")));
+        }
+    }
+
+    public void ApplyPlayCostQuote(string json)
+    {
+        if (JsonSerializer.Deserialize<PlayCostQuoteDto>(json) is { } quote) _playCardOverlay?.ApplyQuote(quote);
     }
 
     private bool TryOpenPlayCard(string? sourceId = null)

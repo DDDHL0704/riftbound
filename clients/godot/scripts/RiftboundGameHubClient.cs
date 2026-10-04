@@ -158,6 +158,9 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
             cancellationToken);
     }
 
+    public Task<PlayCostQuoteDto> PreviewPlayCardAsync(string roomId, PlayCostPreviewRequestDto request, CancellationToken cancellationToken)
+        => connection.InvokeAsync<PlayCostQuoteDto>("PreviewPlayCard", roomId, request, cancellationToken);
+
     public async ValueTask DisposeAsync()
     {
         restorationSnapshot?.TrySetCanceled();

@@ -50,7 +50,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
@@ -65,8 +65,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("RagingDrakeNextSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceNextSpellCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceNextSpellCostReductionEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SourceNextSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("SourceNextSpellCostReductionEffectKind", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.MinimumPlayManaCost", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -76,7 +75,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
@@ -94,9 +93,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.Contains("StaticUnitCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticUnitCostReductionRequiredUnitTag", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticUnitCostReductionMinimumManaCost", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("StaticUnitCostReductionMana", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("StaticUnitCostReductionRequiredUnitTag", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("StaticUnitCostReductionMinimumManaCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.MinimumPlayManaCost", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -106,7 +103,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
 
         Assert.DoesNotContain("PoroHerderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, PoroHerderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -125,7 +122,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
 
         Assert.DoesNotContain("BalancedDiscipleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(behavior.CardNo, BalancedDiscipleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -144,7 +141,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
@@ -176,7 +173,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
 
         Assert.DoesNotContain("AscendedBelieverCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SlySalamanderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -205,7 +202,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",

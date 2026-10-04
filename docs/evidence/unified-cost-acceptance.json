@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-04",
+  "stage": "shared-cost-and-preview",
+  "fullRegression": {
+    "passed": 9339,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "unified-cost-full-verified.trx"
+  },
+  "focused": {
+    "passed": 85,
+    "trx": "cost-order-verified.trx"
+  },
+  "nativeFreshness": "PLAY_COST_PREVIEW_FRESHNESS_PASS",
+  "macos": {
+    "launchOutsideSource": true,
+    "appPath": "/Users/dinghaolin/.local/share/riftbound-qa/unified-cost/符文战场.app",
+    "testedResolutions": [
+      "1280x720",
+      "1440x900"
+    ],
+    "payment": {
+      "playerId": "符能验收玩家",
+      "mana": 5,
+      "power": 2,
+      "powerByTrait": {
+        "purple": 2
+      },
+      "experience": 0,
+      "baseMana": 4,
+      "costReductionMana": 0,
+      "optionalCostManaReduction": 0,
+      "battlefieldEchoCostReductionMana": 0,
+      "battlefieldEquipmentCostReductionMana": 0,
+      "nextSpellCostReductionMana": 0,
+      "battlefieldSpellCostReductionMana": 0,
+      "battlefieldHeldUnitCostIncreaseMana": 0,
+      "spellshieldTaxMana": 0,
+      "spellshieldTaxTargetObjectIds": [],
+      "optionalCosts": [
+        "HASTE_READY"
+      ],
+      "paymentResourceActions": [
+        "RECYCLE_RUNE:P1-RUNE-PURPLE-HASTE-PAYMENT-001"
+      ],
+      "recycledRuneObjectIds": [
+        "P1-RUNE-PURPLE-HASTE-PAYMENT-001"
+      ],
+      "temporaryPaymentResourceIds": [],
+      "temporaryPaymentResourcePower": 0,
+      "luxSpellOnlyResourceActions": [],
+      "luxSpellOnlyResourceSourceObjectIds": [],
+      "luxSpellOnlyGeneratedMana": 0,
+      "luxSpellOnlyConsumedMana": 0,
+      "luxSpellOnlyRemainingMana": 0,
+      "paymentId": "PLAY_CARD:4:符能验收玩家:P1-UNIT-SIVIR",
+      "paymentWindow": "PLAY_CARD",
+      "remainingMana": 0,
+      "remainingPower": 0,
+      "remainingPowerByTrait": {},
+      "remainingExperience": 0,
+      "baseManaCost": 4,
+      "totalManaCost": 5,
+      "genericPower": 0,
+      "totalPowerCost": 2,
+      "experienceCost": 0,
+      "extraCosts": [],
+      "legalPaymentChoiceIds": [],
+      "reason": "SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE",
+      "sourceObjectId": "P1-UNIT-SIVIR",
+      "dragonUnitCostReductionMana": 0
+    },
+    "screenshots": [
+      "var/qa/quote-native-insufficient-1280.png",
+      "var/qa/quote-native-payable-1280.png",
+      "var/qa/quote-native-normal-1440.png"
+    ]
+  },
+  "windows": {
+    "exported": true,
+    "runtimeVerified": false
+  },
+  "packages": {
+    "macOS": {
+      "path": "clients/godot/exports/macos/Riftbound.zip",
+      "sha256": "6f1b35e32767a2d1afc19757a316b34289396ea9c1a9c74607171a26a39c9825"
+    },
+    "windows": {
+      "path": "clients/godot/exports/windows/Riftbound-windows-x64.zip",
+      "sha256": "5821949222f7ae5656eb1280de9a290c9cbc5e9326f3d890bf34965d3f1502a6"
+    }
+  }
+}

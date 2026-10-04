@@ -31,7 +31,7 @@ public sealed class BattlefieldStaticSourceIdentityGuardTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs"));
+            "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
         var matchSessionSource = File.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
@@ -48,8 +48,7 @@ public sealed class BattlefieldStaticSourceIdentityGuardTests
         Assert.DoesNotContain("EAGER_APPRENTICE_SPELL_COST_STATIC_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains("StaticSpellCostReductionMana", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("StaticSpellCostReductionMinimumManaCost", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("StaticSpellCostReductionMana", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("StaticSpellCostReductionMinimumManaCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.MinimumPlayManaCost", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()
