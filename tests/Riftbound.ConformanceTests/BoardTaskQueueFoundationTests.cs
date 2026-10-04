@@ -857,23 +857,8 @@ public sealed class BoardTaskQueueFoundationTests
                 Destination: "BATTLEFIELD:BF-CONTEST"),
             CancellationToken.None);
         Assert.True(played.Accepted, played.ErrorMessage);
-        var stackItem = Assert.Single(played.State.StackItems);
-        Assert.Equal(hasteUnitObjectId, stackItem.SourceObjectId);
-        Assert.Equal("BATTLEFIELD:BF-CONTEST", stackItem.Destination);
-        Assert.Equal([HasteOptionalCostNames.HasteReady], stackItem.OptionalCosts);
-
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-board-task-play-haste-unit-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        var resolved = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-board-task-play-haste-unit-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        Assert.Empty(played.State.StackItems);
+        var resolved = played; // CN 359.2 preserves the subsequent battlefield task assertions.
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);

@@ -27,7 +27,9 @@ public sealed class AgileEquipmentDirectPlayAttachTests
         Assert.Equal(new RunePool(3 - manaCost, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
         var stackItem = Assert.Single(played.State.StackItems);
-        Assert.Equal([sourceObjectId], played.State.ObjectLocations
+        Assert.True(stackItem.SourceConfirmed);
+        Assert.Contains(sourceObjectId, played.State.PlayerZones["P1"].Base);
+        Assert.Equal(Array.Empty<string>(), played.State.ObjectLocations
             .Where(entry => string.Equals(entry.Value.Zone, "STACK", StringComparison.Ordinal))
             .Select(entry => entry.Key)
             .ToArray());
@@ -175,7 +177,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "EQUIPMENT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertAgileEquipmentStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -324,22 +326,11 @@ public sealed class AgileEquipmentDirectPlayAttachTests
             CancellationToken.None);
     }
 
-    private static StackItemState AssertAgileEquipmentStackPriorityState(
+    private static string AssertAgileEquipmentStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-EQUIPMENT-LONG-SWORD", result.State.PlayerZones["P1"].Base);
-        Assert.Equal("STACK", result.State.ObjectLocations["P1-EQUIPMENT-LONG-SWORD"].Zone);
-        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("P1-EQUIPMENT-LONG-SWORD", stackItem.SourceObjectId);
-        Assert.Equal(["P1-BASE-UNIT"], stackItem.TargetObjectIds);
-        Assert.Equal(expectedStackItem ?? stackItem, stackItem);
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, "P1-EQUIPMENT-LONG-SWORD", true, expectedStackItem);
     }
 
     private static JsonElement PromptScopedPlayCardRawCommand(

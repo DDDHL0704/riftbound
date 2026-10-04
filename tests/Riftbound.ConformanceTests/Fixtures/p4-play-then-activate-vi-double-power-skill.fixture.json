@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "本 fixture 覆盖先打出源单位、结算成为场上对象，再用该对象的卡号身份执行无目标激活技能；技能目标税、横置技能、装备技能和通用技能 registry 仍暂缓。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent confirms immediately; only play abilities require priority passes. Final gameplay assertions retained."
+    }
   ],
   "roomId": "p4-play-then-activate-vi-room",
   "players": ["P1", "P2"],
@@ -74,16 +83,6 @@
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p4-play-then-activate-vi-play-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p4-play-then-activate-vi-play-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
-    },
-    {
-      "playerId": "P1",
       "clientIntentId": "intent-p4-play-then-activate-vi-activate",
       "cmd": {
         "cmdType": "ACTIVATE_ABILITY",
@@ -96,23 +95,24 @@
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-play-then-activate-vi-skill-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p4-play-then-activate-vi-skill-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
-    "finalTick": 6,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "ABILITY_ACTIVATED",
       "COST_PAID",
@@ -123,7 +123,9 @@
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -132,11 +134,12 @@
           "power": 0
         }
       },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "UNIT_PLAYED_TO_BASE" },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE"
+      },
       {
         "kind": "ABILITY_ACTIVATED",
         "payload": {
@@ -155,10 +158,18 @@
           "abilityId": "PAY_2_RED_DOUBLE_POWER"
         }
       },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "STACK_ITEM_ADDED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {

@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；征服和增益触发留待后续战斗/得分模型覆盖。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-crimson-signet-treant-room",
@@ -79,37 +84,36 @@
         "cardNo": "UNL-029/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-crimson-signet-treant-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-crimson-signet-treant-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 4, "baseMana": 4 } },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4
+        }
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-CRIMSON-SIGNET-TREANT",
-          "cardNo": "UNL-029/219",
-          "targetObjectIds": [],
           "effectKind": "CRIMSON_SIGNET_TREANT_PLAY_UNIT_NO_OPTIONAL_HASTE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -119,7 +123,10 @@
           "unitName": "绯红印记树怪",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "急速"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "急速"
+          ]
         }
       }
     ],

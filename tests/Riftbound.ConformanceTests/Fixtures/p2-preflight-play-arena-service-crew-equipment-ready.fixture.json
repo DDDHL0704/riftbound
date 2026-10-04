@@ -23,6 +23,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
       "note": "单位和装备是游戏对象；打出装备进入结算链时会产生打出事件，触发式技能由服务端解析；活跃/休眠状态由服务端权威更新。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-ogn-091-arena-service-crew-ready-room",
@@ -120,15 +125,18 @@
       "COST_PAID",
       "TRIGGER_RESOLVED",
       "UNIT_READIED",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_PLAYED_TO_BASE",
       "EQUIPMENT_ATTACHED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -162,18 +170,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
-          "cardNo": "SFD·022/221",
-          "targetObjectIds": ["P1-UNIT-ARENA-SERVICE-CREW"],
           "effectKind": "LONG_SWORD_AGILE_PLAY_EQUIPMENT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "EQUIPMENT_PLAYED_TO_BASE",
         "payload": {
@@ -182,8 +185,24 @@
           "equipmentObjectId": "P1-EQUIPMENT-LONG-SWORD",
           "equipmentName": "长剑",
           "destinationZone": "BASE",
-          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"]
+          "tags": [
+            "CARD_TYPE:EQUIPMENT",
+            "武装",
+            "灵便"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "EQUIPMENT_ATTACHED",

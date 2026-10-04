@@ -20,7 +20,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         var stackItem = Assert.Single(played.State.StackItems);
         Assert.Equal(["P2-BATTLEFIELD-UNIT"], stackItem.TargetObjectIds);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD", StringComparison.Ordinal));
 
         var p1Pass = await engine.ResolveAsync(
@@ -95,7 +95,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
         Assert.Contains(accepted.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD", StringComparison.Ordinal));
         var acceptedStackItem = AssertMegasharkStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
@@ -462,58 +462,11 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertMegasharkStackPriorityState(
+    private static string AssertMegasharkStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-FRIENDLY-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-BASE-UNIT"], result.State.PlayerZones["P2"].Base);
-        Assert.Equal(
-            [
-                "P2-BATTLEFIELD-UNIT",
-                "P2-BATTLEFIELD-EQUIPMENT",
-                "P2-BATTLEFIELD-SPELL",
-                "P2-BATTLEFIELD-RUNE",
-                "P2-FACE-DOWN-STANDBY",
-                "P2-FACE-UP-STANDBY",
-                "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"
-            ],
-            result.State.PlayerZones["P2"].Battlefields);
-        Assert.Null(result.State.PendingPayment);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("P1-UNIT-MEGASHARK-CANNON", stackItem.SourceObjectId);
-        Assert.Equal("OGN·092/298", stackItem.CardNo);
-        Assert.Equal(["P2-BATTLEFIELD-UNIT"], stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("MEGASHARK_CANNON_PLAY_UNIT_DAMAGE_6_ENEMY_BATTLEFIELD", stackItem.EffectKind);
-        Assert.Equal(6, stackItem.DamageAmount);
-        Assert.Equal(1, stackItem.EffectRepeatCount);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, "P1-UNIT-MEGASHARK-CANNON", true, expectedStackItem);
     }
 
     private static void AssertRejectedWithoutMutation(
@@ -534,7 +487,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
     }
 

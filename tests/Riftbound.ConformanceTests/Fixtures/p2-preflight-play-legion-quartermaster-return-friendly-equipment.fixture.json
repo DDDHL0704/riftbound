@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
       "note": "打出卡牌需要支付费用和额外费用；装备是公开区域中的游戏对象，能返回其拥有者手牌并移除公开对象状态；单位源牌结算后成为控制者基地中的单位对象。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-legion-quartermaster-room",
@@ -114,32 +119,15 @@
           "RETURN_FRIENDLY_EQUIPMENT:P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"
         ]
       }
-    },
-    {
-      "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-legion-quartermaster-p1-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-legion-quartermaster-p2-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "EQUIPMENT_RETURNED_TO_HAND",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
@@ -171,25 +159,12 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
-        "tick": 1,
-        "sequence": 4,
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-LEGION-QUARTERMASTER",
-          "cardNo": "SFD·044/221",
-          "targetObjectIds": [],
           "effectKind": "LEGION_QUARTERMASTER_RETURN_FRIENDLY_EQUIPMENT_STATIC"
         }
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "UNIT_PLAYED_TO_BASE",

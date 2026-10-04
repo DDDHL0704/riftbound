@@ -44,7 +44,7 @@ public sealed class MasterYiLevelActiveEntryStaticAbilityTests
         var played = await PlayLegionRearguardAsync(engine, state);
         Assert.True(played.Accepted, played.ErrorMessage);
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -68,7 +68,7 @@ public sealed class MasterYiLevelActiveEntryStaticAbilityTests
         var played = await PlayLegionRearguardAsync(engine, state);
         Assert.True(played.Accepted, played.ErrorMessage);
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);

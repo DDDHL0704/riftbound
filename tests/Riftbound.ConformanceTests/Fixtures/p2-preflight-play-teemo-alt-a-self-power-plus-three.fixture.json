@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；本回合内战力修正记录到对象状态，并在回合结束清理时失效；待命作为关键词标签记录。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    }
   ],
   "roomId": "p2-preflight-teemo-alt-a-room",
   "players": [
@@ -124,11 +133,12 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
       "TRIGGER_RESOLVED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
@@ -146,23 +156,12 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-TEEMO-A",
-          "cardNo": "OGN·197a/298",
-          "targetObjectIds": [],
           "effectKind": "TEEMO_ALT_A_PLAY_UNIT_SELF_POWER_PLUS_3"
         }
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
@@ -179,6 +178,18 @@
             "约德尔人"
           ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "TRIGGER_QUEUED"

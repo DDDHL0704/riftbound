@@ -65,18 +65,7 @@ public sealed class UnconditionalSourceUnitActiveEntryStaticAbilityTests
             CancellationToken.None);
         Assert.True(played.Accepted, played.ErrorMessage);
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-aggressive-dragonhound-unconditional-static-entry-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        var resolved = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-aggressive-dragonhound-unconditional-static-entry-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var resolved = played; // CN 359.2
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);

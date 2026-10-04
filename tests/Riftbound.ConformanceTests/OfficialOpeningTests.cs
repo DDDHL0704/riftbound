@@ -191,8 +191,8 @@ public sealed class OfficialOpeningTests
             Assert.Equal(playerId, prompt.PlayerId);
             Assert.True(prompt.Actionable);
             Assert.Equal(PromptTypes.RoomSetup, prompt.View?.Type);
-            Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
-            Assert.DoesNotContain("READY", prompt.Actions);
+            Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
+            Assert.DoesNotContain("READY", prompt.EnabledActions());
             Assert.Equal(result.State.Tick, prompt.SnapshotTick);
         }
     }
@@ -223,13 +223,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = result.Prompts[activePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, activePrompt.EnabledActions());
 
         var waitingPrompt = result.Prompts[secondPlayerId];
         Assert.False(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitingPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitingPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitingPrompt.EnabledActions());
 
         var nextTurnCalledRuneObjectIds = result.State.PlayerZones[secondPlayerId].RuneDeck
             .Take(3)
@@ -277,13 +277,13 @@ public sealed class OfficialOpeningTests
         var oldTurnPrompt = nextTurn.Prompts[activePlayerId];
         Assert.False(oldTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, oldTurnPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], oldTurnPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], oldTurnPrompt.EnabledActions());
 
         var nextTurnPrompt = nextTurn.Prompts[secondPlayerId];
         Assert.True(nextTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, nextTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, nextTurnPrompt.Actions);
-        Assert.Contains(CommandTypes.Surrender, nextTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, nextTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, nextTurnPrompt.EnabledActions());
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
 
         var p2SubmittedHash = MatchStateHasher.Hash(p2Submitted.State);
         var rejected = await session.SubmitDeckAsync(
@@ -372,7 +372,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var p2SubmittedHash = MatchStateHasher.Hash(p2Submitted.State);
 
         var staleSnapshotTick = prompt.SnapshotTick - 1;
@@ -434,7 +434,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var p2SubmittedHash = MatchStateHasher.Hash(p2Submitted.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -494,9 +494,9 @@ public sealed class OfficialOpeningTests
         Assert.True(accepted.State.PlayerDecklists.ContainsKey("P1"));
         Assert.False(accepted.State.PlayerDecklists.ContainsKey("P2"));
         Assert.True(accepted.Prompts["P1"].Actionable);
-        Assert.Equal(["READY"], accepted.Prompts["P1"].Actions);
+        Assert.Equal(["READY"], accepted.Prompts["P1"].EnabledActions());
         Assert.True(accepted.Prompts["P2"].Actionable);
-        Assert.Equal(["SUBMIT_DECK"], accepted.Prompts["P2"].Actions);
+        Assert.Equal(["SUBMIT_DECK"], accepted.Prompts["P2"].EnabledActions());
         AssertOfficialSubmitDeckReadyAndSubmitPromptQueueAudit(accepted, "P1", "P2", decklist);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
@@ -517,9 +517,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerDecklists["P1"].RuneDeck, replay.State.PlayerDecklists["P1"].RuneDeck);
         Assert.Equal(accepted.State.PlayerDecklists["P1"].Battlefields, replay.State.PlayerDecklists["P1"].Battlefields);
         Assert.True(replay.Prompts["P1"].Actionable);
-        Assert.Equal(["READY"], replay.Prompts["P1"].Actions);
+        Assert.Equal(["READY"], replay.Prompts["P1"].EnabledActions());
         Assert.True(replay.Prompts["P2"].Actionable);
-        Assert.Equal(["SUBMIT_DECK"], replay.Prompts["P2"].Actions);
+        Assert.Equal(["SUBMIT_DECK"], replay.Prompts["P2"].EnabledActions());
         AssertOfficialSubmitDeckReadyAndSubmitPromptQueueAudit(replay, "P1", "P2", decklist);
     }
 
@@ -534,7 +534,7 @@ public sealed class OfficialOpeningTests
         session.EnsurePlayer("P2");
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var rawCommand = PromptScopedSubmitDeckRawCommand(decklist, prompt);
         var reorderedRawCommand = JsonSerializer.SerializeToElement(new
         {
@@ -654,7 +654,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p1Submit.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var rawCommand = PromptScopedSubmitDeckRawCommand(p2Deck, prompt);
 
         var accepted = await session.SubmitDeckAsync(
@@ -671,9 +671,9 @@ public sealed class OfficialOpeningTests
         Assert.True(accepted.State.PlayerDecklists.ContainsKey("P1"));
         Assert.True(accepted.State.PlayerDecklists.ContainsKey("P2"));
         Assert.True(accepted.Prompts["P1"].Actionable);
-        Assert.Equal(["READY"], accepted.Prompts["P1"].Actions);
+        Assert.Equal(["READY"], accepted.Prompts["P1"].EnabledActions());
         Assert.True(accepted.Prompts["P2"].Actionable);
-        Assert.Equal(["READY"], accepted.Prompts["P2"].Actions);
+        Assert.Equal(["READY"], accepted.Prompts["P2"].EnabledActions());
         AssertOfficialSubmitDeckBothReadyPromptQueueAudit(accepted, p1Deck, p2Deck);
         Assert.Equal(2, journal.Entries.Count);
 
@@ -701,9 +701,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerDecklists["P2"].RuneDeck, replay.State.PlayerDecklists["P2"].RuneDeck);
         Assert.Equal(accepted.State.PlayerDecklists["P2"].Battlefields, replay.State.PlayerDecklists["P2"].Battlefields);
         Assert.True(replay.Prompts["P1"].Actionable);
-        Assert.Equal(["READY"], replay.Prompts["P1"].Actions);
+        Assert.Equal(["READY"], replay.Prompts["P1"].EnabledActions());
         Assert.True(replay.Prompts["P2"].Actionable);
-        Assert.Equal(["READY"], replay.Prompts["P2"].Actions);
+        Assert.Equal(["READY"], replay.Prompts["P2"].EnabledActions());
         AssertOfficialSubmitDeckBothReadyPromptQueueAudit(replay, p1Deck, p2Deck);
 
         Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
@@ -837,10 +837,10 @@ public sealed class OfficialOpeningTests
 
         var submitPrompt = submitted.Prompts["P1"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyPrompt = submitted.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var submittedHash = MatchStateHasher.Hash(submitted.State);
 
         var rejected = await session.ReadyAsync(
@@ -900,10 +900,10 @@ public sealed class OfficialOpeningTests
 
         var submitPrompt = submitted.Prompts["P1"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyPrompt = submitted.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var submittedHash = MatchStateHasher.Hash(submitted.State);
 
         var rejected = await session.ReadyAsync(
@@ -963,10 +963,10 @@ public sealed class OfficialOpeningTests
 
         var submitPrompt = submitted.Prompts["P1"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyPrompt = submitted.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var submittedHash = MatchStateHasher.Hash(submitted.State);
 
         var staleSnapshotTick = submitPrompt.SnapshotTick - 1;
@@ -1133,7 +1133,7 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = submitted.Prompts["P1"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
 
         var accepted = await session.ReadyAsync(
             "P1",
@@ -1149,10 +1149,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = accepted.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var submitPrompt = accepted.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
         var replay = await session.ReadyAsync(
@@ -1211,10 +1211,10 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = submitted.Prompts["P1"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var submitPrompt = submitted.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var submittedHash = MatchStateHasher.Hash(submitted.State);
 
         var staleSnapshotTick = readyPrompt.SnapshotTick - 1;
@@ -1273,10 +1273,10 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = submitted.Prompts["P1"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var submitPrompt = submitted.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var submittedHash = MatchStateHasher.Hash(submitted.State);
 
         var rejected = await session.ReadyAsync(
@@ -1385,10 +1385,10 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = ready.Prompts["P1"];
         Assert.False(readyPrompt.Actionable);
-        Assert.Equal(["WAIT"], readyPrompt.Actions);
+        Assert.Equal(["WAIT"], readyPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -1454,10 +1454,10 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = ready.Prompts["P1"];
         Assert.False(readyPrompt.Actionable);
-        Assert.Equal(["WAIT"], readyPrompt.Actions);
+        Assert.Equal(["WAIT"], readyPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var staleSnapshotTick = readyPrompt.SnapshotTick - 1;
@@ -1524,10 +1524,10 @@ public sealed class OfficialOpeningTests
 
         var readyPrompt = ready.Prompts["P1"];
         Assert.False(readyPrompt.Actionable);
-        Assert.Equal(["WAIT"], readyPrompt.Actions);
+        Assert.Equal(["WAIT"], readyPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -1593,10 +1593,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var replay = await session.ReadyAsync(
@@ -1659,10 +1659,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var staleSnapshotTick = waitPrompt.SnapshotTick - 1;
@@ -1728,10 +1728,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var submitPrompt = ready.Prompts["P2"];
         Assert.True(submitPrompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], submitPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], submitPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.ReadyAsync(
@@ -1868,10 +1868,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var replay = await session.ReadyAsync(
@@ -1919,8 +1919,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -1968,10 +1968,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var staleSnapshotTick = waitPrompt.SnapshotTick - 1;
@@ -2022,8 +2022,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2071,10 +2071,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.ReadyAsync(
@@ -2124,8 +2124,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2173,10 +2173,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -2227,8 +2227,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2276,10 +2276,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var staleSnapshotTick = waitPrompt.SnapshotTick - 1;
@@ -2331,8 +2331,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2380,10 +2380,10 @@ public sealed class OfficialOpeningTests
 
         var waitPrompt = ready.Prompts["P1"];
         Assert.False(waitPrompt.Actionable);
-        Assert.Equal(["WAIT"], waitPrompt.Actions);
+        Assert.Equal(["WAIT"], waitPrompt.EnabledActions());
         var readyPrompt = ready.Prompts["P2"];
         Assert.True(readyPrompt.Actionable);
-        Assert.Equal(["READY"], readyPrompt.Actions);
+        Assert.Equal(["READY"], readyPrompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -2434,8 +2434,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2475,7 +2475,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var rawCommand = PromptScopedReadyRawCommand(prompt);
 
         var firstReady = await session.ReadyAsync(
@@ -2515,8 +2515,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2553,8 +2553,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var replayPrompt in replay.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, replayPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, replayPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, replayPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, replayPrompt.EnabledActions());
             Assert.DoesNotContain(
                 replayPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2609,8 +2609,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var duplicateReplayPrompt in duplicateReplay.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, duplicateReplayPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, duplicateReplayPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, duplicateReplayPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, duplicateReplayPrompt.EnabledActions());
             Assert.DoesNotContain(
                 duplicateReplayPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2722,7 +2722,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -2758,8 +2758,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2803,8 +2803,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in result.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2843,7 +2843,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var rawCommand = PromptScopedReadyRawCommand(prompt);
 
         var firstReady = await session.ReadyAsync(
@@ -2882,8 +2882,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2924,8 +2924,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -2984,8 +2984,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var duplicateReplayPrompt in duplicateReplay.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, duplicateReplayPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, duplicateReplayPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, duplicateReplayPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, duplicateReplayPrompt.EnabledActions());
             Assert.DoesNotContain(
                 duplicateReplayPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3069,7 +3069,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3105,8 +3105,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3143,8 +3143,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3180,7 +3180,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3216,8 +3216,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3254,8 +3254,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3321,7 +3321,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3358,8 +3358,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3402,8 +3402,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3439,7 +3439,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3475,8 +3475,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3514,8 +3514,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3551,7 +3551,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3587,8 +3587,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3626,8 +3626,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3693,7 +3693,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3730,8 +3730,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3770,8 +3770,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3807,7 +3807,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3843,8 +3843,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3881,8 +3881,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -3948,7 +3948,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -3985,8 +3985,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4023,8 +4023,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4060,7 +4060,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4096,8 +4096,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4134,8 +4134,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4171,7 +4171,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4207,8 +4207,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4245,8 +4245,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4282,7 +4282,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4318,8 +4318,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4356,8 +4356,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4423,7 +4423,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4460,8 +4460,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4498,8 +4498,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4535,7 +4535,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4571,8 +4571,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4609,8 +4609,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4676,7 +4676,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4713,8 +4713,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4751,8 +4751,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4788,7 +4788,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4824,8 +4824,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4862,8 +4862,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -4929,7 +4929,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -4966,8 +4966,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5004,8 +5004,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5041,7 +5041,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5077,8 +5077,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5115,8 +5115,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5182,7 +5182,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5219,8 +5219,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5257,8 +5257,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5294,7 +5294,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5330,8 +5330,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5368,8 +5368,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5435,7 +5435,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5472,8 +5472,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5510,8 +5510,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5547,7 +5547,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5583,8 +5583,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5621,8 +5621,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5688,7 +5688,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5725,8 +5725,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5763,8 +5763,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5800,7 +5800,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5836,8 +5836,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5874,8 +5874,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -5941,7 +5941,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -5978,8 +5978,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6016,8 +6016,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6053,7 +6053,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6089,8 +6089,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6127,8 +6127,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6194,7 +6194,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6231,8 +6231,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6269,8 +6269,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6306,7 +6306,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6342,8 +6342,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6380,8 +6380,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6447,7 +6447,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6484,8 +6484,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6522,8 +6522,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6559,7 +6559,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6595,8 +6595,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6633,8 +6633,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -6946,7 +6946,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -6983,8 +6983,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7021,8 +7021,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7061,7 +7061,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
 
         var firstReady = await session.ReadyAsync(
             "P1",
@@ -7097,8 +7097,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var finalReadyPrompt in finalReady.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, finalReadyPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, finalReadyPrompt.EnabledActions());
             Assert.DoesNotContain(
                 finalReadyPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7135,8 +7135,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var rejectedPrompt in rejected.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, rejectedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, rejectedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 rejectedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7172,7 +7172,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var bothSubmittedHash = MatchStateHasher.Hash(bothSubmitted.State);
 
         var staleSnapshotTick = prompt.SnapshotTick - 1;
@@ -7240,7 +7240,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = bothSubmitted.Prompts["P1"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var bothSubmittedHash = MatchStateHasher.Hash(bothSubmitted.State);
 
         var rejected = await session.ReadyAsync(
@@ -7374,7 +7374,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = ready.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var rawCommand = PromptScopedSubmitDeckRawCommand(p2Deck, prompt);
 
         var accepted = await session.SubmitDeckAsync(
@@ -7523,7 +7523,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = ready.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var staleSnapshotTick = prompt.SnapshotTick - 1;
@@ -7588,7 +7588,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = ready.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], prompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
 
         var rejected = await session.SubmitDeckAsync(
@@ -7678,8 +7678,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var prompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, prompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, prompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, prompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, prompt.EnabledActions());
             Assert.DoesNotContain(
                 prompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7741,7 +7741,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var rawCommand = PromptScopedReadyRawCommand(prompt);
 
         var accepted = await session.ReadyAsync(
@@ -7766,8 +7766,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7799,8 +7799,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var replayPrompt in replay.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, replayPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, replayPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, replayPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, replayPrompt.EnabledActions());
             Assert.DoesNotContain(
                 replayPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7841,7 +7841,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var p2SubmittedHash = MatchStateHasher.Hash(p2Submitted.State);
 
         var staleSnapshotTick = prompt.SnapshotTick - 1;
@@ -7890,8 +7890,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -7932,7 +7932,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p2Submitted.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Equal(["READY"], prompt.Actions);
+        Assert.Equal(["READY"], prompt.EnabledActions());
         var p2SubmittedHash = MatchStateHasher.Hash(p2Submitted.State);
 
         var rejected = await session.ReadyAsync(
@@ -7980,8 +7980,8 @@ public sealed class OfficialOpeningTests
 
         foreach (var acceptedPrompt in accepted.Prompts.Values)
         {
-            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.Actions);
-            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.Actions);
+            Assert.DoesNotContain(CommandTypes.Ready, acceptedPrompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.SubmitDeck, acceptedPrompt.EnabledActions());
             Assert.DoesNotContain(
                 acceptedPrompt.Candidates ?? [],
                 candidate => string.Equals(candidate.Action, CommandTypes.Ready, StringComparison.Ordinal)
@@ -8039,7 +8039,7 @@ public sealed class OfficialOpeningTests
         var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
         Assert.NotEqual(activePlayerId, secondPlayerId);
         Assert.True(ready.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", ready.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", ready.Prompts[activePlayerId].EnabledActions());
         Assert.False(ready.Prompts[secondPlayerId].Actionable);
 
         var activeHandBefore = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
@@ -8128,7 +8128,7 @@ public sealed class OfficialOpeningTests
         var activePlayerId = accepted.State.ActivePlayerId;
         var secondPlayerId = accepted.State.OpeningSecondActionPlayerId!;
         Assert.True(accepted.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", accepted.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", accepted.Prompts[activePlayerId].EnabledActions());
         Assert.False(accepted.Prompts[secondPlayerId].Actionable);
         AssertOfficialReadyMulliganPromptQueueAudit(accepted, activePlayerId, secondPlayerId);
 
@@ -8152,9 +8152,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.MulliganCompletedPlayerIds, replay.State.MulliganCompletedPlayerIds);
         Assert.Equal(accepted.State.OpeningSecondActionPlayerId, replay.State.OpeningSecondActionPlayerId);
         Assert.True(replay.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", replay.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", replay.Prompts[activePlayerId].EnabledActions());
         Assert.False(replay.Prompts[secondPlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", replay.Prompts[secondPlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", replay.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialReadyMulliganPromptQueueAudit(replay, activePlayerId, secondPlayerId);
     }
 
@@ -8188,7 +8188,7 @@ public sealed class OfficialOpeningTests
 
         var prompt = p1Ready.Prompts["P2"];
         Assert.True(prompt.Actionable);
-        Assert.Contains("READY", prompt.Actions);
+        Assert.Contains("READY", prompt.EnabledActions());
         var rawCommand = PromptScopedReadyRawCommand(prompt);
 
         var accepted = await session.ReadyAsync(
@@ -8209,9 +8209,9 @@ public sealed class OfficialOpeningTests
         var activePlayerId = accepted.State.ActivePlayerId;
         var secondPlayerId = accepted.State.OpeningSecondActionPlayerId!;
         Assert.True(accepted.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", accepted.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", accepted.Prompts[activePlayerId].EnabledActions());
         Assert.False(accepted.Prompts[secondPlayerId].Actionable);
-        Assert.DoesNotContain("READY", accepted.Prompts["P2"].Actions);
+        Assert.DoesNotContain("READY", accepted.Prompts["P2"].EnabledActions());
         AssertOfficialReadyMulliganPromptQueueAudit(accepted, activePlayerId, secondPlayerId);
         Assert.Equal(4, journal.Entries.Count);
 
@@ -8242,9 +8242,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.MulliganCompletedPlayerIds, replay.State.MulliganCompletedPlayerIds);
         Assert.Equal(accepted.State.OpeningSecondActionPlayerId, replay.State.OpeningSecondActionPlayerId);
         Assert.True(replay.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", replay.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", replay.Prompts[activePlayerId].EnabledActions());
         Assert.False(replay.Prompts[secondPlayerId].Actionable);
-        Assert.DoesNotContain("READY", replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain("READY", replay.Prompts["P2"].EnabledActions());
         AssertOfficialReadyMulliganPromptQueueAudit(replay, activePlayerId, secondPlayerId);
 
         Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
@@ -8292,9 +8292,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
         Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
         Assert.True(duplicateReplay.Prompts[activePlayerId].Actionable);
-        Assert.Contains("MULLIGAN", duplicateReplay.Prompts[activePlayerId].Actions);
+        Assert.Contains("MULLIGAN", duplicateReplay.Prompts[activePlayerId].EnabledActions());
         Assert.False(duplicateReplay.Prompts[secondPlayerId].Actionable);
-        Assert.DoesNotContain("READY", duplicateReplay.Prompts["P2"].Actions);
+        Assert.DoesNotContain("READY", duplicateReplay.Prompts["P2"].EnabledActions());
         AssertOfficialReadyMulliganPromptQueueAudit(duplicateReplay, activePlayerId, secondPlayerId);
         Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
 
@@ -8383,9 +8383,9 @@ public sealed class OfficialOpeningTests
         }
 
         Assert.False(accepted.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", accepted.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", accepted.Prompts[activePlayerId].EnabledActions());
         Assert.True(accepted.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", accepted.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", accepted.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(accepted, activePlayerId, secondPlayerId, selectedObjectIds);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
@@ -8408,9 +8408,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerZones[activePlayerId].MainDeck, replay.State.PlayerZones[activePlayerId].MainDeck);
         Assert.Equal(accepted.State.PlayerZones[secondPlayerId].Hand, replay.State.PlayerZones[secondPlayerId].Hand);
         Assert.False(replay.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", replay.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", replay.Prompts[activePlayerId].EnabledActions());
         Assert.True(replay.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", replay.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", replay.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(replay, activePlayerId, secondPlayerId, selectedObjectIds);
     }
 
@@ -8549,7 +8549,7 @@ public sealed class OfficialOpeningTests
         var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
         var prompt = ready.Prompts[activePlayerId];
         Assert.True(prompt.Actionable);
-        Assert.Contains("MULLIGAN", prompt.Actions);
+        Assert.Contains("MULLIGAN", prompt.EnabledActions());
 
         var activeHandBefore = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var selectedObjectIds = activeHandBefore.Take(2).ToArray();
@@ -8569,9 +8569,9 @@ public sealed class OfficialOpeningTests
         Assert.Contains(activePlayerId, accepted.State.MulliganCompletedPlayerIds);
         Assert.DoesNotContain(secondPlayerId, accepted.State.MulliganCompletedPlayerIds);
         Assert.False(accepted.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", accepted.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", accepted.Prompts[activePlayerId].EnabledActions());
         Assert.True(accepted.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", accepted.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", accepted.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(accepted, activePlayerId, secondPlayerId, selectedObjectIds);
         foreach (var objectId in selectedObjectIds)
         {
@@ -8605,9 +8605,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerZones[activePlayerId].MainDeck, replay.State.PlayerZones[activePlayerId].MainDeck);
         Assert.Equal(accepted.State.PlayerZones[secondPlayerId].Hand, replay.State.PlayerZones[secondPlayerId].Hand);
         Assert.False(replay.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", replay.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", replay.Prompts[activePlayerId].EnabledActions());
         Assert.True(replay.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", replay.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", replay.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(replay, activePlayerId, secondPlayerId, selectedObjectIds);
 
         Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
@@ -8656,9 +8656,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
         Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
         Assert.False(duplicateReplay.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", duplicateReplay.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", duplicateReplay.Prompts[activePlayerId].EnabledActions());
         Assert.True(duplicateReplay.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", duplicateReplay.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", duplicateReplay.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(duplicateReplay, activePlayerId, secondPlayerId, selectedObjectIds);
         Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
 
@@ -8695,9 +8695,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerZones[activePlayerId].MainDeck, conflict.State.PlayerZones[activePlayerId].MainDeck);
         Assert.Equal(accepted.State.PlayerZones[secondPlayerId].Hand, conflict.State.PlayerZones[secondPlayerId].Hand);
         Assert.False(conflict.Prompts[activePlayerId].Actionable);
-        Assert.DoesNotContain("MULLIGAN", conflict.Prompts[activePlayerId].Actions);
+        Assert.DoesNotContain("MULLIGAN", conflict.Prompts[activePlayerId].EnabledActions());
         Assert.True(conflict.Prompts[secondPlayerId].Actionable);
-        Assert.Contains("MULLIGAN", conflict.Prompts[secondPlayerId].Actions);
+        Assert.Contains("MULLIGAN", conflict.Prompts[secondPlayerId].EnabledActions());
         AssertOfficialMulliganSecondPlayerPromptQueueAudit(conflict, activePlayerId, secondPlayerId, selectedObjectIds);
         Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
         Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
@@ -8756,7 +8756,7 @@ public sealed class OfficialOpeningTests
 
         var secondPrompt = activeMulligan.Prompts[secondPlayerId];
         Assert.True(secondPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, secondPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, secondPrompt.EnabledActions());
         var secondHandBefore = activeMulligan.State.PlayerZones[secondPlayerId].Hand.ToArray();
         var secondSelectedObjectIds = secondHandBefore.Take(1).ToArray();
         var secondDrawnObjectIds = activeMulligan.State.PlayerZones[secondPlayerId].MainDeck
@@ -8995,7 +8995,7 @@ public sealed class OfficialOpeningTests
         var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
         var activePrompt = ready.Prompts[activePlayerId];
         Assert.True(activePrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, activePrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, activePrompt.EnabledActions());
 
         var activeHandBefore = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var activeSelectedObjectIds = activeHandBefore.Take(2).ToArray();
@@ -9444,7 +9444,7 @@ public sealed class OfficialOpeningTests
 
         var finalMulliganPrompt = activeMulligan.Prompts[secondPlayerId];
         Assert.True(finalMulliganPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, finalMulliganPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, finalMulliganPrompt.EnabledActions());
 
         var secondHandBefore = activeMulligan.State.PlayerZones[secondPlayerId].Hand.ToArray();
         var secondSelectedObjectIds = secondHandBefore.Take(1).ToArray();
@@ -9631,9 +9631,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.ActivePlayerId, oldTurnPrompt.PlayerId);
         Assert.False(oldTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, oldTurnPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], oldTurnPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], oldTurnPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, oldTurnPrompt.SnapshotTick);
-        Assert.DoesNotContain(CommandTypes.EndTurn, oldTurnPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, oldTurnPrompt.EnabledActions());
         Assert.DoesNotContain(
             oldTurnPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.EndTurn, StringComparison.Ordinal)
@@ -9643,9 +9643,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.SecondPlayerId, nextTurnPrompt.PlayerId);
         Assert.True(nextTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, nextTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, nextTurnPrompt.Actions);
-        Assert.Contains(CommandTypes.Surrender, nextTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, nextTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, nextTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, nextTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, nextTurnPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, nextTurnPrompt.SnapshotTick);
         Assert.DoesNotContain(
             nextTurnPrompt.Candidates ?? [],
@@ -9737,7 +9737,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
         var rawCommand = PromptScopedBasicRawCommand(CommandTypes.EndTurn, firstTurnPrompt);
         var nextTurnCalledRuneObjectIds = context.Accepted.State.PlayerZones[context.SecondPlayerId].RuneDeck
             .Take(3)
@@ -10128,7 +10128,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.EnabledActions());
         var tapRuneCandidate = Assert.Single(
             firstTurnPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal));
@@ -10262,8 +10262,8 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.Contains(CommandTypes.RecycleRune, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.RecycleRune, firstTurnPrompt.EnabledActions());
         var recycleRuneCandidate = Assert.Single(
             firstTurnPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal));
@@ -10311,11 +10311,11 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.SecondPlayerId, accepted.Prompts[context.SecondPlayerId].PlayerId);
         Assert.False(accepted.Prompts[context.SecondPlayerId].Actionable);
         Assert.Equal(PromptTypes.Wait, accepted.Prompts[context.SecondPlayerId].View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], accepted.Prompts[context.SecondPlayerId].Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], accepted.Prompts[context.SecondPlayerId].EnabledActions());
         var acceptedPrompt = accepted.Prompts[context.ActivePlayerId];
         Assert.True(acceptedPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, acceptedPrompt.View?.Type);
-        Assert.Contains(CommandTypes.RecycleRune, acceptedPrompt.Actions);
+        Assert.Contains(CommandTypes.RecycleRune, acceptedPrompt.EnabledActions());
         var acceptedRecycleEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         var acceptedPowerEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
         Assert.Equal(context.ActivePlayerId, Assert.IsType<string>(acceptedRecycleEvent.Payload["playerId"]));
@@ -10849,7 +10849,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -10915,7 +10915,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -10981,7 +10981,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11047,7 +11047,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11113,7 +11113,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11179,7 +11179,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11245,7 +11245,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11311,7 +11311,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11380,7 +11380,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11449,7 +11449,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11519,7 +11519,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11589,7 +11589,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11655,7 +11655,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11721,7 +11721,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11787,7 +11787,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -11853,7 +11853,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt);
         var journalEntryCountBeforeSurrender = journal.Entries.Count;
 
@@ -12651,7 +12651,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
         var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Pass, firstTurnPrompt);
         var journalEntryCountBeforePass = journal.Entries.Count;
 
@@ -13308,7 +13308,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
         var rawCommand = rawCommandFactory(firstTurnPrompt);
         var nextTurnCalledRuneObjectIds = context.Accepted.State.PlayerZones[context.SecondPlayerId].RuneDeck
             .Take(3)
@@ -13371,7 +13371,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13417,14 +13417,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13472,13 +13472,13 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13526,14 +13526,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.PassedPriorityPlayerIds);
 
         var rejected = await context.Session.SubmitAsync(
@@ -13582,14 +13582,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.FocusPlayerId);
 
         var rejected = await context.Session.SubmitAsync(
@@ -13638,14 +13638,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13693,14 +13693,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13748,14 +13748,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13803,14 +13803,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13858,14 +13858,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13913,14 +13913,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.Contains(CommandTypes.RecycleRune, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.RecycleRune, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -13968,14 +13968,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14023,14 +14023,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14078,14 +14078,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14133,14 +14133,14 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14188,15 +14188,15 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, firstTurnPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingPayment);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14245,15 +14245,15 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, firstTurnPrompt.EnabledActions());
         Assert.False(context.Accepted.State.BattleState.IsActive);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14302,15 +14302,15 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, firstTurnPrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.TriggerQueue);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14359,15 +14359,15 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, firstTurnPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingHandChoice);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14415,7 +14415,7 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
         var rawCommand = rawCommandFactory(firstTurnPrompt);
 
         var accepted = await context.Session.SubmitAsync(
@@ -14462,7 +14462,7 @@ public sealed class OfficialOpeningTests
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         var rawCommand = rawCommandFactory(waitPrompt);
 
         var accepted = await context.Session.SubmitAsync(
@@ -14517,7 +14517,7 @@ public sealed class OfficialOpeningTests
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14561,12 +14561,12 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -14609,12 +14609,12 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.EndTurn, waitPrompt.SnapshotTick.GetValueOrDefault());
         var nextTurnCalledRuneObjectIds = context.Accepted.State.PlayerZones[context.SecondPlayerId].RuneDeck
@@ -14676,12 +14676,12 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -14724,12 +14724,12 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.Surrender, waitPrompt.SnapshotTick.GetValueOrDefault());
 
@@ -14778,13 +14778,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -14828,13 +14828,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14878,13 +14878,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -14929,14 +14929,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.PassedPriorityPlayerIds);
 
         var rejected = await context.Session.SubmitAsync(
@@ -14982,14 +14982,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.FocusPlayerId);
 
         var rejected = await context.Session.SubmitAsync(
@@ -15036,14 +15036,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15089,14 +15089,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15142,14 +15142,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15195,14 +15195,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15248,14 +15248,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.TapRune, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15301,14 +15301,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.RecycleRune, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.RecycleRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15354,14 +15354,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15407,14 +15407,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15460,14 +15460,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15513,14 +15513,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15566,15 +15566,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, activePrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingPayment);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15621,15 +15621,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, activePrompt.EnabledActions());
         Assert.False(context.Accepted.State.BattleState.IsActive);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15676,15 +15676,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, activePrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.TriggerQueue);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15731,15 +15731,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, activePrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingHandChoice);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15786,16 +15786,16 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.ReadyAsync(
             context.SecondPlayerId,
@@ -15839,16 +15839,16 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var accepted = await context.Session.ReadyAsync(
             context.SecondPlayerId,
@@ -15895,16 +15895,16 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, firstTurnPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitDeckAsync(
             context.SecondPlayerId,
@@ -15950,12 +15950,12 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
@@ -15998,12 +15998,12 @@ public sealed class OfficialOpeningTests
         var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
         var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt.SnapshotTick.GetValueOrDefault());
 
@@ -16059,16 +16059,16 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var accepted = await context.Session.ReadyAsync(
             context.SecondPlayerId,
@@ -16113,16 +16113,16 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitDeckAsync(
             context.SecondPlayerId,
@@ -16168,13 +16168,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16218,13 +16218,13 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.EnabledActions());
 
         var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.Pass, waitPrompt.SnapshotTick.GetValueOrDefault());
 
@@ -16273,14 +16273,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.PassedPriorityPlayerIds);
 
         var rejected = await context.Session.SubmitAsync(
@@ -16328,14 +16328,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.FocusPlayerId);
 
         var rejected = await context.Session.SubmitAsync(
@@ -16384,14 +16384,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16439,14 +16439,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16494,14 +16494,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16549,14 +16549,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16604,14 +16604,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.TapRune, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16659,14 +16659,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.RecycleRune, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.RecycleRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16714,14 +16714,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16769,14 +16769,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16824,14 +16824,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16879,14 +16879,14 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16934,15 +16934,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, activePrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingPayment);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -16991,15 +16991,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, activePrompt.EnabledActions());
         Assert.False(context.Accepted.State.BattleState.IsActive);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -17048,15 +17048,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, activePrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.TriggerQueue);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -17105,15 +17105,15 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, activePrompt.EnabledActions());
         Assert.Null(context.Accepted.State.PendingHandChoice);
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
@@ -17160,16 +17160,16 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.ReadyAsync(
             context.ActivePlayerId,
@@ -17213,16 +17213,16 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var accepted = await context.Session.ReadyAsync(
             context.ActivePlayerId,
@@ -17269,16 +17269,16 @@ public sealed class OfficialOpeningTests
         var activePrompt = context.Accepted.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Ready, waitPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.SubmitDeck, waitPrompt.EnabledActions());
 
         var rejected = await context.Session.SubmitDeckAsync(
             context.ActivePlayerId,
@@ -17336,9 +17336,9 @@ public sealed class OfficialOpeningTests
         var activePrompt = result.Prompts[context.ActivePlayerId];
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, activePrompt.EnabledActions());
         Assert.DoesNotContain(
             activePrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.Pass, StringComparison.Ordinal)
@@ -17347,8 +17347,8 @@ public sealed class OfficialOpeningTests
         var secondPrompt = result.Prompts[context.SecondPlayerId];
         Assert.False(secondPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, secondPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], secondPrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, secondPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], secondPrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, secondPrompt.EnabledActions());
 
         if (assertEvents)
         {
@@ -17426,10 +17426,10 @@ public sealed class OfficialOpeningTests
         {
             Assert.False(prompt.Actionable);
             Assert.Equal(PromptTypes.MatchResult, prompt.View?.Type);
-            Assert.Equal(["WAIT"], prompt.Actions);
-            Assert.DoesNotContain(CommandTypes.Surrender, prompt.Actions);
-            Assert.DoesNotContain(CommandTypes.EndTurn, prompt.Actions);
-            Assert.DoesNotContain(CommandTypes.Mulligan, prompt.Actions);
+            Assert.Equal(["WAIT"], prompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.Surrender, prompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.EndTurn, prompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.Mulligan, prompt.EnabledActions());
             Assert.Equal(result.State.Tick, prompt.SnapshotTick);
         }
 
@@ -17997,7 +17997,7 @@ public sealed class OfficialOpeningTests
         var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
         var firstMulliganPrompt = ready.Prompts[activePlayerId];
         Assert.True(firstMulliganPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, firstMulliganPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, firstMulliganPrompt.EnabledActions());
 
         var activeHandBefore = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var activeSelectedObjectIds = activeHandBefore.Take(2).ToArray();
@@ -18763,7 +18763,7 @@ public sealed class OfficialOpeningTests
         var activeHand = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var prompt = ready.Prompts[activePlayerId];
         Assert.True(prompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, prompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, prompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
         AssertOfficialReadyMulliganPromptQueueAudit(ready, activePlayerId, secondPlayerId);
 
@@ -18836,7 +18836,7 @@ public sealed class OfficialOpeningTests
         var activeHand = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var prompt = ready.Prompts[activePlayerId];
         Assert.True(prompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, prompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, prompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
         AssertOfficialReadyMulliganPromptQueueAudit(ready, activePlayerId, secondPlayerId);
 
@@ -18908,7 +18908,7 @@ public sealed class OfficialOpeningTests
         var activeHand = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
         var prompt = ready.Prompts[activePlayerId];
         Assert.True(prompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, prompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, prompt.EnabledActions());
         var readyHash = MatchStateHasher.Hash(ready.State);
         AssertOfficialReadyMulliganPromptQueueAudit(ready, activePlayerId, secondPlayerId);
 
@@ -18997,7 +18997,7 @@ public sealed class OfficialOpeningTests
 
         var secondPrompt = activeMulligan.Prompts[secondPlayerId];
         Assert.True(secondPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, secondPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, secondPrompt.EnabledActions());
         var secondHand = activeMulligan.State.PlayerZones[secondPlayerId].Hand.ToArray();
         var activeMulliganHash = MatchStateHasher.Hash(activeMulligan.State);
 
@@ -19103,7 +19103,7 @@ public sealed class OfficialOpeningTests
 
         var secondPrompt = activeMulligan.Prompts[secondPlayerId];
         Assert.True(secondPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, secondPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, secondPrompt.EnabledActions());
         var secondHand = activeMulligan.State.PlayerZones[secondPlayerId].Hand.ToArray();
         var activeMulliganHash = MatchStateHasher.Hash(activeMulligan.State);
 
@@ -19208,7 +19208,7 @@ public sealed class OfficialOpeningTests
 
         var secondPrompt = activeMulligan.Prompts[secondPlayerId];
         Assert.True(secondPrompt.Actionable);
-        Assert.Contains(CommandTypes.Mulligan, secondPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, secondPrompt.EnabledActions());
         var secondHand = activeMulligan.State.PlayerZones[secondPlayerId].Hand.ToArray();
         var activeMulliganHash = MatchStateHasher.Hash(activeMulligan.State);
 
@@ -19614,7 +19614,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(completedPlayerId, completedPrompt.PlayerId);
         Assert.False(completedPrompt.Actionable);
         Assert.Equal(PromptTypes.Mulligan, completedPrompt.View?.Type);
-        Assert.DoesNotContain(CommandTypes.Mulligan, completedPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.Mulligan, completedPrompt.EnabledActions());
         Assert.DoesNotContain(
             completedPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.Mulligan, StringComparison.Ordinal)
@@ -19628,7 +19628,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(PromptTypes.Mulligan, waitingPrompt.View?.Type);
         Assert.Equal(0, waitingPrompt.View?.MinSelection);
         Assert.Equal(OfficialDeckValidator.MaximumMulliganCount, waitingPrompt.View?.MaxSelection);
-        Assert.Contains(CommandTypes.Mulligan, waitingPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, waitingPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, waitingPrompt.SnapshotTick);
 
         var mulliganCandidate = Assert.Single(
@@ -19744,7 +19744,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(completedPlayerId, completedPrompt.PlayerId);
         Assert.False(completedPrompt.Actionable);
         Assert.Equal(PromptTypes.Mulligan, completedPrompt.View?.Type);
-        Assert.DoesNotContain(CommandTypes.Mulligan, completedPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.Mulligan, completedPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, completedPrompt.SnapshotTick);
 
         var waitingPrompt = result.Prompts[waitingPlayerId];
@@ -19753,7 +19753,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(PromptTypes.Mulligan, waitingPrompt.View?.Type);
         Assert.Equal(0, waitingPrompt.View?.MinSelection);
         Assert.Equal(OfficialDeckValidator.MaximumMulliganCount, waitingPrompt.View?.MaxSelection);
-        Assert.Contains(CommandTypes.Mulligan, waitingPrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, waitingPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, waitingPrompt.SnapshotTick);
 
         var mulliganCandidate = Assert.Single(
@@ -19991,9 +19991,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(activePlayerId, activePrompt.PlayerId);
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
-        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, activePrompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Mulligan, activePrompt.EnabledActions());
         Assert.Equal(result.State.Tick, activePrompt.SnapshotTick);
         Assert.DoesNotContain(
             activePrompt.Candidates ?? [],
@@ -20004,7 +20004,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(secondPlayerId, secondPrompt.PlayerId);
         Assert.False(secondPrompt.Actionable);
         Assert.Equal(PromptTypes.Wait, secondPrompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], secondPrompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], secondPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, secondPrompt.SnapshotTick);
         Assert.DoesNotContain(
             secondPrompt.Candidates ?? [],
@@ -20086,7 +20086,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(PromptTypes.Mulligan, activePrompt.View?.Type);
         Assert.Equal(0, activePrompt.View?.MinSelection);
         Assert.Equal(OfficialDeckValidator.MaximumMulliganCount, activePrompt.View?.MaxSelection);
-        Assert.Contains(CommandTypes.Mulligan, activePrompt.Actions);
+        Assert.Contains(CommandTypes.Mulligan, activePrompt.EnabledActions());
         Assert.Equal(result.State.Tick, activePrompt.SnapshotTick);
 
         var mulliganCandidate = Assert.Single(
@@ -20100,7 +20100,7 @@ public sealed class OfficialOpeningTests
         Assert.Equal(waitingPlayerId, waitingPrompt.PlayerId);
         Assert.False(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.Mulligan, waitingPrompt.View?.Type);
-        Assert.DoesNotContain(CommandTypes.Mulligan, waitingPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.Mulligan, waitingPrompt.EnabledActions());
         Assert.DoesNotContain(
             waitingPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.Mulligan, StringComparison.Ordinal)
@@ -20127,14 +20127,14 @@ public sealed class OfficialOpeningTests
         Assert.Equal(submittedPlayerId, submittedPrompt.PlayerId);
         Assert.True(submittedPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, submittedPrompt.View?.Type);
-        Assert.Equal(["READY"], submittedPrompt.Actions);
+        Assert.Equal(["READY"], submittedPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, submittedPrompt.SnapshotTick);
 
         var waitingPrompt = result.Prompts[waitingPlayerId];
         Assert.Equal(waitingPlayerId, waitingPrompt.PlayerId);
         Assert.True(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, waitingPrompt.View?.Type);
-        Assert.Equal(["SUBMIT_DECK"], waitingPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], waitingPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, waitingPrompt.SnapshotTick);
     }
 
@@ -20157,8 +20157,8 @@ public sealed class OfficialOpeningTests
             Assert.Equal(playerId, prompt.PlayerId);
             Assert.True(prompt.Actionable);
             Assert.Equal(PromptTypes.RoomSetup, prompt.View?.Type);
-            Assert.Equal(["READY"], prompt.Actions);
-            Assert.DoesNotContain("SUBMIT_DECK", prompt.Actions);
+            Assert.Equal(["READY"], prompt.EnabledActions());
+            Assert.DoesNotContain("SUBMIT_DECK", prompt.EnabledActions());
             Assert.Equal(result.State.Tick, prompt.SnapshotTick);
         }
     }
@@ -20183,17 +20183,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal(readyPlayerId, readyPrompt.PlayerId);
         Assert.False(readyPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, readyPrompt.View?.Type);
-        Assert.Equal(["WAIT"], readyPrompt.Actions);
-        Assert.DoesNotContain("READY", readyPrompt.Actions);
-        Assert.DoesNotContain("SUBMIT_DECK", readyPrompt.Actions);
+        Assert.Equal(["WAIT"], readyPrompt.EnabledActions());
+        Assert.DoesNotContain("READY", readyPrompt.EnabledActions());
+        Assert.DoesNotContain("SUBMIT_DECK", readyPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, readyPrompt.SnapshotTick);
 
         var waitingPrompt = result.Prompts[waitingPlayerId];
         Assert.Equal(waitingPlayerId, waitingPrompt.PlayerId);
         Assert.True(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, waitingPrompt.View?.Type);
-        Assert.Equal(["SUBMIT_DECK"], waitingPrompt.Actions);
-        Assert.DoesNotContain("READY", waitingPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], waitingPrompt.EnabledActions());
+        Assert.DoesNotContain("READY", waitingPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, waitingPrompt.SnapshotTick);
     }
 
@@ -20217,17 +20217,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal(readyPlayerId, readyPrompt.PlayerId);
         Assert.False(readyPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, readyPrompt.View?.Type);
-        Assert.Equal(["WAIT"], readyPrompt.Actions);
-        Assert.DoesNotContain("READY", readyPrompt.Actions);
-        Assert.DoesNotContain("SUBMIT_DECK", readyPrompt.Actions);
+        Assert.Equal(["WAIT"], readyPrompt.EnabledActions());
+        Assert.DoesNotContain("READY", readyPrompt.EnabledActions());
+        Assert.DoesNotContain("SUBMIT_DECK", readyPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, readyPrompt.SnapshotTick);
 
         var waitingPrompt = result.Prompts[waitingPlayerId];
         Assert.Equal(waitingPlayerId, waitingPrompt.PlayerId);
         Assert.True(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.RoomSetup, waitingPrompt.View?.Type);
-        Assert.Equal(["READY"], waitingPrompt.Actions);
-        Assert.DoesNotContain("SUBMIT_DECK", waitingPrompt.Actions);
+        Assert.Equal(["READY"], waitingPrompt.EnabledActions());
+        Assert.DoesNotContain("SUBMIT_DECK", waitingPrompt.EnabledActions());
         Assert.Equal(result.State.Tick, waitingPrompt.SnapshotTick);
     }
 

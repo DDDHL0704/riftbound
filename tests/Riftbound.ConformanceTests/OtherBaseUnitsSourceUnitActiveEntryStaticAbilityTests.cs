@@ -44,7 +44,7 @@ public sealed class OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests
         var played = await PlayXinZhaoAsync(engine, state);
         Assert.True(played.Accepted, played.ErrorMessage);
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State, "xin-zhao-two-other-base-units");
+        var resolved = played;
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -71,7 +71,7 @@ public sealed class OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests
         var played = await PlayXinZhaoAsync(engine, state);
         Assert.True(played.Accepted, played.ErrorMessage);
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State, $"xin-zhao-no-two-other-base-units-{otherBaseUnitCase}");
+        var resolved = played;
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -98,24 +98,6 @@ public sealed class OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests
             CancellationToken.None);
     }
 
-    private static async Task<ResolutionResult> ResolveTopOfStackAsync(
-        CoreRuleEngine engine,
-        MatchState state,
-        string intentPrefix)
-    {
-        var p1Pass = await engine.ResolveAsync(
-            state,
-            new PlayerIntent($"intent-{intentPrefix}-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        return await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent($"intent-{intentPrefix}-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-    }
 
     private static bool IsXinZhaoUnitPlayedEvent(GameEvent gameEvent)
     {

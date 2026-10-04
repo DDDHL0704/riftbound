@@ -59,7 +59,7 @@ public sealed class SettLegendActionDomainGuardTests
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
-        Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, prompt.EnabledActions());
         var staleRawCommand = PromptScopedDeclareBattleRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedDeclareBattleRawCommandWithClientNote(command, prompt, "changed-payload");
         const string acceptedClientIntentId = "intent-sett-declare-battle-before-stale-prompt-replay";
@@ -78,7 +78,7 @@ public sealed class SettLegendActionDomainGuardTests
         Assert.NotEmpty(accepted.Events);
         Assert.NotEqual(initialStateHash, MatchStateHasher.Hash(accepted.State));
         AssertSettReplacementAcceptedState(accepted.State);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, accepted.Prompts["P1"].EnabledActions());
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
         var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);

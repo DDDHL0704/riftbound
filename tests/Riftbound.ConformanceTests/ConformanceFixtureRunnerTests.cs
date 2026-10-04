@@ -584,8 +584,8 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = PunishmentState(mana: 0);
         var prompts = ResolutionResult.BuildPrompts(state);
-        Assert.Contains("SURRENDER", prompts["P1"].Actions);
-        Assert.Contains("SURRENDER", prompts["P2"].Actions);
+        Assert.Contains("SURRENDER", prompts["P1"].EnabledActions());
+        Assert.Contains("SURRENDER", prompts["P2"].EnabledActions());
         Assert.Contains(prompts["P2"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "SURRENDER", StringComparison.Ordinal)
             && candidate.Enabled);
@@ -606,7 +606,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("SURRENDER", winEvent.Payload["reason"]);
         Assert.Equal("P2", result.Snapshots["P1"].Timing["winnerPlayerId"]);
         Assert.Equal("P2", result.Snapshots["P2"].Timing["winnerPlayerId"]);
-        Assert.All(result.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
+        Assert.All(result.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
     }
 
     [Fact]
@@ -626,7 +626,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchStatuses.Finished, accepted.State.Status);
         Assert.Equal("P2", accepted.State.WinnerPlayerId);
         Assert.Equal(["MATCH_WON"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
+        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
         AssertSurrenderFinishedPromptQueueAudit(accepted);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
@@ -642,9 +642,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(MatchStatuses.Finished, replay.State.Status);
         Assert.Equal("P2", replay.State.WinnerPlayerId);
-        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].Actions);
+        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(replay);
     }
 
@@ -661,7 +661,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, prompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, prompt.EnabledActions());
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.Surrender, prompt);
         const string acceptedClientIntentId = "intent-p1-surrender-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-p1-surrender-stale-prompt-replay";
@@ -678,7 +678,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchStatuses.Finished, accepted.State.Status);
         Assert.Equal("P2", accepted.State.WinnerPlayerId);
         Assert.Equal(["MATCH_WON"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
+        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
         AssertSurrenderFinishedPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -717,9 +717,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(MatchStatuses.Finished, replay.State.Status);
         Assert.Equal("P2", replay.State.WinnerPlayerId);
-        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].Actions);
+        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(replay);
 
         Assert.Equal(2, journal.Entries.Count);
@@ -757,9 +757,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
         Assert.Equal(MatchStatuses.Finished, duplicateRejected.State.Status);
         Assert.Equal("P2", duplicateRejected.State.WinnerPlayerId);
-        Assert.All(duplicateRejected.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, duplicateRejected.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, duplicateRejected.Prompts["P2"].Actions);
+        Assert.All(duplicateRejected.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, duplicateRejected.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, duplicateRejected.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(duplicateRejected);
         Assert.Equal(2, journal.Entries.Count);
 
@@ -786,9 +786,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
         Assert.Equal(MatchStatuses.Finished, conflict.State.Status);
         Assert.Equal("P2", conflict.State.WinnerPlayerId);
-        Assert.All(conflict.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P2"].Actions);
+        Assert.All(conflict.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(conflict);
         Assert.Equal(2, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -810,7 +810,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.Surrender, prompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.Surrender, prompt);
         const string clientIntentId = "intent-p1-surrender-raw-idempotency";
 
@@ -826,7 +826,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchStatuses.Finished, accepted.State.Status);
         Assert.Equal("P2", accepted.State.WinnerPlayerId);
         Assert.Equal(["MATCH_WON"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
+        Assert.All(accepted.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
         AssertSurrenderFinishedPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -857,9 +857,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
         Assert.Equal(MatchStatuses.Finished, replay.State.Status);
         Assert.Equal("P2", replay.State.WinnerPlayerId);
-        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].Actions);
+        Assert.All(replay.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, replay.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(replay);
         Assert.Single(journal.Entries);
 
@@ -885,9 +885,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
         Assert.Equal(MatchStatuses.Finished, conflict.State.Status);
         Assert.Equal("P2", conflict.State.WinnerPlayerId);
-        Assert.All(conflict.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
-        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P2"].Actions);
+        Assert.All(conflict.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.EnabledActions()));
+        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Surrender, conflict.Prompts["P2"].EnabledActions());
         AssertSurrenderFinishedPromptQueueAudit(conflict);
         Assert.Single(journal.Entries);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -925,8 +925,8 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.False(prompt.Actionable);
             Assert.Equal(PromptTypes.MatchResult, prompt.View?.Type);
-            Assert.Equal(["WAIT"], prompt.Actions);
-            Assert.DoesNotContain(CommandTypes.Surrender, prompt.Actions);
+            Assert.Equal(["WAIT"], prompt.EnabledActions());
+            Assert.DoesNotContain(CommandTypes.Surrender, prompt.EnabledActions());
         }
 
         var promptsJson = JsonSerializer.Serialize(result.Prompts);
@@ -1363,8 +1363,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P2"].MainDeck);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Hand);
-        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
-        Assert.Equal(new[] { "WAIT" }, result.Prompts["P2"].Actions);
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].EnabledActions());
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P2"].EnabledActions());
     }
 
     [Fact]
@@ -1396,7 +1396,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             new[] { "P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003" },
             result.FinalState.PlayerZones["P2"].Base);
-        Assert.Contains("END_TURN", result.Prompts["P2"].Actions);
+        Assert.Contains("END_TURN", result.Prompts["P2"].EnabledActions());
         Assert.False(result.Prompts["P1"].Actionable);
     }
 
@@ -1418,7 +1418,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, accepted.FinalState.Phase);
         Assert.Equal(TimingStates.NeutralOpen, accepted.FinalState.TimingState);
         Assert.Contains("TURN_PLAYER_ADVANCED", accepted.EventKinds);
-        Assert.Contains("END_TURN", accepted.Prompts["P2"].Actions);
+        Assert.Contains("END_TURN", accepted.Prompts["P2"].EnabledActions());
         Assert.False(accepted.Prompts["P1"].Actionable);
         AssertEndTurnNextPlayerPromptQueueAudit(accepted.FinalState, accepted.Prompts);
 
@@ -1436,8 +1436,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", replay.State.TurnPlayerId);
         Assert.Equal(MatchPhases.Main, replay.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, replay.State.TimingState);
-        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(replay);
     }
 
@@ -1473,7 +1473,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, prompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, prompt.EnabledActions());
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.EndTurn, prompt);
         const string acceptedClientIntentId = "intent-p1-end-turn-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-p1-end-turn-stale-prompt-replay";
@@ -1494,7 +1494,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralOpen, accepted.State.TimingState);
         Assert.Contains("TURN_PLAYER_ADVANCED", accepted.Events.Select(gameEvent => gameEvent.Kind));
         Assert.False(accepted.Prompts["P1"].Actionable);
-        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P2"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -1536,8 +1536,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, replay.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, replay.State.TimingState);
         Assert.False(replay.Prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(replay);
 
         Assert.Equal(2, journal.Entries.Count);
@@ -1578,8 +1578,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, duplicateRejected.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, duplicateRejected.State.TimingState);
         Assert.False(duplicateRejected.Prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, duplicateRejected.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, duplicateRejected.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, duplicateRejected.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, duplicateRejected.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(duplicateRejected);
         Assert.Equal(2, journal.Entries.Count);
 
@@ -1609,8 +1609,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, conflict.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, conflict.State.TimingState);
         Assert.False(conflict.Prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, conflict.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, conflict.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(conflict);
         Assert.Equal(2, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -1651,7 +1651,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, prompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.EndTurn, prompt);
         const string clientIntentId = "intent-p1-end-turn-raw-idempotency";
 
@@ -1671,7 +1671,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralOpen, accepted.State.TimingState);
         Assert.Contains("TURN_PLAYER_ADVANCED", accepted.Events.Select(gameEvent => gameEvent.Kind));
         Assert.False(accepted.Prompts["P1"].Actionable);
-        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P2"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -1709,8 +1709,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, replay.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, replay.State.TimingState);
         Assert.False(replay.Prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(replay);
         Assert.Single(journal.Entries);
 
@@ -1740,8 +1740,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, conflict.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, conflict.State.TimingState);
         Assert.False(conflict.Prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, conflict.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, conflict.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P2"].EnabledActions());
         AssertEndTurnNextPlayerPromptQueueAudit(conflict);
         Assert.Single(journal.Entries);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -1796,7 +1796,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal("P1", prompts["P1"].PlayerId);
         Assert.False(prompts["P1"].Actionable);
-        Assert.DoesNotContain(CommandTypes.EndTurn, prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.EndTurn, prompts["P1"].EnabledActions());
         Assert.Equal(state.Tick, prompts["P1"].SnapshotTick);
         Assert.DoesNotContain(
             CommandTypes.EndTurn,
@@ -1806,7 +1806,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", prompts["P2"].PlayerId);
         Assert.True(prompts["P2"].Actionable);
         Assert.Equal(PromptTypes.MainAction, prompts["P2"].View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, prompts["P2"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, prompts["P2"].EnabledActions());
         Assert.Equal(state.Tick, prompts["P2"].SnapshotTick);
     }
 
@@ -1831,8 +1831,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1"], result.State.PassedPriorityPlayerIds);
         Assert.Equal(["P1-SPELL-PUNISHMENT"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
         AssertGenericPassOrdinaryMainPromptQueueAudit(result);
     }
@@ -1870,8 +1870,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", replay.State.TurnPlayerId);
         Assert.Equal(MatchPhases.Main, replay.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, replay.State.TimingState);
-        Assert.DoesNotContain(CommandTypes.Pass, replay.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.Pass, replay.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P1"].EnabledActions());
         Assert.False(replay.Prompts["P2"].Actionable);
         AssertGenericPassOrdinaryMainPromptQueueAudit(replay);
     }
@@ -1889,8 +1889,8 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, prompt.Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, prompt.Actions);
+        Assert.Contains(CommandTypes.EndTurn, prompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.Pass, prompt);
         const string clientIntentId = "intent-p1-pass-raw-idempotency";
 
@@ -1905,8 +1905,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(accepted.ErrorCode);
         Assert.Equal(["TURN_ENDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(1, accepted.State.Tick);
-        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, accepted.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, accepted.Prompts["P1"].EnabledActions());
         Assert.False(accepted.Prompts["P2"].Actionable);
         AssertGenericPassOrdinaryMainPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
@@ -1942,8 +1942,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(["TURN_ENDED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, replay.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, replay.Prompts["P1"].EnabledActions());
         Assert.False(replay.Prompts["P2"].Actionable);
         AssertGenericPassOrdinaryMainPromptQueueAudit(replay);
         Assert.Single(journal.Entries);
@@ -1972,8 +1972,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
         Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
         Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
-        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, conflict.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, conflict.Prompts["P1"].EnabledActions());
         Assert.False(conflict.Prompts["P2"].Actionable);
         AssertGenericPassOrdinaryMainPromptQueueAudit(conflict);
         Assert.Single(journal.Entries);
@@ -2023,14 +2023,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", result.Prompts["P1"].PlayerId);
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P1"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.EndTurn, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.Pass, result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.EndTurn, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -2876,7 +2876,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("STACK", accepted.State.ObjectLocations["P1-SPELL-PUNISHMENT"].Zone);
         Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
         Assert.Equal("P1", accepted.State.PriorityPlayerId);
-        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(accepted);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
@@ -2899,7 +2899,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("STACK", replay.State.ObjectLocations["P1-SPELL-PUNISHMENT"].Zone);
         Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
         Assert.Equal("P1", replay.State.PriorityPlayerId);
-        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(replay);
     }
 
@@ -2920,7 +2920,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        Assert.Contains(CommandTypes.PlayCard, prompt.EnabledActions());
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
         const string acceptedClientIntentId = "intent-punishment-play-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-punishment-play-stale-prompt-replay";
@@ -2944,7 +2944,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
         Assert.Equal("P1", accepted.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -2991,7 +2991,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
         Assert.Equal("P1", replay.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(replay);
 
         Assert.Equal(2, journal.Entries.Count);
@@ -3039,7 +3039,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, duplicateRejected.State.TimingState);
         Assert.Equal("P1", duplicateRejected.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, duplicateRejected.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, duplicateRejected.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, duplicateRejected.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(duplicateRejected);
         Assert.Equal(2, journal.Entries.Count);
 
@@ -3074,7 +3074,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
         Assert.Equal("P1", conflict.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, conflict.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, conflict.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, conflict.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(conflict);
         Assert.Equal(2, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -3100,7 +3100,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        Assert.Contains(CommandTypes.PlayCard, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
         const string clientIntentId = "intent-punishment-play-raw-idempotency";
 
@@ -3123,7 +3123,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
         Assert.Equal("P1", accepted.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -3165,7 +3165,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
         Assert.Equal("P1", replay.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(replay);
         Assert.Single(journal.Entries);
 
@@ -3200,7 +3200,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
         Assert.Equal("P1", conflict.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, conflict.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, conflict.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, conflict.Prompts["P1"].EnabledActions());
         AssertPlayCardStackPriorityPromptQueueAudit(conflict);
         Assert.Single(journal.Entries);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -3261,14 +3261,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
         Assert.Equal(stackItem.StackItemId, result.Prompts["P1"].View?.RelatedStackItemId);
-        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -5652,16 +5652,8 @@ public sealed class ConformanceFixtureRunnerTests
         var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Purple, remainingPowerByTrait.Keys);
 
-        var p1Pass = await engine.ResolveAsync(
-            playResult.State,
-            new PlayerIntent("intent-sivir-recycle-rune-haste-ready-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-sivir-recycle-rune-haste-ready-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: entry has already completed in PLAY_CARD.
+        var p2Pass = playResult;
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Empty(p2Pass.State.StackItems);
@@ -5846,7 +5838,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.TapRune, prompt.Actions);
+        Assert.Contains(CommandTypes.TapRune, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
@@ -6032,7 +6024,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.TapRune, prompt.Actions);
+        Assert.Contains(CommandTypes.TapRune, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
@@ -6174,14 +6166,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
         Assert.DoesNotContain(result.Prompts["P1"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.TapRune, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.TapRune, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -6364,7 +6356,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, powerEvent.Payload["traitPowerAfter"]);
 
         var postPrompt = result.Prompts["P1"];
-        Assert.DoesNotContain(postPrompt.Actions, action => string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.DoesNotContain(postPrompt.EnabledActions(), action => string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -6497,7 +6489,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RecycleRune, prompt.Actions);
+        Assert.Contains(CommandTypes.RecycleRune, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
@@ -6714,7 +6706,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RecycleRune, prompt.Actions);
+        Assert.Contains(CommandTypes.RecycleRune, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
@@ -6882,14 +6874,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
         Assert.DoesNotContain(result.Prompts["P1"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.RecycleRune, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.RecycleRune, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -30692,7 +30684,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.Equal("MAIN", result.State.Phase);
-        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
     }
 
     [Fact]
@@ -30746,8 +30738,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", result.State.PriorityPlayerId);
         Assert.Equal(new[] { "P1" }, result.State.PassedPriorityPlayerIds);
         Assert.Single(result.State.StackItems);
-        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].Actions);
-        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P2"].Actions);
+        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
+        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P2"].EnabledActions());
     }
 
     [Fact]
@@ -30768,7 +30760,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", result.FinalState.TurnPlayerId);
         Assert.Equal("MAIN", result.FinalState.Phase);
         Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
-        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -30794,7 +30786,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.FinalState.PriorityPlayerId);
         Assert.Empty(result.FinalState.PassedPriorityPlayerIds);
         Assert.Empty(result.FinalState.StackItems);
-        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -30821,7 +30813,7 @@ public sealed class ConformanceFixtureRunnerTests
         var remaining = Assert.Single(result.FinalState.StackItems);
         Assert.Equal("STACK-OLDER", remaining.StackItemId);
         Assert.Equal("P1", remaining.ControllerId);
-        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -30871,7 +30863,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("PASS_FOCUS", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
     }
 
     [Fact]
@@ -30926,8 +30918,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", result.State.ActivePlayerId);
         Assert.Equal("P2", result.State.FocusPlayerId);
         Assert.Equal(new[] { "P1" }, result.State.PassedFocusPlayerIds);
-        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].Actions);
-        Assert.Equal(new[] { "PASS_FOCUS", "SURRENDER" }, result.Prompts["P2"].Actions);
+        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
+        Assert.Equal(new[] { "PASS_FOCUS", "SURRENDER" }, result.Prompts["P2"].EnabledActions());
     }
 
     [Fact]
@@ -30989,7 +30981,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], result.Prompts["P1"].EnabledActions());
         var playCandidate = Assert.Single(
             result.Prompts["P1"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -31019,7 +31011,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
         Assert.Null(result.FinalState.FocusPlayerId);
         Assert.Empty(result.FinalState.PassedFocusPlayerIds);
-        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -31091,7 +31083,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(
             result.State.PendingCleanupTasks,
             task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal));
-        Assert.Equal(["END_TURN", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["END_TURN", "SURRENDER"], result.Prompts["P1"].EnabledActions());
     }
 
     [Fact]
@@ -31207,8 +31199,8 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-spell-duel:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["PASS_FOCUS", "SURRENDER"], result.Prompts["P2"].Actions);
-        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], result.Prompts["P2"].EnabledActions());
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P1"].EnabledActions());
 
         var startedEvent = Assert.Single(
             result.Events,
@@ -31317,7 +31309,7 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P2"].EnabledActions());
         Assert.True(result.Prompts["P2"].Actionable);
         Assert.Contains("争夺战场", result.Prompts["P2"].Reason, StringComparison.Ordinal);
 
@@ -31441,8 +31433,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(
             result.State.BattlefieldTasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
-        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
-        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].EnabledActions());
+        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], result.Prompts["P1"].EnabledActions());
     }
 
     [Fact]
@@ -31515,7 +31507,7 @@ public sealed class ConformanceFixtureRunnerTests
             });
 
         Assert.Equal("BATTLE_TASKS", state.PendingTaskQueue.Phase);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], ResolutionResult.BuildPrompts(state)["P1"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], ResolutionResult.BuildPrompts(state)["P1"].EnabledActions());
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -31560,7 +31552,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
-        Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, prompt.EnabledActions());
         var rawCommand = JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.DeclareBattle,
@@ -31735,9 +31727,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(state.Tick, result.State.Tick);
         Assert.Empty(result.Events);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].EnabledActions());
         Assert.True(result.Prompts["P1"].Actionable);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].EnabledActions());
     }
 
     [Fact]
@@ -31763,7 +31755,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(state.Tick, result.State.Tick);
         Assert.Empty(result.Events);
         Assert.True(result.Prompts["P1"].Actionable);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].EnabledActions());
         Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
     }
@@ -35151,7 +35143,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = LegendSpellDuelFocusState("UNL-197/219", "P1-LEGEND-DIANA");
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_FOCUS", "SURRENDER"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_FOCUS", "SURRENDER"], prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled);
@@ -35204,7 +35196,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = LegendPriorityWindowState("OGN·247/298", "P1-LEGEND-KAISA", CardObjectTags.SpellCard);
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled);
@@ -36104,7 +36096,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(playResult.Accepted);
         Assert.Contains("EZREAL_ENEMY_TARGETS_THIS_TURN:P1:2", playResult.State.UntilEndOfTurnEffects);
         var prompt = ResolutionResult.BuildPrompts(playResult.State)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled
@@ -42684,7 +42676,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-RUDE-PIRATE-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Single(result.State.StackItems);
+        Assert.Empty(result.State.StackItems);
+        Assert.Contains("P1-UNIT-RUDE-PIRATE", result.State.PlayerZones["P1"].Base);
         Assert.Contains("DISCARDED_HAND_CARD_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
 
         var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
@@ -43672,7 +43665,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Equal(2, result.State.StackItems.Count);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -47552,19 +47545,10 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayerIntent("intent-p7-9-master-yi-level-play", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-MIGHTY-FAERIE", "SFD·125/221", []),
             CancellationToken.None);
-        var p1PassResult = await engine.ResolveAsync(
-            playResult.State,
-            new PlayerIntent("intent-p7-9-master-yi-level-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2PassResult = await engine.ResolveAsync(
-            p1PassResult.State,
-            new PlayerIntent("intent-p7-9-master-yi-level-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: entry has already completed in PLAY_CARD.
+        var p2PassResult = playResult;
 
         Assert.True(playResult.Accepted);
-        Assert.True(p1PassResult.Accepted);
         Assert.True(p2PassResult.Accepted);
         Assert.Contains("P1-MIGHTY-FAERIE", p2PassResult.State.PlayerZones["P1"].Base);
         Assert.False(p2PassResult.State.CardObjects["P1-MIGHTY-FAERIE"].IsExhausted);
@@ -48092,7 +48076,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.ActivateAbility, prompt);
         const string clientIntentId = "intent-p1-activate-ability-raw-idempotency";
 
@@ -48120,7 +48104,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
         Assert.Equal("P1", accepted.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].EnabledActions());
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -48163,7 +48147,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
         Assert.Equal("P1", replay.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].EnabledActions());
         Assert.Single(journal.Entries);
 
         var changedRawCommand = JsonSerializer.SerializeToElement(new
@@ -48199,7 +48183,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
         Assert.Equal("P1", conflict.State.PriorityPlayerId);
         Assert.Equal(PromptTypes.StackPriority, conflict.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.ActivateAbility, conflict.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, conflict.Prompts["P1"].EnabledActions());
         Assert.Single(journal.Entries);
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
@@ -50077,7 +50061,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("power", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("tags", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("manaCost", hiddenEvent.Payload.Keys);
-        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].EnabledActions());
         AssertHideCardOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
@@ -50100,7 +50084,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, replayHiddenCard.ManaCost);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayHiddenCard.Tags);
         Assert.Empty(replay.State.StackItems);
-        Assert.DoesNotContain(CommandTypes.HideCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, replay.Prompts["P1"].EnabledActions());
         AssertHideCardOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
     }
 
@@ -50140,7 +50124,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.HideCard, prompt.Actions);
+        Assert.Contains(CommandTypes.HideCard, prompt.EnabledActions());
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.HideCard, prompt);
         const string acceptedClientIntentId = "intent-p4-hide-card-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-p4-hide-card-stale-prompt-replay";
@@ -50169,7 +50153,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("power", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("tags", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("manaCost", hiddenEvent.Payload.Keys);
-        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].EnabledActions());
         AssertHideCardOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -50354,7 +50338,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.HideCard, prompt.Actions);
+        Assert.Contains(CommandTypes.HideCard, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.HideCard, prompt);
         const string clientIntentId = "intent-hide-card-raw-idempotency";
 
@@ -50382,7 +50366,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("power", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("tags", hiddenEvent.Payload.Keys);
         Assert.DoesNotContain("manaCost", hiddenEvent.Payload.Keys);
-        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].EnabledActions());
         AssertHideCardOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -50425,7 +50409,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, replayHiddenCard.ManaCost);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayHiddenCard.Tags);
         Assert.Empty(replay.State.StackItems);
-        Assert.DoesNotContain(CommandTypes.HideCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, replay.Prompts["P1"].EnabledActions());
         AssertHideCardOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
         Assert.Single(journal.Entries);
 
@@ -50530,7 +50514,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
         var hideCandidate = result.Prompts["P1"].Candidates?
             .SingleOrDefault(candidate => string.Equals(candidate.Action, CommandTypes.HideCard, StringComparison.Ordinal));
         if (hideCandidate is not null)
@@ -50543,7 +50527,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.HideCard, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.HideCard, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -51912,7 +51896,7 @@ public sealed class ConformanceFixtureRunnerTests
         var revealEvent = Assert.Single(accepted.Events);
         Assert.Equal("OGN·121/298", revealEvent.Payload["cardNo"]);
         Assert.False(Assert.IsType<bool>(revealEvent.Payload["isFaceDown"]));
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardBaseOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
@@ -51936,7 +51920,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayRevealedCard.Tags);
         Assert.Empty(replay.State.StackItems);
         Assert.Equal(0, replay.State.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
-        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].EnabledActions());
         AssertRevealCardBaseOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
     }
 
@@ -51986,7 +51970,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
+        Assert.Contains(CommandTypes.RevealCard, prompt.EnabledActions());
         var promptRevealCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
@@ -52016,7 +52000,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], revealedCard.Tags);
         Assert.Empty(accepted.State.StackItems);
         Assert.Equal(0, accepted.State.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardBaseOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -52242,7 +52226,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
+        Assert.Contains(CommandTypes.RevealCard, prompt.EnabledActions());
         var promptRevealCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
@@ -52275,7 +52259,7 @@ public sealed class ConformanceFixtureRunnerTests
         var revealEvent = Assert.Single(accepted.Events);
         Assert.Equal("OGN·121/298", revealEvent.Payload["cardNo"]);
         Assert.False(Assert.IsType<bool>(revealEvent.Payload["isFaceDown"]));
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardBaseOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -52319,7 +52303,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayRevealedCard.Tags);
         Assert.Empty(replay.State.StackItems);
         Assert.Equal(0, replay.State.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
-        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].EnabledActions());
         AssertRevealCardBaseOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
         Assert.Single(journal.Entries);
 
@@ -52427,7 +52411,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
         var revealCandidate = result.Prompts["P1"].Candidates?
             .SingleOrDefault(candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
         if (revealCandidate is not null)
@@ -52440,7 +52424,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.RevealCard, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -54613,7 +54597,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", acceptedStackItem.CardNo);
         Assert.Empty(acceptedStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], acceptedStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(accepted, sourceObjectId);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
 
@@ -54648,7 +54632,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", replayStackItem.CardNo);
         Assert.Empty(replayStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], replayStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(replay, sourceObjectId);
     }
 
@@ -54708,7 +54692,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
+        Assert.Contains(CommandTypes.RevealCard, prompt.EnabledActions());
         var rawCommand = PromptScopedRawCommand(CommandTypes.RevealCard, prompt);
         const string clientIntentId = "intent-p4-reveal-card-reaction-raw-idempotency";
 
@@ -54743,7 +54727,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", acceptedStackItem.CardNo);
         Assert.Empty(acceptedStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], acceptedStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -54798,7 +54782,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", replayStackItem.CardNo);
         Assert.Empty(replayStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], replayStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(replay, sourceObjectId);
         Assert.Single(journal.Entries);
 
@@ -54844,7 +54828,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", conflictStackItem.CardNo);
         Assert.Empty(conflictStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], conflictStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, conflict.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, conflict.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(conflict, sourceObjectId);
         Assert.Single(journal.Entries);
         Assert.DoesNotContain(journal.Entries, entry =>
@@ -54909,7 +54893,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
-        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
+        Assert.Contains(CommandTypes.RevealCard, prompt.EnabledActions());
         var promptRevealCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
@@ -54950,7 +54934,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("OGN·121/298", acceptedStackItem.CardNo);
         Assert.Empty(acceptedStackItem.TargetObjectIds);
         Assert.Equal(["STANDBY_REVEAL_0"], acceptedStackItem.OptionalCosts);
-        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].EnabledActions());
         AssertRevealCardReactionStackPriorityPromptQueueAudit(accepted, sourceObjectId);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -55245,7 +55229,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
         Assert.Equal(revealedStackItemId, result.Prompts["P1"].View?.RelatedStackItemId);
         Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].EnabledActions());
         var revealCandidate = result.Prompts["P1"].Candidates?
             .SingleOrDefault(candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
         if (revealCandidate is not null)
@@ -55258,8 +55242,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.RevealCard, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.RevealCard, result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].EnabledActions());
         Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
     }
 
@@ -55737,14 +55721,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         Assert.Null(result.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BATTLEFIELD", "TRIGGER_QUEUED"], result.Events.Select(gameEvent => gameEvent.Kind));
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(2, result.State.StackItems.Count);
         var probeStackItem = result.State.StackItems[0];
         Assert.Equal("STACK-0-P2-SPELL-PROBE", probeStackItem.StackItemId);
@@ -55813,12 +55797,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.ErrorCode);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
-        var ambushStackItem = Assert.Single(
-            result.State.StackItems,
-            stackItem => string.Equals(stackItem.SourceObjectId, "P1-HAND-UNL-VI", StringComparison.Ordinal));
-        Assert.Equal("VI_AMBUSH_ATTACK_STUN_STATIC", ambushStackItem.EffectKind);
-        Assert.Equal("BATTLEFIELD:P1-MAIN", ambushStackItem.Destination);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-VI"], result.State.PlayerZones["P1"].Battlefields);
+        // CN 359.2 / 337.4: only the older spell remains on the chain.
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", Assert.Single(result.State.StackItems).StackItemId);
+        Assert.Equal("P2", result.State.PriorityPlayerId);
     }
 
     [Fact]
@@ -56412,7 +56394,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.MoveUnit, prompt.Actions);
+        Assert.Contains(CommandTypes.MoveUnit, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, sourceObjectId, StringComparison.Ordinal))
@@ -60782,7 +60764,7 @@ public sealed class ConformanceFixtureRunnerTests
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
-        Assert.Contains(CommandTypes.AssembleEquipment, prompt.Actions);
+        Assert.Contains(CommandTypes.AssembleEquipment, prompt.EnabledActions());
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal))

@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；本批次不进入征服额外触发、增益或完整战斗/得分系统。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p4-crimson-signet-treant-haste-ready-room",
@@ -78,21 +83,18 @@
         "sourceObjectId": "P1-UNIT-CRIMSON-SIGNET-TREANT",
         "cardNo": "UNL-029/219",
         "targetObjectIds": [],
-        "optionalCosts": ["HASTE_READY"]
+        "optionalCosts": [
+          "HASTE_READY"
+        ]
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p4-crimson-signet-treant-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p4-crimson-signet-treant-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
@@ -112,23 +114,12 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-CRIMSON-SIGNET-TREANT",
-          "cardNo": "UNL-029/219",
-          "targetObjectIds": [],
           "effectKind": "CRIMSON_SIGNET_TREANT_PLAY_UNIT_NO_OPTIONAL_HASTE"
         }
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "UNIT_PLAYED_TO_BASE",

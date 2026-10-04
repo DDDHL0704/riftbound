@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；当前 preflight 以对象标签表达装备和瞬息。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-sumpworks-map-room",
@@ -73,35 +78,20 @@
         "cardNo": "UNL-085/219",
         "targetObjectIds": []
       }
-    },
-    {
-      "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-sumpworks-map-p1-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-sumpworks-map-p2-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -111,18 +101,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-SUMPWORKS-MAP",
-          "cardNo": "UNL-085/219",
-          "targetObjectIds": [],
           "effectKind": "SUMPWORKS_MAP_PLAY_EQUIPMENT_EPHEMERAL"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "EQUIPMENT_PLAYED_TO_BASE",
         "payload": {
@@ -131,7 +116,10 @@
           "equipmentObjectId": "P1-EQUIPMENT-SUMPWORKS-MAP",
           "equipmentName": "地沟区地图",
           "destinationZone": "BASE",
-          "tags": ["CARD_TYPE:EQUIPMENT", "瞬息"]
+          "tags": [
+            "CARD_TYPE:EQUIPMENT",
+            "瞬息"
+          ]
         }
       }
     ],

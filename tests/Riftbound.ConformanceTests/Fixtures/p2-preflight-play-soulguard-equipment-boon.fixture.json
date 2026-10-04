@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
       "note": "装备和单位是公开区域游戏对象；打出卡牌需要费用、目标和指示合法，并作为结算链项目在双方让过后结算；当前 preflight 以对象标签和基础战力表达增益。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-soulguard-room",
@@ -105,16 +110,19 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_PLAYED_TO_BASE",
       "OBJECT_TAG_ADDED",
       "BOON_GRANTED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -124,18 +132,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-SOULGUARD",
-          "cardNo": "OGN·063/298",
-          "targetObjectIds": ["P1-SOULGUARD-BASE-UNIT-001"],
           "effectKind": "SECRET_ART_SOULGUARD_PLAY_EQUIPMENT_GRANT_BOON"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "EQUIPMENT_PLAYED_TO_BASE",
         "payload": {
@@ -144,8 +147,22 @@
           "equipmentObjectId": "P1-EQUIPMENT-SOULGUARD",
           "equipmentName": "奥义！魂佑",
           "destinationZone": "BASE",
-          "tags": ["CARD_TYPE:EQUIPMENT"]
+          "tags": [
+            "CARD_TYPE:EQUIPMENT"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "OBJECT_TAG_ADDED",

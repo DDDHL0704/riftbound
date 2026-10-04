@@ -112,7 +112,7 @@ public sealed class OfficialPrintedPowerCostTests
         var accepted = await Play(state, ["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green"]);
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
-        Assert.Equal(["red"], accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal(["red", "CARD"], accepted.State.PlayerZones["P1"].Base);
         Assert.Equal(2, accepted.State.PlayerZones["P1"].RuneDeck.Count);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_NATIVE_PAYMENT_COMMAND") is { Length: > 0 } commandPath)
         {

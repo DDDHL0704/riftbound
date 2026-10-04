@@ -25,21 +25,10 @@ public sealed class LocalPlayabilityRuleRegressionTests
             CancellationToken.None);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, played.State.TimingState);
-        Assert.Equal(new ObjectLocationState("P1", "STACK"), played.State.ObjectLocations["P1-HAND-UNIT"]);
+        Assert.Equal(TimingStates.NeutralOpen, played.State.TimingState);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-1"), played.State.ObjectLocations["P1-HAND-UNIT"]);
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-play-unit-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-play-unit-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p2Pass = played; // CN 359.2
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(TimingStates.NeutralOpen, p2Pass.State.TimingState);
@@ -624,29 +613,13 @@ public sealed class LocalPlayabilityRuleRegressionTests
             CancellationToken.None);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, played.State.TimingState);
-        Assert.Equal(new ObjectLocationState("P1", "STACK"), played.State.ObjectLocations["P1-HAND-UNIT"]);
+        Assert.Equal(TimingStates.NeutralOpen, played.State.TimingState);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), played.State.ObjectLocations["P1-HAND-UNIT"]);
         Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
 
-        var p1PriorityPass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-local-2p-p1-pass-priority", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1PriorityPass.Accepted, p1PriorityPass.ErrorMessage);
-        var p2StackPrompt = p1PriorityPass.Prompts["P2"];
-        Assert.True(p2StackPrompt.Actionable);
-        Assert.Equal(PromptTypes.StackPriority, p2StackPrompt.View?.Type);
-        Assert.Equal("P2", p2StackPrompt.ServerFlow?.ResponsiblePlayerId);
-        Assert.Equal(p2StackPrompt.View?.RelatedStackItemId, p2StackPrompt.ServerFlow?.TopStackItemId);
-
-        var p2PriorityPass = await engine.ResolveAsync(
-            p1PriorityPass.State,
-            new PlayerIntent("intent-local-2p-p2-pass-priority", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p2PriorityPass = played; // CN 359.2
 
         Assert.True(p2PriorityPass.Accepted, p2PriorityPass.ErrorMessage);
         Assert.False(p2PriorityPass.State.CardObjects["P1-HAND-UNIT"].IsExhausted);

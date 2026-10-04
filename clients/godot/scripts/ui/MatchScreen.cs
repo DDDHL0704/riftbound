@@ -34,6 +34,9 @@ public partial class MatchScreen : AppScreen
     private long _dragGeneration;
     private string _dragSource = "";
     private Variant _activeDrag;
+    private long _feedbackBaselineTick = -1, _renderedTick = -1, _animatedTick = -1;
+    private long _pendingFeedbackTick = -1;
+    private string[] _pendingFeedbackObjects = [];
     private string[] _linkObjects = [];
     private string? _linkDestination;
     private TableTargetLinks _links = null!;
@@ -43,6 +46,10 @@ public partial class MatchScreen : AppScreen
         TableLayout = new MatchTableLayout(this);
         _links = new TableTargetLinks(); AddChild(_links); _links.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         _links.Segments = SelectionSegments;
+        TableLayout.ReduceMotion.Toggled += reduced =>
+        {
+            if (reduced) foreach (var view in FindChildren("*", "", true, false).OfType<OfficialCardView>()) view.CancelFeedback();
+        };
         _connectionBanner = new HBoxContainer { Visible = false };
         _connectionMessage = new Label { SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _connectionMessage.AddThemeColorOverride("font_color", MinimalTheme.Selected);
@@ -116,6 +123,9 @@ public partial class MatchScreen : AppScreen
         var table = sections.FirstOrDefault(s => Read(s, "kind") == "wireTable");
         if (table is null) { _renderer.Clear(); SetTurnStatus("等待对局", "准备完成后进入牌桌。", false); return; }
         _renderer.Render(table);
+        _renderedTick = Number(table, "tick");
+        if (_feedbackBaselineTick < 0) _feedbackBaselineTick = _renderedTick;
+        ApplyPendingFeedback();
     }
 
     public void RenderMatchStatus(CardDictionary table)
@@ -192,7 +202,7 @@ public partial class MatchScreen : AppScreen
             button.Pressed += () => { ClearChildren(TableLayout.CardActions); action.Select(); };
         }
     }
-    public void AddBattleEvents(long tick, string[] descriptions)
+    public void AddBattleEvents(long tick, string[] descriptions, string[]? objects = null)
     {
         if (tick < _lastEventTick) return;
         if (tick != _lastEventTick) { _lastEventTick = tick; _eventKeys.Clear(); }
@@ -204,6 +214,16 @@ public partial class MatchScreen : AppScreen
         ClearChildren(TableLayout.History);
         foreach (var (text, index) in _history.Reverse().Select((text, index) => (text, index)))
             MatchTableLayout.Label(TableLayout.History, text, 12, index == 0 ? MinimalTheme.Text : MinimalTheme.TextSecondary, true);
+        if (tick > _animatedTick && tick > _feedbackBaselineTick)
+        { _pendingFeedbackTick = tick; _pendingFeedbackObjects = objects ?? []; ApplyPendingFeedback(); }
+    }
+
+    private void ApplyPendingFeedback()
+    {
+        if (_pendingFeedbackTick < 0 || _renderedTick < _pendingFeedbackTick) return;
+        if (_renderedTick == _pendingFeedbackTick && !TableLayout.ReduceMotion.ButtonPressed)
+            foreach (var id in _pendingFeedbackObjects.Distinct()) _renderer?.CardControl(id)?.PulseAcceptedEvent();
+        _animatedTick = Math.Max(_animatedTick, _pendingFeedbackTick); _pendingFeedbackTick = -1; _pendingFeedbackObjects = [];
     }
     public void ClearPromptStates()
     {
@@ -304,6 +324,7 @@ public partial class MatchScreen : AppScreen
         if (!visible && IsNodeReady())
         {
             ClearPromptStates(); ClearInspection(); _history.Clear(); _lastEventTick = -1; _eventKeys.Clear();
+            _feedbackBaselineTick = _renderedTick = _animatedTick = _pendingFeedbackTick = -1; _pendingFeedbackObjects = [];
             ClearChildren(TableLayout.History); ActionBar.SetWaiting("等待下一步行动。");
         }
     }

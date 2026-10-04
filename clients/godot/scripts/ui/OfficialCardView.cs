@@ -27,6 +27,17 @@ public partial class OfficialCardView : PanelContainer
     private Godot.Collections.Dictionary _card = new();
     private OfficialCardVisualState _state = OfficialCardVisualState.Disabled;
     private bool _hasPendingDisplay;
+    private Tween? _feedback;
+
+    public void PulseAcceptedEvent()
+    {
+        if (!TryGetVisibleCard(out _)) return;
+        _feedback?.Kill(); SelfModulate = new Color(1.25f, 1.25f, 1.25f);
+        _feedback = CreateTween(); _feedback.TweenProperty(this, "self_modulate", Colors.White, .24);
+    }
+
+    public void CancelFeedback()
+    { _feedback?.Kill(); _feedback = null; SelfModulate = Colors.White; }
 
     public bool PreserveOfficialAspect => true;
 
@@ -230,7 +241,10 @@ public partial class OfficialCardView : PanelContainer
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             CustomMinimumSize = new Vector2(78, 109), MouseFilter = MouseFilterEnum.Ignore };
     public override void _Notification(int what)
-    { if (what == NotificationDragEnd || what == NotificationExitTree) _pointerDown = false; }
+    {
+        if (what == NotificationDragEnd || what == NotificationExitTree) _pointerDown = false;
+        if (what == NotificationExitTree) CancelFeedback();
+    }
     public override bool _CanDropData(Vector2 atPosition, Variant data) => CanReceiveTableDrop?.Invoke(data) == true;
     public override void _DropData(Vector2 atPosition, Variant data)
     { if (CanReceiveTableDrop?.Invoke(data) == true) ReceiveTableDrop?.Invoke(data); }

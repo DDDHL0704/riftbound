@@ -10,6 +10,7 @@ internal sealed class MatchTableLayout
     public Label TurnDetail { get; }
     public Label Score { get; }
     public Label Round { get; }
+    public CheckButton ReduceMotion { get; }
     public Label OpponentSummary { get; }
     public Label SelfSummary { get; }
     public Label SelfHandCount { get; }
@@ -49,6 +50,8 @@ internal sealed class MatchTableLayout
         Score.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         Score.HorizontalAlignment = HorizontalAlignment.Center;
         Round = Label(head, "等待对局", 14, MinimalTheme.TextSecondary);
+        ReduceMotion = new CheckButton { Text = "减少动画", TooltipText = "保留战况文字，关闭闪动反馈" };
+        ReduceMotion.AddThemeFontSizeOverride("font_size", 12); head.AddChild(ReduceMotion);
 
         var main = Row(Root, 12); main.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         var boardScroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,

@@ -17,9 +17,9 @@ public sealed class LegionRearguardHasteReadyEntryTests
         var played = await PlayLegionRearguardAsync(engine, BuildLegionRearguardState(new RunePool(2, 0)));
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State);
+        var resolved = played;
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -51,9 +51,9 @@ public sealed class LegionRearguardHasteReadyEntryTests
             optionalCosts: [HasteOptionalCostNames.HasteReady]);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
 
-        var resolved = await ResolveTopOfStackAsync(engine, played.State);
+        var resolved = played;
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -83,23 +83,6 @@ public sealed class LegionRearguardHasteReadyEntryTests
             CancellationToken.None);
     }
 
-    private static async Task<ResolutionResult> ResolveTopOfStackAsync(
-        CoreRuleEngine engine,
-        MatchState state)
-    {
-        var p1Pass = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-legion-rearguard-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        return await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-legion-rearguard-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-    }
 
     private static bool IsLegionRearguardUnitPlayedEvent(GameEvent gameEvent)
     {

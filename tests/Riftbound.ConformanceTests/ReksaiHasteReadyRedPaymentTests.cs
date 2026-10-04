@@ -190,11 +190,11 @@ public sealed class ReksaiHasteReadyRedPaymentTests
             engine: engine);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Empty(played.State.RunePools["P1"].PowerByTrait);
         AssertCostPaid(played, expectedPaymentResourceActions: []);
 
-        var resolved = await ResolveTopOfStackAsync(played.State, engine);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -225,7 +225,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var played = await PlayReksaiAsync(state, ReksaiCardNo, optionalCosts: [HasteOptionalCostNames.HasteReady, paymentResourceAction]);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.DoesNotContain(RedRuneObjectId, played.State.PlayerZones["P1"].Base);
         Assert.Equal([RuneDeckObjectId, RedRuneObjectId], played.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal("RUNE_DECK", played.State.ObjectLocations[RedRuneObjectId].Zone);
@@ -265,7 +265,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
             CancellationToken.None);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var postAcceptanceHash = MatchStateHasher.Hash(played.State);
         var postAcceptanceHand = played.State.PlayerZones["P1"].Hand.ToArray();
         var postAcceptanceBase = played.State.PlayerZones["P1"].Base.ToArray();
@@ -287,7 +287,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
             || string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
         Assert.Equal(postAcceptanceHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(postAcceptanceHand, replay.State.PlayerZones["P1"].Hand);
         Assert.Equal(postAcceptanceBase, replay.State.PlayerZones["P1"].Base);
@@ -295,7 +295,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         Assert.Equal(postAcceptanceStackIds, replay.State.StackItems.Select(stackItem => stackItem.SourceObjectId).ToArray());
         Assert.Equal(postAcceptanceRunePool, replay.State.RunePools["P1"]);
         Assert.Equal(postAcceptanceLocation, replay.State.ObjectLocations[ReksaiObjectId]);
-        Assert.Single(replay.State.StackItems);
+        Assert.Empty(replay.State.StackItems);
     }
 
     [Fact]
@@ -342,7 +342,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         AssertCostPaid(accepted, expectedPaymentResourceActions: [paymentResourceAction]);
         var acceptedStackItem = AssertReksaiRecycleRedRuneHasteReadyAcceptedState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
@@ -642,33 +642,11 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertReksaiRecycleRedRuneHasteReadyAcceptedState(
+    private static string AssertReksaiRecycleRedRuneHasteReadyAcceptedState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain(RedRuneObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.Equal([RuneDeckObjectId, RedRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
-        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[RedRuneObjectId].Zone);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(ReksaiObjectId, stackItem.SourceObjectId);
-        Assert.Equal(ReksaiCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, ReksaiObjectId, false, expectedStackItem);
     }
 
     private static async Task<ResolutionResult> ResolveTopOfStackAsync(

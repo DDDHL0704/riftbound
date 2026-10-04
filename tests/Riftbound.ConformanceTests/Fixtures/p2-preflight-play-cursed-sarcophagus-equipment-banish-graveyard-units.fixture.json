@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
       "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；放逐区是玩家区域之一，当前 preflight 用对象标签 CARD_TYPE:UNIT 表达废牌堆单位牌筛选。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-cursed-sarcophagus-room",
@@ -98,15 +103,18 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_PLAYED_TO_BASE",
       "CARDS_BANISHED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -116,18 +124,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
-          "cardNo": "UNL-148/219",
-          "targetObjectIds": [],
           "effectKind": "CURSED_SARCOPHAGUS_PLAY_EQUIPMENT_BANISH_GRAVEYARD_UNITS"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "EQUIPMENT_PLAYED_TO_BASE",
         "payload": {
@@ -136,15 +139,32 @@
           "equipmentObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
           "equipmentName": "受诅咒的石棺",
           "destinationZone": "BASE",
-          "tags": ["CARD_TYPE:EQUIPMENT"]
+          "tags": [
+            "CARD_TYPE:EQUIPMENT"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "CARDS_BANISHED",
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
-          "cardIds": ["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"],
+          "cardIds": [
+            "P1-GRAVE-UNIT-001",
+            "P1-GRAVE-UNIT-002"
+          ],
           "count": 2,
           "fromZone": "GRAVEYARD",
           "destinationZone": "BANISHED"

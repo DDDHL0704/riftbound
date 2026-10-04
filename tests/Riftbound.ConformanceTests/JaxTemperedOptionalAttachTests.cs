@@ -583,69 +583,12 @@ public sealed class JaxTemperedOptionalAttachTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertJaxStackPriorityState(
+    private static string AssertJaxStackPriorityState(
         ResolutionResult result,
         IReadOnlyList<string> optionalCosts,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(1, result.State.RunePools["P1"].Mana);
-        Assert.Equal(["P1-HAND-SPINNING-AXE"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            [
-                SpinningAxeObjectId,
-                "P1-NON-EQUIPMENT-SPINNING-AXE",
-                "P1-FACE-DOWN-SPINNING-AXE",
-                "P1-WRONG-CARD-EQUIPMENT",
-                "P1-WRONG-CONTROLLER-SPINNING-AXE"
-            ],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
-        Assert.Null(result.State.PendingPayment);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("P1", stackItem.ControllerId);
-        Assert.Equal(JaxObjectId, stackItem.SourceObjectId);
-        Assert.Equal(JaxCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        Assert.Equal("P1", result.Prompts["P1"].PlayerId);
-        Assert.True(result.Prompts["P1"].Actionable);
-        Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
-        Assert.Equal(stackItem.StackItemId, result.Prompts["P1"].View?.RelatedStackItemId);
-        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].Actions);
-        Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Equal("P2", result.Prompts["P2"].PlayerId);
-        Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].Actions);
-        Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, JaxObjectId, true, expectedStackItem);
     }
 
     private static MatchState BuildTemperedJaxState(

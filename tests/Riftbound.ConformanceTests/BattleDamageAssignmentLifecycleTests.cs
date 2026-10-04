@@ -54,7 +54,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, p1Prompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", p1Prompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, p1Prompt.View?.RelatedBattlefieldId);
-        Assert.Equal([CommandTypes.AssignCombatDamage, CommandTypes.Surrender], p1Prompt.Actions);
+        Assert.Equal([CommandTypes.AssignCombatDamage, CommandTypes.Surrender], p1Prompt.EnabledActions());
         var candidate = Assert.Single(
             p1Prompt.Candidates ?? [],
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
@@ -77,7 +77,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var p2Prompt = result.Prompts["P2"];
         Assert.False(p2Prompt.Actionable);
         Assert.Equal(PromptTypes.AssignCombatDamage, p2Prompt.View?.Type);
-        Assert.Equal(["WAIT", CommandTypes.Surrender], p2Prompt.Actions);
+        Assert.Equal(["WAIT", CommandTypes.Surrender], p2Prompt.EnabledActions());
     }
 
     [Fact]
@@ -2049,7 +2049,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", stackP2Pass.State.PriorityPlayerId);
         Assert.Equal([shadowStackItem.StackItemId], stackP2Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
         Assert.Equal(PromptTypes.StackPriority, stackP2Pass.Prompts["P1"].View?.Type);
-        Assert.Contains(CommandTypes.RevealCard, stackP2Pass.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.RevealCard, stackP2Pass.Prompts["P1"].EnabledActions());
         var revealCandidate = Assert.Single(
             stackP2Pass.Prompts["P1"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
@@ -5856,7 +5856,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, attackerPrompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", attackerPrompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, attackerPrompt.View?.RelatedBattlefieldId);
-        Assert.Contains(CommandTypes.AssignCombatDamage, attackerPrompt.Actions);
+        Assert.Contains(CommandTypes.AssignCombatDamage, attackerPrompt.EnabledActions());
 
         var attackerCommand = new AssignCombatDamageCommand(
             $"battle:{BattlefieldObjectId}",
@@ -5882,7 +5882,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, defenderPrompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", defenderPrompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, defenderPrompt.View?.RelatedBattlefieldId);
-        Assert.Contains(CommandTypes.AssignCombatDamage, defenderPrompt.Actions);
+        Assert.Contains(CommandTypes.AssignCombatDamage, defenderPrompt.EnabledActions());
 
         var defenderCommand = new AssignCombatDamageCommand(
             $"battle:{BattlefieldObjectId}",
@@ -7388,7 +7388,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", p1Prompt.PlayerId);
         Assert.True(p1Prompt.Actionable);
         Assert.Equal(PromptTypes.PayCost, p1Prompt.View?.Type);
-        Assert.Equal([CommandTypes.PayCost, CommandTypes.Surrender], p1Prompt.Actions);
+        Assert.Equal([CommandTypes.PayCost, CommandTypes.Surrender], p1Prompt.EnabledActions());
         var payCostCandidate = Assert.Single(
             p1Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
@@ -7415,7 +7415,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P2", p2Prompt.PlayerId);
         Assert.False(p2Prompt.Actionable);
         Assert.Equal(PromptTypes.PayCost, p2Prompt.View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], p2Prompt.Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], p2Prompt.EnabledActions());
         Assert.DoesNotContain(
             p2Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
@@ -7608,25 +7608,26 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
         Assert.Equal(NextBattlefieldObjectId, result.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", result.Prompts["P1"].View?.RelatedSpellDuelId);
-        Assert.Equal([CommandTypes.PassFocus, CommandTypes.Surrender], result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
+        Assert.Equal([CommandTypes.PassFocus, CommandTypes.Surrender], result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].EnabledActions());
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
         Assert.Equal(PromptTypes.SpellDuelFocus, result.Prompts["P2"].View?.Type);
         Assert.Equal(NextBattlefieldObjectId, result.Prompts["P2"].View?.RelatedBattlefieldId);
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", result.Prompts["P2"].View?.RelatedSpellDuelId);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P2"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].EnabledActions());
 
         var p1PromptJson = JsonSerializer.Serialize(result.Prompts["P1"]);
         Assert.DoesNotContain($"battle:{BattlefieldObjectId}", p1PromptJson, StringComparison.Ordinal);
         Assert.DoesNotContain($"task:start-battle:{BattlefieldObjectId}", p1PromptJson, StringComparison.Ordinal);
         Assert.DoesNotContain(CommandTypes.AssignCombatDamage, p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, p1PromptJson, StringComparison.Ordinal);
+        // A disabled main-action candidate may explain why declaring battle is unavailable;
+        // the enabled-action assertion above and stale object/task checks remain strict.
     }
 
     private static void AssertNaturalControlCleanupNextContestPromptQueueAudit(ResolutionResult result)
@@ -7701,22 +7702,22 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", result.Prompts["P1"].PlayerId);
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Equal(PromptTypes.MainAction, result.Prompts["P1"].View?.Type);
-        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].Actions);
-        Assert.Contains(CommandTypes.Surrender, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, result.Prompts["P1"].EnabledActions());
+        Assert.Contains(CommandTypes.Surrender, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.AssignCombatDamage, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P1"].EnabledActions());
 
         Assert.Equal("P2", result.Prompts["P2"].PlayerId);
         Assert.False(result.Prompts["P2"].Actionable);
         Assert.Equal(PromptTypes.Wait, result.Prompts["P2"].View?.Type);
-        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], result.Prompts["P2"].Actions);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], result.Prompts["P2"].EnabledActions());
 
         var p1PromptJson = JsonSerializer.Serialize(result.Prompts["P1"]);
         Assert.DoesNotContain($"battle:{BattlefieldObjectId}", p1PromptJson, StringComparison.Ordinal);
         Assert.DoesNotContain($"task:start-battle:{BattlefieldObjectId}", p1PromptJson, StringComparison.Ordinal);
         Assert.DoesNotContain(CommandTypes.AssignCombatDamage, p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, p1PromptJson, StringComparison.Ordinal);
+        // Disabled candidates retain their explanatory label; EnabledActions above excludes execution.
         foreach (var objectId in excludedPromptObjectIds)
         {
             Assert.DoesNotContain(objectId, p1PromptJson, StringComparison.Ordinal);
@@ -7829,7 +7830,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, prompt.View?.Type);
         Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
         Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
-        Assert.Equal([CommandTypes.AssignCombatDamage, CommandTypes.Surrender], prompt.Actions);
+        Assert.Equal([CommandTypes.AssignCombatDamage, CommandTypes.Surrender], prompt.EnabledActions());
 
         var queueJson = JsonSerializer.Serialize(queue);
         var battlefieldTasksJson = JsonSerializer.Serialize(battlefieldTasks);

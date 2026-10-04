@@ -22,7 +22,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         var stackItem = Assert.Single(played.State.StackItems);
         Assert.Equal([targetObjectId], stackItem.TargetObjectIds);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "FIRST_MATE_PLAY_UNIT_READY_ANOTHER_UNIT", StringComparison.Ordinal));
 
         var p1Pass = await engine.ResolveAsync(
@@ -186,7 +186,7 @@ public sealed class AnyUnitTargetScopeGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "EQUIPMENT_RECALLED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertFirstMateAcceptedState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -419,45 +419,15 @@ public sealed class AnyUnitTargetScopeGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal));
     }
 
-    private static StackItemState AssertFirstMateAcceptedState(
+    private static string AssertFirstMateAcceptedState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-HAND-UNIT"], result.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-UNIT-FIRST-MATE", result.State.PlayerZones["P1"].Base);
-        Assert.Equal("STACK", result.State.ObjectLocations["P1-UNIT-FIRST-MATE"].Zone);
-        Assert.Null(result.State.PendingPayment);
-        Assert.True(result.State.CardObjects["P1-BASE-UNIT"].IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("P1-UNIT-FIRST-MATE", stackItem.SourceObjectId);
-        Assert.Equal("OGN·132/298", stackItem.CardNo);
-        Assert.Equal(["P1-BASE-UNIT"], stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("FIRST_MATE_PLAY_UNIT_READY_ANOTHER_UNIT", stackItem.EffectKind);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, "P1-UNIT-FIRST-MATE", true, expectedStackItem);
     }
 
     private static MatchState BuildFirstMateState()

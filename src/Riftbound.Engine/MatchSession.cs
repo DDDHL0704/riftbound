@@ -595,7 +595,8 @@ public sealed record StackItemState
         bool playedAfterAnotherCardThisTurn = false,
         string? destination = null,
         string? timingContext = null,
-        IReadOnlyDictionary<string, long>? targetGenerations = null)
+        IReadOnlyDictionary<string, long>? targetGenerations = null,
+        bool sourceConfirmed = false)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -610,6 +611,7 @@ public sealed record StackItemState
         Destination = Normalize(destination);
         TimingContext = Normalize(timingContext);
         TargetGenerations = targetGenerations;
+        SourceConfirmed = sourceConfirmed;
     }
 
     public string StackItemId { get; init; }
@@ -638,6 +640,9 @@ public sealed record StackItemState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyDictionary<string, long>? TargetGenerations { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceConfirmed { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -4108,7 +4113,8 @@ public sealed record MatchState
                 item.PlayedAfterAnotherCardThisTurn,
                 item.Destination,
                 item.TimingContext,
-                item.TargetGenerations))
+                item.TargetGenerations,
+                item.SourceConfirmed))
             .ToArray();
     }
 
@@ -5250,6 +5256,7 @@ public sealed record ResolutionResult(
             ["targetObjectIds"] = VisibleObjectIdsForViewer(state, item.TargetObjectIds, viewerPlayerId),
             ["damageAmount"] = item.DamageAmount
         };
+        if (item.SourceConfirmed) view["playAbility"] = true;
         if (!string.IsNullOrWhiteSpace(item.Destination))
         {
             view["destination"] = item.Destination;
@@ -6855,26 +6862,18 @@ public sealed record ResolutionResult(
                 WithSurrender("WAIT")));
         }
 
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-            state,
-            playerId,
-            playerId == state.ActivePlayerId,
-            playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
-            playerId == state.ActivePlayerId
-                ? WithSurrender(
-                    "PLAY_CARD",
-                    "ACTIVATE_ABILITY",
-                    "ASSEMBLE_EQUIPMENT",
-                    "MOVE_UNIT",
-                    "DECLARE_BATTLE",
-                    "HIDE_CARD",
-                    "REVEAL_CARD",
-                    "TAP_RUNE",
-                    "RECYCLE_RUNE",
-                    "LEGEND_ACT",
-                    "END_TURN"
-                )
-                : WithSurrender("WAIT")));
+        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+        {
+            var active = playerId == state.ActivePlayerId;
+            var prompt = ActionPromptBuilder.Build(state, playerId, active,
+                active ? "当前玩家普通开环行动" : "等待对手行动",
+                active ? WithSurrender("PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT",
+                    "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "END_TURN")
+                    : WithSurrender("WAIT"));
+            // The wire contract exposes candidates with Enabled and a reason. Preserve
+            // that same shape for initial, accepted, rejected and recovered positions.
+            return prompt;
+        });
     }
 
     private static IReadOnlyList<string> WithSurrender(params string[] actions)

@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
       "note": "单位是游戏对象；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-unl-122-crescent-guard-ready-room",
@@ -70,49 +75,47 @@
         "sourceObjectId": "P1-UNIT-CRESCENT-GUARD",
         "cardNo": "UNL-122/219",
         "targetObjectIds": [],
-        "optionalCosts": ["SPEND_POWER:purple:1"]
+        "optionalCosts": [
+          "SPEND_POWER:purple:1"
+        ]
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-122-crescent-guard-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-122-crescent-guard-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
           "mana": 4,
           "power": 1,
-          "powerByTrait": { "purple": 1 },
+          "powerByTrait": {
+            "purple": 1
+          },
           "baseMana": 4,
-          "optionalCosts": ["SPEND_POWER:purple:1"]
+          "optionalCosts": [
+            "SPEND_POWER:purple:1"
+          ]
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-CRESCENT-GUARD",
-          "cardNo": "UNL-122/219",
-          "targetObjectIds": [],
           "effectKind": "CRESCENT_GUARD_NO_SPELL_VANILLA_PLAY_UNIT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -122,7 +125,9 @@
           "unitName": "新月禁卫",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": false,
           "crescentGuardReadyOptionalCostPaid": true
         }

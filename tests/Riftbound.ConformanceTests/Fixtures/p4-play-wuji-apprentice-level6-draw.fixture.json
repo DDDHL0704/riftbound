@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；等级能力在控制者拥有不少于指定经验时生效；抽牌按抽牌规则移动牌。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    }
   ],
   "roomId": "p4-wuji-apprentice-level6-room",
   "players": ["P1", "P2"],
@@ -81,28 +90,47 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "CARD_DRAWN"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-UNIT-WUJI-APPRENTICE",
           "power": 2,
-          "tags": ["CARD_TYPE:UNIT", "狩猎"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "狩猎"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "CARD_DRAWN",

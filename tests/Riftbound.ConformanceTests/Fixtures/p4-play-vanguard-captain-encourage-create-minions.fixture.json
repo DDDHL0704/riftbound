@@ -24,7 +24,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "打出卡牌需要支付费用、加入结算链并在双方让过后结算；单位与指示物是游戏对象；鼓舞在本回合已打出过其他卡牌时生效。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent confirms immediately; only play abilities require priority passes. Final gameplay assertions retained."
+    }
   ],
   "roomId": "p4-vanguard-captain-encourage-room",
   "players": ["P1", "P2"],
@@ -87,8 +96,6 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p4-vanguard-captain-rage-sigil-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p4-vanguard-captain-rage-sigil-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-vanguard-captain-play",
@@ -99,38 +106,55 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p4-vanguard-captain-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p4-vanguard-captain-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-vanguard-captain-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-vanguard-captain-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
   ],
   "expected": {
-    "finalTick": 6,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE",
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "UNIT_TOKEN_CREATED",
       "UNIT_TOKEN_CREATED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "EQUIPMENT_PLAYED_TO_BASE" },
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "EQUIPMENT_PLAYED_TO_BASE"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -140,19 +164,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-VANGUARD-CAPTAIN",
-          "cardNo": "OGN·218/298",
-          "targetObjectIds": [],
-          "effectKind": "VANGUARD_CAPTAIN_PLAY_UNIT_ENCOURAGE_CREATE_TWO_MINIONS",
-          "playedAfterAnotherCardThisTurn": true
+          "effectKind": "VANGUARD_CAPTAIN_PLAY_UNIT_ENCOURAGE_CREATE_TWO_MINIONS"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -162,8 +180,23 @@
           "unitName": "先锋队长",
           "destinationZone": "BASE",
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT", "精锐"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "精锐"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "UNIT_TOKEN_CREATED",
@@ -174,7 +207,10 @@
           "tokenName": "随从",
           "power": 1,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
+          "tokenTags": [
+            "CARD_TYPE:UNIT",
+            "TOKEN_FAMILY:MINION"
+          ]
         }
       },
       {
@@ -186,7 +222,10 @@
           "tokenName": "随从",
           "power": 1,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"]
+          "tokenTags": [
+            "CARD_TYPE:UNIT",
+            "TOKEN_FAMILY:MINION"
+          ]
         }
       }
     ],

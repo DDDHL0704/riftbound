@@ -1880,6 +1880,7 @@ public partial class Main : Control
 
         var eventKinds = new List<string>();
         var descriptions = new Godot.Collections.Array<string>();
+        var feedbackObjects = new HashSet<string>(StringComparer.Ordinal);
         foreach (var eventElement in element.EnumerateArray())
         {
             if (eventElement.ValueKind != JsonValueKind.Object)
@@ -1888,6 +1889,11 @@ public partial class Main : Control
             }
 
             var kind = ReadString(eventElement, "kind");
+            if (eventElement.TryGetProperty("objectRefs", out var feedbackRefs) && feedbackRefs.ValueKind == JsonValueKind.Array)
+                foreach (var reference in feedbackRefs.EnumerateArray())
+                    if (!ReadBool(reference, "isHidden") && !ReadBool(reference, "isFaceDown")
+                        && ReadString(reference, "objectId") is { Length: > 0 } id)
+                        feedbackObjects.Add(id);
             var description = BattleEventPresenter.Describe(eventElement, _authenticatedHandle,
                 cardNo => _officialCatalog.TryGetValue(cardNo, out var card) ? card.CardName : null);
             if (!string.IsNullOrWhiteSpace(description) && kind != "DEV_SCENARIO_SEEDED") descriptions.Add(description);
@@ -1909,7 +1915,7 @@ public partial class Main : Control
         }
 
         if (descriptions.Count > 0) QueueMainThread(nameof(ApplyBattleEvents), new Godot.Collections.Dictionary
-        { ["tick"] = message.ServerTick, ["descriptions"] = new Godot.Collections.Array<string>(descriptions
+        { ["tick"] = message.ServerTick, ["objects"] = new Godot.Collections.Array<string>(feedbackObjects), ["descriptions"] = new Godot.Collections.Array<string>(descriptions
             .GroupBy(description => description).Select(group => group.Count() > 1 ? $"{group.Key} × {group.Count()}" : group.Key)) });
         if (eventKinds.Count > 0)
         {
@@ -1918,7 +1924,8 @@ public partial class Main : Control
     }
 
     public void ApplyBattleEvents(Godot.Collections.Dictionary events)
-        => _matchScreen?.AddBattleEvents(events["tick"].AsInt64(), events["descriptions"].As<Godot.Collections.Array<string>>().ToArray());
+        => _matchScreen?.AddBattleEvents(events["tick"].AsInt64(), events["descriptions"].As<Godot.Collections.Array<string>>().ToArray(),
+            events["objects"].As<Godot.Collections.Array<string>>().ToArray());
 
     private static Godot.Collections.Dictionary? MatchResultView(JsonElement eventElement, long serverTick)
     {
@@ -3030,6 +3037,7 @@ public partial class Main : Control
         return (new Godot.Collections.Dictionary
         {
             ["kind"] = "wireTable",
+            ["tick"] = ReadInt(snapshot, "tick"),
             ["viewerPlayerId"] = viewerPlayerId,
             ["turnState"] = ReadString(snapshot, "turnState"),
             ["turnNumber"] = ReadInt(snapshot, "turnNumber"),
@@ -3054,6 +3062,7 @@ public partial class Main : Control
         {
             var item = items[index]; var cardNo = ReadString(item, "cardNo");
             var name = _officialCatalog.TryGetValue(cardNo, out var card) ? card.CardName : cardNo == "HIDDEN" ? "隐藏行动" : "卡牌效果";
+            if (ReadBool(item, "playAbility")) name += " · 打出技能";
             var targets = ReadStringArray(item, "targetObjectIds").Select(Name).ToArray();
             result.Add(new Godot.Collections.Dictionary
             {

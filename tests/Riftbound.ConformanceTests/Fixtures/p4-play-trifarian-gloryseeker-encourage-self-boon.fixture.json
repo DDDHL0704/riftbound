@@ -24,7 +24,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "打出卡牌需要支付费用、加入结算链并在双方让过后结算；鼓舞在本回合已打出过其他卡牌时生效；增益以对象标签和永久 +1 战力记录。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent confirms immediately; only play abilities require priority passes. Final gameplay assertions retained."
+    }
   ],
   "roomId": "p4-trifarian-gloryseeker-encourage-room",
   "players": ["P1", "P2"],
@@ -86,8 +95,6 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p4-trifarian-gloryseeker-rage-sigil-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p4-trifarian-gloryseeker-rage-sigil-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-trifarian-gloryseeker-play",
@@ -98,38 +105,55 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p4-trifarian-gloryseeker-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p4-trifarian-gloryseeker-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-trifarian-gloryseeker-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-trifarian-gloryseeker-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
   ],
   "expected": {
-    "finalTick": 6,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE",
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "OBJECT_TAG_ADDED",
       "BOON_GRANTED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "EQUIPMENT_PLAYED_TO_BASE" },
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "EQUIPMENT_PLAYED_TO_BASE"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -139,19 +163,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-TRIFARIAN-GLORYSEEKER",
-          "cardNo": "OGN·217/298",
-          "targetObjectIds": [],
-          "effectKind": "TRIFARIAN_GLORYSEEKER_PLAY_UNIT_ENCOURAGE_SELF_BOON",
-          "playedAfterAnotherCardThisTurn": true
+          "effectKind": "TRIFARIAN_GLORYSEEKER_PLAY_UNIT_ENCOURAGE_SELF_BOON"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -161,8 +179,23 @@
           "unitName": "崔法利求战者",
           "destinationZone": "BASE",
           "power": 2,
-          "tags": ["CARD_TYPE:UNIT", "崔法利"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "崔法利"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "OBJECT_TAG_ADDED",

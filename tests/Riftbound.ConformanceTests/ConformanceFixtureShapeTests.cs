@@ -10829,7 +10829,8 @@ public sealed class ConformanceFixtureShapeTests
 
         Assert.True(play.Accepted);
         Assert.Contains(play.Events, evt => string.Equals(evt.Kind, "CARD_PLAYED", StringComparison.Ordinal));
-        Assert.Contains("PASS_PRIORITY", play.Prompts["P1"].Actions);
+        Assert.DoesNotContain("PASS_PRIORITY", play.Prompts["P1"].Actions);
+        Assert.Contains("P1-UNIT-MIGHTY-FAERIE", play.State.PlayerZones["P1"].Base);
     }
 
     [Fact]

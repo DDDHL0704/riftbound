@@ -686,7 +686,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerGoldDeclareBattleAsync(
             session,
@@ -731,7 +731,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerGoldDeclareBattleAsync(
             session,
@@ -776,7 +776,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerPowerfulDrawDeclareBattleAsync(
             session,
@@ -821,7 +821,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerPowerfulDrawDeclareBattleAsync(
             session,
@@ -899,7 +899,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var responseOpened = await SubmitBattlefieldHeldNextSpellEchoDeclareBattleOpenResponseAsync(
             session,
@@ -952,7 +952,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var damaged = await EndTurnAsync(
             session,
@@ -985,7 +985,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var destroyedAndDrew = await EndTurnAsync(
             session,
@@ -1020,7 +1020,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var runeCalled = await EndTurnAsync(
             session,
@@ -1055,7 +1055,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var scored = await EndTurnAsync(
             session,
@@ -1088,7 +1088,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var prevented = await EndTurnAsync(
             session,
@@ -1121,7 +1121,7 @@ public sealed class FullGameEndToEndTests
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
         Assert.Equal("P1", current.State.ActivePlayerId);
-        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
         var delayed = await EndTurnAsync(
             session,
@@ -1155,7 +1155,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await SubmitBattlefieldHeldUnitCostIncreaseUnitAsync(
             session,
@@ -1197,7 +1197,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerSandSoldierDeclareBattleAsync(
             session,
@@ -1242,7 +1242,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerSandSoldierDeclareBattleAsync(
             session,
@@ -1287,7 +1287,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerReadyLegendDeclareBattleAsync(
             session,
@@ -1332,7 +1332,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var paymentOpened = await SubmitBattlefieldConquerReadyLegendDeclareBattleAsync(
             session,
@@ -1377,7 +1377,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerOverkillWarhawkDeclareBattleAsync(
             session,
@@ -1415,7 +1415,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerRevealRecycleDeclareBattleAsync(
             session,
@@ -1453,7 +1453,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerRecycleRuneDeclareBattleAsync(
             session,
@@ -1491,7 +1491,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerDiscardDrawDeclareBattleAsync(
             session,
@@ -1529,7 +1529,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerConsumeBoonDrawDeclareBattleAsync(
             session,
@@ -1567,7 +1567,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerDrawForOtherBattlefieldsDeclareBattleAsync(
             session,
@@ -1605,7 +1605,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerReadyEquipmentDeclareBattleAsync(
             session,
@@ -1643,7 +1643,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerReadyRunesAtEndDeclareBattleAsync(
             session,
@@ -1686,7 +1686,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldConquerMillDeclareBattleAsync(
             session,
@@ -1721,7 +1721,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var spellPlayed = await SubmitBattlefieldFriendlySpellDrawSpellAsync(
             session,
@@ -1760,7 +1760,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var spellPlayed = await SubmitBattlefieldSpellPowerBonusSpellAsync(
             session,
@@ -1799,7 +1799,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var spellPlayed = await SubmitBattlefieldTargetSpellSkillDamageBonusSpellAsync(
             session,
@@ -1836,7 +1836,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].EnabledActions());
 
         var activated = await SubmitBattlefieldGrantUnitExperienceAbilityAsync(
             session,
@@ -1871,7 +1871,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].EnabledActions());
 
         var (activated, resolved) = await SubmitSeaMonsterHookActivatedAbilityAsync(
             session,
@@ -1909,7 +1909,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].EnabledActions());
 
         var (activated, pendingChoice, chosen) = await SubmitSeaMonsterHookActivatedAbilityWithTopFiveChoiceAsync(
             session,
@@ -1954,7 +1954,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].EnabledActions());
 
         var (activated, pendingChoice, declined) = await SubmitSeaMonsterHookActivatedAbilityDecliningTopFiveChoiceAsync(
             session,
@@ -1997,7 +1997,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.ActivateAbility, current.Prompts["P1"].EnabledActions());
 
         var (activated, resolved) = await SubmitSeaMonsterHookActivatedAbilityAsync(
             session,
@@ -2032,7 +2032,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var spellPlayed = await SubmitBattlefieldEchoCostReductionSpellAsync(
             session,
@@ -2071,7 +2071,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var equipmentPlayed = await SubmitBattlefieldEquipmentCostReductionEquipmentAsync(
             session,
@@ -2110,7 +2110,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.LegendAct, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.LegendAct, current.Prompts["P1"].EnabledActions());
 
         var attached = await SubmitBattlefieldLegendAttachArmamentAsync(
             session,
@@ -2182,7 +2182,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var recalled = await SubmitBattlefieldBattleDestroyedRecallDeclareBattleAsync(
             session,
@@ -2287,7 +2287,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var targetObjectId = BattlefieldHighCostSpellInsightTargetObjectId(current.State);
         var spellPlayed = await SubmitBattlefieldHighCostSpellInsightSpellAsync(
@@ -2328,7 +2328,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var targetObjectId = FlowingTimeMirrorEquipmentCleanupTargetObjectId(current.State);
         var spellPlayed = await SubmitFlowingTimeMirrorEquipmentCleanupSpellAsync(
@@ -2369,7 +2369,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var targetObjectId = BattlefieldHighCostSpellInsightTargetObjectId(current.State);
         var leblancObjectId = FlowingTimeMirrorLeblancSuppressionSourceObjectId(current.State);
@@ -2419,7 +2419,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var beforeMainDeck = current.State.PlayerZones["P1"].MainDeck.ToArray();
         Assert.True(beforeMainDeck.Length >= 3);
@@ -2462,7 +2462,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var unitPlayed = await SubmitBattlefieldPlayUnitBoonUnitAsync(
             session,
@@ -2500,7 +2500,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var unitPlayed = await SubmitBattlefieldFirstUnitMoveOtherUnitAsync(
             session,
@@ -2538,7 +2538,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var spellPlayed = await SubmitBattlefieldUnitReturnedCallRuneSpellAsync(
             session,
@@ -2579,7 +2579,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldDrawDeclareBattleAsync(
             session,
@@ -2616,7 +2616,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitUnitBattlefieldHeldDrawDeclareBattleAsync(
             session,
@@ -2650,7 +2650,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2686,7 +2686,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2723,7 +2723,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2759,7 +2759,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2797,7 +2797,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2834,7 +2834,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -2872,7 +2872,7 @@ public sealed class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.PlayCard, current.Prompts["P1"].EnabledActions());
 
         var played = await PlaySpecificUnitToBattlefieldAsync(
             session,
@@ -3142,7 +3142,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldCallRuneDeclareBattleAsync(
             session,
@@ -3179,7 +3179,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldEachPlayerCallRuneDeclareBattleAsync(
             session,
@@ -3216,7 +3216,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldMoveUnitToBaseDeclareBattleAsync(
             session,
@@ -3253,7 +3253,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldGrantBoonDeclareBattleAsync(
             session,
@@ -3290,7 +3290,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldCreateMinionDeclareBattleAsync(
             session,
@@ -3327,7 +3327,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldReturnHeroDeclareBattleAsync(
             session,
@@ -3364,7 +3364,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var result = await SubmitBattlefieldHeldSevenUnitsWinDeclareBattleAsync(
             session,
@@ -3395,7 +3395,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldPayPowerScoreDeclareBattleAsync(
             session,
@@ -3432,7 +3432,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldHeldActivateConquestDeclareBattleAsync(
             session,
@@ -3469,7 +3469,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldDefendMoveToBaseDeclareBattleAsync(
             session,
@@ -3506,7 +3506,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldDefendGrantSteadfastDeclareBattleAsync(
             session,
@@ -3543,7 +3543,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
             session,
@@ -3580,7 +3580,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
             $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
             session,
@@ -5292,7 +5292,7 @@ public sealed class FullGameEndToEndTests
         var standbyObjectId = initialState.PlayerZones["P1"].Battlefields
             .Single(objectId => initialState.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, PakaaCubCardNo, StringComparison.Ordinal));
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P2"].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P2"].EnabledActions());
 
         var declared = await SubmitBattlefieldExtraStandbyCleanupDeclareBattleAsync(
             session,
@@ -5654,7 +5654,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(openedResponse.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
         Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].View?.Type);
-        Assert.Contains(CommandTypes.TapRune, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].Actions);
+        Assert.Contains(CommandTypes.TapRune, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].EnabledActions());
 
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
@@ -5699,7 +5699,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -5730,7 +5730,7 @@ public sealed class FullGameEndToEndTests
                     PendingTaskPhase = result.State.PendingTaskQueue.Phase,
                     result.State.PendingTaskQueue.ActiveTaskId,
                     TaskKinds = result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray(),
-                    PromptActions = result.Prompts[result.State.ActivePlayerId].Actions,
+                    PromptActions = result.Prompts[result.State.ActivePlayerId].EnabledActions(),
                     result.State.BattlefieldStates,
                     result.State.UntilEndOfTurnEffects,
                     result.State.BattleState,
@@ -6927,7 +6927,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
 
         Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["cardNo"] as string, LoyalCraftsmanCardNo, StringComparison.Ordinal));
         Assert.Contains(result.State.StackItems, item =>
@@ -8294,7 +8294,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(1, costPaid.Payload["battlefieldEquipmentCostReductionMana"]);
 
         var stackEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, equipmentObjectId, StringComparison.Ordinal));
         Assert.Equal(LongSwordEquipmentCardNo, stackEvent.Payload["cardNo"]);
         Assert.Equal([targetObjectId], Assert.IsType<string[]>(stackEvent.Payload["targetObjectIds"]));
@@ -11034,7 +11034,7 @@ public sealed class FullGameEndToEndTests
         var battleReady = current;
         Assert.Equal("BATTLE_TASKS", battleReady.State.PendingTaskQueue.Phase);
         Assert.Equal(PromptTypes.BattleDeclaration, battleReady.Prompts[battleReady.State.ActivePlayerId].View?.Type);
-        Assert.Contains(CommandTypes.DeclareBattle, battleReady.Prompts[battleReady.State.ActivePlayerId].Actions);
+        Assert.Contains(CommandTypes.DeclareBattle, battleReady.Prompts[battleReady.State.ActivePlayerId].EnabledActions());
         var result = await SubmitFirstDeclareBattleCandidateAsync(session, battleReady, "b0-declare-official-battle");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, "b0-official-battle-damage");
         result = await PassOpenBattleResponseAsync(session, result, "b0-official-battle-close");
@@ -12182,7 +12182,7 @@ public sealed class FullGameEndToEndTests
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 var declared = await SubmitShadowResponseDeclareBattleAsync(
                     session,
@@ -12204,7 +12204,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 var declared = await SubmitShadowResponseDeclareBattleAsync(
                     session,
@@ -14023,10 +14023,10 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
         Assert.DoesNotContain(result.State.PendingTaskQueue.Tasks, task =>
             string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
-        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
-        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P2"].Actions);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P2"].EnabledActions());
         Assert.True(result.Prompts[result.State.ActivePlayerId].Actionable);
-        Assert.DoesNotContain("WAIT", result.Prompts[result.State.ActivePlayerId].Actions);
+        Assert.DoesNotContain("WAIT", result.Prompts[result.State.ActivePlayerId].EnabledActions());
         AssertNoHiddenZoneLeak(result);
         return (session, result);
     }
@@ -14098,7 +14098,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 var declared = await SubmitMultiDefenderDeclareBattleAsync(
                     session,
@@ -14149,7 +14149,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -14219,7 +14219,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -14299,7 +14299,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -14401,7 +14401,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -14503,7 +14503,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, treantPlayerId, StringComparison.Ordinal))
                 {
@@ -14556,7 +14556,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -14609,7 +14609,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -14660,7 +14660,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -14711,7 +14711,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, battlefieldOwnerId, StringComparison.Ordinal))
                 {
@@ -14766,7 +14766,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -14848,7 +14848,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, declaringPlayerId, StringComparison.Ordinal))
                 {
@@ -14899,7 +14899,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -14950,7 +14950,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15001,7 +15001,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15052,7 +15052,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15103,7 +15103,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15154,7 +15154,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15205,7 +15205,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15256,7 +15256,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15307,7 +15307,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15358,7 +15358,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15409,7 +15409,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15461,7 +15461,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15533,7 +15533,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15605,7 +15605,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15682,7 +15682,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15759,7 +15759,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, auraControllerId, StringComparison.Ordinal))
                 {
@@ -15811,7 +15811,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -15864,7 +15864,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 if (!string.Equals(result.State.ActivePlayerId, attackingPlayerId, StringComparison.Ordinal))
                 {
@@ -16099,7 +16099,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -16173,7 +16173,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -16352,7 +16352,7 @@ public sealed class FullGameEndToEndTests
             Assert.True(declared.Events.Any(gameEvent => gameEvent.Kind == "BATTLE_RESPONSE_PRIORITY_OPENED"),
                 JsonSerializer.Serialize(new { Before = DescribeState(current.State), Shadow = current.State.CardObjects[shadowObjectId],
                     Runes = current.State.PlayerZones[shadowControllerId].Base.Select(id => current.State.CardObjects[id]),
-                    Actions = declared.Prompts[shadowControllerId].Actions }));
+                    Actions = declared.Prompts[shadowControllerId].EnabledActions() }));
             Assert.Equal(shadowControllerId, declared.State.PriorityPlayerId);
         }
 
@@ -18317,7 +18317,7 @@ public sealed class FullGameEndToEndTests
             intentId);
         Assert.Equal(playerId, pendingChoice.State.ActivePlayerId);
         Assert.Equal(PromptTypes.CardChoice, pendingChoice.Prompts[playerId].View?.Type);
-        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].Actions);
+        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].EnabledActions());
         var chooseCandidate = Assert.Single(
             pendingChoice.Prompts[playerId].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
@@ -18341,7 +18341,7 @@ public sealed class FullGameEndToEndTests
         var waitingPrompt = pendingChoice.Prompts.Single(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal)).Value;
         Assert.False(waitingPrompt.Actionable);
         Assert.Equal(PromptTypes.CardChoice, waitingPrompt.View?.Type);
-        Assert.DoesNotContain(CommandTypes.ChooseCards, waitingPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseCards, waitingPrompt.EnabledActions());
         Assert.DoesNotContain(
             waitingPrompt.Candidates ?? [],
             candidate => candidate.Metadata is not null
@@ -18376,7 +18376,7 @@ public sealed class FullGameEndToEndTests
             intentId);
         Assert.Equal(playerId, pendingChoice.State.ActivePlayerId);
         Assert.Equal(PromptTypes.CardChoice, pendingChoice.Prompts[playerId].View?.Type);
-        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].Actions);
+        Assert.Contains(CommandTypes.ChooseCards, pendingChoice.Prompts[playerId].EnabledActions());
         var chooseCandidate = Assert.Single(
             pendingChoice.Prompts[playerId].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
@@ -21960,7 +21960,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -22060,7 +22060,7 @@ public sealed class FullGameEndToEndTests
             }
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
-                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+                && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
             {
                 result = await SubmitFirstDeclareBattleCandidateAsync(
                     session,
@@ -22400,11 +22400,13 @@ public sealed class FullGameEndToEndTests
         string intentPrefix)
     {
         var result = current;
+        var includesPlayAbility = current.State.StackItems.Any(item => item.SourceConfirmed);
+        var events = current.Events.ToList();
         for (var index = 0; index < 20; index++)
         {
             if (result.State.StackItems.Count == 0 && string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
-                return result;
+                return includesPlayAbility ? result with { Events = events } : result;
             }
 
             var priorityPlayerId = result.State.PriorityPlayerId;
@@ -22419,6 +22421,7 @@ public sealed class FullGameEndToEndTests
                 new PassPriorityCommand(),
                 RawCommand(new PassPriorityCommand()),
                 CancellationToken.None);
+            events.AddRange(result.Events);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
         }

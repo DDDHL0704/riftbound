@@ -12,7 +12,7 @@ public sealed class TimeGateGuardTests
     private const string TimeGateEffectKind = "TIME_GATE_PLAY_EQUIPMENT";
 
     [Fact]
-    public async Task TimeGatePlayCardWithNoTargetsUsesStackAndResolvesToBase()
+    public async Task TimeGatePlayCardWithNoTargetsConfirmsDirectlyToBase()
     {
         var engine = new CoreRuleEngine();
         var state = BuildTimeGateState();
@@ -23,24 +23,15 @@ public sealed class TimeGateGuardTests
         Assert.Equal(1, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
-        Assert.Single(played.State.StackItems);
+        Assert.Empty(played.State.StackItems);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-EQUIPMENT-TIME-GATE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "TIME_GATE_PLAY_EQUIPMENT", StringComparison.Ordinal));
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-time-gate-play-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-time-gate-play-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: the permanent is already in play.
+        var p2Pass = played;
 
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-TIME-GATE", "P1-FACE-DOWN-STANDBY-TIME-GATE", "P1-EQUIPMENT-TIME-GATE"], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
@@ -138,7 +129,7 @@ public sealed class TimeGateGuardTests
     }
 
     [Fact]
-    public async Task TimeGatePlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    public async Task TimeGatePlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
         var state = BuildTimeGateState();
@@ -178,7 +169,7 @@ public sealed class TimeGateGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "EQUIPMENT_PLAYED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertTimeGateStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -352,7 +343,7 @@ public sealed class TimeGateGuardTests
             result.State.CardObjects["P1-FACE-DOWN-STANDBY-TIME-GATE"].Tags);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
@@ -436,57 +427,11 @@ public sealed class TimeGateGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertTimeGateStackPriorityState(
+    private static string AssertTimeGateStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            ["P1-TARGET-UNIT", "P1-BASE-TIME-GATE", "P1-FACE-DOWN-STANDBY-TIME-GATE"],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[TimeGateObjectId].Zone);
-
-        var equipment = result.State.CardObjects[TimeGateObjectId];
-        Assert.Equal(TimeGateCardNo, equipment.CardNo);
-        Assert.Equal("P1", equipment.OwnerId);
-        Assert.Equal("P1", equipment.ControllerId);
-        Assert.Equal([CardObjectTags.EquipmentCard], equipment.Tags);
-        Assert.False(equipment.IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(TimeGateObjectId, stackItem.SourceObjectId);
-        Assert.Equal(TimeGateCardNo, stackItem.CardNo);
-        Assert.Equal(TimeGateEffectKind, stackItem.EffectKind);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, TimeGateObjectId, false, expectedStackItem);
     }
 
     private static MatchState BuildTimeGateState(int mana = 3)

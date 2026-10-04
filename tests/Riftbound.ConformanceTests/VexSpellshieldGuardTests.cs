@@ -12,7 +12,7 @@ public sealed class VexSpellshieldGuardTests
     private const string VexEffectKind = "VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC";
 
     [Fact]
-    public async Task VexPlayCardWithNoTargetsUsesStackAndResolvesToBase()
+    public async Task VexPlayCardWithNoTargetsConfirmsDirectlyToBase()
     {
         var engine = new CoreRuleEngine();
         var state = BuildVexState();
@@ -23,7 +23,7 @@ public sealed class VexSpellshieldGuardTests
         Assert.Equal(1, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
-        Assert.Single(played.State.StackItems);
+        Assert.Empty(played.State.StackItems);
         Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-VEX", StringComparison.Ordinal));
@@ -31,22 +31,13 @@ public sealed class VexSpellshieldGuardTests
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && Assert.IsType<int>(gameEvent.Payload["mana"]) == 4);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-VEX", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC", StringComparison.Ordinal));
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-vex-play-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-vex-play-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: the permanent is already in play.
+        var p2Pass = played;
 
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), p2Pass.State.RunePools["P1"]);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-VEX", "P1-FACE-DOWN-STANDBY-VEX", "P1-UNIT-VEX"], p2Pass.State.PlayerZones["P1"].Base);
@@ -61,7 +52,7 @@ public sealed class VexSpellshieldGuardTests
         Assert.Equal([CardObjectTags.UnitCard, "法盾", "约德尔人"], unit.Tags);
         Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-VEX", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "VEX_SPELLSHIELD_OPPONENT_UNIT_STUN_STATIC", StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent =>
@@ -151,7 +142,7 @@ public sealed class VexSpellshieldGuardTests
     }
 
     [Fact]
-    public async Task VexPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    public async Task VexPlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
         var state = BuildVexState();
@@ -191,7 +182,7 @@ public sealed class VexSpellshieldGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertVexStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -366,8 +357,8 @@ public sealed class VexSpellshieldGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
@@ -467,59 +458,11 @@ public sealed class VexSpellshieldGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertVexStackPriorityState(
+    private static string AssertVexStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            ["P1-TARGET-UNIT", "P1-BASE-VEX", "P1-FACE-DOWN-STANDBY-VEX"],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[VexObjectId].Zone);
-
-        var unit = result.State.CardObjects[VexObjectId];
-        Assert.Equal(VexCardNo, unit.CardNo);
-        Assert.Equal("P1", unit.OwnerId);
-        Assert.Equal("P1", unit.ControllerId);
-        Assert.Equal(0, unit.Power);
-        Assert.Equal(4, unit.ManaCost);
-        Assert.Equal([CardObjectTags.UnitCard], unit.Tags);
-        Assert.False(unit.IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(VexObjectId, stackItem.SourceObjectId);
-        Assert.Equal(VexCardNo, stackItem.CardNo);
-        Assert.Equal(VexEffectKind, stackItem.EffectKind);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, VexObjectId, false, expectedStackItem);
     }
 
     private static MatchState BuildVexState(int mana = 4)

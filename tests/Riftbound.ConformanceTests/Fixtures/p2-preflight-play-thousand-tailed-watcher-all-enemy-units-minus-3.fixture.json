@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；本回合内战力修正会在回合结束清理中失效，未支付急速可选额外费用时不执行活跃进场。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-thousand-tailed-watcher-room",
@@ -120,31 +125,36 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 7, "baseMana": 7 } },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 7,
+          "baseMana": 7
+        }
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-THOUSAND-TAILED-WATCHER",
-          "cardNo": "OGN·116/298",
-          "targetObjectIds": [],
           "effectKind": "THOUSAND_TAILED_WATCHER_PLAY_UNIT_ALL_ENEMY_UNITS_MINUS_3"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -154,8 +164,23 @@
           "unitName": "千尾监视者",
           "destinationZone": "BASE",
           "power": 7,
-          "tags": ["CARD_TYPE:UNIT", "急速"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "急速"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",

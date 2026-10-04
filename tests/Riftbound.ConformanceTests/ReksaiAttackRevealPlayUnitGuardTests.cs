@@ -14,7 +14,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
     [Theory]
     [InlineData("SFD·170/221", "SFD_170_REKSAI_ATTACK_REVEAL_PLAY_UNIT")]
     [InlineData("SFD·170a/221", "SFD_170A_REKSAI_ATTACK_REVEAL_PLAY_UNIT")]
-    public async Task ReksaiPlayCardWithNoTargetsUsesStackAndResolvesToBase(
+    public async Task ReksaiPlayCardWithNoTargetsConfirmsDirectlyToBase(
         string cardNo,
         string expectedEffectKind)
     {
@@ -27,7 +27,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
         Assert.Equal(1, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
-        Assert.Single(played.State.StackItems);
+        Assert.Empty(played.State.StackItems);
         Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal));
@@ -35,22 +35,13 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && Assert.IsType<int>(gameEvent.Payload["mana"]) == 5);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, expectedEffectKind, StringComparison.Ordinal));
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-reksai-play-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-reksai-play-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: the permanent is already in play.
+        var p2Pass = played;
 
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), p2Pass.State.RunePools["P1"]);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-REKSAI", "P1-FACE-DOWN-STANDBY-REKSAI", "P1-UNIT-REKSAI"], p2Pass.State.PlayerZones["P1"].Base);
@@ -65,7 +56,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
         Assert.Equal([CardObjectTags.UnitCard], unit.Tags);
         Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, expectedEffectKind, StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent =>
@@ -157,7 +148,7 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
     }
 
     [Fact]
-    public async Task ReksaiAttackRevealPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    public async Task ReksaiAttackRevealPlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
         var state = BuildReksaiState(ReksaiPrimaryCardNo);
@@ -198,8 +189,8 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.DoesNotContain(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         var acceptedStackItem = AssertReksaiStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -420,8 +411,8 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
@@ -514,61 +505,11 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertReksaiStackPriorityState(
+    private static string AssertReksaiStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            ["P1-TARGET-UNIT", "P1-BASE-REKSAI", "P1-FACE-DOWN-STANDBY-REKSAI"],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P2-UNIT-REKSAI"], result.State.PlayerZones["P2"].Hand);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[ReksaiObjectId].Zone);
-
-        var unit = result.State.CardObjects[ReksaiObjectId];
-        Assert.Equal(ReksaiPrimaryCardNo, unit.CardNo);
-        Assert.Equal("P1", unit.OwnerId);
-        Assert.Equal("P1", unit.ControllerId);
-        Assert.Equal(0, unit.Power);
-        Assert.Equal(5, unit.ManaCost);
-        Assert.Equal([CardObjectTags.UnitCard], unit.Tags);
-        Assert.False(unit.IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(ReksaiObjectId, stackItem.SourceObjectId);
-        Assert.Equal(ReksaiPrimaryCardNo, stackItem.CardNo);
-        Assert.Equal(ReksaiPrimaryEffectKind, stackItem.EffectKind);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, ReksaiObjectId, false, expectedStackItem);
     }
 
     private static MatchState BuildReksaiState(string cardNo, int mana = 5)

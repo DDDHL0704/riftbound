@@ -32,7 +32,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         var state = BuildOrnnState(cardNo, includeFriendlyFieldEquipment: true);
 
         var played = await PlayOrnnAsync(engine, state, cardNo);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -102,7 +102,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertOrnnStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -274,7 +274,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         var state = BuildOrnnState(OrnnCardNo, includeFriendlyFieldEquipment: false);
 
         var played = await PlayOrnnAsync(engine, state, OrnnCardNo);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -338,7 +338,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         };
 
         var played = await PlayOrnnAsync(engine, state, OrnnCardNo);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -596,7 +596,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             new PlayerIntent("intent-ornn-dynamic-play-equipment", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(FriendlyPlayedEquipmentObjectId, "SFD·046/221", []),
             CancellationToken.None);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -647,7 +647,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             new PlayerIntent("intent-ornn-dynamic-metadata-play-equipment", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(FriendlyPlayedEquipmentObjectId, "SFD·046/221", []),
             CancellationToken.None);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -1193,7 +1193,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             new PlayerIntent("intent-ornn-source-leaves-vengeance-play", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(VengeanceObjectId, "OGN·229/298", [OrnnObjectId]),
             CancellationToken.None);
-        var vengeanceResolved = await ResolveTopStackAsync(engine, vengeancePlayed.State);
+        var vengeanceResolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, vengeancePlayed);
 
         Assert.True(vengeancePlayed.Accepted, vengeancePlayed.ErrorMessage);
         Assert.True(vengeanceResolved.Accepted, vengeanceResolved.ErrorMessage);
@@ -1284,86 +1284,11 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertOrnnStackPriorityState(
+    private static string AssertOrnnStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
-        Assert.Equal([HandEquipmentObjectId], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            [
-                FriendlyBaseEquipmentObjectId,
-                SecondFriendlyBaseEquipmentObjectId,
-                FriendlyUnitObjectId,
-                FaceDownEquipmentObjectId,
-                DirtyControllerEquipmentObjectId
-            ],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
-        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal([EnemyEquipmentObjectId], result.State.PlayerZones["P2"].Base);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[OrnnObjectId].Zone);
-        Assert.Equal("P1", result.State.ObjectLocations[OrnnObjectId].PlayerId);
-        Assert.Equal("HAND", result.State.ObjectLocations[HandEquipmentObjectId].Zone);
-        Assert.Equal("BASE", result.State.ObjectLocations[FriendlyBaseEquipmentObjectId].Zone);
-        Assert.Equal("BASE", result.State.ObjectLocations[SecondFriendlyBaseEquipmentObjectId].Zone);
-        Assert.Equal("BASE", result.State.ObjectLocations[EnemyEquipmentObjectId].Zone);
-        Assert.Equal("P2", result.State.ObjectLocations[EnemyEquipmentObjectId].PlayerId);
-        Assert.Equal(OrnnCardNo, result.State.CardObjects[OrnnObjectId].CardNo);
-        Assert.Equal([CardObjectTags.UnitCard], result.State.CardObjects[OrnnObjectId].Tags);
-        Assert.Equal("P1", result.State.CardObjects[OrnnObjectId].OwnerId);
-        Assert.Equal("P1", result.State.CardObjects[OrnnObjectId].ControllerId);
-        Assert.False(result.State.CardObjects[OrnnObjectId].IsFaceDown);
-        Assert.Equal([CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], result.State.CardObjects[FriendlyBaseEquipmentObjectId].Tags);
-        Assert.Equal([CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], result.State.CardObjects[SecondFriendlyBaseEquipmentObjectId].Tags);
-        Assert.Equal("P1", result.State.CardObjects[FriendlyBaseEquipmentObjectId].ControllerId);
-        Assert.Equal("P1", result.State.CardObjects[SecondFriendlyBaseEquipmentObjectId].ControllerId);
-        Assert.DoesNotContain(
-            result.State.ContinuousEffects,
-            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
-                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
-        Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].Actions);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(OrnnObjectId, stackItem.SourceObjectId);
-        Assert.Equal(OrnnCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("SFD_ORNN_NO_OPTIONAL_ASSEMBLE_SPELLSHIELD2_PLAY_UNIT", stackItem.EffectKind);
-        Assert.Equal(0, stackItem.DamageAmount);
-        Assert.Equal(1, stackItem.EffectRepeatCount);
-        Assert.False(stackItem.PlayedAfterAnotherCardThisTurn);
-        Assert.Equal(string.Empty, stackItem.Destination);
-        Assert.Equal("NEUTRAL_OPEN", stackItem.TimingContext);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, OrnnObjectId, true, expectedStackItem);
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(

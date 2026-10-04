@@ -1782,16 +1782,16 @@ public sealed class GameHubJoinTests
         Assert.Contains(EventsFor(p1SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
         var p1SubmittedPrompt = PromptFor(p1SubmitClients, "P1");
         var p2MissingDeckPrompt = PromptFor(p1SubmitClients, "P2");
-        Assert.Equal(["READY"], p1SubmittedPrompt.Actions);
-        Assert.Equal(["SUBMIT_DECK"], p2MissingDeckPrompt.Actions);
+        Assert.Equal(["READY"], p1SubmittedPrompt.EnabledActions());
+        Assert.Equal(["SUBMIT_DECK"], p2MissingDeckPrompt.EnabledActions());
 
         var p2SubmitClients = new RecordingHubClients();
         await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
         Assert.Contains(EventsFor(p2SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
-        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P1").Actions);
-        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P2").Actions);
+        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P1").EnabledActions());
+        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P2").EnabledActions());
 
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .Ready(roomId, "P1", "ready-official-p1");
@@ -1811,7 +1811,7 @@ public sealed class GameHubJoinTests
         var activePrompt = PromptFor(readyClients, activePlayerId);
         var secondPrompt = PromptFor(readyClients, secondPlayerId);
         Assert.True(activePrompt.Actionable);
-        Assert.Contains("MULLIGAN", activePrompt.Actions);
+        Assert.Contains("MULLIGAN", activePrompt.EnabledActions());
         Assert.False(secondPrompt.Actionable);
 
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
@@ -1950,8 +1950,8 @@ public sealed class GameHubJoinTests
         Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(nextSnapshot.Timing["timingState"]));
         var nextPrompt = PromptFor(endTurnClients, nextPlayerId);
         Assert.True(nextPrompt.Actionable);
-        Assert.Contains("TAP_RUNE", nextPrompt.Actions);
-        Assert.Contains("SURRENDER", nextPrompt.Actions);
+        Assert.Contains("TAP_RUNE", nextPrompt.EnabledActions());
+        Assert.Contains("SURRENDER", nextPrompt.EnabledActions());
 
         var surrenderClients = new RecordingHubClients();
         await CreateHub(
@@ -2033,7 +2033,7 @@ public sealed class GameHubJoinTests
         var playEvents = EventsFor(playClients);
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
         AssertOfficialSnapshotKeepsOpponentHandHidden(
             SnapshotFor(playClients, opening.ActivePlayerId),
             opening.ActivePlayerId,
@@ -2043,35 +2043,13 @@ public sealed class GameHubJoinTests
             opening.SecondPlayerId,
             opening.ActivePlayerId);
 
-        var passActiveClients = new RecordingHubClients();
-        await CreateHub(
-                passActiveClients,
-                new RecordingGroupManager(),
-                ConnectionFor(opening.ActivePlayerId),
-                opening.Registry)
-            .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-active-pass", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
-        Assert.Empty(passActiveClients.CallerClient.Errors);
-        var secondPrompt = PromptFor(passActiveClients, opening.SecondPlayerId);
-        Assert.True(secondPrompt.Actionable);
-        Assert.Contains("PASS_PRIORITY", secondPrompt.Actions);
-
-        var passSecondClients = new RecordingHubClients();
-        await CreateHub(
-                passSecondClients,
-                new RecordingGroupManager(),
-                ConnectionFor(opening.SecondPlayerId),
-                opening.Registry)
-            .SubmitIntent(roomId, opening.SecondPlayerId, "official-real-deck-play-second-pass", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
-        Assert.Empty(passSecondClients.CallerClient.Errors);
-        var resolveEvents = EventsFor(passSecondClients);
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        var resolvedSnapshot = SnapshotFor(passSecondClients, opening.ActivePlayerId);
+        // CN 359.2: this fixture's Vi has no play trigger and enters immediately.
+        var resolvedSnapshot = SnapshotFor(playClients, opening.ActivePlayerId);
         Assert.Empty(resolvedSnapshot.Stack);
         AssertOfficialSnapshotKeepsOpponentHandHidden(resolvedSnapshot, opening.ActivePlayerId, opening.SecondPlayerId);
-
-        var resolvedPrompt = PromptFor(passSecondClients, opening.ActivePlayerId);
+        var resolvedPrompt = PromptFor(playClients, opening.ActivePlayerId);
         Assert.True(resolvedPrompt.Actionable);
-        Assert.Contains("END_TURN", resolvedPrompt.Actions);
+        Assert.Contains("END_TURN", resolvedPrompt.EnabledActions());
 
         var endTurnClients = new RecordingHubClients();
         await CreateHub(
@@ -2326,7 +2304,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(completeEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         var mainPrompt = PromptFor(secondMulliganClients, activePlayerId);
         Assert.True(mainPrompt.Actionable);
-        Assert.Contains(CommandTypes.Surrender, mainPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, mainPrompt.EnabledActions());
         var tapRuneCandidate = Assert.Single(
             mainPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal));
@@ -2360,7 +2338,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(nextSnapshot.Timing["timingState"]));
         var nextPrompt = PromptFor(endTurnClients, nextPlayerId);
         Assert.True(nextPrompt.Actionable);
-        Assert.Contains(CommandTypes.Surrender, nextPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, nextPrompt.EnabledActions());
 
         var surrender = JsonSerializer.SerializeToElement(new
         {
@@ -2389,7 +2367,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(activePlayerId, Assert.IsType<string>(acceptedSnapshot.Timing["winnerPlayerId"]));
         var acceptedPrompt = PromptFor(acceptedClients, nextPlayerId);
         Assert.False(acceptedPrompt.Actionable);
-        Assert.DoesNotContain(CommandTypes.Surrender, acceptedPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.Surrender, acceptedPrompt.EnabledActions());
         var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
             .Select(message => message.PlayerId)
             .OrderBy(playerId => playerId, StringComparer.Ordinal)
@@ -2511,7 +2489,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(activePlayerId, Assert.IsType<string>(currentSnapshot.Timing["winnerPlayerId"]));
         var currentPrompt = Assert.IsType<ActionPromptDto>(Assert.Single(stateClients.CallerClient.Prompts).Payload);
         Assert.False(currentPrompt.Actionable);
-        Assert.DoesNotContain(CommandTypes.Surrender, currentPrompt.Actions);
+        Assert.DoesNotContain(CommandTypes.Surrender, currentPrompt.EnabledActions());
     }
 
     [Fact]
@@ -2546,7 +2524,7 @@ public sealed class GameHubJoinTests
             : "connection-2";
         var activePrompt = PromptFor(readyClients, activePlayerId);
         Assert.True(activePrompt.Actionable);
-        Assert.Contains("MULLIGAN", activePrompt.Actions);
+        Assert.Contains("MULLIGAN", activePrompt.EnabledActions());
 
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
         var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
@@ -3093,7 +3071,7 @@ public sealed class GameHubJoinTests
         var prompt = Assert.IsType<ActionPromptDto>(Assert.Single(promptClients.CallerClient.Prompts).Payload);
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
-        Assert.Contains(CommandTypes.OrderTriggers, prompt.Actions);
+        Assert.Contains(CommandTypes.OrderTriggers, prompt.EnabledActions());
         Assert.NotNull(prompt.PromptId);
         Assert.True(prompt.SnapshotTick.HasValue);
         var candidate = Assert.Single(
@@ -3141,8 +3119,8 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedP1Snapshot.Tick, acceptedP2Snapshot.Tick);
         var acceptedP1Prompt = PromptFor(acceptedClients, "P1");
         var acceptedP2Prompt = PromptFor(acceptedClients, "P2");
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP1Prompt.Actions);
-        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP2Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP1Prompt.EnabledActions());
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP2Prompt.EnabledActions());
         Assert.Equal(PromptTypes.StackPriority, acceptedP2Prompt.View?.Type);
         var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
             .Select(message => message.PlayerId)
@@ -4094,7 +4072,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(seedClients.CallerClient.Errors);
         var prompt = PromptFor(seedClients, "P1");
         Assert.True(prompt.Actionable);
-        Assert.Equal(["PAY_COST", "SURRENDER"], prompt.Actions);
+        Assert.Equal(["PAY_COST", "SURRENDER"], prompt.EnabledActions());
         Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
         Assert.True(prompt.SnapshotTick.HasValue);
@@ -5205,8 +5183,8 @@ public sealed class GameHubJoinTests
 
         var p1Prompt = PromptFor(seedClients, "P1");
         var p2Prompt = PromptFor(seedClients, "P2");
-        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);
-        Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.EnabledActions());
+        Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.EnabledActions());
         Assert.Contains("待命清理", p1Prompt.Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("REMOVE_ILLEGAL_STANDBY", p1Prompt.Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("cleanup:illegal-standby", p1Prompt.Reason, StringComparison.Ordinal);
@@ -5243,7 +5221,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", Assert.IsType<string>(task["reason"]));
 
         var p1Prompt = PromptFor(seedClients, "P1");
-        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.EnabledActions());
         Assert.Contains("装备清理", p1Prompt.Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("RECALL_UNATTACHED_EQUIPMENT", p1Prompt.Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("cleanup:unattached-equipment", p1Prompt.Reason, StringComparison.Ordinal);
@@ -6278,25 +6256,12 @@ public sealed class GameHubJoinTests
         Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         var playSnapshot = SnapshotFor(playClients, "P1");
-        Assert.Single(playSnapshot.Stack);
-
-        var passP1Clients = new RecordingHubClients();
-        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-p7-9-haste-payment-recycle-p1-pass", passPriority);
-
-        Assert.Empty(passP1Clients.CallerClient.Errors);
-
-        var passP2Clients = new RecordingHubClients();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
-            .SubmitIntent(roomId, "P2", "intent-p7-9-haste-payment-recycle-p2-pass", passPriority);
-
-        Assert.Empty(passP2Clients.CallerClient.Errors);
-        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Empty(playSnapshot.Stack);
+        var resolveEvents = playEvents;
         var unitPlayedEvent = Assert.Single(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.Equal(true, unitPlayedEvent.Payload["hasteReadyOptionalCostPaid"]);
         Assert.Equal(false, unitPlayedEvent.Payload["isExhausted"]);
-        var finalSnapshot = SnapshotFor(passP2Clients, "P1");
+        var finalSnapshot = playSnapshot;
         Assert.Empty(finalSnapshot.Stack);
         var p1 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
@@ -6496,7 +6461,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(
             [firstShieldTarget, secondShieldTarget],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
-        Assert.Contains("END_TURN", PromptFor(resolveClients, "P1").Actions);
+        Assert.Contains("END_TURN", PromptFor(resolveClients, "P1").EnabledActions());
     }
 
     [Fact]
@@ -7929,10 +7894,10 @@ public sealed class GameHubJoinTests
         var playP1Prompt = PromptFor(playClients, "P1");
         var playP2Prompt = PromptFor(playClients, "P2");
         Assert.True(playP1Prompt.Actionable);
-        Assert.Contains("PASS_PRIORITY", playP1Prompt.Actions);
+        Assert.Contains("PASS_PRIORITY", playP1Prompt.EnabledActions());
         Assert.Contains(playP1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "PASS_PRIORITY", StringComparison.Ordinal) && candidate.Enabled);
         Assert.False(playP2Prompt.Actionable);
-        Assert.Contains("WAIT", playP2Prompt.Actions);
+        Assert.Contains("WAIT", playP2Prompt.EnabledActions());
         Assert.Contains(playP2Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "WAIT", StringComparison.Ordinal) && !candidate.Enabled);
 
         var passClients = new RecordingHubClients();
@@ -7949,9 +7914,9 @@ public sealed class GameHubJoinTests
         var passP1Prompt = PromptFor(passClients, "P1");
         var passP2Prompt = PromptFor(passClients, "P2");
         Assert.False(passP1Prompt.Actionable);
-        Assert.Contains("WAIT", passP1Prompt.Actions);
+        Assert.Contains("WAIT", passP1Prompt.EnabledActions());
         Assert.True(passP2Prompt.Actionable);
-        Assert.Contains("PASS_PRIORITY", passP2Prompt.Actions);
+        Assert.Contains("PASS_PRIORITY", passP2Prompt.EnabledActions());
 
         var p2Snapshot = Assert.IsType<SnapshotDto>(
             Assert.Single(passClients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, "P2", StringComparison.Ordinal)).Payload);
@@ -8005,7 +7970,7 @@ public sealed class GameHubJoinTests
 
         var p1Prompt = PromptFor(seedClients, "P1");
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], p1Prompt.EnabledActions());
         var playCandidate = Assert.Single(
             p1Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -8035,7 +8000,7 @@ public sealed class GameHubJoinTests
 
         var p2Prompt = PromptFor(seedClients, "P2");
         Assert.False(p2Prompt.Actionable);
-        Assert.Contains("WAIT", p2Prompt.Actions);
+        Assert.Contains("WAIT", p2Prompt.EnabledActions());
 
         var playClients = new RecordingHubClients();
         await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
@@ -8054,7 +8019,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
         var playP1Prompt = PromptFor(playClients, "P1");
         Assert.True(playP1Prompt.Actionable);
-        Assert.Contains("PASS_PRIORITY", playP1Prompt.Actions);
+        Assert.Contains("PASS_PRIORITY", playP1Prompt.EnabledActions());
     }
 
     [Fact]
@@ -8079,7 +8044,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(seedClients.CallerClient.Errors);
         var p2Prompt = PromptFor(seedClients, "P2");
         Assert.True(p2Prompt.Actionable);
-        Assert.Equal(["PASS_PRIORITY", "SURRENDER"], p2Prompt.Actions);
+        Assert.Equal(["PASS_PRIORITY", "SURRENDER"], p2Prompt.EnabledActions());
         var seededP1Snapshot = SnapshotFor(seedClients, "P1");
         Assert.Equal("NEUTRAL_CLOSED", seededP1Snapshot.Timing["timingState"]);
         Assert.Equal("P2", seededP1Snapshot.Timing["priorityPlayerId"]);
@@ -8106,7 +8071,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("task:start-spell-duel:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(taskQueue["activeTaskId"]));
         var p1Prompt = PromptFor(passClients, "P2");
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p1Prompt.EnabledActions());
 
         var p1FocusPassClients = new RecordingHubClients();
         await CreateHub(p1FocusPassClients, new RecordingGroupManager(), "connection-2", registry)
@@ -8118,7 +8083,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(p1FocusPassClients.CallerClient.Errors);
         var p2FocusPrompt = PromptFor(p1FocusPassClients, "P1");
         Assert.True(p2FocusPrompt.Actionable);
-        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p2FocusPrompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p2FocusPrompt.EnabledActions());
 
         var p2FocusPassClients = new RecordingHubClients();
         await CreateHub(p2FocusPassClients, new RecordingGroupManager(), "connection-1", registry)
@@ -8139,7 +8104,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("task:start-battle:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(finalTaskQueue["activeTaskId"]));
         var finalP1Prompt = PromptFor(p2FocusPassClients, "P2");
         Assert.True(finalP1Prompt.Actionable);
-        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], finalP1Prompt.Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], finalP1Prompt.EnabledActions());
         var declareBattleCandidate = Assert.Single(
             finalP1Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
@@ -8228,7 +8193,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(seedClients.CallerClient.Errors);
         var seededP2Prompt = PromptFor(seedClients, "P2");
         Assert.True(seededP2Prompt.Actionable);
-        Assert.Equal(["PASS_FOCUS", "SURRENDER"], seededP2Prompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], seededP2Prompt.EnabledActions());
         var seededP2Snapshot = SnapshotFor(seedClients, "P2");
         Assert.Equal("SPELL_DUEL_OPEN", seededP2Snapshot.Timing["timingState"]);
         Assert.Equal("P2", seededP2Snapshot.Timing["focusPlayerId"]);
@@ -8268,8 +8233,8 @@ public sealed class GameHubJoinTests
 
         var p1Prompt = PromptFor(passFocusClients, "P1");
         Assert.True(p1Prompt.Actionable);
-        Assert.DoesNotContain("DECLARE_BATTLE", p1Prompt.Actions);
-        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], p1Prompt.Actions);
+        Assert.DoesNotContain("DECLARE_BATTLE", p1Prompt.EnabledActions());
+        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], p1Prompt.EnabledActions());
 
         var resyncClients = new RecordingHubClients();
         await CreateHub(resyncClients, new RecordingGroupManager(), "connection-1", registry)
@@ -8387,7 +8352,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(8, Assert.IsType<int>(scoreP1["score"]));
         var scoreP2Prompt = PromptFor(scoreClients, "P2");
         Assert.False(scoreP2Prompt.Actionable);
-        Assert.Contains("WAIT", scoreP2Prompt.Actions);
+        Assert.Contains("WAIT", scoreP2Prompt.EnabledActions());
     }
 
     [Fact]
@@ -11048,7 +11013,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(1, costPaid.Payload["mana"]);
         Assert.Equal(1, costPaid.Payload["battlefieldEquipmentCostReductionMana"]);
         Assert.Contains(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["cardNo"] as string, "SFD·022/221", StringComparison.Ordinal));
         var p1Snapshot = SnapshotFor(playClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
@@ -11733,7 +11698,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(3, costEvent.Payload["baseMana"]);
         Assert.Equal(1, costEvent.Payload["battlefieldHeldUnitCostIncreaseMana"]);
         Assert.Contains(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["cardNo"] as string, "OGN·211/298", StringComparison.Ordinal));
     }
 
@@ -11826,7 +11791,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(MatchStatuses.InProgress, p1Snapshot.Timing["roomStatus"]);
         var p2Prompt = PromptFor(endTurnClients, "P2");
         Assert.True(p2Prompt.Actionable);
-        Assert.Contains("END_TURN", p2Prompt.Actions);
+        Assert.Contains("END_TURN", p2Prompt.EnabledActions());
     }
 
     [Fact]
@@ -12413,7 +12378,7 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P2", "intent-p7-9-royal-attendant-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(EventsFor(playClients), gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         var readiedEvent = Assert.Single(resolveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEGEND-ROYAL-TARGET", StringComparison.Ordinal));
@@ -12489,7 +12454,7 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P2", "intent-p7-9-ornn-equipment-look-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(EventsFor(playClients), gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["count"], 1));
@@ -12556,7 +12521,7 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P2", "intent-p7-9-ornn-equipment-look-decline-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(EventsFor(playClients), gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.DoesNotContain(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
@@ -15815,7 +15780,7 @@ public sealed class GameHubJoinTests
         var currentPrompt = Assert.IsType<ActionPromptDto>(Assert.Single(stateClients.CallerClient.Prompts).Payload);
         Assert.Equal("P1", currentPrompt.PlayerId);
         Assert.Equal(acceptedSnapshot.Tick, currentPrompt.SnapshotTick);
-        Assert.Equal(acceptedP1PromptActions, string.Join("|", currentPrompt.Actions));
+        Assert.Equal(acceptedP1PromptActions, string.Join("|", currentPrompt.EnabledActions()));
     }
 
     [Fact]
@@ -15911,7 +15876,7 @@ public sealed class GameHubJoinTests
         var playEvents = EventsFor(playClients);
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
@@ -15926,7 +15891,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal));
         var snapshot = SnapshotFor(passP2Clients, "P1");
         Assert.Single(snapshot.Stack);
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
@@ -15969,7 +15934,7 @@ public sealed class GameHubJoinTests
         var playEvents = EventsFor(playClients);
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
@@ -15984,7 +15949,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-LONG-SWORD", StringComparison.Ordinal)
@@ -16076,7 +16041,7 @@ public sealed class GameHubJoinTests
         var playExperienceEvents = EventsFor(playExperienceClients);
         Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
 
         var passExperienceP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
@@ -16091,7 +16056,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(passExperienceP2Clients.CallerClient.Errors);
         var experienceEvents = EventsFor(passExperienceP2Clients);
         Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
         var experienceSnapshot = SnapshotFor(passExperienceP2Clients, "P1");
         var experienceP1 = Assert.IsType<Dictionary<string, object?>>(experienceSnapshot.Players["P1"]);
@@ -16110,21 +16075,10 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p6-play-moss-stepper", mossStepper);
         Assert.Empty(playLevelClients.CallerClient.Errors);
 
-        var passLevelP1Clients = new RecordingHubClients();
-        var passLevelPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passLevelP1Clients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-p6-level-p1-pass", passLevelPriority);
-        Assert.Empty(passLevelP1Clients.CallerClient.Errors);
-
-        var passLevelP2Clients = new RecordingHubClients();
-        var passLevelPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passLevelP2Clients, new RecordingGroupManager(), "connection-2", registry)
-            .SubmitIntent(roomId, "P2", "intent-p6-level-p2-pass", passLevelPriorityAgain);
-        Assert.Empty(passLevelP2Clients.CallerClient.Errors);
-        var levelEvents = EventsFor(passLevelP2Clients);
-        Assert.Contains(levelEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(levelEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
-        var levelSnapshot = SnapshotFor(passLevelP2Clients, "P1");
+        var levelEvents = EventsFor(playLevelClients);
+        Assert.Contains(levelEvents, gameEvent => gameEvent.Kind == "PERMANENT_CONFIRMED");
+        Assert.Contains(levelEvents, gameEvent => gameEvent.Kind == "UNIT_PLAYED_TO_BASE");
+        var levelSnapshot = SnapshotFor(playLevelClients, "P1");
         var levelP1 = Assert.IsType<Dictionary<string, object?>>(levelSnapshot.Players["P1"]);
         Assert.Equal(3, Assert.IsType<int>(levelP1["experience"]));
         var levelP1Zones = Assert.IsType<Dictionary<string, object?>>(levelP1["zones"]);

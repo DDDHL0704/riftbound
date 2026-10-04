@@ -12,7 +12,7 @@ public sealed class SfurSongGuardTests
     private const string SfurSongEffectKind = "SFUR_SONG_PLAY_EQUIPMENT";
 
     [Fact]
-    public async Task SfurSongPlayCardWithNoTargetsUsesStackAndResolvesToBase()
+    public async Task SfurSongPlayCardWithNoTargetsConfirmsDirectlyToBase()
     {
         var engine = new CoreRuleEngine();
         var state = BuildSfurSongState();
@@ -23,24 +23,15 @@ public sealed class SfurSongGuardTests
         Assert.Equal(1, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
-        Assert.Single(played.State.StackItems);
+        Assert.Empty(played.State.StackItems);
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-EQUIPMENT-SFUR-SONG", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "SFUR_SONG_PLAY_EQUIPMENT", StringComparison.Ordinal));
 
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-sfur-song-play-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-sfur-song-play-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        // CN 359.2: the permanent is already in play.
+        var p2Pass = played;
 
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-SFUR-SONG", "P1-FACE-DOWN-STANDBY-SFUR-SONG", "P1-EQUIPMENT-SFUR-SONG"], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
@@ -124,7 +115,7 @@ public sealed class SfurSongGuardTests
     }
 
     [Fact]
-    public async Task SfurSongPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    public async Task SfurSongPlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
         var state = BuildSfurSongState();
@@ -164,7 +155,7 @@ public sealed class SfurSongGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "EQUIPMENT_PLAYED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertSfurSongStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -338,7 +329,7 @@ public sealed class SfurSongGuardTests
             result.State.CardObjects["P1-FACE-DOWN-STANDBY-SFUR-SONG"].Tags);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
@@ -422,57 +413,11 @@ public sealed class SfurSongGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertSfurSongStackPriorityState(
+    private static string AssertSfurSongStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            ["P1-TARGET-UNIT", "P1-BASE-SFUR-SONG", "P1-FACE-DOWN-STANDBY-SFUR-SONG"],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[SfurSongObjectId].Zone);
-
-        var equipment = result.State.CardObjects[SfurSongObjectId];
-        Assert.Equal(SfurSongCardNo, equipment.CardNo);
-        Assert.Equal("P1", equipment.OwnerId);
-        Assert.Equal("P1", equipment.ControllerId);
-        Assert.Equal([CardObjectTags.EquipmentCard], equipment.Tags);
-        Assert.False(equipment.IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(SfurSongObjectId, stackItem.SourceObjectId);
-        Assert.Equal(SfurSongCardNo, stackItem.CardNo);
-        Assert.Equal(SfurSongEffectKind, stackItem.EffectKind);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, SfurSongObjectId, false, expectedStackItem);
     }
 
     private static MatchState BuildSfurSongState(int mana = 3)

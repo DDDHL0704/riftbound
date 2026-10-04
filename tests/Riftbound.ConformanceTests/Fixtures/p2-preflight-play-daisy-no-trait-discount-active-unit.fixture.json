@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
       "note": "从手牌支付费用打出单位、加入结算链、双方让过后结算；单位是公开对象，可记录战力、标签和活跃/休眠状态。费用减少、进攻触发和战场位置路径暂缓。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-daisy-room",
@@ -82,35 +87,20 @@
         "cardNo": "UNL-196/219",
         "targetObjectIds": []
       }
-    },
-    {
-      "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-daisy-p1-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-daisy-p2-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -120,19 +110,14 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "stackItemId": "STACK-1-P1-UNIT-DAISY",
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-DAISY",
-          "cardNo": "UNL-196/219",
-          "targetObjectIds": [],
           "effectKind": "DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -141,7 +126,9 @@
           "unitObjectId": "P1-UNIT-DAISY",
           "destinationZone": "BASE",
           "power": 8,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         }
       }
     ],

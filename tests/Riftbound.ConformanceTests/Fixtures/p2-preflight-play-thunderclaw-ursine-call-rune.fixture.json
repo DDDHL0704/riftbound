@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象并可拥有关键词标签；符文召出会从符文牌堆移动到基地并以休眠状态进入；打出卡牌需要费用足够并作为结算链项目在双方让过后结算。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    }
   ],
   "roomId": "p2-preflight-thunderclaw-ursine-room",
   "players": ["P1", "P2"],
@@ -94,15 +103,18 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "RUNES_CALLED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -112,18 +124,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-THUNDERCLAW-URSINE",
-          "cardNo": "OGN·137/298",
-          "targetObjectIds": [],
           "effectKind": "THUNDERCLAW_URSINE_PLAY_UNIT_CALL_RUNE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -133,8 +140,23 @@
           "unitName": "雷爪氏族熊人",
           "destinationZone": "BASE",
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT", "壁垒"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "壁垒"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "RUNES_CALLED",
@@ -142,7 +164,9 @@
           "playerId": "P1",
           "sourceObjectId": "P1-UNIT-THUNDERCLAW-URSINE",
           "count": 1,
-          "runeObjectIds": ["P1-RUNE-001"]
+          "runeObjectIds": [
+            "P1-RUNE-001"
+          ]
         }
       }
     ],

@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p62-p63 rule 428; p92-p105 keyword rules 800+",
       "note": "单位是游戏对象；打出卡牌需要支付费用和额外费用、加入结算链并在双方让过后结算；摧毁会将单位从场上移至其拥有者弃牌堆；对象标签用于表达属性/关键词。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    }
   ],
   "roomId": "p2-preflight-unl-166-snowstalking-wolf-room",
   "players": ["P1", "P2"],
@@ -87,26 +96,25 @@
         "sourceObjectId": "P1-UNIT-SNOWSTALKING-WOLF",
         "cardNo": "UNL-166/219",
         "targetObjectIds": [],
-        "optionalCosts": ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+        "optionalCosts": [
+          "DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"
+        ]
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-166-snowstalking-wolf-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-166-snowstalking-wolf-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "UNIT_DESTROYED",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -115,7 +123,9 @@
           "playerId": "P1",
           "mana": 4,
           "baseMana": 4,
-          "optionalCosts": ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+          "optionalCosts": [
+            "DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"
+          ]
         }
       },
       {
@@ -132,21 +142,16 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
-        "tick": 1,
-        "sequence": 4,
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-SNOWSTALKING-WOLF",
-          "cardNo": "UNL-166/219",
-          "targetObjectIds": [],
           "effectKind": "SNOWSTALKING_WOLF_TRAIT_DESTROY_AMBUSH_STATIC"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "UNIT_PLAYED_TO_BASE" }
+      {
+        "kind": "UNIT_PLAYED_TO_BASE"
+      }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

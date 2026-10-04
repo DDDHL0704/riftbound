@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p57 rule 413.4",
       "note": "反应牌可在优先权窗口中打出；单位与法术需要支付费用并作为结算链项目在双方让过后结算；单位可在区域间移动，伤害可从单位对象上移除。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent confirms immediately; only play abilities require priority passes. Final gameplay assertions retained."
+    }
   ],
   "roomId": "p2-preflight-janna-room",
   "players": ["P1", "P2"],
@@ -92,13 +101,17 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-INCINERATE",
         "cardNo": "OGS·003/024",
-        "targetObjectIds": ["P2-UNIT-JANNA-FRIENDLY-001"]
+        "targetObjectIds": [
+          "P2-UNIT-JANNA-FRIENDLY-001"
+        ]
       }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-janna-incinerate-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
@@ -107,28 +120,38 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P2-UNIT-JANNA",
         "cardNo": "SFD·053/221",
-        "targetObjectIds": ["P1-UNIT-JANNA-ENEMY-001"]
+        "targetObjectIds": [
+          "P1-UNIT-JANNA-ENEMY-001"
+        ]
       }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p2-preflight-janna-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-janna-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-janna-incinerate-second-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p2-preflight-janna-incinerate-second-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
@@ -140,11 +163,12 @@
       "PRIORITY_PASSED",
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "DAMAGE_REMOVED",
       "UNIT_MOVED_TO_BASE",
       "PRIORITY_PASSED",
@@ -153,7 +177,9 @@
       "DAMAGE_APPLIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -168,12 +194,18 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-INCINERATE",
           "cardNo": "OGS·003/024",
-          "targetObjectIds": ["P2-UNIT-JANNA-FRIENDLY-001"],
+          "targetObjectIds": [
+            "P2-UNIT-JANNA-FRIENDLY-001"
+          ],
           "effectKind": "INCINERATE_DAMAGE_2"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -183,18 +215,13 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P2",
           "sourceObjectId": "P2-UNIT-JANNA",
-          "cardNo": "SFD·053/221",
-          "targetObjectIds": ["P1-UNIT-JANNA-ENEMY-001"],
           "effectKind": "JANNA_REACTION_REMOVE_DAMAGE_MOVE_ENEMY_UNIT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -203,15 +230,31 @@
           "unitObjectId": "P2-UNIT-JANNA",
           "destinationZone": "BASE",
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "DAMAGE_REMOVED",
         "payload": {
           "sourceObjectId": "P2-UNIT-JANNA",
           "playerId": "P2",
-          "objectIds": ["P2-UNIT-JANNA-FRIENDLY-001"],
+          "objectIds": [
+            "P2-UNIT-JANNA-FRIENDLY-001"
+          ],
           "count": 1
         }
       },
@@ -223,9 +266,15 @@
           "ownerPlayerId": "P1"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {

@@ -519,7 +519,7 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(0, costEvent.Payload["temporaryPaymentResourcePower"]);
         var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(1, costPowerByTrait[RuneTrait.Green]);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
     }
 
     [Fact]

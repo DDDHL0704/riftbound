@@ -112,7 +112,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[RuneTrait.Red]);
 
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Empty(resolved.State.StackItems);
@@ -140,7 +140,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var played = await PlayArmedAssaulterAsync(engine, state, command);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var postAcceptanceHash = MatchStateHasher.Hash(played.State);
         var postAcceptanceRunePool = played.State.RunePools["P1"];
         var postAcceptanceHand = played.State.PlayerZones["P1"].Hand.ToArray();
@@ -207,7 +207,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertArmedAssaulterStackPriorityState(accepted, optionalCosts);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -327,7 +327,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var optionalCosts = new[] { TemperedAttachCost(SpinningAxeObjectId) };
 
         var played = await PlayArmedAssaulterAsync(engine, state, optionalCosts);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -347,7 +347,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var state = BuildArmedAssaulterState(mana: 7, redPower: 1);
 
         var played = await PlayArmedAssaulterAsync(engine, state, [HasteOptionalCostNames.HasteReady]);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -367,7 +367,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var state = BuildArmedAssaulterState(mana: 6);
 
         var played = await PlayArmedAssaulterAsync(engine, state, []);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -446,7 +446,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.False(resolved.State.CardObjects[ArmedAssaulterObjectId].IsExhausted);
         Assert.Contains(SpinningAxeObjectId, resolved.State.PlayerZones["P1"].Graveyard);
         Assert.Null(resolved.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
-        var unitEvent = Assert.Single(resolved.Events, IsArmedAssaulterUnitPlayedEvent);
+        var unitEvent = Assert.Single(played.Events, IsArmedAssaulterUnitPlayedEvent);
         Assert.Equal(true, unitEvent.Payload["hasteReadyOptionalCostPaid"]);
         Assert.DoesNotContain(resolved.Events, IsTemperedAttachEvent);
     }
@@ -546,77 +546,12 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertArmedAssaulterStackPriorityState(
+    private static string AssertArmedAssaulterStackPriorityState(
         ResolutionResult result,
         IReadOnlyList<string> optionalCosts,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Empty(result.State.BattlefieldTasks);
-        Assert.False(result.State.PendingTaskQueue.HasTasks);
-        Assert.False(result.State.PendingTaskQueue.IsBlocking);
-        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
-        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Empty(result.State.PendingTaskQueue.Tasks);
-
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-HAND-SPINNING-AXE"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            [
-                SpinningAxeObjectId,
-                SecondSpinningAxeObjectId,
-                "P1-NON-EQUIPMENT-SPINNING-AXE",
-                "P1-FACE-DOWN-SPINNING-AXE",
-                "P1-WRONG-CARD-EQUIPMENT",
-                "P1-WRONG-CONTROLLER-SPINNING-AXE"
-            ],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
-        Assert.Equal(new ObjectLocationState("P1", "STACK"), result.State.ObjectLocations[ArmedAssaulterObjectId]);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("P1", stackItem.ControllerId);
-        Assert.Equal(ArmedAssaulterObjectId, stackItem.SourceObjectId);
-        Assert.Equal(ArmedAssaulterCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        Assert.Equal("P1", result.Prompts["P1"].PlayerId);
-        Assert.True(result.Prompts["P1"].Actionable);
-        Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
-        Assert.Equal(stackItem.StackItemId, result.Prompts["P1"].View?.RelatedStackItemId);
-        Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].Actions);
-        Assert.Equal(result.State.Tick, result.Prompts["P1"].SnapshotTick);
-        Assert.Equal("P2", result.Prompts["P2"].PlayerId);
-        Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.PassPriority, result.Prompts["P2"].Actions);
-        Assert.Equal(result.State.Tick, result.Prompts["P2"].SnapshotTick);
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, ArmedAssaulterObjectId, true, expectedStackItem);
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(

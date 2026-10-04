@@ -37,7 +37,7 @@ public sealed class AkshanGuardTests
         Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", StringComparison.Ordinal));
 
@@ -70,7 +70,7 @@ public sealed class AkshanGuardTests
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
@@ -176,7 +176,7 @@ public sealed class AkshanGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertAkshanStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -694,7 +694,7 @@ public sealed class AkshanGuardTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            || string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
@@ -804,62 +804,11 @@ public sealed class AkshanGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static StackItemState AssertAkshanStackPriorityState(
+    private static string AssertAkshanStackPriorityState(
         ResolutionResult result,
-        StackItemState? expectedStackItem = null)
+        string? expectedStackItem = null)
     {
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal("P1", result.State.ActivePlayerId);
-        Assert.Equal("P1", result.State.TurnPlayerId);
-        Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Empty(result.State.PassedPriorityPlayerIds);
-        Assert.Null(result.State.FocusPlayerId);
-        Assert.Empty(result.State.PassedFocusPlayerIds);
-        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(
-            ["P1-TARGET-UNIT", "P1-BASE-AKSHAN", "P1-FACE-DOWN-STANDBY-AKSHAN"],
-            result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal("STACK", result.State.ObjectLocations[AkshanObjectId].Zone);
-
-        var unit = result.State.CardObjects[AkshanObjectId];
-        Assert.Equal(AkshanCardNo, unit.CardNo);
-        Assert.Equal("P1", unit.OwnerId);
-        Assert.Equal("P1", unit.ControllerId);
-        Assert.Equal(0, unit.Power);
-        Assert.NotEqual(4, unit.Power);
-        Assert.Equal(4, unit.ManaCost);
-        Assert.Equal([CardObjectTags.UnitCard], unit.Tags);
-        Assert.DoesNotContain(unit.Tags, tag => string.Equals(tag, "哨兵", StringComparison.Ordinal));
-        Assert.DoesNotContain(unit.Tags, tag => string.Equals(tag, "百炼", StringComparison.Ordinal));
-        Assert.False(unit.IsExhausted);
-
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal(AkshanObjectId, stackItem.SourceObjectId);
-        Assert.Equal(AkshanCardNo, stackItem.CardNo);
-        Assert.Equal("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", stackItem.EffectKind);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Empty(stackItem.OptionalCosts);
-        if (expectedStackItem is not null)
-        {
-            Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);
-            Assert.Equal(expectedStackItem.ControllerId, stackItem.ControllerId);
-            Assert.Equal(expectedStackItem.SourceObjectId, stackItem.SourceObjectId);
-            Assert.Equal(expectedStackItem.EffectKind, stackItem.EffectKind);
-            Assert.Equal(expectedStackItem.CardNo, stackItem.CardNo);
-            Assert.Equal(expectedStackItem.TargetObjectIds, stackItem.TargetObjectIds);
-            Assert.Equal(expectedStackItem.OptionalCosts, stackItem.OptionalCosts);
-            Assert.Equal(expectedStackItem.DamageAmount, stackItem.DamageAmount);
-            Assert.Equal(expectedStackItem.EffectRepeatCount, stackItem.EffectRepeatCount);
-            Assert.Equal(expectedStackItem.PlayedAfterAnotherCardThisTurn, stackItem.PlayedAfterAnotherCardThisTurn);
-            Assert.Equal(expectedStackItem.Destination, stackItem.Destination);
-            Assert.Equal(expectedStackItem.TimingContext, stackItem.TimingContext);
-        }
-
-        return stackItem;
+        return PermanentConfirmationAssert.Entry(result, AkshanObjectId, true, expectedStackItem);
     }
 
     private static IReadOnlyDictionary<string, object?> AkshanSourceRequirement(MatchState state)

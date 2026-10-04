@@ -5681,6 +5681,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destroyedAdditionalCostOwnerIds)
         };
 
+        if (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
+            return ConfirmPlayedPermanent(state, nextState, intent, events);
+
         return new ResolutionResult(
             true,
             null,
@@ -5821,13 +5824,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        return ConfirmPlayedPermanent(state, nextState, intent, events);
     }
 
     private static bool TryBuildMinimalAmbushPlayCardPlan(
@@ -30004,7 +30001,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent)
+    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent, bool confirmPermanent = false)
     {
         var passedPlayerIds = state.PassedPriorityPlayerIds
             .Concat([intent.PlayerId])
@@ -30026,7 +30023,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         MatchState nextState;
         string? pendingBattlefieldTaskCausePlayerId = null;
-        if (seatPlayerIds.All(passedPlayerIds.Contains))
+        if (confirmPermanent) events.Clear();
+        if (confirmPermanent || seatPlayerIds.All(passedPlayerIds.Contains))
         {
             if (state.StackItems.Count == 0 && IsOpenBattleResponsePriorityWindow(state))
             {
@@ -30036,7 +30034,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var resolvedItem = state.StackItems[^1];
             pendingBattlefieldTaskCausePlayerId = resolvedItem.ControllerId;
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
-            var stackResolution = ResolveStackItemEffect(state, resolvedItem);
+            var stackResolution = ResolveStackItemEffect(state, resolvedItem, confirmPermanent);
             var stackResolutionEvents = stackResolution.Events.ToList();
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
@@ -30182,14 +30180,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PassedFocusPlayerIds = returnsToSpellDuel ? [] : state.PassedFocusPlayerIds
             };
             events.Add(new GameEvent(
-                "STACK_ITEM_RESOLVED",
-                $"{resolvedItem.StackItemId} 结算",
+                confirmPermanent ? "PERMANENT_CONFIRMED" : "STACK_ITEM_RESOLVED",
+                confirmPermanent ? "常驻牌完成确认并入场" : $"{resolvedItem.StackItemId} 结算",
                 new Dictionary<string, object?>
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
                     ["sourceObjectId"] = resolvedItem.SourceObjectId,
-                    ["effectKind"] = resolvedItem.EffectKind
+                    ["effectKind"] = resolvedItem.EffectKind,
+                    ["cardNo"] = resolvedItem.CardNo,
+                    ["targetObjectIds"] = resolvedItem.TargetObjectIds.ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
             events.AddRange(postStackCleanupEvents);
@@ -37041,7 +37041,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
+    private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem, bool confirmPermanent = false)
     {
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
@@ -37248,12 +37248,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
-            PlaySourceEquipmentToBase(
+            if (!stackItem.SourceConfirmed) PlaySourceEquipmentToBase(
                 playerZones,
                 cardObjects,
                 behavior,
                 stackItem,
                 events);
+            if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
+                return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
             if (IsAgileDirectPlayAttachRepresentative(behavior)
                 && TryAttachAgileDirectPlayEquipmentToTarget(
                     playerZones,
@@ -37268,7 +37270,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.PlaysSourceToBaseAsUnit)
         {
-            if (IsStackItemBattlefieldDestination(stackItem))
+            if (!stackItem.SourceConfirmed && IsStackItemBattlefieldDestination(stackItem))
             {
                 PlaySourceUnitToBattlefield(
                     playerZones,
@@ -37280,7 +37282,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     untilEndOfTurnEffects,
                     events);
             }
-            else
+            else if (!stackItem.SourceConfirmed)
             {
                 PlaySourceUnitToBase(
                     playerZones,
@@ -37292,6 +37294,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     untilEndOfTurnEffects,
                     events);
             }
+
+            if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
+                return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
 
             if (TryAttachTemperedOptionalEquipmentToSource(
                     playerZones,
@@ -42995,7 +43000,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : new CardObjectState(stackItem.SourceObjectId);
         var equipmentState = existingState with
         {
-            IsExhausted = existingState.IsExhausted || behavior.SourceEquipmentIsExhausted,
+            IsExhausted = behavior.SourceEquipmentIsExhausted,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.EquipmentCard])
@@ -49272,135 +49277,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .FirstOrDefault(candidate => !string.Equals(candidate, playerId, StringComparison.Ordinal));
     }
 
+    // One projection for accepted commands, rejection, reconnect and journal recovery.
     private static IReadOnlyDictionary<string, ActionPromptDto> BuildCorePrompts(MatchState state)
-    {
-        if (state.Status != MatchStatuses.InProgress)
-        {
-            return ResolutionResult.BuildPrompts(state);
-        }
-
-        if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
-        {
-            return ResolutionResult.BuildPrompts(state);
-        }
-
-        if (state.PendingPayment is not null)
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal),
-                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
-                    ? "请选择服务端允许的支付项"
-                    : "等待对手支付费用",
-                string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.PayCost)
-                    : WithSurrender("WAIT")));
-        }
-
-        if (state.PendingHandChoice is not null)
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal),
-                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal)
-                    ? "请选择要弃置的手牌"
-                    : "等待对手选择手牌",
-                string.Equals(playerId, state.PendingHandChoice.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.ChooseHandCards)
-                    : WithSurrender("WAIT")));
-        }
-
-        if (state.PendingCardChoice is not null)
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal),
-                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
-                    ? "请选择要处理的卡牌"
-                    : "等待对手选择卡牌",
-                string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.ChooseCards)
-                    : WithSurrender("WAIT")));
-        }
-
-        if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
-            || IsOpenBattleResponsePriorityWindow(state))
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal),
-                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? "当前玩家可让过优先行动权"
-                    : "等待对手优先行动",
-                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(ActionPromptBuilder.StackPriorityActions(state, playerId))
-                    : WithSurrender("WAIT")));
-        }
-
-        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal),
-                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? "当前玩家可让过焦点"
-                    : "等待对手焦点行动",
-                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(ActionPromptBuilder.SpellDuelFocusActions(state, playerId))
-                    : WithSurrender("WAIT")));
-        }
-
-        if (ResolutionResult.HasOpenOrderTriggersWindow(state))
-        {
-            return ResolutionResult.BuildPrompts(state);
-        }
-
-        if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
-        {
-            return ResolutionResult.BuildPrompts(state);
-        }
-
-        if (ResolutionResult.ActiveStartBattleTask(state) is not null)
-        {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
-            {
-                var canDeclareBattle = string.Equals(playerId, state.ActivePlayerId, StringComparison.Ordinal)
-                    && ActionPromptBuilder.CanDeclareBattleForActiveTask(state, playerId);
-                return ActionPromptBuilder.Build(
-                    state,
-                    playerId,
-                    canDeclareBattle,
-                    canDeclareBattle
-                        ? "请为争夺战场声明战斗"
-                        : "等待对手处理争夺战场战斗任务",
-                    canDeclareBattle ? WithSurrender("DECLARE_BATTLE") : WithSurrender("WAIT"));
-            });
-        }
-
-        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
-        {
-            var reason = ResolutionResult.BlockingPendingTaskQueueReason(state);
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-                state,
-                playerId,
-                false,
-                reason,
-                WithSurrender("WAIT")));
-        }
-
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
-            state,
-            playerId,
-            playerId == state.ActivePlayerId,
-            playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
-            playerId == state.ActivePlayerId ? WithSurrender(ImplementedMainOpenActions(state, playerId)) : WithSurrender("WAIT")));
-    }
+        => ResolutionResult.BuildPrompts(state);
 
     private static IReadOnlyList<string> WithSurrender(params string[] actions)
     {
@@ -49412,35 +49291,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return actions.Contains("SURRENDER", StringComparer.Ordinal)
             ? actions
             : actions.Concat(["SURRENDER"]).ToArray();
-    }
-
-    private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId)
-    {
-        var reason = "当前玩家普通开环行动";
-        var implementedSourceDrivenActions = new[]
-        {
-            "PLAY_CARD",
-            "ACTIVATE_ABILITY",
-            "ASSEMBLE_EQUIPMENT",
-            "MOVE_UNIT",
-            "DECLARE_BATTLE",
-            "HIDE_CARD",
-            "REVEAL_CARD",
-            "TAP_RUNE",
-            "RECYCLE_RUNE",
-            "LEGEND_ACT"
-        };
-        var actions = implementedSourceDrivenActions
-            .Where(action =>
-            {
-                var prompt = ActionPromptBuilder.Build(state, playerId, true, reason, [action]);
-                var candidate = prompt.Candidates?.FirstOrDefault();
-                return candidate?.Enabled == true;
-            })
-            .ToList();
-
-        actions.Add("END_TURN");
-        return actions;
     }
 
     private static IReadOnlyList<GameEvent> BuildTurnEndEvents(

@@ -19,7 +19,16 @@
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4",
       "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；弃牌移动到所属玩家废牌堆。"
     },
-    {"source": "data/official/upstream/2026-10-04/rules-manifest.json", "locator": "CN core 143.4 / 143.4.a, p17", "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."}
+    {
+      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+      "locator": "CN core 143.4 / 143.4.a, p17",
+      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+    },
+    {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 359.2 / 383.4.a.2",
+      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    }
   ],
   "roomId": "p2-preflight-charming-spirit-room",
   "players": ["P1", "P2"],
@@ -80,29 +89,34 @@
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
       "CARD_DISCARDED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 3, "baseMana": 3 } },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-CHARMING-SPIRIT",
-          "cardNo": "UNL-121/219",
-          "targetObjectIds": ["P2-CHARMING-SPIRIT-DISCARD-001"],
           "effectKind": "CHARMING_SPIRIT_PLAY_UNIT_DISCARD_CHOSEN_PLAYER_HAND"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
@@ -112,8 +126,23 @@
           "unitName": "魅惑之灵",
           "destinationZone": "BASE",
           "power": 2,
-          "tags": ["CARD_TYPE:UNIT", "灵体"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "灵体"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "CARD_DISCARDED",
