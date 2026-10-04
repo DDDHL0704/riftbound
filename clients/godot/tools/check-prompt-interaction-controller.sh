@@ -93,8 +93,8 @@ if rg -i -q 'promptId|snapshotTick|objectId|serverTick' "$action_bar_script" "$a
   exit 1
 fi
 
-rg -q 'ActionBar.tscn' "$match_scene"
-rg -q 'name="ActionBar".*instance=ExtResource' "$match_scene"
+rg -q 'ActionBar.tscn' "$root/clients/godot/scripts/ui/MatchTableLayout.cs"
+rg -q 'Instantiate<ActionBar>' "$root/clients/godot/scripts/ui/MatchTableLayout.cs"
 ! rg -q 'name="ActionBarRow"' "$match_scene"
 rg -q 'public ActionBar ActionBar' "$match_script"
 rg -q 'PromptInteractionController' "$main_script"

@@ -7,6 +7,9 @@ public partial class OfficialCardView : PanelContainer
     [Signal]
     public delegate void ActivatedEventHandler(Godot.Collections.Dictionary card);
 
+    public event System.Action<Godot.Collections.Dictionary>? PreviewRequested;
+    public event System.Action<Godot.Collections.Dictionary>? InspectionRequested;
+
     private TextureRect _cardTexture = null!;
     private ColorRect _fallbackBackground = null!;
     private Label _fallbackLabel = null!;
@@ -47,6 +50,8 @@ public partial class OfficialCardView : PanelContainer
         _damageLabel = GetNode<Label>("%DamageLabel");
 
         GuiInput += OnGuiInput;
+        MouseEntered += Preview;
+        FocusEntered += Preview;
         _cardTexture.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
         _cardTexture.TextureFilter = TextureFilterEnum.LinearWithMipmaps;
         MinimalTheme.Apply(this);
@@ -161,8 +166,18 @@ public partial class OfficialCardView : PanelContainer
         Modulate = new Color(0.66f, 0.68f, 0.72f, 0.72f);
     }
 
+    private void Preview()
+    {
+        if (TryGetVisibleCard(out var card)) PreviewRequested?.Invoke(card);
+    }
+
     private void OnGuiInput(InputEvent input)
     {
+        if (input is InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true }
+            && TryGetVisibleCard(out var inspect))
+        {
+            AcceptEvent(); InspectionRequested?.Invoke(inspect); return;
+        }
         var mouseActivated = input is InputEventMouseButton
         {
             ButtonIndex: MouseButton.Left,

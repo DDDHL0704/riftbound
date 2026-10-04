@@ -19,6 +19,7 @@ public partial class PlayCardOverlay : Control
     private Label _cost = null!;
     private Label _status = null!;
     private Button _confirm = null!;
+    private Button _cancel = null!;
     private OfficialCardView _preview = null!;
     private readonly List<JsonElement> _requirements = [];
     private readonly List<(OptionButton Picker, string[] Ids, bool Required)> _targets = [];
@@ -40,6 +41,7 @@ public partial class PlayCardOverlay : Control
 
     public override void _Ready()
     {
+        if (TableMode) { BuildTableUi(); Hide(); return; }
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         ZIndex = 100;
         MouseFilter = MouseFilterEnum.Stop;
@@ -67,7 +69,7 @@ public partial class PlayCardOverlay : Control
         _choices = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _choices.AddThemeConstantOverride("separation", 10); scroll.AddChild(_choices);
         _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; layout.AddChild(_status);
         var footer = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End }; layout.AddChild(footer);
-        var cancel = new Button { Text = "取消  Esc", CustomMinimumSize = new Vector2(120, 42) }; footer.AddChild(cancel); cancel.Pressed += Hide;
+        _cancel = new Button { Text = "取消  Esc", CustomMinimumSize = new Vector2(120, 42) }; footer.AddChild(_cancel); _cancel.Pressed += Hide;
         _confirm = new Button { Name = "ConfirmPlayCardButton", Text = "确认打出", CustomMinimumSize = new Vector2(160, 42) }; footer.AddChild(_confirm);
         _confirm.Pressed += Submit;
         MinimalTheme.Apply(panel); Hide();
@@ -189,7 +191,7 @@ public partial class PlayCardOverlay : Control
         var needsQuote = PreviewRequested is not null;
         _confirm.Disabled = _submitting || !_composable || missing > 0 || !legalCombination
             || (needsQuote ? _quote?.CanPay != true : selectedResourcePower < _powerShortfall);
-        _source.Disabled = _submitting;
+        _source.Disabled = _submitting; _cancel.Disabled = _submitting;
         foreach (var control in _choices.GetChildren().OfType<BaseButton>()) control.Disabled = _submitting;
         _confirm.Text = _submitting ? "正在提交…" : needsQuote && _quote is null && missing == 0 && legalCombination ? "核对费用中…" : "确认打出";
         _status.Text = _submitting ? "正在等待对局确认，请稍候。"
@@ -201,6 +203,7 @@ public partial class PlayCardOverlay : Control
             : _powerShortfall > 0 ? $"支付前需补充 {_powerShortfall} 符能 · 所选 {selectedResources} 个资源可提供 {selectedResourcePower} 符能。"
             : "确认后支付费用；取消可返回战场。";
         _status.AddThemeColorOverride("font_color", _confirm.Disabled || _rejection.Length > 0 ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
+        TableSelectionChanged?.Invoke();
     }
 
     public void ApplyQuote(PlayCostQuoteDto quote)
@@ -270,7 +273,7 @@ public partial class PlayCardOverlay : Control
     private static int Number(JsonElement value, string key) => value.TryGetProperty(key, out var found) && found.TryGetInt32(out var number) ? number : 0;
     public override void _UnhandledInput(InputEvent input)
     {
-        if (Visible && input.IsActionPressed("ui_cancel_selection"))
+        if (Visible && !_submitting && input.IsActionPressed("ui_cancel_selection"))
         {
             Hide(); GetViewport().SetInputAsHandled();
         }
@@ -283,7 +286,7 @@ public partial class PlayCardOverlay : Control
         {
             var id = Text(x, "id");
             var objectId = id.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal) ? id[13..] : id;
-            var card = _cardView?.Invoke(objectId);
+            var card = _cardView?.Invoke(objectId.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? objectId[12..] : objectId);
             var label = Text(x, "label");
             if (card is not null && card.TryGetValue("cardName", out var name))
                 label = id.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal) ? $"回收「{name.AsString()}」获得符能" : name.AsString();

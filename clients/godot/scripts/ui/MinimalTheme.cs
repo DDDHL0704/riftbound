@@ -18,6 +18,7 @@ public static class MinimalTheme
 
     public static void Apply(Control root)
     {
+        if (root is MatchScreen) return;
         ApplyNode(root);
         foreach (var child in root.GetChildren())
         {

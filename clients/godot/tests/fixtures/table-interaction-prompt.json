@@ -1,0 +1,286 @@
+{
+  "source": "Development server standard-group-movement; only PLAY_CARD and MOVE_UNIT metadata retained",
+  "payload": {
+    "candidates": [
+      {
+        "action": "PLAY_CARD",
+        "metadata": {
+          "sourcePolicy": "implemented-card-behavior-only",
+          "targetPolicy": "source-specific-server-filtered-targets",
+          "modePolicy": "source-specific-server-filtered-modes",
+          "optionalCostPolicy": "source-specific-server-filtered-costs",
+          "destinationPolicy": "source-specific-server-filtered-destinations",
+          "sourceRequirements": [
+            {
+              "sourceObjectId": "P1-UNIT-MIGHTY-FAERIE",
+              "cardNo": "SFD·125/221",
+              "displayName": "大力仙灵",
+              "mode": null,
+              "modeLabel": "默认",
+              "manaCost": 4,
+              "minimumManaCost": 4,
+              "minimumPrintedPowerShortfall": 0,
+              "printedPowerCost": 0,
+              "printedPowerTraits": [
+                "purple"
+              ],
+              "printedPowerChoices": [],
+              "availableRainbowPower": 3,
+              "battlefieldEquipmentCostReductionMana": 0,
+              "dragonUnitCostReductionMana": 0,
+              "nextSpellCostReductionMana": 0,
+              "battlefieldSpellCostReductionMana": 0,
+              "battlefieldHeldUnitCostIncreaseMana": 0,
+              "minTargetCount": 0,
+              "maxTargetCount": 0,
+              "targetCountLabel": "0",
+              "targetScope": "BATTLEFIELD_UNIT",
+              "targetScopeLabel": "战场单位",
+              "allowsRepeatedTargets": false,
+              "targetChoicesByIndex": {},
+              "legalTargetSelections": [],
+              "destinationChoices": [
+                {
+                  "id": "BASE",
+                  "label": "基地"
+                },
+                {
+                  "id": "BATTLEFIELD:P1-SHOWCASE-ARENA",
+                  "label": "OGN·275/298",
+                  "reason": "服务端合法战场目的地"
+                }
+              ],
+              "optionalCostChoices": [],
+              "paymentResourceChoices": [],
+              "paymentResourcePowerByChoice": {},
+              "availableMana": 12,
+              "availableManaWithPaymentResources": 12,
+              "paymentResourceMana": 0,
+              "availablePower": 3,
+              "availablePowerByTrait": {},
+              "availablePowerWithPaymentResources": 3,
+              "availablePowerByTraitWithPaymentResources": {},
+              "hasteReadyPowerCost": 0,
+              "hasteReadyPowerTrait": "",
+              "composable": true,
+              "unsupportedReason": ""
+            },
+            {
+              "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+              "cardNo": "OGN·009/298",
+              "displayName": "海克斯射线",
+              "mode": null,
+              "modeLabel": "默认",
+              "manaCost": 1,
+              "minimumManaCost": 1,
+              "minimumPrintedPowerShortfall": 0,
+              "printedPowerCost": 1,
+              "printedPowerTraits": [
+                "red"
+              ],
+              "printedPowerChoices": [],
+              "availableRainbowPower": 3,
+              "battlefieldEquipmentCostReductionMana": 0,
+              "dragonUnitCostReductionMana": 0,
+              "nextSpellCostReductionMana": 0,
+              "battlefieldSpellCostReductionMana": 0,
+              "battlefieldHeldUnitCostIncreaseMana": 0,
+              "minTargetCount": 1,
+              "maxTargetCount": 1,
+              "targetCountLabel": "1",
+              "targetScope": "BATTLEFIELD_UNIT",
+              "targetScopeLabel": "战场单位",
+              "allowsRepeatedTargets": false,
+              "targetChoicesByIndex": {
+                "0": [
+                  {
+                    "id": "P1-SHOWCASE-ARENA",
+                    "label": "OGN·275/298",
+                    "reason": "战场单位 / 第 1 个目标"
+                  },
+                  {
+                    "id": "P1-SHOWCASE-STANDBY",
+                    "label": "OGN·197/298",
+                    "reason": "战场单位 / 第 1 个目标"
+                  },
+                  {
+                    "id": "P2-SHOWCASE-ARENA",
+                    "label": "OGN·276/298",
+                    "reason": "战场单位 / 第 1 个目标"
+                  },
+                  {
+                    "id": "P2-SHOWCASE-STANDBY",
+                    "label": "OGN·197/298",
+                    "reason": "战场单位 / 第 1 个目标"
+                  }
+                ]
+              },
+              "legalTargetSelections": [],
+              "destinationChoices": null,
+              "optionalCostChoices": [],
+              "paymentResourceChoices": [],
+              "paymentResourcePowerByChoice": {},
+              "availableMana": 12,
+              "availableManaWithPaymentResources": 12,
+              "paymentResourceMana": 0,
+              "availablePower": 3,
+              "availablePowerByTrait": {},
+              "availablePowerWithPaymentResources": 3,
+              "availablePowerByTraitWithPaymentResources": {},
+              "hasteReadyPowerCost": 0,
+              "hasteReadyPowerTrait": "",
+              "composable": true,
+              "unsupportedReason": ""
+            },
+            {
+              "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+              "cardNo": "SFD·022/221",
+              "displayName": "长剑",
+              "mode": null,
+              "modeLabel": "默认",
+              "manaCost": 2,
+              "minimumManaCost": 2,
+              "minimumPrintedPowerShortfall": 0,
+              "printedPowerCost": 1,
+              "printedPowerTraits": [
+                "red"
+              ],
+              "printedPowerChoices": [],
+              "availableRainbowPower": 3,
+              "battlefieldEquipmentCostReductionMana": 0,
+              "dragonUnitCostReductionMana": 0,
+              "nextSpellCostReductionMana": 0,
+              "battlefieldSpellCostReductionMana": 0,
+              "battlefieldHeldUnitCostIncreaseMana": 0,
+              "minTargetCount": 1,
+              "maxTargetCount": 1,
+              "targetCountLabel": "1",
+              "targetScope": "FRIENDLY_UNIT",
+              "targetScopeLabel": "友方单位",
+              "allowsRepeatedTargets": false,
+              "targetChoicesByIndex": {
+                "0": [
+                  {
+                    "id": "P1-BASE-GUARD-001",
+                    "label": "SFD·125/221",
+                    "reason": "友方单位 / 第 1 个目标"
+                  },
+                  {
+                    "id": "P1-BATTLEFIELD-UNIT-001",
+                    "label": "SFD·125/221",
+                    "reason": "友方单位 / 第 1 个目标"
+                  },
+                  {
+                    "id": "P1-BATTLE-ATTACKER-001",
+                    "label": "SFD·125/221",
+                    "reason": "友方单位 / 第 1 个目标"
+                  }
+                ]
+              },
+              "legalTargetSelections": [],
+              "destinationChoices": null,
+              "optionalCostChoices": [],
+              "paymentResourceChoices": [],
+              "paymentResourcePowerByChoice": {},
+              "availableMana": 12,
+              "availableManaWithPaymentResources": 12,
+              "paymentResourceMana": 0,
+              "availablePower": 3,
+              "availablePowerByTrait": {},
+              "availablePowerWithPaymentResources": 3,
+              "availablePowerByTraitWithPaymentResources": {},
+              "hasteReadyPowerCost": 0,
+              "hasteReadyPowerTrait": "",
+              "composable": true,
+              "unsupportedReason": ""
+            }
+          ]
+        }
+      },
+      {
+        "action": "MOVE_UNIT",
+        "metadata": {
+          "sourcePolicy": "implemented-ready-face-up-controlled-non-combat-unit",
+          "destinationPolicy": "source-specific-server-filtered-destinations",
+          "optionalCostPolicy": "source-specific-server-filtered-costs",
+          "supportsSimultaneousMovement": true,
+          "powerPerExtraUnitByDestination": {
+            "BATTLEFIELD:P1-SHOWCASE-ARENA": 0,
+            "BATTLEFIELD:P2-SHOWCASE-ARENA": 0
+          },
+          "sourceRequirements": [
+            {
+              "sourceObjectId": "P1-BASE-GUARD-001",
+              "origin": "BASE",
+              "originLabel": "基地",
+              "mode": "BASE_TO_BATTLEFIELD",
+              "modeLabel": "基地 -> 战场",
+              "destinationChoices": [
+                {
+                  "id": "BATTLEFIELD:P1-SHOWCASE-ARENA",
+                  "label": "OGN·275/298",
+                  "reason": "服务端合法战场目的地"
+                },
+                {
+                  "id": "BATTLEFIELD:P2-SHOWCASE-ARENA",
+                  "label": "OGN·276/298",
+                  "reason": "服务端合法战场目的地"
+                }
+              ],
+              "optionalCostChoices": [],
+              "requiredOptionalCosts": [],
+              "composable": true,
+              "unsupportedReason": null
+            },
+            {
+              "sourceObjectId": "P1-BATTLEFIELD-UNIT-001",
+              "origin": "BASE",
+              "originLabel": "基地",
+              "mode": "BASE_TO_BATTLEFIELD",
+              "modeLabel": "基地 -> 战场",
+              "destinationChoices": [
+                {
+                  "id": "BATTLEFIELD:P1-SHOWCASE-ARENA",
+                  "label": "OGN·275/298",
+                  "reason": "服务端合法战场目的地"
+                },
+                {
+                  "id": "BATTLEFIELD:P2-SHOWCASE-ARENA",
+                  "label": "OGN·276/298",
+                  "reason": "服务端合法战场目的地"
+                }
+              ],
+              "optionalCostChoices": [],
+              "requiredOptionalCosts": [],
+              "composable": true,
+              "unsupportedReason": null
+            },
+            {
+              "sourceObjectId": "P1-BATTLE-ATTACKER-001",
+              "origin": "BASE",
+              "originLabel": "基地",
+              "mode": "BASE_TO_BATTLEFIELD",
+              "modeLabel": "基地 -> 战场",
+              "destinationChoices": [
+                {
+                  "id": "BATTLEFIELD:P1-SHOWCASE-ARENA",
+                  "label": "OGN·275/298",
+                  "reason": "服务端合法战场目的地"
+                },
+                {
+                  "id": "BATTLEFIELD:P2-SHOWCASE-ARENA",
+                  "label": "OGN·276/298",
+                  "reason": "服务端合法战场目的地"
+                }
+              ],
+              "optionalCostChoices": [],
+              "requiredOptionalCosts": [],
+              "composable": true,
+              "unsupportedReason": null
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

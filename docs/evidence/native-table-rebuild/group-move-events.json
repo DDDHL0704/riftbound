@@ -1,0 +1,243 @@
+{
+  "type": "EVENTS",
+  "roomId": "CN-TABLE-FINAL",
+  "playerId": "牌桌验收玩家",
+  "serverTick": 2,
+  "payload": [
+    {
+      "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+      "description": "同时移动单位",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-BASE-GUARD-001",
+        "targetObjectId": "P1-BASE-GUARD-001",
+        "originZone": "BASE",
+        "destinationZone": "BATTLEFIELD",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P2-SHOWCASE-ARENA",
+        "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+        "simultaneousSourceObjectIds": [
+          "P1-BASE-GUARD-001",
+          "P1-BATTLEFIELD-UNIT-001"
+        ]
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-BASE-GUARD-001",
+          "role": "来源",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BASE-GUARD-001",
+          "role": "目标",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P2-SHOWCASE-ARENA",
+          "role": "战场",
+          "cardNo": "OGN·276/298",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BATTLEFIELD-UNIT-001",
+          "role": "来源",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+      "description": "同时移动单位",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-BATTLEFIELD-UNIT-001",
+        "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+        "originZone": "BASE",
+        "destinationZone": "BATTLEFIELD",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P2-SHOWCASE-ARENA",
+        "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+        "simultaneousSourceObjectIds": [
+          "P1-BASE-GUARD-001",
+          "P1-BATTLEFIELD-UNIT-001"
+        ]
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-BATTLEFIELD-UNIT-001",
+          "role": "来源",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BATTLEFIELD-UNIT-001",
+          "role": "目标",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P2-SHOWCASE-ARENA",
+          "role": "战场",
+          "cardNo": "OGN·276/298",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BASE-GUARD-001",
+          "role": "来源",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "BATTLEFIELD_CONTESTED",
+      "description": "战场进入争夺状态",
+      "payload": {
+        "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+        "playerId": "牌桌验收玩家",
+        "causedByPlayerId": "牌桌验收玩家",
+        "participantControllerIds": [
+          "牌桌验收玩家"
+        ],
+        "participantObjectIds": [
+          "P1-BASE-GUARD-001",
+          "P1-BATTLEFIELD-UNIT-001"
+        ]
+      },
+      "objectRefs": [
+        {
+          "objectId": "P2-SHOWCASE-ARENA",
+          "role": "战场",
+          "cardNo": "OGN·276/298",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BASE-GUARD-001",
+          "role": "参与",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BATTLEFIELD-UNIT-001",
+          "role": "参与",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "SPELL_DUEL_STARTED",
+      "description": "争夺战场触发法术对决",
+      "payload": {
+        "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+        "taskId": "task:start-spell-duel:P2-SHOWCASE-ARENA",
+        "reason": "BATTLEFIELD_CONTESTED",
+        "playerId": "牌桌验收玩家",
+        "focusPlayerId": "牌桌验收玩家",
+        "causedByPlayerId": "牌桌验收玩家",
+        "participantControllerIds": [
+          "牌桌验收玩家"
+        ],
+        "participantObjectIds": [
+          "P1-BASE-GUARD-001",
+          "P1-BATTLEFIELD-UNIT-001"
+        ]
+      },
+      "objectRefs": [
+        {
+          "objectId": "P2-SHOWCASE-ARENA",
+          "role": "战场",
+          "cardNo": "OGN·276/298",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BASE-GUARD-001",
+          "role": "参与",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-BATTLEFIELD-UNIT-001",
+          "role": "参与",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    }
+  ],
+  "protocolVersion": 1,
+  "schemaVersion": 1
+}

@@ -10919,7 +10919,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var p1Objects = ObjectView(p1View);
         var readyRune = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SHOWCASE-RUNE-READY"]);
-        Assert.Equal("SFD·001/221", Assert.IsType<string>(readyRune["cardNo"]));
+        Assert.Equal("OGN·007/298", Assert.IsType<string>(readyRune["cardNo"]));
         Assert.Equal("BASE", Assert.IsType<string>(Assert.IsType<Dictionary<string, object?>>(readyRune["location"])["zone"]));
         var graveSpell = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SHOWCASE-GRAVE-SPELL"]);
         Assert.Equal("GRAVEYARD", Assert.IsType<string>(Assert.IsType<Dictionary<string, object?>>(graveSpell["location"])["zone"]));

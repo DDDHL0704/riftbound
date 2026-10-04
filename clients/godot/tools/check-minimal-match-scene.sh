@@ -5,6 +5,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 scene="$root/clients/godot/scenes/screens/MatchScreen.tscn"
 screen="$root/clients/godot/scripts/ui/MatchScreen.cs"
 renderer="$root/clients/godot/scripts/ui/MatchTableRenderer.cs"
+layout="$root/clients/godot/scripts/ui/MatchTableLayout.cs"
 main_scene="$root/clients/godot/scenes/Main.tscn"
 main_script="$root/clients/godot/scripts/Main.cs"
 
@@ -16,32 +17,20 @@ test -f "$main_script"
 
 rg -q 'MatchScreen.cs' "$scene"
 rg -q 'class MatchScreen : AppScreen' "$screen"
-rg -q 'event Action<Godot.Collections.Dictionary>.*CardActivated' "$screen"
+rg -q 'event Action<CardDictionary>.*CardActivated' "$screen"
 rg -q 'RenderSections\(' "$screen"
 rg -q 'SetTurnStatus\(' "$screen"
 rg -q 'ClearPromptStates\(' "$screen"
 rg -q 'SetObjectState\(' "$screen"
 
-for node in \
-  TurnHeadline TurnDetail \
-  OpponentArea OpponentHand OpponentPublicZones \
-  Battlefields BattlefieldOne BattlefieldTwo \
-  SelfArea SelfPublicZones HandArea SelfHand ActionBarHost; do
-  rg -q "name=\"${node}\"" "$scene"
+# The new native table is built through typed layout references, not fragile scene paths.
+for member in TurnHeadline TurnDetail OpponentHand OpponentPublicZones Battlefields SelfPublicZones SelfHand Composer Chain History; do
+  rg -q "$member" "$layout"
 done
-
-for lane in BattlefieldOne BattlefieldTwo; do
-  rg -q "name=\"OpponentUnits\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent\"" "$scene"
-  rg -q "name=\"OfficialSite\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
-  rg -q "name=\"SelfUnits\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent\"" "$scene"
-  rg -q "name=\"Standby\".*parent=\"MatchLayout/BoardScroll/BoardLayout/Battlefields/${lane}/LaneContent/CenterRow\"" "$scene"
-done
-
-# The hand scrolls horizontally and the bottom action host remains a primary target.
-sed -n '/\[node name="SelfHandScroll"/,/^\[node /p' "$scene" \
-  | rg -q '^horizontal_scroll_mode = [12]$'
-sed -n '/\[node name="ActionBarHost"/,/^\[node /p' "$scene" \
-  | rg -q '^custom_minimum_size = Vector2\(0, ([4-9][0-9]|[1-9][0-9]{2,})\)$'
+rg -q 'ScrollContainer' "$layout"
+rg -q 'Instantiate<ActionBar>' "$layout"
+rg -q 'DestinationActivated' "$screen"
+rg -q 'CardInspectionRequested' "$screen"
 
 # Every card face or back is an OfficialCardView. Hidden cards are normalized
 # without copying identity or imagePath before they reach the component.
@@ -50,8 +39,7 @@ rg -q 'Instantiate<OfficialCardView>' "$renderer"
 rg -q '\.Activated \+=' "$renderer"
 rg -q 'visible.*faceDown|faceDown.*visible' "$renderer"
 rg -q 'NeutralHiddenCard' "$renderer"
-rg -q 'SiteCardSize' "$renderer"
-rg -q 'name="OfficialSite" type="CenterContainer"' "$scene"
+rg -q 'nodes.Site' "$renderer"
 if sed -n '/NeutralHiddenCard(/,/^    }/p' "$renderer" | rg -q 'imagePath|cardName|cardNo'; then
   exit 1
 fi
@@ -61,8 +49,8 @@ rg -q '"对手"' "$renderer"
 rg -q '"我方"' "$renderer"
 ! rg -q 'promptId|snapshotTick|serverTick' "$scene" "$screen" "$renderer"
 
-# The focused match view has no debug scroll, fixed wire-table height, or rail.
-! rg -q 'SnapshotScroll|PromptScroll|RawLog|RightRail' "$scene" "$screen" "$renderer"
+# The player-facing rail contains only card details, server chain and battle events.
+! rg -q 'SnapshotScroll|PromptScroll|RawLog' "$scene" "$screen" "$renderer"
 ! rg -q '(^|[^0-9])820([^0-9]|$)|(^|[^0-9])320([^0-9]|$)|(^|[^0-9])336([^0-9]|$)' "$scene" "$screen" "$renderer"
 ! rg -q 'Riftbound\.Engine|EngineLegality|IsLegal(Action|Target|Choice)?' "$screen" "$renderer"
 

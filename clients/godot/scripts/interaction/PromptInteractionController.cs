@@ -98,6 +98,20 @@ internal sealed class PromptInteractionController
         return true;
     }
 
+    public IReadOnlyList<PromptActionOption> ActionsForObject(string objectId) => _actions.Values
+        .Where(action => action.Option.Enabled && !action.Option.IsSpecial
+            && action.Steps.Any(step => step.Role == "source" && step.Choices.Any(choice => choice.MatchesObject(objectId))))
+        .Select(action => action.Option).ToArray();
+
+    public bool TrySelectSource(string objectId)
+    {
+        if (CurrentAction() is not { } action) return false;
+        var step = action.Steps.FirstOrDefault(item => item.Role == "source" && item.Choices.Any(choice => choice.MatchesObject(objectId)));
+        if (step is null) return false;
+        var matches = step.Choices.Where(choice => choice.MatchesObject(objectId)).ToArray();
+        return matches.Length == 1 && SelectChoice(action, step, matches[0]);
+    }
+
     public bool TrySelectObject(string objectId)
     {
         if (string.IsNullOrWhiteSpace(objectId))
@@ -124,8 +138,8 @@ internal sealed class PromptInteractionController
             return false;
         }
 
-        var choice = step.Choices.FirstOrDefault(candidate => candidate.MatchesObject(objectId));
-        return choice is not null && SelectChoice(action, step, choice);
+        var matches = step.Choices.Where(candidate => candidate.MatchesObject(objectId)).ToArray();
+        return matches.Length == 1 && SelectChoice(action, step, matches[0]);
     }
 
     public bool TrySelectChoice(string role, string choiceId)

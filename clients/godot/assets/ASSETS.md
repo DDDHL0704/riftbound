@@ -40,3 +40,9 @@ deterministic visual verification requires them; record the source here.
   asset that does not cover or restyle official card artwork.
 - Generated assets must record prompt and seed when available.
 - Official card images are the preferred card-face source while available. They are loaded from catalog URLs at runtime and cached locally outside git.
+
+## 中文字体
+
+- Noto Sans CJK SC Regular，来源：https://github.com/notofonts/noto-cjk/tree/main/Sans/OTF/SimplifiedChinese 。原始字体原样打包，OFL 1.1 许可见 `fonts/OFL.txt`。
+- 下载日期：2026-10-04；SHA-256：`2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b`。
+- 统一原生客户端中文回退，避免不同操作系统缺字。

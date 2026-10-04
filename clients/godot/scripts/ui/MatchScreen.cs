@@ -1,31 +1,37 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using CardDictionary = Godot.Collections.Dictionary;
+using CardArray = Godot.Collections.Array<Godot.Collections.Dictionary>;
 
 namespace Riftbound.GodotClient.Ui;
 
 public partial class MatchScreen : AppScreen
 {
-    public event Action<Godot.Collections.Dictionary>? CardActivated;
-    public event Action<string, Godot.Collections.Array<Godot.Collections.Dictionary>>? PublicPileRequested;
+    public event Action<CardDictionary>? CardActivated;
+    public event Action<CardDictionary>? CardInspectionRequested;
+    public event Action<string>? DestinationActivated;
+    public event Action<string, CardArray>? PublicPileRequested;
     public event Action? ReconnectRequested;
     public event Action? ReturnToLobbyRequested;
-
-    private Label _turnHeadline = null!;
-    private Label _turnDetail = null!;
-    private ActionBar _actionBar = null!;
+    internal MatchTableLayout TableLayout { get; private set; } = null!;
+    public Control ComposerHost => TableLayout.Composer;
+    public ActionBar ActionBar => TableLayout.Actions;
     private HBoxContainer _connectionBanner = null!;
     private Label _connectionMessage = null!;
     private Button _reconnectButton = null!;
     private MatchTableRenderer? _renderer;
-    private Godot.Collections.Array<Godot.Collections.Dictionary>? _lastSections;
-
-    public ActionBar ActionBar => _actionBar;
+    private CardArray? _lastSections;
+    private CardDictionary? _inspected;
+    private readonly Queue<string> _history = new();
+    private long _lastEventTick = -1;
+    private readonly HashSet<string> _eventKeys = new(StringComparer.Ordinal);
+    private string[] _destinations = [];
 
     public override void _Ready()
     {
-        _turnHeadline = GetNode<Label>("%TurnHeadline");
-        _turnDetail = GetNode<Label>("%TurnDetail");
-        _actionBar = GetNode<ActionBar>("%ActionBar");
+        TableLayout = new MatchTableLayout(this);
         _connectionBanner = new HBoxContainer { Visible = false };
         _connectionMessage = new Label { SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _connectionMessage.AddThemeColorOverride("font_color", MinimalTheme.Selected);
@@ -33,155 +39,189 @@ public partial class MatchScreen : AppScreen
         _reconnectButton = new Button { Text = "重新连接", CustomMinimumSize = new Vector2(110, 40) };
         _reconnectButton.Pressed += () => ReconnectRequested?.Invoke();
         _connectionBanner.AddChild(_reconnectButton);
-        var returnButton = new Button { Text = "返回大厅", CustomMinimumSize = new Vector2(110, 40) };
-        returnButton.Pressed += () => ReturnToLobbyRequested?.Invoke();
-        _connectionBanner.AddChild(returnButton);
-        var layout = GetNode<VBoxContainer>("MatchLayout");
-        layout.AddChild(_connectionBanner);
-        layout.MoveChild(_connectionBanner, 0);
+        var back = new Button { Text = "返回大厅", CustomMinimumSize = new Vector2(110, 40) };
+        back.Pressed += () => ReturnToLobbyRequested?.Invoke(); _connectionBanner.AddChild(back);
+        TableLayout.Root.AddChild(_connectionBanner); TableLayout.Root.MoveChild(_connectionBanner, 1);
+        TableLayout.BaseDestination.Pressed += () => DestinationActivated?.Invoke("BASE");
+        for (var index = 0; index < TableLayout.Battlefields.Length; index++)
+        {
+            var captured = index;
+            var field = TableLayout.Battlefields[index];
+            field.Panel.MouseFilter = MouseFilterEnum.Stop;
+            field.Panel.GuiInput += input =>
+            {
+                if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true }
+                    && field.Destination.Visible && captured < _destinations.Length)
+                {
+                    field.Panel.AcceptEvent(); DestinationActivated?.Invoke(_destinations[captured]);
+                }
+            };
+            field.Destination.Pressed += () =>
+            {
+                if (captured < _destinations.Length) DestinationActivated?.Invoke(_destinations[captured]);
+            };
+        }
         _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card),
             (title, cards) => PublicPileRequested?.Invoke(title, cards));
+        ApplyTheme(); RenderSections(_lastSections ?? []);
+    }
 
-        ApplyTheme();
-        RenderSections(_lastSections ?? []);
+    public void ApplyTheme()
+    {
+        // Panel colors carry semantic hierarchy; do not overwrite them with one global surface.
+        if (!IsNodeReady()) return;
+        MinimalTheme.Apply(TableLayout.Actions);
+        MinimalTheme.Apply(TableLayout.BaseDestination);
+        TableLayout.BaseDestination.CustomMinimumSize = new Vector2(108, 28);
+        TableLayout.BaseDestination.AddThemeFontSizeOverride("font_size", 13);
+        foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
+        {
+            var compact = (StyleBoxFlat)TableLayout.BaseDestination.GetThemeStylebox(state).Duplicate();
+            compact.SetContentMarginAll(3); TableLayout.BaseDestination.AddThemeStyleboxOverride(state, compact);
+        }
+        MinimalTheme.Apply(_connectionBanner);
+        foreach (var field in TableLayout.Battlefields) MinimalTheme.Apply(field.Destination);
     }
 
     public void SetConnectionStatus(bool connected, bool recovering)
     {
         if (!IsNodeReady()) return;
-        _connectionBanner.Visible = !connected;
-        _reconnectButton.Disabled = recovering;
-        _connectionMessage.Text = recovering
-            ? "连接中断，正在恢复对局… 当前桌面为断线前的局面。"
-            : "已与服务器断开。重新连接后将同步最新局面。";
-        _actionBar.Visible = connected;
-        if (!connected)
-            SetTurnStatus(recovering ? "正在恢复连接" : "连接已断开", "同步最新局面后可继续行动。", actionable: false);
+        _connectionBanner.Visible = !connected; _reconnectButton.Disabled = recovering;
+        _connectionMessage.Text = recovering ? "连接中断，正在恢复对局… 当前显示断线前的局面。" : "已断开连接。重新连接后同步最新局面。";
+        ActionBar.Visible = connected;
+        if (!connected) SetTurnStatus(recovering ? "正在恢复连接" : "连接已断开", "同步最新局面后可继续行动。", false);
     }
 
-    public void ApplyTheme()
-    {
-        MinimalTheme.Apply(this);
-        foreach (var path in new[]
-                 {
-                     "%TurnStatus",
-                     "%OpponentArea",
-                     "%BattlefieldOne",
-                     "%BattlefieldTwo",
-                     "%SelfArea",
-                     "%HandArea",
-                     "%ActionBarHost"
-                 })
-        {
-            GetNode<PanelContainer>(path)
-                .AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.Surface));
-        }
-
-        GetNode<PanelContainer>("%ActionBarHost")
-            .AddThemeStyleboxOverride("panel", MinimalTheme.Panel(MinimalTheme.TableSurface));
-        foreach (var path in new[] { "%BattlefieldOne", "%BattlefieldTwo" })
-        {
-            var battlefield = MinimalTheme.Panel(new Color(MinimalTheme.TableSurface, 0.66f));
-            battlefield.BorderColor = new Color(MinimalTheme.Selected, 0.28f);
-            GetNode<PanelContainer>(path).AddThemeStyleboxOverride("panel", battlefield);
-        }
-    }
-
-    public void RenderSections(
-        Godot.Collections.Array<Godot.Collections.Dictionary> sections)
+    public void RenderSections(CardArray sections)
     {
         _lastSections = sections;
-        if (_renderer is null)
-        {
-            return;
-        }
-
-        var table = FindWireTable(sections);
-        if (table is null)
-        {
-            _renderer.Clear();
-            SetTurnStatus("等待对局", "房间准备完成后，战场会显示在这里。", actionable: false);
-            return;
-        }
-
+        if (_renderer is null) return;
+        var table = sections.FirstOrDefault(s => Read(s, "kind") == "wireTable");
+        if (table is null) { _renderer.Clear(); SetTurnStatus("等待对局", "准备完成后进入牌桌。", false); return; }
         _renderer.Render(table);
-        var turnState = ReadString(table, "turnState");
-        var status = FriendlyTurnStatus(turnState);
-        SetTurnStatus(status.Headline, status.Detail, status.Actionable);
+    }
+
+    public void RenderMatchStatus(CardDictionary table)
+    {
+        var self = table["self"].AsGodotDictionary(); var opponent = table["opponent"].AsGodotDictionary();
+        TableLayout.Score.Text = $"我方  {Number(self, "score")}    :    {Number(opponent, "score")}  对手";
+        var goal = Number(table, "winningScore");
+        TableLayout.Round.Text = $"第 {Number(table, "turnNumber")} 回合" + (goal > 0 ? $"  ·  {goal} 分获胜" : "");
+        _destinations = table["lanes"].As<CardArray>().Select(lane => "BATTLEFIELD:" + Read(lane, "battlefieldId")).ToArray();
+        ClearChildren(TableLayout.Chain);
+        var chain = table.TryGetValue("chain", out var chainValue) ? chainValue.As<CardArray>() : [];
+        if (chain.Count == 0) MatchTableLayout.Label(TableLayout.Chain, "当前没有待结算行动", 13, MinimalTheme.TextSecondary, true);
+        foreach (var entry in chain)
+        {
+            var row = MatchTableLayout.Column(TableLayout.Chain, 2);
+            var button = new Button { Text = Read(entry, "title"), Alignment = HorizontalAlignment.Left,
+                ClipText = true, CustomMinimumSize = new Vector2(0, 34), TooltipText = Read(entry, "detail") };
+            row.AddChild(button); MinimalTheme.Apply(button);
+            var id = Read(entry, "objectId"); button.SetMeta("objectId", id);
+            button.Pressed += () => CardActivated?.Invoke(new CardDictionary { ["objectId"] = id, ["visible"] = true, ["cardName"] = Read(entry, "title") });
+            MatchTableLayout.Label(row, Read(entry, "detail"), 12, MinimalTheme.TextSecondary, true);
+        }
+        if (_inspected is not null && Read(_inspected, "objectId") is { Length: > 0 } inspectedId)
+        {
+            var current = _renderer?.VisibleCard(inspectedId);
+            if (current is null) ClearInspection(); else PreviewCard(current);
+        }
     }
 
     public void SetTurnStatus(string headline, string detail, bool actionable)
     {
-        if (!IsNodeReady())
-        {
-            return;
-        }
-
-        _turnHeadline.Text = headline;
-        _turnDetail.Text = detail;
-        _turnHeadline.AddThemeColorOverride(
-            "font_color",
-            actionable ? MinimalTheme.Selectable : MinimalTheme.Text);
-        _turnDetail.AddThemeColorOverride("font_color", MinimalTheme.TextSecondary);
-        if (!actionable)
-        {
-            _actionBar.SetWaiting(detail);
-        }
+        if (!IsNodeReady()) return;
+        TableLayout.TurnHeadline.Text = headline; TableLayout.TurnDetail.Text = detail;
+        TableLayout.TurnHeadline.AddThemeColorOverride("font_color", actionable ? MinimalTheme.Selectable : MinimalTheme.Waiting);
+        if (!actionable) ActionBar.SetWaiting(detail);
     }
 
+    public void SetComposerVisible(bool visible)
+    {
+        TableLayout.Composer.Visible = visible; TableLayout.Intel.GetParent<ScrollContainer>().Visible = !visible;
+        TableLayout.Rail.CustomMinimumSize = new Vector2(visible ? 344 : 268, 0);
+        if (!visible) ClearPromptStates();
+    }
+
+    public void PreviewCard(CardDictionary card)
+    {
+        if (!card.ContainsKey("visible") || card["visible"].AsBool())
+        {
+            if (card.TryGetValue("faceDown", out var faceDown) && faceDown.AsBool()) return;
+            if (_inspected is not null && Read(_inspected, "objectId") != Read(card, "objectId")) ClearChildren(TableLayout.CardActions);
+            _inspected = card.Duplicate(true);
+            TableLayout.InspectName.Text = Read(card, "cardName");
+            TableLayout.InspectArt.Texture = CardTextureLoader.Load(Read(card, "imagePath"), card.TryGetValue("rotated", out var rotated) && rotated.AsBool());
+            var summary = Read(card, "previewSummary");
+            TableLayout.InspectText.Text = summary.Length > 150 ? summary[..150] + "…\n右键查看完整卡牌" : summary;
+        }
+    }
+    public void InspectCard(CardDictionary card) => CardInspectionRequested?.Invoke(card);
+    private void ClearInspection()
+    {
+        _inspected = null; TableLayout.InspectArt.Texture = null;
+        TableLayout.InspectName.Text = "卡牌详情"; TableLayout.InspectText.Text = "悬停查看卡牌\n点选卡牌可直接行动";
+        ClearChildren(TableLayout.CardActions);
+    }
+    public void ShowCardActions(CardDictionary card, IEnumerable<(string Label, Action Select)> actions)
+    {
+        PreviewCard(card); ClearChildren(TableLayout.CardActions);
+        foreach (var action in actions)
+        {
+            var button = new Button { Text = action.Label }; TableLayout.CardActions.AddChild(button); MinimalTheme.Apply(button);
+            button.Pressed += () => { ClearChildren(TableLayout.CardActions); action.Select(); };
+        }
+    }
+    public void AddBattleEvents(long tick, string[] descriptions)
+    {
+        if (tick < _lastEventTick) return;
+        if (tick != _lastEventTick) { _lastEventTick = tick; _eventKeys.Clear(); }
+        foreach (var description in descriptions.Where(text => !string.IsNullOrWhiteSpace(text)))
+        {
+            if (!_eventKeys.Add(description)) continue;
+            _history.Enqueue(description); while (_history.Count > 12) _history.Dequeue();
+        }
+        ClearChildren(TableLayout.History);
+        foreach (var (text, index) in _history.Reverse().Select((text, index) => (text, index)))
+            MatchTableLayout.Label(TableLayout.History, text, 12, index == 0 ? MinimalTheme.Text : MinimalTheme.TextSecondary, true);
+    }
     public void ClearPromptStates()
     {
-        _renderer?.ClearPromptStates();
+        _renderer?.ClearPromptStates(); SetDestinationChoices([]);
+        foreach (var row in TableLayout.Chain.GetChildren())
+            foreach (var button in row.GetChildren().OfType<Button>()) MinimalTheme.Apply(button);
+        if (IsNodeReady()) ClearChildren(TableLayout.CardActions);
     }
-
     public void SetObjectState(string objectId, OfficialCardVisualState state)
     {
         _renderer?.SetObjectState(objectId, state);
+        foreach (var row in TableLayout.Chain.GetChildren())
+            foreach (var button in row.GetChildren().OfType<Button>())
+                if (button.HasMeta("objectId") && button.GetMeta("objectId").AsString() == objectId)
+                    button.AddThemeStyleboxOverride("normal", MinimalTheme.Outline(state));
     }
-
+    public void SetDestinationChoices(IEnumerable<string> choices, string? selected = null)
+    {
+        var legal = choices.ToHashSet(StringComparer.Ordinal);
+        TableLayout.BaseDestination.Disabled = !legal.Contains("BASE");
+        TableLayout.BaseDestination.Text = selected == "BASE" ? "已选基地" : legal.Contains("BASE") ? "移至 / 选基地" : "我方基地";
+        for (var i = 0; i < TableLayout.Battlefields.Length; i++)
+        {
+            var button = TableLayout.Battlefields[i].Destination;
+            var id = i < _destinations.Length ? _destinations[i] : "";
+            button.Visible = legal.Contains(id); button.Text = id == selected ? "已选此处" : "选择此处";
+        }
+    }
     public override void SetScreenVisible(bool visible)
     {
         base.SetScreenVisible(visible);
-        if (!visible)
+        if (!visible && IsNodeReady())
         {
-            ClearPromptStates();
-            _actionBar.SetWaiting("等待服务端提供下一步行动。");
+            ClearPromptStates(); ClearInspection(); _history.Clear(); _lastEventTick = -1; _eventKeys.Clear();
+            ClearChildren(TableLayout.History); ActionBar.SetWaiting("等待下一步行动。");
         }
     }
-
-    private static Godot.Collections.Dictionary? FindWireTable(
-        Godot.Collections.Array<Godot.Collections.Dictionary> sections)
-    {
-        foreach (var section in sections)
-        {
-            if (string.Equals(ReadString(section, "kind"), "wireTable", StringComparison.Ordinal))
-            {
-                return section;
-            }
-        }
-
-        return null;
-    }
-
-    private static (string Headline, string Detail, bool Actionable) FriendlyTurnStatus(string state)
-    {
-        return state.ToUpperInvariant() switch
-        {
-            "MULLIGAN" => ("起手调整", "等待服务端提供起手牌选择。", false),
-            "TURN_START" => ("回合开始", "正在处理回合开始状态。", false),
-            "MAIN" or "MAIN_ACTION" or "NEUTRAL_OPEN" =>
-                ("主要行动阶段", "等待服务端确认当前行动权。", false),
-            "NEUTRAL_CLOSED" => ("行动结算中", "当前行动窗口已关闭。", false),
-            "SPELL_DUEL_OPEN" => ("法术对决", "等待服务端提供对决行动。", false),
-            "SPELL_DUEL_CLOSED" => ("法术对决结算中", "正在结算法术对决。", false),
-            "TURN_END" => ("回合结束", "正在处理回合结束状态。", false),
-            "FINISHED" => ("对局结束", "最终结果即将显示。", false),
-            _ => ("对局进行中", "等待服务端更新当前阶段。", false)
-        };
-    }
-
-    private static string ReadString(Godot.Collections.Dictionary source, string key)
-    {
-        return source.TryGetValue(key, out var value) ? value.AsString() : string.Empty;
-    }
+    private static void ClearChildren(Node parent) { foreach (var child in parent.GetChildren()) { parent.RemoveChild(child); child.QueueFree(); } }
+    private static string Read(CardDictionary source, string key) => source.TryGetValue(key, out var value) ? value.AsString() : "";
+    private static int Number(CardDictionary source, string key) => source.TryGetValue(key, out var value) ? value.AsInt32() : 0;
 }

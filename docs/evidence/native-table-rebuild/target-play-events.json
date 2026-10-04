@@ -1,0 +1,207 @@
+{
+  "type": "EVENTS",
+  "roomId": "CN-TABLE-FINAL",
+  "playerId": "牌桌验收玩家",
+  "serverTick": 11,
+  "payload": [
+    {
+      "kind": "CARD_PLAYED",
+      "description": "牌桌验收玩家 打出海克斯射线",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "cardNo": "OGN·009/298",
+        "mode": ""
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "STACK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "RUNE_RECYCLED",
+      "description": "牌桌验收玩家 在支付费用时回收符文获得 1 点红色符能",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-SHOWCASE-RUNE-READY",
+        "cardNo": "OGN·007/298",
+        "abilityId": "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER",
+        "trait": "red",
+        "power": 1,
+        "paymentWindow": "PLAY_CARD",
+        "paymentId": "PLAY_CARD:11:牌桌验收玩家:P1-SPELL-HEXTECH-RAY",
+        "runeDeckCountAfter": 7
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SHOWCASE-RUNE-READY",
+          "role": "来源",
+          "cardNo": "OGN·007/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "RUNE_DECK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "POWER_GAINED",
+      "description": "牌桌验收玩家 通过支付资源动作获得 1 点红色符能",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-SHOWCASE-RUNE-READY",
+        "abilityId": "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER",
+        "trait": "red",
+        "power": 1,
+        "paymentWindow": "PLAY_CARD",
+        "paymentId": "PLAY_CARD:11:牌桌验收玩家:P1-SPELL-HEXTECH-RAY",
+        "powerAfter": 1,
+        "traitPowerAfter": 1
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SHOWCASE-RUNE-READY",
+          "role": "来源",
+          "cardNo": "OGN·007/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "RUNE_DECK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "COST_PAID",
+      "description": "牌桌验收玩家 支付 1 点费用",
+      "payload": {
+        "playerId": "牌桌验收玩家",
+        "mana": 1,
+        "power": 1,
+        "powerByTrait": {
+          "red": 1
+        },
+        "experience": 0,
+        "baseMana": 1,
+        "costReductionMana": 0,
+        "optionalCostManaReduction": 0,
+        "battlefieldEchoCostReductionMana": 0,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "spellshieldTaxMana": 0,
+        "spellshieldTaxTargetObjectIds": [],
+        "optionalCosts": [],
+        "paymentResourceActions": [
+          "RECYCLE_RUNE:P1-SHOWCASE-RUNE-READY"
+        ],
+        "recycledRuneObjectIds": [
+          "P1-SHOWCASE-RUNE-READY"
+        ],
+        "temporaryPaymentResourceIds": [],
+        "temporaryPaymentResourcePower": 0,
+        "luxSpellOnlyResourceActions": [],
+        "luxSpellOnlyResourceSourceObjectIds": [],
+        "luxSpellOnlyGeneratedMana": 0,
+        "luxSpellOnlyConsumedMana": 0,
+        "luxSpellOnlyRemainingMana": 0,
+        "paymentId": "PLAY_CARD:11:牌桌验收玩家:P1-SPELL-HEXTECH-RAY",
+        "paymentWindow": "PLAY_CARD",
+        "remainingMana": 0,
+        "remainingPower": 0,
+        "remainingPowerByTrait": {},
+        "remainingExperience": 3,
+        "baseManaCost": 1,
+        "totalManaCost": 1,
+        "genericPower": 0,
+        "totalPowerCost": 1,
+        "experienceCost": 0,
+        "extraCosts": [],
+        "legalPaymentChoiceIds": [],
+        "reason": "HEXTECH_RAY_DAMAGE_3",
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "dragonUnitCostReductionMana": 0
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SHOWCASE-RUNE-READY",
+          "role": "回收",
+          "cardNo": "OGN·007/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "RUNE_DECK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "STACK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "STACK_ITEM_ADDED",
+      "description": "海克斯射线加入结算链",
+      "payload": {
+        "stackItemId": "STACK-11-P1-SPELL-HEXTECH-RAY",
+        "controllerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "cardNo": "OGN·009/298",
+        "targetObjectIds": [
+          "P2-BASE-GUARD-001"
+        ],
+        "effectKind": "HEXTECH_RAY_DAMAGE_3",
+        "mode": "",
+        "effectRepeatCount": 1,
+        "playedAfterAnotherCardThisTurn": false
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "STACK",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P2-BASE-GUARD-001",
+          "role": "目标",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "P2-SHOWCASE-ARENA",
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    }
+  ],
+  "protocolVersion": 1,
+  "schemaVersion": 1
+}

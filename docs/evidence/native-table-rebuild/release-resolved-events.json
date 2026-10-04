@@ -1,0 +1,111 @@
+{
+  "type": "EVENTS",
+  "roomId": "CN-TABLE-FINAL",
+  "playerId": "牌桌验收对手",
+  "serverTick": 22,
+  "payload": [
+    {
+      "kind": "PRIORITY_PASSED",
+      "description": "牌桌验收对手 让过优先行动权",
+      "payload": {
+        "playerId": "牌桌验收对手",
+        "priorityPlayerId": "牌桌验收对手"
+      },
+      "objectRefs": null
+    },
+    {
+      "kind": "STACK_ITEM_RESOLVED",
+      "description": "STACK-20-P1-SPELL-HEXTECH-RAY 结算",
+      "payload": {
+        "stackItemId": "STACK-20-P1-SPELL-HEXTECH-RAY",
+        "controllerId": "牌桌验收玩家",
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "effectKind": "HEXTECH_RAY_DAMAGE_3"
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "GRAVEYARD",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "DAMAGE_APPLIED",
+      "description": "海克斯射线造成 3 点伤害",
+      "payload": {
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "targetObjectId": "P2-BASE-GUARD-001",
+        "damage": 3
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "GRAVEYARD",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P2-BASE-GUARD-001",
+          "role": "目标",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "GRAVEYARD",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    },
+    {
+      "kind": "UNIT_DESTROYED",
+      "description": "致命伤害摧毁单位",
+      "payload": {
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "targetObjectId": "P2-BASE-GUARD-001",
+        "ownerPlayerId": "牌桌验收对手",
+        "destroyedByPlayerId": "牌桌验收玩家",
+        "destinationZone": "GRAVEYARD",
+        "reason": "LETHAL_DAMAGE"
+      },
+      "objectRefs": [
+        {
+          "objectId": "P1-SPELL-HEXTECH-RAY",
+          "role": "来源",
+          "cardNo": "OGN·009/298",
+          "ownerId": "牌桌验收玩家",
+          "controllerId": "牌桌验收玩家",
+          "zone": "GRAVEYARD",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "P2-BASE-GUARD-001",
+          "role": "目标",
+          "cardNo": "SFD·125/221",
+          "ownerId": "牌桌验收对手",
+          "controllerId": "牌桌验收对手",
+          "zone": "GRAVEYARD",
+          "battlefieldObjectId": null,
+          "isFaceDown": false,
+          "isHidden": false
+        }
+      ]
+    }
+  ],
+  "protocolVersion": 1,
+  "schemaVersion": 1
+}

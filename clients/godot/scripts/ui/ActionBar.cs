@@ -22,6 +22,7 @@ public partial class ActionBar : Control
     private Button _submitButton = null!;
     private PromptSelectionState? _current;
     private bool _pending;
+    private bool _composing;
 
     public override void _Ready()
     {
@@ -55,17 +56,18 @@ public partial class ActionBar : Control
         }
 
         _pending = false;
-        _guidance.Text = "可用行动";
+        _guidance.Text = "行动";
         _guidance.TooltipText = guidance;
         ClearChildren(_actionChoices);
-        foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial))
+        foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial).OrderBy(option => option.Name is "END_TURN" or "PASS_PRIORITY" or "PASS_FOCUS" ? 1 : option.Name == "SURRENDER" ? 2 : 0))
         {
             var button = new Button
             {
                 Text = action.Label,
                 TooltipText = string.IsNullOrWhiteSpace(action.Reason) ? action.Label : action.Reason,
-                CustomMinimumSize = new Vector2(104, 40),
-                FocusMode = FocusModeEnum.All
+                CustomMinimumSize = new Vector2(90, 40),
+                FocusMode = FocusModeEnum.All,
+                Disabled = _composing
             };
             MinimalTheme.Apply(button);
             if (string.Equals(action.Name, "SURRENDER", StringComparison.Ordinal))
@@ -73,6 +75,12 @@ public partial class ActionBar : Control
                 button.AddThemeColorOverride("font_color", MinimalTheme.Hostile);
             }
 
+            if (action.Name is "END_TURN" or "PASS_PRIORITY" or "PASS_FOCUS")
+            {
+                var primary = MinimalTheme.Panel(new Color("244858")); primary.BorderColor = MinimalTheme.Selected;
+                button.AddThemeStyleboxOverride("normal", primary);
+                button.Text = action.Name == "PASS_PRIORITY" ? "让过响应" : action.Label;
+            }
             var actionName = action.Name;
             button.Pressed += () => ActionSelected?.Invoke(actionName);
             _actionChoices.AddChild(button);
@@ -124,7 +132,7 @@ public partial class ActionBar : Control
         _cancelButton.Visible = true;
         _cancelButton.Disabled = _pending;
         _submitButton.Visible = true;
-        _submitButton.Text = state.CanSubmit ? "确认提交" : "完成选择后提交";
+        _submitButton.Text = state.CanSubmit ? state.ActionName == "END_TURN" ? "确认结束回合" : state.ActionName == "PASS_PRIORITY" ? "确认让过响应" : state.ActionName == "SURRENDER" ? "确认投降" : "确认行动" : "请完成选择";
         _submitButton.Disabled = _pending || !state.CanSubmit;
         ConfigureFocusLoop();
     }
@@ -137,7 +145,7 @@ public partial class ActionBar : Control
         }
 
         _current = null;
-        _selectionSummary.Text = "选择行动后，可选择的卡牌会高亮显示。";
+        _selectionSummary.Text = _composing ? "在右侧完成选择并确认 · Esc 返回牌桌" : "点牌行动 · 右键查看 · Esc 取消选择";
         _stepLabel.Text = string.Empty;
         ClearChildren(_stepChoices);
         _cancelButton.Visible = false;
@@ -155,8 +163,15 @@ public partial class ActionBar : Control
         _pending = false;
         _guidance.Text = guidance;
         ClearChildren(_actionChoices);
-        _actionChoices.AddChild(SecondaryLabel("正在同步"));
+        _actionChoices.AddChild(SecondaryLabel("可查看卡牌和战况"));
         ClearSelectionDisplay();
+    }
+
+    public void SetComposerActive(bool active)
+    {
+        _composing = active;
+        foreach (var button in _actionChoices.GetChildren().OfType<Button>()) button.Disabled = active || _pending;
+        if (_current is null) ClearSelectionDisplay();
     }
 
     public void SetPending(bool pending)
@@ -169,12 +184,12 @@ public partial class ActionBar : Control
         _pending = pending;
         foreach (var button in _actionChoices.GetChildren().OfType<Button>())
         {
-            button.Disabled = pending;
+            button.Disabled = pending || _composing;
         }
 
         foreach (var button in _stepChoices.GetChildren().OfType<Button>())
         {
-            button.Disabled = pending;
+            button.Disabled = pending || _composing;
         }
 
         _cancelButton.Disabled = pending;

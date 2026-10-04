@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using CardArray = Godot.Collections.Array<Godot.Collections.Dictionary>;
 using CardDictionary = Godot.Collections.Dictionary;
@@ -11,6 +12,7 @@ public sealed class MatchTableRenderer
     private const string OfficialCardScenePath = "res://scenes/components/OfficialCardView.tscn";
 
     private readonly MatchScreen _screen;
+    private readonly MatchTableLayout _layout;
     private readonly Action<CardDictionary> _cardActivated;
     private readonly Action<string, CardArray> _pileRequested;
     private readonly PackedScene _officialCardScene;
@@ -21,14 +23,13 @@ public sealed class MatchTableRenderer
     private readonly Container _opponentPublicZones;
     private readonly Container _selfPublicZones;
     private readonly Container _selfHand;
-    private readonly BattlefieldNodes[] _battlefields;
+    private readonly MatchTableLayout.Battlefield[] _battlefields;
     private readonly Dictionary<string, CardBinding> _cardBindings = new(StringComparer.Ordinal);
     private string _viewerPlayerId = string.Empty;
 
     private Vector2 _handCardSize = new(112, 156);
     private Vector2 _tableCardSize = new(84, 117);
     private Vector2 _compactCardSize = new(58, 81);
-    private Vector2 SiteCardSize => new(_tableCardSize.Y, _tableCardSize.X);
 
     public MatchTableRenderer(MatchScreen screen, Action<CardDictionary> cardActivated,
         Action<string, CardArray> pileRequested)
@@ -38,18 +39,15 @@ public sealed class MatchTableRenderer
         _pileRequested = pileRequested;
         _officialCardScene = GD.Load<PackedScene>(OfficialCardScenePath)
             ?? throw new InvalidOperationException($"Unable to load {OfficialCardScenePath}.");
-        _opponentSummary = screen.GetNode<Label>("%OpponentSummary");
-        _selfSummary = screen.GetNode<Label>("%SelfSummary");
-        _selfHandCount = screen.GetNode<Label>("%SelfHandCount");
-        _opponentHand = screen.GetNode<Container>("%OpponentHand");
-        _opponentPublicZones = screen.GetNode<Container>("%OpponentPublicZones");
-        _selfPublicZones = screen.GetNode<Container>("%SelfPublicZones");
-        _selfHand = screen.GetNode<Container>("%SelfHand");
-        _battlefields =
-        [
-            ReadBattlefieldNodes(screen, "BattlefieldOne", "%BattlefieldOneState"),
-            ReadBattlefieldNodes(screen, "BattlefieldTwo", "%BattlefieldTwoState")
-        ];
+        _layout = screen.TableLayout;
+        _opponentSummary = _layout.OpponentSummary;
+        _selfSummary = _layout.SelfSummary;
+        _selfHandCount = _layout.SelfHandCount;
+        _opponentHand = _layout.OpponentHand;
+        _opponentPublicZones = _layout.OpponentPublicZones;
+        _selfPublicZones = _layout.SelfPublicZones;
+        _selfHand = _layout.SelfHand;
+        _battlefields = _layout.Battlefields;
     }
 
     public void Render(CardDictionary wireTable)
@@ -74,6 +72,7 @@ public sealed class MatchTableRenderer
                 _battlefields[index],
                 index < lanes.Count ? lanes[index] : new CardDictionary());
         }
+        _screen.RenderMatchStatus(wireTable);
     }
 
     public void Clear()
@@ -94,11 +93,11 @@ public sealed class MatchTableRenderer
         foreach (var battlefield in _battlefields)
         {
             ClearChildren(battlefield.OpponentUnits);
-            ClearChildren(battlefield.OfficialSite);
+            ClearChildren(battlefield.Site);
             ClearChildren(battlefield.SelfUnits);
             ClearChildren(battlefield.Standby);
             battlefield.OpponentUnits.AddChild(SecondaryLabel("暂无单位"));
-            battlefield.OfficialSite.AddChild(SecondaryLabel("未放置场地"));
+            battlefield.Site.AddChild(SecondaryLabel("未放置场地"));
             battlefield.SelfUnits.AddChild(SecondaryLabel("暂无单位"));
             battlefield.Standby.AddChild(SecondaryLabel("待命区为空"));
             battlefield.State.Text = "等待战场数据";
@@ -122,12 +121,14 @@ public sealed class MatchTableRenderer
         }
     }
 
+    public CardDictionary? VisibleCard(string objectId) => _cardBindings.TryGetValue(objectId, out var binding) ? binding.Card : null;
+
     private void ConfigureCardSizes()
     {
         var compactViewport = _screen.GetViewportRect().Size.Y <= 760;
-        _handCardSize = compactViewport ? new Vector2(88, 123) : new Vector2(112, 156);
-        _tableCardSize = compactViewport ? new Vector2(64, 89) : new Vector2(84, 117);
-        _compactCardSize = compactViewport ? new Vector2(48, 67) : new Vector2(58, 81);
+        _handCardSize = compactViewport ? new Vector2(88, 123) : new Vector2(86, 120);
+        _tableCardSize = compactViewport ? new Vector2(60, 84) : new Vector2(60, 84);
+        _compactCardSize = compactViewport ? new Vector2(44, 62) : new Vector2(46, 64);
     }
 
     private void RenderOpponentHand(CardDictionary opponent)
@@ -182,7 +183,7 @@ public sealed class MatchTableRenderer
             {
                 var side = ReadString(player, "playerId") == _viewerPlayerId ? "我方" : "对手";
                 var title = $"{side}{(key == "graveyard" ? "废牌堆" : "放逐区")}";
-                var browse = new Button { Text = $"{label} ›", TooltipText = $"查看{title}的全部 {cards.Count} 张牌" };
+                var browse = new Button { Text = $"{label} {cards.Count} ›", TooltipText = $"查看{title}的全部 {cards.Count} 张牌" };
                 browse.Pressed += () => _pileRequested(title, cards);
                 zone.AddChild(browse);
                 MinimalTheme.Apply(browse);
@@ -200,23 +201,28 @@ public sealed class MatchTableRenderer
 
             if (showEveryCard && cards.Count > 0)
             {
-                var row = new HFlowContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                var row = new HBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
                 row.AddThemeConstantOverride("h_separation", 5);
                 row.AddThemeConstantOverride("v_separation", 5);
                 zone.AddChild(row);
                 foreach (var card in cards) AddCard(row, card, _compactCardSize);
             }
-            else if (cards.Count > 0)
+            else if (cards.Count > 0 && key is not ("graveyard" or "banished"))
             {
                 AddCard(zone, cards[cards.Count - 1], _compactCardSize, cards.Count);
             }
         }
     }
 
-    private void RenderBattlefield(BattlefieldNodes nodes, CardDictionary lane)
+    private void RenderBattlefield(MatchTableLayout.Battlefield nodes, CardDictionary lane)
     {
         RenderCardZone(nodes.OpponentUnits, ReadCards(lane, "opponentUnits"), "暂无对手单位", _tableCardSize);
-        RenderCardZone(nodes.OfficialSite, ReadCards(lane, "site"), "未放置场地", SiteCardSize);
+        var sites = ReadCards(lane, "site");
+        RenderCardZone(nodes.Site, sites, "", new Vector2(54, 38));
+        nodes.Name.Text = sites.Count > 0 ? ReadString(sites[0], "cardName") : "未放置战场";
+        var texture = sites.Count > 0 ? CardTextureLoader.Load(ReadString(sites[0], "imagePath"), ReadBool(sites[0], "rotated", false)) : null;
+        nodes.Backdrop.Texture = texture is null ? null : new AtlasTexture { Atlas = texture,
+            Region = new Rect2(texture.GetWidth() * 0.04f, texture.GetHeight() * 0.23f, texture.GetWidth() * 0.92f, texture.GetHeight() * 0.42f) };
         RenderCardZone(nodes.SelfUnits, ReadCards(lane, "selfUnits"), "暂无我方单位", _tableCardSize);
         RenderStandby(nodes.Standby, lane);
 
@@ -228,7 +234,15 @@ public sealed class MatchTableRenderer
             : controlled ? scored ? $"{controlText} · 本回合已得分" : controlText : "尚未控制";
         nodes.State.AddThemeColorOverride(
             "font_color",
-            scored ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
+            ReadBool(lane, "contested", false) ? MinimalTheme.Selected : controller == _viewerPlayerId ? MinimalTheme.Selectable : controlled ? MinimalTheme.Hostile : MinimalTheme.TextSecondary);
+        var style = MinimalTheme.Panel(new Color("12242e"));
+        style.BorderColor = ReadBool(lane, "contested", false) ? MinimalTheme.Selected : controller == _viewerPlayerId
+            ? new Color(MinimalTheme.Selectable, 0.55f) : controlled ? new Color(MinimalTheme.Hostile, 0.48f) : MinimalTheme.Border;
+        style.SetContentMarginAll(10); nodes.Panel.AddThemeStyleboxOverride("panel", style);
+        var ownPower = ReadCards(lane, "selfUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
+        var enemyPower = ReadCards(lane, "opponentUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
+        nodes.Force.Text = $"战力  {ownPower} : {enemyPower}";
+        nodes.Force.TooltipText = "我方 : 对手 · 当前单位战力合计，实际伤害由战斗规则结算";
     }
 
     private void RenderStandby(Container parent, CardDictionary lane)
@@ -252,19 +266,19 @@ public sealed class MatchTableRenderer
                 renderedHidden++;
             }
 
-            AddCard(parent, card, _compactCardSize);
+            AddCard(parent, card, new Vector2(26, 36));
         }
 
         var additionalHidden = Math.Max(0, hiddenCount - renderedHidden);
         if (additionalHidden > 0)
         {
-            AddCard(parent, NeutralHiddenCard(additionalHidden), _compactCardSize);
+            AddCard(parent, NeutralHiddenCard(additionalHidden), new Vector2(26, 36));
         }
 
         parent.AddChild(SecondaryLabel("我方待命"));
         foreach (var card in selfCards)
         {
-            AddCard(parent, card, _compactCardSize);
+            AddCard(parent, card, new Vector2(26, 36));
         }
     }
 
@@ -306,6 +320,8 @@ public sealed class MatchTableRenderer
         view.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
         view.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
         view.Activated += activatedCard => _cardActivated(activatedCard);
+        view.PreviewRequested += previewCard => _screen.PreviewCard(previewCard);
+        view.InspectionRequested += inspectCard => _screen.InspectCard(inspectCard);
         parent.AddChild(view);
         view.Display(safeCard, restingState);
 
@@ -350,35 +366,9 @@ public sealed class MatchTableRenderer
         CardDictionary player,
         bool showHiddenHand)
     {
-        var parts = new List<string>
-        {
-            sideLabel,
-            $"分数 {ReadInt(player, "score")}",
-            $"主牌 {ReadInt(player, "mainDeckCount")}",
-            $"符文 {ReadInt(player, "runeDeckCount")}/12"
-        };
-        if (showHiddenHand)
-        {
-            parts.Add($"手牌 {Math.Max(ReadInt(player, "handHiddenCount"), ReadCards(player, "hand").Count)}");
-        }
-
-        target.Text = string.Join("  ·  ", parts);
+        target.Text = $"{sideLabel}\n主牌 {ReadInt(player, "mainDeckCount")} · 符文 {ReadInt(player, "runeDeckCount")}/12";
         var resources = ReadString(player, "resources");
         if (!string.IsNullOrWhiteSpace(resources)) target.Text += "\n" + resources;
-    }
-
-    private static BattlefieldNodes ReadBattlefieldNodes(
-        MatchScreen screen,
-        string battlefieldName,
-        string statePath)
-    {
-        var root = $"MatchLayout/BoardScroll/BoardLayout/Battlefields/{battlefieldName}/LaneContent";
-        return new BattlefieldNodes(
-            screen.GetNode<Container>($"{root}/OpponentUnits"),
-            screen.GetNode<Container>($"{root}/CenterRow/OfficialSite"),
-            screen.GetNode<Container>($"{root}/SelfUnits"),
-            screen.GetNode<Container>($"{root}/CenterRow/Standby"),
-            screen.GetNode<Label>(statePath));
     }
 
     private static void ClearChildren(Node parent)
@@ -441,13 +431,6 @@ public sealed class MatchTableRenderer
         ("graveyard", "废牌"),
         ("banished", "放逐")
     ];
-
-    private sealed record BattlefieldNodes(
-        Container OpponentUnits,
-        Container OfficialSite,
-        Container SelfUnits,
-        Container Standby,
-        Label State);
 
     private sealed record CardBinding(
         OfficialCardView View,

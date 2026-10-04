@@ -26588,14 +26588,14 @@ public sealed class MatchSession : IMatchSession
                 controllerId: seed.P2),
             ["P1-SHOWCASE-RUNE-READY"] = new(
                 "P1-SHOWCASE-RUNE-READY",
-                cardNo: "SFD·001/221",
-                tags: [CardObjectTags.RuneCard],
+                cardNo: "OGN·007/298",
+                tags: [CardObjectTags.RuneCard, "COLOR:red"],
                 ownerId: seed.P1,
                 controllerId: seed.P1),
             ["P2-SHOWCASE-RUNE-READY"] = new(
                 "P2-SHOWCASE-RUNE-READY",
-                cardNo: "SFD·001/221",
-                tags: [CardObjectTags.RuneCard],
+                cardNo: "OGN·007/298",
+                tags: [CardObjectTags.RuneCard, "COLOR:red"],
                 ownerId: seed.P2,
                 controllerId: seed.P2),
             ["P1-SHOWCASE-GRAVE-UNIT"] = new(
@@ -26893,7 +26893,7 @@ public sealed class MatchSession : IMatchSession
                 cardObjects[objectId] = Card(
                     objectId,
                     playerId,
-                    "SFD·001/221",
+                    "OGN·007/298",
                     CardObjectTags.RuneCard,
                     power: 0,
                     manaCost: 0);
@@ -26952,7 +26952,9 @@ public sealed class MatchSession : IMatchSession
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        return current with
+        // A development scenario replaces the position. Only room identity, seats and
+        // tick survive; copying the old state carries battle tasks and choices into it.
+        return new MatchState(current.RoomId, current.Tick, turnNumber, seed.P1, current.Seats) with
         {
             TurnNumber = turnNumber,
             ActivePlayerId = seed.P1,

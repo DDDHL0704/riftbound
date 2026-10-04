@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-04",
+  "branch": "codex/native-platform-20261004",
+  "baseCommit": "2ac5da51",
+  "scope": "Godot native battle table, direct legal table selection, authoritative state feedback, development scenario reset/rune repair",
+  "rulesAuthority": "Chinese official rules and card data; reference projects are UI/workflow references only",
+  "references": [
+    {
+      "url": "https://riftatlas.com/",
+      "observed": "Public simulator screenshot and page"
+    },
+    {
+      "url": "https://github.com/EggsLeggs/riftbound-tcg-tts",
+      "observed": "README; no code or artwork copied"
+    }
+  ],
+  "backendTests": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/table-redesign-focused-final.trx",
+      "sha256": "ddb4265c03e4424433c93c6060ba08858d81d1dd49fcf1d0368b902bf5847857",
+      "counters": {
+        "total": 49,
+        "executed": 49,
+        "passed": 49,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "times": {
+        "creation": "2026-10-04T22:58:04.5560530+08:00",
+        "queuing": "2026-10-04T22:58:04.5560530+08:00",
+        "start": "2026-10-04T22:58:01.3982020+08:00",
+        "finish": "2026-10-04T22:58:08.2794420+08:00"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/table-redesign-full-final.trx",
+      "sha256": "802f14a8a83054c2a15ff3ac04e60bab6ca1eea648de25c62306fb13df27e464",
+      "counters": {
+        "total": 9344,
+        "executed": 9344,
+        "passed": 9344,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "times": {
+        "creation": "2026-10-04T22:58:48.6322710+08:00",
+        "queuing": "2026-10-04T22:58:48.6322710+08:00",
+        "start": "2026-10-04T22:58:45.4271700+08:00",
+        "finish": "2026-10-04T23:03:58.6219970+08:00"
+      }
+    }
+  ],
+  "reportedFullSuiteDuration": "5 m 10 s",
+  "nativeBuild": {
+    "errors": 0,
+    "warnings": 0,
+    "log": "var/qa/table-redesign/native-build.log"
+  },
+  "nativeInteractionGate": {
+    "resolutions": [
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ],
+    "passed": true,
+    "marker": "BATTLE_TABLE_INTERACTION_PASS",
+    "log": "var/qa/table-redesign/interaction-final.log"
+  },
+  "existingStructuralGates": {
+    "passed": [
+      "check-minimal-card-component",
+      "check-minimal-match-scene",
+      "check-prompt-interaction-controller",
+      "check-focused-prompt-overlays",
+      "check-minimal-responsive-scene"
+    ],
+    "logDirectory": "var/qa/table-redesign"
+  },
+  "costFreshnessGate": {
+    "passed": true,
+    "marker": "PLAY_COST_PREVIEW_FRESHNESS_PASS",
+    "log": "var/qa/table-redesign/cost-proof.log"
+  },
+  "actualNativeFlows": {
+    "environment": "Local development API, memory persistence, disposable scenario; second player actions through test harness",
+    "movement": {
+      "resolution": "1440x900",
+      "selectedUnits": 2,
+      "movedUnits": 2,
+      "battlefieldContestedEvents": 1,
+      "evidence": "docs/evidence/native-table-rebuild/group-move-events.json"
+    },
+    "targetPayment": {
+      "resolution": "1280x720 and 1920x1080",
+      "spell": "OGN·009/298",
+      "target": "P2-BASE-GUARD-001",
+      "manaPaid": 1,
+      "powerByTraitPaid": {
+        "red": 1
+      },
+      "remainingMana": 0,
+      "remainingPower": 0,
+      "recycledRune": "OGN·007/298",
+      "evidence": "docs/evidence/native-table-rebuild/target-play-events.json",
+      "note": "Frozen payment events are from the earlier successful 1280 flow (tick 11); final package resolution below repeats the same interaction at 1920 (tick 22)."
+    },
+    "resolution": {
+      "snapshotTick": 22,
+      "damage": 3,
+      "targetInGraveyard": true,
+      "stackCount": 0,
+      "snapshot": "docs/evidence/native-table-rebuild/release-resolved-snapshot.json",
+      "events": "docs/evidence/native-table-rebuild/release-resolved-events.json"
+    },
+    "inspection": {
+      "rightClickFullCard": true,
+      "escapeReturnsToTable": true,
+      "evidence": "var/qa/table-redesign/final-card-inspection.png"
+    }
+  },
+  "artifacts": [
+    {
+      "platform": "macOS",
+      "path": "clients/godot/exports/macos/Riftbound.zip",
+      "sha256": "9c61f7b7e4e02d35f453dcb96999bdb04aa0e6336413bd5361dd98797fdc1e21",
+      "bytes": 141956857,
+      "nativeRuntimeVerified": true
+    },
+    {
+      "platform": "Windows x64",
+      "path": "clients/godot/exports/windows/Riftbound-windows-x64.zip",
+      "sha256": "9127df2f5f755bf391b09d51cba907bd15f2c1eb1e769282d4bb8fe11b143211",
+      "bytes": 88737477,
+      "nativeRuntimeVerified": false
+    }
+  ],
+  "macOSCodesign": {
+    "appPath": "/Users/dinghaolin/.local/share/riftbound-qa/table-release/符文战场.app",
+    "verification": "codesign --verify --deep --strict",
+    "exitCode": 0,
+    "notarizationVerified": false
+  },
+  "screenshots": [
+    {
+      "path": "docs/evidence/native-table-rebuild/before-table.png",
+      "sha256": "5cf7e9f60201783eb0b34d661005d1bfaf6aa30850b06a6fba41c8eda4ee5295"
+    },
+    {
+      "path": "docs/evidence/native-table-rebuild/final-movement-confirmed.png",
+      "sha256": "9f46aa135430efd1bd09bc2acad90d9dbac802a3a638696c760afed13c70d052"
+    },
+    {
+      "path": "docs/evidence/native-table-rebuild/delivery-target-payment-1920.png",
+      "sha256": "d23b2d5c3e15642880e3d5eb7fac2600aed92d1ab488199e87148b125d71f91e"
+    },
+    {
+      "path": "docs/evidence/native-table-rebuild/release-resolved-1920.png",
+      "sha256": "77abe58f0fa399d0c51c69e840520bdd183fb9f65a38049a9f21bd34e84a480f"
+    }
+  ],
+  "limitations": [
+    "Windows export completed; installation and runtime on Windows remain unverified.",
+    "Does not certify complete card/rule coverage. Pending permanent-card timing and effect-caused replay work remains in NEXT_NATIVE_PLAY_ITERATION_2026-10-04.md.",
+    "No remote push, public release, GitHub CI run or persistence/restart acceptance in this iteration.",
+    "Legacy isolated engine scenarios are not all complete playable native demo tables."
+  ]
+}

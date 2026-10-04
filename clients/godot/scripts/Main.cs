@@ -227,12 +227,12 @@ public partial class Main : Control
     {
         if (_playCardOverlay?.IsVisibleInTree() == true)
         {
-            if (input.IsActionPressed("ui_cancel_selection")) _playCardOverlay.Hide();
+            if (input.IsActionPressed("ui_cancel_selection") && !_playCardOverlay.IsSubmitting) _playCardOverlay.Hide();
             return input.IsActionPressed("ui_cancel_selection");
         }
         if (_movementOverlay?.IsVisibleInTree() == true)
         {
-            if (input.IsActionPressed("ui_cancel_selection")) _movementOverlay.Hide();
+            if (input.IsActionPressed("ui_cancel_selection") && !_movementOverlay.IsSubmitting) _movementOverlay.Hide();
             return input.IsActionPressed("ui_cancel_selection");
         }
         if (_cardInspectOverlay?.IsVisibleInTree() == true)
@@ -353,17 +353,21 @@ public partial class Main : Control
 
     private void WireButtons()
     {
-        _playCardOverlay = new PlayCardOverlay(); AddChild(_playCardOverlay);
+        _playCardOverlay = new PlayCardOverlay { TableMode = true }; _matchScreen!.ComposerHost.AddChild(_playCardOverlay);
+        _playCardOverlay.VisibilityChanged += RefreshTableComposer;
+        _playCardOverlay.TableSelectionChanged += RefreshPromptInteractionVisuals;
         _playCardOverlay.PreviewRequested += request => _ = RequestPlayCostPreviewAsync(request);
         _playCardOverlay.Confirmed += payload =>
         {
-            if (_playCardAction is not null) _ = SubmitSpecialPromptAsync(_playCardAction, payload, "play_card");
+            if (_playCardAction is not null) _ = SubmitTableActionAsync(_playCardAction, payload, "play_card");
         };
-        _movementOverlay = new MovementOverlay(); AddChild(_movementOverlay);
+        _movementOverlay = new MovementOverlay { TableMode = true }; _matchScreen!.ComposerHost.AddChild(_movementOverlay);
+        _movementOverlay.VisibilityChanged += RefreshTableComposer;
+        _movementOverlay.TableSelectionChanged += RefreshPromptInteractionVisuals;
         _movementOverlay.Confirmed += (destination, ids) =>
         {
             if (_movementAction is null || ids.Count == 0) return;
-            _ = SubmitSpecialPromptAsync(_movementAction, new Dictionary<string, object?>
+            _ = SubmitTableActionAsync(_movementAction, new Dictionary<string, object?>
             {
                 ["cmdType"] = "MOVE_UNIT", ["sourceObjectId"] = ids[0], ["sourceObjectIds"] = ids,
                 ["destination"] = destination
@@ -380,6 +384,8 @@ public partial class Main : Control
         _lobbyScreen.RefreshPublicMatchesRequested += () => _ = LoadPublicMatchesAsync();
         _lobbyScreen.DeckSelectionChanged += () => _ = RefreshDeckPreviewAsync();
         _matchScreen!.CardActivated += HandleMatchCardActivated;
+        _matchScreen.CardInspectionRequested += ApplyCardPreview;
+        _matchScreen.DestinationActivated += HandleTableDestination;
         _matchScreen.PublicPileRequested += (title, cards) => _cardInspectOverlay?.ShowPile(title, cards);
         _matchScreen.ActionBar.ActionSelected += HandlePromptActionSelected;
         _matchScreen.ReconnectRequested += () => _ = RetryConnectionAsync();
@@ -403,14 +409,50 @@ public partial class Main : Control
         var objectId = card.TryGetValue("objectId", out var objectValue)
             ? objectValue.AsString()
             : string.Empty;
-        if (!string.IsNullOrWhiteSpace(objectId) && _promptInteractionController.Current is null && TryOpenPlayCard(objectId)) return;
-        if (!string.IsNullOrWhiteSpace(objectId)
-            && _promptInteractionController.TrySelectObject(objectId))
+        if (_playCardOverlay?.Visible == true)
         {
+            if (!_playCardOverlay.TrySelectTableObject(objectId)) _matchScreen?.PreviewCard(card);
             return;
         }
+        if (_movementOverlay?.Visible == true)
+        {
+            if (!_movementOverlay.TryToggleTableSource(objectId)) _matchScreen?.PreviewCard(card);
+            return;
+        }
+        if (!string.IsNullOrWhiteSpace(objectId) && _promptInteractionController.Current is null)
+        {
+            if (TryOpenPlayCard(objectId)) return;
+            var options = _promptInteractionController.ActionsForObject(objectId);
+            if (options.Count > 1)
+            {
+                _matchScreen?.ShowCardActions(card, options.Select(option => (option.Label, (Action)(() => SelectTableAction(option.Name, objectId)))));
+                return;
+            }
+            if (options.Count == 1) { SelectTableAction(options[0].Name, objectId); return; }
+        }
+        if (!string.IsNullOrWhiteSpace(objectId) && _promptInteractionController.TrySelectObject(objectId)) return;
+        _matchScreen?.PreviewCard(card);
+    }
 
-        ApplyCardPreview(card);
+    private void SelectTableAction(string action, string objectId)
+    {
+        if (action == "MOVE_UNIT" && TryOpenMovement(objectId)) return;
+        if (_promptInteractionController.SelectAction(action)) _promptInteractionController.TrySelectSource(objectId);
+    }
+
+    private void HandleTableDestination(string id)
+    {
+        if (_playCardOverlay?.Visible == true) { _playCardOverlay.TrySelectTableDestination(id); return; }
+        if (_movementOverlay?.Visible == true) { _movementOverlay.TrySelectTableDestination(id); return; }
+        _promptInteractionController.TrySelectChoice("destination", id);
+    }
+
+    private void RefreshTableComposer()
+    {
+        var composing = _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true;
+        _matchScreen?.SetComposerVisible(composing);
+        _matchScreen?.ActionBar.SetComposerActive(composing);
+        RefreshPromptInteractionVisuals();
     }
 
     private async Task RequestPlayCostPreviewAsync(PlayCostPreviewRequestDto request)
@@ -453,20 +495,19 @@ public partial class Main : Control
 
     private void HandlePromptActionSelected(string actionName)
     {
+        _playCardOverlay?.Hide(); _movementOverlay?.Hide();
         if (actionName == "PLAY_CARD" && TryOpenPlayCard()) return;
-        if (actionName == "MOVE_UNIT" && TryGetCurrentSpecialAction(actionName, out var action))
-        {
-            using var document = JsonDocument.Parse(action["candidateJson"].AsString());
-            if (_movementOverlay?.Open(document.RootElement, action["promptId"].AsString(),
-                action["snapshotTick"].AsInt64(), VisibleMovementCardView,
-                label => _officialCatalog.TryGetValue(label, out var entry) ? entry.CardName : label) == true)
-            {
-                _movementAction = action;
-                _promptInteractionController.ClearSelection();
-                return;
-            }
-        }
+        if (actionName == "MOVE_UNIT" && TryOpenMovement()) return;
         _promptInteractionController.SelectAction(actionName);
+    }
+
+    private bool TryOpenMovement(string? sourceId = null)
+    {
+        if (!TryGetCurrentSpecialAction("MOVE_UNIT", out var action)) return false;
+        using var document = JsonDocument.Parse(action["candidateJson"].AsString());
+        if (_movementOverlay?.Open(document.RootElement, action["promptId"].AsString(), action["snapshotTick"].AsInt64(),
+            VisibleMovementCardView, label => _officialCatalog.TryGetValue(label, out var entry) ? entry.CardName : label, sourceId) != true) return false;
+        _movementAction = action; _promptInteractionController.ClearSelection(); RefreshTableComposer(); return true;
     }
 
     private Godot.Collections.Dictionary? VisibleMovementCardView(string objectId)
@@ -483,11 +524,13 @@ public partial class Main : Control
             zones.AddRange(section["lanes"].As<Godot.Collections.Array<Godot.Collections.Dictionary>>());
             foreach (var zone in zones)
                 foreach (var key in includeOpponents
-                    ? new[] { "base", "baseRunes", "hand", "legend", "hero", "graveyard", "banished", "selfUnits", "opponentUnits" }
+                    ? new[] { "base", "baseRunes", "hand", "legend", "hero", "graveyard", "banished", "selfUnits", "opponentUnits", "site", "selfStandby", "opponentStandby" }
                     : new[] { "base", "selfUnits" })
                     if (zone.TryGetValue(key, out var cards))
                         foreach (var card in cards.As<Godot.Collections.Array<Godot.Collections.Dictionary>>())
-                            if (card.TryGetValue("objectId", out var id) && id.AsString() == objectId) return card;
+                            if (card.TryGetValue("objectId", out var id) && id.AsString() == objectId
+                                && (!card.TryGetValue("visible", out var visible) || visible.AsBool())
+                                && (!card.TryGetValue("faceDown", out var faceDown) || !faceDown.AsBool())) return card;
         }
         return null;
     }
@@ -707,6 +750,22 @@ public partial class Main : Control
         }
 
         _matchScreen.ClearPromptStates();
+        if (_playCardOverlay?.Visible == true)
+        {
+            foreach (var id in _playCardOverlay.TableTargets) _matchScreen.SetObjectState(id, OfficialCardVisualState.LegalTarget);
+            foreach (var id in _playCardOverlay.TableSelectedObjects) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selected);
+            _matchScreen.SetDestinationChoices(_playCardOverlay.TableDestinations, _playCardOverlay.TableDestination);
+            return;
+        }
+        if (_movementOverlay?.Visible == true)
+        {
+            foreach (var id in _movementOverlay.TableSources) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selectable);
+            foreach (var id in _movementOverlay.TableSelectedObjects) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selected);
+            _matchScreen.SetDestinationChoices(_movementOverlay.TableDestinations, _movementOverlay.TableDestination);
+            return;
+        }
+        _matchScreen.SetDestinationChoices(_promptInteractionController.CurrentStepRole == "destination"
+            ? _promptInteractionController.CurrentChoices.Select(choice => choice.Id) : [], _promptInteractionController.Current?.DestinationId);
         var nextState = _promptInteractionController.CurrentStepRole == "source"
             ? OfficialCardVisualState.Selectable
             : OfficialCardVisualState.LegalTarget;
@@ -1372,7 +1431,7 @@ public partial class Main : Control
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
-        if (intentSuffix == "play_card")
+        if (intentSuffix is "play_card" or "move_units")
             QueueMainThread(nameof(ApplyPlayCardReceipt), new Godot.Collections.Dictionary
             {
                 ["promptId"] = promptId, ["tick"] = snapshotTick,
@@ -1384,8 +1443,24 @@ public partial class Main : Control
     }
 
     public void ApplyPlayCardReceipt(Godot.Collections.Dictionary receipt)
-        => _playCardOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(),
-            receipt["accepted"].AsBool(), receipt["message"].AsString());
+    {
+        _playCardOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
+        _movementOverlay?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
+    }
+
+    private async Task SubmitTableActionAsync(Godot.Collections.Dictionary action, Dictionary<string, object?> payload, string suffix)
+    {
+        try { await SubmitSpecialPromptAsync(action, payload, suffix); }
+        catch (Exception error)
+        {
+            AppendLog($"[color=yellow]Table action failed: {Escape(error.Message)}[/color]");
+            QueueMainThread(nameof(ApplyPlayCardReceipt), new Godot.Collections.Dictionary
+            {
+                ["promptId"] = action["promptId"], ["tick"] = action["snapshotTick"], ["accepted"] = false,
+                ["message"] = "未能确认行动结果，请等待局面同步后重试。"
+            });
+        }
+    }
 
     private async Task SubmitMulliganAsync(
         Godot.Collections.Dictionary action,
@@ -1792,6 +1867,7 @@ public partial class Main : Control
         }
 
         var eventKinds = new List<string>();
+        var descriptions = new Godot.Collections.Array<string>();
         foreach (var eventElement in element.EnumerateArray())
         {
             if (eventElement.ValueKind != JsonValueKind.Object)
@@ -1800,6 +1876,9 @@ public partial class Main : Control
             }
 
             var kind = ReadString(eventElement, "kind");
+            var description = BattleEventPresenter.Describe(eventElement, _authenticatedHandle,
+                cardNo => _officialCatalog.TryGetValue(cardNo, out var card) ? card.CardName : null);
+            if (!string.IsNullOrWhiteSpace(description) && kind != "DEV_SCENARIO_SEEDED") descriptions.Add(description);
             if (!string.IsNullOrWhiteSpace(kind))
             {
                 eventKinds.Add(kind);
@@ -1817,11 +1896,17 @@ public partial class Main : Control
             }
         }
 
+        if (descriptions.Count > 0) QueueMainThread(nameof(ApplyBattleEvents), new Godot.Collections.Dictionary
+        { ["tick"] = message.ServerTick, ["descriptions"] = new Godot.Collections.Array<string>(descriptions
+            .GroupBy(description => description).Select(group => group.Count() > 1 ? $"{group.Key} × {group.Count()}" : group.Key)) });
         if (eventKinds.Count > 0)
         {
             AppendLog($"Events received: {Escape(string.Join(", ", eventKinds))}.");
         }
     }
+
+    public void ApplyBattleEvents(Godot.Collections.Dictionary events)
+        => _matchScreen?.AddBattleEvents(events["tick"].AsInt64(), events["descriptions"].As<Godot.Collections.Array<string>>().ToArray());
 
     private static Godot.Collections.Dictionary? MatchResultView(JsonElement eventElement, long serverTick)
     {
@@ -2935,11 +3020,37 @@ public partial class Main : Control
             ["kind"] = "wireTable",
             ["viewerPlayerId"] = viewerPlayerId,
             ["turnState"] = ReadString(snapshot, "turnState"),
+            ["turnNumber"] = ReadInt(snapshot, "turnNumber"),
+            ["winningScore"] = snapshot.TryGetProperty("timing", out var timing) ? ReadInt(timing, "winningScore") : 0,
+            ["chain"] = BuildTableChain(snapshot, viewerPlayerId, objectIndex),
             ["runeDeckSize"] = runeDeckSize,
             ["self"] = self,
             ["opponent"] = opponent,
             ["lanes"] = lanes
         }, cardCount, officialImageCount);
+    }
+
+    private Godot.Collections.Array<Godot.Collections.Dictionary> BuildTableChain(JsonElement snapshot, string viewerId,
+        IReadOnlyDictionary<string, SnapshotCardRef> objects)
+    {
+        var result = new Godot.Collections.Array<Godot.Collections.Dictionary>();
+        if (!snapshot.TryGetProperty("stack", out var stack) || stack.ValueKind != JsonValueKind.Array) return result;
+        string Name(string id) => objects.TryGetValue(id, out var card) && _officialCatalog.TryGetValue(card.CardNo, out var entry)
+            ? entry.CardName : "卡牌";
+        var items = stack.EnumerateArray().Reverse().ToArray();
+        for (var index = 0; index < items.Length; index++)
+        {
+            var item = items[index]; var cardNo = ReadString(item, "cardNo");
+            var name = _officialCatalog.TryGetValue(cardNo, out var card) ? card.CardName : cardNo == "HIDDEN" ? "隐藏行动" : "卡牌效果";
+            var targets = ReadStringArray(item, "targetObjectIds").Select(Name).ToArray();
+            result.Add(new Godot.Collections.Dictionary
+            {
+                ["objectId"] = ReadString(item, "stackItemId"), ["title"] = (index == 0 ? "下一项  " : $"{index + 1}.  ") + name,
+                ["detail"] = (ReadString(item, "controllerId") == viewerId ? "我方" : "对手")
+                    + (targets.Length > 0 ? " → " + string.Join("、", targets) : " · 等待响应结束")
+            });
+        }
+        return result;
     }
 
     private async Task<(Godot.Collections.Dictionary Player, int CardCount, int OfficialImageCount)> BuildWirePlayerAsync(
@@ -4302,12 +4413,21 @@ public partial class Main : Control
                     : "等待对手行动。";
         detail = detail switch
         {
+            "当前玩家可让过焦点" => "战场正在争夺：可继续行动，或让过焦点推进战斗。",
+            "当前玩家可让过优先权" or "当前玩家可让过先行动权" => "可打出响应，或让过优先行动权继续结算。",
             "当前玩家普通开环行动" => "选择手牌或场上的卡牌行动，也可以结束回合。",
             "等待普通开行动玩家" or "等待对手行动" or "等待对手行动。" => "对手正在行动，你可以查看手牌和公开卡牌。",
             _ => detail
         };
+        var responding = actionable && _promptInteractionController.Actions.Any(action => action.Enabled && action.Name == "PASS_PRIORITY");
+        if (responding) detail = "可打出响应，或让过优先行动权继续结算。";
+        var waitingForResponse = !actionable && (detail.Contains("优先行动", StringComparison.Ordinal)
+            || detail.Contains("优先权", StringComparison.Ordinal));
+        var settling = !actionable && detail.StartsWith("等待服务端处理", StringComparison.Ordinal);
+        if (waitingForResponse) detail = "对手正在选择是否响应，结算链暂时保留。";
         _matchScreen.SetTurnStatus(
-            actionable ? "轮到你行动" : "等待对手行动",
+            responding ? "轮到你响应" : actionable && _promptInteractionController.Actions.Any(action => action.Enabled && action.Name == "PASS_FOCUS")
+                    ? "战场争夺中" : actionable ? "轮到你行动" : settling ? "正在结算" : waitingForResponse ? "等待对手响应" : "等待对手行动",
             detail,
             actionable);
         _matchScreen.ActionBar.ShowPrompt(detail, _promptInteractionController.Actions);
