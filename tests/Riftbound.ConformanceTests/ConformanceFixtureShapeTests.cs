@@ -6485,7 +6485,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void ActionPromptPlayCardMetadataFiltersFriendlyHandTargetsByController()
+    public void HelpArrivesPromptDoesNotPublishPrivateHandTargets()
     {
         var state = new MatchState(
             "prompt-play-friendly-hand-target-control-room",
@@ -6552,25 +6552,13 @@ public sealed class ConformanceFixtureShapeTests
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
 
         Assert.True(playCandidate.Enabled);
-        Assert.Contains(
-            playCandidate.Targets ?? [],
-            target => string.Equals(target.Id, "P1-FRIENDLY-HAND-UNIT", StringComparison.Ordinal));
-        Assert.DoesNotContain(
-            playCandidate.Targets ?? [],
-            target => string.Equals(target.Id, "P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT", StringComparison.Ordinal));
+        // CN 355.10: this hand choice belongs to resolution, never to the public spell target list.
+        Assert.Empty(playCandidate.Targets ?? []);
         var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
-        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]);
-        var sourceRequirement = Assert.Single(sourceRequirements);
-        Assert.Equal("FRIENDLY_HAND_CARD", Assert.IsType<string>(sourceRequirement["targetScope"]));
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-            targetChoicesByIndex["0"]).ToArray();
-        Assert.Contains(firstTargetChoices, choice => string.Equals(choice.Id, "P1-FRIENDLY-HAND-UNIT", StringComparison.Ordinal));
-        Assert.DoesNotContain(
-            firstTargetChoices,
-            choice => string.Equals(choice.Id, "P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT", StringComparison.Ordinal));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]);
+        var requirement = Assert.Single(sourceRequirements);
+        Assert.Equal(0, requirement["maxTargetCount"]);
+        Assert.DoesNotContain("P1-FRIENDLY-HAND-UNIT", JsonSerializer.Serialize(playCandidate.Targets));
     }
 
     [Fact]

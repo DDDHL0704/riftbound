@@ -7590,7 +7590,8 @@ public sealed class CardCatalogBaselineTests
                     Assert.True(delegation.DelegatedBehavior.RecyclesTargets);
                     break;
                 case BehaviorTemplateIds.Banish:
-                    Assert.True(delegation.DelegatedBehavior.BanishesTargetThenPlaysToBase);
+                    Assert.True(delegation.DelegatedBehavior.BanishesTargetThenPlaysToBase
+                        || delegation.DelegatedBehavior.EffectPlaySourceZone == "BANISHED");
                     break;
                 case BehaviorTemplateIds.Stun:
                     Assert.Equal("STUNNED", delegation.DelegatedBehavior.StatusEffectId);

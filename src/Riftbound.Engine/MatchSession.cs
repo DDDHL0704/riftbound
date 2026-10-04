@@ -596,7 +596,8 @@ public sealed record StackItemState
         string? destination = null,
         string? timingContext = null,
         IReadOnlyDictionary<string, long>? targetGenerations = null,
-        bool sourceConfirmed = false)
+        bool sourceConfirmed = false,
+        bool effectPlayCompleted = false)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -612,6 +613,7 @@ public sealed record StackItemState
         TimingContext = Normalize(timingContext);
         TargetGenerations = targetGenerations;
         SourceConfirmed = sourceConfirmed;
+        EffectPlayCompleted = effectPlayCompleted;
     }
 
     public string StackItemId { get; init; }
@@ -643,6 +645,9 @@ public sealed record StackItemState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool SourceConfirmed { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool EffectPlayCompleted { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -992,7 +997,8 @@ public sealed record MatchState
         PendingPaymentState? pendingPayment = null,
         PendingHandChoiceState? pendingHandChoice = null,
         PendingCardChoiceState? pendingCardChoice = null,
-        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources = null)
+        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources = null,
+        PendingEffectPlayState? pendingEffectPlay = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -1029,6 +1035,7 @@ public sealed record MatchState
         PendingPayment = NormalizePendingPayment(pendingPayment);
         PendingHandChoice = NormalizePendingHandChoice(pendingHandChoice);
         PendingCardChoice = NormalizePendingCardChoice(pendingCardChoice);
+        PendingEffectPlay = pendingEffectPlay;
         TemporaryPaymentResources = NormalizeTemporaryPaymentResources(temporaryPaymentResources);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
@@ -1095,6 +1102,9 @@ public sealed record MatchState
     public PendingHandChoiceState? PendingHandChoice { get; init; }
 
     public PendingCardChoiceState? PendingCardChoice { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PendingEffectPlayState? PendingEffectPlay { get; init; }
 
     public IReadOnlyList<TemporaryPaymentResourceState> TemporaryPaymentResources { get; init; }
 
@@ -4114,7 +4124,8 @@ public sealed record MatchState
                 item.Destination,
                 item.TimingContext,
                 item.TargetGenerations,
-                item.SourceConfirmed))
+                item.SourceConfirmed,
+                item.EffectPlayCompleted))
             .ToArray();
     }
 
@@ -4348,6 +4359,7 @@ public sealed record ResolutionResult(
             || string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal)
             || state.PendingHandChoice is not null
             || state.PendingCardChoice is not null
+            || state.PendingEffectPlay is not null
             || HasOpenStackPriority(state)
             || HasOpenBattleResponsePriority(state)
             || HasOpenBattleDamageAssignmentWindow(state)
@@ -5046,6 +5058,7 @@ public sealed record ResolutionResult(
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state.PendingCardChoice, viewerPlayerId),
+                ["pendingEffectPlay"] = CoreRuleEngine.EffectPlayView(state),
                 ["temporaryPaymentResources"] = state.TemporaryPaymentResources
                     .Where(resource => string.Equals(resource.OwnerPlayerId, viewerPlayerId, StringComparison.Ordinal)
                         || string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal))
@@ -6597,7 +6610,7 @@ public sealed record ResolutionResult(
         return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
-    private static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
+    internal static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
     {
         if (card.IsFaceDown || !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || location?.Zone is not ("BASE" or "BATTLEFIELD")) return card.Power;
@@ -6725,6 +6738,8 @@ public sealed record ResolutionResult(
                     ? WithSurrender("MULLIGAN")
                     : WithSurrender("WAIT")));
         }
+
+        if (state.PendingEffectPlay is not null) return CoreRuleEngine.BuildEffectPlayPrompts(state);
 
         if (state.PendingPayment is not null)
         {
@@ -9129,7 +9144,6 @@ internal static class ActionPromptBuilder
                 CommandTypes.DeclareBattle,
                 SourceBinding("attackerObjectIds", required: true, asArray: true),
                 SelectedDestinationBinding("battlefieldId", required: true),
-                SelectedDestinationBinding("battlefieldTargetObjectIds", required: true, asArray: true),
                 SelectedTargetsBinding("defenderObjectIds", required: true),
                 SelectedOptionalCostsBinding("optionalCosts")),
             CommandTypes.ActivateAbility => CommandTemplate(
@@ -9343,7 +9357,7 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsPromptHandCardControlledByPlayerOrLegacyOwned(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "起手调整候选"))
                 .ToArray(),
-            "PLAY_CARD" => zones.Hand
+            "PLAY_CARD" => CoreRuleEngine.EffectPlaySources(state, playerId)
                 .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented payable PLAY_CARD source"))
                 .ToArray(),
@@ -13083,9 +13097,10 @@ internal static class ActionPromptBuilder
 
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
+            .Select(behavior => CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Select(behavior => ApplyPromptStaticGrantedPredictLifecycleDefault(state, playerId, objectId, cardObject, behavior))
-            .Where(behavior => PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
+            .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
@@ -14976,15 +14991,15 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Hand
+        return CoreRuleEngine.EffectPlaySources(state, playerId)
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
                 .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PrintedPowerChoices(CardBehaviorDefinition behavior)
-        => PrintedPowerCostRules.ForCard(behavior.CardNo).Traits.Count < 2 ? [] :
-            PrintedPowerCostRules.Allocations(behavior.CardNo).Select(allocation => new ActionPromptChoiceDto(
+        => PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits.Count < 2 ? [] :
+            PrintedPowerCostRules.Allocations(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Select(allocation => new ActionPromptChoiceDto(
                 PrintedPowerCostRules.ChoiceId(allocation),
                 "卡面费用：" + string.Join(" + ", allocation.Select(x => $"{x.Value} {RuneTraitLabel(x.Key)}符能")),
                 "选择支付卡面符能的特性，彩虹符能可补足不足部分")).ToArray();
@@ -15485,9 +15500,9 @@ internal static class ActionPromptBuilder
         var requirements = new List<PlayCardPowerPaymentRequirement>();
         void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
         {
-            var printed = PrintedPowerCostRules.ForCard(behavior.CardNo);
+            var printed = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
             genericPowerCost += printed.Traits.Count == 0 ? printed.Amount : 0;
-            foreach (var allocation in PrintedPowerCostRules.Allocations(behavior.CardNo))
+            foreach (var allocation in PrintedPowerCostRules.Allocations(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo))
             {
                 var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
                     powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
@@ -15683,7 +15698,7 @@ internal static class ActionPromptBuilder
         };
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
-        PrintedPowerCostRules.TrySelect(behavior.CardNo, null, available,
+        PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, available,
             string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
         return PaymentCostRules.CanPayPowerCost(available, generic, typed);
     }
@@ -15879,7 +15894,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PrintedPowerCostRules.ForCard(behavior.CardNo).Amount > 0
+        return PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Amount > 0
             || behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
@@ -17293,7 +17308,7 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Hand
+        return CoreRuleEngine.EffectPlaySources(state, playerId)
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
                 .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
@@ -17337,7 +17352,7 @@ internal static class ActionPromptBuilder
             sourceObjectId,
             minimumManaCost);
 
-        PrintedPowerCostRules.TrySelect(behavior.CardNo, null, runePool, 0, new Dictionary<string, int>(),
+        PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, runePool, 0, new Dictionary<string, int>(),
             out var printedGenericCost, out var printedTypedCost);
         var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
 
@@ -17352,7 +17367,8 @@ internal static class ActionPromptBuilder
             ["minimumManaCost"] = minimumManaCost,
             ["minimumPrintedPowerShortfall"] = printedPowerShortfall,
             ["printedPowerCost"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Amount,
-            ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Traits,
+            ["effectPlayReason"] = state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
+            ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
@@ -17467,6 +17483,9 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        if (state.PendingEffectPlay is not null)
+            return CoreRuleEngine.EffectPlayDestinations(state, playerId).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : "受控战场")).ToArray();
+
         if (!behavior.PlaysSourceToBaseAsUnit)
         {
             return null;
@@ -19992,6 +20011,7 @@ public sealed class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "native-play-confirmation" => BuildNativePlayConfirmationScenario(current, seed),
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
             "ornn-equipment-look" => BuildOrnnEquipmentLookScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
@@ -26900,6 +26920,30 @@ public sealed class MatchSession : IMatchSession
         }
     }
 
+    // Development-only acceptance position. Never used by matchmaking or deck validation.
+    private static MatchState BuildNativePlayConfirmationScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo);
+        var cards = new Dictionary<string, CardObjectState>();
+        foreach (var (id, no) in new[] { ("QA-PLAIN", "SFD·125/221"), ("QA-TRIGGER", "OGN·087/298"),
+            ("QA-SPELL", "OGN·009/298"), ("QA-HELP", "SFD·111/221"), ("QA-HARROWING", "OGN·198/298"),
+            ("QA-RESCUE", "OGN·102/298"), ("QA-REPLAY", "SFD·143/221"), ("QA-DRAW", "OGN·175/298"),
+            ("QA-ALLY", "OGN·175/298"), ("QA-FIELD", "OGN·294/298") })
+            cards[id] = OfficialCardObject(id, seed.P1, catalog[no]);
+        cards["QA-FIELD"] = cards["QA-FIELD"] with { ControllerId = seed.P1 };
+        cards["QA-ENEMY-FIELD"] = OfficialCardObject("QA-ENEMY-FIELD", seed.P2, catalog["OGN·287/298"]) with { ControllerId = seed.P2 };
+        cards["QA-ENEMY"] = OfficialCardObject("QA-ENEMY", seed.P2, catalog["SFD·125/221"]);
+        var state = BuildScenarioState(current, seed, 2026100501, 5,
+            new Dictionary<string, RunePool> { [seed.P1] = new(20, 10), [seed.P2] = new(5, 2) },
+            new Dictionary<string, PlayerZones> {
+                [seed.P1] = Zones(mainDeck: ["QA-DRAW"], hand: ["QA-PLAIN", "QA-TRIGGER", "QA-SPELL", "QA-HELP", "QA-HARROWING", "QA-RESCUE"],
+                    graveyard: ["QA-REPLAY"], battlefields: ["QA-FIELD", "QA-ALLY"]),
+                [seed.P2] = Zones(battlefields: ["QA-ENEMY-FIELD", "QA-ENEMY"]) }, cards);
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["QA-FIELD"] = new(seed.P1, "BATTLEFIELD", "QA-FIELD"), ["QA-ALLY"] = new(seed.P1, "BATTLEFIELD", "QA-FIELD"),
+            ["QA-ENEMY-FIELD"] = new(seed.P2, "BATTLEFIELD", "QA-ENEMY-FIELD"), ["QA-ENEMY"] = new(seed.P2, "BATTLEFIELD", "QA-ENEMY-FIELD") } };
+    }
+
     private static MatchState BuildSpecifiedHandScenario(MatchState current, DevScenarioSeed seed)
     {
         return BuildScenarioState(
@@ -26958,7 +27002,7 @@ public sealed class MatchSession : IMatchSession
             TurnNumber = turnNumber,
             ActivePlayerId = seed.P1,
             Status = MatchStatuses.InProgress,
-            ReadyPlayerIds = [seed.P1, seed.P2],
+            ReadyPlayerIds = new[] { seed.P1, seed.P2 }.Order(StringComparer.Ordinal).ToArray(),
             TurnPlayerId = seed.P1,
             Phase = MatchPhases.Main,
             TimingState = TimingStates.NeutralOpen,

@@ -194,6 +194,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return Complete(ResolveSurrender(state, intent));
         }
 
+        if (state.PendingEffectPlay is not null)
+            return Complete(ResolveEffectPlayCommand(state, intent, command));
+
         if (TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult))
         {
             return Complete(p0ContractResult);
@@ -5186,6 +5189,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (state.PendingEffectPlay is { SourceZone: not "HAND" }
+            && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
+            && PrintedCardFactory.TryRestoreOutsidePlay(replayed, intent.PlayerId, out var printedReplay))
+            cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration };
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var runePools = ApplyRecycleRunePaymentResourceActions(
             state.RunePools,
@@ -29330,6 +29337,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        behavior = EffectPlayBehavior(state, intent.PlayerId, behavior);
         var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
         if (!timingDecision.IsAllowed)
         {
@@ -29341,7 +29349,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
+            || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
             rejection = Reject(
                 state,
@@ -29382,6 +29390,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
+        if (state.PendingEffectPlay is not null && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
+        {
+            rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         if (!string.IsNullOrWhiteSpace(destination)
             && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)))
         {
@@ -29699,7 +29712,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PowerByTrait = selectedTemporaryResources.Aggregate(paymentAdjustedPool.PowerByTrait,
                 (traits, resource) => PrintedPowerCostRules.Combine(traits, resource.RemainingPowerByTrait))
         };
-        if (!PrintedPowerCostRules.TrySelect(behavior.CardNo, printedPowerChoices.SingleOrDefault(),
+        if (!PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, printedPowerChoices.SingleOrDefault(),
                 allocationPool, extraPowerCost, extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait))
         {
             rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
@@ -30001,7 +30014,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent, bool confirmPermanent = false)
+    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent, bool confirmPermanent = false, bool forceResolve = false)
     {
         var passedPlayerIds = state.PassedPriorityPlayerIds
             .Concat([intent.PlayerId])
@@ -30023,8 +30036,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         MatchState nextState;
         string? pendingBattlefieldTaskCausePlayerId = null;
-        if (confirmPermanent) events.Clear();
-        if (confirmPermanent || seatPlayerIds.All(passedPlayerIds.Contains))
+        if (confirmPermanent || forceResolve) events.Clear();
+        if (confirmPermanent || forceResolve || seatPlayerIds.All(passedPlayerIds.Contains))
         {
             if (state.StackItems.Count == 0 && IsOpenBattleResponsePriorityWindow(state))
             {
@@ -30147,7 +30160,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             nextState = state with
             {
                 Tick = state.Tick + 1,
-                ActivePlayerId = pendingHandChoice?.PlayerId ?? pendingCardChoice?.PlayerId ?? pendingPayment?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
+                ActivePlayerId = stackResolution.PendingEffectPlay?.PlayerId ?? pendingHandChoice?.PlayerId ?? pendingCardChoice?.PlayerId ?? pendingPayment?.PlayerId ?? nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
                 TimingState = nextStack.Length == 0
                     ? returnsToSpellDuel
                         ? TimingStates.SpellDuelOpen
@@ -30162,6 +30175,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PendingPayment = pendingPayment,
                 PendingHandChoice = pendingHandChoice,
                 PendingCardChoice = pendingCardChoice,
+                PendingEffectPlay = stackResolution.PendingEffectPlay,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -30180,7 +30194,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PassedFocusPlayerIds = returnsToSpellDuel ? [] : state.PassedFocusPlayerIds
             };
             events.Add(new GameEvent(
-                confirmPermanent ? "PERMANENT_CONFIRMED" : "STACK_ITEM_RESOLVED",
+                confirmPermanent ? "PERMANENT_CONFIRMED" : stackResolution.PendingEffectPlay is not null ? "EFFECT_PLAY_REQUESTED" : "STACK_ITEM_RESOLVED",
                 confirmPermanent ? "常驻牌完成确认并入场" : $"{resolvedItem.StackItemId} 结算",
                 new Dictionary<string, object?>
                 {
@@ -30209,7 +30223,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
         }
 
-        if (!string.IsNullOrWhiteSpace(pendingBattlefieldTaskCausePlayerId))
+        if (nextState.PendingEffectPlay is null && !string.IsNullOrWhiteSpace(pendingBattlefieldTaskCausePlayerId))
         {
             var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(
                 nextState,
@@ -33222,6 +33236,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         playerZones[playerId] = zones with
         {
+            Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
+            Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
             Hand = zones.Hand
                 .Where(cardId => !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal))
                 .ToArray()
@@ -37219,6 +37235,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         stackItem = MaskTargetsNoLongerLegal(state, stackItem, behavior);
+        if (!stackItem.EffectPlayCompleted && !string.IsNullOrEmpty(behavior.EffectPlaySourceZone))
+            return BeginEffectPlay(state, stackItem, behavior);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects
@@ -49363,7 +49381,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             "回合结束时所有玩家的符文池已清空",
             new Dictionary<string, object?>
             {
-                ["playerIds"] = state.Seats.Keys.ToArray(),
+                ["playerIds"] = state.Seats.Keys.Order(StringComparer.Ordinal).ToArray(),
                 ["timing"] = MatchPhases.TurnEnd
             }));
 
@@ -49464,7 +49482,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             "所有玩家的符文池已清空",
             new Dictionary<string, object?>
             {
-                ["playerIds"] = state.Seats.Keys.ToArray()
+                ["playerIds"] = state.Seats.Keys.Order(StringComparer.Ordinal).ToArray()
             }));
         events.Add(new GameEvent(
             "MAIN_PHASE_BEGAN",
@@ -49670,7 +49688,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PendingHandChoiceState? PendingHandChoice = null,
         PendingCardChoiceState? PendingCardChoice = null,
         IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null,
-        PendingPaymentState? PendingPayment = null);
+        PendingPaymentState? PendingPayment = null,
+        PendingEffectPlayState? PendingEffectPlay = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

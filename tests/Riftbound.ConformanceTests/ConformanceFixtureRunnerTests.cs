@@ -7649,12 +7649,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-HELP-ARRIVES-HAND-SPELL"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(
-            ["P1-BASE-UNIT-001", "P1-HELP-ARRIVES-HAND-UNIT"],
-            result.FinalState.PlayerZones["P1"].Base);
+            ["P1-HELP-FIELD", "P1-HELP-ARRIVES-HAND-UNIT"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(3, result.FinalState.CardObjects["P1-HELP-ARRIVES-HAND-UNIT"].ManaCost);
         Assert.Equal(
             1,
-            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)));
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)));
     }
 
     [Fact]

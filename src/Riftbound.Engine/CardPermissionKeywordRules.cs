@@ -76,6 +76,9 @@ public static class CardPermissionKeywordRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(behavior);
 
+        if (state.PendingEffectPlay is { } pending)
+            return new(pending.PlayerId == playerId && behavior.PlaysSourceToBaseAsUnit, "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
             return Rejected("PLAY_CARD is not allowed outside MAIN phase.");

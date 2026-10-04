@@ -232,7 +232,14 @@ public sealed record CardBehaviorDefinition(
     string SourceAttackDamageToFirstDefenderEffectKind = "",
     string UnitHighCostSpellPowerModifierEffectKind = "",
     string UnitAttackPayPowerModifierEffectKind = "",
-    bool GrantsFreeStandbyHidePermission = false);
+    bool GrantsFreeStandbyHidePermission = false,
+    string EffectPlaySourceZone = "",
+    bool EffectPlayIgnoreBaseMana = false,
+    bool EffectPlayIgnoreBasePower = false,
+    int EffectPlayManaReduction = 0,
+    string EffectPlayDestination = "ANY",
+    bool EffectPlayOptional = false,
+    bool IgnorePrintedPowerCost = false);
 
 public static class CardDamageConditionKinds
 {
@@ -660,12 +667,11 @@ public static class CardBehaviorRegistry
             2,
             "HELP_ARRIVES_PLAY_FRIENDLY_HAND_UNIT_COST_REDUCED_TO_ZERO",
             0,
-            1,
-            MinTargetCount: 0,
-            MaxTargetManaCost: 3,
-            TargetScope: CardTargetScopes.FriendlyHandCard,
-            TargetRequiredTag: CardObjectTags.UnitCard,
-            PlaysHandTargetToBase: true),
+            0,
+            EffectPlaySourceZone: "HAND",
+            EffectPlayManaReduction: 3,
+            EffectPlayDestination: "CONTROLLED_BATTLEFIELD",
+            EffectPlayOptional: true),
         new(
             "OGN·108/298",
             "聚合变异",
@@ -7402,7 +7408,8 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyGraveyardCard,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            PlaysGraveyardTargetToBase: true),
+            EffectPlaySourceZone: "GRAVEYARD",
+            EffectPlayIgnoreBaseMana: true),
         new(
             "UNL-168/219",
             "忠诚不渝",
@@ -7833,7 +7840,10 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            BanishesTargetThenPlaysToBase: true,
+            EffectPlaySourceZone: "BANISHED",
+            EffectPlayIgnoreBaseMana: true,
+            EffectPlayIgnoreBasePower: true,
+            EffectPlayDestination: "BASE",
             CanPlayDuringSpellDuel: true),
         new(
             "SFD·200/221",

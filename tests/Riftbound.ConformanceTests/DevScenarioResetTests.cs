@@ -7,6 +7,17 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class DevScenarioResetTests
 {
+    [Fact]
+    public async Task UnicodeSeatOrderDoesNotChangeHashAfterPersistentRestore()
+    {
+        var session = new MatchSession("unicode-seed", new CoreRuleEngine());
+        session.EnsurePlayer("牌桌验收玩家"); session.EnsurePlayer("牌桌验收对手");
+        var result = await session.SeedScenarioAsync("牌桌验收玩家", "seed", "basic-play", null, default);
+        var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(result.State))!;
+        Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(restored));
+        Assert.Equal(result.State.ReadyPlayerIds, restored.ReadyPlayerIds);
+    }
+
     [Theory]
     [InlineData("basic-play")]
     [InlineData("standard-group-movement")]

@@ -7,6 +7,7 @@ internal static class ResourceActionWindow
     {
         if (state.Phase != MatchPhases.Main || state.Status != MatchStatuses.InProgress)
             return false;
+        if (state.PendingEffectPlay is { } pending) return pending.PlayerId == playerId;
         return state.TimingState switch
         {
             TimingStates.NeutralOpen => state.ActivePlayerId == playerId && state.StackItems.Count == 0,

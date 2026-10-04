@@ -230,6 +230,7 @@ public static class CardBasicActionRules
     {
         return behavior is not null
             && (behavior.BanishesIfDestroyedThisTurn
+                || behavior.EffectPlaySourceZone == "BANISHED"
                 || behavior.BanishesTargetThenPlaysToBase
                 || behavior.BanishesTargetThenPlaysToBattlefield
                 || behavior.BanishesAllFriendlyGraveyardUnits

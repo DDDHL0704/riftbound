@@ -673,14 +673,32 @@ public static class MatchActionLogReplayer
                     $"command {command.ClientIntentId} replayed event {index + 1} description {FormatReplayError(replayedEvents[index].Description)} but recovered event sequence {recoveredEvents[index].Sequence} description {FormatReplayError(recoveredEvents[index].Event.Description)}");
             }
 
-            var replayedPayloadHash = MatchStateHasher.HashValue(replayedEvents[index].Payload);
-            var recoveredPayloadHash = MatchStateHasher.HashValue(recoveredEvents[index].Event.Payload);
+            var replayedPayloadHash = ReplayPayloadHash(replayedEvents[index]);
+            var recoveredPayloadHash = ReplayPayloadHash(recoveredEvents[index].Event);
             if (!string.Equals(replayedPayloadHash, recoveredPayloadHash, StringComparison.Ordinal))
             {
                 errors.Add(
                     $"command {command.ClientIntentId} replayed event {index + 1} payload hash {replayedPayloadHash} but recovered event sequence {recoveredEvents[index].Sequence} payload hash {recoveredPayloadHash}");
             }
         }
+    }
+
+    private static string ReplayPayloadHash(GameEvent gameEvent)
+    {
+        // Clearing all pools is simultaneous. Old journals inherited dictionary order,
+        // which JSONB restoration may change; no other event array is order-insensitive.
+        if (gameEvent.Kind == "RUNE_POOL_CLEARED" && gameEvent.Payload is { } payload
+            && payload.TryGetValue("playerIds", out var value))
+        {
+            var ids = JsonSerializer.SerializeToElement(value);
+            if (ids.ValueKind == JsonValueKind.Array && ids.EnumerateArray().All(id => id.ValueKind == JsonValueKind.String))
+            {
+                var normalized = payload.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                normalized["playerIds"] = ids.EnumerateArray().Select(id => id.GetString()!).Order(StringComparer.Ordinal).ToArray();
+                return MatchStateHasher.HashValue(normalized);
+            }
+        }
+        return MatchStateHasher.HashValue(gameEvent.Payload);
     }
 
     private static async ValueTask<ResolutionResult> ReplayCommandAsync(
@@ -1597,7 +1615,9 @@ public static class MatchRecoveryValidator
                 break;
             case CommandTypes.MoveUnit:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
-                ValidateRawCommandRequiredString(command, rawCommand, "origin", errors);
+                // The runtime derives an omitted origin from authoritative locations.
+                // Older native table commands omitted it, including accepted group moves.
+                ValidateRawCommandOptionalString(command, rawCommand, "origin", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "destination", errors);
                 ValidateRawCommandOptionalStringArray(command, rawCommand, "optionalCosts", errors);
                 break;
@@ -1734,6 +1754,11 @@ public static class MatchRecoveryValidator
         {
             return;
         }
+
+        // The live mapper accepts absent/null/empty optional scalars. Preserve that
+        // contract for journals written by native clients, without accepting wrong types.
+        if (property.ValueKind == JsonValueKind.Null
+            || (property.ValueKind == JsonValueKind.String && property.GetString() == string.Empty)) return;
 
         if (property.ValueKind != JsonValueKind.String
             || string.IsNullOrWhiteSpace(property.GetString()))
@@ -10584,6 +10609,7 @@ public static class MatchRecoveryValidator
                 objectId,
                 objectPayload,
                 cardObject,
+                authoritativeState,
                 errors);
         }
     }
@@ -10677,7 +10703,7 @@ public static class MatchRecoveryValidator
 
         if (!expectedFaceDown)
         {
-            ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, errors);
+            ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, authoritativeState, errors);
             if (hasValidFaceDownFlag
                 && isFaceDown
                 && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
@@ -10996,6 +11022,7 @@ public static class MatchRecoveryValidator
         string objectId,
         object? objectPayload,
         CardObjectState cardObject,
+        MatchState authoritativeState,
         List<string> errors)
     {
         ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
@@ -11061,7 +11088,8 @@ public static class MatchRecoveryValidator
             objectId,
             objectPayload,
             "effectivePower",
-            cardObject.Power,
+            ResolutionResult.SnapshotEffectivePower(authoritativeState, cardObject,
+                ExpectedSpectatorObjectLocation(authoritativeState, objectId)),
             "effective power",
             errors);
         ValidateSpectatorSnapshotPlayerObjectIntScalar(
@@ -28922,6 +28950,17 @@ public static class MatchRecoveryValidator
                 authoritativeState.PendingHandChoice.LegalObjectIds,
                 knownObjectIds,
                 errors);
+        }
+
+        if (authoritativeState.PendingEffectPlay is { } effectPlay)
+        {
+            ValidateAuthoritativeStateStackItemObjectReferences([effectPlay.Parent], knownObjectIds, errors);
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                $"pending effect play {effectPlay.ChoiceId} source", effectPlay.Sources.Keys.ToArray(), knownObjectIds, errors);
+            if (!authoritativeState.Seats.ContainsKey(effectPlay.PlayerId)
+                || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED")
+                || effectPlay.Sources.Values.Any(generation => generation < 0))
+                errors.Add("pending effect play has an invalid actor, source zone or generation");
         }
 
         if (authoritativeState.PendingCardChoice is not null)

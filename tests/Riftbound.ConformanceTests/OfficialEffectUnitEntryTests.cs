@@ -102,6 +102,13 @@ public sealed class OfficialEffectUnitEntryTests
                 new($"pass-{i}", result.State.PriorityPlayerId!, CommandTypes.PassPriority), new PassPriorityCommand(), default);
             Assert.True(result.Accepted, result.ErrorMessage);
         }
+        if (result.State.PendingEffectPlay is { } pending)
+        {
+            result = await engine.ResolveAsync(result.State, new("effect-replay", pending.PlayerId, CommandTypes.PlayCard),
+                new PlayCardCommand("UNIT", result.State.CardObjects["UNIT"].CardNo!, [], Destination: "BASE"), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            result = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, result);
+        }
         Assert.Empty(result.State.StackItems);
         return result;
     }

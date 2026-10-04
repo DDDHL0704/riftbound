@@ -165,7 +165,7 @@ public sealed class BehaviorTemplatePrimitiveExecutor
                 0,
                 behavior.TargetScope,
                 Reason: "Destroy target scope is supplied by the existing P2 CardBehaviorDefinition."),
-            BehaviorTemplateIds.Banish when behavior.BanishesTargetThenPlaysToBase => new BehaviorTemplatePrimitive(
+            BehaviorTemplateIds.Banish when behavior.BanishesTargetThenPlaysToBase || behavior.EffectPlaySourceZone == "BANISHED" => new BehaviorTemplatePrimitive(
                 BehaviorTemplateIds.Banish,
                 BehaviorTemplatePrimitiveKinds.BanishThenPlayTarget,
                 0,

@@ -10,6 +10,11 @@
   "seed": 2603301981,
   "rulesEvidence": [
     {
+      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+      "locator": "CN 355-359 / 356.1.b / 124.1",
+      "note": "2026-10-05：效果保存再次打出任务，玩家提交普通 PLAY_CARD；减免只按牌文应用，额外费用不免除。"
+    },
+    {
       "source": "data/official/upstream/2026-10-04/rules-manifest.json",
       "locator": "CN core 143.4 / 143.4.a, p17",
       "note": "2026-10-04: 普通单位由效果打出同样休眠入场；仅更新入场状态预期，不代表嵌套打出的全部费用、目的地与触发流程已实现。"
@@ -26,7 +31,10 @@
     }
   ],
   "roomId": "p2-preflight-harrowing-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603301981,
     "turnNumber": 79,
@@ -53,41 +61,73 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-HARROWING"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-HARROWING"
+        ],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P1-HARROWING-GRAVE-UNIT-001", "P1-GRAVE-OTHER-001"],
+        "graveyard": [
+          "P1-HARROWING-GRAVE-UNIT-001",
+          "P1-GRAVE-OTHER-001"
+        ],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P2-GRAVE-UNIT-001"],
+        "graveyard": [
+          "P2-GRAVE-UNIT-001"
+        ],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-HARROWING-GRAVE-UNIT-001": {
         "damage": 0,
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
-        "isExhausted": true
+        "isExhausted": true,
+        "cardNo": "SFD·125/221",
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-GRAVE-UNIT-001": {
         "damage": 0,
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false
@@ -102,7 +142,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-HARROWING",
         "cardNo": "OGN·198/298",
-        "targetObjectIds": ["P1-HARROWING-GRAVE-UNIT-001"],
+        "targetObjectIds": [
+          "P1-HARROWING-GRAVE-UNIT-001"
+        ],
         "optionalCosts": []
       }
     },
@@ -119,21 +161,38 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "p2-preflight-play-harrowing-play-graveyard-unit-base-replay",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-HARROWING-GRAVE-UNIT-001",
+        "cardNo": "SFD·125/221",
+        "targetObjectIds": [],
+        "destination": "BASE"
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "EFFECT_PLAY_REQUESTED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -149,27 +208,59 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-HARROWING",
           "cardNo": "OGN·198/298",
-          "targetObjectIds": ["P1-HARROWING-GRAVE-UNIT-001"],
+          "targetObjectIds": [
+            "P1-HARROWING-GRAVE-UNIT-001"
+          ],
           "effectKind": "HARROWING_PLAY_GRAVEYARD_UNIT_TO_BASE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "EFFECT_PLAY_REQUESTED"
+      },
+      {
+        "kind": "CARD_PLAYED",
+        "payload": {
+          "sourceObjectId": "P1-HARROWING-GRAVE-UNIT-001",
+          "cardNo": "SFD·125/221"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 0
+        }
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED",
+        "payload": {
+          "sourceObjectId": "P1-HARROWING-GRAVE-UNIT-001"
+        }
+      },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
-          "sourceObjectId": "P1-SPELL-HARROWING",
-          "targetObjectId": "P1-HARROWING-GRAVE-UNIT-001",
-          "ownerPlayerId": "P1",
-          "sourceZone": "GRAVEYARD",
-          "destinationZone": "BASE"
+          "sourceObjectId": "P1-HARROWING-GRAVE-UNIT-001"
         }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 79,
@@ -182,18 +273,31 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-HARROWING-GRAVE-UNIT-001"],
-          "graveyard": ["P1-GRAVE-OTHER-001", "P1-SPELL-HARROWING"],
+          "base": [
+            "P1-HARROWING-GRAVE-UNIT-001"
+          ],
+          "graveyard": [
+            "P1-GRAVE-OTHER-001",
+            "P1-SPELL-HARROWING"
+          ],
           "banished": []
         },
         "P2": {
-          "graveyard": ["P2-GRAVE-UNIT-001"]
+          "graveyard": [
+            "P2-GRAVE-UNIT-001"
+          ]
         }
       },
       "stackItems": [],
@@ -201,7 +305,12 @@
         "P1-HARROWING-GRAVE-UNIT-001": {
           "damage": 0,
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:purple",
+            "仙灵"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true
@@ -209,8 +318,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

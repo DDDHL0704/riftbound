@@ -13,6 +13,25 @@ public sealed class MatchRecoveryTests
         + "UNIT_MOVED_TO_BASE, CARD_PLAYED, BATTLE_DECLARED, OBJECT_DESTROYED, UNIT_READY]";
     private const string KnownTriggerSourceVisibilitiesDiagnostic = "[VISIBLE, HIDDEN]";
 
+    [Theory]
+    [InlineData("\"\"")]
+    [InlineData("null")]
+    public void RecoveryAcceptsNativeEmptyOptionalPlayScalars(string value)
+    {
+        var raw = JsonDocument.Parse("{\"cmdType\":\"PLAY_CARD\",\"sourceObjectId\":\"CARD\",\"cardNo\":\"SFD·125/221\",\"targetObjectIds\":[],\"mode\":" + value + ",\"destination\":" + value + "}").RootElement.Clone();
+        var command = new RecoveredCommand("alice", "native-empty-mode", CommandTypes.PlayCard, raw, 0, 0, 0, 0, false, "rejected without mutation");
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [command], [], new Dictionary<string, RecoveredPlayerView>());
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public void RecoveryAcceptsNativeGroupMoveWithInferredOrigin()
+    {
+        var raw = JsonSerializer.SerializeToElement(new { cmdType = "MOVE_UNIT", sourceObjectId = "a", sourceObjectIds = new[] { "a", "b" }, destination = "BATTLEFIELD:field" });
+        var command = new RecoveredCommand("alice", "native-group-move", CommandTypes.MoveUnit, raw, 0, 0, 0, 0, false, "rejected without mutation");
+        Assert.Empty(MatchRecoveryValidator.Validate("room-a", 0, [command], [], new Dictionary<string, RecoveredPlayerView>()));
+    }
+
     [Fact]
     public void RecoveryValidatorAcceptsContiguousEventStreamAndCurrentPlayerViews()
     {
@@ -28431,11 +28450,6 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "command intent-move-unit-cmdtype-only raw MOVE_UNIT sourceObjectId is required",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "command intent-move-unit-cmdtype-only raw MOVE_UNIT origin is required",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
