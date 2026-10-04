@@ -32148,7 +32148,8 @@ public sealed class ConformanceFixtureRunnerTests
     public void P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));
-        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·058/298", out var ordinaryDefinition));
+        // 训练有素 has printed Reaction. Use the ordinary 星芒凝汇 here.
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·105/298", out var ordinaryDefinition));
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·064/298", out var reactionDefinition));
 
         var spellDuelState = P4SpellDuelFocusState();

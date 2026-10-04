@@ -97,20 +97,12 @@ public static class CardPermissionKeywordRules
                 "Reaction card may be played by the priority player while a stack item is pending.");
         }
 
-        if (CanPlaySwiftInStackPriorityWindow(state, playerId, behavior))
-        {
-            return new CardPlayTimingDecision(
-                true,
-                CardPermissionKeywordNames.Swift,
-                "Swift card may be played by the priority player while a spell-duel stack item is pending.");
-        }
-
         if (CanPlaySwiftInSpellDuelFocusWindow(state, playerId, behavior))
         {
             return new CardPlayTimingDecision(
                 true,
-                CardPermissionKeywordNames.Swift,
-                "Swift card may be played by the focus player during an open spell duel.");
+                behavior.CanPlayDuringPriority ? CardPermissionKeywordNames.Reaction : CardPermissionKeywordNames.Swift,
+                "Swift or Reaction card may be played by the focus player during an open spell duel.");
         }
 
         return Rejected("PLAY_CARD is not allowed in the current timing window.");
@@ -191,28 +183,10 @@ public static class CardPermissionKeywordRules
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return behavior.CanPlayDuringPriority
+        return (behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction))
             && state.StackItems.Count > 0
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-    }
-
-    private static bool CanPlaySwiftInStackPriorityWindow(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        return behavior.CanPlayDuringSpellDuel
-            && state.StackItems.Count > 0
-            && HasPlayableSpellDuelStackItem(state)
-            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-    }
-
-    private static bool HasPlayableSpellDuelStackItem(MatchState state)
-    {
-        return state.StackItems.Any(item =>
-            string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal));
     }
 
     private static bool CanPlaySwiftInSpellDuelFocusWindow(
@@ -220,7 +194,8 @@ public static class CardPermissionKeywordRules
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return behavior.CanPlayDuringSpellDuel
+        return (behavior.CanPlayDuringSpellDuel || behavior.CanPlayDuringPriority
+                || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction))
             && state.StackItems.Count == 0
             && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.FocusPlayerId)

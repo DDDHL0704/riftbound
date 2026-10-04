@@ -11,9 +11,10 @@ public sealed class SwiftStackPriorityPlayCardTests
     private const string BattlefieldTargetObjectId = "P1-BATTLEFIELD-TARGET";
 
     [Fact]
-    public async Task SwiftSpellPromptAndPlayCardAreLegalInSpellDuelStackPriorityWindow()
+    public async Task SwiftSpellPromptAndPlayCardAreLegalInOpenSpellDuelFocusWindow()
     {
-        var state = BuildStackPriorityState();
+        var state = BuildStackPriorityState() with { TimingState = TimingStates.SpellDuelOpen,
+            StackItems = [], PriorityPlayerId = null, FocusPlayerId = "P2" };
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -21,7 +22,7 @@ public sealed class SwiftStackPriorityPlayCardTests
         var prompt = session.PromptFor("P2");
 
         Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
         Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
@@ -47,7 +48,7 @@ public sealed class SwiftStackPriorityPlayCardTests
         Assert.Empty(result.State.PassedPriorityPlayerIds);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
         Assert.DoesNotContain(PunishmentObjectId, result.State.PlayerZones["P2"].Hand);
-        Assert.Equal(2, result.State.StackItems.Count);
+        Assert.Single(result.State.StackItems);
 
         var responseStackItem = result.State.StackItems[^1];
         Assert.Equal($"STACK-6-{PunishmentObjectId}", responseStackItem.StackItemId);
@@ -61,6 +62,22 @@ public sealed class SwiftStackPriorityPlayCardTests
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, PunishmentObjectId, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "PUNISHMENT_DAMAGE_3", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(TimingStates.NeutralClosed)]
+    [InlineData(TimingStates.SpellDuelClosed)]
+    public async Task SwiftCannotRespondDuringClosedWindowEvenWhenStackOriginatedInSpellDuel(string window)
+    {
+        var state = BuildStackPriorityState() with { TimingState = window };
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        Assert.DoesNotContain(CommandTypes.PlayCard, session.PromptFor("P2").Actions);
+        var result = await new CoreRuleEngine().ResolveAsync(state,
+            new("swift-closed", "P2", CommandTypes.PlayCard),
+            new PlayCardCommand(PunishmentObjectId, PunishmentCardNo, [BattlefieldTargetObjectId]), default);
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
     private static MatchState BuildStackPriorityState()

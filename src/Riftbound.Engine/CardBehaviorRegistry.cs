@@ -377,7 +377,7 @@ public static class CardPowerModifierConditionKinds
 
 public static class CardBehaviorRegistry
 {
-    private static readonly CardBehaviorDefinition[] Definitions =
+    private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
         new(
             "UNL-007/219",
@@ -8507,6 +8507,11 @@ public static class CardBehaviorRegistry
             DrawCount: 4)
     ];
 
+    // Printed permissions and lifecycle defaults depend only on the immutable
+    // catalog; compute once rather than cloning every card during prompt queries.
+    private static readonly CardBehaviorDefinition[] Definitions =
+        RawDefinitions.Select(ApplyLifecycleKeywordDefaults).ToArray();
+
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
         var candidate = Definitions.FirstOrDefault(candidate => string.Equals(
@@ -8519,7 +8524,7 @@ public static class CardBehaviorRegistry
             return false;
         }
 
-        definition = ApplyLifecycleKeywordDefaults(candidate);
+        definition = candidate;
         return true;
     }
 
@@ -8554,7 +8559,7 @@ public static class CardBehaviorRegistry
 
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
-        return Definitions.Select(ApplyLifecycleKeywordDefaults).ToArray();
+        return Definitions.ToArray();
     }
 
     public static IReadOnlyDictionary<string, string> TriggerEffectKinds(CardBehaviorDefinition definition)
@@ -8590,7 +8595,7 @@ public static class CardBehaviorRegistry
             return false;
         }
 
-        definition = ApplyLifecycleKeywordDefaults(candidate);
+        definition = candidate;
         return true;
     }
 
@@ -8606,7 +8611,7 @@ public static class CardBehaviorRegistry
             return false;
         }
 
-        definition = ApplyLifecycleKeywordDefaults(candidate);
+        definition = candidate;
         return true;
     }
 
@@ -8626,12 +8631,13 @@ public static class CardBehaviorRegistry
             return false;
         }
 
-        definition = ApplyLifecycleKeywordDefaults(candidate);
+        definition = candidate;
         return true;
     }
 
     private static CardBehaviorDefinition ApplyLifecycleKeywordDefaults(CardBehaviorDefinition definition)
     {
+        definition = OfficialPrintedTimingRules.Apply(definition);
         if (definition.MainDeckLookCount > 0
             || definition.RequiredTargetCount != 0
             || !PlaysSourceAsPermanent(definition)

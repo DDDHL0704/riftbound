@@ -470,7 +470,8 @@ public sealed record CardObjectState
         string? cardNo = null,
         string? ownerId = null,
         string? controllerId = null,
-        IReadOnlyList<PowerModifierLedgerEntry>? untilEndOfTurnPowerModifiers = null)
+        IReadOnlyList<PowerModifierLedgerEntry>? untilEndOfTurnPowerModifiers = null,
+        long objectGeneration = 0)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
@@ -488,9 +489,13 @@ public sealed record CardObjectState
         OwnerId = NormalizeOptionalText(ownerId);
         ControllerId = NormalizeOptionalText(controllerId);
         UntilEndOfTurnPowerModifiers = NormalizePowerModifierLedger(untilEndOfTurnPowerModifiers);
+        ObjectGeneration = Math.Max(0, objectGeneration);
     }
 
     public string ObjectId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public long ObjectGeneration { get; init; }
 
     public int Damage { get; init; }
 
@@ -586,7 +591,8 @@ public sealed record StackItemState
         IReadOnlyList<string>? optionalCosts = null,
         bool playedAfterAnotherCardThisTurn = false,
         string? destination = null,
-        string? timingContext = null)
+        string? timingContext = null,
+        IReadOnlyDictionary<string, long>? targetGenerations = null)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -600,6 +606,7 @@ public sealed record StackItemState
         PlayedAfterAnotherCardThisTurn = playedAfterAnotherCardThisTurn;
         Destination = Normalize(destination);
         TimingContext = Normalize(timingContext);
+        TargetGenerations = targetGenerations;
     }
 
     public string StackItemId { get; init; }
@@ -625,6 +632,9 @@ public sealed record StackItemState
     public string Destination { get; init; }
 
     public string TimingContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, long>? TargetGenerations { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -4074,7 +4084,8 @@ public sealed record MatchState
             state.CardNo,
             state.OwnerId,
             state.ControllerId,
-            state.UntilEndOfTurnPowerModifiers);
+            state.UntilEndOfTurnPowerModifiers,
+            state.ObjectGeneration);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -4093,7 +4104,8 @@ public sealed record MatchState
                 item.OptionalCosts,
                 item.PlayedAfterAnotherCardThisTurn,
                 item.Destination,
-                item.TimingContext))
+                item.TimingContext,
+                item.TargetGenerations))
             .ToArray();
     }
 

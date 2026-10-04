@@ -925,9 +925,10 @@
       "partialEvidenceTests": [
         "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
         "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
-        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain",
+        "OfficialStackTargetContinuityTests"
       ],
-      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "124.1",
@@ -937,9 +938,10 @@
       "partialEvidenceTests": [
         "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
         "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
-        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain",
+        "OfficialStackTargetContinuityTests"
       ],
-      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "124.2",
@@ -949,9 +951,10 @@
       "partialEvidenceTests": [
         "OfficialNonFieldIdentityTests.DestroyedCardKeepsPublicIdentityAndReturnsToItsOwner",
         "OfficialNonFieldIdentityTests.ReturnEffectsPreserveIdentityAndClearTemporaryState",
-        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain"
+        "OfficialNonFieldIdentityTests.AUnitDestroyedInCombatCanActuallyBeRevivedAndPlayedAgain",
+        "OfficialStackTargetContinuityTests"
       ],
-      "remaining": "Partial field-to-nonfield regular-card evidence only. Full object-generation target invalidation, all nonfield transitions, token cessation and clause-wide audit remain open."
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "125",
@@ -3771,7 +3774,12 @@
       "rule": "308.1.a",
       "page": 32,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPrintedTimingTests",
+        "SwiftStackPriorityPlayCardTests"
+      ],
+      "remaining": "Printed unconditional card permissions verified; conditional grants, all empty-stack battle windows and complete clause audit remain open."
     },
     {
       "rule": "308.2",
@@ -3795,7 +3803,12 @@
       "rule": "309.1.a",
       "page": 32,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPrintedTimingTests",
+        "SwiftStackPriorityPlayCardTests"
+      ],
+      "remaining": "Printed unconditional card permissions verified; conditional grants, all empty-stack battle windows and complete clause audit remain open."
     },
     {
       "rule": "309.2",
@@ -5823,43 +5836,71 @@
       "rule": "359.3.e.2",
       "page": 50,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.3",
       "page": 50,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.4",
       "page": 50,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.5",
       "page": 50,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.6",
       "page": 50,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.7",
       "page": 51,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.8",
       "page": 51,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialStackTargetContinuityTests"
+      ],
+      "remaining": "Generic card resolution and selected cross-zone paths only. Last-known information, combined-target subset selection, every within-command transition, source-instance binding, legacy saves and complete clause audit remain open."
     },
     {
       "rule": "359.3.e.9",
@@ -12643,7 +12684,12 @@
       "rule": "806",
       "page": 111,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPrintedTimingTests",
+        "SwiftStackPriorityPlayCardTests"
+      ],
+      "remaining": "Printed unconditional card permissions verified; conditional grants, all empty-stack battle windows and complete clause audit remain open."
     },
     {
       "rule": "806.1",
@@ -13213,7 +13259,12 @@
       "rule": "813",
       "page": 116,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPrintedTimingTests",
+        "SwiftStackPriorityPlayCardTests"
+      ],
+      "remaining": "Printed unconditional card permissions verified; conditional grants, all empty-stack battle windows and complete clause audit remain open."
     },
     {
       "rule": "813.1",
@@ -13693,7 +13744,12 @@
       "rule": "819.1.b",
       "page": 119,
       "status": "NEEDS_CURRENT_SOURCE_AUDIT",
-      "tests": []
+      "tests": [],
+      "partialEvidenceTests": [
+        "OfficialPrintedTimingTests",
+        "SwiftStackPriorityPlayCardTests"
+      ],
+      "remaining": "Printed unconditional card permissions verified; conditional grants, all empty-stack battle windows and complete clause audit remain open."
     },
     {
       "rule": "819.1.c",

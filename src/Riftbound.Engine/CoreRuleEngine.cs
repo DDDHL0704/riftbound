@@ -171,9 +171,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         GameCommand command,
         CancellationToken cancellationToken)
     {
-        static ValueTask<ResolutionResult> Complete(ResolutionResult result)
+        ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            return ValueTask.FromResult(ApplyFriendlyEquipmentStaticPowerRecompute(result));
+            return ValueTask.FromResult(ApplyObjectContinuity(state, ApplyFriendlyEquipmentStaticPowerRecompute(result)));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -25782,7 +25782,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TargetScope: CardTargetScopes.FriendlyUnit,
             MinTargetCount: behavior.MinTargetCount,
             ReturnsTargetToHand: true,
-            RuneCallCountAfterTargetReturn: behavior.RuneCallCountAfterTargetReturn);
+            RuneCallCountAfterTargetReturn: behavior.RuneCallCountAfterTargetReturn,
+            CanPlayDuringSpellDuel: behavior.CanPlayDuringSpellDuel,
+            CanPlayDuringPriority: behavior.CanPlayDuringPriority);
         return behavior == minimalReturnCallRuneBehavior;
     }
 
@@ -29429,21 +29431,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
-                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, targetScope, targetIndex)
-                || !TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(
-                    state,
-                    intent.PlayerId,
-                    behavior,
-                    targetObjectId)
-                || !IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, targetObjectId)
-                || !IsPublicUnitMainDeckPrimitiveTargetAllowed(state, behavior, targetObjectId)
-                || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
-                || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
-                || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
-                || !IsTargetTagAllowed(state, targetObjectId, behavior)
-                || !IsTargetManaCostAllowed(state, intent.PlayerId, targetObjectId, behavior)
-                || !IsStackItemTargetConditionAllowed(state, intent.PlayerId, targetObjectId, targetIndex, targetObjectIds, behavior)
-                || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
+                !IsLegalChosenCardTarget(state, intent.PlayerId, targetObjectId, targetIndex,
+                    targetObjectIds, targetScope, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -37163,6 +37152,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
+        var chosenStackItem = stackItem;
+        stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
         {
             return ResolveUnitLastBreathDrawOneStackItem(state, stackItem);
@@ -37316,8 +37307,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId,
             behavior);
 
-        if (!HasValidResolvedTargetCount(behavior, stackItem)
-            || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
+        if (!HasValidResolvedTargetCount(behavior, chosenStackItem)
+            || !HasValidTargetEffectAdditionalCostTargets(behavior, chosenStackItem.TargetObjectIds, stackItem.OptionalCosts))
         {
             return new StackResolutionResult(
                 state.PlayerZones,
@@ -37336,6 +37327,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
+        stackItem = MaskTargetsNoLongerLegal(state, stackItem, behavior);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects
@@ -46132,7 +46124,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId, CardObjectState previous, string owner)
     {
         if (PrintedCardFactory.TryRestoreOutsidePlay(previous with { ObjectId = objectId }, owner, out var printed))
-            cardObjects[objectId] = printed;
+            cardObjects[objectId] = printed with { ObjectGeneration = checked(previous.ObjectGeneration + 1) };
         else
             cardObjects.Remove(objectId); // Legacy identity-less fixtures and token lifecycle.
     }
@@ -46472,6 +46464,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             cardObjects[targetObjectId] = targetState with
             {
+                ObjectGeneration = checked(targetState.ObjectGeneration + 2),
                 Damage = 0,
                 Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [],

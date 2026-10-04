@@ -1118,7 +1118,7 @@ public sealed class UndercoverAgentTriggerTests
             controllerId: "P1");
         cardObjects["P1-SPELL-SPIRIT-FIRE"] = new(
             "P1-SPELL-SPIRIT-FIRE",
-            cardNo: "OGN·256/298",
+            cardNo: "OGN·105/298",
             ownerId: "P1",
             controllerId: "P1");
 
@@ -1126,7 +1126,7 @@ public sealed class UndercoverAgentTriggerTests
             "undercover-agent-trigger-room",
             playerZones,
             cardObjects,
-            ["P1-UNDERCOVER-AGENT"]);
+            ["P1-UNDERCOVER-AGENT"], effectKind: "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2", cardNo: "OGN·105/298");
     }
 
     private static MatchState BuildUndercoverAgentCleanupDestroyedState(IReadOnlyList<string> handObjectIds)

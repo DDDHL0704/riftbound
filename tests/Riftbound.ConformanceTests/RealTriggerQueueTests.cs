@@ -469,7 +469,7 @@ public sealed class RealTriggerQueueTests
     public async Task StateBasedCleanupHiddenWatchfulSentinelsDoNotEnqueueTriggers()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildStarfallDestroyingHiddenWatchfulSentinelsState();
+        var state = SeedHiddenLethalCleanup(BuildStarfallDestroyingHiddenWatchfulSentinelsState());
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -1132,7 +1132,7 @@ public sealed class RealTriggerQueueTests
     public async Task StateBasedCleanupHiddenScoutingWarhawksDoNotEnqueueTriggers()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildStarfallDestroyingHiddenScoutingWarhawksState();
+        var state = SeedHiddenLethalCleanup(BuildStarfallDestroyingHiddenScoutingWarhawksState());
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -1629,7 +1629,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealGhostlyCentaurFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainPowerThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingGhostlyCentaurFriendlyUnitsState();
+        var state = BuildStellarConvergenceDestroyingGhostlyCentaurFriendlyUnitsState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -1671,7 +1671,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealResonantSoulFirstFriendlyDestroyedTriggersEnterApnapOrderWindowAndDrawThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingResonantSoulFriendlyUnitsState();
+        var state = BuildStellarConvergenceDestroyingResonantSoulFriendlyUnitsState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -1714,7 +1714,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealSavageJawfishFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainExperienceThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingSavageJawfishFriendlyUnitsState();
+        var state = BuildStellarConvergenceDestroyingSavageJawfishFriendlyUnitsState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -1922,7 +1922,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealWatchfulSentinelLastBreathTriggersEnterApnapOrderWindowAndResolveThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingTwoWatchfulSentinelsState();
+        var state = BuildStellarConvergenceDestroyingTwoWatchfulSentinelsState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -2052,7 +2052,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealMechanicalTricksterLastBreathTriggersOrderAndCreateMinionsThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingTwoMechanicalTrickstersState();
+        var state = BuildStellarConvergenceDestroyingTwoMechanicalTrickstersState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -2226,15 +2226,15 @@ public sealed class RealTriggerQueueTests
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.NotEqual(PromptTypes.OrderTriggers, p2Pass.Prompts["P1"].View?.Type);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Empty(p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(state.PlayerZones["P1"].Base, p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(state.PlayerZones["P2"].Base, p2Pass.State.PlayerZones["P2"].Base);
     }
 
     [Fact]
     public async Task RealIroncladVanguardLastBreathTriggersOrderAndCreateRobotsThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingTwoIroncladVanguardsState();
+        var state = BuildStellarConvergenceDestroyingTwoIroncladVanguardsState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -2403,15 +2403,15 @@ public sealed class RealTriggerQueueTests
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.NotEqual(PromptTypes.OrderTriggers, p2Pass.Prompts["P1"].View?.Type);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Empty(p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(state.PlayerZones["P1"].Base, p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(state.PlayerZones["P2"].Base, p2Pass.State.PlayerZones["P2"].Base);
     }
 
     [Fact]
     public async Task RealHonestBrokerLastBreathTriggersOrderAndCreateGoldThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingTwoHonestBrokersState();
+        var state = BuildStellarConvergenceDestroyingTwoHonestBrokersState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -2537,7 +2537,7 @@ public sealed class RealTriggerQueueTests
     public async Task RealScoutingWarhawkLastBreathTriggersOrderAndCallRuneThroughStack()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildSpiritFireDestroyingTwoScoutingWarhawksState();
+        var state = BuildStellarConvergenceDestroyingTwoScoutingWarhawksState();
 
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -2705,6 +2705,10 @@ public sealed class RealTriggerQueueTests
         MatchState state,
         string label)
     {
+        var hiddenFixture = state.StackItems.SelectMany(item => item.TargetObjectIds)
+            .Any(id => state.CardObjects.TryGetValue(id, out var card)
+                && (card.IsFaceDown || card.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)));
+        if (hiddenFixture) state = SeedHiddenLethalCleanup(state);
         var p1Pass = await engine.ResolveAsync(
             state,
             new PlayerIntent($"intent-cleanup-{label}-p1-pass", "P1", CommandTypes.PassPriority),
@@ -2719,12 +2723,29 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Empty(p2Pass.State.StackItems);
-        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Equal(hiddenFixture ? 0 : 2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
 
         return p2Pass;
+    }
+
+    // Defensive cleanup test, not a claim that hidden cards can be targeted.
+    // Supply preexisting lethal marks on the legacy malformed face-down units,
+    // then resolve the untargeted Stand Firm to reach a real cleanup checkpoint.
+    private static MatchState SeedHiddenLethalCleanup(MatchState state)
+    {
+        var pending = Assert.Single(state.StackItems);
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
+        foreach (var id in pending.TargetObjectIds)
+            cards[id] = cards[id] with { Damage = Math.Max(cards[id].Power, cards[id].Damage) };
+        cards[pending.SourceObjectId] = cards[pending.SourceObjectId] with { CardNo = "OGN·145/298" };
+        return state with { CardObjects = cards, StackItems = [pending with
+        {
+            CardNo = "OGN·145/298", EffectKind = "STAND_FIRM_PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN",
+            TargetObjectIds = [], DamageAmount = 0
+        }] };
     }
 
     private static void AssertWarhawkToken(MatchState state, string tokenObjectId, string playerId)
@@ -3522,7 +3543,7 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(0, lux.UntilEndOfTurnPowerModifier);
     }
 
-    private static MatchState BuildSpiritFireDestroyingTwoWatchfulSentinelsState()
+    private static MatchState BuildStellarConvergenceDestroyingTwoWatchfulSentinelsState()
     {
         return new MatchState(
             "real-trigger-room",
@@ -3577,9 +3598,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -3587,11 +3608,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE",
+                    "STACK-CONVERGENCE",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-WATCHFUL-SENTINEL", "P2-WATCHFUL-SENTINEL"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -3601,7 +3622,7 @@ public sealed class RealTriggerQueueTests
             });
     }
 
-    private static MatchState BuildSpiritFireDestroyingGhostlyCentaurFriendlyUnitsState()
+    private static MatchState BuildStellarConvergenceDestroyingGhostlyCentaurFriendlyUnitsState()
     {
         return new MatchState(
             "real-ghostly-centaur-trigger-room",
@@ -3666,9 +3687,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -3676,11 +3697,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-GHOSTLY-CENTAURS",
+                    "STACK-CONVERGENCE-GHOSTLY-CENTAURS",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-REAL-GHOSTLY-TARGET", "P2-REAL-GHOSTLY-TARGET"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -3690,7 +3711,7 @@ public sealed class RealTriggerQueueTests
             });
     }
 
-    private static MatchState BuildSpiritFireDestroyingResonantSoulFriendlyUnitsState()
+    private static MatchState BuildStellarConvergenceDestroyingResonantSoulFriendlyUnitsState()
     {
         return new MatchState(
             "real-resonant-soul-trigger-room",
@@ -3757,9 +3778,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -3767,11 +3788,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-RESONANT-SOULS",
+                    "STACK-CONVERGENCE-RESONANT-SOULS",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-REAL-RESONANT-TARGET", "P2-REAL-RESONANT-TARGET"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -3781,7 +3802,7 @@ public sealed class RealTriggerQueueTests
             });
     }
 
-    private static MatchState BuildSpiritFireDestroyingSavageJawfishFriendlyUnitsState()
+    private static MatchState BuildStellarConvergenceDestroyingSavageJawfishFriendlyUnitsState()
     {
         return new MatchState(
             "real-savage-jawfish-trigger-room",
@@ -3846,9 +3867,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -3856,11 +3877,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-SAVAGE-JAWFISH",
+                    "STACK-CONVERGENCE-SAVAGE-JAWFISH",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-REAL-SAVAGE-TARGET", "P2-REAL-SAVAGE-TARGET"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -3872,7 +3893,7 @@ public sealed class RealTriggerQueueTests
 
     private static MatchState BuildSpiritFireDestroyingViktorNonMinionTargetState()
     {
-        return BuildSpiritFireDestroyingViktorTargetState(
+        return BuildStellarConvergenceDestroyingViktorTargetState(
             "real-viktor-destroyed-non-minion-room",
             "P1-REAL-ARC-VIKTOR",
             "ARC-006/006",
@@ -3883,7 +3904,7 @@ public sealed class RealTriggerQueueTests
 
     private static MatchState BuildSpiritFireDestroyingViktorMinionTargetState()
     {
-        return BuildSpiritFireDestroyingViktorTargetState(
+        return BuildStellarConvergenceDestroyingViktorTargetState(
             "real-viktor-destroyed-minion-room",
             "P1-REAL-OGN-VIKTOR",
             "OGN·246/298",
@@ -3892,7 +3913,7 @@ public sealed class RealTriggerQueueTests
             [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily]);
     }
 
-    private static MatchState BuildSpiritFireDestroyingViktorTargetState(
+    private static MatchState BuildStellarConvergenceDestroyingViktorTargetState(
         string roomId,
         string viktorObjectId,
         string viktorCardNo,
@@ -3948,9 +3969,9 @@ public sealed class RealTriggerQueueTests
                     tags: targetTags,
                     ownerId: "P1",
                     controllerId: "P1"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -3958,11 +3979,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    $"STACK-SPIRIT-FIRE-{viktorObjectId}",
+                    $"STACK-CONVERGENCE-{viktorObjectId}",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     [targetObjectId])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -4251,9 +4272,9 @@ public sealed class RealTriggerQueueTests
             objectLocations: objectLocations);
     }
 
-    private static MatchState BuildSpiritFireDestroyingTwoScoutingWarhawksState()
+    private static MatchState BuildStellarConvergenceDestroyingTwoScoutingWarhawksState()
     {
-        return BuildSpiritFireDestroyingScoutingWarhawksState(
+        return BuildStellarConvergenceDestroyingScoutingWarhawksState(
             "real-scouting-warhawk-trigger-room",
             "P1-SCOUTING-WARHAWK",
             "P2-SCOUTING-WARHAWK",
@@ -4267,7 +4288,7 @@ public sealed class RealTriggerQueueTests
 
     private static MatchState BuildSpiritFireDestroyingHiddenScoutingWarhawksState()
     {
-        return BuildSpiritFireDestroyingScoutingWarhawksState(
+        return BuildStellarConvergenceDestroyingScoutingWarhawksState(
             "real-hidden-scouting-warhawk-trigger-room",
             "P1-HIDDEN-SCOUTING-WARHAWK",
             "P2-STANDBY-SCOUTING-WARHAWK",
@@ -4279,7 +4300,7 @@ public sealed class RealTriggerQueueTests
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "鸟类"]);
     }
 
-    private static MatchState BuildSpiritFireDestroyingScoutingWarhawksState(
+    private static MatchState BuildStellarConvergenceDestroyingScoutingWarhawksState(
         string roomId,
         string p1WarhawkObjectId,
         string p2WarhawkObjectId,
@@ -4357,7 +4378,7 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.RuneCard]),
                 ["P1-SPELL-SPIRIT-FIRE"] = new(
                     "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -4368,8 +4389,8 @@ public sealed class RealTriggerQueueTests
                     "STACK-SPIRIT-FIRE-SCOUTING-WARHAWKS",
                     "P1",
                     "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     [p1WarhawkObjectId, p2WarhawkObjectId])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -6605,7 +6626,7 @@ public sealed class RealTriggerQueueTests
             });
     }
 
-    private static MatchState BuildSpiritFireDestroyingTwoMechanicalTrickstersState()
+    private static MatchState BuildStellarConvergenceDestroyingTwoMechanicalTrickstersState()
     {
         return new MatchState(
             "real-mechanical-trickster-trigger-room",
@@ -6658,9 +6679,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -6668,11 +6689,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-MECHANICAL-TRICKSTERS",
+                    "STACK-CONVERGENCE-MECHANICAL-TRICKSTERS",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-MECHANICAL-TRICKSTER", "P2-MECHANICAL-TRICKSTER"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -6760,7 +6781,7 @@ public sealed class RealTriggerQueueTests
             });
     }
 
-    private static MatchState BuildSpiritFireDestroyingTwoIroncladVanguardsState()
+    private static MatchState BuildStellarConvergenceDestroyingTwoIroncladVanguardsState()
     {
         return new MatchState(
             "real-ironclad-vanguard-trigger-room",
@@ -6813,9 +6834,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -6823,11 +6844,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-IRONCLAD-VANGUARDS",
+                    "STACK-CONVERGENCE-IRONCLAD-VANGUARDS",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-IRONCLAD-VANGUARD", "P2-IRONCLAD-VANGUARD"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -6926,7 +6947,7 @@ public sealed class RealTriggerQueueTests
         }
     }
 
-    private static MatchState BuildSpiritFireDestroyingTwoHonestBrokersState()
+    private static MatchState BuildStellarConvergenceDestroyingTwoHonestBrokersState()
     {
         return new MatchState(
             "real-honest-broker-trigger-room",
@@ -6979,9 +7000,9 @@ public sealed class RealTriggerQueueTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
-                ["P1-SPELL-SPIRIT-FIRE"] = new(
-                    "P1-SPELL-SPIRIT-FIRE",
-                    cardNo: "OGN·256/298",
+                ["P1-SPELL-CONVERGENCE"] = new(
+                    "P1-SPELL-CONVERGENCE",
+                    cardNo: "OGN·105/298",
                     ownerId: "P1",
                     controllerId: "P1")
             },
@@ -6989,11 +7010,11 @@ public sealed class RealTriggerQueueTests
             stackItems:
             [
                 new StackItemState(
-                    "STACK-SPIRIT-FIRE-HONEST-BROKERS",
+                    "STACK-CONVERGENCE-HONEST-BROKERS",
                     "P1",
-                    "P1-SPELL-SPIRIT-FIRE",
-                    "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4",
-                    "OGN·256/298",
+                    "P1-SPELL-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
                     ["P1-HONEST-BROKER", "P2-HONEST-BROKER"])
             ],
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
