@@ -1,0 +1,38 @@
+{
+  "planningDate": "2026-10-05",
+  "timezone": "Asia/Shanghai",
+  "baseCommit": "b0c5dcd6",
+  "captureTool": "cua_repl",
+  "captures": [
+    {
+      "file": "01-current-native.jpg",
+      "source": "Local packaged macOS native client at b0c5dcd6",
+      "type": "live native screenshot",
+      "width": 72,
+      "height": 72,
+      "sha256": "8a74d48f11938dca1d7110c419c3682cd84ff1c541a972a7860f1b13cf852635"
+    },
+    {
+      "file": "02-riftatlas-reference.jpg",
+      "source": "https://riftatlas.com/",
+      "type": "live homepage capture of published simulator preview",
+      "width": 1,
+      "height": 1,
+      "sha256": "fb8623b6763dc57a1120c23df2682ef60c1465d47f9d07d561e75ebdc97ad361"
+    },
+    {
+      "file": "03-riftatlas-board-reference.jpg",
+      "source": "https://riftatlas.com/play/board-chain-20260908.webp",
+      "type": "browser capture of published simulator image",
+      "width": 1,
+      "height": 1,
+      "sha256": "81ede23d7bfbad6b409026848f2c747d36fa3cb6a2c04cb7b8545a2d1b4c2aec"
+    }
+  ],
+  "limits": [
+    "Current native view is a local developer scenario; no commands submitted in this planning review.",
+    "Rift Atlas images are public promotional/reference imagery; no full game was played.",
+    "Viewport sizes and game states differ; this is a visual direction review, not pixel fidelity QA.",
+    "No new runtime tests, implementation, Windows acceptance or full accessibility audit in this planning turn."
+  ]
+}
