@@ -17,7 +17,8 @@
     "appPath": "/Users/dinghaolin/.local/share/riftbound-qa/unified-cost/符文战场.app",
     "testedResolutions": [
       "1280x720",
-      "1440x900"
+      "1440x900",
+      "1920x1080"
     ],
     "payment": {
       "playerId": "符能验收玩家",
@@ -73,7 +74,8 @@
     "screenshots": [
       "var/qa/quote-native-insufficient-1280.png",
       "var/qa/quote-native-payable-1280.png",
-      "var/qa/quote-native-normal-1440.png"
+      "var/qa/quote-native-normal-1440.png",
+      "var/qa/quote-native-normal-1920.png"
     ]
   },
   "windows": {
@@ -89,5 +91,6 @@
       "path": "clients/godot/exports/windows/Riftbound-windows-x64.zip",
       "sha256": "5821949222f7ae5656eb1280de9a290c9cbc5e9326f3d890bf34965d3f1502a6"
     }
-  }
+  },
+  "codeCommit": "7b9e005f3e7d85b671cb627d22f59fd9b2fdfd34"
 }

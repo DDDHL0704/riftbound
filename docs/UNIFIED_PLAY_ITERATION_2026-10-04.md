@@ -22,7 +22,7 @@
 | 全量 | 9339/9339，零失败、零跳过，5 分 6 秒，`unified-cost-full-verified.trx`。首次全量仅一处拒绝文案回归，已恢复具体“战场效果禁止”说明并复验 |
 | 原生构建 | .NET / Godot 构建通过，零警告、零错误；五项现有原生门禁通过 |
 | 旧响应 | Godot headless `PlayCardOverlayProof --verify-preview` 输出 `PLAY_COST_PREVIEW_FRESHNESS_PASS`；覆盖旧选择、旧 prompt、旧 tick、关闭后重开与不可支付结果 |
-| macOS 实连 | 源码目录外启动导出应用，连接本机 15101；希维尔普通费用 4 法力＋1 紫色符能；急速后 5＋2，不补资源时确认禁用；选择回收紫色符文后允许提交，`COST_PAID` 实际扣 5＋2，余额 0＋0 |
+| macOS 实连 | 源码目录外启动导出应用，连接本机 15101；1280×720、1440×900、1920×1080 下卡图、费用、选择及底部按钮完整可见；希维尔普通费用 4 法力＋1 紫色符能；急速后 5＋2，不补资源时确认禁用；选择回收紫色符文后允许提交，`COST_PAID` 实际扣 5＋2，余额 0＋0 |
 
 测试结果位于 `tests/Riftbound.ConformanceTests/TestResults/`；机器可读证据、包校验值和截图索引见 `docs/evidence/unified-cost-acceptance.json`。
 
