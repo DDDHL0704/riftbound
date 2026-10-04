@@ -12,6 +12,7 @@ public partial class ActionBar : Control
     public event Action<string, string>? ChoiceSelected;
     public event Action? CancelRequested;
     public event Action<PromptSelectionState>? SubmitRequested;
+    public event Action<bool>? SelectionVisibilityChanged;
 
     private Label _guidance = null!;
     private HBoxContainer _actionChoices = null!;
@@ -20,6 +21,8 @@ public partial class ActionBar : Control
     private HBoxContainer _stepChoices = null!;
     private Button _cancelButton = null!;
     private Button _submitButton = null!;
+    private Button _primaryAction = null!;
+    private string? _primaryActionName;
     private PromptSelectionState? _current;
     private bool _pending;
     private bool _composing;
@@ -35,6 +38,13 @@ public partial class ActionBar : Control
         _submitButton = GetNode<Button>("%SubmitButton");
         _cancelButton.Pressed += () => CancelRequested?.Invoke();
         _submitButton.Pressed += SubmitCurrent;
+        _primaryAction = new Button { CustomMinimumSize = new Vector2(140, 40), FocusMode = FocusModeEnum.All };
+        _actionChoices.GetParent().GetParent().AddChild(_primaryAction);
+        MinimalTheme.Apply(_primaryAction);
+        var primaryStyle = MinimalTheme.Panel(new Color("244858"));
+        primaryStyle.BorderColor = MinimalTheme.Selected;
+        _primaryAction.AddThemeStyleboxOverride("normal", primaryStyle);
+        _primaryAction.Pressed += () => { if (_primaryActionName is { } name) ActionSelected?.Invoke(name); };
 
         ApplyTheme();
         SetWaiting("正在同步下一步行动。");
@@ -58,8 +68,12 @@ public partial class ActionBar : Control
         _pending = false;
         _guidance.Text = "行动";
         _guidance.TooltipText = guidance;
+        var primary = actions.FirstOrDefault(option => option.Enabled && IsPrimary(option.Name));
+        _primaryActionName = primary?.Name;
+        _primaryAction.Text = primary?.Name == "PASS_PRIORITY" ? "让过响应" : primary?.Label ?? "等待行动";
+        _primaryAction.Disabled = primary is null || _composing;
         ClearChildren(_actionChoices);
-        foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial).OrderBy(option => option.Name is "END_TURN" or "PASS_PRIORITY" or "PASS_FOCUS" ? 1 : option.Name == "SURRENDER" ? 2 : 0))
+        foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial && !IsPrimary(option.Name)).OrderBy(option => option.Name == "SURRENDER" ? 1 : 0))
         {
             var button = new Button
             {
@@ -75,12 +89,6 @@ public partial class ActionBar : Control
                 button.AddThemeColorOverride("font_color", MinimalTheme.Hostile);
             }
 
-            if (action.Name is "END_TURN" or "PASS_PRIORITY" or "PASS_FOCUS")
-            {
-                var primary = MinimalTheme.Panel(new Color("244858")); primary.BorderColor = MinimalTheme.Selected;
-                button.AddThemeStyleboxOverride("normal", primary);
-                button.Text = action.Name == "PASS_PRIORITY" ? "让过响应" : action.Label;
-            }
             var actionName = action.Name;
             button.Pressed += () => ActionSelected?.Invoke(actionName);
             _actionChoices.AddChild(button);
@@ -107,6 +115,9 @@ public partial class ActionBar : Control
         }
 
         _current = state;
+        _primaryAction.Visible = false;
+        _selectionSummary.GetParent<Control>().Visible = true;
+        SelectionVisibilityChanged?.Invoke(true);
         _selectionSummary.Text = state.Summary;
         _stepLabel.Text = string.IsNullOrWhiteSpace(stepLabel)
             ? state.CanSubmit ? "可以提交" : "等待可选行动"
@@ -145,6 +156,9 @@ public partial class ActionBar : Control
         }
 
         _current = null;
+        _primaryAction.Visible = true;
+        _selectionSummary.GetParent<Control>().Visible = false;
+        SelectionVisibilityChanged?.Invoke(false);
         _selectionSummary.Text = _composing ? "在右侧完成选择并确认 · Esc 返回牌桌" : "点牌行动 · 右键查看 · Esc 取消选择";
         _stepLabel.Text = string.Empty;
         ClearChildren(_stepChoices);
@@ -161,6 +175,9 @@ public partial class ActionBar : Control
         }
 
         _pending = false;
+        _primaryActionName = null;
+        _primaryAction.Text = "等待对手";
+        _primaryAction.Disabled = true;
         _guidance.Text = guidance;
         ClearChildren(_actionChoices);
         _actionChoices.AddChild(SecondaryLabel("可查看卡牌和战况"));
@@ -170,6 +187,7 @@ public partial class ActionBar : Control
     public void SetComposerActive(bool active)
     {
         _composing = active;
+        _primaryAction.Disabled = active || _pending || _primaryActionName is null;
         foreach (var button in _actionChoices.GetChildren().OfType<Button>()) button.Disabled = active || _pending;
         if (_current is null) ClearSelectionDisplay();
     }
@@ -182,6 +200,7 @@ public partial class ActionBar : Control
         }
 
         _pending = pending;
+        _primaryAction.Disabled = pending || _composing || _primaryActionName is null;
         foreach (var button in _actionChoices.GetChildren().OfType<Button>())
         {
             button.Disabled = pending || _composing;
@@ -268,6 +287,7 @@ public partial class ActionBar : Control
     {
         var controls = _actionChoices.GetChildren().OfType<Button>()
             .Concat(_stepChoices.GetChildren().OfType<Button>())
+            .Append(_primaryAction)
             .Where(button => button.Visible && !button.Disabled)
             .ToList();
         if (_cancelButton.Visible && !_cancelButton.Disabled)
@@ -282,6 +302,8 @@ public partial class ActionBar : Control
 
         return controls;
     }
+
+    private static bool IsPrimary(string name) => name is "END_TURN" or "PASS_PRIORITY" or "PASS_FOCUS";
 
     private static string FriendlyChoiceLabel(string label)
     {

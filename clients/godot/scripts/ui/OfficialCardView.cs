@@ -9,6 +9,12 @@ public partial class OfficialCardView : PanelContainer
 
     public event System.Action<Godot.Collections.Dictionary>? PreviewRequested;
     public event System.Action<Godot.Collections.Dictionary>? InspectionRequested;
+    public System.Func<Godot.Collections.Dictionary, Variant>? BeginTableDrag { get; set; }
+    public System.Func<Variant, bool>? CanReceiveTableDrop { get; set; }
+    public System.Action<Variant>? ReceiveTableDrop { get; set; }
+    private bool _dragged;
+    private bool _pointerDown;
+    private Vector2 _pressPosition;
 
     private TextureRect _cardTexture = null!;
     private ColorRect _fallbackBackground = null!;
@@ -135,7 +141,7 @@ public partial class OfficialCardView : PanelContainer
         FocusMode = IsInteractive(_state) ? FocusModeEnum.All : FocusModeEnum.None;
         MouseFilter = IsInteractive(_state) ? MouseFilterEnum.Stop : MouseFilterEnum.Ignore;
         TooltipText = canRevealIdentity
-            ? ReadString(_card, "previewSummary", _fallbackLabel.Text)
+            ? ReadString(_card, "cardName", _fallbackLabel.Text) + " · 右键查看完整卡牌"
             : "隐藏卡牌";
         if (_exhaustedLabel.Visible) TooltipText += $"\n当前状态：{_exhaustedLabel.Text}";
     }
@@ -178,10 +184,12 @@ public partial class OfficialCardView : PanelContainer
         {
             AcceptEvent(); InspectionRequested?.Invoke(inspect); return;
         }
-        var mouseActivated = input is InputEventMouseButton
+        if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true } press)
+        { _dragged = false; _pointerDown = true; _pressPosition = press.GlobalPosition; return; }
+        var mouseActivated = !_dragged && input is InputEventMouseButton
         {
             ButtonIndex: MouseButton.Left,
-            Pressed: true
+            Pressed: false
         };
         var keyboardActivated = input.IsActionPressed("ui_accept");
         if (!mouseActivated && !keyboardActivated)
@@ -192,6 +200,40 @@ public partial class OfficialCardView : PanelContainer
         AcceptEvent();
         Activate();
     }
+
+    public override Variant _GetDragData(Vector2 atPosition)
+    {
+        if (!TryGetVisibleCard(out var card) || BeginTableDrag is null) return default;
+        var data = BeginTableDrag(card);
+        if (data.VariantType == Variant.Type.Nil) return data;
+        _dragged = true;
+        SetDragPreview(CreateDragPreview()); return data;
+    }
+
+    public override void _Input(InputEvent input)
+    {
+        if (!_pointerDown) return;
+        if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false })
+        { _pointerDown = false; return; }
+        if (!_dragged && input is InputEventMouseMotion motion
+            && motion.GlobalPosition.DistanceTo(_pressPosition) >= 8
+            && TryGetVisibleCard(out var card) && BeginTableDrag is not null)
+        {
+            var data = BeginTableDrag(card);
+            if (data.VariantType == Variant.Type.Nil) return;
+            _dragged = true;
+            ForceDrag(data, CreateDragPreview());
+        }
+    }
+
+    private TextureRect CreateDragPreview() => new() { Texture = _cardTexture.Texture, Modulate = new Color(1, 1, 1, .8f),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = new Vector2(78, 109), MouseFilter = MouseFilterEnum.Ignore };
+    public override void _Notification(int what)
+    { if (what == NotificationDragEnd || what == NotificationExitTree) _pointerDown = false; }
+    public override bool _CanDropData(Vector2 atPosition, Variant data) => CanReceiveTableDrop?.Invoke(data) == true;
+    public override void _DropData(Vector2 atPosition, Variant data)
+    { if (CanReceiveTableDrop?.Invoke(data) == true) ReceiveTableDrop?.Invoke(data); }
 
     public void Activate()
     {

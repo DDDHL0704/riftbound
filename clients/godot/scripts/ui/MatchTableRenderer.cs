@@ -122,13 +122,14 @@ public sealed class MatchTableRenderer
     }
 
     public CardDictionary? VisibleCard(string objectId) => _cardBindings.TryGetValue(objectId, out var binding) ? binding.Card : null;
+    public OfficialCardView? CardControl(string objectId) => _cardBindings.TryGetValue(objectId, out var binding) ? binding.View : null;
 
     private void ConfigureCardSizes()
     {
         var compactViewport = _screen.GetViewportRect().Size.Y <= 760;
-        _handCardSize = compactViewport ? new Vector2(88, 123) : new Vector2(86, 120);
-        _tableCardSize = compactViewport ? new Vector2(60, 84) : new Vector2(60, 84);
-        _compactCardSize = compactViewport ? new Vector2(44, 62) : new Vector2(46, 64);
+        _handCardSize = compactViewport ? new Vector2(92, 129) : new Vector2(108, 151);
+        _tableCardSize = compactViewport ? new Vector2(68, 95) : new Vector2(86, 120);
+        _compactCardSize = compactViewport ? new Vector2(48, 67) : new Vector2(56, 78);
     }
 
     private void RenderOpponentHand(CardDictionary opponent)
@@ -235,10 +236,10 @@ public sealed class MatchTableRenderer
         nodes.State.AddThemeColorOverride(
             "font_color",
             ReadBool(lane, "contested", false) ? MinimalTheme.Selected : controller == _viewerPlayerId ? MinimalTheme.Selectable : controlled ? MinimalTheme.Hostile : MinimalTheme.TextSecondary);
-        var style = MinimalTheme.Panel(new Color("12242e"));
+        var style = MinimalTheme.Panel(new Color("1a2b44"));
         style.BorderColor = ReadBool(lane, "contested", false) ? MinimalTheme.Selected : controller == _viewerPlayerId
             ? new Color(MinimalTheme.Selectable, 0.55f) : controlled ? new Color(MinimalTheme.Hostile, 0.48f) : MinimalTheme.Border;
-        style.SetContentMarginAll(10); nodes.Panel.AddThemeStyleboxOverride("panel", style);
+        style.SetContentMarginAll(6); style.SetCornerRadiusAll(4); nodes.Panel.AddThemeStyleboxOverride("panel", style);
         var ownPower = ReadCards(lane, "selfUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
         var enemyPower = ReadCards(lane, "opponentUnits").Sum(card => ReadInt(card, "currentPower", ReadInt(card, "power")));
         nodes.Force.Text = $"战力  {ownPower} : {enemyPower}";
@@ -322,8 +323,12 @@ public sealed class MatchTableRenderer
         view.Activated += activatedCard => _cardActivated(activatedCard);
         view.PreviewRequested += previewCard => _screen.PreviewCard(previewCard);
         view.InspectionRequested += inspectCard => _screen.InspectCard(inspectCard);
+        view.BeginTableDrag = _screen.BeginTableDrag;
+        view.CanReceiveTableDrop = data => _screen.CanDropOnObject(data, ReadString(safeCard, "objectId"));
+        view.ReceiveTableDrop = data => _screen.DropOnObject(data, ReadString(safeCard, "objectId"));
         parent.AddChild(view);
         view.Display(safeCard, restingState);
+        if (parent is FanHandContainer fan) fan.Register(view, parent.GetChildCount() - 1);
 
         if (!hidden)
         {

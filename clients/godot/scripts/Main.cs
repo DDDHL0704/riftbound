@@ -225,6 +225,7 @@ public partial class Main : Control
 
     private bool HandleKeyboardAction(InputEvent input)
     {
+        if (input.IsActionPressed("ui_cancel_selection")) _matchScreen?.InvalidateTableGesture();
         if (_playCardOverlay?.IsVisibleInTree() == true)
         {
             if (input.IsActionPressed("ui_cancel_selection") && !_playCardOverlay.IsSubmitting) _playCardOverlay.Hide();
@@ -386,6 +387,15 @@ public partial class Main : Control
         _matchScreen!.CardActivated += HandleMatchCardActivated;
         _matchScreen.CardInspectionRequested += ApplyCardPreview;
         _matchScreen.DestinationActivated += HandleTableDestination;
+        _matchScreen.TableDragRequested = card =>
+        {
+            if (_playCardOverlay?.IsSubmitting == true || _movementOverlay?.IsSubmitting == true) return false;
+            var id = card.TryGetValue("objectId", out var value) ? value.AsString() : "";
+            if (_playCardOverlay?.Visible == true && _playCardOverlay.TableSelectedObjects.FirstOrDefault() == id) return true;
+            if (_movementOverlay?.Visible == true && _movementOverlay.TableSelectedObjects.Contains(id)) return true;
+            _playCardOverlay?.Hide(); _movementOverlay?.Hide();
+            return TryOpenPlayCard(id) || TryOpenMovement(id);
+        };
         _matchScreen.PublicPileRequested += (title, cards) => _cardInspectOverlay?.ShowPile(title, cards);
         _matchScreen.ActionBar.ActionSelected += HandlePromptActionSelected;
         _matchScreen.ReconnectRequested += () => _ = RetryConnectionAsync();
@@ -755,6 +765,7 @@ public partial class Main : Control
             foreach (var id in _playCardOverlay.TableTargets) _matchScreen.SetObjectState(id, OfficialCardVisualState.LegalTarget);
             foreach (var id in _playCardOverlay.TableSelectedObjects) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selected);
             _matchScreen.SetDestinationChoices(_playCardOverlay.TableDestinations, _playCardOverlay.TableDestination);
+            _matchScreen.SetSelectionLinks(_playCardOverlay.TableSelectedObjects, _playCardOverlay.TableDestination);
             return;
         }
         if (_movementOverlay?.Visible == true)
@@ -762,6 +773,7 @@ public partial class Main : Control
             foreach (var id in _movementOverlay.TableSources) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selectable);
             foreach (var id in _movementOverlay.TableSelectedObjects) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selected);
             _matchScreen.SetDestinationChoices(_movementOverlay.TableDestinations, _movementOverlay.TableDestination);
+            _matchScreen.SetSelectionLinks(_movementOverlay.TableSelectedObjects, _movementOverlay.TableDestination);
             return;
         }
         _matchScreen.SetDestinationChoices(_promptInteractionController.CurrentStepRole == "destination"

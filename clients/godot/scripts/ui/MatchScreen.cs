@@ -15,6 +15,7 @@ public partial class MatchScreen : AppScreen
     public event Action<string, CardArray>? PublicPileRequested;
     public event Action? ReconnectRequested;
     public event Action? ReturnToLobbyRequested;
+    public Func<CardDictionary, bool>? TableDragRequested { get; set; }
     internal MatchTableLayout TableLayout { get; private set; } = null!;
     public Control ComposerHost => TableLayout.Composer;
     public ActionBar ActionBar => TableLayout.Actions;
@@ -28,10 +29,20 @@ public partial class MatchScreen : AppScreen
     private long _lastEventTick = -1;
     private readonly HashSet<string> _eventKeys = new(StringComparer.Ordinal);
     private string[] _destinations = [];
+    private readonly HashSet<string> _legalDropObjects = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _legalDropDestinations = new(StringComparer.Ordinal);
+    private long _dragGeneration;
+    private string _dragSource = "";
+    private Variant _activeDrag;
+    private string[] _linkObjects = [];
+    private string? _linkDestination;
+    private TableTargetLinks _links = null!;
 
     public override void _Ready()
     {
         TableLayout = new MatchTableLayout(this);
+        _links = new TableTargetLinks(); AddChild(_links); _links.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        _links.Segments = SelectionSegments;
         _connectionBanner = new HBoxContainer { Visible = false };
         _connectionMessage = new Label { SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _connectionMessage.AddThemeColorOverride("font_color", MinimalTheme.Selected);
@@ -43,10 +54,14 @@ public partial class MatchScreen : AppScreen
         back.Pressed += () => ReturnToLobbyRequested?.Invoke(); _connectionBanner.AddChild(back);
         TableLayout.Root.AddChild(_connectionBanner); TableLayout.Root.MoveChild(_connectionBanner, 1);
         TableLayout.BaseDestination.Pressed += () => DestinationActivated?.Invoke("BASE");
+        TableLayout.BaseZone.CanDrop = data => CanDropOnDestination(data, "BASE");
+        TableLayout.BaseZone.Dropped = data => DropOnDestination(data, "BASE");
         for (var index = 0; index < TableLayout.Battlefields.Length; index++)
         {
             var captured = index;
             var field = TableLayout.Battlefields[index];
+            field.Panel.CanDrop = data => captured < _destinations.Length && CanDropOnDestination(data, _destinations[captured]);
+            field.Panel.Dropped = data => { if (captured < _destinations.Length) DropOnDestination(data, _destinations[captured]); };
             field.Panel.MouseFilter = MouseFilterEnum.Stop;
             field.Panel.GuiInput += input =>
             {
@@ -87,6 +102,7 @@ public partial class MatchScreen : AppScreen
     {
         if (!IsNodeReady()) return;
         _connectionBanner.Visible = !connected; _reconnectButton.Disabled = recovering;
+        if (!connected) InvalidateTableGesture();
         _connectionMessage.Text = recovering ? "连接中断，正在恢复对局… 当前显示断线前的局面。" : "已断开连接。重新连接后同步最新局面。";
         ActionBar.Visible = connected;
         if (!connected) SetTurnStatus(recovering ? "正在恢复连接" : "连接已断开", "同步最新局面后可继续行动。", false);
@@ -94,6 +110,7 @@ public partial class MatchScreen : AppScreen
 
     public void RenderSections(CardArray sections)
     {
+        InvalidateTableGesture();
         _lastSections = sections;
         if (_renderer is null) return;
         var table = sections.FirstOrDefault(s => Read(s, "kind") == "wireTable");
@@ -110,6 +127,7 @@ public partial class MatchScreen : AppScreen
         _destinations = table["lanes"].As<CardArray>().Select(lane => "BATTLEFIELD:" + Read(lane, "battlefieldId")).ToArray();
         ClearChildren(TableLayout.Chain);
         var chain = table.TryGetValue("chain", out var chainValue) ? chainValue.As<CardArray>() : [];
+        TableLayout.ChainPanel.Visible = chain.Count > 0;
         if (chain.Count == 0) MatchTableLayout.Label(TableLayout.Chain, "当前没有待结算行动", 13, MinimalTheme.TextSecondary, true);
         foreach (var entry in chain)
         {
@@ -139,7 +157,7 @@ public partial class MatchScreen : AppScreen
     public void SetComposerVisible(bool visible)
     {
         TableLayout.Composer.Visible = visible; TableLayout.Intel.GetParent<ScrollContainer>().Visible = !visible;
-        TableLayout.Rail.CustomMinimumSize = new Vector2(visible ? 344 : 268, 0);
+        TableLayout.Rail.CustomMinimumSize = new Vector2(visible ? 320 : 248, 0);
         if (!visible) ClearPromptStates();
     }
 
@@ -150,6 +168,7 @@ public partial class MatchScreen : AppScreen
             if (card.TryGetValue("faceDown", out var faceDown) && faceDown.AsBool()) return;
             if (_inspected is not null && Read(_inspected, "objectId") != Read(card, "objectId")) ClearChildren(TableLayout.CardActions);
             _inspected = card.Duplicate(true);
+            TableLayout.InspectPanel.Visible = true;
             TableLayout.InspectName.Text = Read(card, "cardName");
             TableLayout.InspectArt.Texture = CardTextureLoader.Load(Read(card, "imagePath"), card.TryGetValue("rotated", out var rotated) && rotated.AsBool());
             var summary = Read(card, "previewSummary");
@@ -160,6 +179,7 @@ public partial class MatchScreen : AppScreen
     private void ClearInspection()
     {
         _inspected = null; TableLayout.InspectArt.Texture = null;
+        TableLayout.InspectPanel.Visible = false;
         TableLayout.InspectName.Text = "卡牌详情"; TableLayout.InspectText.Text = "悬停查看卡牌\n点选卡牌可直接行动";
         ClearChildren(TableLayout.CardActions);
     }
@@ -188,6 +208,7 @@ public partial class MatchScreen : AppScreen
     public void ClearPromptStates()
     {
         _renderer?.ClearPromptStates(); SetDestinationChoices([]);
+        _legalDropObjects.Clear(); _linkObjects = []; _linkDestination = null;
         foreach (var row in TableLayout.Chain.GetChildren())
             foreach (var button in row.GetChildren().OfType<Button>()) MinimalTheme.Apply(button);
         if (IsNodeReady()) ClearChildren(TableLayout.CardActions);
@@ -195,6 +216,7 @@ public partial class MatchScreen : AppScreen
     public void SetObjectState(string objectId, OfficialCardVisualState state)
     {
         _renderer?.SetObjectState(objectId, state);
+        if (state == OfficialCardVisualState.LegalTarget) _legalDropObjects.Add(objectId);
         foreach (var row in TableLayout.Chain.GetChildren())
             foreach (var button in row.GetChildren().OfType<Button>())
                 if (button.HasMeta("objectId") && button.GetMeta("objectId").AsString() == objectId)
@@ -203,6 +225,7 @@ public partial class MatchScreen : AppScreen
     public void SetDestinationChoices(IEnumerable<string> choices, string? selected = null)
     {
         var legal = choices.ToHashSet(StringComparer.Ordinal);
+        _legalDropDestinations.Clear(); _legalDropDestinations.UnionWith(legal);
         TableLayout.BaseDestination.Disabled = !legal.Contains("BASE");
         TableLayout.BaseDestination.Text = selected == "BASE" ? "已选基地" : legal.Contains("BASE") ? "移至 / 选基地" : "我方基地";
         for (var i = 0; i < TableLayout.Battlefields.Length; i++)
@@ -211,6 +234,69 @@ public partial class MatchScreen : AppScreen
             var id = i < _destinations.Length ? _destinations[i] : "";
             button.Visible = legal.Contains(id); button.Text = id == selected ? "已选此处" : "选择此处";
         }
+    }
+    public Variant BeginTableDrag(CardDictionary card)
+    {
+        var id = Read(card, "objectId");
+        if (id.Length == 0 || TableDragRequested?.Invoke(card) != true) return default;
+        _dragGeneration++;
+        _dragSource = id;
+        _activeDrag = new CardDictionary { ["tableDrag"] = true, ["generation"] = _dragGeneration, ["sourceId"] = id };
+        GD.Print("[Table] Drag began.");
+        return _activeDrag;
+    }
+    private bool CurrentDrag(Variant data)
+    {
+        if (data.VariantType != Variant.Type.Dictionary) return false;
+        var value = data.AsGodotDictionary();
+        return value.TryGetValue("tableDrag", out var marker) && marker.AsBool()
+            && value.TryGetValue("generation", out var generation) && generation.AsInt64() == _dragGeneration
+            && Read(value, "sourceId") == _dragSource && _dragSource.Length > 0;
+    }
+    public bool CanDropOnObject(Variant data, string id) => CurrentDrag(data) && _legalDropObjects.Contains(id);
+    public bool CanDropOnDestination(Variant data, string id) => CurrentDrag(data) && _legalDropDestinations.Contains(id);
+    public void DropOnObject(Variant data, string id)
+    { if (CanDropOnObject(data, id) && _renderer?.VisibleCard(id) is { } card) { CardActivated?.Invoke(card); GD.Print("[Table] Target drop selected."); } }
+    public void DropOnDestination(Variant data, string id)
+    { if (CanDropOnDestination(data, id)) { DestinationActivated?.Invoke(id); GD.Print("[Table] Destination drop selected."); } }
+    public void InvalidateTableGesture()
+    { _dragGeneration++; _dragSource = ""; _linkObjects = []; _linkDestination = null; }
+    public void SetSelectionLinks(IEnumerable<string> objects, string? destination = null)
+    { _linkObjects = objects.ToArray(); _linkDestination = destination; }
+    public override void _Notification(int what)
+    { if (what == NotificationDragEnd) { _dragGeneration++; _dragSource = ""; } }
+    public override void _Input(InputEvent input)
+    {
+        // Resolve the release against table geometry as well as native drop controls.
+        // Scroll/preview children must not intercept a valid battlefield drop.
+        if (!IsVisibleInTree() || !CurrentDrag(_activeDrag)
+            || input is not InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false } mouse) return;
+        foreach (var id in _legalDropObjects)
+            if (_renderer?.CardControl(id) is { } card && card.GetGlobalRect().HasPoint(mouse.GlobalPosition))
+            { DropOnObject(_activeDrag, id); _dragSource = ""; return; }
+        for (var i = 0; i < _destinations.Length; i++)
+            if (TableLayout.Battlefields[i].Panel.GetGlobalRect().HasPoint(mouse.GlobalPosition))
+            { DropOnDestination(_activeDrag, _destinations[i]); _dragSource = ""; return; }
+        if (TableLayout.BaseZone.GetGlobalRect().HasPoint(mouse.GlobalPosition)) DropOnDestination(_activeDrag, "BASE");
+        _dragSource = "";
+    }
+    private (Vector2 From, Vector2 To)[] SelectionSegments()
+    {
+        if (!IsVisibleInTree() || _linkObjects.Length == 0) return [];
+        Vector2? Center(string id) => _renderer?.CardControl(id) is { } card && GodotObject.IsInstanceValid(card)
+            ? _links.GetGlobalTransform().AffineInverse() * card.GetGlobalRect().GetCenter() : null;
+        var points = new List<(Vector2, Vector2)>();
+        if (_linkDestination is { Length: > 0 } destination)
+        {
+            var index = Array.IndexOf(_destinations, destination);
+            Control? target = destination == "BASE" ? TableLayout.BaseZone : index >= 0 ? TableLayout.Battlefields[index].Panel : null;
+            if (target is not null)
+                foreach (var id in _linkObjects) if (Center(id) is { } from)
+                    points.Add((from, _links.GetGlobalTransform().AffineInverse() * target.GetGlobalRect().GetCenter()));
+        }
+        else if (Center(_linkObjects[0]) is { } source)
+            foreach (var id in _linkObjects.Skip(1)) if (Center(id) is { } target) points.Add((source, target));
+        return points.ToArray();
     }
     public override void SetScreenVisible(bool visible)
     {

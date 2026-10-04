@@ -69,19 +69,32 @@ public partial class BattleTableInteractionProof : Control
                 ["playerId"] = id, ["score"] = 2, ["mainDeckCount"] = 20, ["runeDeckCount"] = 6,
                 ["resources"] = "法力 3 · 符能 2", ["handHiddenCount"] = 5,
                 ["legend"] = new CardArray { Visible(id + "-legend") }, ["hero"] = new CardArray { Visible(id + "-hero") },
-                ["base"] = new CardArray { Visible(id + "-unit") }, ["baseRunes"] = new CardArray { Visible(id + "-rune") },
-                ["hand"] = new CardArray { Visible(id + "-hand") }, ["graveyard"] = new CardArray(), ["banished"] = new CardArray()
+                ["base"] = new CardArray(Enumerable.Range(0, 6).Select(i => Visible(id + "-unit-" + i))), ["baseRunes"] = new CardArray { Visible(id + "-rune") },
+                ["hand"] = new CardArray(Enumerable.Range(0, 10).Select(i => Visible(id + "-hand-" + i))), ["graveyard"] = new CardArray(), ["banished"] = new CardArray()
             };
             CardDictionary Lane(string id) => new()
             {
-                ["battlefieldId"] = id, ["site"] = new CardArray { Visible(id) }, ["selfUnits"] = new CardArray { Visible(id + "-own") },
-                ["opponentUnits"] = new CardArray { Visible(id + "-opponent") }, ["selfStandby"] = new CardArray(), ["opponentStandby"] = new CardArray()
+                ["battlefieldId"] = id, ["site"] = new CardArray { Visible(id) }, ["selfUnits"] = new CardArray(Enumerable.Range(0, 3).Select(i => Visible(id + "-own-" + i))),
+                ["opponentUnits"] = new CardArray(Enumerable.Range(0, 3).Select(i => Visible(id + "-opponent-" + i))), ["selfStandby"] = new CardArray(), ["opponentStandby"] = new CardArray()
             };
             screen.RenderSections(new CardArray { new() { ["kind"] = "wireTable", ["self"] = Player("own"), ["opponent"] = Player("opponent"),
-                ["lanes"] = new CardArray { Lane("one"), Lane("two") }, ["turnNumber"] = 4, ["winningScore"] = 8 } });
+                ["lanes"] = new CardArray { Lane("one"), Lane("two") }, ["turnNumber"] = 4, ["winningScore"] = 8,
+                ["chain"] = new CardArray(Enumerable.Range(0, 6).Select(i => new CardDictionary { ["objectId"] = "stack-" + i, ["title"] = "待结算法术", ["detail"] = "我方 → 对手单位" })) } });
             screen.SetComposerVisible(false);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Check(screen.ActionBar.GetGlobalRect().End.Y <= screen.GetGlobalRect().End.Y + 1, "Bottom action bar must stay within viewport");
+            Check(!screen.TableLayout.InspectPanel.Visible, "Empty card preview must collapse");
+            Check(screen.TableLayout.SelfHand.GetGlobalRect().End.Y <= screen.TableLayout.ActionPanel.GetGlobalRect().Position.Y, "Hand must remain above action bar under load");
+            screen.TableDragRequested = _ => true;
+            screen.SetObjectState("one-opponent-0", OfficialCardVisualState.LegalTarget);
+            screen.SetDestinationChoices(["BATTLEFIELD:one"]);
+            var drag = screen.BeginTableDrag(Visible("own-hand-0"));
+            Check(screen.CanDropOnObject(drag, "one-opponent-0") && !screen.CanDropOnObject(drag, "two-opponent-0"), "Drag targets must be server legal choices");
+            Check(screen.CanDropOnDestination(drag, "BATTLEFIELD:one") && !screen.CanDropOnDestination(drag, "BASE"), "Drag destinations must be server legal choices");
+            var drops = 0; screen.CardActivated += _ => drops++;
+            screen.DropOnObject(drag, "one-opponent-0"); Check(drops == 1, "Valid drop edits one table selection");
+            screen.InvalidateTableGesture(); screen.DropOnObject(drag, "one-opponent-0");
+            Check(drops == 1 && !screen.CanDropOnDestination(drag, "BATTLEFIELD:one"), "Esc/snapshot invalidation must reject old drag tokens");
             Check(screen.TableLayout.OpponentHand.GetChildren().OfType<OfficialCardView>().All(card => !card.TryGetVisibleCard(out _)), "Opponent hand must remain anonymous");
             screen.SetComposerVisible(true); play.Open(playCandidate, "BOUNDS", 4, Visible, spellId);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
