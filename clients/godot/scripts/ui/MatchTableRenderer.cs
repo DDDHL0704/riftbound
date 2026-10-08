@@ -35,6 +35,8 @@ public sealed class MatchTableRenderer
     private Vector2 _handCardSize = new(112, 156);
     private Vector2 _tableCardSize = new(84, 117);
     private Vector2 _compactCardSize = new(58, 81);
+    private Vector2 _identityCardSize;
+    private Vector2 _baseCardSize;
 
     public MatchTableRenderer(MatchScreen screen, Action<CardDictionary> cardActivated,
         Action<string, CardArray> pileRequested)
@@ -141,8 +143,10 @@ public sealed class MatchTableRenderer
     private void ConfigureCardSizes()
     {
         var compactViewport = _screen.GetViewportRect().Size.Y <= 760;
-        _handCardSize = compactViewport ? new Vector2(92, 129) : new Vector2(108, 151);
-        _tableCardSize = compactViewport ? new Vector2(68, 95) : new Vector2(86, 120);
+        _handCardSize = compactViewport ? new Vector2(128, 179) : new Vector2(148, 207);
+        _tableCardSize = compactViewport ? new Vector2(98, 137) : new Vector2(116, 162);
+        _identityCardSize = compactViewport ? new Vector2(74, 104) : new Vector2(86, 120);
+        _baseCardSize = compactViewport ? new Vector2(86, 120) : new Vector2(100, 140);
         _compactCardSize = compactViewport ? new Vector2(48, 67) : new Vector2(56, 78);
     }
 
@@ -233,7 +237,7 @@ public sealed class MatchTableRenderer
                 zone.AddChild(row);
                 foreach (var card in cards)
                 {
-                    if (!ownRunes) { AddCard(row, card, _compactCardSize); continue; }
+                    if (!ownRunes) { AddCard(row, card, key == "base" ? _baseCardSize : _compactCardSize); continue; }
                     var slot = new VBoxContainer(); slot.AddThemeConstantOverride("separation", 2); row.AddChild(slot);
                     AddCard(slot, card, _compactCardSize);
                     var id = ReadString(card, "objectId");
@@ -245,7 +249,7 @@ public sealed class MatchTableRenderer
             }
             else if (cards.Count > 0 && key is not ("graveyard" or "banished"))
             {
-                AddCard(zone, cards[cards.Count - 1], _compactCardSize, cards.Count);
+                AddCard(zone, cards[cards.Count - 1], key is "legend" or "hero" ? _identityCardSize : _compactCardSize, cards.Count);
             }
         }
     }
@@ -325,6 +329,8 @@ public sealed class MatchTableRenderer
         Vector2 cardSize)
     {
         ClearChildren(parent);
+        if (parent.GetParent() is ScrollContainer scroll)
+            scroll.CustomMinimumSize = new Vector2(0, cards.Count == 0 ? 24 : cardSize.Y);
         if (cards.Count == 0)
         {
             parent.AddChild(SecondaryLabel(emptyLabel));

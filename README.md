@@ -14,6 +14,8 @@ Godot .NET 原生桌面客户端（macOS / Windows）与 .NET 权威服务端。
 
 最新牌桌变更、截图与验收见 [原生牌桌重构记录](docs/NATIVE_TABLE_REBUILD_2026-10-04.md)，此前平台交付见 [原生交付记录](docs/NATIVE_DELIVERY_2026-10-04.md)。GitHub 原生 CI 已编写，尚缺运行证据；此前记录的 workflow 推送权限问题在本轮规划中未重新验证。
 
+2026-10-08 牌面可读性更新：手牌、英雄、基地与战场单位按用途放大，我方基地固定在手牌上方，空战场收紧；悬停可看加大的侧边预览，右键查看完整卡牌和文字。三种窗口尺寸的原生操作检查通过，macOS 两个实际窗口已恢复原局，截图与验证边界见 [可读性验收](docs/evidence/card-readability-2026-10-08/acceptance.json)。
+
 本批按成品牌桌样式与直接操作、普通出牌确认与反馈、效果再次打出、完整对局及双平台验收四步推进，任务、参考截图和完成标准见 [2026-10-05 迭代计划](docs/NEXT_NATIVE_PLAY_ITERATION_2026-10-05.md)。共享费用与权威预览已完成的部分沿用 [实施记录](docs/UNIFIED_PLAY_ITERATION_2026-10-04.md)。
 
 [本轮实现与验收](docs/NATIVE_ITERATION_2026-10-05.md)：牌桌、普通确认、三个效果再次打出、两场 macOS 整局；Windows 与复杂规则边界见未完成项。

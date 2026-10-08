@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-08",
+  "scope": "Native card legibility and visible own-base controls",
+  "previousCommit": "92a48384",
+  "defaultCardSizes": {
+    "hand": {
+      "before": [
+        108,
+        151
+      ],
+      "after": [
+        148,
+        207
+      ]
+    },
+    "battlefieldUnit": {
+      "before": [
+        86,
+        120
+      ],
+      "after": [
+        116,
+        162
+      ]
+    },
+    "heroAndLegend": {
+      "before": [
+        56,
+        78
+      ],
+      "after": [
+        86,
+        120
+      ]
+    },
+    "baseUnit": {
+      "before": [
+        56,
+        78
+      ],
+      "after": [
+        100,
+        140
+      ]
+    },
+    "sidebarArtHeight": {
+      "before": 232,
+      "after": 344
+    }
+  },
+  "flow": [
+    {
+      "step": 1,
+      "description": "View and operate the table",
+      "before": "01-before.jpg",
+      "after": "04-after-table.jpg",
+      "health": "Improved; own base and rune footer controls visible above the enlarged hand",
+      "finding": "Hero and base units shared rune thumbnail dimensions; hands were small despite empty battlefield space",
+      "accessibilityNote": "Larger card identity and click targets; dense opposing board retains scrolling"
+    },
+    {
+      "step": 2,
+      "description": "Right-click to read a full card",
+      "before": "02-before-inspection.jpg",
+      "after": "05-after-inspection.jpg",
+      "health": "Existing full card and readable text remain functional",
+      "finding": "Full inspection already worked; the table needed an explicit hint"
+    },
+    {
+      "step": 3,
+      "description": "Read sidebar preview and focused hand card",
+      "before": "03-before-preview.jpg",
+      "after": "06-after-preview.jpg",
+      "health": "Improved; larger side art and unclipped raised hand card",
+      "finding": "232-high side preview made printed text difficult to read; raised cards needed more container padding",
+      "accessibilityNote": "Full text is available in the right-click dialog; this is not a complete native accessibility audit"
+    }
+  ],
+  "nativeVerification": {
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "headlessInteractionBoundsResolutions": [
+      [
+        1280,
+        720
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1920,
+        1080
+      ]
+    ],
+    "tableMarker": "BATTLE_TABLE_INTERACTION_PASS",
+    "runeHeroMarker": "RUNE_HERO_INTERACTION_PASS",
+    "actualMacosBothClientsRestored": true,
+    "actualMacosRightClickDialog": true,
+    "actualMacosSidebarPreview": true,
+    "actualMacosOwnBaseAndRuneFooterVisible": true,
+    "macosSignaturesVerified": true,
+    "windowsRuntimeTested": false,
+    "backendRulesChanged": false,
+    "backendFullSuiteRerun": false
+  },
+  "matchPreservation": {
+    "roomId": "RB-TRY-1008",
+    "tick": 32,
+    "turn": 4,
+    "activePlayer": "试玩玩家二",
+    "scores": {
+      "试玩玩家一": 1,
+      "试玩玩家二": 0
+    },
+    "authoritativeStateStructurallyUnchanged": true,
+    "beforeSource": "var/qa/card-readability-2026-10-08/user-before-state.json",
+    "afterSource": "var/qa/card-readability-2026-10-08/user-after-state.json"
+  },
+  "packages": {
+    "Riftbound-macos.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-card-readability/Riftbound-macos.zip",
+      "sha256": "01c266bfe9b762ee220b1b1e8bbdf7f250b077739775192d6c5c9c32e7a56acc",
+      "exported": true
+    },
+    "Riftbound-windows-x64.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-card-readability/Riftbound-windows-x64.zip",
+      "sha256": "e6f8725bcc29fd96b7a9da5c625ce61ca3566e33e63d28a2b7609c0a89d7b3cc",
+      "exported": true
+    }
+  },
+  "evidenceHashes": {
+    "05-after-inspection.jpg": "ea17f4f7c67f15302bf09eefe3bd4535500ef28844d375efe261dfb6a87a711c",
+    "06-after-preview.jpg": "fa0bd2a54db4629a3dba08c92d062353e2c8bbe982374a336559a00fec2990e1",
+    "02-before-inspection.jpg": "8d84c07caebfb9fa6bf026518548e737f44f6faa45e35ca83e7e9c19fb5cadd5",
+    "03-before-preview.jpg": "9012766b3eb61556c7c7db1df5fcfff87ccab56978e315ed4731c54e07c13d7a",
+    "table-gate.txt": "dfddd5eed994cb9e580a605cf34ef340632fc1dd60ba7de699e5384bbcbcea2d",
+    "rune-hero-gate.txt": "ab09da4eb16a39d61e2b6cbbb990983c2c64cd2320163938b7ded70c3e337bfe",
+    "01-before.jpg": "2dbb218672d88aca9be93bd87df29a4171348328f0a7f5f65a874089da5d25f2",
+    "04-after-table.jpg": "6feb2a498feaf31b6abf6ecd99af39fb20b2cc12c2442db5bb9b674b348fbb78"
+  },
+  "limits": [
+    "Crowded table gate uses synthetic public placeholders, not a new full-match acceptance.",
+    "No Windows runtime or native screen-reader compliance claim.",
+    "Screenshots are from this run; match inspection submitted no gameplay commands."
+  ]
+}

@@ -169,7 +169,7 @@ public partial class MatchScreen : AppScreen
     public void SetComposerVisible(bool visible)
     {
         TableLayout.Composer.Visible = visible; TableLayout.Intel.GetParent<ScrollContainer>().Visible = !visible;
-        TableLayout.Rail.CustomMinimumSize = new Vector2(visible ? 320 : 248, 0);
+        TableLayout.Rail.CustomMinimumSize = new Vector2(visible ? 320 : 280, 0);
         if (!visible) ClearPromptStates();
     }
 

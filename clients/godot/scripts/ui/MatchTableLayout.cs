@@ -70,7 +70,7 @@ internal sealed class MatchTableLayout
         var fields = Row(table, 10); fields.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         Battlefields = [BuildBattlefield(fields, 0), BuildBattlefield(fields, 1)];
 
-        var self = Panel(table, new Color("17273e")); BaseZone = self;
+        var self = Panel(playArea, new Color("17273e")); BaseZone = self;
         var selfRow = Row(self, 12);
         var selfIdentity = Column(selfRow, 4); selfIdentity.CustomMinimumSize = new Vector2(112, 0);
         SelfSummary = Label(selfIdentity, "我方", 13, MinimalTheme.Text);
@@ -81,14 +81,14 @@ internal sealed class MatchTableLayout
         var hand = Panel(playArea, new Color("101c30"));
         var handColumn = Column(hand, 5);
         var handHeader = Row(handColumn);
-        var handTitle = Label(handHeader, "手牌 · 拖动或点选出牌", 12, MinimalTheme.TextSecondary); handTitle.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        var handTitle = Label(handHeader, "手牌 · 拖动或点选出牌 · 悬停预览，右键看完整卡牌", 12, MinimalTheme.TextSecondary); handTitle.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         SelfHandCount = Label(handHeader, "", 12, MinimalTheme.TextSecondary);
         var handScroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             HorizontalScrollMode = ScrollContainer.ScrollMode.Auto, VerticalScrollMode = ScrollContainer.ScrollMode.Disabled };
         handColumn.AddChild(handScroll);
         SelfHand = new FanHandContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; handScroll.AddChild(SelfHand);
 
-        Rail = Column(main, 8); Rail.CustomMinimumSize = new Vector2(248, 0);
+        Rail = Column(main, 8); Rail.CustomMinimumSize = new Vector2(280, 0);
         var status = Panel(Rail, new Color("1b304b"));
         var statusColumn = Column(status, 6);
         TurnHeadline = Label(statusColumn, "等待对局", 22, MinimalTheme.Selectable);
@@ -101,7 +101,7 @@ internal sealed class MatchTableLayout
         InspectName = Label(inspectColumn, "卡牌详情", 15, MinimalTheme.Selected);
         InspectArt = new TextureRect
         {
-            CustomMinimumSize = new Vector2(0, 232), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            CustomMinimumSize = new Vector2(0, 344), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore
         };
         inspectColumn.AddChild(InspectArt);
