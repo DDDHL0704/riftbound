@@ -104,6 +104,7 @@ public partial class PlayCardOverlay : Control
         var requirement = _requirements[_source.Selected];
         RefreshCardPreview();
         _origin.Text = Text(requirement, "effectPlayReason");
+        if (_origin.Text.Length == 0 && Text(requirement, "sourceZone") == "CHAMPION") _origin.Text = "选定英雄 · 按正常费用打出";
         _origin.Visible = _origin.Text.Length > 0;
         _cost.Text = $"卡面费用  {Number(requirement, "manaCost")} 法力 · {Number(requirement, "printedPowerCost")} 符能\n"
             + $"当前最低法力  {Number(requirement, "minimumManaCost")}\n\n可用资源  {Number(requirement, "availableMana")} 法力 · {Number(requirement, "availablePower")} 符能";

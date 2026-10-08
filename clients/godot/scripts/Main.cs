@@ -67,6 +67,7 @@ public partial class Main : Control
     private TriggerOrderOverlay? _triggerOrderOverlay;
     private DamageAssignmentOverlay? _damageAssignmentOverlay;
     private PlayCardOverlay? _playCardOverlay;
+    private RuneActionPanel? _runeActionPanel;
     private Godot.Collections.Dictionary? _playCardAction;
     private CancellationTokenSource? _playCostPreviewCancellation;
     private MovementOverlay? _movementOverlay;
@@ -228,6 +229,11 @@ public partial class Main : Control
 
     private bool HandleKeyboardAction(InputEvent input)
     {
+        if (_runeActionPanel?.Visible == true)
+        {
+            if (input.IsActionPressed("ui_cancel_selection")) _runeActionPanel.Cancel();
+            return input.IsActionPressed("ui_cancel_selection");
+        }
         if (_battleDeclaration?.Visible == true)
         {
             if (input.IsActionPressed("ui_cancel_selection") && !_battleDeclaration.IsSubmitting) _battleDeclaration.Hide();
@@ -369,6 +375,10 @@ public partial class Main : Control
             if (_battleDeclarationAction is not null) _ = SubmitTableActionAsync(_battleDeclarationAction, payload, "declare_battle");
         };
         _playCardOverlay = new PlayCardOverlay { TableMode = true }; _matchScreen!.ComposerHost.AddChild(_playCardOverlay);
+        _runeActionPanel = new RuneActionPanel(); _matchScreen.ComposerHost.AddChild(_runeActionPanel);
+        _runeActionPanel.SelectionChanged += RefreshTableComposer;
+        _runeActionPanel.VisibilityChanged += RefreshTableComposer;
+        _runeActionPanel.Requested += (action, ids) => _ = SubmitRuneActionAsync(action, ids);
         _playCardOverlay.VisibilityChanged += RefreshTableComposer;
         _playCardOverlay.TableSelectionChanged += RefreshPromptInteractionVisuals;
         _playCardOverlay.PreviewRequested += request => _ = RequestPlayCostPreviewAsync(request);
@@ -388,7 +398,7 @@ public partial class Main : Control
                 ["origin"] = _movementOverlay.OriginFor(ids[0]), ["destination"] = destination
             }, "move_units");
         };
-        _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: false);
+        _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         _lobbyScreen.ReconnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         _lobbyScreen.CreatePublicMatchRequested += () => _ = CreatePublicMatchAsync();
         _lobbyScreen.QueueRequested += () => _ = QueueMatchmakingAsync();
@@ -399,11 +409,17 @@ public partial class Main : Control
         _lobbyScreen.RefreshPublicMatchesRequested += () => _ = LoadPublicMatchesAsync();
         _lobbyScreen.DeckSelectionChanged += () => _ = RefreshDeckPreviewAsync();
         _matchScreen!.CardActivated += HandleMatchCardActivated;
+        _matchScreen.RuneRecycleRequested += id =>
+        {
+            if (_playCardOverlay?.Visible != true && _movementOverlay?.Visible != true && _battleDeclaration?.Visible != true)
+                _runeActionPanel?.Request("RECYCLE_RUNE", [id]);
+        };
+        _matchScreen.RuneBatchRequested += () => HandlePromptActionSelected("TAP_RUNE");
         _matchScreen.CardInspectionRequested += ApplyCardPreview;
         _matchScreen.DestinationActivated += HandleTableDestination;
         _matchScreen.TableDragRequested = card =>
         {
-            if (_playCardOverlay?.IsSubmitting == true || _movementOverlay?.IsSubmitting == true || _battleDeclaration?.Visible == true) return false;
+            if (_promptSubmissionInFlight || _runeActionPanel?.Visible == true || _playCardOverlay?.IsSubmitting == true || _movementOverlay?.IsSubmitting == true || _battleDeclaration?.Visible == true) return false;
             var id = card.TryGetValue("objectId", out var value) ? value.AsString() : "";
             if (_playCardOverlay?.Visible == true && _playCardOverlay.TableSelectedObjects.FirstOrDefault() == id) return true;
             if (_movementOverlay?.Visible == true && _movementOverlay.TableSelectedObjects.Contains(id)) return true;
@@ -430,6 +446,7 @@ public partial class Main : Control
 
     private void HandleMatchCardActivated(Godot.Collections.Dictionary card)
     {
+        if (_promptSubmissionInFlight || _runeActionPanel?.IsSubmitting == true) return;
         if (_battleDeclaration?.Visible == true) { _matchScreen?.PreviewCard(card); return; }
         var objectId = card.TryGetValue("objectId", out var objectValue)
             ? objectValue.AsString()
@@ -442,6 +459,13 @@ public partial class Main : Control
         if (_movementOverlay?.Visible == true)
         {
             if (!_movementOverlay.TryToggleTableSource(objectId)) _matchScreen?.PreviewCard(card);
+            return;
+        }
+        if (_runeActionPanel?.OwnsSource(objectId) == true)
+        {
+            if (_runeActionPanel.Visible || Input.IsKeyPressed(Key.Shift)) _runeActionPanel.Toggle(objectId);
+            else if (_runeActionPanel.TapSources.Contains(objectId)) _runeActionPanel.Request("TAP_RUNE", [objectId]);
+            else _matchScreen?.PreviewCard(card);
             return;
         }
         if (!string.IsNullOrWhiteSpace(objectId) && _promptInteractionController.Current is null)
@@ -474,7 +498,7 @@ public partial class Main : Control
 
     private void RefreshTableComposer()
     {
-        var composing = _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true || _battleDeclaration?.Visible == true;
+        var composing = _runeActionPanel?.Visible == true || _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true || _battleDeclaration?.Visible == true;
         _matchScreen?.SetComposerVisible(composing);
         _matchScreen?.ActionBar.SetComposerActive(composing);
         RefreshPromptInteractionVisuals();
@@ -522,6 +546,8 @@ public partial class Main : Control
     {
         if (_promptSubmissionInFlight) return;
         _playCardOverlay?.Hide(); _movementOverlay?.Hide(); _battleDeclaration?.Hide();
+        _runeActionPanel?.Cancel();
+        if (actionName is "TAP_RUNE" or "RECYCLE_RUNE") { _promptInteractionController.ClearSelection(); _runeActionPanel?.Open(); return; }
         if (actionName == "DECLARE_BATTLE" && TryGetCurrentSpecialAction(actionName, out var battleAction))
         {
             using var battle = JsonDocument.Parse(battleAction["candidateJson"].AsString());
@@ -789,6 +815,15 @@ public partial class Main : Control
         }
 
         _matchScreen.ClearPromptStates();
+        if (_runeActionPanel is { } runes)
+            _matchScreen.SetRuneActions(runes.TapSources, runes.RecycleSources,
+                runes.IsSubmitting || _promptSubmissionInFlight || _playCardOverlay?.Visible == true || _movementOverlay?.Visible == true || _battleDeclaration?.Visible == true);
+        if (_runeActionPanel?.Visible == true)
+        {
+            foreach (var id in _runeActionPanel.RecycleSources.Concat(_runeActionPanel.TapSources).Distinct()) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selectable);
+            foreach (var id in _runeActionPanel.Selected) _matchScreen.SetObjectState(id, OfficialCardVisualState.Selected);
+            return;
+        }
         if (_playCardOverlay?.Visible == true)
         {
             foreach (var id in _playCardOverlay.TableTargets) _matchScreen.SetObjectState(id, OfficialCardVisualState.LegalTarget);
@@ -882,7 +917,8 @@ public partial class Main : Control
             room = PlayerSessionSettings.DefaultRoomId;
         }
 
-        return _session with { Handle = handle, RoomId = room, ServerUrl = _lobbyScreen?.ServerText.Trim().TrimEnd('/') ?? ServerUrl };
+        return PlayerSessionSettings.WithConnectionTarget(_session, handle, room,
+            _lobbyScreen?.ServerText.Trim().TrimEnd('/') ?? ServerUrl);
     }
 
     private async Task LoadDecksAsync()
@@ -1470,7 +1506,7 @@ public partial class Main : Control
             _authenticatedHandle,
             NewIntentId($"prompt-{intentSuffix}"),
             cmd,
-            _shutdown.Token);
+            _shutdown.Token).WaitAsync(TimeSpan.FromSeconds(10), _shutdown.Token).ConfigureAwait(false);
         AppendReceipt(label, receipt);
         if (intentSuffix is "play_card" or "move_units")
             QueueMainThread(nameof(ApplyPlayCardReceipt), new Godot.Collections.Dictionary
@@ -1481,6 +1517,36 @@ public partial class Main : Control
                     ? "资源不足以支付所选费用，请补充法力或符能，或调整额外费用。"
                     : receipt.Message
             });
+        if (intentSuffix == "runes")
+            QueueMainThread(nameof(ApplyRuneReceipt), new Godot.Collections.Dictionary
+            { ["promptId"] = promptId, ["tick"] = snapshotTick, ["accepted"] = receipt.Accepted, ["message"] = receipt.Message });
+    }
+
+    private async Task SubmitRuneActionAsync(string actionName, string[] ids)
+    {
+        var prompt = _runeActionPanel!.PromptId; var tick = _runeActionPanel.SnapshotTick;
+        if (!IsConnected() || _promptSubmissionInFlight || !TryGetCurrentSpecialAction(actionName, out var action)
+            || action["promptId"].AsString() != prompt || action["snapshotTick"].AsInt64() != tick
+            || ids.Any(id => !PromptChoiceIds(action, "sourceChoices").Contains(id)))
+        { ApplyRuneReceipt(new() { ["promptId"] = prompt, ["tick"] = tick, ["accepted"] = false, ["message"] = "符文选择已失效，请重新选择。" }); return; }
+        _promptSubmissionInFlight = true; _matchScreen?.ActionBar.SetPending(true);
+        try
+        {
+            await SubmitPromptPayloadAsync(action, new() { ["cmdType"] = actionName, ["sourceObjectId"] = ids[0], ["sourceObjectIds"] = ids }, "runes").ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"[color=yellow]Rune action failed: {Escape(ex.Message)}[/color]");
+            QueueMainThread(nameof(ApplyRuneReceipt), new Godot.Collections.Dictionary
+            { ["promptId"] = prompt, ["tick"] = tick, ["accepted"] = false, ["message"] = "操作未完成，请检查连接后重试。" });
+        }
+    }
+
+    public void ApplyRuneReceipt(Godot.Collections.Dictionary receipt)
+    {
+        if (_runeActionPanel?.MatchesReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64()) != true) return;
+        _promptSubmissionInFlight = false; _matchScreen?.ActionBar.SetPending(false);
+        _runeActionPanel?.ApplyReceipt(receipt["promptId"].AsString(), receipt["tick"].AsInt64(), receipt["accepted"].AsBool(), receipt["message"].AsString());
     }
 
     public void ApplyPlayCardReceipt(Godot.Collections.Dictionary receipt)
@@ -3812,12 +3878,14 @@ public partial class Main : Control
         PlayerSessionSettings session,
         IReadOnlyList<string> args)
     {
-        return session with
+        var target = PlayerSessionSettings.WithConnectionTarget(session,
+            ArgValue(args, "--riftbound-handle=") ?? session.Handle,
+            ArgValue(args, "--riftbound-room=") ?? session.RoomId,
+            ArgValue(args, "--riftbound-server=") ?? session.ServerUrl);
+        return target with
         {
-            Handle = ArgValue(args, "--riftbound-handle=") ?? session.Handle,
-            RoomId = ArgValue(args, "--riftbound-room=") ?? session.RoomId,
             PlayerKey = ArgValue(args, "--riftbound-player-key=") ?? session.PlayerKey,
-            ReconnectToken = args.Contains("--riftbound-ignore-reconnect") ? null : session.ReconnectToken
+            ReconnectToken = args.Contains("--riftbound-ignore-reconnect") ? null : target.ReconnectToken
         };
     }
 
@@ -4089,6 +4157,7 @@ public partial class Main : Control
         _matchScreen?.SetConnectionStatus(connected, recovering);
         if (!connected)
         {
+            _runeActionPanel?.Load("", -1, [], []);
             _battleDeclaration?.Hide();
             _promptInteractionController.ClearSelection();
             _movementOverlay?.Hide();
@@ -4234,6 +4303,12 @@ public partial class Main : Control
             && _lastAppliedPromptView.TryGetValue("snapshotTick", out var previousTick) && tick.AsInt64() == previousTick.AsInt64();
         if (!preserveDamageSelection) HideSpecialPromptOverlays();
         _lastAppliedPromptView = view.Duplicate(true);
+        if (_runeActionPanel?.IsSubmitting == true
+            && (_runeActionPanel.PromptId != view["promptId"].AsString() || _runeActionPanel.SnapshotTick != view["snapshotTick"].AsInt64()))
+        { _promptSubmissionInFlight = false; _matchScreen?.ActionBar.SetPending(false); }
+        var tap = TryGetCurrentSpecialAction("TAP_RUNE", out var tapAction) ? PromptChoiceIds(tapAction, "sourceChoices") : [];
+        var recycle = TryGetCurrentSpecialAction("RECYCLE_RUNE", out var recycleAction) ? PromptChoiceIds(recycleAction, "sourceChoices") : [];
+        _runeActionPanel?.Load(view["promptId"].AsString(), view["snapshotTick"].AsInt64(), tap, recycle);
         _promptInteractionController.Load(view);
         PresentPromptInteraction(view);
         TryStageAutoSmokeUiAction();

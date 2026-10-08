@@ -13,7 +13,8 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyList<string> EffectPlaySources(MatchState state, string playerId)
     {
         if (state.PendingEffectPlay is not { } pending)
-            return state.PlayerZones.TryGetValue(playerId, out var handZones) ? handZones.Hand : [];
+            return state.PlayerZones.TryGetValue(playerId, out var handZones)
+                ? handZones.Hand.Concat(handZones.ChampionZone).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)

@@ -16034,11 +16034,13 @@ internal static class ActionPromptBuilder
             "TAP_RUNE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "ready-controlled-base-rune",
+                ["maxBatchSize"] = 12,
                 ["resourceGain"] = "1-mana"
             },
             "RECYCLE_RUNE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "controlled-trait-base-rune",
+                ["maxBatchSize"] = 12,
                 ["resourceGain"] = "1-matching-trait-power",
                 ["destination"] = "rune-deck-bottom"
             },
@@ -17361,6 +17363,8 @@ internal static class ActionPromptBuilder
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
+            ["sourceZone"] = state.PendingEffectPlay?.SourceZone
+                ?? (state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,

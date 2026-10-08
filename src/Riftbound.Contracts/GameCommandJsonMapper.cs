@@ -52,8 +52,8 @@ public static class GameCommandJsonMapper
                 Text(cmd, "cardNo"),
                 Text(cmd, "destination"),
                 TextArray(cmd, "optionalCosts")),
-            "TAP_RUNE" => new TapRuneCommand(Text(cmd, "sourceObjectId")),
-            "RECYCLE_RUNE" => new RecycleRuneCommand(Text(cmd, "sourceObjectId")),
+            "TAP_RUNE" => new TapRuneCommand(Text(cmd, "sourceObjectId"), RuneSourceIds(cmd)),
+            "RECYCLE_RUNE" => new RecycleRuneCommand(Text(cmd, "sourceObjectId"), RuneSourceIds(cmd)),
             "REVEAL_CARD" => new RevealCardCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "cardNo"),
@@ -121,6 +121,13 @@ public static class GameCommandJsonMapper
             .Where(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
             .Select(item => item.GetString()!.Trim())
             .ToArray();
+    }
+
+    private static IReadOnlyList<string>? RuneSourceIds(JsonElement cmd)
+    {
+        if (!cmd.TryGetProperty("sourceObjectIds", out var ids) || ids.ValueKind == JsonValueKind.Null) return null;
+        // An explicitly malformed batch must not silently turn into a single action.
+        return StrictTextArray(cmd, "sourceObjectIds") ?? [];
     }
 
     private static IReadOnlyList<string>? StrictTextArray(JsonElement cmd, string propertyName)

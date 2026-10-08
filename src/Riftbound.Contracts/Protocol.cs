@@ -211,10 +211,12 @@ public sealed record HideCardCommand(
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("HIDE_CARD");
 
 public sealed record TapRuneCommand(
-    string SourceObjectId) : GameCommand("TAP_RUNE");
+    string SourceObjectId,
+    IReadOnlyList<string>? SourceObjectIds = null) : GameCommand("TAP_RUNE");
 
 public sealed record RecycleRuneCommand(
-    string SourceObjectId) : GameCommand("RECYCLE_RUNE");
+    string SourceObjectId,
+    IReadOnlyList<string>? SourceObjectIds = null) : GameCommand("RECYCLE_RUNE");
 
 public sealed record RevealCardCommand(
     string SourceObjectId,

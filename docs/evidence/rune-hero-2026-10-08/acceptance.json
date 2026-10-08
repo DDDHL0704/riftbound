@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-08",
+  "scope": [
+    "native direct rune interaction",
+    "atomic rune batch",
+    "ordinary chosen champion play",
+    "saved-room reconnect"
+  ],
+  "rules": {
+    "region": "CN",
+    "corePdfUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+    "corePdfSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "clauses": [
+      "108.3.d",
+      "419.1.a",
+      "164.2.a",
+      "164.2.b",
+      "164.2.b.1"
+    ]
+  },
+  "backendTests": {
+    "heroRed": {
+      "source": "var/qa/rune-hero-2026-10-08/hero-before.trx",
+      "sha256": "c66d36c28a39baee3315ccff058b7162f446ad1d5215404f5c2277900db9a0eb",
+      "total": 6,
+      "passed": 4,
+      "failed": 2,
+      "notExecuted": 0
+    },
+    "heroGreen": {
+      "source": "var/qa/rune-hero-2026-10-08/hero-after.trx",
+      "sha256": "94ed8308e0f6d07c4366dac912bef01eaf699008ff2f14315bafb40c323531dc",
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "focused": {
+      "source": "var/qa/rune-hero-2026-10-08/rune-hero-focused.trx",
+      "sha256": "ab76bbae82ef46c03fe21c0e620a749b27abffdbac8586964b9f4c5b5bb73338",
+      "total": 26,
+      "passed": 26,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "full": {
+      "source": "var/qa/rune-hero-2026-10-08/rune-hero-full-verified.trx",
+      "sha256": "53c1ebc541edb7d0681d87ac16925d0c38c7aec367147a761d9304b55514440c",
+      "total": 9398,
+      "passed": 9398,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "nativeProof": {
+    "marker": "RUNE_HERO_INTERACTION_PASS",
+    "file": "native-proof.txt",
+    "sha256": "ab09da4eb16a39d61e2b6cbbb990983c2c64cd2320163938b7ded70c3e337bfe"
+  },
+  "macosRuntime": {
+    "batchTap": true,
+    "singleDirectTap": true,
+    "directRecycleExhaustedRune": true,
+    "championQuoteAndActualPlay": true,
+    "batchRecycleThree": true,
+    "snapshotAfterPeerReconnectObserved": true,
+    "qaRoom": "RUNE-HERO-QA-1008-4501852",
+    "qaTurn": 3,
+    "qaTick": 13,
+    "actionReplayMatches": true,
+    "replayFile": "qa-replay.json",
+    "expectedStateHash": "058f0f8f406db2896b23d94cbbd6fd91a018e720dfd57bc13bbf8eca5fdd8cf2",
+    "replayedStateHash": "058f0f8f406db2896b23d94cbbd6fd91a018e720dfd57bc13bbf8eca5fdd8cf2"
+  },
+  "userMatchPreservation": {
+    "room": "RB-TRY-1008",
+    "tick": 32,
+    "turn": 4,
+    "activePlayer": "试玩玩家二",
+    "scores": {
+      "试玩玩家一": 1,
+      "试玩玩家二": 0
+    },
+    "authoritativeStateStructurallyUnchanged": true,
+    "beforeSource": "var/qa/rune-hero-2026-10-08/user-before-state.json",
+    "afterSource": "var/qa/rune-hero-2026-10-08/user-after-final-state.json",
+    "restoredBothNativeClients": true,
+    "localReconnectCredentialRefresh": "verified existing player keys and same seats; only session metadata refreshed",
+    "screenshots": [
+      "user-player1-restored.jpg",
+      "user-player2-restored.jpg"
+    ]
+  },
+  "packages": {
+    "Riftbound-macos.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-rune-hero/Riftbound-macos.zip",
+      "sha256": "423958a6576d4eaee8e121c0d60c57ce47d7916408cdf675e59f2b4131b31eb2",
+      "exported": true
+    },
+    "Riftbound-windows-x64.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-rune-hero/Riftbound-windows-x64.zip",
+      "sha256": "6c8c1abd9b51f344d4f4993eeae56ec9db4460e38f9c4ba080c38d29d7a3a156",
+      "exported": true
+    }
+  },
+  "validationBoundaries": {
+    "windowsRuntimeTested": false,
+    "fullGameCompletedInThisQa": false,
+    "allRulesOrCardsComplete": false
+  },
+  "screenshots": {
+    "batch-tapped.jpg": "37133fb3424f1f4ac4179d8d63bdb8fc908a1900e1f20c0b2a7dc97a3d8676e9",
+    "hero-entered.jpg": "9ba6217c9ac03eb290597c9a726f5118f4484fc86968bd07bfae35e61ab76688",
+    "user-player1-restored.jpg": "6510e4b9d0bfcd3845980ca669937d59659a43d9c8a921a1415830bf3cfbcc35",
+    "hero-quote.jpg": "d4e11951441dc1c62ae8ae208855c487d3f5c8d811349b967abccb1849770247",
+    "user-player2-restored.jpg": "8c68b1681800ebffb3d5568eeba2f6fc6378f1b552de5c172db64359c13fd8a8",
+    "batch-selected.jpg": "ba2e3df779f79283b2f2c83f76f2fc97714af9a2e6ab720ab5134e75aaaa12f4",
+    "batch-recycled.jpg": "a888175529fd7f9221b6c38fcb616abf85f7abc449d1c1ca3d7bd70bd221e6a1"
+  }
+}

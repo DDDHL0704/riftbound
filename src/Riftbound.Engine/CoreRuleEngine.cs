@@ -15638,6 +15638,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         TapRuneCommand command)
     {
+        if (command.SourceObjectIds is not null)
+            return ResolveRuneBatch(state, intent, command.SourceObjectId, command.SourceObjectIds, recycle: false);
         if (!ResourceActionWindow.CanAct(state, intent.PlayerId))
         {
             return RejectWithCorePrompts(
@@ -15740,6 +15742,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         RecycleRuneCommand command)
     {
+        if (command.SourceObjectIds is not null)
+            return ResolveRuneBatch(state, intent, command.SourceObjectId, command.SourceObjectIds, recycle: true);
         if (!ResourceActionWindow.CanAct(state, intent.PlayerId))
         {
             return RejectWithCorePrompts(
@@ -29353,7 +29357,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                "出牌只能选择自己手牌中的牌。",
+                "出牌只能选择当前允许的来源；普通打出可来自己方手牌或选定英雄区。",
                 ErrorCodes.CardNotInHand);
             return false;
         }
@@ -29364,7 +29368,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 rejection = Reject(
                     state,
-                    "出牌需要服务端已确认的手牌信息。",
+                    "出牌需要服务端已确认的卡牌信息。",
                     ErrorCodes.UnsupportedCardBehavior);
                 return false;
             }
@@ -29373,7 +29377,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 rejection = Reject(
                     state,
-                    "出牌的手牌信息与提交的牌不匹配。",
+                    "出牌的卡牌信息与提交的牌不匹配。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
@@ -29382,7 +29386,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 rejection = Reject(
                     state,
-                    "出牌只能选择当前玩家控制的手牌。",
+                    "出牌只能选择当前玩家控制的合法来源。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
@@ -33236,6 +33240,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         playerZones[playerId] = zones with
         {
+            ChampionZone = RemoveFromZone(zones.ChampionZone, sourceObjectId),
             Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
             Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
             Hand = zones.Hand

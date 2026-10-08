@@ -26,6 +26,11 @@ public sealed class MatchTableRenderer
     private readonly MatchTableLayout.Battlefield[] _battlefields;
     private readonly Dictionary<string, CardBinding> _cardBindings = new(StringComparer.Ordinal);
     private string _viewerPlayerId = string.Empty;
+    private readonly Dictionary<string, Button> _runeRecycleButtons = new(StringComparer.Ordinal);
+    private Button? _runeBatchButton;
+    private readonly HashSet<string> _tapRunes = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _recycleRunes = new(StringComparer.Ordinal);
+    private bool _runePending;
 
     private Vector2 _handCardSize = new(112, 156);
     private Vector2 _tableCardSize = new(84, 117);
@@ -54,6 +59,7 @@ public sealed class MatchTableRenderer
     {
         ConfigureCardSizes();
         _cardBindings.Clear();
+        _runeRecycleButtons.Clear(); _runeBatchButton = null;
 
         var opponent = ReadDictionary(wireTable, "opponent");
         var self = ReadDictionary(wireTable, "self");
@@ -124,6 +130,14 @@ public sealed class MatchTableRenderer
     public CardDictionary? VisibleCard(string objectId) => _cardBindings.TryGetValue(objectId, out var binding) ? binding.Card : null;
     public OfficialCardView? CardControl(string objectId) => _cardBindings.TryGetValue(objectId, out var binding) ? binding.View : null;
 
+    public void SetRuneActions(IEnumerable<string> tap, IEnumerable<string> recycle, bool pending)
+    {
+        _tapRunes.Clear(); _tapRunes.UnionWith(tap);
+        _recycleRunes.Clear(); _recycleRunes.UnionWith(recycle); _runePending = pending;
+        foreach (var (id, button) in _runeRecycleButtons) button.Disabled = pending || !_recycleRunes.Contains(id);
+        if (_runeBatchButton is not null) _runeBatchButton.Disabled = pending || _tapRunes.Count + _recycleRunes.Count == 0;
+    }
+
     private void ConfigureCardSizes()
     {
         var compactViewport = _screen.GetViewportRect().Size.Y <= 760;
@@ -173,6 +187,7 @@ public sealed class MatchTableRenderer
         {
             var cards = ReadCards(player, key);
             var showEveryCard = key is "base" or "baseRunes";
+            var ownRunes = key == "baseRunes" && ReadString(player, "playerId") == _viewerPlayerId;
             var zone = new VBoxContainer
             {
                 Name = $"{key}Zone",
@@ -196,7 +211,17 @@ public sealed class MatchTableRenderer
             }
             else
             {
-                zone.AddChild(SecondaryLabel(cards.Count == 0 ? $"{label} 0" : label));
+                var header = new HBoxContainer(); zone.AddChild(header);
+                header.AddChild(SecondaryLabel(cards.Count == 0 ? $"{label} 0" : label));
+                if (ownRunes && cards.Count > 0)
+                {
+                    var hint = SecondaryLabel("点击横置 · Shift 多选"); hint.AddThemeFontSizeOverride("font_size", 11); header.AddChild(hint);
+                    _runeBatchButton = new Button { Text = "批量", CustomMinimumSize = new Vector2(46, 24),
+                        Disabled = _runePending || _tapRunes.Count + _recycleRunes.Count == 0 };
+                    header.AddChild(_runeBatchButton); MinimalTheme.Apply(_runeBatchButton);
+                    _runeBatchButton.AddThemeFontSizeOverride("font_size", 12);
+                    _runeBatchButton.Pressed += _screen.OpenRuneBatch;
+                }
             }
             parent.AddChild(zone);
 
@@ -206,7 +231,17 @@ public sealed class MatchTableRenderer
                 row.AddThemeConstantOverride("h_separation", 5);
                 row.AddThemeConstantOverride("v_separation", 5);
                 zone.AddChild(row);
-                foreach (var card in cards) AddCard(row, card, _compactCardSize);
+                foreach (var card in cards)
+                {
+                    if (!ownRunes) { AddCard(row, card, _compactCardSize); continue; }
+                    var slot = new VBoxContainer(); slot.AddThemeConstantOverride("separation", 2); row.AddChild(slot);
+                    AddCard(slot, card, _compactCardSize);
+                    var id = ReadString(card, "objectId");
+                    var recycle = new Button { Text = "回收", CustomMinimumSize = new Vector2(_compactCardSize.X, 24),
+                        TooltipText = "回收到符文牌堆底部，获得 1 点对应特性的符能", Disabled = _runePending || !_recycleRunes.Contains(id) };
+                    slot.AddChild(recycle); MinimalTheme.Apply(recycle); recycle.AddThemeFontSizeOverride("font_size", 12);
+                    recycle.Pressed += () => _screen.RecycleRune(id); _runeRecycleButtons[id] = recycle;
+                }
             }
             else if (cards.Count > 0 && key is not ("graveyard" or "banished"))
             {
@@ -381,7 +416,7 @@ public sealed class MatchTableRenderer
         foreach (var child in parent.GetChildren())
         {
             parent.RemoveChild(child);
-            child.Free();
+            child.QueueFree();
         }
     }
 

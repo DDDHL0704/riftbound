@@ -3338,7 +3338,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("出牌需要服务端已确认的手牌信息。", result.ErrorMessage);
+        Assert.Equal("出牌需要服务端已确认的卡牌信息。", result.ErrorMessage);
         Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-HAND-UNKNOWN-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);
@@ -3380,7 +3380,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("出牌的手牌信息与提交的牌不匹配。", result.ErrorMessage);
+        Assert.Equal("出牌的卡牌信息与提交的牌不匹配。", result.ErrorMessage);
         Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-SPELL-HEXTECH-RAY"], result.State.PlayerZones["P1"].Hand);
@@ -3421,7 +3421,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("出牌只能选择当前玩家控制的手牌。", result.ErrorMessage);
+        Assert.Equal("出牌只能选择当前玩家控制的合法来源。", result.ErrorMessage);
         Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);

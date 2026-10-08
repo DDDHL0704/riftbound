@@ -30,6 +30,16 @@ public sealed record PlayerSessionSettings(
             : settings;
     }
 
+    public static PlayerSessionSettings WithConnectionTarget(PlayerSessionSettings settings,
+        string handle, string roomId, string? serverUrl)
+    {
+        var sameTarget = string.Equals(settings.Handle.Trim(), handle.Trim(), StringComparison.OrdinalIgnoreCase)
+            && settings.RoomId == roomId
+            && string.Equals(settings.ServerUrl?.TrimEnd('/'), serverUrl?.TrimEnd('/'), StringComparison.Ordinal);
+        return settings with { Handle = handle, RoomId = roomId, ServerUrl = serverUrl,
+            ReconnectToken = sameTarget ? settings.ReconnectToken : null };
+    }
+
     private static string GeneratePlayerKey()
     {
         return $"pk_{Guid.NewGuid():N}{Guid.NewGuid():N}";

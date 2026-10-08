@@ -12,6 +12,8 @@ public partial class MatchScreen : AppScreen
     public event Action<CardDictionary>? CardActivated;
     public event Action<CardDictionary>? CardInspectionRequested;
     public event Action<string>? DestinationActivated;
+    public event Action<string>? RuneRecycleRequested;
+    public event Action? RuneBatchRequested;
     public event Action<string, CardArray>? PublicPileRequested;
     public event Action? ReconnectRequested;
     public event Action? ReturnToLobbyRequested;
@@ -242,6 +244,10 @@ public partial class MatchScreen : AppScreen
                 if (button.HasMeta("objectId") && button.GetMeta("objectId").AsString() == objectId)
                     button.AddThemeStyleboxOverride("normal", MinimalTheme.Outline(state));
     }
+    public void SetRuneActions(IEnumerable<string> tap, IEnumerable<string> recycle, bool pending)
+        => _renderer?.SetRuneActions(tap, recycle, pending);
+    internal void RecycleRune(string id) => RuneRecycleRequested?.Invoke(id);
+    internal void OpenRuneBatch() => RuneBatchRequested?.Invoke();
     public void SetDestinationChoices(IEnumerable<string> choices, string? selected = null)
     {
         var legal = choices.ToHashSet(StringComparer.Ordinal);

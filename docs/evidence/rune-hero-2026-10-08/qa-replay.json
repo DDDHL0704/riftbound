@@ -1,0 +1,140 @@
+{
+  "roomId": "RUNE-HERO-QA-1008-4501852",
+  "tick": 13,
+  "turnNumber": 3,
+  "playerScores": {
+    "符文英雄验收4501852-1": 0,
+    "符文英雄验收4501852-2": 0
+  },
+  "validationErrors": [],
+  "isMatch": true,
+  "expectedStateHash": "058f0f8f406db2896b23d94cbbd6fd91a018e720dfd57bc13bbf8eca5fdd8cf2",
+  "replayedStateHash": "058f0f8f406db2896b23d94cbbd6fd91a018e720dfd57bc13bbf8eca5fdd8cf2",
+  "errors": [],
+  "commands": [
+    {
+      "commandType": "TAP_RUNE",
+      "startedTick": 7,
+      "completedTick": 8,
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "promptId": "RUNE-HERO-QA-1008-4501852:7:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 7,
+        "sourceObjectId": "符文英雄验收4501852-1-RUNE-OGN-007b-298-03",
+        "sourceObjectIds": [
+          "符文英雄验收4501852-1-RUNE-OGN-007b-298-03"
+        ]
+      }
+    },
+    {
+      "commandType": "TAP_RUNE",
+      "startedTick": 8,
+      "completedTick": 9,
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "promptId": "RUNE-HERO-QA-1008-4501852:8:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 8,
+        "sourceObjectId": "符文英雄验收4501852-1-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": [
+          "符文英雄验收4501852-1-RUNE-OGN-007a-298-02"
+        ]
+      }
+    },
+    {
+      "commandType": "TAP_RUNE",
+      "startedTick": 9,
+      "completedTick": 10,
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "promptId": "RUNE-HERO-QA-1008-4501852:9:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 9,
+        "sourceObjectId": "符文英雄验收4501852-1-RUNE-SFD-R01b-09",
+        "sourceObjectIds": [
+          "符文英雄验收4501852-1-RUNE-SFD-R01b-09",
+          "符文英雄验收4501852-1-RUNE-SFD-R03-10"
+        ]
+      }
+    },
+    {
+      "commandType": "RECYCLE_RUNE",
+      "startedTick": 10,
+      "completedTick": 11,
+      "rawCommand": {
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "RUNE-HERO-QA-1008-4501852:10:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 10,
+        "sourceObjectId": "符文英雄验收4501852-1-RUNE-OGN-007b-298-03",
+        "sourceObjectIds": [
+          "符文英雄验收4501852-1-RUNE-OGN-007b-298-03"
+        ]
+      }
+    },
+    {
+      "commandType": "PLAY_CARD",
+      "startedTick": 11,
+      "completedTick": 12,
+      "rawCommand": {
+        "mode": "",
+        "cardNo": "UNL-022/219",
+        "cmdType": "PLAY_CARD",
+        "promptId": "RUNE-HERO-QA-1008-4501852:11:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "destination": "BASE",
+        "snapshotTick": 11,
+        "optionalCosts": [],
+        "sourceObjectId": "符文英雄验收4501852-1-CHAMPION-UNL-022-219-01",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "commandType": "RECYCLE_RUNE",
+      "startedTick": 12,
+      "completedTick": 13,
+      "rawCommand": {
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "RUNE-HERO-QA-1008-4501852:12:符文英雄验收4501852-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 12,
+        "sourceObjectId": "符文英雄验收4501852-1-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": [
+          "符文英雄验收4501852-1-RUNE-OGN-007a-298-02",
+          "符文英雄验收4501852-1-RUNE-SFD-R01b-09",
+          "符文英雄验收4501852-1-RUNE-SFD-R03-10"
+        ]
+      }
+    }
+  ],
+  "resources": {
+    "符文英雄验收4501852-1": {
+      "mana": 0,
+      "power": 0,
+      "powerByTrait": {
+        "red": 2,
+        "blue": 1
+      }
+    },
+    "符文英雄验收4501852-2": {
+      "mana": 0,
+      "power": 0,
+      "powerByTrait": {}
+    }
+  },
+  "zones": {
+    "符文英雄验收4501852-1": {
+      "championZone": [],
+      "base": [
+        "符文英雄验收4501852-1-CHAMPION-UNL-022-219-01"
+      ],
+      "runeDeckCount": 12
+    },
+    "符文英雄验收4501852-2": {
+      "championZone": [
+        "符文英雄验收4501852-2-CHAMPION-UNL-022-219-01"
+      ],
+      "base": [
+        "符文英雄验收4501852-2-RUNE-OGN-007a-298-02",
+        "符文英雄验收4501852-2-RUNE-OGN-089a-298-05",
+        "符文英雄验收4501852-2-RUNE-OGN-007b-298-03"
+      ],
+      "runeDeckCount": 9
+    }
+  }
+}
