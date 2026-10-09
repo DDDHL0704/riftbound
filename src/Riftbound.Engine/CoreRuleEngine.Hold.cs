@@ -50,7 +50,8 @@ public sealed partial class CoreRuleEngine
                     || (source != field && card.ControllerId != player)) continue;
                 var abilities = new List<(string Kind, int Amount)>();
                 if (HeldDefinition(card.CardNo) is { } definition
-                    && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)) abilities.Add(definition);
+                    && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
+                    && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add(definition);
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt));
                 foreach (var ability in abilities)
@@ -76,8 +77,7 @@ public sealed partial class CoreRuleEngine
         return state with { TriggerQueue = queue, DelayedResourceGains = delayed };
     }
 
-    private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item,
-        IReadOnlyList<string>? choices = null)
+    private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
@@ -104,29 +104,12 @@ public sealed partial class CoreRuleEngine
         var triggers = new List<TriggerQueueItemState>();
         var rng = state.RngCursor;
         string? winner = null;
-        PendingCardChoiceState? pending = null;
         PendingPaymentState? payment = null;
         var sourceExists = cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == context.SourceGeneration
             && (IsObjectOnField(zones, item.SourceObjectId) || zones[player].LegendZone.Contains(item.SourceObjectId));
         var resolvedTarget = HasHeldTargetConfirmation(item) ? HeldResolvedTarget(state, item) : null;
         if (HasHeldTargetConfirmation(item) && resolvedTarget is null) return Result();
-        string[] LegalChoices() => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
-            cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [];
-        var needsChoice = context.Kind == "RETURN_HERO";
-        if (needsChoice && choices is null)
-        {
-            var legal = LegalChoices();
-            if (legal.Length > 0)
-                pending = new($"hold-choice-{state.Tick + 1}-{item.StackItemId}", "HOLD_EFFECT", player,
-                    0, 1, legal,
-                    [field],
-                    "据守效果：选择英雄返回，或不选并确认以放弃",
-                    item.SourceObjectId, item.EffectKind) { HeldContext = context };
-            return Result();
-        }
-        if (needsChoice && choices!.Count == 0) return Result();
-        if (needsChoice && choices!.Any(id => !LegalChoices().Contains(id))) return Result();
         events.Add(new("TRIGGER_RESOLVED", "据守技能结算", new Dictionary<string, object?> {
             ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = item.SourceObjectId,
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
@@ -179,7 +162,8 @@ public sealed partial class CoreRuleEngine
             case "RETURN_SELF": if (sourceExists) ReturnToHand(item.SourceObjectId); break;
             case "RETURN_PERMANENT": ReturnToHand(resolvedTarget!); break;
             case "RETURN_HERO":
-                var hero = choices![0]; zones[player] = zones[player] with { Graveyard = RemoveFromZone(zones[player].Graveyard, hero), ChampionZone = [hero] };
+                var hero = resolvedTarget!; zones[player] = zones[player] with { Graveyard = RemoveFromZone(zones[player].Graveyard, hero), ChampionZone = [hero] };
+                ResetCardOutsidePlay(zones, cards, hero, cards[hero], player);
                 events.Add(new("HERO_RETURNED_TO_CHAMPION_ZONE", "英雄从废牌堆返回英雄区域", new Dictionary<string,object?> {
                     ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = hero }));
                 break;
@@ -251,35 +235,8 @@ public sealed partial class CoreRuleEngine
             return locations;
         }
         StackResolutionResult Result() => new(zones, cards, scores, experience, state.RunePools, effects, winner,
-            events, [], null, [], null, triggers, rng, PendingCardChoice: pending, PendingPayment: payment,
+            events, [], null, [], null, triggers, rng, PendingPayment: payment,
             ObjectLocations: HoldResultLocations());
-    }
-
-    private static bool IsSelectedChampionObjectId(MatchState state, string player, string id, CardObjectState card) =>
-        state.PlayerDecklists.TryGetValue(player, out var deck)
-        && OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo([deck.ChampionCardNo])
-            .GetValueOrDefault(OfficialCardSourceIdentityGroups.NormalizeCardNo(deck.ChampionCardNo), [deck.ChampionCardNo])
-            .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(card.CardNo));
-
-    private static ResolutionResult ResolveHeldChoice(MatchState state, PendingCardChoiceState pending, IReadOnlyList<string> choices)
-    {
-        var context = pending.HeldContext!;
-        var item = new StackItemState(pending.ChoiceId, pending.PlayerId, pending.SourceObjectId, pending.EffectKind, context.CardNo) { HeldContext = context };
-        var resolved = ResolveHeldStackItem(state, item, choices);
-        var next = state with { Tick = state.Tick + 1, PendingCardChoice = resolved.PendingCardChoice, PlayerZones = resolved.PlayerZones,
-            PendingPayment = resolved.PendingPayment, TriggerQueue = state.TriggerQueue.Concat(resolved.TriggerQueue).ToArray(),
-            CardObjects = resolved.CardObjects, ObjectLocations = resolved.ObjectLocations!, PlayerScores = resolved.PlayerScores,
-            PlayerExperience = resolved.PlayerExperience, UntilEndOfTurnEffects = resolved.UntilEndOfTurnEffects,
-            RngCursor = resolved.RngCursor, WinnerPlayerId = resolved.WinnerPlayerId,
-            Status = resolved.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished };
-        if (next.PendingCardChoice is null && next.PendingPayment is null) next = RestoreAfterHeldChoice(next);
-        return new(true, null, next, resolved.Events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
-    }
-    private static MatchState RestoreAfterHeldChoice(MatchState state)
-    {
-        var priority = state.StackItems.LastOrDefault()?.ControllerId;
-        return state with { ActivePlayerId = priority ?? state.TurnPlayerId, PriorityPlayerId = priority,
-            PassedPriorityPlayerIds = [], TimingState = priority is null ? TimingStates.NeutralOpen : TimingStates.NeutralClosed };
     }
 
 }

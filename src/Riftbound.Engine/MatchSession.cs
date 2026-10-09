@@ -984,9 +984,6 @@ public sealed record PendingCardChoiceState
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public HeldTriggerContext? HeldContext { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ResolvingStackItemId { get; init; }
 
 
@@ -4337,7 +4334,7 @@ public sealed record MatchState
             pendingCardChoice.ContextObjectIds,
             pendingCardChoice.Reason,
             pendingCardChoice.SourceObjectId,
-            pendingCardChoice.EffectKind) { HeldContext = pendingCardChoice.HeldContext, DeckContext = pendingCardChoice.DeckContext, HandContext = pendingCardChoice.HandContext, ResolvingStackItemId = pendingCardChoice.ResolvingStackItemId };
+            pendingCardChoice.EffectKind) { DeckContext = pendingCardChoice.DeckContext, HandContext = pendingCardChoice.HandContext, ResolvingStackItemId = pendingCardChoice.ResolvingStackItemId };
     }
 
     private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
@@ -5355,7 +5352,7 @@ public sealed record ResolutionResult(
             }).ToArray();
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
-            "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
+            "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "RETURN_HERO" => "据守返回选定英雄", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;

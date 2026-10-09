@@ -45,7 +45,7 @@ public sealed partial class CoreRuleEngine
     {
         var top = state.StackItems.LastOrDefault();
         if (choice.ChoiceWindow != "REVEALED_HAND_EFFECT" || choice.HandContext is not { } context || top is null
-            || choice.DeckContext is not null || choice.HeldContext is not null || choice.ResolvingStackItemId is not null
+            || choice.DeckContext is not null || choice.ResolvingStackItemId is not null
             || context.Cards is null || context.StackItemId != top.StackItemId || context.ExecutionIndex != top.CompletedHandExecutions
             || top.CompletedHandExecutions >= top.EffectRepeatCount || top.CompletedHandExecutions < 0
             || choice.PlayerId != top.ControllerId || choice.SourceObjectId != top.SourceObjectId || choice.EffectKind != top.EffectKind

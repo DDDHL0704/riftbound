@@ -1,0 +1,37 @@
+{
+  "authority": "Chinese official core PDF downloaded again; identical to cached file; no whole-site refresh",
+  "sources": [
+    {
+      "file": "var/qa/chosen-champion-return-2026-10-09/current-core.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "103.2.a.3",
+        "132.4",
+        "383.2.a.1",
+        "355.5",
+        "355.10.a",
+        "355.10.d.2",
+        "383.3.e.2",
+        "355.15",
+        "359.3.e",
+        "108.3.c.1",
+        "108.3.d",
+        "124",
+        "419.1.a"
+      ]
+    },
+    {
+      "file": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+      "locators": [
+        "OGN·281/298",
+        "OGN·039/298",
+        "OGN·039a/298",
+        "OGN·112/298",
+        "OGN·202/298",
+        "OGN·202a/298",
+        "ARC-005/006"
+      ]
+    }
+  ]
+}

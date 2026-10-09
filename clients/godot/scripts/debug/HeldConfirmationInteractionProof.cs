@@ -13,7 +13,8 @@ public partial class HeldConfirmationInteractionProof : Control
         try
         {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..];
-            foreach (var source in new[] { "boon", "move", "return", "channel", "ward" })
+            var hero = OS.GetCmdlineUserArgs().Contains("--champion-return");
+            foreach (var source in hero ? new[] { "hero" } : new[] { "boon", "move", "return", "channel", "ward" })
             foreach (var accept in new[] { true, false })
             {
                 if (source == "boon" && !accept) continue;
@@ -27,7 +28,7 @@ public partial class HeldConfirmationInteractionProof : Control
                 var label = controller.Actions.Single(a => a.Name == action).Label;
                 if (source != "ward") Check(label == "确认触发技能", "Confirmation has a specific label");
                 bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
-                var selected = source == "ward" ? new[] { accept ? "PAY" : "DECLINE" } : accept ? [source switch { "boon" => "UNIT", "move" => "ENEMY", "return" => "G2", _ => "F" }] : Array.Empty<string>();
+                var selected = source == "ward" ? new[] { accept ? "PAY" : "DECLINE" } : accept ? [source switch { "hero" => "HERO", "boon" => "UNIT", "move" => "ENEMY", "return" => "G2", _ => "F" }] : Array.Empty<string>();
                 foreach (var id in selected)
                 {
                     if (controller.Current!.TargetIds.Contains(id)) continue;
@@ -48,7 +49,7 @@ public partial class HeldConfirmationInteractionProof : Control
                 Check(command is not null, "Production submit creates the intent");
                 File.WriteAllText(Path.Combine(dir, "command.json"), JsonSerializer.Serialize(command)); bar.Free();
             }
-            GD.Print("HELD_CONFIRMATION_INTERACTION_PASS: nine production target, optional and ward decisions"); GetTree().Quit();
+            GD.Print(hero ? "CHAMPION_RETURN_INTERACTION_PASS: two production target and decline decisions" : "HELD_CONFIRMATION_INTERACTION_PASS: nine production target, optional and ward decisions"); GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }

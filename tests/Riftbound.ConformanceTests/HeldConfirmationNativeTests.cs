@@ -9,6 +9,8 @@ namespace Riftbound.ConformanceTests;
 public sealed class HeldConfirmationNativeTests
 {
     [Theory]
+    [InlineData("hero", true)]
+    [InlineData("hero", false)]
     [InlineData("boon", true)]
     [InlineData("move", true)]
     [InlineData("move", false)]
@@ -20,7 +22,7 @@ public sealed class HeldConfirmationNativeTests
     [InlineData("return", false)]
     public async Task ProductionHeldChoicesRestoreAndReplay(string name, bool accept)
     {
-        var initial = name == "ward" ? WardPosition(true) : Position(name);
+        var initial = name == "ward" ? WardPosition(true) : name == "hero" ? OfficialChosenChampionReturnTests.Position() : Position(name);
         var journal = new Journal(); var engine = new CoreRuleEngine(); var session = new MatchSession(initial, engine, journal);
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_HELD_CONFIRMATION_EVIDENCE");
         var branch = name + (accept ? "-accept" : "-decline");
@@ -42,7 +44,7 @@ public sealed class HeldConfirmationNativeTests
         var prompt = session.PromptFor("P1"); Export("prompt.json", prompt); Export("snapshot.json", result.Snapshots["P1"]);
         GameCommand command = name == "ward"
             ? new PayCostCommand(result.State.PendingPayment!.PaymentId, result.State.PendingPayment.PaymentWindow, [accept ? "PAY" : "DECLINE"])
-            : new ChooseCardsCommand(result.State.PendingCardChoice!.ChoiceId, result.State.PendingCardChoice.ChoiceWindow, accept ? [Pick(name)] : []);
+            : new ChooseCardsCommand(result.State.PendingCardChoice!.ChoiceId, result.State.PendingCardChoice.ChoiceWindow, accept ? [name == "hero" ? "HERO" : Pick(name)] : []);
         var path = directory is null ? null : Path.Combine(directory, "command.json");
         if (path is not null && File.Exists(path)) {
             using var doc = JsonDocument.Parse(File.ReadAllText(path)); command = GameCommandJsonMapper.Map(doc.RootElement);
@@ -53,6 +55,7 @@ public sealed class HeldConfirmationNativeTests
         Assert.DoesNotContain(result.Events, e => e.Kind is "BOON_GRANTED" or "UNIT_MOVED_TO_BASE" or "CARD_RETURNED_TO_HAND");
         if (accept) for (var i = 0; i < 2; i++) result = await Submit(result.State.PriorityPlayerId!, new PassPriorityCommand());
         if (name == "ward") Assert.Equal(accept, result.State.CardObjects["ENEMY"].Tags.Contains(CardObjectTags.Boon));
+        else if (name == "hero") Assert.Equal(accept ? new[] { "HERO" } : [], result.State.PlayerZones["P1"].ChampionZone);
         else AssertOutcome(result.State, name, accept);
         Assert.Empty(result.State.StackItems); Assert.Null(result.State.PendingCardChoice);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,

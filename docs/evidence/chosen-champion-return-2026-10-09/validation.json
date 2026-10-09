@@ -1,0 +1,154 @@
+{
+  "baselineCommit": "81bb48bfd5bb26096395108c7f7c9cdb0009303b",
+  "addedCases": 21,
+  "red": {
+    "total": 4,
+    "failed": 4,
+    "evidence": "var/qa/chosen-champion-return-2026-10-09/red/focus/results.trx"
+  },
+  "focused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 39.03,
+    "total": 70,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 70,
+        "passed": 70,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.46
+      }
+    ]
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 84.6,
+    "total": 9149,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9149,
+        "passed": 9149,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 79.79
+      }
+    ]
+  },
+  "nativeCommandReplay": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 12.13,
+    "total": 11,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.43
+      }
+    ]
+  },
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/chosen-champion-return-2026-10-09/native-build.log"
+  },
+  "nativeControls": {
+    "newCommands": 2,
+    "relatedCommands": 9,
+    "evidence": [
+      "var/qa/chosen-champion-return-2026-10-09/native-hero-proof.log",
+      "var/qa/chosen-champion-return-2026-10-09/native-related-proof.log"
+    ]
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/boon-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/channel-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/channel-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/hero-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/hero-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/move-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/move-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/return-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/return-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/ward-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/chosen-champion-return-2026-10-09/native/ward-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 37951069532,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "limits": [
+    "Full long-game matrix remains in CI",
+    "Headless controls do not prove visual or two-client full-match acceptance",
+    "macOS packaging and Windows device acceptance not performed",
+    "API and current matches not restarted",
+    "Other legend conquest and token-destination flows remain open"
+  ]
+}

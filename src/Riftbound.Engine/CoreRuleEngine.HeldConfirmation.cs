@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasHeldTargetConfirmation(StackItemState item)
-        => item.HeldContext?.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT";
+        => item.HeldContext?.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO";
     private static bool NeedsHeldTargetConfirmation(StackItemState item)
         => HasHeldTargetConfirmation(item) && item.TargetGenerations is null;
 
@@ -16,6 +16,9 @@ public sealed partial class CoreRuleEngine
             "BOON" => HeldUnitsAt(state, item.HeldContext.BattlefieldObjectId),
             "MOVE_BASE" => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.AtUnit(state, id) is not null
                 && MovementRestrictionRules.CanMove(state.CardObjects[id], player) && !BattlefieldLocalRules.PreventsMoveToBase(state, id)),
+            "RETURN_HERO" => ChosenChampionRules.CanReturnToChampionZone(state, player)
+                ? state.PlayerZones[player].Graveyard.Where(id => state.CardObjects.TryGetValue(id, out var card)
+                    && ChosenChampionRules.Matches(state, player, card)) : [],
             "RETURN_PERMANENT" => state.PlayerZones[player].Graveyard.Where(id => state.CardObjects.TryGetValue(id, out var card)
                 && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))),
             _ => []
@@ -29,6 +32,7 @@ public sealed partial class CoreRuleEngine
         var reason = item.HeldContext!.Kind switch {
             "BOON" => "选择此战场的一名单位获得增益；确认目标及法盾费用后，双方可以响应。",
             "MOVE_BASE" => "选择任意战场上的一名单位移回其基地；不选则放弃。确认目标及法盾费用后，双方可以响应。",
+            "RETURN_HERO" => "选择废牌堆中与选定英雄同名的一张英雄单位返回英雄区；不选则放弃。确认后双方可以响应。",
             _ => "选择自己废牌堆的一名单位或一件装备返回手牌；不选则放弃。确认后双方可以响应。"
         };
         return new("HELD-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,

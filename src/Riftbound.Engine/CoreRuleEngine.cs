@@ -4212,8 +4212,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
 
-        if (pendingChoice.ChoiceWindow == "HOLD_EFFECT")
-            return ResolveHeldChoice(state, pendingChoice, submittedObjectIds);
 
         if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
             && string.Equals(

@@ -25921,7 +25921,7 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTriggerTargetPayment(state, targetPayment)) errors.Add("invalid trigger target payment");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidHeldTargetStack(state, item)) errors.Add("invalid held target confirmation");
-        if (state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT", HeldContext: { Kind: not "RETURN_HERO" } })
+        if (state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT" })
             errors.Add("obsolete held resolution choice");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.OptionalTriggerWindow } creationCost
             && !CoreRuleEngine.ValidTriggerCostChoice(state, creationCost)) errors.Add("invalid trigger cost choice");
@@ -26111,7 +26111,7 @@ public static class MatchRecoveryValidator
             // A captured delayed ability is independent of the source's current zone/controller.
         }
         foreach (var context in state.StackItems.Select(x => x.HeldContext)
-            .Concat(state.TriggerQueue.Select(x => x.HeldContext)).Append(state.PendingCardChoice?.HeldContext)
+            .Concat(state.TriggerQueue.Select(x => x.HeldContext))
             .Where(x => x is not null))
         {
             if (string.IsNullOrWhiteSpace(context!.CardNo) || string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
@@ -26124,7 +26124,6 @@ public static class MatchRecoveryValidator
         }
         if (state.StackItems.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
             || state.TriggerQueue.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
-            || state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT", HeldContext: null }
             || state.PendingPayment is { PaymentWindow: "HOLD_EFFECT" })
             errors.Add("missing captured Hold context");
     }
