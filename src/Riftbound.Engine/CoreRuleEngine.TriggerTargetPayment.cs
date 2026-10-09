@@ -9,6 +9,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
             && (HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
+                || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
                 || item.FieldContext is { } field && ValidFieldContext(field, item.EffectKind, item.CardNo)
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo))
             && item.TargetObjectIds.Count == 1 && item.TargetGenerations is { Count: 1 } generations
@@ -28,6 +29,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var target = item.TargetObjectIds[0];
         var legal = HasHeldTargetConfirmation(item) ? HeldTargetChoices(state, item)
+            : HasLegendConquestTarget(item) ? LegendConquestTargets(state, item)
             : item.FieldContext is not null ? FieldTriggerTargets(state, item) : ReflexiveCopyTargets(state, item);
         if (choices[0] == "DECLINE" || !legal.Contains(target)
             || item.TargetGenerations![target] != state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration)

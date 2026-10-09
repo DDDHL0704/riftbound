@@ -4375,7 +4375,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -4386,7 +4386,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { LegendConquest = trigger.LegendConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -17928,85 +17928,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static IReadOnlyList<GameEvent> ResolveLegendConquestOverkillExhaustReadyUnitTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string attackerObjectId,
-        int assignedOverkillDamageToEnemyUnits)
-    {
-        if (!TryGetActiveLegendConquestOverkillExhaustReadyUnitSource(
-                playerZones,
-                cardObjects,
-                playerId,
-                out var legendObjectId,
-                out var legendState,
-                out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ExhaustedUnitOnField, StringComparison.Ordinal)
-            || trigger.RequiredOverkillDamage is not > 0
-            || assignedOverkillDamageToEnemyUnits < trigger.RequiredOverkillDamage.Value
-            || trigger.ExhaustsSource is not true
-            || trigger.UnitReadyCount is not 1
-            || !TryGetLegendConquestReadyUnitTarget(
-                playerZones,
-                cardObjects,
-                out var readyTargetObjectId,
-                out var readyTargetState))
-        {
-            return [];
-        }
-
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = true
-        };
-        cardObjects[readyTargetObjectId] = readyTargetState with
-        {
-            IsExhausted = false
-        };
-
-        return
-        [
-            new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的传奇因过量伤害征服触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = trigger.Kind,
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
-                    ["readyTargetObjectId"] = readyTargetObjectId
-                }),
-            new GameEvent(
-                "LEGEND_EXHAUSTED",
-                $"{legendObjectId} 变为休眠状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = trigger.Kind
-                }),
-            new GameEvent(
-                "UNIT_READIED",
-                $"{readyTargetObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["targetObjectId"] = readyTargetObjectId,
-                    ["wasExhausted"] = true,
-                    ["isExhausted"] = false,
-                    ["reason"] = trigger.Kind
-                })
-        ];
-    }
-
     private static void ReadyLegendFriendlyUnit(
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
@@ -18038,137 +17959,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["abilityId"] = abilityId,
                 ["reason"] = "FRIENDLY_UNIT_TARGETED_READY"
             }));
-    }
-
-    private static (IReadOnlyDictionary<string, RunePool> RunePools, IReadOnlyList<GameEvent> Events)
-        ResolveLegendConquestPayReadySelfTrigger(
-            IReadOnlyDictionary<string, PlayerZones> playerZones,
-            Dictionary<string, CardObjectState> cardObjects,
-            IReadOnlyDictionary<string, RunePool> runePools,
-            string playerId,
-            string battlefieldId,
-            string attackerObjectId)
-    {
-        if (!TryGetExhaustedLegendConquestPayReadySelfSource(
-                playerZones,
-                cardObjects,
-                playerId,
-                out var legendObjectId,
-                out var legendState,
-                out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
-            || trigger.ManaCost is not > 0
-            || trigger.LegendReadyCount is not 1
-            || trigger.ReadiesSource is not true)
-        {
-            return (runePools, []);
-        }
-
-        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        var manaCost = trigger.ManaCost.Value;
-        if (currentPool.Mana < manaCost)
-        {
-            return (runePools, []);
-        }
-
-        var nextRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        nextRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost
-        };
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = false
-        };
-
-        return (nextRunePools,
-        [
-            new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的传奇因征服战场触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = trigger.Kind,
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["battlefieldId"] = battlefieldId
-                }),
-            new GameEvent(
-                "COST_PAID",
-                $"{playerId} 支付传奇征服触发费用",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["mana"] = manaCost,
-                    ["power"] = 0,
-                    ["reason"] = trigger.Kind
-                }),
-            new GameEvent(
-                "LEGEND_READIED",
-                $"{legendObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = trigger.Kind
-                })
-        ]);
-    }
-
-    private static IReadOnlyList<GameEvent> ResolveLegendConquestReadySelfTrigger(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string attackerObjectId)
-    {
-        if (!TryGetExhaustedLegendConquestReadySelfSource(
-                playerZones,
-                cardObjects,
-                playerId,
-                out var legendObjectId,
-                out var legendState,
-                out var trigger)
-            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
-            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceLegend, StringComparison.Ordinal)
-            || trigger.LegendReadyCount is not 1
-            || trigger.ReadiesSource is not true)
-        {
-            return [];
-        }
-
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = false
-        };
-
-        return
-        [
-            new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的传奇因征服战场触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = trigger.Kind,
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["battlefieldId"] = battlefieldId
-                }),
-            new GameEvent(
-                "LEGEND_READIED",
-                $"{legendObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = trigger.Kind
-                })
-        ];
     }
 
     private static bool TryApplySettLegendDestroyReplacement(
@@ -18558,43 +18348,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryGetExhaustedLegendConquestReadySelfSource(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState,
-        out TriggerSpec trigger)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        trigger = default!;
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetTrigger(
-                    candidate.CardNo,
-                    LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger,
-                    out var triggerSpec)
-                || !candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            trigger = triggerSpec;
-            return true;
-        }
-
-        return false;
-    }
 
     private static bool TryGetActiveSettLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -18627,43 +18380,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryGetExhaustedLegendConquestPayReadySelfSource(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState,
-        out TriggerSpec trigger)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        trigger = default!;
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetTrigger(
-                    candidate.CardNo,
-                    LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger,
-                    out var triggerSpec)
-                || !candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            trigger = triggerSpec;
-            return true;
-        }
-
-        return false;
-    }
 
     private static bool TryGetFirstExhaustedLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -18696,71 +18412,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryGetActiveLegendConquestOverkillExhaustReadyUnitSource(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState,
-        out TriggerSpec trigger)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        trigger = default!;
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
 
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !LegendConquestTriggerSpecRules.TryGetTrigger(
-                    candidate.CardNo,
-                    LegendConquestTriggerSpecRules.IsLegendConquestOverkillExhaustReadyUnitTrigger,
-                    out var triggerSpec)
-                || candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            trigger = triggerSpec;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryGetLegendConquestReadyUnitTarget(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        out string readyTargetObjectId,
-        out CardObjectState readyTargetState)
-    {
-        readyTargetObjectId = string.Empty;
-        readyTargetState = new CardObjectState();
-        foreach (var objectId in playerZones
-            .Values
-            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal))
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            readyTargetObjectId = objectId;
-            readyTargetState = candidate;
-            return true;
-        }
-
-        return false;
-    }
 
     private static bool TryGetActiveVexLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -30095,6 +29747,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
+        if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);

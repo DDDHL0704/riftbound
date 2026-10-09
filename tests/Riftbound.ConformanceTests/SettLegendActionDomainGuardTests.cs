@@ -233,20 +233,17 @@ public sealed class SettLegendActionDomainGuardTests
     [Fact]
     public async Task SettLegendExhaustedReprintReadiesOnConquer()
     {
-        var state = SettConquerState("OGN·310/298", "P1-LEGEND-SETT-REPRINT", legendExhausted: true);
-
-        var result = await DeclareSettBattleAsync(state, "intent-sett-legend-conquer-ready");
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.False(result.State.CardObjects["P1-LEGEND-SETT-REPRINT"].IsExhausted);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestReadySelf, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["legendObjectId"] as string, "P1-LEGEND-SETT-REPRINT", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-SETT-REPRINT", StringComparison.Ordinal));
+        var opened = await OfficialLegendConquestTests.CombatConquer(
+            OfficialLegendConquestTests.CombatPosition("OGN·310/298", exhausted: true));
+        Assert.True(opened.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Contains(opened.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+        var result = await OfficialGraveyardRecastTests.Top(opened.State);
+        Assert.False(result.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Contains(result.Events, e => e.Kind == "LEGEND_TRIGGER_RESOLVED"
+            && Equals(e.Payload["trigger"], TriggerKinds.LegendConquestReadySelf)
+            && Equals(e.Payload["legendObjectId"], "LEGEND"));
+        Assert.Contains(result.Events, e => e.Kind == "LEGEND_READIED"
+            && Equals(e.Payload["sourceObjectId"], "LEGEND"));
     }
 
     private static async Task<ResolutionResult> DeclareSettBattleAsync(MatchState state, string intentId)
@@ -404,51 +401,6 @@ public sealed class SettLegendActionDomainGuardTests
                     "P2-SETT-DEFENDER",
                     cardNo: "SFD·125/221",
                     power: 3,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
-        };
-    }
-
-    private static MatchState SettConquerState(
-        string legendCardNo,
-        string legendObjectId,
-        bool legendExhausted)
-    {
-        return BaseState(mana: 0) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P1-SETT-ATTACKER"],
-                    LegendZone = [legendObjectId]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-SETT-DEFENDER"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-SETT-ATTACKER"] = new(
-                    "P1-SETT-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                [legendObjectId] = new(
-                    legendObjectId,
-                    cardNo: legendCardNo,
-                    isExhausted: legendExhausted,
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-SETT-DEFENDER"] = new(
-                    "P2-SETT-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

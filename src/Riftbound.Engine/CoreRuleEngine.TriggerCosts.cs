@@ -2,26 +2,31 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Discarded = null, int Power = 0);
+public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Discarded = null, int Power = 0, int Mana = 0);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string TriggerCostWindow = "TRIGGER_COST_CONFIRMATION";
     internal const string OptionalTriggerWindow = "TRIGGER_OPTIONAL_CONFIRMATION";
-    private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0);
+    private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0, int Mana = 0);
 
     // CN 204.3.a: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.HeldContext?.Kind switch {
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.LegendConquest?.Kind switch {
+        "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
+        "EXHAUST_READY_UNIT" => new(Exhaust: true),
+        _ => item.HeldContext?.Kind switch {
         "LEBLANC_DISCARD" => new(Exhaust: true, Discard: true),
         "VEX" or "RENATA" or "IVERN" => new(Exhaust: true),
         "BRUSH_RETURN" or "CHANNEL_OPTIONAL" => new(),
         "PAY_POWER_SCORE" => new(Power: 4),
         _ => null
+        }
     };
     internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;
 
-    private static bool ValidLeadingCostContext(StackItemState item) => item.HeldContext is { } held
+    private static bool ValidLeadingCostContext(StackItemState item) => item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
+        : item.HeldContext is { } held
         && LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo
         && (HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
             || held.Kind == "BRUSH_RETURN" && P6TokenFactoryCatalog.IsBrushBattlefieldToken(held.CardNo) && held.Amount == 0)
@@ -50,20 +55,22 @@ public sealed partial class CoreRuleEngine
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
 
+    private static long TriggerCostSourceGeneration(StackItemState item) => item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
+
     private static PendingPaymentState TriggerCostPayment(StackItemState item)
         => new("TRIGGER-COST:" + item.StackItemId, TriggerCostWindow, item.ControllerId,
-            powerCost: LeadingTriggerCost(item)!.Power, legalPaymentChoiceIds: ["PAY", "DECLINE"],
-            reason: "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
+            manaCost: LeadingTriggerCost(item)!.Mana, powerCost: LeadingTriggerCost(item)!.Power, legalPaymentChoiceIds: ["PAY", "DECLINE"],
+            reason: item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
             { ResolvingStackItemId = item.StackItemId };
 
     private static ResolutionResult PrepareTriggerCostConfirmation(ResolutionResult result, StackItemState item)
     {
         var state = result.State;
         var cost = LeadingTriggerCost(item)!;
-        if (!ValidLeadingCostContext(item) || cost.Power == 0 && TriggerCostChoices(state, item).Length == 0)
+        if (!ValidLeadingCostContext(item) || cost.Power + cost.Mana == 0 && TriggerCostChoices(state, item).Length == 0)
             return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
-        state = state with { PendingCardChoice = cost.Power == 0 ? TriggerCostChoice(state, item) : null,
-            PendingPayment = cost.Power > 0 ? TriggerCostPayment(item) : null,
+        state = state with { PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null,
+            PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null,
             PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
@@ -71,7 +78,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0 }) return false;
+        if (item is null || item.HeldContext is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }) return false;
         var expected = TriggerCostChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
@@ -84,10 +91,10 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
         if (item is null || !NeedsTriggerCostConfirmation(item) || !ValidLeadingCostContext(item)
-            || LeadingTriggerCost(item) is not { Power: > 0 }) return false;
+            || LeadingTriggerCost(item) is not { } cost || cost.Power + cost.Mana <= 0) return false;
         var expected = TriggerCostPayment(item);
         return payment.PaymentId == expected.PaymentId && payment.PaymentWindow == expected.PaymentWindow
-            && payment.PlayerId == item.ControllerId && payment.PowerCost == expected.PowerCost && payment.ManaCost == 0
+            && payment.PlayerId == item.ControllerId && payment.PowerCost == expected.PowerCost && payment.ManaCost == expected.ManaCost
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(expected.LegalPaymentChoiceIds);
     }
@@ -97,9 +104,9 @@ public sealed partial class CoreRuleEngine
         if (LeadingTriggerCost(item) is not null && !ValidLeadingCostContext(item)) return false;
         if (item.TriggerCost is not { } receipt) return true;
         if (!ValidLeadingCostContext(item) || receipt.Source is null || receipt.Source.ObjectId != item.SourceObjectId
-            || receipt.Source.Generation != item.HeldContext!.SourceGeneration) return false;
+            || receipt.Source.Generation != TriggerCostSourceGeneration(item)) return false;
         var cost = LeadingTriggerCost(item)!;
-        return receipt.Power == cost.Power && (cost.Discard
+        return receipt.Power == cost.Power && receipt.Mana == cost.Mana && (cost.Discard
             ? receipt.Discarded is { } discarded && discarded.ObjectId != item.SourceObjectId && discarded.Generation >= 0
                 && state.CardObjects.TryGetValue(discarded.ObjectId, out var card) && discarded.Generation < card.ObjectGeneration
             : receipt.Discarded is null);
@@ -162,12 +169,13 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         if (choices[0] == "DECLINE") return CompleteTriggerCost(state, item, null, []);
         var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
+            baseManaCost: pending.ManaCost, totalManaCost: pending.ManaCost,
             genericPowerCost: pending.PowerCost, totalPowerCost: pending.PowerCost,
             reason: pending.Reason, sourceObjectId: item.SourceObjectId);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
-        if (!committed.Accepted) return RejectWithCorePrompts(state, "符能不足，可以先使用符文或反应资源技能。", ErrorCodes.InsufficientCost);
+        if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
         return CompleteTriggerCost(state with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience }, item,
-            new(new(item.SourceObjectId, item.HeldContext!.SourceGeneration), Power: pending.PowerCost),
+            new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Power: pending.PowerCost, Mana: pending.ManaCost),
             [new("COST_PAID", "支付触发技能的基础费用", PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools,
                 committed.PlayerExperience, new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId }))]);
     }

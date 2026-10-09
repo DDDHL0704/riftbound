@@ -1,0 +1,142 @@
+{
+  "baselineCommit": "4a7247b821a7b074c3c6c35b3594eea12f3671d9",
+  "addedCases": 33,
+  "red": {
+    "total": 2,
+    "failed": 2,
+    "evidence": "var/qa/legend-conquest-2026-10-10/red/focus/results.trx"
+  },
+  "focused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 54.44,
+    "total": 502,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 502,
+        "passed": 502,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 50.94
+      }
+    ]
+  },
+  "legacyGuardCorrection": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 36.84,
+    "total": 36,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 36,
+        "passed": 36,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.81
+      }
+    ]
+  },
+  "firstBatchCheck": {
+    "total": 9182,
+    "passed": 9181,
+    "failed": 1,
+    "cause": "Historical Sett conquest guard required immediate resolution on a synthetic battlefield; replaced with real combat and response assertions",
+    "evidence": "var/qa/legend-conquest-2026-10-10/check/check/results.trx"
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 74.46,
+    "total": 9182,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9182,
+        "passed": 9182,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 70.88
+      }
+    ]
+  },
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/legend-conquest-2026-10-10/native-build.log"
+  },
+  "nativeControls": {
+    "commands": 4,
+    "evidence": "var/qa/legend-conquest-2026-10-10/native-proof.log"
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/legend-conquest-2026-10-10/native/irelia-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-conquest-2026-10-10/native/irelia-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-conquest-2026-10-10/native/vi-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-conquest-2026-10-10/native/vi-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "runnerTests": {
+    "passed": 6,
+    "failed": 0,
+    "evidence": "var/qa/legend-conquest-2026-10-10/runner-tests.log"
+  },
+  "buildAdjustment": "Single MSBuild node after MSB4166 child exits; root cause unconfirmed. Test sharding and coverage unchanged.",
+  "limits": [
+    "Complete long-game matrix remains in CI",
+    "Headless controls do not prove visual or two-client full-match acceptance",
+    "macOS packaging and Windows device acceptance not performed locally",
+    "User API and current matches not restarted",
+    "Other legend skills and token destinations remain open"
+  ],
+  "evidenceHashes": [
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/focus-final/focus/results.trx",
+      "sha256": "917e685c90e3e958b74aa7e2263d31f60c7161ba2711921f3ebf7cd6512e4fc4"
+    },
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/sett-guard/focus/results.trx",
+      "sha256": "f396481a4831ab976bd79798aca70bb5875f65ba05703bd484d80b662f12822a"
+    },
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/check-final/check/results.trx",
+      "sha256": "2ac81019b2f933ed34232acb2feba3630dc52e58912d5d866e228682a77ebac5"
+    },
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/native-build.log",
+      "sha256": "2df65abb9953e7634c7086abca2d047cc65cf6ac30ca923b11c5b4c060da108b"
+    },
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/native-proof.log",
+      "sha256": "533855d4bbab03a3d0670505758ea819026ee5a9aa7c4557944749a9deec426a"
+    },
+    {
+      "file": "var/qa/legend-conquest-2026-10-10/runner-tests.log",
+      "sha256": "bcbe33d747e32156076372a985ba0af42e8a151433bc06095a0e7fb16fe54e7d"
+    }
+  ]
+}

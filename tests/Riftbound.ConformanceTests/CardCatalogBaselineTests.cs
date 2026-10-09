@@ -5454,7 +5454,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs"));
 
         Assert.DoesNotContain("ResolveIreliaLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestPayReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
@@ -5469,7 +5469,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs"));
 
         Assert.DoesNotContain("ResolveSettLegendConquerReadyTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestReadySelfTrigger", coreRuleEngineSource, StringComparison.Ordinal);
@@ -5484,7 +5484,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs"));
 
         Assert.DoesNotContain("ResolveViLegendOverkillConquerTrigger", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquestOverkillExhaustReadyUnitTrigger", coreRuleEngineSource, StringComparison.Ordinal);
@@ -5504,7 +5504,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "LegendConquestTriggerSpecRules.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs"));
         var legendConquestRulesSource = File.ReadAllText(legendConquestRulesPath);
 
         Assert.DoesNotContain("LegendConquestTriggerSpecRules.TryGetLegendConquest", coreRuleEngineSource, StringComparison.Ordinal);

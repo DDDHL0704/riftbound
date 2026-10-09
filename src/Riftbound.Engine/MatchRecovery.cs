@@ -25917,6 +25917,15 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, trigger.EffectKind)
+                || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                : trigger.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid captured legend conquest");
+        foreach (var item in state.StackItems)
+            if (item.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, item.EffectKind, item.CardNo)
+                || context.Kind == "EXHAUST_READY_UNIT" && item.TriggerCost is not null && (item.TargetObjectIds.Count != 1
+                    || item.TargetGenerations is not { Count: 1 } generations || !generations.ContainsKey(item.TargetObjectIds[0]))
+                : item.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid legend conquest stack");
         if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TriggerTargetCostWindow } targetPayment
             && !CoreRuleEngine.ValidTriggerTargetPayment(state, targetPayment)) errors.Add("invalid trigger target payment");
         foreach (var item in state.StackItems)

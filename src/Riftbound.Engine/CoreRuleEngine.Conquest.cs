@@ -53,7 +53,8 @@ public sealed partial class CoreRuleEngine
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureLegendImageTriggers(playerZones, cardObjects,
                 playerId, battlefieldId, resolutionTick)).Concat(CaptureIvernTriggers(playerZones, cardObjects,
-                playerId, battlefieldId, resolutionTick)).ToArray();
+                playerId, battlefieldId, resolutionTick)).Concat(CaptureLegendConquest(playerZones, cardObjects,
+                playerId, battlefieldId, assignedOverkillDamageToEnemyUnits, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -238,29 +239,6 @@ public sealed partial class CoreRuleEngine
             assignedOverkillDamageToEnemyUnits,
             events);
 
-        events.AddRange(ResolveLegendConquestOverkillExhaustReadyUnitTrigger(
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId,
-            assignedOverkillDamageToEnemyUnits));
-        var legendConquestReadySelfTrigger = ResolveLegendConquestPayReadySelfTrigger(
-            playerZones,
-            cardObjects,
-            runePools,
-            playerId,
-            battlefieldId,
-            sourceObjectId);
-        runePools = legendConquestReadySelfTrigger.RunePools;
-        events.AddRange(legendConquestReadySelfTrigger.Events);
-        var legendConquestReadySelfNoCostTrigger = ResolveLegendConquestReadySelfTrigger(
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId);
-        events.AddRange(legendConquestReadySelfNoCostTrigger);
         var reksaiConquerTrigger = ResolveReksaiLegendConquerRevealTrigger(
             state,
             playerZones,

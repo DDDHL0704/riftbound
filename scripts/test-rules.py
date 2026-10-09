@@ -160,7 +160,8 @@ def main():
     start = time.monotonic()
     print(f'Incremental build; evidence: {output}', flush=True)
     with (output / 'build.log').open('w') as log:
-        subprocess.run([dotnet, 'build', str(PROJECT), '-v:q', '--nologo'], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
+        # Keep project builds in one MSBuild node; test-process sharding remains independent.
+        subprocess.run([dotnet, 'build', str(PROJECT), '-m:1', '-v:q', '--nologo'], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
     discovery = subprocess.run([dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '--list-tests', '-v:q'],
                                cwd=ROOT, env=env, capture_output=True, text=True, check=True)
     (output / 'discovery.log').write_text(discovery.stdout + discovery.stderr)

@@ -81,6 +81,7 @@ public sealed partial class CoreRuleEngine
             || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
+        if (HasLegendConquestTarget(item)) return PrepareLegendConquestTarget(result, item);
         if (NeedsHeldTargetConfirmation(item)) return PrepareHeldTargetConfirmation(result, item);
         if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item);
         if (item.ReflexiveCopy is { TargetConfirmed: false }) return PrepareReflexiveCopyConfirmation(result);
@@ -139,7 +140,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice);
+            || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
     {
@@ -166,6 +167,17 @@ public sealed partial class CoreRuleEngine
     {
         var state = next;
         var selected = item.TargetObjectIds;
+        if (HasLegendConquestTarget(item))
+        {
+            if (!CanPayLegendConquestExhaustion(state, item))
+                return RejectWithCorePrompts(state, "传奇已无法支付横置费用。", ErrorCodes.InvalidTarget);
+            var source = state.CardObjects[item.SourceObjectId];
+            next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
+                [source.ObjectId] = source with { IsExhausted = true } } };
+            item = item with { TriggerCost = new(new(source.ObjectId, source.ObjectGeneration)) };
+            events.Add(new("LEGEND_EXHAUSTED", "支付征服技能横置费用", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId }));
+        }
         if (item.FieldContext?.Kind == "DEFEND")
         {
             var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
