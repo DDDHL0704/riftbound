@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "中国区核心规则 143.4、184.1；官方指示物卡面",
+      "locator": "UNIT token default entry / factory characteristics",
+      "note": "单位指示物默认休眠；精灵相关牌面明确活跃。保留实际工厂的单位类型与关键词；当前此入口采用 OGN·274/298，官方条目未列仙灵属性，不混入 UNL·T07 的属性。"
     }
   ],
   "roomId": "p2-preflight-sprite-queen-room",
@@ -176,9 +181,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": [
-            "瞬息"
-          ]
+          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
         }
       }
     ],
@@ -216,7 +219,7 @@
         },
         "P1-UNIT-SPRITE-QUEEN-TOKEN-001": {
           "power": 3,
-          "tags": ["瞬息"],
+          "tags": ["CARD_TYPE:UNIT", "瞬息"],
           "isExhausted": false
         }
       }

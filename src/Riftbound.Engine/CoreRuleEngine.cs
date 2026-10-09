@@ -4205,6 +4205,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TokenReplacementWindow) return ResolveTokenReplacementChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
@@ -24594,10 +24595,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var stackResolutionEvents = stackResolution.Events.ToList();
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
-            var queuedTriggers = stackResolution.TriggerQueue
+            var queuedTriggers = state.TriggerQueue.Concat(stackResolution.TriggerQueue)
                 .Where(trigger => !string.IsNullOrWhiteSpace(trigger.TriggerId))
                 .ToArray();
-            var triggerHandoffEvents = new List<GameEvent>();
             var resolvedPlayerZones = stackResolution.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedCardObjects = stackResolution.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedRunePools = stackResolution.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -24644,25 +24644,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ? trigger with { TimingContext = resolvedItem.TimingContext } : trigger).ToArray();
             queuedTriggers = queuedTriggers.Select(trigger => CaptureDeathTriggerSource(
                 trigger, state.CardObjects, resolvedCardObjects)).ToArray();
-            if (queuedTriggers.Length == 1)
-            {
-                var singleTriggerStackItem = BuildStackItemForOrderedTrigger(
-                    state with { CardObjects = resolvedCardObjects },
-                    queuedTriggers[0]);
-                nextStack = nextStack.Concat([singleTriggerStackItem]).ToArray();
-                triggerHandoffEvents.Add(new GameEvent(
-                    "TRIGGERS_MOVED_TO_STACK",
-                    "单一触发能力自动加入结算链",
-                    new Dictionary<string, object?>
-                    {
-                        ["orderedTriggerIds"] = queuedTriggers.Select(trigger => trigger.TriggerId).ToArray(),
-                        ["stackItemIds"] = new[] { singleTriggerStackItem.StackItemId },
-                        ["topStackItemId"] = singleTriggerStackItem.StackItemId,
-                        ["nextPriorityPlayerId"] = singleTriggerStackItem.ControllerId,
-                        ["orderingPolicy"] = "SINGLE_TRIGGER_AUTO_STACK"
-                    }));
-                queuedTriggers = [];
-            }
+            // Entry, reflexive and cleanup observers are collected by Complete.
+            // Publish only after all collectors have seen the finished instruction,
+            // including triggers retained across a suspended repeat execution.
 
             var pendingHandChoice = stackResolution.PendingHandChoice;
             var pendingCardChoice = stackResolution.PendingCardChoice;
@@ -24763,7 +24747,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
             events.AddRange(stackResolutionEvents);
             events.AddRange(postStackCleanupEvents);
-            events.AddRange(triggerHandoffEvents);
         }
         else
         {
@@ -30750,6 +30733,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight)
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
+        if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
@@ -34723,7 +34707,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         tokenTags = ApplyMinionTokenFamilyTag(tokenName, tokenTags).ToArray();
 
         var tokenObjectIds = new List<string>();
-        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem);
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
             var tokenObjectId = NextTokenObjectId(
@@ -34733,10 +34717,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 tokenIndex + 1);
             tokenObjectIds.Add(tokenObjectId);
             var tokenState = hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId)
+                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId, isExhausted: trigger.CreatedTokenExhausted ?? true)
                 : new CardObjectState(
                     tokenObjectId,
                     power: tokenPower,
+                    isExhausted: trigger.CreatedTokenExhausted ?? true,
                     tags: tokenTags,
                     ownerId: stackItem.ControllerId,
                     controllerId: stackItem.ControllerId);
@@ -36189,7 +36174,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem);
         var tokenTags = copiedForm is not null
             ? copiedForm.Tags.AsEnumerable()
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
@@ -36215,10 +36200,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var tokenState = copiedForm is not null
                 ? copiedForm with { ObjectId = tokenObjectId }
                 : hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId)
+                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId, isExhausted: !behavior.CreatedBaseUnitTokenEntersReady)
                 : new CardObjectState(
                 tokenObjectId,
                 power: tokenPower,
+                isExhausted: !behavior.CreatedBaseUnitTokenEntersReady,
                 tags: tokenTags,
                 cardNo: isImageCopyToken ? copiedTargetState!.CardNo : null,
                 ownerId: stackItem.ControllerId,
@@ -36227,7 +36213,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 tokenState = tokenState with
                 {
-                    Tags = tokenTags
+                    Tags = tokenState.Tags.Concat(tokenTags).Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
                 };
             }
 
@@ -36279,7 +36265,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     entryStaticAbilitySourceState.CardNo);
             }
 
-            if (tokenTags.Count > 0)
+            if (tokenState.Tags.Count > 0)
             {
                 payload["tokenTags"] = tokenState.Tags.ToArray();
             }
@@ -36413,7 +36399,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var tokenName = trigger.CreatedTokenName;
-        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem);
         var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
             .Concat(trigger.CreatedTokenKeywords ?? [])
             .Distinct(StringComparer.Ordinal)

@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "中国区核心规则 143.4、184.1；官方指示物卡面",
+      "locator": "UNIT token default entry / factory characteristics",
+      "note": "单位指示物默认休眠；精灵相关牌面明确活跃。工厂的单位类型、仙灵/鸟类属性及关键词必须保留，不能被创建指示覆盖。"
     }
   ],
   "roomId": "p2-preflight-faithful-craftsman-room",
@@ -209,7 +214,7 @@
         "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001": {
           "power": 1,
           "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

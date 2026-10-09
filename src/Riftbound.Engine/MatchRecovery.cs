@@ -25917,6 +25917,17 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidTokenEntryPlan(state, item)
+                || item.TokenEntryPlan is { } tokenPlan && tokenPlan.NextToken < tokenPlan.OriginalCount
+                    && (state.PendingCardChoice?.ChoiceWindow != CoreRuleEngine.TokenReplacementWindow
+                        || state.PendingCardChoice.ResolvingStackItemId != item.StackItemId)
+                || item.CompletedRepeatExecutions < 0
+                || item.CompletedRepeatExecutions > 0 && (item.RepeatExecutions is null || item.CompletedRepeatExecutions >= item.RepeatExecutions.Count))
+                errors.Add("invalid token entry continuation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenReplacementWindow } tokenChoice
+            && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
+
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId)
                 || !state.Seats.ContainsKey(entry.EnteringPlayerId) : trigger.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry trigger");

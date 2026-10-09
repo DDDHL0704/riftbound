@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "基地为公开区域；从手牌支付费用打出法术、加入结算链，双方让过后按卡面创建单位指示物并将法术置入废牌堆。当前样例不覆盖完整打出目的地选择和瞬息关键字清理。"
+    },
+    {
+      "source": "中国区核心规则 143.4、184.1；官方指示物卡面",
+      "locator": "UNIT token default entry / factory characteristics",
+      "note": "单位指示物默认休眠；精灵相关牌面明确活跃。保留实际工厂的单位类型与关键词；当前此入口采用 OGN·274/298，官方条目未列仙灵属性，不混入 UNL·T07 的属性。"
     }
   ],
   "roomId": "p2-preflight-sprite-burst-room",
@@ -133,7 +138,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["瞬息"]
+          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
         }
       },
       {
@@ -145,7 +150,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["瞬息"]
+          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
         }
       }
     ],
@@ -178,8 +183,22 @@
         }
       },
       "cardObjects": {
-        "P1-SPELL-SPRITE-BURST-TOKEN-001": { "power": 3, "tags": ["瞬息"] },
-        "P1-SPELL-SPRITE-BURST-TOKEN-002": { "power": 3, "tags": ["瞬息"] }
+        "P1-SPELL-SPRITE-BURST-TOKEN-001": {
+          "power": 3,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "瞬息"
+          ],
+          "isExhausted": false
+        },
+        "P1-SPELL-SPRITE-BURST-TOKEN-002": {
+          "power": 3,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "瞬息"
+          ],
+          "isExhausted": false
+        }
       },
       "stackItems": []
     },

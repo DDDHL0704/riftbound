@@ -1,0 +1,37 @@
+{
+  "authority": "Chinese official locally cached PDFs and official card catalog; no fresh whole-site synchronization",
+  "sources": [
+    {
+      "file": "var/official/2026-10-08/01.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "143.4 / 184.1 unit default dormancy",
+        "370.3 / 371–375 optional replacement, usage, order and inherited adjustments"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/06.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "locators": [
+        "Zilean + Mirror Image: two/three ready Images all copy and gain Ephemeral"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/07.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "locators": [
+        "Mirror Image reflexive-copy erratum"
+      ]
+    },
+    {
+      "file": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+      "locators": [
+        "UNL-086/219 Zilean",
+        "OGN·274/298 vs UNL·T07 token characteristics",
+        "UNL-069/219, OGN·094/298 explicit ready entry",
+        "SFD·076/221, SFD·031/221 default unit entry"
+      ]
+    }
+  ]
+}

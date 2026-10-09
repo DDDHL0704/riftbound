@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "从手牌支付费用打出法术、加入结算链，双方让过后按卡面创建单位指示物；法盾的完整额外选取费用/目标支付模型暂缓。"
+    },
+    {
+      "source": "中国区核心规则 143.4、184.1；官方指示物卡面",
+      "locator": "UNIT token default entry / factory characteristics",
+      "note": "单位指示物默认休眠；精灵相关牌面明确活跃。工厂的单位类型、仙灵/鸟类属性及关键词必须保留，不能被创建指示覆盖。"
     }
   ],
   "roomId": "p2-preflight-featherstorm-room",
@@ -146,7 +151,7 @@
           "tokenObjectId": "P1-SPELL-FEATHERSTORM-TOKEN-001",
           "tokenName": "战鹰",
           "power": 1,
-          "tokenTags": ["法盾"],
+          "tokenTags": ["CARD_TYPE:UNIT", "法盾", "鸟类"],
           "destinationZone": "BASE"
         }
       },
@@ -158,7 +163,7 @@
           "tokenObjectId": "P1-SPELL-FEATHERSTORM-TOKEN-002",
           "tokenName": "战鹰",
           "power": 1,
-          "tokenTags": ["法盾"],
+          "tokenTags": ["CARD_TYPE:UNIT", "法盾", "鸟类"],
           "destinationZone": "BASE"
         }
       },
@@ -170,7 +175,7 @@
           "tokenObjectId": "P1-SPELL-FEATHERSTORM-TOKEN-003",
           "tokenName": "战鹰",
           "power": 1,
-          "tokenTags": ["法盾"],
+          "tokenTags": ["CARD_TYPE:UNIT", "法盾", "鸟类"],
           "destinationZone": "BASE"
         }
       },
@@ -182,7 +187,7 @@
           "tokenObjectId": "P1-SPELL-FEATHERSTORM-TOKEN-004",
           "tokenName": "战鹰",
           "power": 1,
-          "tokenTags": ["法盾"],
+          "tokenTags": ["CARD_TYPE:UNIT", "法盾", "鸟类"],
           "destinationZone": "BASE"
         }
       }
@@ -222,10 +227,42 @@
       },
       "stackItems": [],
       "cardObjects": {
-        "P1-SPELL-FEATHERSTORM-TOKEN-001": { "power": 1, "tags": ["法盾"] },
-        "P1-SPELL-FEATHERSTORM-TOKEN-002": { "power": 1, "tags": ["法盾"] },
-        "P1-SPELL-FEATHERSTORM-TOKEN-003": { "power": 1, "tags": ["法盾"] },
-        "P1-SPELL-FEATHERSTORM-TOKEN-004": { "power": 1, "tags": ["法盾"] }
+        "P1-SPELL-FEATHERSTORM-TOKEN-001": {
+          "power": 1,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "法盾",
+            "鸟类"
+          ],
+          "isExhausted": true
+        },
+        "P1-SPELL-FEATHERSTORM-TOKEN-002": {
+          "power": 1,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "法盾",
+            "鸟类"
+          ],
+          "isExhausted": true
+        },
+        "P1-SPELL-FEATHERSTORM-TOKEN-003": {
+          "power": 1,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "法盾",
+            "鸟类"
+          ],
+          "isExhausted": true
+        },
+        "P1-SPELL-FEATHERSTORM-TOKEN-004": {
+          "power": 1,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "法盾",
+            "鸟类"
+          ],
+          "isExhausted": true
+        }
       }
     },
     "prompts": {

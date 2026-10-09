@@ -186,7 +186,7 @@ public sealed partial class CoreRuleEngine
             case "DRAW": Draw(context.Amount); break;
             case "MINION": case "ROBOT":
                 CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
-                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount, item.EffectKind, events);
+                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events);
                 break;
             case "GOLD": case "RENATA":
                 if (context.Kind == "RENATA") cards[item.SourceObjectId] = source! with { IsExhausted = true };

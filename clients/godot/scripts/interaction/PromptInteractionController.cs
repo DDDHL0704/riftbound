@@ -354,6 +354,9 @@ internal sealed class PromptInteractionController
                 else if (window.GetString() == "RECYCLE_FOR_EFFECT_PLAY")
                     summary = selected.Length == 0 ? "放弃回收与再次打出"
                         : "支付回收费用：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+                else if (window.GetString() == "TOKEN_ENTRY_REPLACEMENT")
+                    summary = selected.Length == 0 ? "跳过本次替换 · 保留未使用的回合次数"
+                        : "应用替换：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 多打出一个复制体";
                 else if (window.GetString() == "INSIGHT")
                     summary = selected.Length == 0 ? "全部保留 · 不回收"
                         : "回收：" + string.Join("、", selected.Select(entry => entry.Choice.Label));

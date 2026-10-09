@@ -10479,7 +10479,7 @@ public sealed class ConformanceFixtureRunnerTests
             [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
             result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN"].Tags);
         Assert.Equal(3, result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -15640,7 +15640,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER"].Power);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+            [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"],
             result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER-TOKEN-001"].Tags);
     }
 
@@ -16037,7 +16037,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Power);
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Tags);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -17529,7 +17529,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN"].Power);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.Ephemeral],
+            [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
             result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN-TOKEN-001"].Tags);
         Assert.Contains("UNIT_TOKEN_CREATED", result.EventKinds);
     }
@@ -25847,7 +25847,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
         {
             Assert.Equal(1, result.FinalState.CardObjects[objectId].Power);
-            Assert.Equal([CardObjectTags.Spellshield], result.FinalState.CardObjects[objectId].Tags);
+            Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"], result.FinalState.CardObjects[objectId].Tags);
         });
     }
 
@@ -26049,7 +26049,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-SPRITE-SUMMON-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(3, result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Tags);
         Assert.Equal(
             1,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
@@ -26080,7 +26080,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
         {
             Assert.Equal(3, result.FinalState.CardObjects[objectId].Power);
-            Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects[objectId].Tags);
+            Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects[objectId].Tags);
         });
     }
 

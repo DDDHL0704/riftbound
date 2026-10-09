@@ -1,0 +1,132 @@
+{
+  "baseCommit": "f9414f126d6e5b3f99bda47876328f5a37cca320",
+  "newCases": 22,
+  "batchCheck": {
+    "command": "python3 scripts/test-rules.py check --output var/qa/token-replacement-2026-10-09/final-check",
+    "summary": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 76.92,
+      "total": 9008,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 9008,
+          "passed": 9008,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 72.05
+        }
+      ]
+    },
+    "file": "var/qa/token-replacement-2026-10-09/final-check/check/results.trx",
+    "counts": {
+      "total": "9008",
+      "executed": "9008",
+      "passed": "9008",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T21:10:29.6636280+08:00",
+      "queuing": "2026-10-09T21:10:29.6636280+08:00",
+      "start": "2026-10-09T21:10:28.5592450+08:00",
+      "finish": "2026-10-09T21:11:39.1386570+08:00"
+    }
+  },
+  "focused": {
+    "command": "RIFTBOUND_TOKEN_REPLACEMENT_EVIDENCE=$PWD/var/qa/token-replacement-2026-10-09/native python3 scripts/test-rules.py focus --match TokenReplacement --match OfficialReflexiveCopyTests --match OfficialUnitEntryTriggerTests --output var/qa/token-replacement-2026-10-09/native-replay",
+    "total": 41,
+    "passed": 41,
+    "testSeconds": 6.66,
+    "totalSeconds": 19.18
+  },
+  "completeGames": {
+    "command": "dotnet test tests/Riftbound.ConformanceTests --no-build --no-restore -v:q --filter 'FullyQualifiedName~OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash' --results-directory var/qa/token-replacement-2026-10-09/full-game --logger 'trx;LogFileName=results.trx'",
+    "file": "var/qa/token-replacement-2026-10-09/full-game/results.trx",
+    "counts": {
+      "total": "3",
+      "executed": "3",
+      "passed": "3",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T21:11:28.5771570+08:00",
+      "queuing": "2026-10-09T21:11:28.5771570+08:00",
+      "start": "2026-10-09T21:11:20.7392860+08:00",
+      "finish": "2026-10-09T21:11:35.4942170+08:00"
+    }
+  },
+  "native": {
+    "build": "dotnet build clients/godot/Riftbound.GodotClient.csproj --no-restore -v:q",
+    "buildLog": "var/qa/token-replacement-2026-10-09/native-build.log",
+    "result": "0 warnings, 0 errors",
+    "proof": "Godot --headless --path clients/godot res://scenes/debug/TokenReplacementInteractionProof.tscn -- --evidence=$PWD/var/qa/token-replacement-2026-10-09/native",
+    "proofLog": "var/qa/token-replacement-2026-10-09/native-proof.log",
+    "marker": "TOKEN_REPLACEMENT_INTERACTION_PASS",
+    "commands": {
+      "accept": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "2cb7040a3cea4c09269aeb6ec0b037c57d6be887736b0338c2d8a2c39a44d515",
+          "expectedStateHash": "2cb7040a3cea4c09269aeb6ec0b037c57d6be887736b0338c2d8a2c39a44d515",
+          "errors": []
+        }
+      },
+      "decline": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "01d6348a5e6a031c734530beeeae932d229508532aa0961db86ecfb98179bcef",
+          "expectedStateHash": "01d6348a5e6a031c734530beeeae932d229508532aa0961db86ecfb98179bcef",
+          "errors": []
+        }
+      }
+    }
+  },
+  "previousCi": {
+    "url": "https://github.com/DDDHL0704/riftbound/actions/runs/37913931575",
+    "conclusion": "success",
+    "jobs": [
+      "full rules and connection recovery",
+      "macOS packaging",
+      "Windows packaging"
+    ]
+  },
+  "notRun": [
+    "local full long-game matrix; retained in CI",
+    "new two-client natural game",
+    "Windows real-device or human visual acceptance"
+  ],
+  "remaining": [
+    "independent legend, LeBlanc and other token producers",
+    "token destination selection and standby/source-location semantics",
+    "Protect the Emperor optional ready cost",
+    "cross-edition Faerie identity policy and other replacement families"
+  ]
+}

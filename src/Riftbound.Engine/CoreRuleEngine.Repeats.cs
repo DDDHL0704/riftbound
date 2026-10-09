@@ -55,16 +55,25 @@ public sealed partial class CoreRuleEngine
         StackResolutionResult result = null!;
         var executions = original.RepeatExecutions!;
         var damageDestroyTargets = new HashSet<string>(StringComparer.Ordinal);
-        for (var index = 0; index < executions.Count; index++)
+        for (var index = original.CompletedRepeatExecutions; index < executions.Count; index++)
         {
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
-                TargetGenerations = execution.TargetGenerations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null };
+                TargetGenerations = execution.TargetGenerations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
+                TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
             events.AddRange(result.Events);
             triggers.AddRange(result.TriggerQueue);
             destroyed.AddRange(result.DestroyedUnitOwnerIds);
             countered.AddRange(result.CounteredStackItemIds);
+            if (result.PendingCardChoice?.ChoiceWindow == TokenReplacementWindow)
+            {
+                var suspended = original with { CompletedRepeatExecutions = index, TokenEntryPlan = result.StackItems![^1].TokenEntryPlan };
+                return result with { Events = events, TriggerQueue = triggers,
+                    PendingCardChoice = TokenReplacementChoice(current, suspended, suspended.TokenEntryPlan!),
+                    DestroyedUnitOwnerIds = destroyed.Distinct(StringComparer.Ordinal).ToArray(), CounteredStackItemIds = countered,
+                    StackItems = current.StackItems.Where(i => i.StackItemId != original.StackItemId).Append(suspended).ToArray() };
+            }
             events.Add(new("SPELL_EXECUTION_COMPLETED", $"第 {index + 1} 次法术效果完成", new Dictionary<string, object?>
             {
                 ["stackItemId"] = original.StackItemId, ["executionIndex"] = index,
