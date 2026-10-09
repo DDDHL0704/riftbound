@@ -63,7 +63,7 @@ public sealed class OnPlaySourcePowerTriggerSourceGuardTests
         while (!string.IsNullOrEmpty(directory))
         {
             if (File.Exists(Path.Combine(directory, "riftbound-dotnet.sln"))
-                || File.Exists(Path.Combine(directory, "riftbound.slnx")))
+                || File.Exists(Path.Combine(directory, "Riftbound.slnx")))
             {
                 return directory;
             }

@@ -1,5 +1,7 @@
 # 规则证据索引
 
+2026-10-09 透骨尖钉重审：改为真实战场目标、结算时展示手牌、施法者选择、对手正式打出与眩晕；共用忽略一切费用、执行者切换、公开身份投影及恢复校验。删除旧直接入基地路径，原生桌面显示展示卡并在结束后恢复隐藏。具体范围和后续缺口见 [本批审计](REVEALED_HAND_PLAY_AUDIT_2026-10-09.md)。
+
 2026-10-09 废牌区单位继续重审：幽灵主母、忠诚不渝、残酷复活接入共用正式出牌与恢复；法力/符能上限分开校验，修正蔑视同类错误及动物属性减费，删除直接搬牌旧路径。透骨尖钉的手牌展示、指定战场和忽略一切费用仍是明确缺口。范围和验证见 [本批审计](GRAVEYARD_UNIT_AUDIT_2026-10-09.md)。
 
 2026-10-09 回收单位费用与机械重打重审：兰博标准／异画改走可响应的征服技能、玩家选择回收费用及共用正式单位出牌；保留离场前有效战力、指示物消失和拥有者牌库语义，补符能、打出技能、恢复权限及原生费用／放弃摘要。删除旧自动选牌和专用支付捷径。范围与验证边界见 [本批审计](MECHANICAL_RECAST_AUDIT_2026-10-09.md)。
@@ -2835,7 +2837,7 @@
 | `p2-preflight-play-bright-future-play-each-player-top-five-unit` | `RULE_AUDITED` | `CATALOG` OGN·115/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《光明未来》在 2P 代表路径中让每名玩家各选择自己主牌堆顶部五张中的一张单位牌，回收未选择牌，并从下一名玩家开始依次打出选中单位到各自基地；非单位选择、重复选择同一玩家和 top five 之外选择由直接测试拒绝，非单位牌免费打出、符能费用和完整隐藏信息交互暂缓。 |
 | `p2-preflight-play-time-twist-extra-turn-banish-source` | `RULE_AUDITED` | `CATALOG` OGN·122/298；`CORE-260330` p4-p8 rules 107-129；p39-p42 rules 355-356；p83-p89 rules 700+；`BREAK-JFAQ-260416` p11 | 已验证官方法术《时间扭曲》0 目标支付 10 点费用结算后安排来源控制者获得额外回合，并将源牌放逐；直接测试覆盖随后 `END_TURN` 会进入同一玩家的新回合。 |
 | `p2-preflight-play-judgment-day-recycle-unkept` | `RULE_AUDITED` | `CATALOG` OGN·244/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《圣裁之刻》在 2P 代表路径中让每名玩家各保留两名单位、两件装备、两枚符文和两张手牌，并以 `CARDS_RECYCLED` 回收其余卡牌；保留数量/类别不合法由直接测试拒绝。 |
-| `p2-preflight-play-bone-skewer-opponent-hand-unit-stunned` | `RULE_AUDITED` | `CATALOG` UNL-139/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《透骨尖钉》选择对手手牌中的一名单位，双方让过后使该单位从对手手牌进入其所属基地，并获得 `STUNNED` 本回合内效果；对手手牌中的非单位目标由直接测试拒绝，待命、战场选择和展示手牌提示暂缓。 |
+| `p2-preflight-play-bone-skewer-opponent-hand-unit-stunned` | `RE_AUDITED_SCOPED` | 中国区破限勘误与裁判 FAQ；CN 355.10.a / 419.3 | 2026-10-09 替代旧错误“手牌目标、移入基地”预期。现以真实战场为目标，展示后选择、由对手正式打出并眩晕；随后只启动一次对决。范围及证据见 [重审](REVEALED_HAND_PLAY_AUDIT_2026-10-09.md)。 |
 | `p2-preflight-play-wind-wall-counter-spell` | `RULE_AUDITED` | `CATALOG` OGN·064/298、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方法术《风之障壁》在优先权窗口中打出并选择结算链上的法术项目；双方让过后以 `STACK_ITEM_COUNTERED` 无效化《焚烧》，移除被反制结算链项目并将其源牌移入控制者废牌堆，目标单位不受伤害；单位源牌结算链项目由直接测试拒绝。 |
 | `p2-preflight-play-reversal-gain-stack-spell-control` | `RULE_AUDITED` | `CATALOG` OGN·080/298、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证官方法术《倒转神通》在优先权窗口中打出并选择结算链上的法术项目；双方让过后以 `STACK_ITEM_CONTROL_GAINED` 将该法术控制权改为《倒转神通》的控制者，并保留在结算链上等待后续结算；重新指定目标分支暂缓，单位源牌结算链项目由直接测试拒绝。 |
 | `p2-preflight-play-abandon-counter-spell-to-hand` | `RULE_AUDITED` | `CATALOG` UNL-131/219、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方法术《遗弃》在优先权窗口中打出并选择结算链上的法术项目；双方让过后以 `STACK_ITEM_COUNTERED` 无效化《焚烧》，移除被反制结算链项目并将其源牌返回控制者手牌而非废牌堆，目标单位不受伤害；洞察路径暂缓，单位源牌结算链项目由直接测试拒绝。 |

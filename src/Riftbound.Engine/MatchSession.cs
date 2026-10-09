@@ -5198,8 +5198,8 @@ public sealed record ResolutionResult(
         var tableZones = new SnapshotTablePlayerZonesDto(
             zones.MainDeck.Count,
             zones.RuneDeck.Count,
-            isViewer ? zones.Hand : [],
-            isViewer ? 0 : zones.Hand.Count,
+            isViewer ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)).ToArray(),
+            isViewer ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsRevealedEffectPlayCard(state, id)),
             zones.Base,
             baseCards,
             baseRunes,
@@ -6126,8 +6126,8 @@ public sealed record ResolutionResult(
         {
             ["mainDeckCount"] = zones.MainDeck.Count,
             ["runeDeckCount"] = zones.RuneDeck.Count,
-            ["hand"] = ownView ? zones.Hand : [],
-            ["handHidden"] = ownView ? 0 : zones.Hand.Count,
+            ["hand"] = ownView ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)).ToArray(),
+            ["handHidden"] = ownView ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsRevealedEffectPlayCard(state, id)),
             ["base"] = zones.Base,
             ["baseCards"] = baseCards,
             ["baseRunes"] = baseRunes,
@@ -6414,6 +6414,7 @@ public sealed record ResolutionResult(
             return false;
         }
 
+        if (CoreRuleEngine.IsRevealedEffectPlayCard(state, objectId)) return false;
         if (IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
         {
             return true;
@@ -6469,6 +6470,7 @@ public sealed record ResolutionResult(
             ids.AddRange(zones.Hand);
         }
 
+        if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)));
         ids.AddRange(zones.Base);
         ids.AddRange(zones.Battlefields.Where(objectId =>
             ownView || !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));
@@ -9548,7 +9550,7 @@ internal static class ActionPromptBuilder
             [new ActionPromptChoiceDto(destination, destinationLabel, "服务端待命翻开目的地")],
             [new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)],
             targetChoicesByIndex,
-            0,
+            mode == StandbyReactionMode ? behavior.StandbyReactionMinTargetCount : 0,
             maxTargetCount,
             targetScope,
             [StandbyRevealOptionalCost],
@@ -9598,6 +9600,9 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         CardBehaviorDefinition behavior)
     {
+        if (behavior.StandbyReactionTargetScope == CardTargetScopes.Battlefield)
+            return PromptTargetChoicesForIndex(state, playerId, behavior, 0);
+
         if (string.Equals(
                 behavior.StandbyReactionTargetScope,
                 CardTargetScopes.EnemyUnitAtSourceBattlefield,
@@ -13365,6 +13370,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => false,
             CardTargetScopes.OpponentGraveyardCard => IsPromptOpponentGraveyardCard(state, playerId, objectId),
             CardTargetScopes.OpponentMainDeckTopCard => false,
@@ -15055,6 +15061,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
+        if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)) return [];
         if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
         {
             return [];
@@ -16782,7 +16789,7 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
-            ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
+            ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = runePool.Mana,
@@ -16879,7 +16886,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior)
     {
         if (state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsUnit)
-            return CoreRuleEngine.EffectPlayDestinations(state, playerId).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : "受控战场")).ToArray();
+            return CoreRuleEngine.EffectPlayDestinations(state, playerId).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : state.PendingEffectPlay.RevealedHand is not null ? "效果指定战场" : "受控战场")).ToArray();
 
         if (!behavior.PlaysSourceToBaseAsUnit)
         {
@@ -17342,6 +17349,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
             CardTargetScopes.EnemyUnit => "敌方单位",
             CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",
+            CardTargetScopes.Battlefield => "战场",
             CardTargetScopes.OpponentHandCard => "对手手牌",
             CardTargetScopes.OpponentGraveyardCard => "对手废牌堆牌",
             CardTargetScopes.OpponentMainDeckTopCard => "对手主牌堆顶牌",

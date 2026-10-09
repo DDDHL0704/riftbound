@@ -60,7 +60,6 @@ public sealed record CardBehaviorDefinition(
     bool DiscardsTargetFromHand = false,
     bool DiscardsTargetFromOwnerHand = false,
     bool ReturnsGraveyardTargetToHand = false,
-    bool PlaysHandTargetToBase = false,
     bool DealsMutualTargetPowerDamage = false,
     bool DealsSourceAndTargetPowerDamage = false,
     bool CountersTargetStackSpell = false,
@@ -197,6 +196,7 @@ public sealed record CardBehaviorDefinition(
     int DefendTriggerDamagePerCountedCard = 0,
     bool DefendTriggerRecyclesLookedMainDeckCards = false,
     int StandbyReactionMaxTargetCount = 0,
+    int StandbyReactionMinTargetCount = 0,
     string StandbyReactionTargetScope = "",
     int StandbyReactionMainDeckLookCount = 0,
     string StandbyReactionCountedTag = "",
@@ -242,6 +242,7 @@ public sealed record CardBehaviorDefinition(
     bool EffectPlayOptional = false,
     bool IgnorePrintedPowerCost = false,
     string TargetTraitsManaReductionTags = "",
+    string EffectPlayedUnitStatus = "",
     int TargetTraitsManaReduction = 0);
 
 public static class CardDamageConditionKinds
@@ -253,6 +254,7 @@ public static class CardDamageConditionKinds
 
 public static class CardTargetScopes
 {
+    public const string Battlefield = "BATTLEFIELD";
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
@@ -657,10 +659,12 @@ public static class CardBehaviorRegistry
             "BONE_SKEWER_PLAY_OPPONENT_HAND_UNIT_STUNNED",
             0,
             1,
-            StatusEffectId: "STUNNED",
-            TargetScope: CardTargetScopes.OpponentHandCard,
-            TargetRequiredTag: CardObjectTags.UnitCard,
-            PlaysHandTargetToBase: true),
+            EffectPlayedUnitStatus: "STUNNED",
+            TargetScope: CardTargetScopes.Battlefield,
+            EffectPlaySourceZone: "OPPONENT_HAND",
+            StandbyReactionMinTargetCount: 1,
+            StandbyReactionMaxTargetCount: 1,
+            StandbyReactionTargetScope: CardTargetScopes.Battlefield),
         new(
             "SFD·111/221",
             "前来相助",

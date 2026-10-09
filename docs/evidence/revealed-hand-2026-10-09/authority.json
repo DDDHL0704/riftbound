@@ -1,0 +1,38 @@
+{
+  "documents": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-08/01.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 FAQ",
+      "ruleName": "破限系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+      "updateDate": "2026-05-11",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "localPath": "var/official/2026-10-08/06.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 勘误",
+      "ruleName": "破限系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+      "updateDate": "2026-04-03",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "localPath": "var/official/2026-10-08/07.pdf"
+    }
+  ],
+  "locators": {
+    "07.txt": "48-61 Bone Skewer erratum",
+    "06.txt": "773-785 ward hand selection and Cold Blooded Noble all-cost waiver",
+    "01.txt": "355.10.a public/private target distinction; 419.3 effect play"
+  },
+  "checkedAt": "2026-10-09",
+  "scope": "Existing Chinese official corpus, checked local hashes; not a new full website synchronization"
+}

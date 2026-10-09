@@ -1,0 +1,33 @@
+{
+  "requestId": "revealed-hand",
+  "promptId": "COUNTER-REPEAT:5:P2:PLAY_CARD,SURRENDER",
+  "snapshotTick": 5,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 4,
+    "printedPower": 0,
+    "mana": 0,
+    "genericPower": 0,
+    "powerByTrait": {},
+    "experience": 0,
+    "availableMana": 0,
+    "availableRainbowPower": 0,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 0,
+    "remainingRainbowPower": 0,
+    "remainingPowerByTrait": {},
+    "adjustments": [
+      {
+        "label": "\u6548\u679C\u5FFD\u7565\u4E00\u5207\u8D39\u7528",
+        "mana": -4,
+        "power": 0
+      }
+    ]
+  }
+}

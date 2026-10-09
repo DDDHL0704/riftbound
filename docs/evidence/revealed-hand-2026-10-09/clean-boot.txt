@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+[Riftbound] Client booted. Waiting for server authority.
+[Riftbound] Official catalog loaded: 1009 cards.
+[Riftbound] [color=yellow]Unable to load public matches: Connection refused (127.0.0.1:5088)[/color]
+[Riftbound] [color=yellow]Unable to load preconstructed decks: Connection refused (127.0.0.1:5088)[/color]

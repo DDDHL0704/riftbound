@@ -1,0 +1,116 @@
+{
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 312.36,
+    "total": 9046,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 172.88
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 178.39
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 178.8
+      },
+      {
+        "shard": "rules",
+        "total": 8911,
+        "passed": 8911,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 74.94
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 308.58
+      }
+    ]
+  },
+  "fullTrxSha256": {
+    "var/qa/revealed-hand-2026-10-09/verified-full/games-1/results.trx": "c5669822a4e1f9a49e9432aac4b30e1de4ee3a93056f61f8ce9d1dc9c87c83e9",
+    "var/qa/revealed-hand-2026-10-09/verified-full/games-3/results.trx": "15a10d9fcd083c482109767f4f6418209f530906a1eb337ee046677efa285acd",
+    "var/qa/revealed-hand-2026-10-09/verified-full/games-4/results.trx": "678e52e549bd2f6d219fc83f4bbb342a7f3ae016223b54b4092c88220c336b81",
+    "var/qa/revealed-hand-2026-10-09/verified-full/games-2/results.trx": "22175eaf20a65c835272017236e93f7543a51f41ded987dea916b2ca17207539",
+    "var/qa/revealed-hand-2026-10-09/verified-full/rules/results.trx": "1e1fb481d878e2353c0a989b5aef6bed597462a3acd5237037d504d82e107004"
+  },
+  "focusedRulesAndNativeContinuations": {
+    "passed": 20,
+    "rulesCases": 18,
+    "nativeBranches": 2,
+    "path": "var/qa/revealed-hand-2026-10-09/final-native-input"
+  },
+  "nativeCommandsReplayed": true,
+  "nativeTableStages": [
+    "hand-pick",
+    "hand-hidden"
+  ],
+  "nativeBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "cleanCheckoutImportAndBoot": {
+    "status": "PASSED",
+    "catalogCount": 1009,
+    "connectionToServerTested": false
+  },
+  "ciRepairs": {
+    "priorRun": 37893425956,
+    "findings": [
+      "Linux solution filename case mismatch in two source guards",
+      "First import custom project font loaded before font importer"
+    ],
+    "changes": [
+      "Use tracked Riftbound.slnx casing",
+      "Load bundled CJK font through root scene theme after import"
+    ],
+    "remoteValidation": "Pending next push"
+  },
+  "pythonRunnerTests": 6,
+  "runtimeRestarted": false,
+  "windowsAccepted": false,
+  "naturalTwoClientGameAccepted": false,
+  "limitations": [
+    "Controlled native snapshots use some text placeholders for card art",
+    "Full run preceded test path casing and scene theme repairs; affected paths separately checked",
+    "Interrupted earlier full attempt is not counted as passed"
+  ],
+  "caseGuardFocused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 15.9,
+    "total": 2,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 2.04
+      }
+    ]
+  }
+}

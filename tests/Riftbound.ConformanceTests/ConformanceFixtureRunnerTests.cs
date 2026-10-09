@@ -7466,15 +7466,17 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var differences=ConformanceFixtureRunner.CompareExpected(fixture,result);
+        Assert.True(differences.Count==0,string.Join("\n",differences));
         Assert.Equal(["P2-BONE-SKEWER-HAND-SPELL"], result.FinalState.PlayerZones["P2"].Hand);
         Assert.Equal(
-            ["P2-BASE-UNIT-001", "P2-BONE-SKEWER-HAND-UNIT"],
+            ["P2-BASE-UNIT-001"],
             result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal("BF",result.FinalState.ObjectLocations["P2-BONE-SKEWER-HAND-UNIT"].BattlefieldObjectId);
         Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-BONE-SKEWER-HAND-UNIT"].UntilEndOfTurnEffects);
         Assert.Equal(
             1,
-            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)));
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal)));
     }
 
     [Fact]

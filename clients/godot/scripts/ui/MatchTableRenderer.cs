@@ -158,16 +158,11 @@ public sealed class MatchTableRenderer
     private void RenderOpponentHand(CardDictionary opponent)
     {
         ClearChildren(_opponentHand);
-        var hiddenCount = Math.Max(
-            ReadInt(opponent, "handHiddenCount"),
-            ReadCards(opponent, "hand").Count);
-        if (hiddenCount == 0)
-        {
-            _opponentHand.AddChild(SecondaryLabel("手牌为空"));
-            return;
-        }
-
-        AddCard(_opponentHand, NeutralHiddenCard(hiddenCount), _compactCardSize);
+        var shown = ReadCards(opponent, "hand");
+        foreach (var card in shown) AddCard(_opponentHand, card, _opponentCardSize);
+        var hiddenCount = Math.Max(0, ReadInt(opponent, "handHiddenCount"));
+        if (hiddenCount > 0) AddCard(_opponentHand, NeutralHiddenCard(hiddenCount), _compactCardSize);
+        else if (shown.Count == 0) _opponentHand.AddChild(SecondaryLabel("手牌为空"));
     }
 
     private void RenderSelfHand(CardDictionary self)

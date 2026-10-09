@@ -6,7 +6,8 @@ namespace Riftbound.Engine;
 public sealed record PendingEffectPlayState(
     string ChoiceId, string PlayerId, StackItemState Parent, string SourceZone,
     IReadOnlyDictionary<string, long> Sources, bool IgnoreBaseMana, bool IgnoreBasePower,
-    int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null);
+    int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null,
+    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -15,6 +16,7 @@ public sealed partial class CoreRuleEngine
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Distinct(StringComparer.Ordinal).ToArray() : [];
+        if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
@@ -44,12 +46,22 @@ public sealed partial class CoreRuleEngine
 
     internal static CardBehaviorDefinition EffectPlayBehavior(MatchState state, string playerId, CardBehaviorDefinition behavior)
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
-            ? behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
+            ? pending.IgnoreAllCosts ? behavior with {
+                IgnorePrintedPowerCost = true,
+                RequiresDestroyFriendlyUnitAdditionalCost = false,
+                RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
+                RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
+                RequiresReturnFriendlyEquipmentAdditionalCost = false
+            } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 
     internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId)
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.RevealedHand is { } hand)
+            return !hand.Choosing && IsForcedEffectPlayDestination(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
+                ? ["BATTLEFIELD:" + hand.BattlefieldId] : [];
         if (pending.DestinationPolicy == "STACK") return ["BASE"];
         var destinations = new List<string>();
         if (pending.DestinationPolicy != "CONTROLLED_BATTLEFIELD") destinations.Add("BASE");
@@ -64,14 +76,16 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is not { } p ? null : new Dictionary<string, object?> {
             ["choiceId"] = p.ChoiceId, ["playerId"] = p.PlayerId,
             ["sourceObjectId"] = p.Parent.SourceObjectId, ["sourceCardNo"] = p.Parent.CardNo,
-            ["optional"] = p.Optional, ["step"] = "PLAY_CARD",
+            ["optional"] = p.Optional, ["step"] = p.RevealedHand is { Choosing: true } ? "REVEALED_HAND_CHOICE" : "PLAY_CARD",
             ["reason"] = "效果要求再次打出：选择卡牌、目标与费用后确认。" };
 
     internal static IReadOnlyDictionary<string, ActionPromptDto> BuildEffectPlayPrompts(MatchState state)
     {
         var p = state.PendingEffectPlay!;
+        if (p.RevealedHand is { Choosing: true }) return BuildRevealedHandPlayPrompts(state, p);
         var own = ActionPromptBuilder.Build(state, p.PlayerId, true,
-            EffectPlayReason(p), [CommandTypes.PlayCard, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
+            EffectPlayReason(p), p.IgnoreAllCosts ? [CommandTypes.PlayCard, CommandTypes.Surrender]
+                : [CommandTypes.PlayCard, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
         if (p.ViewedCardIds is not null)
             own = own with { Candidates = own.Candidates!.Select(candidate => candidate.Action != CommandTypes.PlayCard ? candidate
                 : candidate with { Metadata = new Dictionary<string, object?>(candidate.Metadata!)
@@ -98,7 +112,8 @@ public sealed partial class CoreRuleEngine
     internal static string EffectPlayReason(PendingEffectPlayState pending)
     {
         var name = CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out var card) ? card.DisplayName : "卡牌效果";
-        var cost = pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
+        var cost = pending.IgnoreAllCosts ? "忽略一切费用；不能支付额外费用；必须打到指定战场"
+            : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : $"费用减少 {pending.ManaReduction}，仍需支付符能";
         return $"《{name}》要求再次打出 · {cost}";
     }
@@ -140,6 +155,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult BeginEffectPlay(MatchState state, StackItemState parent, CardBehaviorDefinition behavior)
     {
+        if (behavior.EffectPlaySourceZone == "OPPONENT_HAND") return BeginRevealedHandPlay(state, parent, behavior);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
@@ -181,6 +197,7 @@ public sealed partial class CoreRuleEngine
         var pending = state.PendingEffectPlay!;
         if (intent.PlayerId != pending.PlayerId)
             return RejectWithCorePrompts(state, "等待再次打出的执行者完成选择。", ErrorCodes.PhaseNotAllowed);
+        if (pending.RevealedHand is { Choosing: true }) return ResolveRevealedHandSelection(state, intent, command, pending);
         if (command is ChooseCardsCommand decline)
         {
             if (decline.ChoiceId != pending.ChoiceId || decline.ChoiceWindow != "EFFECT_PLAY" || (decline.ChosenObjectIds?.Count ?? 0) != 0
@@ -196,8 +213,10 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
             var result = ResolvePlayCard(state, intent, play);
             if (!result.Accepted) return result;
+            result = ApplyEffectPlayFollowup(result, pending, play);
             return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray());
         }
+        if (pending.IgnoreAllCosts) return RejectWithCorePrompts(state, "忽略一切费用时直接完成出牌，无需产费。", ErrorCodes.PhaseNotAllowed);
         if (command is TapRuneCommand tap) return ResolveTapRune(state, intent, tap);
         if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(state, intent, recycle);
         if (command is ActivateAbilityCommand resource

@@ -2611,7 +2611,7 @@ public partial class Main : Control
                 if (candidate.TryGetProperty("metadata", out var choiceMetadata)
                     && choiceMetadata.ValueKind == JsonValueKind.Object
                     && choiceMetadata.TryGetProperty("viewedCards", out var viewedCards))
-                    message = ReadString(choiceMetadata, "reason") + "\n仅你可见：" + string.Join("、", viewedCards.EnumerateArray().Select(card => ReadString(card, "label")));
+                    message = ReadString(choiceMetadata, "reason") + (choiceMetadata.TryGetProperty("viewedCardsPublic", out var publicCards) && publicCards.ValueKind == JsonValueKind.True ? "\n已公开展示：" : "\n仅你可见：") + string.Join("、", viewedCards.EnumerateArray().Select(card => ReadString(card, "label")));
             }
         }
 
@@ -3230,7 +3230,7 @@ public partial class Main : Control
         var baseRunes = await BuildWireCardsAsync(ReadStringArray(zones, "baseRunes"), objectIndex);
         var graveyard = await BuildWireCardsAsync(ReadStringArray(zones, "graveyard"), objectIndex);
         var banished = await BuildWireCardsAsync(ReadStringArray(zones, "banished"), objectIndex);
-        var handIds = side == "self" ? ReadStringArray(zones, "hand") : [];
+        var handIds = ReadStringArray(zones, "hand"); // Server supplies only visible hand identities.
         var hand = await BuildWireCardsAsync(handIds, objectIndex);
 
         foreach (var result in new[] { legend, hero, baseCardViews, baseRunes, graveyard, banished, hand })
@@ -3240,7 +3240,7 @@ public partial class Main : Control
         }
 
         var hiddenHandCount = side == "opponent"
-            ? Math.Max(ReadInt(zones, "handHidden"), ReadArrayCount(zones, "hand"))
+            ? Math.Max(0, ReadInt(zones, "handHidden"))
             : 0;
 
         return (new Godot.Collections.Dictionary

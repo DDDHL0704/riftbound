@@ -1,0 +1,14 @@
+{
+  "removed": [
+    "PlaysHandTargetToBase",
+    "TryPlayHandCardToBase"
+  ],
+  "replacedWith": [
+    "RevealedHandPlayContext",
+    "PendingEffectPlayState IgnoreAllCosts",
+    "Shared formal PlayCard and player/spectator visibility"
+  ],
+  "oldFixture": "p2-preflight-play-bone-skewer-opponent-hand-unit-stunned.fixture.json",
+  "fixtureCorrection": "Battlefield target instead of hidden hand target; reveal, controller chooses, owner plays to precise battlefield; stun unit once, finish parent before one duel",
+  "integrationBaseCommit": "fe3ad817ce87797b7e555e20730d901a5f6f3230"
+}

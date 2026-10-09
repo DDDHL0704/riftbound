@@ -1,0 +1,5 @@
+/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+结果文件: /Users/dinghaolin/MyProjects/riftbound/var/qa/revealed-hand-2026-10-09/native-replay-final/native-final.trx
+
+已通过! - 失败:     0，通过:     2，已跳过:     0，总计:     2，持续时间: 5 s - Riftbound.ConformanceTests.dll (net10.0)

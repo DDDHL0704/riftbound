@@ -32,10 +32,6 @@ project/assembly_name="Riftbound.GodotClient"
 
 enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 
-[gui]
-
-theme/custom_font="res://assets/fonts/NotoSansCJKsc-Regular.otf"
-
 [input]
 
 ui_inspect_card={

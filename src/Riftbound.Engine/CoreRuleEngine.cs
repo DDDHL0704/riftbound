@@ -23687,7 +23687,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return targetObjectIds.Count == 0;
         }
 
-        if (targetObjectIds.Count > maxTargetCount
+        if (targetObjectIds.Count < behavior.StandbyReactionMinTargetCount || targetObjectIds.Count > maxTargetCount
             || targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
         {
             return false;
@@ -23720,6 +23720,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return false;
         }
+
+        if (behavior.StandbyReactionTargetScope == CardTargetScopes.Battlefield)
+            return BattlefieldLocalRules.Battlefield(state, targetObjectId) is not null;
 
         if (string.Equals(
                 behavior.StandbyReactionTargetScope,
@@ -23855,6 +23858,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId) && (command.OptionalCosts?.Count ?? 0) != 0)
+        {
+            rejection = Reject(state, "此效果忽略一切费用，不能选择或支付额外费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         behavior = EffectPlayBehavior(state, intent.PlayerId, behavior);
         var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
         if (!timingDecision.IsAllowed)
@@ -23914,7 +23922,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (!string.IsNullOrWhiteSpace(destination)
-            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)))
+            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+                && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)))
         {
             rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
             return false;
@@ -24226,6 +24235,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefieldSpellCostReductionMana = manaCost.BattlefieldSpellReduction;
         var battlefieldHeldUnitCostIncreaseMana = manaCost.Increase;
         var spellshieldTaxPower = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, behavior, paymentTargets, out var spellshieldTaxTargetObjectIds);
+        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId))
+        {
+            spellshieldTaxPower = 0;
+            spellshieldTaxTargetObjectIds = [];
+        }
         var totalManaCost = manaCost.Total;
         var echoPrintedCosts = EchoCostRules.PrintedCosts(EchoCostRules.Selected(state, intent.PlayerId, behavior, optionalCosts));
         var optionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum()
@@ -24767,7 +24781,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
         }
 
-        if (nextState.PendingEffectPlay is null && !string.IsNullOrWhiteSpace(pendingBattlefieldTaskCausePlayerId))
+        if (nextState.PendingEffectPlay is null && !(confirmPermanent && state.PendingEffectPlay is not null)
+            && !string.IsNullOrWhiteSpace(pendingBattlefieldTaskCausePlayerId))
         {
             var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(
                 nextState,
@@ -27438,6 +27453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             CardTargetScopes.OpponentMainDeckTopCard => IsOpponentMainDeckTopCard(state, playerId, objectId),
@@ -32033,48 +32049,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["effectId"] = effectId,
                         ["optionalCost"] = StandbyHideFreeOptionalCost
                     }));
-            }
-        }
-        else if (behavior.PlaysHandTargetToBase)
-        {
-            foreach (var targetObjectId in stackItem.TargetObjectIds)
-            {
-                if (!TryPlayHandCardToBase(
-                        state,
-                        playerZones,
-                        cardObjects,
-                        targetObjectId,
-                        behavior.StatusEffectId,
-                        out var ownerPlayerId,
-                        out _))
-                {
-                    continue;
-                }
-
-                events.Add(new GameEvent(
-                    "UNIT_PLAYED_TO_BASE",
-                    $"{behavior.DisplayName}打出手牌里的单位到基地",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["ownerPlayerId"] = ownerPlayerId,
-                        ["sourceZone"] = "HAND",
-                        ["destinationZone"] = "BASE"
-                    }));
-
-                if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
-                {
-                    events.Add(new GameEvent(
-                        "STATUS_EFFECT_APPLIED",
-                        $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
-                        new Dictionary<string, object?>
-                        {
-                            ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = targetObjectId,
-                            ["effectId"] = behavior.StatusEffectId
-                        }));
-                }
             }
         }
         else if (behavior.PlaysOpponentTopMainDeckUnitToBase)
@@ -40067,46 +40041,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             cardObjects[targetObjectId] = controlledTargetState;
             previousControllerId = playerId;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryPlayHandCardToBase(
-        MatchState context,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string targetObjectId,
-        string statusEffectId,
-        out string ownerPlayerId,
-        out CardObjectState targetState)
-    {
-        ownerPlayerId = string.Empty;
-        targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
-            ? existingTargetState
-            : new CardObjectState(targetObjectId);
-
-        foreach (var (playerId, zones) in playerZones)
-        {
-            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
-            {
-                continue;
-            }
-
-            playerZones[playerId] = zones with
-            {
-                Hand = RemoveFromZone(zones.Hand, targetObjectId),
-                Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Base
-                    : zones.Base.Concat([targetObjectId]).ToArray()
-            };
-
-            targetState = InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
-                NonFieldDestinationOwner(playerZones, targetState, playerId), playerId,
-                statusEffectId: statusEffectId);
-            ownerPlayerId = playerId;
             return true;
         }
 

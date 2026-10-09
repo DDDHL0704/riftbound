@@ -1,0 +1,11 @@
+test_check_requires_named_smoke_tests (test_rules_runner.RuleRunnerTests) ... ok
+test_focus_excludes_expensive_games_even_when_name_matches (test_rules_runner.RuleRunnerTests) ... ok
+test_full_assigns_every_method_once_including_new_untimed_tests (test_rules_runner.RuleRunnerTests) ... ok
+test_missing_test_and_skip_cannot_report_success (test_rules_runner.RuleRunnerTests) ... ok
+test_theory_discovery_and_runtime_rows_share_method_coverage (test_rules_runner.RuleRunnerTests) ... ok
+test_unrecognized_discovery_and_zero_focus_fail_closed (test_rules_runner.RuleRunnerTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

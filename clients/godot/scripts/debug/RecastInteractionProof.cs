@@ -16,15 +16,16 @@ public partial class RecastInteractionProof : Control
             var root=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--evidence="))[11..];
             var json=new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var executed=0;
-            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline"})
+            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline"})
             {
                 var dir=Path.Combine(root,branch);
                 if(!Directory.Exists(dir)) continue;
                 var unit=branch.StartsWith("unit-");
+                var revealed=branch.StartsWith("hand-");
                 executed++;
                 using var prompt=JsonDocument.Parse(File.ReadAllText(Path.Combine(dir,"prompt.json")));
                 Dictionary<string,object?>? command=null;Control component;
-                if(branch.EndsWith("decline"))
+                if(branch.EndsWith("decline") || branch=="hand-pick")
                 {
                     var view=(Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[prompt.RootElement])!;
                     var controller=new PromptInteractionController();controller.Load(view);
@@ -33,7 +34,17 @@ public partial class RecastInteractionProof : Control
                     bar.ActionSelected+=action=>{Check(controller.SelectAction(action),"Decline action selectable");bar.ShowSelection(controller.Current!,controller.CurrentChoices,controller.CurrentStepLabel,controller.CurrentStepRequired);};
                     var label=controller.Actions.Single(a=>a.Name=="CHOOSE_CARDS").Label;
                     bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b=>b.Text==label).EmitSignal(BaseButton.SignalName.Pressed);
-                    Check(controller.Current!.Summary.Contains("放弃再次打出"),"Decline summary is explicit");
+                    if(branch=="hand-pick")
+                    {
+                        bar.ChoiceSelected+=(role,id)=>Check(controller.TrySelectChoice(role,id),"Choose through production choice button");
+                        Check(controller.CurrentChoices.Count==1,"Only the revealed unit can be selected");
+                        var choiceButton=bar.GetNode<HBoxContainer>("%StepChoices").GetChildren().OfType<Button>().Single();
+                        choiceButton.EmitSignal(BaseButton.SignalName.Pressed);
+                        Check(controller.Current!.TargetIds.Contains("U"),"Effect controller chooses a revealed unit");
+                    }
+                    if(revealed)Check(view["message"].AsString().Contains("已公开展示") && !view["message"].AsString().Contains("仅你可见"),"Public reveal has correct visibility label");
+                    else Check(controller.Current!.Summary.Contains("放弃再次打出"),"Decline summary is explicit");
+                    bar.ShowSelection(controller.Current!,controller.CurrentChoices,controller.CurrentStepLabel,controller.CurrentStepRequired);
                     var candidate=prompt.RootElement.GetProperty("candidates").EnumerateArray().Single(c=>c.GetProperty("action").GetString()=="CHOOSE_CARDS");
                     bar.SubmitRequested+=selection=>
                     {
@@ -50,8 +61,8 @@ public partial class RecastInteractionProof : Control
                     var overlay=new PlayCardOverlay{TableMode=true};AddChild(overlay);component=overlay;
                     PlayCostPreviewRequestDto? request=null;overlay.PreviewRequested+=value=>request=value;overlay.Confirmed+=value=>command=value;
                     Check(overlay.Open(candidate.RootElement,quote.PromptId,quote.SnapshotTick,id=>new Godot.Collections.Dictionary {
-                        ["visible"]=true,["objectId"]=id,["cardName"]=id=="F"?"菲兹":unit?"警觉的哨兵":branch=="pay-power"?"镜花水月":"冥想",["cardNo"]=id=="F"?"SFD·140/221":unit?"OGN·096/298":branch=="pay-power"?"UNL-200/219":"OGN·048/298",["imagePath"]="",["zone"]=id=="F"?"BASE":"GRAVEYARD",["owner"]="self"}),"Authoritative graveyard candidate opens");
-                    var expectedSource=unit?"G":branch=="pay-power"?"C":"OTHER";
+                        ["visible"]=true,["objectId"]=id,["cardName"]=id=="F"?"菲兹":revealed?"冷血贵族":unit?"警觉的哨兵":branch=="pay-power"?"镜花水月":"冥想",["cardNo"]=id=="F"?"SFD·140/221":revealed?"OGN·208/298":unit?"OGN·096/298":branch=="pay-power"?"UNL-200/219":"OGN·048/298",["imagePath"]="",["zone"]=id=="F"?"BASE":"GRAVEYARD",["owner"]="self"}),"Authoritative graveyard candidate opens");
+                    var expectedSource=revealed?"U":unit?"G":branch=="pay-power"?"C":"OTHER";
                     var requirements=candidate.RootElement.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray().ToArray();
                     var index=Array.FindIndex(requirements,r=>r.GetProperty("sourceObjectId").GetString()==expectedSource);
                     Check(index>=0,"Server offers chosen card");if(branch=="pick-second")Check(index>0,"Selects a different card from the default");
@@ -62,7 +73,9 @@ public partial class RecastInteractionProof : Control
                     var submit=(Button)overlay.FindChild("ConfirmPlayCardButton",true,false);Check(submit.Disabled,"No quote cannot authorize play");
                     overlay.ApplyQuote(quote with {RequestId=request!.RequestId});Check(!submit.Disabled,"Current quote authorizes play");
                     var origin=(Label)typeof(PlayCardOverlay).GetField("_origin",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(overlay)!;
-                    Check(origin.Text.Contains("忽略基础法力") && origin.Text.Contains("符能"),"Origin explains cost exception");
+                    Check(revealed ? origin.Text.Contains("忽略一切费用") && origin.Text.Contains("不能支付额外费用")
+                        : origin.Text.Contains("忽略基础法力") && origin.Text.Contains("符能"),"Origin explains cost exception");
+                    if(revealed)Check(request.Command.Destination=="BATTLEFIELD:BF","Owner must use the specified battlefield");
                     if(unit)Check(origin.Text.Contains("额外费用仍需支付"),"Base waiver preserves additional costs");
                     submit.EmitSignal(BaseButton.SignalName.Pressed);
                     command!["promptId"]=quote.PromptId;command["snapshotTick"]=quote.SnapshotTick;

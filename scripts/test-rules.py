@@ -21,7 +21,7 @@ PREFIX = 'Riftbound.ConformanceTests.'
 FULL_CLASS = PREFIX + 'FullGameEndToEndTests.'
 NS = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
 DOMAINS = {
-    'recast': ['Recast', 'EffectPlay', 'NaturalUnitConquest', 'SourceUnitPlayed', 'ConquestLifecycle', 'OfficialRepeat', 'OfficialSpellCompletion', 'OfficialWardCost'],
+    'recast': ['Recast', 'EffectPlay', 'UnitRevival', 'RevealedHand', 'NaturalUnitConquest', 'SourceUnitPlayed', 'ConquestLifecycle', 'OfficialRepeat', 'OfficialSpellCompletion', 'OfficialWardCost'],
     'payment': ['Payment', 'Cost', 'Rune', 'Gold', 'ResourceAbility', 'Ward'],
     'triggers': ['Trigger', 'Conquest', 'Insight', 'SpellCompletion', 'DeathAndDuel', 'Hold'],
     'combat': ['Battle', 'Combat', 'Move', 'Duel', 'Target', 'Protection'],

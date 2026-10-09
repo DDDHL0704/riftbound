@@ -1,0 +1,3 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+RECAST_INTERACTION_PASS: production effect-play selection and confirmation

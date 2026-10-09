@@ -1,0 +1,11 @@
+  正在确定要还原的项目…
+  已还原 /Users/dinghaolin/MyProjects/riftbound/var/qa/revealed-hand-2026-10-09/clean-checkout/src/Riftbound.Contracts/Riftbound.Contracts.csproj (用时 67 毫秒)。
+  已还原 /Users/dinghaolin/MyProjects/riftbound/var/qa/revealed-hand-2026-10-09/clean-checkout/clients/godot/Riftbound.GodotClient.csproj (用时 1.78 秒)。
+  Riftbound.Contracts -> /Users/dinghaolin/MyProjects/riftbound/var/qa/revealed-hand-2026-10-09/clean-checkout/src/Riftbound.Contracts/bin/Debug/net8.0/Riftbound.Contracts.dll
+  Riftbound.GodotClient -> /Users/dinghaolin/MyProjects/riftbound/var/qa/revealed-hand-2026-10-09/clean-checkout/clients/godot/.godot/mono/temp/bin/Debug/Riftbound.GodotClient.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:00:02.95

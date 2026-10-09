@@ -14,6 +14,7 @@ public sealed partial class CoreRuleEngine
         int additionalMana = 0, int optionalReduction = 0,
         IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null)
     {
+        if (EffectPlayIgnoresAllCosts(state, playerId)) return new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         var echoReduction = ResolveBattlefieldEchoCostReductionMana(state, playerId, behavior, optionalCosts ?? []);
         var increase = ResolveBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
         var effect = state.PendingEffectPlay is { } pending && pending.PlayerId == playerId ? pending : null;

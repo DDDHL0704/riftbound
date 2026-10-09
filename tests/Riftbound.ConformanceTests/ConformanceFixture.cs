@@ -73,6 +73,7 @@ public sealed record ConformanceInitialState(
     IReadOnlyDictionary<string, int>? Scores = null,
     IReadOnlyDictionary<string, int>? Experience = null,
     IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
+    IReadOnlyDictionary<string, ObjectLocationState>? ObjectLocations = null,
     string? PriorityPlayerId = null,
     IReadOnlyList<string>? PassedPriorityPlayerIds = null,
     IReadOnlyList<ConformanceStackItemState>? StackItems = null,
@@ -320,7 +321,8 @@ public static class ConformanceFixtureRunner
             initial.WinnerPlayerId,
             seed: initial.Seed ?? 0,
             untilEndOfTurnEffects: initial.UntilEndOfTurnEffects,
-            playerExperience: BuildPlayerExperience(initial, fixture.Players));
+            playerExperience: BuildPlayerExperience(initial, fixture.Players),
+            objectLocations: initial.ObjectLocations);
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)

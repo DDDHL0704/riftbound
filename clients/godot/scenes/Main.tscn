@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.cs" id="1_main"]
+[ext_resource type="Theme" path="res://assets/InterfaceTheme.tres" id="9_theme"]
 [ext_resource type="PackedScene" path="res://scenes/screens/LobbyScreen.tscn" id="2_lobby"]
 [ext_resource type="PackedScene" path="res://scenes/screens/MatchScreen.tscn" id="3_match"]
 [ext_resource type="PackedScene" path="res://scenes/overlays/CardInspectOverlay.tscn" id="4_inspect"]
@@ -17,6 +18,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main")
+theme = ExtResource("9_theme")
 
 [node name="LobbyScreen" parent="." instance=ExtResource("2_lobby")]
 layout_mode = 1
