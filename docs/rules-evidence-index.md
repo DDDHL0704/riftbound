@@ -1,5 +1,7 @@
 # 规则证据索引
 
+2026-10-09 迅捷蟹与信息权限重审：绝念接入死亡前控制者、临时展示与回合限时查看；经验获取复用公共记录，待命查看只按当前控制者或后端授权判断，观战不继承私密权限。原生修复已知待命重复牌背。范围见 [本批审计](INFORMATION_PERMISSIONS_AUDIT_2026-10-09.md)。
+
 2026-10-09 展示后选择重审：暗中破坏改为结算时展示并选择非单位回收；缜密的调查员补强制展示、展示后可选支付经验与对手弃抽。两类共用临时公开权限、继续结算和恢复校验；上一批透骨尖钉复用相同投影。见 [本批审计](REVEALED_HAND_CHOICE_AUDIT_2026-10-09.md)。
 
 2026-10-09 透骨尖钉重审：改为真实战场目标、结算时展示手牌、施法者选择、对手正式打出与眩晕；共用忽略一切费用、执行者切换、公开身份投影及恢复校验。删除旧直接入基地路径，原生桌面显示展示卡并在结束后恢复隐藏。具体范围和后续缺口见 [本批审计](REVEALED_HAND_PLAY_AUDIT_2026-10-09.md)。
@@ -1796,7 +1798,7 @@
 | `p2-preflight-play-darkened-lurker-discard-draw` | `RULE_AUDITED` | `CATALOG` UNL-123/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方单位《永黯潜伏者》从手牌打出时支付 3 点费用、选择另一张己方手牌、加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象，然后弃置目标手牌并抽 1 张牌；以源牌自身作为弃置目标由直接测试拒绝。 |
 | `p2-preflight-play-shepherd-dog-return-graveyard-unit` | `RULE_AUDITED` | `CATALOG` OGN·165/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《牧灵犬》从手牌打出时支付 3 点费用、选择己方废牌堆一张带 `CARD_TYPE:UNIT` 标签的单位牌、加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象，然后让目标单位牌返回手牌；非单位废牌堆目标由直接测试拒绝。 |
 | `p2-preflight-play-annie-return-graveyard-spell` | `RULE_AUDITED` | `CATALOG` OGS·010/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《安妮》从手牌打出时支付 4 点费用、选择己方废牌堆一张带 `CARD_TYPE:SPELL` 标签的法术牌、加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象，然后让目标法术牌返回手牌；非法术废牌堆目标由直接测试拒绝。 |
-| `p2-preflight-play-scuttle-crab-draw` | `RULE_AUDITED` | `CATALOG` UNL-053/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方单位《迅捷蟹》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 0 战力 `CARD_TYPE:UNIT` 单位对象，然后控制者抽 1 张牌；带目标打出由直接测试拒绝，绝念分支暂缓。 |
+| `p2-preflight-play-scuttle-crab-draw` | `RULE_AUDITED_SCOPED` | UNL-053/219；CN 128 / 129.4 / 424 / 428 / 808 | 打出抽牌原有代表测试保留；2026-10-09 新增绝念展示、限时查看、经验、恢复与原生权限证据，见 [本批审计](INFORMATION_PERMISSIONS_AUDIT_2026-10-09.md)。 |
 | `p2-preflight-play-yordle-instructor-draw` | `RULE_AUDITED` | `CATALOG` OGN·087/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方单位《约德尔教官》从手牌打出时支付 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 2 战力、带 `壁垒` 标签的 `CARD_TYPE:UNIT` 单位对象，然后控制者抽 1 张牌；带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-sprite-mother-create-sprite` | `RULE_AUDITED` | `CATALOG` OGN·106/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方单位《精灵之母》从手牌打出时支付 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 单位对象，然后打出一名带 `瞬息` 标签的 3 战力“精灵”到控制者基地；4C-15A 后 Sprite / 精灵不是“随从”token family，不带 `TOKEN_FAMILY:MINION`；带目标打出由直接测试拒绝，精确“此处”和瞬息到期暂缓。 |
 | `p2-preflight-play-megashark-cannon-damage-enemy-battlefield` | `RULE_AUDITED` | `CATALOG` OGN·092/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356 | 已验证官方单位《怒海大鲨炮》从手牌打出时支付 6 点费用、选择敌方战场单位、加入结算链、双方让过后源牌进入控制者基地成为 6 战力 `CARD_TYPE:UNIT` 单位对象，然后对目标造成 6 点非致命伤害；友方目标由直接测试拒绝。 |

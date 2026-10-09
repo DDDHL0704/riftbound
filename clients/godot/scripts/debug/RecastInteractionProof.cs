@@ -16,7 +16,7 @@ public partial class RecastInteractionProof : Control
             var root=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--evidence="))[11..];
             var json=new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var executed=0;
-            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline","hand-recycle","hand-investigator","hand-investigator-decline"})
+            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline","hand-recycle","hand-investigator","hand-investigator-decline","hand-scout-continue"})
             {
                 var dir=Path.Combine(root,branch);
                 if(!Directory.Exists(dir)) continue;
@@ -34,7 +34,7 @@ public partial class RecastInteractionProof : Control
                     bar.ActionSelected+=action=>{Check(controller.SelectAction(action),"Decline action selectable");bar.ShowSelection(controller.Current!,controller.CurrentChoices,controller.CurrentStepLabel,controller.CurrentStepRequired);};
                     var label=controller.Actions.Single(a=>a.Name=="CHOOSE_CARDS").Label;
                     bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b=>b.Text==label).EmitSignal(BaseButton.SignalName.Pressed);
-                    if(revealed && !branch.EndsWith("decline"))
+                    if(revealed && !branch.EndsWith("decline") && branch!="hand-scout-continue")
                     {
                         bar.ChoiceSelected+=(role,id)=>Check(controller.TrySelectChoice(role,id),"Choose through production choice button");
                         var expected=branch=="hand-recycle"?"SPELL":"U";

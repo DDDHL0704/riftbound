@@ -170,7 +170,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
-                QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))));
+                QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(collected))))));
         }
@@ -4374,7 +4374,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -4385,7 +4385,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -25520,6 +25520,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextTurnState = cleanupState with
         {
             TurnNumber = state.TurnNumber + 1,
+            FaceDownLookPermissions = [],
             ActivePlayerId = nextPlayerId,
             TurnPlayerId = nextPlayerId,
             Phase = MatchPhases.TurnStart,
@@ -30736,6 +30737,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.DeathRevealContext is not null) return stackItem.CompletedHandExecutions > 0 ? NoopStackResolutionResult(state) : BeginRevealedHandChoice(state, stackItem, DeathRevealChoiceSpec);
         if (stackItem.RecastContext is not null) return stackItem.EffectPlayCompleted ? NoopStackResolutionResult(state) : BeginRecastPlay(state, stackItem);
         if (stackItem.SpellContext is not null) return ResolveSpellTrigger(state, stackItem);
         if (stackItem.FieldContext is not null) return ResolveFieldTrigger(state, stackItem);
@@ -39524,6 +39526,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false }
             && IsInsightSource(before.CardNo, "LAST_BREATH"))
             removal = removal with { InsightContext = new(before.CardNo!, controller, 2, before.ObjectGeneration, "LAST_BREATH") };
+        if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
+            removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         return removed;
     }
 
@@ -39667,6 +39671,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["destroyedByPlayerId"] = stackItem.ControllerId,
             ["destinationZone"] = removalResult.DestinationZone
         };
+        if (removalResult.DeathRevealContext is not null)
+            payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContext is not null)
             payload["insightTriggerContext"] = removalResult.InsightContext;
         if (!string.IsNullOrWhiteSpace(reason))
@@ -43243,6 +43249,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DetachedEquipmentObjectIds)
     {
         public InsightTriggerContext? InsightContext { get; init; }
+        public DeathRevealContext? DeathRevealContext { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
         public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);

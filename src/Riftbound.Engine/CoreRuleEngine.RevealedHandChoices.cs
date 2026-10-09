@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public enum RevealedHandAction { Recycle, DiscardDraw }
+public enum RevealedHandAction { Recycle, DiscardDraw, RevealOnly }
 public sealed record RevealedHandChoiceSpec(RevealedHandAction Action, string ForbiddenTag = "", int ExperienceCost = 0, bool Optional = false);
 public sealed record RevealedHandChoiceContext(string StackItemId, int ExecutionIndex, string OwnerId, IReadOnlyDictionary<string, long> Cards);
 
@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static string[] RevealedHandChoices(MatchState state, string controller, RevealedHandChoiceSpec spec, IEnumerable<string> hand)
-        => state.PlayerExperience.GetValueOrDefault(controller) < spec.ExperienceCost ? []
+        => spec.Action == RevealedHandAction.RevealOnly || state.PlayerExperience.GetValueOrDefault(controller) < spec.ExperienceCost ? []
             : hand.Where(id => string.IsNullOrEmpty(spec.ForbiddenTag) || !state.CardObjects[id].Tags.Contains(spec.ForbiddenTag)).ToArray();
 
     private static StackResolutionResult BeginRevealedHandChoice(MatchState state, StackItemState item, RevealedHandChoiceSpec spec)
@@ -28,7 +28,8 @@ public sealed partial class CoreRuleEngine
         var owner = state.Seats.Keys.Single(id => id != item.ControllerId);
         var hand = state.PlayerZones[owner].Hand.Order(StringComparer.Ordinal).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration);
         var legal = RevealedHandChoices(state, item.ControllerId, spec, hand.Keys);
-        var reason = spec.Action == RevealedHandAction.Recycle ? "对手已展示手牌：必须选择一张非单位卡牌让其回收；没有可选牌时继续。"
+        var reason = spec.Action == RevealedHandAction.RevealOnly ? "对手已展示手牌。确认后，本回合可查看该对手场上正面朝下的卡牌，并获得1经验。手牌随后恢复隐藏。"
+            : spec.Action == RevealedHandAction.Recycle ? "对手已展示手牌：必须选择一张非单位卡牌让其回收；没有可选牌时继续。"
             : $"对手已展示手牌：选择一张牌并确认，将支付 {spec.ExperienceCost} 经验，让对手弃置该牌并抽一张；也可以不选放弃。";
         if (state.PlayerExperience.GetValueOrDefault(item.ControllerId) < spec.ExperienceCost) reason += " 当前经验不足，只能继续。";
         var choice = new PendingCardChoiceState($"HAND-{item.StackItemId}-{item.CompletedHandExecutions}", "REVEALED_HAND_EFFECT", item.ControllerId,
@@ -45,12 +46,11 @@ public sealed partial class CoreRuleEngine
         var top = state.StackItems.LastOrDefault();
         if (choice.ChoiceWindow != "REVEALED_HAND_EFFECT" || choice.HandContext is not { } context || top is null
             || choice.DeckContext is not null || choice.HeldContext is not null || choice.ResolvingStackItemId is not null
-            || context.StackItemId != top.StackItemId || context.ExecutionIndex != top.CompletedHandExecutions
+            || context.Cards is null || context.StackItemId != top.StackItemId || context.ExecutionIndex != top.CompletedHandExecutions
             || top.CompletedHandExecutions >= top.EffectRepeatCount || top.CompletedHandExecutions < 0
             || choice.PlayerId != top.ControllerId || choice.SourceObjectId != top.SourceObjectId || choice.EffectKind != top.EffectKind
             || choice.ChoiceId != $"HAND-{top.StackItemId}-{top.CompletedHandExecutions}"
-            || !CardBehaviorRegistry.TryGetByEffectKind(top.EffectKind, out var behavior) || behavior.HandChoice is not { } spec
-            || behavior.CardNo != top.CardNo || behavior.PlaysSourceToBaseAsUnit && !top.SourceConfirmed
+            || !TryGetRevealedHandChoiceSpec(top, out var spec)
             || !state.Seats.ContainsKey(context.OwnerId) || context.OwnerId == choice.PlayerId
             || !state.PlayerZones.TryGetValue(context.OwnerId, out var zones)
             || !context.Cards.Keys.Order(StringComparer.Ordinal).SequenceEqual(zones.Hand.Order(StringComparer.Ordinal))
@@ -66,8 +66,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidRevealedHandChoice(state, choice))
             return RejectWithCorePrompts(state, "展示手牌的选择上下文已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Last();
-        CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
-        var spec = behavior.HandChoice!;
+        TryGetRevealedHandChoiceSpec(item, out var spec);
         var owner = choice.HandContext!.OwnerId;
         var zones = NormalizeZonesForSeats(state);
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects);
@@ -110,6 +109,7 @@ public sealed partial class CoreRuleEngine
             Status = winner is null ? state.Status : MatchStatuses.Finished,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(item with { CompletedHandExecutions = item.CompletedHandExecutions + 1 }).ToArray() };
+        if (item.DeathRevealContext is not null) next = GrantFaceDownLook(next, item, owner, events);
         var resumed = ResolvePassPriority(next, new("hand-continuation", item.ControllerId, CommandTypes.PassPriority), forceResolve: true);
         return resumed with { Events = events.Concat(resumed.Events).ToArray() };
     }

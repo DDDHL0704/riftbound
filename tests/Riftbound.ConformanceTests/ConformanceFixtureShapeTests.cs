@@ -10760,7 +10760,7 @@ public sealed class ConformanceFixtureShapeTests
                     isFaceDown: true,
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
-                    manaCost: 1)
+                    manaCost: 1, ownerId: "bob", controllerId: "bob")
             });
 
         var aliceSnapshot = ResolutionResult.BuildSnapshots(state)["alice"];

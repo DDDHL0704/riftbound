@@ -52,7 +52,7 @@ internal sealed record CardViewData(
             {
                 lines.Add(Category);
             }
-            if (IsStandby) lines.Add("待命 · 牌面仅你可见");
+            if (IsStandby) lines.Add("待命 · 仍正面朝下");
 
             var details = new List<string>();
             if (!string.IsNullOrWhiteSpace(Trait))

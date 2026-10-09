@@ -3336,7 +3336,7 @@ public partial class Main : Control
             ["opponentUnits"] = opponentUnits.Cards,
             ["selfStandby"] = standby.Self.Cards,
             ["opponentStandby"] = standby.Opponent.Cards,
-            ["hiddenStandbyCount"] = Math.Max(ReadInt(battlefield, "hiddenStandbyCount"), ReadInt(battlefield, "faceDownStandbyCount")),
+            ["hiddenStandbyCount"] = ReadInt(battlefield, "hiddenStandbyCount"),
             ["controllerId"] = ReadString(battlefield, "controllerId"),
             ["contested"] = ReadBool(battlefield, "contested"),
             ["scoredThisTurn"] = ReadBool(battlefield, "scoredThisTurn")

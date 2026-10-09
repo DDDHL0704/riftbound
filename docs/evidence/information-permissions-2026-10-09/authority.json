@@ -1,0 +1,62 @@
+{
+  "documents": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-08/01.pdf"
+    }
+  ],
+  "locators": {
+    "01.txt": "128.4 controller privacy; 129.4 face down means in play; 424.1.a.3 and 424.3.a.1 temporary reveal; 428.1.a.1.b destruction last-known information; 808 last breath"
+  },
+  "checkedAt": "2026-10-09",
+  "scope": "Existing Chinese official corpus, checked local hashes; not a new full website synchronization",
+  "cards": [
+    {
+      "id": 34582,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "UNL-053/219",
+      "cardName": "迅捷蟹",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "",
+      "artist": "黯荧岛Dark Glow",
+      "cardEffect": "（0{{S}}的单位可以进行征服和据守。）\n当你打出我时，抽一张牌。\n{{绝念>}} 选择一名对手。让其展示手牌。本回合内，你可以查看该对手正面朝下的卡牌。获得1经验。（当我被摧毁后，发动此效果。）",
+      "flavorText": "谁是第一个吃迅捷蟹的人？",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/95a9150e84d94515b30ac07559e068bd.webp",
+      "backImage": "",
+      "listSort": 1442,
+      "status": 1,
+      "cardGroupLimit": null
+    }
+  ],
+  "websiteRefresh": "Official PDF web tool unavailable; checked existing authoritative corpus SHA-256, not a new site synchronization"
+}

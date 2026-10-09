@@ -643,6 +643,7 @@ public sealed record StackItemState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public InsightTriggerContext? InsightContext { get; init; }
+    public DeathRevealContext? DeathRevealContext { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FieldTriggerContext? FieldContext { get; init; }
@@ -721,6 +722,7 @@ public sealed record TriggerQueueItemState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public InsightTriggerContext? InsightContext { get; init; }
+    public DeathRevealContext? DeathRevealContext { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FieldTriggerContext? FieldContext { get; init; }
@@ -1008,6 +1010,7 @@ public sealed record PendingCardChoiceState
 
 public sealed record MatchState
 {
+    public IReadOnlyList<FaceDownLookPermission> FaceDownLookPermissions { get; init; } = [];
     public IReadOnlyList<LinkedExileGroup> LinkedExiles { get; init; } = [];
     public TurnDrawLedger DrawLedger { get; init; } = new(0, new Dictionary<string, int>());
 
@@ -4196,7 +4199,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4210,7 +4213,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { HeldContext = item.HeldContext, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -5184,13 +5187,11 @@ public sealed record ResolutionResult(
             : string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal)
                 ? "spectator"
                 : "opponent";
-        var visibleBattlefields = isViewer
-            ? zones.Battlefields
-            : zones.Battlefields
+        var visibleBattlefields = zones.Battlefields
                 .Where(objectId => !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
                 .ToArray();
         var hiddenBattlefieldStandbyCount = zones.Battlefields.Count(objectId =>
-            !isViewer && IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
+            IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
         var baseRunes = BaseRuneObjectIds(state, zones);
         var baseRuneSet = baseRunes.ToHashSet(StringComparer.Ordinal);
         var baseCards = zones.Base
@@ -6101,7 +6102,7 @@ public sealed record ResolutionResult(
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
             ["zones"] = BuildZoneSnapshotView(state, zones, ownView, viewerPlayerId),
-            ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(state, zones, ownView, viewerPlayerId), ownView)
+            ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(state, zones, ownView, viewerPlayerId), viewerPlayerId)
         };
     }
 
@@ -6111,13 +6112,11 @@ public sealed record ResolutionResult(
         bool ownView,
         string viewerPlayerId)
     {
-        var visibleBattlefields = ownView
-            ? zones.Battlefields
-            : zones.Battlefields
+        var visibleBattlefields = zones.Battlefields
                 .Where(objectId => !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
                 .ToArray();
         var hiddenBattlefieldStandbyCount = zones.Battlefields.Count(objectId =>
-            !ownView && IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
+            IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
         var baseRunes = BaseRuneObjectIds(state, zones);
         var baseRuneSet = baseRunes.ToHashSet(StringComparer.Ordinal);
         var baseCards = zones.Base
@@ -6327,8 +6326,7 @@ public sealed record ResolutionResult(
             return false;
         }
 
-        if (string.Equals(cardObject.OwnerId, viewerPlayerId, StringComparison.Ordinal)
-            || string.Equals(EffectiveFieldControllerId(state, objectId, cardObject), viewerPlayerId, StringComparison.Ordinal))
+        if (CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
         {
             return false;
         }
@@ -6475,7 +6473,7 @@ public sealed record ResolutionResult(
         if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal));
         ids.AddRange(zones.Base);
         ids.AddRange(zones.Battlefields.Where(objectId =>
-            ownView || !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));
+            !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));
         ids.AddRange(zones.Graveyard);
         ids.AddRange(zones.Banished);
         ids.AddRange(zones.LegendZone);
@@ -6489,24 +6487,24 @@ public sealed record ResolutionResult(
     private static Dictionary<string, object?> BuildObjectSnapshotView(
         MatchState state,
         IReadOnlyList<string> visibleObjectIds,
-        bool ownView)
+        string viewerPlayerId)
     {
         return visibleObjectIds
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
             .ToDictionary(
                 objectId => objectId,
-                objectId => (object?)BuildCardObjectSnapshotView(state, objectId, ownView),
+                objectId => (object?)BuildCardObjectSnapshotView(state, objectId, viewerPlayerId),
                 StringComparer.Ordinal);
     }
 
     private static Dictionary<string, object?> BuildCardObjectSnapshotView(
         MatchState state,
         string objectId,
-        bool ownView)
+        string viewerPlayerId)
     {
         var cardObject = state.CardObjects[objectId];
         var location = ResolveObjectLocation(state, objectId);
-        if (cardObject.IsFaceDown && !ownView)
+        if (cardObject.IsFaceDown && !CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
         {
             var redacted = new Dictionary<string, object?>
             {
@@ -6541,6 +6539,11 @@ public sealed record ResolutionResult(
             ["ownerId"] = cardObject.OwnerId,
             ["controllerId"] = cardObject.ControllerId
         };
+        if (cardObject.IsFaceDown && CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
+        {
+            view["canInspectFaceDown"] = true;
+            view["inspectionViewerId"] = viewerPlayerId;
+        }
         if (location is not null)
         {
             view["location"] = BuildObjectLocationSnapshotView(location, cardObject, includeObjectClassHints: true);
@@ -8700,13 +8703,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var effectiveControllerId = !string.IsNullOrWhiteSpace(cardObject.ControllerId)
-            ? cardObject.ControllerId
-            : !string.IsNullOrWhiteSpace(cardObject.OwnerId)
-                ? cardObject.OwnerId
-                : location.PlayerId;
-        return !string.Equals(cardObject.OwnerId, viewerPlayerId, StringComparison.Ordinal)
-            && !string.Equals(effectiveControllerId, viewerPlayerId, StringComparison.Ordinal);
+        return !CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId);
     }
 
     private static string? EmptyAsNull(string? value)

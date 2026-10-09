@@ -25915,12 +25915,21 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (state.FaceDownLookPermissions.Any(p => p is null || !CoreRuleEngine.ValidFaceDownLookPermission(state, p))
+            || state.FaceDownLookPermissions.Distinct().Count() != state.FaceDownLookPermissions.Count)
+            errors.Add("invalid face-down look permission");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.DeathRevealContext is not null ? !CoreRuleEngine.ValidDeathReveal(trigger.DeathRevealContext, trigger.EffectKind, trigger.ControllerId)
+                : trigger.EffectKind == CoreRuleEngine.DeathRevealEffect) errors.Add("invalid death reveal trigger context");
+        foreach (var item in state.StackItems)
+            if (item.DeathRevealContext is not null ? !CoreRuleEngine.ValidDeathReveal(item.DeathRevealContext, item.EffectKind, item.ControllerId, item.CardNo)
+                : item.EffectKind == CoreRuleEngine.DeathRevealEffect) errors.Add("invalid death reveal stack context");
         if (state.PendingCardChoice is { } handChoice && (handChoice.HandContext is not null || handChoice.ChoiceWindow == "REVEALED_HAND_EFFECT")
             && !CoreRuleEngine.ValidRevealedHandChoice(state, handChoice))
             errors.Add("invalid revealed hand choice continuation");
         foreach (var item in state.StackItems)
             if (item.CompletedHandExecutions < 0 || item.CompletedHandExecutions > item.EffectRepeatCount
-                || item.CompletedHandExecutions > 0 && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var definition) || definition.HandChoice is null))
+                || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
         if (state.PendingEffectPlay is { } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
