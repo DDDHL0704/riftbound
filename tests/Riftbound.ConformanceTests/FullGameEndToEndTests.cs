@@ -25020,7 +25020,7 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertNoHiddenZoneLeak(ResolutionResult result)
+    internal static void AssertNoHiddenZoneLeak(ResolutionResult result)
     {
         foreach (var viewerId in result.State.Seats.Keys)
         {
@@ -25035,10 +25035,22 @@ public sealed class FullGameEndToEndTests
                     continue;
                 }
 
-                foreach (var objectId in zones.Hand.Concat(zones.MainDeck).Concat(zones.RuneDeck))
+                // CN 424: only identities captured by the active reveal are public.
+                // Decks never inherit this exception, even when an identity was previously shown.
+                var handContext = result.State.PendingCardChoice is { ChoiceWindow: "REVEALED_HAND_EFFECT" } choice
+                    ? choice.HandContext : null;
+                var playContext = result.State.PendingEffectPlay?.RevealedHand;
+                var shown = handContext?.OwnerId == playerId ? handContext.Cards
+                    : playContext?.OwnerId == playerId ? playContext.Cards : null;
+                foreach (var objectId in zones.Hand)
                 {
-                    Assert.DoesNotContain(objectId, exposedStringValues);
+                    var isCurrentlyRevealed = shown is not null && shown.TryGetValue(objectId, out var generation)
+                        && result.State.CardObjects.TryGetValue(objectId, out var card) && card.ObjectGeneration == generation;
+                    if (isCurrentlyRevealed) Assert.Contains(objectId, exposedStringValues);
+                    else Assert.DoesNotContain(objectId, exposedStringValues);
                 }
+                foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
+                    Assert.DoesNotContain(objectId, exposedStringValues);
             }
         }
     }

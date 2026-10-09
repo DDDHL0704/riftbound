@@ -159,6 +159,24 @@ public sealed class OfficialInformationPermissionTests
         Assert.Null(done.State.PendingCardChoice); Assert.Empty(done.State.StackItems); Restore(done.State);
     }
 
+    [Fact]
+    public async Task FullGamePrivacyGuardAllowsOnlyCurrentRevealedGenerationsAndNeverDeckIdentities()
+    {
+        var initial = OfficialRevealedHandChoiceTests.Position();
+        var open = await OfficialRevealedHandChoiceTests.Open(initial);
+        FullGameEndToEndTests.AssertNoHiddenZoneLeak(open);
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(open with { State = initial }));
+        var replaced = open.State with { CardObjects = new Dictionary<string, CardObjectState>(open.State.CardObjects) {
+            ["SPELL"] = open.State.CardObjects["SPELL"] with { ObjectGeneration = 99 } } };
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(open with { State = replaced }));
+        var deck = open.State with { PlayerZones = new Dictionary<string, PlayerZones>(open.State.PlayerZones) {
+            ["P2"] = open.State.PlayerZones["P2"] with { Hand = ["U"], MainDeck = ["DECK", "SPELL"] } } };
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(open with { State = deck }));
+        var done = await OfficialRevealedHandChoiceTests.Select(open.State, "SPELL");
+        FullGameEndToEndTests.AssertNoHiddenZoneLeak(done);
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(done with { Snapshots = open.Snapshots }));
+    }
+
     internal static MatchState Position()
     {
         var s = OfficialRevealedHandPlayTests.Position();

@@ -1,0 +1,12 @@
+rules	Complete rule suite with checked process shards	﻿2026-10-09T07:58:54.3590486Z ##[group]Run python3 scripts/test-rules.py full --output var/qa/ci-rules
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3591323Z ^[[36;1mpython3 scripts/test-rules.py full --output var/qa/ci-rules^[[0m
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3680017Z shell: /usr/bin/bash -e {0}
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3680409Z env:
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3680713Z   DOTNET_CLI_TELEMETRY_OPTOUT: 1
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3681104Z   DOTNET_NOLOGO: 1
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3681340Z   DOTNET_ROOT: /usr/share/dotnet
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.3681588Z ##[endgroup]
+rules	Complete rule suite with checked process shards	2026-10-09T07:58:54.4221381Z Incremental build; evidence: /home/runner/work/riftbound/riftbound/var/qa/ci-rules
+rules	Complete rule suite with checked process shards	2026-10-09T08:00:49.8014114Z full: 6200 methods; 5 shard(s); 4 concurrent processes
+rules	Complete rule suite with checked process shards	2026-10-09T08:01:33.3850020Z FAILED: games-1 exited 1; see /home/runner/work/riftbound/riftbound/var/qa/ci-rules/games-1/test.log
+rules	Complete rule suite with checked process shards	2026-10-09T08:01:33.3946249Z ##[error]Process completed with exit code 1.

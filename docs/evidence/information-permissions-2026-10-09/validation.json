@@ -85,8 +85,32 @@
     "run": 37899088523,
     "conclusion": "success"
   },
-  "newCommitCi": "Pending push",
+  "newCommitCi": "Test-assertion follow-up pending push",
   "serviceRestarted": false,
   "windowsInteractiveAccepted": false,
-  "naturalTwoClientGameAccepted": false
+  "naturalTwoClientGameAccepted": false,
+  "firstBatchCommitCi": {
+    "sha": "9aced8c91cf21c74414465fb91a746b96bac7837",
+    "run": 37902137694,
+    "desktopMacos": "success",
+    "desktopWindows": "success",
+    "rules": "failed: outdated unconditional opponent-hand privacy assertion"
+  },
+  "targetedCiFailureRetest": {
+    "tests": [
+      {
+        "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash",
+        "outcome": "Passed",
+        "duration": "00:04:39.7982599"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialInformationPermissionTests.FullGamePrivacyGuardAllowsOnlyCurrentRevealedGenerationsAndNeverDeckIdentities",
+        "outcome": "Passed",
+        "duration": "00:00:03.2828890"
+      }
+    ],
+    "trxPath": "var/qa/information-2026-10-09/ci-failure-retest/results.trx",
+    "sha256": "4bb6333b85861a4c20920f0f2dc1b069a3676e147f69e22a86806ee4f0c53124",
+    "scope": "All preconstructed deck pairings and action-log replay; explicit negative tests for disclosure outside the active reveal, wrong generations and deck identities"
+  }
 }
