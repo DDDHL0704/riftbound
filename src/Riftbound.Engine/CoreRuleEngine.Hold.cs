@@ -80,6 +80,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string>? choices = null)
     {
         var context = item.HeldContext!;
+        if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);
         if (context.Kind == "LOOK_EQUIPMENT" && TryGetDeckChoiceBehavior(item, out var deckBehavior))
         {
             if (!item.DeckChoiceCompleted) return BeginDeckChoice(state, item, deckBehavior);
@@ -116,22 +117,17 @@ public sealed partial class CoreRuleEngine
             "RETURN_HERO" => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
                 cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [],
             "CHANNEL_OPTIONAL" => zones[player].RuneDeck.Count > 0 ? [item.SourceObjectId] : [],
-            "LEBLANC_DISCARD" => sourceExists && source!.ControllerId == player && !source.IsExhausted
-                && HeldUnitsAt(state, field).Length > 0 ? zones[player].Hand.ToArray() : [],
-            "LEBLANC_COPY" => sourceExists && source!.ControllerId == player && !source.IsExhausted
-                && context.SelectedCostObjectId is not null && zones[player].Hand.Contains(context.SelectedCostObjectId)
-                    ? HeldUnitsAt(state, field) : [],
             "VEX" or "RENATA" or "IVERN" => sourceExists && source!.ControllerId == player && !source.IsExhausted ? [item.SourceObjectId] : [],
             _ => []
         };
         var needsChoice = context.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO"
-            or "CHANNEL_OPTIONAL" or "VEX" or "RENATA" or "IVERN" or "LEBLANC_DISCARD" or "LEBLANC_COPY";
+            or "CHANNEL_OPTIONAL" or "VEX" or "RENATA" or "IVERN";
         if (needsChoice && choices is null)
         {
             var legal = LegalChoices();
             if (legal.Length > 0)
                 pending = new($"hold-choice-{state.Tick + 1}-{item.StackItemId}", "HOLD_EFFECT", player,
-                    context.Kind is "BOON" or "LEBLANC_COPY" ? 1 : 0, 1, legal,
+                    context.Kind == "BOON" ? 1 : 0, 1, legal,
                     [field],
                     context.Kind == "BOON" ? "据守效果：选择此战场的一名单位获得增益" : "据守效果：选择执行，或不选并确认以放弃",
                     item.SourceObjectId, item.EffectKind) { HeldContext = context };
@@ -152,19 +148,6 @@ public sealed partial class CoreRuleEngine
             case "IVERN":
                 if (TryResolveIvernLegendBrushTrigger(zones, cards, player, field, item.SourceObjectId,
                     "BATTLEFIELD_HELD_REPLACE_WITH_BRUSH", out var brushEvents)) events.AddRange(brushEvents);
-                break;
-            case "LEBLANC_DISCARD":
-                pending = new($"hold-copy-{state.Tick + 1}-{item.StackItemId}", "HOLD_EFFECT", player, 1, 1,
-                    HeldUnitsAt(state, field), [field], "选择此战场中要复制的单位；确认后支付弃牌及横置费用",
-                    item.SourceObjectId, item.EffectKind) { HeldContext = context with { Kind = "LEBLANC_COPY", SelectedCostObjectId = choices![0] } };
-                break;
-            case "LEBLANC_COPY":
-                if (TryResolveLeblancLegendImageTrigger(zones, cards, player, field, item.SourceObjectId, choices![0],
-                    "BATTLEFIELD_HELD_CREATE_IMAGE", out var imageEvents, out var discarded, context.SelectedCostObjectId))
-                {
-                    events.AddRange(imageEvents);
-                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, player, discarded);
-                }
                 break;
             case "ACTIVATE_CONQUEST":
                 foreach (var unit in HeldUnitsAt(state, field))

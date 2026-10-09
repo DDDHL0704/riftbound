@@ -1,0 +1,161 @@
+{
+  "baseCommit": "94bf2af21bb05c2299bb69312aa962e1e58bec22",
+  "newCases": 19,
+  "check": {
+    "command": "python3 scripts/test-rules.py check --output var/qa/leblanc-creation-2026-10-09/check-final",
+    "summary": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 82.16,
+      "total": 9044,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 9044,
+          "passed": 9044,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 76.56
+        }
+      ]
+    }
+  },
+  "focus": {
+    "command": "RIFTBOUND_TOKEN_CREATION_EVIDENCE=$PWD/var/qa/leblanc-creation-2026-10-09/native python3 scripts/test-rules.py focus --match OfficialLeblancCreationTests --match TokenCreationNativeContinuationTests --match OfficialTokenReplacementTests --match OfficialLegendTokenTests --match OfficialCopyIdentityTests --match ConquestLifecycleRegressionTests --match P79LegendTriggerLeblanc --match OfficialHoldSequenceTests --output var/qa/leblanc-creation-2026-10-09/focus-final",
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 43.03,
+      "total": 117,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 117,
+          "passed": 117,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 8.97
+        }
+      ]
+    }
+  },
+  "confirmationOrder": {
+    "command": "python3 scripts/test-rules.py focus --match MixedTriggerFamilies --output var/qa/leblanc-creation-2026-10-09/confirmation-order",
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 26.44,
+      "total": 2,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 7.34
+        }
+      ]
+    }
+  },
+  "fullGames": {
+    "command": "dotnet test tests/Riftbound.ConformanceTests --no-build --no-restore --filter 'FullyQualifiedName~OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash' --results-directory var/qa/leblanc-creation-2026-10-09/full-game --logger 'trx;LogFileName=results.trx' -v:q",
+    "counts": {
+      "total": "2",
+      "executed": "2",
+      "passed": "2",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T22:10:20.1743890+08:00",
+      "queuing": "2026-10-09T22:10:20.1743890+08:00",
+      "start": "2026-10-09T22:10:07.0778250+08:00",
+      "finish": "2026-10-09T22:10:21.6457360+08:00"
+    }
+  },
+  "native": {
+    "build": "dotnet build clients/godot/Riftbound.GodotClient.csproj --no-restore -v:q",
+    "buildLog": "var/qa/leblanc-creation-2026-10-09/native-build.log",
+    "result": "0 warnings, 0 errors",
+    "proof": "Godot --headless --path clients/godot res://scenes/debug/TokenCreationInteractionProof.tscn -- --evidence=$PWD/var/qa/leblanc-creation-2026-10-09/native",
+    "proofLog": "var/qa/leblanc-creation-2026-10-09/native-proof.log",
+    "replayCommand": "RIFTBOUND_TOKEN_CREATION_EVIDENCE=$PWD/var/qa/leblanc-creation-2026-10-09/native dotnet test tests/Riftbound.ConformanceTests --no-build --no-restore --filter 'FullyQualifiedName~TokenCreationNativeContinuationTests' --results-directory var/qa/leblanc-creation-2026-10-09/native-replay --logger 'trx;LogFileName=results.trx' -v:q",
+    "counts": {
+      "total": "2",
+      "executed": "2",
+      "passed": "2",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T22:10:14.6388240+08:00",
+      "queuing": "2026-10-09T22:10:14.6388240+08:00",
+      "start": "2026-10-09T22:10:07.0844480+08:00",
+      "finish": "2026-10-09T22:10:14.6491390+08:00"
+    },
+    "branches": {
+      "accept": {
+        "usedNative": [
+          "cost",
+          "copy"
+        ],
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "89eb45bd2773a4dbaccad46ff7147a7714974e2a86f7b3d6ffa63b2c92f3c171",
+          "expectedStateHash": "89eb45bd2773a4dbaccad46ff7147a7714974e2a86f7b3d6ffa63b2c92f3c171",
+          "errors": []
+        }
+      },
+      "decline": {
+        "usedNative": [
+          "cost"
+        ],
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "b0d0534979b763df7a6a1f0bca7e8e82aaaab720da1d0f6f9e77d72be506cc37",
+          "expectedStateHash": "b0d0534979b763df7a6a1f0bca7e8e82aaaab720da1d0f6f9e77d72be506cc37",
+          "errors": []
+        }
+      }
+    }
+  },
+  "previousCi": {
+    "url": "https://github.com/DDDHL0704/riftbound/actions/runs/37938452542",
+    "head": "94bf2af21bb05c2299bb69312aa962e1e58bec22",
+    "conclusion": "success",
+    "scope": "full rules, connection recovery, macOS and Windows packaging"
+  },
+  "boundaries": [
+    "No restart of user match or running service",
+    "No fresh whole-site synchronization",
+    "Headless native controls, not human visual or two-client acceptance",
+    "Current commit full CI separate from local check",
+    "Generic selectable token destinations and other optional trigger-cost families remain"
+  ]
+}

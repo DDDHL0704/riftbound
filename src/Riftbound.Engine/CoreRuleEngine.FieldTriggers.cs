@@ -72,11 +72,18 @@ public sealed partial class CoreRuleEngine
         var state = result.State;
         if (state.PendingCardChoice is not null || state.PendingPayment is not null || state.PendingHandChoice is not null
             || state.PendingEffectPlay is not null || state.TriggerQueue.Any(IsImmediateTrigger)) return result;
-        var spellConfirmation = PrepareSpellTriggerConfirmation(result);
-        if (spellConfirmation != result) return spellConfirmation;
-        var item = state.StackItems.FirstOrDefault(i => i.FieldContext is not null && i.TargetGenerations is null
+        // Confirm pending items in insertion order, regardless of which rule family
+        // supplies their choices or costs (CN 337.1.b).
+        var item = state.StackItems.FirstOrDefault(i =>
+            i.HeldContext is { Kind: "LEBLANC_DISCARD" } && i.DiscardExhaustCost is null
+            || i.ReflexiveCopy is { TargetConfirmed: false }
+            || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
+            || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
+        if (item.HeldContext is { Kind: "LEBLANC_DISCARD" }) return PrepareTokenCreationConfirmation(result);
+        if (item.ReflexiveCopy is { TargetConfirmed: false }) return PrepareReflexiveCopyConfirmation(result);
+        if (item.SpellContext is not null) return PrepareSpellTriggerConfirmation(result);
         PendingCardChoiceState? choice = null; PendingPaymentState? payment = null;
         if (item.InsightContext is not null)
             payment = new("INSIGHT-PAY:" + item.StackItemId, "INSIGHT_EFFECT", item.ControllerId,
@@ -130,7 +137,8 @@ public sealed partial class CoreRuleEngine
             && item.ControllerId == choice.PlayerId && item.SourceObjectId == choice.SourceObjectId
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
-            && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item));
+            && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
+            || ValidReflexiveCopyChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
     {
@@ -150,7 +158,7 @@ public sealed partial class CoreRuleEngine
             next = next with { RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience };
             events.Add(new("COST_PAID", "支付法盾费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, new Dictionary<string, object?>())));
         }
-        if (item.FieldContext!.Kind == "DEFEND")
+        if (item.FieldContext?.Kind == "DEFEND")
         {
             var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
             if (!cards.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration != item.FieldContext.SourceGeneration
@@ -165,6 +173,9 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events);
         }
         var confirmed = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.ReflexiveCopy is { } copy)
+            confirmed = confirmed with { ReflexiveCopy = copy with {
+                CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() }));

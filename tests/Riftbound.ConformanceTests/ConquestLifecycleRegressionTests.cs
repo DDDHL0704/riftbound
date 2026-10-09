@@ -120,6 +120,9 @@ public sealed class ConquestLifecycleRegressionTests
         var zones = state.PlayerZones.ToDictionary(x => x.Key, x => x.Value);
         zones["P1"] = zones["P1"] with { LegendZone = ["LEGEND"], Battlefields = ["OWN-BF"] };
         var result = await Conquer(state with { CardObjects = cards, PlayerZones = zones });
+        Assert.Empty(OfficialTokenReplacementTests.Tokens(result.State));
+        result = await OfficialTokenReplacementTests.Choose(result.State, "H2");
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         var token = Assert.Single(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
         var id = Assert.IsType<string>(token.Payload["tokenObjectId"]);
         Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), result.State.ObjectLocations[id]);

@@ -21,7 +21,7 @@ public sealed partial class CoreRuleEngine
 
     // This describes the next token-producing instruction. It does not create
     // objects, spend a replacement's once-per-turn use, or finish the parent.
-    private static int TokenEntryCount(StackItemState parent)
+    private static int TokenEntryCount(MatchState state, StackItemState parent)
     {
         if (parent.CompletedRepeatExecutions < 0 || parent.RepeatExecutions is { } repeats
             && parent.CompletedRepeatExecutions >= repeats.Count) return 0;
@@ -29,6 +29,8 @@ public sealed partial class CoreRuleEngine
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
+        if (item.HeldContext is { Kind: "LEBLANC_DISCARD" } image && item.DiscardExhaustCost is not null)
+            return BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + image.BattlefieldObjectId) ? 0 : 1;
         if (item.HeldContext is { Kind: "MINION" or "ROBOT" } held) return held.Amount;
         if (UnitDestroyedTriggerSpecRules.TryGetTrigger(item.CardNo,
                 t => UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger(t) && t.Kind == item.EffectKind, out var death))
@@ -51,7 +53,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult? BeginTokenReplacement(MatchState state, StackItemState item)
     {
-        var count = TokenEntryCount(item);
+        var count = TokenEntryCount(state, item);
         if (count <= 0 || item.TokenEntryPlan is { } existing && existing.NextToken >= existing.OriginalCount
             || EligibleTokenReplacements(state, item.ControllerId).Length == 0) return null;
         var plan = item.TokenEntryPlan ?? new TokenEntryPlan(count, 0, []);
@@ -65,7 +67,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTokenEntryPlan(MatchState state, StackItemState item)
     {
         if (item.TokenEntryPlan is not { } p) return true;
-        return p.OriginalCount > 0 && p.OriginalCount == TokenEntryCount(item) && p.NextToken >= 0 && p.NextToken <= p.OriginalCount
+        return p.OriginalCount > 0 && p.OriginalCount == TokenEntryCount(state, item) && p.NextToken >= 0 && p.NextToken <= p.OriginalCount
             && p.Applied is not null && p.Applied.All(a => a is not null && a.Source is not null
                 && a.TokenIndex >= 0 && a.TokenIndex < p.OriginalCount && a.TokenIndex <= p.NextToken
                 && state.CardObjects.TryGetValue(a.Source.ObjectId, out var source) && source.ObjectGeneration == a.Source.Generation

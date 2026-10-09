@@ -42,29 +42,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static StackResolutionResult ResolveLegendUnitToken(MatchState state, StackItemState item, LegendUnitToken instruction)
-    {
-        var zones = NormalizeZonesForSeats(state);
-        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>();
-        if (!P6TokenFactoryCatalog.TryGetByCardNo(instruction.FactoryCardNo, out var factory))
-            throw new InvalidOperationException($"Missing official unit token factory: {instruction.FactoryCardNo}");
-        for (var i = 0; i < 1 + AdditionalUnitTokens(item); i++)
-        {
-            var id = NextTokenObjectId(zones, cards, item.SourceObjectId, i + 1);
-            var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !instruction.EntersReady);
-            token = token with { Tags = ApplyAzirSandSoldierTemperedTags(zones, cards, item.ControllerId, token.Tags) };
-            token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,
-                out var ready, out var staticSourceId, out var staticSource, out var staticAbility);
-            cards[id] = token;
-            zones[item.ControllerId] = zones[item.ControllerId] with { Base = zones[item.ControllerId].Base.Append(id).ToArray() };
-            var payload = new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                ["abilityId"] = instruction.AbilityId, ["tokenObjectId"] = id, ["tokenCardNo"] = token.CardNo,
-                ["tokenName"] = factory.TokenFamilyName, ["power"] = token.Power, ["destinationZone"] = "BASE",
-                ["tokenTags"] = token.Tags.ToArray(), ["isExhausted"] = token.IsExhausted, ["azirTempered"] = token.Tags.Contains(CardEquipmentKeywordNames.Tempered) };
-            AddEntryStaticAbilityPayload(payload, ready ? staticAbility : null, staticSourceId, staticSource.CardNo);
-            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{item.SourceObjectId}打出{factory.TokenFamilyName}", payload), zones, cards));
-        }
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
-    }
+        => CreateUnitTokenBatch(state, item, instruction.FactoryCardNo, 1 + AdditionalUnitTokens(item), instruction.EntersReady,
+            abilityId: instruction.AbilityId);
+
 }

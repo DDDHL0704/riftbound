@@ -36849,50 +36849,28 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerLeblancCreatesActiveImageOnConquer()
     {
-        var state = LeblancBattlefieldConquerState("UNL-199/219", "P1-LEGEND-LEBLANC", hasDiscard: true);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-leblanc-battlefield-conquer", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-LEBLANC-ATTACKER"],
-                ["P2-LEBLANC-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-LEBLANC"].IsExhausted);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Graveyard);
-        var tokenObjectId = Assert.Single(result.State.PlayerZones["P1"].Battlefields, objectId =>
-            objectId.StartsWith("P1-LEGEND-LEBLANC-TOKEN-", StringComparison.Ordinal));
-        Assert.Equal(0, result.State.CardObjects[tokenObjectId].Power);
-        var copied = await OfficialGraveyardRecastTests.Top(result.State);
-        var tokenState = copied.State.CardObjects[tokenObjectId];
-        Assert.False(tokenState.IsExhausted);
-        Assert.Equal(3, tokenState.Power);
-        Assert.Equal("UNL-021/219", tokenState.CardNo);
-        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
-        Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
-        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenState.TokenFactoryCardNo);
-        Assert.DoesNotContain("潜伏", tokenState.Tags);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DISCARD", StringComparison.Ordinal));
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CREATE_IMAGE", StringComparison.Ordinal));
-        Assert.Equal("UNL-199/219", triggerEvent.Payload["legendCardNo"]);
-        Assert.Equal("P1-LEBLANC-ATTACKER", triggerEvent.Payload["copiedTargetObjectId"]);
-        var tokenEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["tokenName"] as string, "映像", StringComparison.Ordinal));
-        Assert.Equal("BATTLEFIELD", tokenEvent.Payload["destinationZone"]);
-        Assert.Equal("P1-LEBLANC-ATTACKER", tokenEvent.Payload["copiedTargetObjectId"]);
-        Assert.Equal("UNL-021/219", tokenEvent.Payload["copiedCardNo"]);
-        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
+        var triggered = await ConquestLifecycleRegressionTests.Conquer(OfficialLeblancCreationTests.Position());
+        Assert.False(triggered.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Empty(OfficialTokenReplacementTests.Tokens(triggered.State));
+        Assert.Contains(triggered.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+        var pending = triggered;
+        var result = await OfficialTokenReplacementTests.Choose(pending.State, "H2");
+        var costEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = costEvents.Concat(result.Events).ToArray() };
+        Assert.True(result.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Equal(["H2"], result.State.PlayerZones["P1"].Graveyard);
+        var image = Assert.Single(OfficialTokenReplacementTests.Tokens(result.State));
+        Assert.Equal(0, image.Power); Assert.False(image.IsExhausted);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, image.TokenFactoryCardNo);
+        var entry = Assert.Single(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        Assert.Equal("BATTLEFIELD", entry.Payload["destinationZone"]); Assert.Equal("BF", entry.Payload["battlefieldId"]);
+        Assert.False(entry.Payload.ContainsKey("copiedTargetObjectId")); // Target is selected only after entry.
+        var confirmed = await OfficialTokenReplacementTests.Choose(result.State, "UNIT");
+        var copied = await OfficialGraveyardRecastTests.Top(confirmed.State);
+        var token = copied.State.CardObjects[image.ObjectId];
+        Assert.Equal(1, token.Power); Assert.Equal("OGN·096/298", token.CardNo);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags); Assert.Contains(CardObjectTags.Ephemeral, token.Tags);
     }
 
     [Fact]
@@ -36963,43 +36941,16 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerLeblancSkipsOpponentControlledDiscardInHand()
     {
-        var baseState = LeblancBattlefieldConquerState("UNL-199/219", "P1-LEGEND-LEBLANC", hasDiscard: true);
-        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        playerZones["P1"] = playerZones["P1"] with
-        {
-            Hand = ["P1-LEBLANC-DIRTY-P2-DISCARD", "P1-LEBLANC-DISCARD"]
-        };
-        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects["P1-LEBLANC-DIRTY-P2-DISCARD"] = new(
-            "P1-LEBLANC-DIRTY-P2-DISCARD",
-            cardNo: "UNL-002/219",
-            ownerId: "P2",
-            controllerId: "P2");
-        var state = baseState with
-        {
-            PlayerZones = playerZones,
-            CardObjects = cardObjects
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-leblanc-dirty-discard", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-LEBLANC-ATTACKER"],
-                ["P2-LEBLANC-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.Equal(["P1-LEBLANC-DIRTY-P2-DISCARD"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DISCARD", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DIRTY-P2-DISCARD", StringComparison.Ordinal));
+        var state = OfficialLeblancCreationTests.Position();
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["H1"] = state.CardObjects["H1"] with { OwnerId = "P2", ControllerId = "P2" } } };
+        var pending = await OfficialLeblancCreationTests.OpenCost(state);
+        Assert.DoesNotContain("H1", pending.State.PendingCardChoice!.LegalObjectIds);
+        var result = await OfficialTokenReplacementTests.Choose(pending.State, "H2");
+        Assert.Equal(["H1", "H3"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["H2"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(result.Events, e => e.Kind == "CARD_DISCARDED" && Equals(e.Payload["targetObjectId"], "H2"));
+        Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DISCARDED" && Equals(e.Payload["targetObjectId"], "H1"));
     }
 
     [Fact]

@@ -50,6 +50,9 @@ public sealed partial class CoreRuleEngine
 
         var recastTriggers = CaptureConquestRecasts(state with { PlayerZones = playerZones, CardObjects = cardObjects },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick);
+        if (conqueredRealBattlefield)
+            recastTriggers = recastTriggers.Concat(CaptureLegendImageTriggers(playerZones, cardObjects,
+                playerId, battlefieldId, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -257,23 +260,6 @@ public sealed partial class CoreRuleEngine
             battlefieldId,
             sourceObjectId);
         events.AddRange(legendConquestReadySelfNoCostTrigger);
-        if (TryResolveLeblancLegendImageTrigger(
-                playerZones,
-                cardObjects,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                sourceObjectId,
-                "BATTLEFIELD_CONQUERED_CREATE_IMAGE",
-                out var leblancConquerEvents,
-                out var leblancConquerDiscardedObjectIds))
-        {
-            events.AddRange(leblancConquerEvents);
-            untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
-                untilEndOfTurnEffects,
-                playerId,
-                leblancConquerDiscardedObjectIds);
-        }
         var reksaiConquerTrigger = ResolveReksaiLegendConquerRevealTrigger(
             state,
             playerZones,
