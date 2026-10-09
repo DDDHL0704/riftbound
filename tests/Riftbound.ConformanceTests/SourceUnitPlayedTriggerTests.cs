@@ -357,15 +357,15 @@ public sealed class SourceUnitPlayedTriggerTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzCopyTokenSpellObjectId, StringComparison.Ordinal));
         var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
         Assert.Equal("映像", tokenEvent.Payload["tokenName"]);
-        Assert.Equal(3, tokenEvent.Payload["power"]);
+        Assert.Equal(0, tokenEvent.Payload["power"]);
         Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
         Assert.Equal(FizzObjectId, tokenEvent.Payload["copiedTargetObjectId"]);
         Assert.Equal("SFD·140/221", tokenEvent.Payload["copiedCardNo"]);
-        Assert.Equal("SFD·140/221", tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenCardNo"]);
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
-        Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
+        Assert.DoesNotContain(CardObjectTags.Ephemeral, tokenTags);
         Assert.DoesNotContain("映像", tokenTags);
-        Assert.Contains("约德尔人", tokenTags);
+        Assert.Contains("约德尔人", p2Pass.State.CardObjects[tokenObjectId].Tags);
 
         var recycleEvent = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)

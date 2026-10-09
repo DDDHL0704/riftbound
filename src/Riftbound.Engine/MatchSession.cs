@@ -587,6 +587,9 @@ public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string
 
 public sealed record StackItemState
 {
+    public ReflexiveCopyContext? ReflexiveCopy { get; init; }
+    public UnitEntryTriggerContext? UnitEntryContext { get; init; }
+
     public AfterPlayRecycleInstruction? AfterPlayRecycle { get; init; }
     public RecycledUnitReceipt? RecycledUnit { get; init; }
     public CardPlayCostReceipt? PlayCost { get; init; }
@@ -696,6 +699,9 @@ public sealed record StackItemState
 
 public sealed record TriggerQueueItemState
 {
+    public ReflexiveCopyContext? ReflexiveCopy { get; init; }
+    public UnitEntryTriggerContext? UnitEntryContext { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SourceCardNo { get; init; }
 
@@ -4206,7 +4212,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4220,7 +4226,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -5339,6 +5345,8 @@ public sealed record ResolutionResult(
                 ["index"] = index, ["effectKind"] = execution.EffectKind,
                 ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId)
             }).ToArray();
+        if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
+        if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (item.SourceConfirmed) view["playAbility"] = true;
         if (!string.IsNullOrWhiteSpace(item.Destination))
         {
@@ -9859,6 +9867,7 @@ internal static class ActionPromptBuilder
         return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && MovementRestrictionRules.CanMove(cardObject, playerId)
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted
             && !cardObject.IsAttacking

@@ -1,0 +1,101 @@
+{
+  "baseCommit": "91a1604c0119e75740dd9bcf063cfc6cb2b9d232",
+  "scope": "reflexive copy + public unit entry observers + actor-scoped movement prohibition",
+  "newRuleCases": 19,
+  "focused": {
+    "command": "python3 scripts/test-rules.py focus --match OfficialReflexiveCopyTests --match OfficialUnitEntryTriggerTests --output var/qa/reflexive-copy-2026-10-09/context-focus",
+    "total": 19,
+    "passed": 19,
+    "testSeconds": 6.33,
+    "totalSeconds": 18.94
+  },
+  "relatedFocus": {
+    "file": "var/qa/reflexive-copy-2026-10-09/final-focus",
+    "passed": 30,
+    "testSeconds": 6.12,
+    "totalSeconds": 18.75
+  },
+  "batchCheck": {
+    "command": "python3 scripts/test-rules.py check --output var/qa/reflexive-copy-2026-10-09/final-check",
+    "testSeconds": 74.77,
+    "totalSeconds": 78.33,
+    "file": "var/qa/reflexive-copy-2026-10-09/final-check/check/results.trx",
+    "counters": {
+      "total": "8986",
+      "executed": "8986",
+      "passed": "8986",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T17:47:50.7344090+08:00",
+      "queuing": "2026-10-09T17:47:50.7344090+08:00",
+      "start": "2026-10-09T17:47:49.5041710+08:00",
+      "finish": "2026-10-09T17:49:02.7580890+08:00"
+    }
+  },
+  "completeGames": {
+    "command": "dotnet test tests/Riftbound.ConformanceTests --no-build --no-restore -v:q --filter 'FullyQualifiedName~OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash' --results-directory var/qa/reflexive-copy-2026-10-09/full-game --logger 'trx;LogFileName=results.trx'",
+    "file": "var/qa/reflexive-copy-2026-10-09/full-game/results.trx",
+    "counters": {
+      "total": "2",
+      "executed": "2",
+      "passed": "2",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "times": {
+      "creation": "2026-10-09T17:47:56.9971410+08:00",
+      "queuing": "2026-10-09T17:47:56.9971410+08:00",
+      "start": "2026-10-09T17:47:47.0908820+08:00",
+      "finish": "2026-10-09T17:48:02.2272390+08:00"
+    }
+  },
+  "native": {
+    "buildCommand": "dotnet build clients/godot/Riftbound.GodotClient.csproj --no-restore -v:q",
+    "buildLog": "var/qa/reflexive-copy-2026-10-09/native-build.log",
+    "buildResult": "0 warnings, 0 errors",
+    "proofCommand": "Godot --headless --path clients/godot res://scenes/debug/CopyEntryChainProof.tscn -- --evidence=$PWD/var/qa/reflexive-copy-2026-10-09/native",
+    "proofLog": "var/qa/reflexive-copy-2026-10-09/native-proof.log",
+    "result": "COPY_ENTRY_CHAIN_PASS: two authoritative response windows, both viewers, three sizes",
+    "scope": "headless native production controls, not visual or two-client live acceptance"
+  },
+  "priorCi": {
+    "runId": 37910057939,
+    "observed": "macOS and Windows package/boot passed; rule shard failed one Aerie/Sentinel full-game test",
+    "resolution": "test helper now preserves events across new death-trigger chain; failed full-game rerun passed"
+  },
+  "notRun": [
+    "local full long-game matrix (retained in CI)",
+    "new Windows real-device acceptance",
+    "human visual review",
+    "two-client natural game"
+  ],
+  "remaining": [
+    "Zilean optional pre-entry token replacements and inherited instructions",
+    "LeBlanc selection timing/local scope audit",
+    "all stun-observer interactions and arbitrary partial copy layers"
+  ]
+}

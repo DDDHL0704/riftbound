@@ -6127,13 +6127,13 @@ public sealed class FullGameEndToEndTests
         var copiedTarget = result.State.CardObjects[copiedTargetObjectId];
         Assert.Equal(WatchfulSentinelCardNo, copiedTarget.CardNo);
         Assert.Equal("映像", tokenEvent.Payload["tokenName"]);
-        Assert.Equal(copiedTarget.Power, tokenEvent.Payload["power"]);
+        Assert.Equal(0, tokenEvent.Payload["power"]);
         Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
         Assert.Equal(WatchfulSentinelCardNo, tokenEvent.Payload["copiedCardNo"]);
-        Assert.Equal(WatchfulSentinelCardNo, tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenCardNo"]);
         Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
-        Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
+        Assert.DoesNotContain(CardObjectTags.Ephemeral, tokenTags);
         Assert.Contains(CardObjectTags.UnitCard, tokenTags);
         Assert.DoesNotContain("映像", tokenTags);
 
@@ -21748,7 +21748,9 @@ public sealed class FullGameEndToEndTests
             }
 
             if (result.State.PendingCardChoice is not null) return result;
-            includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null);
+            includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
+                || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
+                || item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal));
 
             var priorityPlayerId = result.State.PriorityPlayerId;
             if (string.IsNullOrWhiteSpace(priorityPlayerId))

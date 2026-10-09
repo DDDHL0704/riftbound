@@ -148,7 +148,7 @@ public sealed class OfficialCopyIdentityTests
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(inHand), e => e.Contains("token cannot persist"));
     }
 
-    private static MatchState AddSpell(MatchState state, string id, string card) => state with {
+    internal static MatchState AddSpell(MatchState state, string id, string card) => state with {
         RunePools = new Dictionary<string, RunePool> { ["P1"] = new(20, 20), ["P2"] = new(20, 20) },
         CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [id] = new(id, cardNo: card, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]) },
         PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { Hand = state.PlayerZones["P1"].Hand.Append(id).ToArray() } },
@@ -168,6 +168,7 @@ public sealed class OfficialCopyIdentityTests
     internal static async Task<ResolutionResult> Copy(MatchState state, string target = "TARGET", string source = "C")
     {
         var cast = await Act(state, "P1", new PlayCardCommand(source, "UNL-200/219", [target]));
-        return await Top(cast.State);
+        var opened = await Top(cast.State);
+        return await Top(opened.State);
     }
 }

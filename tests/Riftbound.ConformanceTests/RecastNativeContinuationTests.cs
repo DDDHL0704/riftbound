@@ -56,6 +56,13 @@ public sealed class RecastNativeContinuationTests
         }
         result=await Submit("P1",command,native);
         if(!decline && !unit)for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
+        if(power)
+        {
+            Assert.NotNull(Assert.Single(result.State.StackItems).ReflexiveCopy);
+            Assert.Equal(0,result.State.CardObjects["C-TOKEN-001"].Power);
+            for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
+            Assert.Equal("SFD·140/221",result.State.CardObjects["C-TOKEN-001"].CardNo);
+        }
         Assert.Empty(result.State.StackItems);Assert.Null(result.State.PendingEffectPlay);
         if(unit) Assert.Contains("G", decline ? result.State.PlayerZones["P1"].Graveyard : result.State.PlayerZones["P1"].Base);
         else if(decline)Assert.Equal(2,result.State.PlayerZones["P1"].Graveyard.Count);

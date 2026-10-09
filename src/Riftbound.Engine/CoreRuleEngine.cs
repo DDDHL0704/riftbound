@@ -170,7 +170,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
-                QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))));
+                QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, collected)))))));
         }
@@ -1470,10 +1470,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{battlefieldObjectId} 打出黄沙士兵",
-            tokenPayload));
+            tokenPayload), playerZones, cardObjects));
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -4308,7 +4308,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : selectedState.OwnerId,
                 ControllerId = intent.PlayerId
             };
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_PLAYED_TO_BASE",
                 $"{intent.PlayerId} 打出选择的单位到基地",
                 new Dictionary<string, object?>
@@ -4321,7 +4321,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceZone"] = "MAIN_DECK",
                     ["destinationZone"] = "BASE",
                     ["ignoreManaCost"] = true
-                }));
+                }), playerZones, cardObjects));
         }
 
         if (randomizedRecycledObjectIds.Count > 0)
@@ -4374,7 +4374,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -4385,7 +4385,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -11155,10 +11155,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{sourceObjectId} 打出随从",
-            payload));
+            payload), playerZones, cardObjects));
     }
 
     private static void CreateLegendFaerie(
@@ -11216,10 +11216,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{sourceObjectId} 打出精灵",
-            payload));
+            payload), playerZones, cardObjects));
     }
 
     private static void CreateLegendSandSoldier(
@@ -11288,10 +11288,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{sourceObjectId} 打出黄沙士兵",
-            payload));
+            payload), playerZones, cardObjects));
     }
 
     private static ResolutionResult ResolveXerathDamageAbility(
@@ -14016,6 +14016,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         MoveUnitCommand command)
     {
+        if (state.CardObjects.TryGetValue(command.SourceObjectId, out var moving)
+            && !MovementRestrictionRules.CanMove(moving, intent.PlayerId))
+            return RejectWithCorePrompts(state, "你在本回合内无法移动该单位。", ErrorCodes.InvalidTarget);
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -19267,7 +19271,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         if (!string.IsNullOrWhiteSpace(playedObjectId))
         {
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_PLAYED_TO_BASE",
                 $"{playerId} 打出展示的单位到基地",
                 new Dictionary<string, object?>
@@ -19279,7 +19283,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playedByPlayerId"] = playerId,
                     ["sourceZone"] = "MAIN_DECK",
                     ["destinationZone"] = "BASE"
-                }));
+                }), playerZones, cardObjects));
         }
 
         if (randomizedRecycledObjectIds.Count > 0)
@@ -19504,7 +19508,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         discardedObjectIds = [discardedObjectId];
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
-        var token = CopyCharacteristics.CreateImage(tokenObjectId, playerId, copySourceState);
+        P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ImageTokenCardNo, out var imageDefinition);
+        var token = imageDefinition.CreateObject(tokenObjectId, playerId, playerId);
         var tokenTags = token.Tags;
         cardObjects[legendObjectId] = legendState with { IsExhausted = true };
         cardObjects[tokenObjectId] = token;
@@ -19561,7 +19566,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = legendObjectId,
                     ["reason"] = trigger
                 }),
-            new GameEvent(
+            CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{legendObjectId} 在战场打出映像",
                 new Dictionary<string, object?>
@@ -19570,7 +19575,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = legendObjectId,
                     ["tokenObjectId"] = tokenObjectId,
                     ["tokenName"] = "映像",
-                    ["tokenCardNo"] = copySourceState.CardNo,
+                    ["tokenCardNo"] = token.CardNo,
                     ["power"] = token.Power,
                     ["destinationZone"] = "BATTLEFIELD",
                     ["battlefieldId"] = battlefieldId,
@@ -19580,8 +19585,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["isExhausted"] = false,
                     ["tokenTags"] = tokenTags,
                     ["trigger"] = trigger
-                })
+                }), playerZones, cardObjects)
         ]);
+        AddReflexiveCopyEvent(triggerEvents, playerId, legendObjectId, legendState.CardNo!, copySourceState, [token]);
         events = triggerEvents;
         return true;
     }
@@ -20915,10 +20921,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entersReadyFromStaticAbility ? entryStaticAbility : null,
                 entryStaticAbilitySourceObjectId,
                 entryStaticAbilitySourceState.CardNo);
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
-                payload));
+                payload), playerZones, cardObjects));
         }
 
         playerZones[playerId] = zones with
@@ -22764,10 +22770,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{battlefieldObjectId} 打出战鹰",
-            tokenPayload));
+            tokenPayload), playerZones, cardObjects));
         return true;
     }
 
@@ -22821,10 +22827,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{sourceObjectId} 打出战鹰",
-            payload));
+            payload), playerZones, cardObjects));
     }
 
     private static bool TryGetFirstExhaustedFriendlyEquipment(
@@ -29830,7 +29836,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, targetObjectId, out var targetPlayerId)
+            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -30653,7 +30659,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : selectedState.OwnerId,
                     ControllerId = stackItem.ControllerId
                 };
-                events.Add(new GameEvent(
+                events.Add(CaptureUnitEntry(new GameEvent(
                     "UNIT_PLAYED_TO_BASE",
                     $"{stackItem.ControllerId} 打出查看的单位到基地",
                     new Dictionary<string, object?>
@@ -30666,7 +30672,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["sourceZone"] = "MAIN_DECK",
                         ["destinationZone"] = "BASE",
                         ["ignoreManaCost"] = ability.IgnorePlayManaCost
-                    }));
+                    }), playerZones, cardObjects));
             }
 
             if (randomizedRecycledObjectIds.Count > 0)
@@ -30728,6 +30734,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
+        if (stackItem.ReflexiveCopy is not null) return ResolveReflexiveCopy(state, stackItem);
         if (stackItem.DeathRevealContext is not null) return stackItem.CompletedHandExecutions > 0 ? NoopStackResolutionResult(state) : BeginRevealedHandChoice(state, stackItem, DeathRevealChoiceSpec);
         if (stackItem.RecastContext is not null) return stackItem.EffectPlayCompleted ? NoopStackResolutionResult(state) : BeginRecastPlay(state, stackItem);
         if (stackItem.SpellContext is not null) return ResolveSpellTrigger(state, stackItem);
@@ -32063,7 +32071,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     continue;
                 }
 
-                events.Add(new GameEvent(
+                events.Add(CaptureUnitEntry(new GameEvent(
                     "UNIT_PLAYED_TO_BASE",
                     $"{behavior.DisplayName}打出对手主牌堆顶部单位到己方基地",
                     new Dictionary<string, object?>
@@ -32074,7 +32082,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["playedByPlayerId"] = stackItem.ControllerId,
                         ["sourceZone"] = "MAIN_DECK",
                         ["destinationZone"] = "BASE"
-                    }));
+                    }), playerZones, cardObjects));
             }
         }
         else if (behavior.DealsMutualTargetPowerDamage
@@ -32097,6 +32105,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && TryMoveFirstTargetToSecondTargetLocation(
                         playerZones,
                         cardObjects,
+                        stackItem.ControllerId,
                         firstTargetObjectId,
                         secondTargetObjectId,
                         out var destinationPlayerId,
@@ -32495,6 +32504,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && TryMoveFirstTargetToSecondTargetLocation(
                 playerZones,
                 cardObjects,
+                stackItem.ControllerId,
                 stackItem.TargetObjectIds[0],
                 stackItem.TargetObjectIds[1],
                 out var destinationPlayerId,
@@ -32517,6 +32527,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && TrySwapTargetLocations(
                 playerZones,
                 cardObjects,
+                stackItem.ControllerId,
                 stackItem.TargetObjectIds[0],
                 stackItem.TargetObjectIds[1],
                 out var firstDestinationPlayerId,
@@ -32543,6 +32554,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && TrySwapTargetLocationsWithPreciseObjectLocations(
                 playerZones,
                 cardObjects,
+                stackItem.ControllerId,
                 state.ObjectLocations,
                 stackItem.SourceObjectId,
                 stackItem.TargetObjectIds[0],
@@ -33135,7 +33147,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["ownerPlayerId"] = rescuedOwnerPlayerId,
                                 ["destinationZone"] = "BANISHED"
                             }));
-                        events.Add(new GameEvent(
+                        events.Add(CaptureUnitEntry(new GameEvent(
                             behavior.BanishesTargetThenPlaysToBattlefield ? "UNIT_PLAYED_TO_BATTLEFIELD" : "UNIT_PLAYED_TO_BASE",
                             behavior.BanishesTargetThenPlaysToBattlefield
                                 ? $"{behavior.DisplayName}将单位打出到战场"
@@ -33146,7 +33158,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = rescuedOwnerPlayerId,
                                 ["destinationZone"] = playedDestinationZone
-                            }));
+                            }), playerZones, cardObjects));
                         continue;
                     }
 
@@ -33227,7 +33239,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     if (behavior.MovesTargetToBase
                         && targetIndex >= behavior.MoveToBaseTargetStartIndex
-                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, targetObjectId, out var movedOwnerPlayerId))
+                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -33245,6 +33257,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         && TryMoveTargetToOwnerBattlefield(
                             playerZones,
                             cardObjects,
+                            stackItem.ControllerId,
                             targetObjectId,
                             out var ownerBattlefieldPlayerId))
                     {
@@ -34664,10 +34677,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entersReadyFromStaticAbility ? entryStaticAbility : null,
                 entryStaticAbilitySourceObjectId,
                 entryStaticAbilitySourceState.CardNo);
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{stackItem.SourceObjectId} 打出随从",
-                payload));
+                payload), playerZones, cardObjects));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -34775,10 +34788,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     entryStaticAbilitySourceState.CardNo);
             }
 
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{stackItem.SourceObjectId} 打出{tokenName}",
-                payload));
+                payload), playerZones, cardObjects));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -36165,18 +36178,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardObjectState? copiedTargetState = null;
         var copiesTarget = !string.IsNullOrWhiteSpace(copiedTargetObjectId)
             && cardObjects.TryGetValue(copiedTargetObjectId, out copiedTargetState);
-        if (behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            && (!copiesTarget
-                || copiedTargetState is null
-                || string.IsNullOrWhiteSpace(copiedTargetState.CardNo)))
-        {
-            return;
-        }
-
         var isImageCopyToken = behavior.CreatedBaseUnitTokenCopiesFirstTarget
             && string.Equals(behavior.CreatedBaseUnitTokenName, "映像", StringComparison.Ordinal);
-        var copiedForm = copiedTargetState is null ? null
-            : CopyCharacteristics.CreateImage("", stackItem.ControllerId, copiedTargetState);
+        P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ImageTokenCardNo, out var imageDefinition);
+        var copiedForm = isImageCopyToken ? imageDefinition.CreateObject("", stackItem.ControllerId, stackItem.ControllerId) : null;
         var tokenPower = copiedForm?.Power ?? behavior.CreatedBaseUnitTokenPower;
         if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget
             && tokenPower <= 0)
@@ -36186,7 +36191,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
         var tokenTags = copiedForm is not null
-            ? copiedForm.Tags.Concat(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags))
+            ? copiedForm.Tags.AsEnumerable()
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             : ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
         tokenTags = ApplyAzirSandSoldierTemperedTags(
@@ -36262,7 +36267,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (isImageCopyToken)
             {
                 payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
-                payload["tokenCardNo"] = copiedTargetState!.CardNo;
+                payload["tokenCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
             }
             else if (hasTokenDefinition)
             {
@@ -36279,16 +36284,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload["tokenTags"] = tokenState.Tags.ToArray();
             }
 
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出单位指示物到基地",
-                payload));
+                payload), playerZones, cardObjects));
         }
 
         playerZones[stackItem.ControllerId] = zones with
         {
             Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
         };
+        if (isImageCopyToken)
+            AddReflexiveCopyEvent(events, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.CardNo,
+                copiedTargetState, createdTokenObjectIds.Select(id => cardObjects[id]).ToArray());
     }
 
     private static void CreateBaseEquipmentTokens(
@@ -37477,7 +37485,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : zones.Base.Concat([stackItem.SourceObjectId]).ToArray()
         };
 
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_PLAYED_TO_BASE",
             $"{behavior.DisplayName}打出单位到基地",
             CreateUnitPlayedPayload(
@@ -37489,7 +37497,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
-                appliedEntryStaticAbilitySourceCardNo)));
+                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects));
     }
 
     private static bool IsHasteReadyOptionalCostPaidForPlayUnit(
@@ -37540,7 +37548,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : zones.Battlefields.Concat([stackItem.SourceObjectId]).ToArray()
         };
 
-        events.Add(new GameEvent(
+        events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_PLAYED_TO_BATTLEFIELD",
             $"{behavior.DisplayName}打出单位到战场",
             CreateUnitPlayedToBattlefieldPayload(
@@ -37551,7 +37559,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
-                appliedEntryStaticAbilitySourceCardNo)));
+                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects));
     }
 
     private static CardObjectState ApplyUnitTokenEntryStaticAbility(
@@ -38559,7 +38567,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            events.Add(new GameEvent(
+            events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_PLAYED_TO_BASE",
                 $"{playerId} 打出主牌堆选择的单位到基地",
                 new Dictionary<string, object?>
@@ -38570,7 +38578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playedByPlayerId"] = playerId,
                     ["sourceZone"] = "MAIN_DECK",
                     ["destinationZone"] = "BASE"
-                }));
+                }), playerZones, cardObjects));
         }
 
         return new RecycleResult(events, rngCursor);
@@ -40040,10 +40048,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryMoveTargetToOwnerBase(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movingPlayerId,
         string targetObjectId,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
         foreach (var (playerId, zones) in playerZones)
         {
             if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
@@ -40109,10 +40119,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryMoveTargetToOwnerBattlefield(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movingPlayerId,
         string targetObjectId,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
         foreach (var (playerId, zones) in playerZones)
         {
             if (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
@@ -40141,7 +40153,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId,
         string targetObjectId)
     {
-        if (!CanMoveTargetToControllerBattlefield(
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), controllerId) || !CanMoveTargetToControllerBattlefield(
                 playerZones,
                 cardObjects,
                 controllerId,
@@ -40175,6 +40187,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryMoveFirstTargetToSecondTargetLocation(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movingPlayerId,
         string movedObjectId,
         string destinationObjectId,
         out string destinationPlayerId,
@@ -40182,6 +40195,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         destinationPlayerId = string.Empty;
         destinationZone = string.Empty;
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(movedObjectId), movingPlayerId)) return false;
 
         if (!CanMoveFirstTargetToSecondTargetLocation(
                 playerZones,
@@ -40229,6 +40243,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TrySwapTargetLocations(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movingPlayerId,
         string firstObjectId,
         string secondObjectId,
         out string firstDestinationPlayerId,
@@ -40241,6 +40256,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         secondDestinationPlayerId = string.Empty;
         secondDestinationZone = string.Empty;
 
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(firstObjectId), movingPlayerId)
+            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(secondObjectId), movingPlayerId)) return false;
         if (!CanSwapTargetLocations(playerZones, cardObjects, firstObjectId, secondObjectId))
         {
             return false;
@@ -40264,6 +40281,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TrySwapTargetLocationsWithPreciseObjectLocations(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movingPlayerId,
         IReadOnlyDictionary<string, ObjectLocationState> currentObjectLocations,
         string firstObjectId,
         string secondObjectId,
@@ -40284,6 +40302,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !TrySwapTargetLocations(
                 playerZones,
                 cardObjects,
+                movingPlayerId,
                 firstObjectId,
                 secondObjectId,
                 out firstDestinationPlayerId,
@@ -40318,7 +40337,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         sourceDestinationLocation = new ObjectLocationState(string.Empty, string.Empty);
         targetDestinationLocation = new ObjectLocationState(string.Empty, string.Empty);
 
-        if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), controllerId) || string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
             || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out sourceOriginLocation)
             || !TryGetPreciseFieldLocation(playerZones, objectLocations, targetObjectId, out targetOriginLocation)
             || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
@@ -40375,7 +40394,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerZones: playerZones,
             cardObjects: cardObjects,
             objectLocations: objectLocations);
-        if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
             || !TryGetEnemyControlledBattlefieldTarget(
                 state,
@@ -40424,7 +40443,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         originLocation = new ObjectLocationState(string.Empty, string.Empty);
         destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
-        if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || sourceState.IsFaceDown
             || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)

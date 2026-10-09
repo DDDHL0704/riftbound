@@ -1003,6 +1003,8 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "UNIT_TOKEN_CREATED",
+        "UNIT_PLAYED_TO_BATTLEFIELD",
         "UNIT_PLAYED_TO_BASE",
         "UNIT_DESTROYED",
         "BATTLEFIELD_HELD",
@@ -25915,6 +25917,18 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId)
+                || !state.Seats.ContainsKey(entry.EnteringPlayerId) : trigger.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry trigger");
+        foreach (var item in state.StackItems)
+            if (item.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, item.EffectKind, item.ControllerId, item.CardNo)
+                || !state.Seats.ContainsKey(entry.EnteringPlayerId) : item.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry stack");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, trigger.EffectKind) || !CoreRuleEngine.ValidCopyRecipients(state, copy)
+                : trigger.EffectKind == CoreRuleEngine.ReflexiveCopyEffect) errors.Add("invalid reflexive copy trigger");
+        foreach (var item in state.StackItems)
+            if (item.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, item.EffectKind, item.CardNo) || !CoreRuleEngine.ValidCopyRecipients(state, copy)
+                : item.EffectKind == CoreRuleEngine.ReflexiveCopyEffect) errors.Add("invalid reflexive copy stack");
         if (state.FaceDownLookPermissions.Any(p => p is null || !CoreRuleEngine.ValidFaceDownLookPermission(state, p))
             || state.FaceDownLookPermissions.Distinct().Count() != state.FaceDownLookPermissions.Count)
             errors.Add("invalid face-down look permission");
@@ -29269,10 +29283,12 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            // A destroyed token no longer has a live object. Its queued/stacked
-            // ability still has the official source face and matching death effect.
-            if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
-                trigger => trigger.Timing == TriggerTimings.UnitDestroyed && trigger.Kind == stackItem.EffectKind, out _))
+            // Captured triggered abilities survive their source object leaving.
+            // Only validated official contexts permit a missing source.
+            if (!(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
+                    stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
+                && !UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
+                    trigger => trigger.Timing == TriggerTimings.UnitDestroyed && trigger.Kind == stackItem.EffectKind, out _))
             {
                 ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                     $"stack item {stackItem.StackItemId} source object",
@@ -29372,7 +29388,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
+            if (!(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
+                && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(trigger.SourceCardNo,
                     spec => spec.Timing == TriggerTimings.UnitDestroyed && spec.Kind == trigger.EffectKind, out _)))
             {

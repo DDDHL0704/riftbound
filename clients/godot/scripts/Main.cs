@@ -3190,6 +3190,8 @@ public partial class Main : Control
             var item = items[index]; var cardNo = ReadString(item, "cardNo");
             var name = _officialCatalog.TryGetValue(cardNo, out var card) ? card.CardName : cardNo == "HIDDEN" ? "隐藏行动" : "卡牌效果";
             if (ReadBool(item, "playAbility")) name += " · 打出技能";
+            var abilityLabel = ReadString(item, "abilityLabel");
+            if (!string.IsNullOrWhiteSpace(abilityLabel)) name += " · " + abilityLabel;
             var targets = ReadStringArray(item, "targetObjectIds").Select(Name).ToArray();
             result.Add(new Godot.Collections.Dictionary
             {

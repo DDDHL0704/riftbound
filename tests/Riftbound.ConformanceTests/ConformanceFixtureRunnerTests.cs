@@ -26108,7 +26108,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2-MIRROR-TARGET-001", tokenEvent.Payload["copiedTargetObjectId"]);
         Assert.Equal("SFD·068/221", tokenEvent.Payload["copiedCardNo"]);
         Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenFactoryCardNo"]);
-        Assert.Equal("SFD·068/221", tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenCardNo"]);
     }
 
     [Fact]
@@ -26262,7 +26262,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
-        Assert.Single(p2Pass.State.PlayerZones["P1"].Base);
+        var copied = await OfficialGraveyardRecastTests.Top(p2Pass.State);
+        Assert.Equal("OGN·218/298", copied.State.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].CardNo);
+        Assert.Single(copied.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(copied.Events, e => e.Kind is "UNIT_TOKEN_CREATED" or "CARD_DRAWN" or "SCORE_GAINED");
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
@@ -36841,7 +36844,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Graveyard);
         var tokenObjectId = Assert.Single(result.State.PlayerZones["P1"].Battlefields, objectId =>
             objectId.StartsWith("P1-LEGEND-LEBLANC-TOKEN-", StringComparison.Ordinal));
-        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.Equal(0, result.State.CardObjects[tokenObjectId].Power);
+        var copied = await OfficialGraveyardRecastTests.Top(result.State);
+        var tokenState = copied.State.CardObjects[tokenObjectId];
         Assert.False(tokenState.IsExhausted);
         Assert.Equal(3, tokenState.Power);
         Assert.Equal("UNL-021/219", tokenState.CardNo);

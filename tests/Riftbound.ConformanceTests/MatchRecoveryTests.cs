@@ -9,7 +9,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class MatchRecoveryTests
 {
     private const string KnownTriggerQueueTriggeredEventKindsDiagnostic =
-        "[UNIT_PLAYED_TO_BASE, UNIT_DESTROYED, BATTLEFIELD_HELD, UNIT_MOVED_TO_BATTLEFIELD, "
+        "[UNIT_TOKEN_CREATED, UNIT_PLAYED_TO_BATTLEFIELD, UNIT_PLAYED_TO_BASE, UNIT_DESTROYED, BATTLEFIELD_HELD, UNIT_MOVED_TO_BATTLEFIELD, "
         + "UNIT_MOVED_TO_BASE, CARD_PLAYED, SPELL_PLAY_COMPLETED, SPELL_TARGET_CHOSEN, BATTLEFIELD_CONQUERED, BATTLE_DECLARED, OBJECT_DESTROYED, UNIT_READY]";
     private const string KnownTriggerSourceVisibilitiesDiagnostic = "[VISIBLE, HIDDEN]";
 

@@ -109,7 +109,8 @@ public sealed partial class CoreRuleEngine
         string[] LegalChoices() => context.Kind switch {
             "BOON" => HeldUnitsAt(state, field),
             "MOVE_BASE" => state.ObjectLocations.Values.Where(l => l.BattlefieldObjectId is not null)
-                .Select(l => l.BattlefieldObjectId!).Distinct().SelectMany(f => HeldUnitsAt(state, f)).Distinct().ToArray(),
+                .Select(l => l.BattlefieldObjectId!).Distinct().SelectMany(f => HeldUnitsAt(state, f)).Distinct()
+                .Where(id => MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), player)).ToArray(),
             "RETURN_PERMANENT" => zones[player].Graveyard.Where(id => cards.TryGetValue(id, out var card)
                 && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))).ToArray(),
             "RETURN_HERO" => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
@@ -218,7 +219,8 @@ public sealed partial class CoreRuleEngine
                     ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = hero }));
                 break;
             case "MOVE_BASE":
-                var target = choices![0]; var controller = cards[target].ControllerId!;
+                var target = choices![0]; if (!MovementRestrictionRules.CanMove(cards.GetValueOrDefault(target), player)) break;
+                var controller = cards[target].ControllerId!;
                 var origin = state.ObjectLocations[target];
                 var equipment = cards.Values.Where(c => c.AttachedToObjectId == target).Select(c => c.ObjectId).ToArray();
                 foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with { Battlefields = RemoveFromZone(zones[owner].Battlefields, target) };

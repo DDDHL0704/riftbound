@@ -390,13 +390,13 @@ public sealed class NaturalUnitConquestTriggerTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaCopyTokenSpellObjectId, StringComparison.Ordinal));
         var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
         Assert.Equal("映像", tokenEvent.Payload["tokenName"]);
-        Assert.Equal(6, tokenEvent.Payload["power"]);
+        Assert.Equal(0, tokenEvent.Payload["power"]);
         Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
         Assert.Equal(KaisaObjectId, tokenEvent.Payload["copiedTargetObjectId"]);
         Assert.Equal("OGN·112/298", tokenEvent.Payload["copiedCardNo"]);
-        Assert.Equal("OGN·112/298", tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenEvent.Payload["tokenCardNo"]);
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
-        Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
+        Assert.DoesNotContain(CardObjectTags.Ephemeral, tokenTags);
         Assert.DoesNotContain("映像", tokenTags);
 
         var recycleEvent = Assert.Single(result.Events, gameEvent =>

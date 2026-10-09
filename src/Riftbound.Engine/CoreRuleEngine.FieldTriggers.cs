@@ -190,7 +190,7 @@ public sealed partial class CoreRuleEngine
             else
             {
                 var controller = card.ControllerId!; var equipment = AttachedEquipmentObjectIds(cards, target).ToArray();
-                if (!BattlefieldLocalRules.PreventsMoveToBase(state, target) && TryMoveTargetToOwnerBase(zones, cards, target, out _))
+                if (!BattlefieldLocalRules.PreventsMoveToBase(state, target) && TryMoveTargetToOwnerBase(zones, cards, item.ControllerId, target, out _))
                 {
                     cards[target] = card with { IsAttacking = false, IsDefending = false };
                     events.Add(new("UNIT_MOVED_TO_BASE", "狂热粉丝将进攻单位移动到其基地", new Dictionary<string, object?> {

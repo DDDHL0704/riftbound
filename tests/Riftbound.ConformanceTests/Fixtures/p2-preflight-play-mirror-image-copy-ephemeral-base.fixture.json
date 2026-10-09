@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "基地为公开区域；从手牌支付费用打出法术、加入结算链，双方让过后按卡面创建单位指示物并将法术置入废牌堆；当前以对象 tags 表达瞬息。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf; 官方勘误 07.pdf",
+      "locator": "387–388; 镜花水月勘误",
+      "note": "先打出活跃的 0 战力映像，再将复制与获得瞬息的内嵌触发置入结算链；双方可在复制前响应。"
     }
   ],
   "roomId": "p2-preflight-mirror-image-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302500,
     "turnNumber": 250,
@@ -48,33 +56,58 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-MIRROR-IMAGE"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-MIRROR-IMAGE"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-MIRROR-TARGET-001"],
+        "battlefields": [
+          "P2-MIRROR-TARGET-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P2-MIRROR-TARGET-001": {
         "cardNo": "SFD·068/221",
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT", "机械"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "机械"
+        ]
       }
     }
   },
@@ -86,7 +119,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-MIRROR-IMAGE",
         "cardNo": "UNL-200/219",
-        "targetObjectIds": ["P2-MIRROR-TARGET-001"]
+        "targetObjectIds": [
+          "P2-MIRROR-TARGET-001"
+        ]
       }
     },
     {
@@ -102,10 +137,24 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "reflexive-copy-P1",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "reflexive-copy-P2",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 5,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -113,10 +162,19 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_TOKEN_CREATED"
+      "UNIT_TOKEN_CREATED",
+      "REFLEXIVE_COPY_CREATED",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_COPY_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -131,13 +189,21 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-MIRROR-IMAGE",
           "cardNo": "UNL-200/219",
-          "targetObjectIds": ["P2-MIRROR-TARGET-001"],
+          "targetObjectIds": [
+            "P2-MIRROR-TARGET-001"
+          ],
           "effectKind": "MIRROR_IMAGE_CREATE_COPY_EPHEMERAL_BASE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_TOKEN_CREATED",
         "payload": {
@@ -145,19 +211,47 @@
           "sourceObjectId": "P1-SPELL-MIRROR-IMAGE",
           "tokenObjectId": "P1-SPELL-MIRROR-IMAGE-TOKEN-001",
           "tokenName": "映像",
-          "tokenCardNo": "SFD·068/221",
+          "tokenCardNo": "UNL·T06",
           "tokenFactoryCardNo": "UNL·T06",
-          "power": 3,
+          "power": 0,
           "destinationZone": "BASE",
           "copiedTargetObjectId": "P2-MIRROR-TARGET-001",
           "copiedCardNo": "SFD·068/221",
-          "tokenTags": ["CARD_CATEGORY:单位", "CARD_TYPE:UNIT", "COLOR:blue", "急速", "瞬息"]
+          "tokenTags": [
+            "CARD_TYPE:UNIT",
+            "COPY_SOURCE_REQUIRED"
+          ]
         }
+      },
+      {
+        "kind": "REFLEXIVE_COPY_CREATED"
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "UNIT_COPY_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 250,
@@ -170,34 +264,69 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-SPELL-MIRROR-IMAGE-TOKEN-001"],
-          "graveyard": ["P1-SPELL-MIRROR-IMAGE"]
+          "base": [
+            "P1-SPELL-MIRROR-IMAGE-TOKEN-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-MIRROR-IMAGE"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-MIRROR-TARGET-001"]
+          "battlefields": [
+            "P2-MIRROR-TARGET-001"
+          ]
         }
       },
       "cardObjects": {
-        "P2-MIRROR-TARGET-001": { "cardNo": "SFD·068/221", "power": 4, "tags": ["CARD_TYPE:UNIT", "机械"] },
+        "P2-MIRROR-TARGET-001": {
+          "cardNo": "SFD·068/221",
+          "power": 4,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "机械"
+          ]
+        },
         "P1-SPELL-MIRROR-IMAGE-TOKEN-001": {
           "cardNo": "SFD·068/221",
           "power": 3,
           "manaCost": 5,
           "isExhausted": false,
-          "tags": ["CARD_CATEGORY:单位", "CARD_TYPE:UNIT", "COLOR:blue", "急速", "瞬息"]
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:blue",
+            "急速",
+            "瞬息"
+          ]
         }
       },
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }
